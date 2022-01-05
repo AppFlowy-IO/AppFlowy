@@ -12,7 +12,11 @@ use backend_service::errors::{invalid_params, ServerError};
 use flowy_core_data_model::{
     parser::workspace::WorkspaceIdentify,
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
+=======
+    protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
+>>>>>>> upstream/main
 =======
     protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
 >>>>>>> upstream/main
@@ -124,7 +128,11 @@ async fn read_workspace_apps<'c>(
     transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
 <<<<<<< HEAD
+<<<<<<< HEAD
 ) -> Result<RepeatedApp, ServerError> {
+=======
+) -> Result<RepeatedAppPB, ServerError> {
+>>>>>>> upstream/main
 =======
 ) -> Result<RepeatedAppPB, ServerError> {
 >>>>>>> upstream/main

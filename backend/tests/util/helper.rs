@@ -11,6 +11,7 @@ use backend_service::{
 use flowy_collaboration::{
     document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
+<<<<<<< HEAD
 };
 <<<<<<< HEAD
 use flowy_collaboration::{
@@ -20,6 +21,11 @@ use flowy_collaboration::{
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::{create_doc_request, read_doc_request};
 =======
+use flowy_core_data_model::entities::prelude::*;
+use flowy_document::server::{create_doc_request, read_doc_request};
+>>>>>>> upstream/main
+=======
+};
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::server::{create_doc_request, read_doc_request};
 >>>>>>> upstream/main

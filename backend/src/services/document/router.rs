@@ -9,9 +9,12 @@ use actix_web::{
 };
 use backend_service::{errors::ServerError, response::FlowyResponse};
 <<<<<<< HEAD
+<<<<<<< HEAD
 use flowy_collaboration::protobuf::{CreateDocParams, DocumentId, ResetDocumentParams};
 
 =======
+=======
+>>>>>>> upstream/main
 use flowy_collaboration::{
     protobuf::{
         CreateDocParams as CreateDocParamsPB,
@@ -20,6 +23,9 @@ use flowy_collaboration::{
     },
     sync::ServerDocumentManager,
 };
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
 use std::sync::Arc;
 
@@ -28,7 +34,11 @@ pub async fn create_document_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: CreateDocParams = parse_from_payload(payload).await?;
+=======
+    let params: CreateDocParamsPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: CreateDocParamsPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -43,7 +53,11 @@ pub async fn read_document_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: DocumentId = parse_from_payload(payload).await?;
+=======
+    let params: DocumentIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: DocumentIdPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -56,16 +70,22 @@ pub async fn read_document_handler(
 pub async fn reset_document_handler(
     payload: Payload,
 <<<<<<< HEAD
+<<<<<<< HEAD
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: ResetDocumentParams = parse_from_payload(payload).await?;
     let kv_store = persistence.kv_store();
     let _ = reset_document(&kv_store, params).await?;
 =======
+=======
+>>>>>>> upstream/main
     document_manager: Data<Arc<ServerDocumentManager>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: ResetDocumentParamsPB = parse_from_payload(payload).await?;
     let _ = reset_document(document_manager.get_ref(), params).await?;
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     Ok(FlowyResponse::success().into())
 }

@@ -4,7 +4,11 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
     parser::view::ViewIdentify,
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::{RepeatedView, View, ViewType},
+=======
+    protobuf::{RepeatedView as RepeatedViewPB, View as ViewPB, ViewType as ViewTypePB},
+>>>>>>> upstream/main
 =======
     protobuf::{RepeatedView as RepeatedViewPB, View as ViewPB, ViewType as ViewTypePB},
 >>>>>>> upstream/main
@@ -38,7 +42,11 @@ impl NewViewSqlBuilder {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub fn from_view(view: View) -> Result<Self, ServerError> {
+=======
+    pub fn from_view(view: ViewPB) -> Result<Self, ServerError> {
+>>>>>>> upstream/main
 =======
     pub fn from_view(view: ViewPB) -> Result<Self, ServerError> {
 >>>>>>> upstream/main

@@ -10,9 +10,15 @@ use flowy_collaboration::protobuf::{
     DocumentId,
     DocumentInfo,
 <<<<<<< HEAD
+<<<<<<< HEAD
     RepeatedRevision,
     ResetDocumentParams,
     Revision,
+=======
+    RepeatedRevision as RepeatedRevisionPB,
+    ResetDocumentParams,
+    Revision as RevisionPB,
+>>>>>>> upstream/main
 =======
     RepeatedRevision as RepeatedRevisionPB,
     ResetDocumentParams,
@@ -23,6 +29,10 @@ use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+use flowy_collaboration::sync::ServerDocumentManager;
+>>>>>>> upstream/main
 =======
 use flowy_collaboration::sync::ServerDocumentManager;
 >>>>>>> upstream/main
@@ -50,6 +60,7 @@ pub async fn read_document(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #[tracing::instrument(level = "debug", skip(kv_store, params), fields(delta), err)]
 pub async fn reset_document(
     kv_store: &Arc<DocumentKVPersistence>,
@@ -68,6 +79,8 @@ pub async fn reset_document(
         })
         .await
 =======
+=======
+>>>>>>> upstream/main
 #[tracing::instrument(level = "debug", skip(document_manager, params), fields(delta), err)]
 pub async fn reset_document(
     document_manager: &Arc<ServerDocumentManager>,
@@ -83,6 +96,9 @@ pub async fn reset_document(
         .await
         .map_err(internal_error)?;
     Ok(())
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
 }
 
@@ -110,7 +126,11 @@ impl DocumentKVPersistence {
     pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
+=======
+    pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
+>>>>>>> upstream/main
 =======
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
 >>>>>>> upstream/main
@@ -121,7 +141,11 @@ impl DocumentKVPersistence {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevision, ServerError> {
+=======
+    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevisionPB, ServerError> {
+>>>>>>> upstream/main
 =======
     pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevisionPB, ServerError> {
 >>>>>>> upstream/main
@@ -138,7 +162,11 @@ impl DocumentKVPersistence {
         doc_id: &str,
         rev_ids: T,
 <<<<<<< HEAD
+<<<<<<< HEAD
     ) -> Result<RepeatedRevision, ServerError> {
+=======
+    ) -> Result<RepeatedRevisionPB, ServerError> {
+>>>>>>> upstream/main
 =======
     ) -> Result<RepeatedRevisionPB, ServerError> {
 >>>>>>> upstream/main
@@ -193,7 +221,11 @@ impl DocumentKVPersistence {
 
 #[inline]
 <<<<<<< HEAD
+<<<<<<< HEAD
 fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
+=======
+pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
+>>>>>>> upstream/main
 =======
 pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
 >>>>>>> upstream/main
@@ -203,7 +235,11 @@ pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<Ke
 
         if revision.delta_data.is_empty() {
 <<<<<<< HEAD
+<<<<<<< HEAD
             return Err(ServerError::internal().context("The delta_data of Revision should not be empty"));
+=======
+            return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));
+>>>>>>> upstream/main
 =======
             return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));
 >>>>>>> upstream/main
@@ -217,6 +253,7 @@ pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<Ke
 
 #[inline]
 <<<<<<< HEAD
+<<<<<<< HEAD
 fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
     let mut revisions = items
         .into_iter()
@@ -226,6 +263,8 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
     revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
     let mut repeated_revision = RepeatedRevision::new();
 =======
+=======
+>>>>>>> upstream/main
 fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
     let mut revisions = items
         .into_iter()
@@ -234,6 +273,9 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
 
     revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
     let mut repeated_revision = RepeatedRevisionPB::new();
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     repeated_revision.set_items(revisions.into());
     repeated_revision
@@ -244,7 +286,11 @@ fn make_revision_key(doc_id: &str, rev_id: i64) -> String { format!("{}:{}", doc
 
 #[inline]
 <<<<<<< HEAD
+<<<<<<< HEAD
 fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<DocumentInfo, ServerError> {
+=======
+fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {
+>>>>>>> upstream/main
 =======
 fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {
 >>>>>>> upstream/main
@@ -257,7 +303,11 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> R
     let mut base_rev_id = 0;
     let mut rev_id = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
     // TODO: generate delta from revision should be wrapped into function.
+=======
+    // TODO: replace with make_delta_from_revisions
+>>>>>>> upstream/main
 =======
     // TODO: replace with make_delta_from_revisions
 >>>>>>> upstream/main

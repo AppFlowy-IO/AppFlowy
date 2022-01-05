@@ -1,5 +1,9 @@
 <<<<<<< HEAD:shared-lib/flowy-collaboration/src/document/extensions/insert/preserve_block_format.rs
+<<<<<<< HEAD:shared-lib/flowy-collaboration/src/document/extensions/insert/preserve_block_format.rs
 use crate::util::is_newline;
+=======
+use crate::{document::InsertExt, util::is_newline};
+>>>>>>> upstream/main:shared-lib/flowy-collaboration/src/core/document/extensions/insert/preserve_block_format.rs
 =======
 use crate::{document::InsertExt, util::is_newline};
 >>>>>>> upstream/main:shared-lib/flowy-collaboration/src/core/document/extensions/insert/preserve_block_format.rs

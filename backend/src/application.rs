@@ -58,6 +58,10 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .app_data(Data::new(app_ctx.persistence.pg_pool()))
             .app_data(app_ctx.ws_receivers.clone())
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            .app_data(app_ctx.document_manager.clone())
+>>>>>>> upstream/main
 =======
             .app_data(app_ctx.document_manager.clone())
 >>>>>>> upstream/main

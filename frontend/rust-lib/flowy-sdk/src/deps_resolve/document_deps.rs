@@ -4,8 +4,13 @@ use flowy_database::ConnectionPool;
 use flowy_document::{
     context::DocumentUser,
 <<<<<<< HEAD
+<<<<<<< HEAD
     errors::{internal_error, FlowyError},
     services::doc::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
+=======
+    core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
+    errors::{internal_error, FlowyError},
+>>>>>>> upstream/main
 =======
     core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
     errors::{internal_error, FlowyError},

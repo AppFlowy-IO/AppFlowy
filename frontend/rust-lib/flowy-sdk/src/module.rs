@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 use flowy_core::prelude::CoreContext;
 
+=======
+use flowy_core::context::CoreContext;
+>>>>>>> upstream/main
 =======
 use flowy_core::context::CoreContext;
 >>>>>>> upstream/main

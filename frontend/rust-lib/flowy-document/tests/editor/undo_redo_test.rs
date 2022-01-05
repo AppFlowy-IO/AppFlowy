@@ -1,6 +1,10 @@
 use crate::editor::{TestBuilder, TestOp::*};
 <<<<<<< HEAD
+<<<<<<< HEAD
 use flowy_collaboration::document::{FlowyDoc, PlainDoc, RECORD_THRESHOLD};
+=======
+use flowy_collaboration::document::{NewlineDoc, PlainDoc, RECORD_THRESHOLD};
+>>>>>>> upstream/main
 =======
 use flowy_collaboration::document::{NewlineDoc, PlainDoc, RECORD_THRESHOLD};
 >>>>>>> upstream/main

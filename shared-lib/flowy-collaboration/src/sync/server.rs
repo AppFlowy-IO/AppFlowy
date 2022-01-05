@@ -1,6 +1,7 @@
 use crate::{
     document::Document,
 <<<<<<< HEAD
+<<<<<<< HEAD
     entities::{
         doc::DocumentInfo,
         revision::{RepeatedRevision, Revision},
@@ -8,6 +9,11 @@ use crate::{
     },
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::DocumentClientWSData,
+=======
+    entities::{doc::DocumentInfo, ws::DocumentServerWSDataBuilder},
+    errors::{internal_error, CollaborateError, CollaborateResult},
+    protobuf::{DocumentClientWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+>>>>>>> upstream/main
 =======
     entities::{doc::DocumentInfo, ws::DocumentServerWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
@@ -21,9 +27,15 @@ use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use lib_ot::rich_text::RichTextDelta;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use std::{convert::TryFrom, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot},
+=======
+use std::{collections::HashMap, fmt::Debug, sync::Arc};
+use tokio::{
+    sync::{mpsc, oneshot, RwLock},
+>>>>>>> upstream/main
 =======
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
@@ -35,6 +47,7 @@ use tokio::{
 pub trait DocumentPersistence: Send + Sync + Debug {
     fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 <<<<<<< HEAD
+<<<<<<< HEAD
     fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError>;
     fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
     fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
@@ -43,6 +56,8 @@ pub trait DocumentPersistence: Send + Sync + Debug {
 pub struct ServerDocumentManager {
     open_doc_map: DashMap<String, Arc<OpenDocHandle>>,
 =======
+=======
+>>>>>>> upstream/main
 
     fn create_doc(
         &self,
@@ -63,6 +78,9 @@ pub struct ServerDocumentManager {
 
 pub struct ServerDocumentManager {
     open_doc_map: Arc<RwLock<HashMap<String, Arc<OpenDocHandle>>>>,
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     persistence: Arc<dyn DocumentPersistence>,
 }
@@ -71,7 +89,11 @@ impl ServerDocumentManager {
     pub fn new(persistence: Arc<dyn DocumentPersistence>) -> Self {
         Self {
 <<<<<<< HEAD
+<<<<<<< HEAD
             open_doc_map: DashMap::new(),
+=======
+            open_doc_map: Arc::new(RwLock::new(HashMap::new())),
+>>>>>>> upstream/main
 =======
             open_doc_map: Arc::new(RwLock::new(HashMap::new())),
 >>>>>>> upstream/main
@@ -85,7 +107,11 @@ impl ServerDocumentManager {
         mut client_data: DocumentClientWSData,
     ) -> Result<(), CollaborateError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
         let mut pb = client_data.take_revisions();
+=======
+        let repeated_revision = client_data.take_revisions();
+>>>>>>> upstream/main
 =======
         let repeated_revision = client_data.take_revisions();
 >>>>>>> upstream/main
@@ -93,6 +119,7 @@ impl ServerDocumentManager {
         let ack_id = rev_id_from_str(&client_data.id)?;
         let doc_id = client_data.doc_id;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         let revisions = spawn_blocking(move || {
             let repeated_revision = RepeatedRevision::try_from(&mut pb)?;
@@ -110,13 +137,22 @@ impl ServerDocumentManager {
             None => {
                 let _ = self.create_document(&doc_id, repeated_revision).await.map_err(|e| {
 >>>>>>> upstream/main
+=======
+        let result = match self.get_document_handler(&doc_id).await {
+            None => {
+                let _ = self.create_document(&doc_id, repeated_revision).await.map_err(|e| {
+>>>>>>> upstream/main
                     CollaborateError::internal().context(format!("Server crate document failed: {}", e))
                 })?;
                 Ok(())
             },
             Some(handler) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 let _ = handler.apply_revisions(doc_id.clone(), user, revisions).await?;
+=======
+                let _ = handler.apply_revisions(user, repeated_revision).await?;
+>>>>>>> upstream/main
 =======
                 let _ = handler.apply_revisions(user, repeated_revision).await?;
 >>>>>>> upstream/main
@@ -140,12 +176,15 @@ impl ServerDocumentManager {
         let rev_id = rev_id_from_str(&client_data.id)?;
         let doc_id = client_data.doc_id.clone();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         match self.get_document_handler(&doc_id).await {
             None => Ok(()),
             Some(handler) => {
                 let _ = handler.apply_ping(doc_id.clone(), rev_id, user).await?;
 =======
+=======
+>>>>>>> upstream/main
         match self.get_document_handler(&doc_id).await {
             None => {
                 tracing::warn!("Document:{} doesn't exist, ignore pinging", doc_id);
@@ -153,12 +192,16 @@ impl ServerDocumentManager {
             },
             Some(handler) => {
                 let _ = handler.apply_ping(rev_id, user).await?;
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
                 Ok(())
             },
         }
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
         match self.open_doc_map.get(doc_id).map(|ctx| ctx.clone()) {
@@ -177,6 +220,8 @@ impl ServerDocumentManager {
                     },
                 }
 =======
+=======
+>>>>>>> upstream/main
     pub async fn handle_document_reset(
         &self,
         doc_id: &str,
@@ -191,11 +236,15 @@ impl ServerDocumentManager {
             Some(handler) => {
                 let _ = handler.apply_document_reset(repeated_revision).await?;
                 Ok(())
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
             },
         }
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     async fn create_document(
@@ -211,6 +260,8 @@ impl ServerDocumentManager {
     async fn cache_document(&self, doc: DocumentInfo) -> Result<Arc<OpenDocHandle>, CollaborateError> {
         let doc_id = doc.doc_id.clone();
 =======
+=======
+>>>>>>> upstream/main
     async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
         if let Some(handler) = self.open_doc_map.read().await.get(doc_id).cloned() {
             return Some(handler);
@@ -240,16 +291,22 @@ impl ServerDocumentManager {
     }
 
     async fn create_document_handler(&self, doc: DocumentInfo) -> Result<Arc<OpenDocHandle>, CollaborateError> {
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocHandle::new(doc, persistence))
             .await
             .map_err(|e| CollaborateError::internal().context(format!("Create open doc handler failed: {}", e)))?;
 <<<<<<< HEAD
+<<<<<<< HEAD
         let handle = Arc::new(handle?);
         self.open_doc_map.insert(doc_id, handle.clone());
         Ok(handle)
 =======
+=======
+>>>>>>> upstream/main
         Ok(Arc::new(handle?))
     }
 }
@@ -257,6 +314,9 @@ impl ServerDocumentManager {
 impl std::ops::Drop for ServerDocumentManager {
     fn drop(&mut self) {
         log::debug!("ServerDocumentManager was drop");
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     }
 }
@@ -284,6 +344,7 @@ impl OpenDocHandle {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     #[tracing::instrument(level = "debug", skip(self, user, revisions), err)]
     async fn apply_revisions(
         &self,
@@ -291,17 +352,23 @@ impl OpenDocHandle {
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
 =======
+=======
+>>>>>>> upstream/main
     #[tracing::instrument(level = "debug", skip(self, user, repeated_revision), err)]
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     ) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         let persistence = self.persistence.clone();
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::ApplyRevisions {
+<<<<<<< HEAD
 <<<<<<< HEAD
             doc_id,
             user,
@@ -310,10 +377,15 @@ impl OpenDocHandle {
             user,
             repeated_revision,
 >>>>>>> upstream/main
+=======
+            user,
+            repeated_revision,
+>>>>>>> upstream/main
             persistence,
             ret,
         };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         let _ = self.send(msg, rx).await?;
         Ok(())
@@ -327,19 +399,27 @@ impl OpenDocHandle {
         user: Arc<dyn RevisionUser>,
     ) -> Result<(), CollaborateError> {
 =======
+=======
+>>>>>>> upstream/main
         let result = self.send(msg, rx).await?;
         result
     }
 
     #[tracing::instrument(level = "debug", skip(self, user), err)]
     async fn apply_ping(&self, rev_id: i64, user: Arc<dyn RevisionUser>) -> Result<(), CollaborateError> {
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
         let persistence = self.persistence.clone();
         let msg = DocumentCommand::Ping {
 <<<<<<< HEAD
+<<<<<<< HEAD
             doc_id,
+=======
+>>>>>>> upstream/main
 =======
 >>>>>>> upstream/main
             user,
@@ -348,9 +428,12 @@ impl OpenDocHandle {
             ret,
         };
 <<<<<<< HEAD
+<<<<<<< HEAD
         let _ = self.send(msg, rx).await?;
         Ok(())
 =======
+=======
+>>>>>>> upstream/main
         let result = self.send(msg, rx).await?;
         result
     }
@@ -366,6 +449,9 @@ impl OpenDocHandle {
         };
         let result = self.send(msg, rx).await?;
         result
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
     }
 
@@ -382,7 +468,12 @@ impl OpenDocHandle {
 impl std::ops::Drop for OpenDocHandle {
     fn drop(&mut self) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         log::debug!("{} OpenDocHandle drop", self.doc_id);
+=======
+        //
+        log::debug!("{} OpenDocHandle was drop", self.doc_id);
+>>>>>>> upstream/main
 =======
         //
         log::debug!("{} OpenDocHandle was drop", self.doc_id);
@@ -394,9 +485,14 @@ impl std::ops::Drop for OpenDocHandle {
 enum DocumentCommand {
     ApplyRevisions {
 <<<<<<< HEAD
+<<<<<<< HEAD
         doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
+=======
+        user: Arc<dyn RevisionUser>,
+        repeated_revision: RepeatedRevisionPB,
+>>>>>>> upstream/main
 =======
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
@@ -406,7 +502,10 @@ enum DocumentCommand {
     },
     Ping {
 <<<<<<< HEAD
+<<<<<<< HEAD
         doc_id: String,
+=======
+>>>>>>> upstream/main
 =======
 >>>>>>> upstream/main
         user: Arc<dyn RevisionUser>,
@@ -415,12 +514,18 @@ enum DocumentCommand {
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/main
     Reset {
         persistence: Arc<dyn DocumentPersistence>,
         repeated_revision: RepeatedRevisionPB,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
 }
 
@@ -467,9 +572,14 @@ impl DocumentCommandQueue {
         match msg {
             DocumentCommand::ApplyRevisions {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 doc_id,
                 user,
                 revisions,
+=======
+                user,
+                repeated_revision,
+>>>>>>> upstream/main
 =======
                 user,
                 repeated_revision,
@@ -480,7 +590,11 @@ impl DocumentCommandQueue {
                 let result = self
                     .synchronizer
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .sync_revisions(doc_id, user, revisions, persistence)
+=======
+                    .sync_revisions(user, repeated_revision, persistence)
+>>>>>>> upstream/main
 =======
                     .sync_revisions(user, repeated_revision, persistence)
 >>>>>>> upstream/main
@@ -490,7 +604,10 @@ impl DocumentCommandQueue {
             },
             DocumentCommand::Ping {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 doc_id,
+=======
+>>>>>>> upstream/main
 =======
 >>>>>>> upstream/main
                 user,
@@ -501,8 +618,11 @@ impl DocumentCommandQueue {
                 let result = self
                     .synchronizer
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .pong(doc_id, user, persistence, rev_id)
 =======
+=======
+>>>>>>> upstream/main
                     .pong(user, persistence, rev_id)
                     .await
                     .map_err(internal_error);
@@ -516,6 +636,9 @@ impl DocumentCommandQueue {
                 let result = self
                     .synchronizer
                     .reset(persistence, repeated_revision)
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
                     .await
                     .map_err(internal_error);
@@ -528,7 +651,11 @@ impl DocumentCommandQueue {
 impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         log::debug!("{} DocumentCommandQueue drop", self.doc_id);
+=======
+        log::debug!("{} DocumentCommandQueue was drop", self.doc_id);
+>>>>>>> upstream/main
 =======
         log::debug!("{} DocumentCommandQueue was drop", self.doc_id);
 >>>>>>> upstream/main

@@ -2,6 +2,10 @@ use async_stream::stream;
 
 use flowy_collaboration::{
 <<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+=======
+    document::{history::UndoResult, Document, NewlineDoc},
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
 =======
     document::{history::UndoResult, Document, NewlineDoc},
 >>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
@@ -71,6 +75,7 @@ impl EditorCommandQueue {
                 let _ = ret.send(fut().await);
             },
 <<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
             EditorCommand::ProcessRemoteRevision { revisions, ret } => {
                 let f = || async {
                     let mut new_delta = RichTextDelta::new();
@@ -118,14 +123,46 @@ impl EditorCommandQueue {
                     }
 >>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
 
+=======
+            EditorCommand::OverrideDelta { delta, ret } => {
+                let fut = || async {
+                    let mut document = self.document.write().await;
+                    let _ = document.set_delta(delta);
+                    let md5 = document.md5();
+                    drop(document);
+                    Ok::<String, CollaborateError>(md5)
+                };
+
+                let _ = ret.send(fut().await);
+            },
+            EditorCommand::TransformRevision { revisions, ret } => {
+                let f = || async {
+                    let new_delta = make_delta_from_revisions(revisions)?;
+                    let read_guard = self.document.read().await;
+                    let mut server_prime: Option<RichTextDelta> = None;
+                    let client_prime: RichTextDelta;
+                    if read_guard.is_empty::<NewlineDoc>() {
+                        // Do nothing
+                        client_prime = new_delta;
+                    } else {
+                        let (s_prime, c_prime) = read_guard.delta().transform(&new_delta)?;
+                        client_prime = c_prime;
+                        server_prime = Some(s_prime);
+                    }
+
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
                     drop(read_guard);
                     Ok::<TransformDeltas, CollaborateError>(TransformDeltas {
                         client_prime,
                         server_prime,
 <<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
                     };
 
                     Ok::<TransformDeltas, CollaborateError>(transform_delta)
+=======
+                    })
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
 =======
                     })
 >>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
@@ -198,13 +235,19 @@ pub(crate) enum EditorCommand {
         ret: Ret<DocumentMD5>,
     },
 <<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
     ProcessRemoteRevision {
 =======
+=======
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
     OverrideDelta {
         delta: RichTextDelta,
         ret: Ret<DocumentMD5>,
     },
     TransformRevision {
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
+=======
 >>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
         revisions: Vec<Revision>,
         ret: Ret<TransformDeltas>,
@@ -252,7 +295,11 @@ pub(crate) enum EditorCommand {
 pub(crate) struct TransformDeltas {
     pub client_prime: RichTextDelta,
 <<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/queue.rs
     pub server_prime: RichTextDelta,
+=======
+    pub server_prime: Option<RichTextDelta>,
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs
 =======
     pub server_prime: Option<RichTextDelta>,
 >>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor_cmd_queue.rs

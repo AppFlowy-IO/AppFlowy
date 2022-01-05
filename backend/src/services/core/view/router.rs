@@ -22,14 +22,20 @@ use backend_service::{
 use flowy_core_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewId},
 =======
+=======
+>>>>>>> upstream/main
     protobuf::{
         CreateViewParams as CreateViewParamsPB,
         QueryViewRequest as QueryViewRequestPB,
         UpdateViewParams as UpdateViewParamsPB,
         ViewId as ViewIdPB,
     },
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
 };
 use sqlx::PgPool;
@@ -41,7 +47,11 @@ pub async fn create_handler(
     user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: CreateViewParams = parse_from_payload(payload).await?;
+=======
+    let params: CreateViewParamsPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: CreateViewParamsPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -64,7 +74,11 @@ pub async fn create_handler(
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: ViewId = parse_from_payload(payload).await?;
+=======
+    let params: ViewIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: ViewIdPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -85,7 +99,11 @@ pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser
 
 pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: UpdateViewParams = parse_from_payload(payload).await?;
+=======
+    let params: UpdateViewParamsPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: UpdateViewParamsPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -129,7 +147,11 @@ pub async fn delete_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: QueryViewRequest = parse_from_payload(payload).await?;
+=======
+    let params: QueryViewRequestPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: QueryViewRequestPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main

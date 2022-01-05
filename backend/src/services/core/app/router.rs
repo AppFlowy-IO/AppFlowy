@@ -18,7 +18,11 @@ use backend_service::{
 use flowy_core_data_model::{
     parser::app::{AppDesc, AppName},
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::{AppId, CreateAppParams, UpdateAppParams},
+=======
+    protobuf::{AppId as AppIdPB, CreateAppParams as CreateAppParamsPB, UpdateAppParams as UpdateAppParamsPB},
+>>>>>>> upstream/main
 =======
     protobuf::{AppId as AppIdPB, CreateAppParams as CreateAppParamsPB, UpdateAppParams as UpdateAppParamsPB},
 >>>>>>> upstream/main
@@ -49,7 +53,11 @@ pub async fn create_handler(
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: AppId = parse_from_payload(payload).await?;
+=======
+    let params: AppIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: AppIdPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main
@@ -105,7 +113,11 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 
 pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let params: AppId = parse_from_payload(payload).await?;
+=======
+    let params: AppIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
 =======
     let params: AppIdPB = parse_from_payload(payload).await?;
 >>>>>>> upstream/main

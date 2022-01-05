@@ -3,7 +3,11 @@ pub mod module;
 use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use backend_service::configuration::ClientServerConfiguration;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use flowy_core::{errors::FlowyError, module::init_core, prelude::CoreContext};
+=======
+use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
+>>>>>>> upstream/main
 =======
 use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
 >>>>>>> upstream/main

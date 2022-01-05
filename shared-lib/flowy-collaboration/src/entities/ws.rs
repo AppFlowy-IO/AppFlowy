@@ -94,8 +94,12 @@ pub struct DocumentServerWSData {
 pub struct DocumentServerWSDataBuilder();
 impl DocumentServerWSDataBuilder {
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub fn build_push_message(doc_id: &str, revisions: Vec<Revision>) -> DocumentServerWSData {
         let repeated_revision = RepeatedRevision::new(revisions);
+=======
+    pub fn build_push_message(doc_id: &str, repeated_revision: RepeatedRevision) -> DocumentServerWSData {
+>>>>>>> upstream/main
 =======
     pub fn build_push_message(doc_id: &str, repeated_revision: RepeatedRevision) -> DocumentServerWSData {
 >>>>>>> upstream/main

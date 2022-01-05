@@ -9,11 +9,23 @@ use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::{DocumentClientWSData, DocumentClientWSDataType, Revision},
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
 use futures::stream::StreamExt;
 use std::{convert::TryInto, sync::Arc};
+=======
+    protobuf::{
+        DocumentClientWSData as DocumentClientWSDataPB,
+        DocumentClientWSDataType as DocumentClientWSDataTypePB,
+        Revision as RevisionPB,
+    },
+    sync::{RevisionUser, ServerDocumentManager, SyncResponse},
+};
+use futures::stream::StreamExt;
+use std::sync::Arc;
+>>>>>>> upstream/main
 =======
     protobuf::{
         DocumentClientWSData as DocumentClientWSDataPB,
@@ -81,7 +93,11 @@ impl DocumentWebSocketActor {
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
 <<<<<<< HEAD
+<<<<<<< HEAD
         let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSData>(&data))
+=======
+        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
+>>>>>>> upstream/main
 =======
         let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
 >>>>>>> upstream/main
@@ -90,7 +106,11 @@ impl DocumentWebSocketActor {
 
         tracing::debug!(
 <<<<<<< HEAD
+<<<<<<< HEAD
             "[DocumentWebSocketActor]: receive client data: {}:{}, {:?}",
+=======
+            "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
+>>>>>>> upstream/main
 =======
             "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
 >>>>>>> upstream/main
@@ -107,7 +127,11 @@ impl DocumentWebSocketActor {
 
         match &document_client_data.ty {
 <<<<<<< HEAD
+<<<<<<< HEAD
             DocumentClientWSDataType::ClientPushRev => {
+=======
+            DocumentClientWSDataTypePB::ClientPushRev => {
+>>>>>>> upstream/main
 =======
             DocumentClientWSDataTypePB::ClientPushRev => {
 >>>>>>> upstream/main
@@ -118,7 +142,11 @@ impl DocumentWebSocketActor {
                     .map_err(internal_error)?;
             },
 <<<<<<< HEAD
+<<<<<<< HEAD
             DocumentClientWSDataType::ClientPing => {
+=======
+            DocumentClientWSDataTypePB::ClientPing => {
+>>>>>>> upstream/main
 =======
             DocumentClientWSDataTypePB::ClientPing => {
 >>>>>>> upstream/main
@@ -176,6 +204,7 @@ impl RevisionUser for ServerDocUser {
                 self.socket.try_send(msg).map_err(internal_error)
             },
 <<<<<<< HEAD
+<<<<<<< HEAD
             SyncResponse::NewRevision(revisions) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
@@ -184,10 +213,15 @@ impl RevisionUser for ServerDocUser {
                         .map(|revision| revision.try_into().unwrap())
                         .collect::<Vec<_>>();
 =======
+=======
+>>>>>>> upstream/main
             SyncResponse::NewRevision(mut repeated_revision) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
                     let revisions = repeated_revision.take_items().into();
+<<<<<<< HEAD
+>>>>>>> upstream/main
+=======
 >>>>>>> upstream/main
                     match kv_store.batch_set_revision(revisions).await {
                         Ok(_) => {},

@@ -1,7 +1,11 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
 <<<<<<< HEAD
+<<<<<<< HEAD
 use flowy_collaboration::document::{FlowyDoc, PlainDoc};
+=======
+use flowy_collaboration::document::{NewlineDoc, PlainDoc};
+>>>>>>> upstream/main
 =======
 use flowy_collaboration::document::{NewlineDoc, PlainDoc};
 >>>>>>> upstream/main

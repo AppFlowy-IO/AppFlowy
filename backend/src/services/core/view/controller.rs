@@ -12,7 +12,11 @@ use chrono::Utc;
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision},
 <<<<<<< HEAD
+<<<<<<< HEAD
     protobuf::CreateDocParams,
+=======
+    protobuf::CreateDocParams as CreateDocParamsPB,
+>>>>>>> upstream/main
 =======
     protobuf::CreateDocParams as CreateDocParamsPB,
 >>>>>>> upstream/main
@@ -74,9 +78,15 @@ pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
     kv_store: Arc<DocumentKVPersistence>,
 <<<<<<< HEAD
+<<<<<<< HEAD
     params: CreateViewParams,
     user_id: &str,
 ) -> Result<View, ServerError> {
+=======
+    params: CreateViewParamsPB,
+    user_id: &str,
+) -> Result<ViewPB, ServerError> {
+>>>>>>> upstream/main
 =======
     params: CreateViewParamsPB,
     user_id: &str,
@@ -105,7 +115,11 @@ pub(crate) async fn create_view(
     let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
     let repeated_revision = RepeatedRevision::new(vec![revision]);
 <<<<<<< HEAD
+<<<<<<< HEAD
     let mut create_doc_params = CreateDocParams::new();
+=======
+    let mut create_doc_params = CreateDocParamsPB::new();
+>>>>>>> upstream/main
 =======
     let mut create_doc_params = CreateDocParamsPB::new();
 >>>>>>> upstream/main
