@@ -150,17 +150,17 @@ where
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
         let mut new_s = String::new();
-        let chars = &mut s.chars();
+        let utf16_iter = &mut s.utf16_iter();
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
-                    for c in chars.take(retain.n as usize) {
-                        new_s.push(c);
+                    for c in utf16_iter.take(retain.n as usize) {
+                        new_s.push_str(&c);
                     }
                 },
                 Operation::Delete(delete) => {
                     for _ in 0..*delete {
-                        chars.next();
+                        utf16_iter.next();
                     }
                 },
                 Operation::Insert(insert) => {
@@ -264,7 +264,6 @@ where
                 },
             }
         }
-
         Ok(new_delta)
     }
 
@@ -425,6 +424,18 @@ where
 
         tracing::trace!("🌛invert result: {}", inverted);
         inverted
+    }
+}
+
+/// Removes trailing retain operation with empty attributes, if present.
+pub fn trim<T>(delta: &mut Delta<T>)
+where
+    T: Attributes,
+{
+    if let Some(last) = delta.ops.last() {
+        if last.is_retain() && last.is_plain() {
+            delta.ops.pop();
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::core::{Attributes, Delta, Operation};
+use crate::core::{trim, Attributes, Delta, Operation};
 
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,
@@ -48,18 +48,4 @@ where
     }
 
     pub fn build(self) -> Delta<T> { self.delta }
-}
-
-pub fn trim<T: Attributes>(delta: &mut Delta<T>) {
-    let remove_last = match delta.ops.last() {
-        None => false,
-        Some(op) => match op {
-            Operation::Delete(_) => false,
-            Operation::Retain(retain) => retain.is_plain(),
-            Operation::Insert(_) => false,
-        },
-    };
-    if remove_last {
-        delta.ops.pop();
-    }
 }

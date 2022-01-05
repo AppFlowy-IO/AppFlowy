@@ -15,7 +15,7 @@ use flowy_error::FlowyResult;
 use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
 use lib_ot::{
-    core::{Operation, OperationTransformable},
+    core::{trim, Operation, OperationTransformable},
     errors::OTError,
     rich_text::RichTextDelta,
 };
@@ -259,11 +259,13 @@ fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<
         base_rev_id,
     })
 }
+
 fn correct_delta_if_need(delta: &mut RichTextDelta) {
+    trim(delta);
+
     if delta.ops.last().is_none() {
         return;
     }
-
     let data = delta.ops.last().as_ref().unwrap().get_data();
     if !data.ends_with('\n') {
         log::error!("❌The op must end with newline. Correcting it by inserting newline op");

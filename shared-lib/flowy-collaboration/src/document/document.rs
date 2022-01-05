@@ -1,10 +1,3 @@
-use tokio::sync::mpsc;
-
-use lib_ot::{
-    core::*,
-    rich_text::{RichTextAttribute, RichTextDelta},
-};
-
 use crate::{
     document::{
         default::initial_delta,
@@ -13,6 +6,11 @@ use crate::{
     },
     errors::CollaborateError,
 };
+use lib_ot::{
+    core::*,
+    rich_text::{RichTextAttribute, RichTextDelta},
+};
+use tokio::sync::mpsc;
 
 pub trait InitialDocumentText {
     fn initial_delta() -> RichTextDelta;
@@ -81,12 +79,10 @@ impl Document {
         }
     }
 
-    pub fn compose_delta(&mut self, mut delta: RichTextDelta) -> Result<(), CollaborateError> {
+    pub fn compose_delta(&mut self, delta: RichTextDelta) -> Result<(), CollaborateError> {
         tracing::trace!("👉 receive change: {}", delta);
-
-        trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
-        let mut composed_delta = self.delta.compose(&delta)?;
+        let composed_delta = self.delta.compose(&delta)?;
         let mut undo_delta = delta.invert(&self.delta);
 
         let now = chrono::Utc::now().timestamp_millis() as usize;
@@ -107,7 +103,6 @@ impl Document {
         }
 
         tracing::trace!("compose result: {}", composed_delta.to_json());
-        trim(&mut composed_delta);
 
         self.set_delta(composed_delta);
         Ok(())
@@ -171,11 +166,9 @@ impl Document {
             None => Err(CollaborateError::undo().context("Undo stack is empty")),
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&undo_delta)?;
-                let result = UndoResult::success(new_delta.target_len as usize);
                 self.set_delta(new_delta);
                 self.history.add_redo(inverted_delta);
-
-                Ok(result)
+                Ok(UndoResult { delta: undo_delta })
             },
         }
     }
@@ -185,11 +178,9 @@ impl Document {
             None => Err(CollaborateError::redo()),
             Some(redo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&redo_delta)?;
-                let result = UndoResult::success(new_delta.target_len as usize);
                 self.set_delta(new_delta);
-
                 self.history.add_undo(inverted_delta);
-                Ok(result)
+                Ok(UndoResult { delta: redo_delta })
             },
         }
     }
@@ -215,13 +206,4 @@ fn validate_interval(delta: &RichTextDelta, interval: &Interval) -> Result<(), C
         return Err(CollaborateError::out_of_bound());
     }
     Ok(())
-}
-
-/// Removes trailing retain operation with empty attributes, if present.
-pub fn trim(delta: &mut RichTextDelta) {
-    if let Some(last) = delta.ops.last() {
-        if last.is_retain() && last.is_plain() {
-            delta.ops.pop();
-        }
-    }
 }
