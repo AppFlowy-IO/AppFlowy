@@ -1,4 +1,4 @@
-use crate::core::{trim, Attributes, Delta, Operation};
+use crate::core::{trim, Attributes, Delta};
 
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,

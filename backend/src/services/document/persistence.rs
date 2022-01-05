@@ -5,19 +5,19 @@ use crate::{
 use anyhow::Context;
 use backend_service::errors::{internal_error, ServerError};
 use bytes::Bytes;
-use flowy_collaboration::protobuf::{
-    CreateDocParams,
-    DocumentId,
-    DocumentInfo,
-    RepeatedRevision as RepeatedRevisionPB,
-    ResetDocumentParams,
-    Revision as RevisionPB,
+use flowy_collaboration::{
+    protobuf::{
+        CreateDocParams,
+        DocumentId,
+        DocumentInfo,
+        RepeatedRevision as RepeatedRevisionPB,
+        ResetDocumentParams,
+        Revision as RevisionPB,
+    },
+    sync::ServerDocumentManager,
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
-
-use flowy_collaboration::sync::ServerDocumentManager;
-use lib_ot::core::trim;
 use std::sync::Arc;
 use uuid::Uuid;
 

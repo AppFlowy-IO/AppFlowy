@@ -40,7 +40,6 @@ pub(crate) async fn make_document_ws_manager(
         let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
         let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
             doc_id: doc_id.clone(),
-            user_id: user_id.clone(),
             edit_cmd_tx,
             rev_manager: rev_manager.clone(),
             shared_sink: shared_sink.clone(),
@@ -79,7 +78,6 @@ fn listen_document_ws_state(
 
 pub(crate) struct DocumentWebSocketSteamConsumerAdapter {
     pub(crate) doc_id: String,
-    pub(crate) user_id: String,
     pub(crate) edit_cmd_tx: UnboundedSender<EditorCommand>,
     pub(crate) rev_manager: Arc<RevisionManager>,
     pub(crate) shared_sink: Arc<SharedWSSinkDataProvider>,
