@@ -7,16 +7,15 @@ part 'splash_bloc.freezed.dart';
 
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
   final ISplashUser authImpl;
-  SplashBloc(this.authImpl) : super(SplashState.initial());
-
-  @override
-  Stream<SplashState> mapEventToState(SplashEvent event) async* {
-    yield* event.map(
-      getUser: (val) async* {
-        final authState = await authImpl.currentUserProfile();
-        yield state.copyWith(auth: authState);
-      },
-    );
+  SplashBloc(this.authImpl) : super(SplashState.initial()) {
+    on<SplashEvent>((event, emit) async {
+      await event.map(
+        getUser: (val) async {
+          final authState = await authImpl.currentUserProfile();
+          emit(state.copyWith(auth: authState));
+        },
+      );
+    });
   }
 }
 

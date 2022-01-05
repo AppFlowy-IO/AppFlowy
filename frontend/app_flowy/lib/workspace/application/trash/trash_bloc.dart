@@ -10,46 +10,38 @@ part 'trash_bloc.freezed.dart';
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
   final ITrash trasnManager;
   final ITrashListener listener;
-  TrashBloc({required this.trasnManager, required this.listener}) : super(TrashState.init());
-
-  @override
-  Stream<TrashState> mapEventToState(TrashEvent event) async* {
-    yield* event.map(
-      initial: (e) async* {
+  TrashBloc({required this.trasnManager, required this.listener}) : super(TrashState.init()) {
+    on<TrashEvent>((event, emit) async {
+      await event.map(initial: (e) async {
         listener.start(_listenTrashUpdated);
         final result = await trasnManager.readTrash();
-        yield result.fold(
+        emit(result.fold(
           (objects) => state.copyWith(objects: objects, successOrFailure: left(unit)),
           (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-      didReceiveTrash: (e) async* {
-        yield state.copyWith(objects: e.trash);
-      },
-      putback: (e) async* {
+        ));
+      }, didReceiveTrash: (e) async {
+        emit(state.copyWith(objects: e.trash));
+      }, putback: (e) async {
         final result = await trasnManager.putback(e.trashId);
-        yield* _handleResult(result);
-      },
-      delete: (e) async* {
+        await _handleResult(result, emit);
+      }, delete: (e) async {
         final result = await trasnManager.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
-        yield* _handleResult(result);
-      },
-      deleteAll: (e) async* {
+        await _handleResult(result, emit);
+      }, deleteAll: (e) async {
         final result = await trasnManager.deleteAll();
-        yield* _handleResult(result);
-      },
-      restoreAll: (e) async* {
+        await _handleResult(result, emit);
+      }, restoreAll: (e) async {
         final result = await trasnManager.restoreAll();
-        yield* _handleResult(result);
-      },
-    );
+        await _handleResult(result, emit);
+      });
+    });
   }
 
-  Stream<TrashState> _handleResult(Either<dynamic, FlowyError> result) async* {
-    yield result.fold(
+  Future<void> _handleResult(Either<dynamic, FlowyError> result, Emitter<TrashState> emit) async {
+    emit(result.fold(
       (l) => state.copyWith(successOrFailure: left(unit)),
       (error) => state.copyWith(successOrFailure: right(error)),
-    );
+    ));
   }
 
   void _listenTrashUpdated(Either<List<Trash>, FlowyError> trashOrFailed) {

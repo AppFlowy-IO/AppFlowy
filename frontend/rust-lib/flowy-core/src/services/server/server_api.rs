@@ -9,7 +9,7 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::server::WorkspaceServerAPI,
 };
-use backend_service::{configuration::ClientServerConfiguration, middleware::*, workspace_request::*};
+use backend_service::{configuration::ClientServerConfiguration, http_request::*, middleware::*};
 use lib_infra::future::FutureResult;
 
 pub struct WorkspaceHttpServer {

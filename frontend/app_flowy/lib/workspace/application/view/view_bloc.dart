@@ -14,53 +14,56 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   ViewBloc({
     required this.viewManager,
     required this.listener,
-  }) : super(ViewState.init(viewManager.view));
-
-  @override
-  Stream<ViewState> mapEventToState(ViewEvent event) async* {
-    yield* event.map(
-      initial: (e) async* {
-        listener.updatedNotifier.addPublishListener((result) {
-          add(ViewEvent.viewDidUpdate(result));
-        });
-        listener.start();
-        yield state;
-      },
-      setIsEditing: (e) async* {
-        yield state.copyWith(isEditing: e.isEditing);
-      },
-      viewDidUpdate: (e) async* {
-        yield* _handleViewDidUpdate(e.result);
-      },
-      rename: (e) async* {
-        final result = await viewManager.rename(e.newName);
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-      delete: (e) async* {
-        final result = await viewManager.delete();
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-      duplicate: (e) async* {
-        final result = await viewManager.duplicate();
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-    );
-  }
-
-  Stream<ViewState> _handleViewDidUpdate(Either<View, FlowyError> result) async* {
-    yield result.fold(
-      (view) => state.copyWith(view: view, successOrFailure: left(unit)),
-      (error) => state.copyWith(successOrFailure: right(error)),
-    );
+  }) : super(ViewState.init(viewManager.view)) {
+    on<ViewEvent>((event, emit) async {
+      await event.map(
+        initial: (e) {
+          // TODO: Listener can be refctored to a stream.
+          listener.updatedNotifier.addPublishListener((result) {
+            // emit.forEach(stream, onData: onData)
+            add(ViewEvent.viewDidUpdate(result));
+          });
+          listener.start();
+          emit(state);
+        },
+        setIsEditing: (e) {
+          emit(state.copyWith(isEditing: e.isEditing));
+        },
+        viewDidUpdate: (e) {
+          e.result.fold(
+            (view) => emit(state.copyWith(view: view, successOrFailure: left(unit))),
+            (error) => emit(state.copyWith(successOrFailure: right(error))),
+          );
+        },
+        rename: (e) async {
+          final result = await viewManager.rename(e.newName);
+          emit(
+            result.fold(
+              (l) => state.copyWith(successOrFailure: left(unit)),
+              (error) => state.copyWith(successOrFailure: right(error)),
+            ),
+          );
+        },
+        delete: (e) async {
+          final result = await viewManager.delete();
+          emit(
+            result.fold(
+              (l) => state.copyWith(successOrFailure: left(unit)),
+              (error) => state.copyWith(successOrFailure: right(error)),
+            ),
+          );
+        },
+        duplicate: (e) async {
+          final result = await viewManager.duplicate();
+          emit(
+            result.fold(
+              (l) => state.copyWith(successOrFailure: left(unit)),
+              (error) => state.copyWith(successOrFailure: right(error)),
+            ),
+          );
+        },
+      );
+    });
   }
 
   @override

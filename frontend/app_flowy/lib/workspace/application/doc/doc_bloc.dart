@@ -27,31 +27,30 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     required this.docManager,
     required this.listener,
     required this.trasnManager,
-  }) : super(DocState.initial());
-
-  @override
-  Stream<DocState> mapEventToState(DocEvent event) async* {
-    yield* event.map(
-      initial: _initial,
-      deleted: (Deleted value) async* {
-        yield state.copyWith(isDeleted: true);
-      },
-      restore: (Restore value) async* {
-        yield state.copyWith(isDeleted: false);
-      },
-      deletePermanently: (DeletePermanently value) async* {
-        final result = await trasnManager.deleteViews([Tuple2(view.id, TrashType.View)]);
-        yield result.fold((l) => state.copyWith(forceClose: true), (r) {
-          return state;
-        });
-      },
-      restorePage: (RestorePage value) async* {
-        final result = await trasnManager.putback(view.id);
-        yield result.fold((l) => state.copyWith(isDeleted: false), (r) {
-          return state;
-        });
-      },
-    );
+  }) : super(DocState.initial()) {
+    on<DocEvent>((event, emit) async {
+      await event.map(
+        initial: (Initial value) async {
+          await _initial(value, emit);
+        },
+        deleted: (Deleted value) async {
+          emit(state.copyWith(isDeleted: true));
+        },
+        restore: (Restore value) async {
+          emit(state.copyWith(isDeleted: false));
+        },
+        deletePermanently: (DeletePermanently value) async {
+          final result = await trasnManager.deleteViews([Tuple2(view.id, TrashType.View)]);
+          final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
+          emit(newState);
+        },
+        restorePage: (RestorePage value) async {
+          final result = await trasnManager.putback(view.id);
+          final newState = result.fold((l) => state.copyWith(isDeleted: false), (r) => state);
+          emit(newState);
+        },
+      );
+    });
   }
 
   @override
@@ -62,11 +61,11 @@ class DocBloc extends Bloc<DocEvent, DocState> {
       await _subscription?.cancel();
     }
 
-    // docManager.closeDoc();
+    docManager.closeDoc();
     return super.close();
   }
 
-  Stream<DocState> _initial(Initial value) async* {
+  Future<void> _initial(Initial value, Emitter<DocState> emit) async {
     listener.deletedNotifier.addPublishListener((result) {
       result.fold(
         (view) => add(const DocEvent.deleted()),
@@ -82,9 +81,8 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     });
 
     listener.start();
-
     final result = await docManager.readDoc();
-    yield result.fold(
+    result.fold(
       (doc) {
         document = _decodeJsonToDocument(doc.deltaJson);
         _subscription = document.changes.listen((event) {
@@ -92,10 +90,10 @@ class DocBloc extends Bloc<DocEvent, DocState> {
           final documentDelta = document.toDelta();
           _composeDelta(delta, documentDelta);
         });
-        return state.copyWith(loadState: DocLoadState.finish(left(unit)));
+        emit(state.copyWith(loadState: DocLoadState.finish(left(unit))));
       },
       (err) {
-        return state.copyWith(loadState: DocLoadState.finish(right(err)));
+        emit(state.copyWith(loadState: DocLoadState.finish(right(err))));
       },
     );
   }

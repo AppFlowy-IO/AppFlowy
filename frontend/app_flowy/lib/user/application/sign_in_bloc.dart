@@ -9,35 +9,33 @@ part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final IAuth authManager;
-  SignInBloc(this.authManager) : super(SignInState.initial());
-
-  @override
-  Stream<SignInState> mapEventToState(
-    SignInEvent event,
-  ) async* {
-    yield* event.map(
-      signedInWithUserEmailAndPassword: (e) async* {
-        yield* _performActionOnSignIn(
-          state,
-        );
-      },
-      emailChanged: (EmailChanged value) async* {
-        yield state.copyWith(email: value.email, emailError: none(), successOrFail: none());
-      },
-      passwordChanged: (PasswordChanged value) async* {
-        yield state.copyWith(password: value.password, passwordError: none(), successOrFail: none());
-      },
-    );
+  SignInBloc(this.authManager) : super(SignInState.initial()) {
+    on<SignInEvent>((event, emit) async {
+      await event.map(
+        signedInWithUserEmailAndPassword: (e) async {
+          await _performActionOnSignIn(
+            state,
+            emit,
+          );
+        },
+        emailChanged: (EmailChanged value) async {
+          emit(state.copyWith(email: value.email, emailError: none(), successOrFail: none()));
+        },
+        passwordChanged: (PasswordChanged value) async {
+          emit(state.copyWith(password: value.password, passwordError: none(), successOrFail: none()));
+        },
+      );
+    });
   }
 
-  Stream<SignInState> _performActionOnSignIn(SignInState state) async* {
-    yield state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none());
+  Future<void> _performActionOnSignIn(SignInState state, Emitter<SignInState> emit) async {
+    emit(state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none()));
 
     final result = await authManager.signIn(state.email, state.password);
-    yield result.fold(
+    emit(result.fold(
       (userProfile) => state.copyWith(isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),
-    );
+    ));
   }
 
   SignInState stateFromCode(FlowyError error) {

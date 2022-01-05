@@ -12,46 +12,43 @@ part 'app_bloc.freezed.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   final IApp appManager;
   final IAppListenr listener;
-  AppBloc({required App app, required this.appManager, required this.listener}) : super(AppState.initial(app));
-
-  @override
-  Stream<AppState> mapEventToState(
-    AppEvent event,
-  ) async* {
-    yield* event.map(initial: (e) async* {
-      listener.start(
-        viewsChangeCallback: _handleViewsChanged,
-        updatedCallback: (app) => add(AppEvent.appDidUpdate(app)),
-      );
-      yield* _fetchViews();
-    }, createView: (CreateView value) async* {
-      final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
-      yield viewOrFailed.fold(
-        (view) => state.copyWith(
-          latestCreatedView: view,
-          successOrFailure: left(unit),
-        ),
-        (error) {
-          Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
-        },
-      );
-    }, didReceiveViews: (e) async* {
-      yield* handleDidReceiveViews(e.views);
-    }, delete: (e) async* {
-      final result = await appManager.delete();
-      yield result.fold(
-        (unit) => state.copyWith(successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
-      );
-    }, rename: (e) async* {
-      final result = await appManager.rename(e.newName);
-      yield result.fold(
-        (l) => state.copyWith(successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
-      );
-    }, appDidUpdate: (e) async* {
-      yield state.copyWith(app: e.app);
+  AppBloc({required App app, required this.appManager, required this.listener}) : super(AppState.initial(app)) {
+    on<AppEvent>((event, emit) async {
+      await event.map(initial: (e) async {
+        listener.start(
+          viewsChangeCallback: _handleViewsChanged,
+          updatedCallback: (app) => add(AppEvent.appDidUpdate(app)),
+        );
+        await _fetchViews(emit);
+      }, createView: (CreateView value) async {
+        final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
+        viewOrFailed.fold(
+          (view) => emit(state.copyWith(
+            latestCreatedView: view,
+            successOrFailure: left(unit),
+          )),
+          (error) {
+            Log.error(error);
+            emit(state.copyWith(successOrFailure: right(error)));
+          },
+        );
+      }, didReceiveViews: (e) async {
+        await handleDidReceiveViews(e.views, emit);
+      }, delete: (e) async {
+        final result = await appManager.delete();
+        result.fold(
+          (unit) => emit(state.copyWith(successOrFailure: left(unit))),
+          (error) => emit(state.copyWith(successOrFailure: right(error))),
+        );
+      }, rename: (e) async {
+        final result = await appManager.rename(e.newName);
+        result.fold(
+          (l) => emit(state.copyWith(successOrFailure: left(unit))),
+          (error) => emit(state.copyWith(successOrFailure: right(error))),
+        );
+      }, appDidUpdate: (e) async {
+        emit(state.copyWith(app: e.app));
+      });
     });
   }
 
@@ -70,7 +67,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     );
   }
 
-  Stream<AppState> handleDidReceiveViews(List<View> views) async* {
+  Future<void> handleDidReceiveViews(List<View> views, Emitter<AppState> emit) async {
     final latestCreatedView = state.latestCreatedView;
     AppState newState = state.copyWith(views: views);
     if (latestCreatedView != null) {
@@ -80,16 +77,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }
     }
 
-    yield newState;
+    emit(newState);
   }
 
-  Stream<AppState> _fetchViews() async* {
+  Future<void> _fetchViews(Emitter<AppState> emit) async {
     final viewsOrFailed = await appManager.getViews();
-    yield viewsOrFailed.fold(
-      (apps) => state.copyWith(views: apps),
+    viewsOrFailed.fold(
+      (apps) => emit(state.copyWith(views: apps)),
       (error) {
         Log.error(error);
-        return state.copyWith(successOrFailure: right(error));
+        emit(state.copyWith(successOrFailure: right(error)));
       },
     );
   }

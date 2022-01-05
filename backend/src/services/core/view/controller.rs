@@ -11,14 +11,18 @@ use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision},
+<<<<<<< HEAD
     protobuf::CreateDocParams,
+=======
+    protobuf::CreateDocParams as CreateDocParamsPB,
+>>>>>>> upstream/main
 };
 use flowy_core_data_model::{
     parser::{
         app::AppIdentify,
         view::{ViewDesc, ViewName, ViewThumbnail},
     },
-    protobuf::{CreateViewParams, RepeatedView, View},
+    protobuf::{CreateViewParams as CreateViewParamsPB, RepeatedView as RepeatedViewPB, View as ViewPB},
 };
 use sqlx::{postgres::PgArguments, Postgres};
 use std::{convert::TryInto, sync::Arc};
@@ -69,9 +73,15 @@ pub(crate) async fn delete_view(
 pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
     kv_store: Arc<DocumentKVPersistence>,
+<<<<<<< HEAD
     params: CreateViewParams,
     user_id: &str,
 ) -> Result<View, ServerError> {
+=======
+    params: CreateViewParamsPB,
+    user_id: &str,
+) -> Result<ViewPB, ServerError> {
+>>>>>>> upstream/main
     let view_id = check_view_id(params.view_id.clone())?;
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
     let belong_to_id = AppIdentify::parse(params.belong_to_id).map_err(invalid_params)?;
@@ -94,7 +104,11 @@ pub(crate) async fn create_view(
     let md5 = format!("{:x}", md5::compute(&delta_data));
     let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
     let repeated_revision = RepeatedRevision::new(vec![revision]);
+<<<<<<< HEAD
     let mut create_doc_params = CreateDocParams::new();
+=======
+    let mut create_doc_params = CreateDocParamsPB::new();
+>>>>>>> upstream/main
     create_doc_params.set_revisions(repeated_revision.try_into().unwrap());
     create_doc_params.set_id(view.id.clone());
     let _ = create_document(&kv_store, create_doc_params).await?;
@@ -106,7 +120,7 @@ pub(crate) async fn read_view(
     user: &LoggedUser,
     view_id: Uuid,
     transaction: &mut DBTransaction<'_>,
-) -> Result<View, ServerError> {
+) -> Result<ViewPB, ServerError> {
     let table = read_view_table(view_id, transaction as &mut DBTransaction<'_>).await?;
 
     let read_trash_ids = read_trash_ids(user, transaction).await?;
@@ -114,13 +128,13 @@ pub(crate) async fn read_view(
         return Err(ServerError::record_not_found());
     }
 
-    let mut views = RepeatedView::default();
+    let mut views = RepeatedViewPB::default();
     views.set_items(
         read_view_belong_to_id(&table.id.to_string(), &user, transaction)
             .await?
             .into(),
     );
-    let mut view: View = table.into();
+    let mut view: ViewPB = table.into();
     view.set_belongings(views);
     Ok(view)
 }
@@ -147,7 +161,7 @@ pub(crate) async fn read_view_belong_to_id<'c>(
     id: &str,
     user: &LoggedUser,
     transaction: &mut DBTransaction<'_>,
-) -> Result<Vec<View>, ServerError> {
+) -> Result<Vec<ViewPB>, ServerError> {
     // TODO: add index for app_table
     let (sql, args) = SqlBuilder::select(VIEW_TABLE)
         .add_field("*")
@@ -162,7 +176,7 @@ pub(crate) async fn read_view_belong_to_id<'c>(
     let read_trash_ids = read_trash_ids(user, transaction).await?;
     tables.retain(|table| !read_trash_ids.contains(&table.id.to_string()));
 
-    let views = tables.into_iter().map(|table| table.into()).collect::<Vec<View>>();
+    let views = tables.into_iter().map(|table| table.into()).collect::<Vec<ViewPB>>();
 
     Ok(views)
 }

@@ -42,7 +42,7 @@ packages:
       name: bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.2.1"
+    version: "8.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -266,21 +266,21 @@ packages:
       name: device_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   device_info_plus_linux:
     dependency: transitive
     description:
       name: device_info_plus_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   device_info_plus_macos:
     dependency: transitive
     description:
       name: device_info_plus_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -301,7 +301,7 @@ packages:
       name: device_info_plus_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   diff_match_patch:
     dependency: transitive
     description:
@@ -418,14 +418,14 @@ packages:
       name: flutter_bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.3.3"
+    version: "8.0.1"
   flutter_colorpicker:
     dependency: "direct main"
     description:
       name: flutter_colorpicker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1"
+    version: "1.0.3"
   flutter_inappwebview:
     dependency: transitive
     description:
@@ -477,11 +477,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: develop
-      resolved-ref: "8a4c23dcdbb8c38d49b7dea42575231877b1e56d"
+      ref: HEAD
+      resolved-ref: "0cb120d08d92c7091bfc0c9466a41c2b21965ca7"
       url: "https://github.com/appflowy/flutter-quill.git"
     source: git
-    version: "2.0.13"
+    version: "3.0.4"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -688,13 +688,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.11"
-  material_color_utilities:
-    dependency: transitive
-    description:
-      name: material_color_utilities
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   meta:
     dependency: transitive
     description:
@@ -1084,7 +1077,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.8"
+    version: "0.4.3"
   textstyle_extensions:
     dependency: transitive
     description:
@@ -1264,4 +1257,4 @@ packages:
     version: "8.0.0"
 sdks:
   dart: ">=2.15.0-116.0.dev <3.0.0"
-  flutter: ">=2.5.0"
+  flutter: ">=2.5.3"

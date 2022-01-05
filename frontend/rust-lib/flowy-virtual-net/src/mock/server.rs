@@ -1,7 +1,20 @@
 use bytes::Bytes;
 use dashmap::DashMap;
+<<<<<<< HEAD
 use flowy_collaboration::{entities::prelude::*, errors::CollaborateError, sync::*};
 // use flowy_net::services::ws::*;
+=======
+use flowy_collaboration::{
+    entities::{
+        doc::DocumentInfo,
+        ws::{DocumentClientWSData, DocumentClientWSDataType},
+    },
+    errors::CollaborateError,
+    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    sync::*,
+    util::repeated_revision_from_repeated_revision_pb,
+};
+>>>>>>> upstream/main
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
@@ -84,6 +97,7 @@ impl DocumentPersistence for MockDocServerPersistence {
         })
     }
 
+<<<<<<< HEAD
     fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let doc_id = doc_id.to_owned();
         Box::pin(async move { DocumentInfo::from_revisions(&doc_id, revisions) })
@@ -94,6 +108,31 @@ impl DocumentPersistence for MockDocServerPersistence {
     }
 
     fn get_doc_revisions(&self, _doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> { unimplemented!() }
+=======
+    fn create_doc(
+        &self,
+        doc_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<DocumentInfo, CollaborateError> {
+        let doc_id = doc_id.to_owned();
+        Box::pin(async move {
+            let repeated_revision = repeated_revision_from_repeated_revision_pb(repeated_revision)?;
+            DocumentInfo::from_revisions(&doc_id, repeated_revision.into_inner())
+        })
+    }
+
+    fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+        Box::pin(async move { Ok(vec![]) })
+    }
+
+    fn get_doc_revisions(&self, _doc_id: &str) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+        unimplemented!()
+    }
+
+    fn reset_document(&self, _doc_id: &str, _revisions: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+        unimplemented!()
+    }
+>>>>>>> upstream/main
 }
 
 #[derive(Debug)]

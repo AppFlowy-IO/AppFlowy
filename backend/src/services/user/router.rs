@@ -10,11 +10,15 @@ use actix_web::{
     HttpResponse,
 };
 use backend_service::{errors::ServerError, response::FlowyResponse};
-use flowy_user_data_model::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
+use flowy_user_data_model::protobuf::{
+    SignInParams as SignInParamsPB,
+    SignUpParams as SignUpParamsPB,
+    UpdateUserParams as UpdateUserParamsPB,
+};
 use sqlx::PgPool;
 
 pub async fn sign_in_handler(payload: Payload, id: Identity, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: SignInParams = parse_from_payload(payload).await?;
+    let params: SignInParamsPB = parse_from_payload(payload).await?;
     let data = sign_in(pool.get_ref(), params).await?;
     id.remember(data.token.clone());
     let response = FlowyResponse::success().pb(data)?;
@@ -42,13 +46,13 @@ pub async fn set_user_profile_handler(
     pool: Data<PgPool>,
     payload: Payload,
 ) -> Result<HttpResponse, ServerError> {
-    let params: UpdateUserParams = parse_from_payload(payload).await?;
+    let params: UpdateUserParamsPB = parse_from_payload(payload).await?;
     let response = set_user_profile(pool.get_ref(), logged_user, params).await?;
     Ok(response.into())
 }
 
 pub async fn register_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: SignUpParams = parse_from_payload(payload).await?;
+    let params: SignUpParamsPB = parse_from_payload(payload).await?;
     let resp = register_user(pool.get_ref(), params).await?;
 
     Ok(resp.into())

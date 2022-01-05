@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 use flowy_core::prelude::CoreContext;
 
+=======
+use flowy_core::context::CoreContext;
+>>>>>>> upstream/main
 use flowy_net::services::ws::FlowyWSConnect;
 use flowy_user::services::user::UserSession;
 use lib_dispatch::prelude::Module;

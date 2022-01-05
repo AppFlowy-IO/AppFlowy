@@ -1,6 +1,7 @@
 use crate::{
     document::Document,
     entities::{
+<<<<<<< HEAD
         revision::{Revision, RevisionRange},
         ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
     },
@@ -8,6 +9,16 @@ use crate::{
     sync::DocumentPersistence,
 };
 
+=======
+        revision::RevisionRange,
+        ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
+    },
+    errors::CollaborateError,
+    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    sync::DocumentPersistence,
+    util::*,
+};
+>>>>>>> upstream/main
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
@@ -29,7 +40,11 @@ pub enum SyncResponse {
     Pull(DocumentServerWSData),
     Push(DocumentServerWSData),
     Ack(DocumentServerWSData),
+<<<<<<< HEAD
     NewRevision(Vec<Revision>),
+=======
+    NewRevision(RepeatedRevisionPB),
+>>>>>>> upstream/main
 }
 
 pub struct RevisionSynchronizer {
@@ -48,6 +63,7 @@ impl RevisionSynchronizer {
         }
     }
 
+<<<<<<< HEAD
     #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
     pub async fn sync_revisions(
         &self,
@@ -60,12 +76,31 @@ impl RevisionSynchronizer {
             // Return all the revisions to client
             let revisions = persistence.get_doc_revisions(&doc_id).await?;
             let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, revisions);
+=======
+    #[tracing::instrument(level = "debug", skip(self, user, repeated_revision, persistence), err)]
+    pub async fn sync_revisions(
+        &self,
+        user: Arc<dyn RevisionUser>,
+        repeated_revision: RepeatedRevisionPB,
+        persistence: Arc<dyn DocumentPersistence>,
+    ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
+        if repeated_revision.get_items().is_empty() {
+            // Return all the revisions to client
+            let revisions = persistence.get_doc_revisions(&doc_id).await?;
+            let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
+            let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, repeated_revision);
+>>>>>>> upstream/main
             user.receive(SyncResponse::Push(data));
             return Ok(());
         }
 
         let server_base_rev_id = self.rev_id.load(SeqCst);
+<<<<<<< HEAD
         let first_revision = revisions.first().unwrap().clone();
+=======
+        let first_revision = repeated_revision.get_items().first().unwrap().clone();
+>>>>>>> upstream/main
         if self.is_applied_before(&first_revision, &persistence).await {
             // Server has received this revision before, so ignore the following revisions
             return Ok(());
@@ -76,10 +111,17 @@ impl RevisionSynchronizer {
                 let server_rev_id = next(server_base_rev_id);
                 if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
+<<<<<<< HEAD
                     for revision in &revisions {
                         let _ = self.compose_revision(revision)?;
                     }
                     user.receive(SyncResponse::NewRevision(revisions));
+=======
+                    for revision in repeated_revision.get_items() {
+                        let _ = self.compose_revision(revision)?;
+                    }
+                    user.receive(SyncResponse::NewRevision(repeated_revision));
+>>>>>>> upstream/main
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
@@ -101,12 +143,19 @@ impl RevisionSynchronizer {
                 // delta.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
+<<<<<<< HEAD
                 let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
+=======
+                let _ = self
+                    .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
+                    .await;
+>>>>>>> upstream/main
             },
         }
         Ok(())
     }
 
+<<<<<<< HEAD
     pub async fn pong(
         &self,
         doc_id: String,
@@ -116,6 +165,19 @@ impl RevisionSynchronizer {
     ) -> Result<(), CollaborateError> {
         let server_base_rev_id = self.rev_id.load(SeqCst);
         match server_base_rev_id.cmp(&rev_id) {
+=======
+    #[tracing::instrument(level = "debug", skip(self, user, persistence), fields(server_rev_id), err)]
+    pub async fn pong(
+        &self,
+        user: Arc<dyn RevisionUser>,
+        persistence: Arc<dyn DocumentPersistence>,
+        client_rev_id: i64,
+    ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
+        let server_rev_id = self.rev_id();
+        tracing::Span::current().record("server_rev_id", &server_rev_id);
+        match server_rev_id.cmp(&client_rev_id) {
+>>>>>>> upstream/main
             Ordering::Less => tracing::error!(
                 "[Pong] Client should not send ping and the server should pull the revisions from the client"
             ),
@@ -124,18 +186,51 @@ impl RevisionSynchronizer {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
+<<<<<<< HEAD
                 let from_rev_id = rev_id;
                 let to_rev_id = server_base_rev_id;
                 tracing::trace!("[Pong]: Push revisions to user");
                 let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
+=======
+                let from_rev_id = client_rev_id;
+                let to_rev_id = server_rev_id;
+                tracing::trace!("[Pong]: Push revisions to user");
+                let _ = self
+                    .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
+                    .await;
+>>>>>>> upstream/main
             },
         }
         Ok(())
     }
 
+<<<<<<< HEAD
     pub fn doc_json(&self) -> String { self.document.read().to_json() }
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
+=======
+    #[tracing::instrument(level = "debug", skip(self, repeated_revision, persistence), fields(doc_id), err)]
+    pub async fn reset(
+        &self,
+        persistence: Arc<dyn DocumentPersistence>,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
+        tracing::Span::current().record("doc_id", &doc_id.as_str());
+        let revisions: Vec<RevisionPB> = repeated_revision.get_items().to_vec();
+        let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
+        let delta = make_delta_from_revision_pb(revisions)?;
+
+        let _ = persistence.reset_document(&doc_id, repeated_revision).await?;
+        *self.document.write() = Document::from_delta(delta);
+        let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
+        Ok(())
+    }
+
+    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+
+    fn compose_revision(&self, revision: &RevisionPB) -> Result<(), CollaborateError> {
+>>>>>>> upstream/main
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
@@ -143,7 +238,11 @@ impl RevisionSynchronizer {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
+<<<<<<< HEAD
     fn transform_revision(&self, revision: &Revision) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
+=======
+    fn transform_revision(&self, revision: &RevisionPB) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
+>>>>>>> upstream/main
         let cli_delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let result = self.document.read().delta().transform(&cli_delta)?;
         Ok(result)
@@ -163,10 +262,16 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
+<<<<<<< HEAD
     #[allow(dead_code)]
     pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 
     async fn is_applied_before(&self, new_revision: &Revision, persistence: &Arc<dyn DocumentPersistence>) -> bool {
+=======
+    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
+
+    async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
+>>>>>>> upstream/main
         if let Ok(revisions) = persistence.get_revisions(&self.doc_id, vec![new_revision.rev_id]).await {
             if let Some(revision) = revisions.first() {
                 if revision.md5 == new_revision.md5 {
@@ -201,15 +306,29 @@ impl RevisionSynchronizer {
             },
         };
 
+<<<<<<< HEAD
         let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
         user.receive(SyncResponse::Push(data));
+=======
+        tracing::debug!("Push revision: {} -> {} to client", from, to);
+        match repeated_revision_from_revision_pbs(revisions) {
+            Ok(repeated_revision) => {
+                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
+                user.receive(SyncResponse::Push(data));
+            },
+            Err(e) => tracing::error!("{}", e),
+        }
+>>>>>>> upstream/main
     }
 }
 
 #[inline]
 fn next(rev_id: i64) -> i64 { rev_id + 1 }
+<<<<<<< HEAD
 // #[inline]
 // fn md5<T: AsRef<[u8]>>(data: T) -> String {
 //     let md5 = format!("{:x}", md5::compute(data));
 //     md5
 // }
+=======
+>>>>>>> upstream/main

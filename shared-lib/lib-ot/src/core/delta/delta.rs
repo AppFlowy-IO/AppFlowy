@@ -2,6 +2,7 @@ use crate::{
     core::{operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
+
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -12,7 +13,7 @@ use std::{
     str::FromStr,
 };
 
-// Opti: optimize the memory usage with Arc_mut or Cow
+// TODO: optimize the memory usage with Arc_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
     pub ops: Vec<Operation<T>>,
@@ -298,7 +299,7 @@ where
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
                     a_prime.retain(o_insert.count_of_code_units(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
@@ -310,7 +311,7 @@ where
                     return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
@@ -456,17 +457,20 @@ fn invert_from_other<T: Attributes>(
     });
 }
 
-fn transform_op_attribute<T: Attributes>(left: &Option<Operation<T>>, right: &Option<Operation<T>>) -> T {
+fn transform_op_attribute<T: Attributes>(
+    left: &Option<Operation<T>>,
+    right: &Option<Operation<T>>,
+) -> Result<T, OTError> {
     if left.is_none() {
         if right.is_none() {
-            return T::default();
+            return Ok(T::default());
         }
-        return right.as_ref().unwrap().get_attributes();
+        return Ok(right.as_ref().unwrap().get_attributes());
     }
     let left = left.as_ref().unwrap().get_attributes();
     let right = right.as_ref().unwrap().get_attributes();
-    // TODO: It's ok to unwrap?
-    left.transform(&right).unwrap().0
+    // TODO: replace with anyhow and thiserror.
+    Ok(left.transform(&right)?.0)
 }
 
 impl<T> Delta<T>

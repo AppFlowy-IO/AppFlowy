@@ -17,11 +17,18 @@ use backend_service::{
 use chrono::Utc;
 use flowy_user_data_model::{
     parser::{UserEmail, UserName, UserPassword},
-    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
+    protobuf::{
+        SignInParams as SignInParamsPB,
+        SignInResponse as SignInResponsePB,
+        SignUpParams as SignUpParamsPB,
+        SignUpResponse as SignUpResponsePB,
+        UpdateUserParams as UpdateUserParamsPB,
+        UserProfile as UserProfilePB,
+    },
 };
 use sqlx::{PgPool, Postgres};
 
-pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
+pub async fn sign_in(pool: &PgPool, params: SignInParamsPB) -> Result<SignInResponsePB, ServerError> {
     let email = UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
     let password = UserPassword::parse(params.password).map_err(|e| ServerError::params_invalid().context(e))?;
 
@@ -40,7 +47,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
     let logged_user = LoggedUser::new(&user.id.to_string());
 
     AUTHORIZED_USERS.store_auth(logged_user, true);
-    let mut response_data = SignInResponse::default();
+    let mut response_data = SignInResponsePB::default();
     response_data.set_user_id(user.id.to_string());
     response_data.set_name(user.name);
     response_data.set_email(user.email);
@@ -54,7 +61,7 @@ pub async fn sign_out(logged_user: LoggedUser) -> Result<FlowyResponse, ServerEr
     Ok(FlowyResponse::success())
 }
 
-pub async fn register_user(pool: &PgPool, params: SignUpParams) -> Result<FlowyResponse, ServerError> {
+pub async fn register_user(pool: &PgPool, params: SignUpParamsPB) -> Result<FlowyResponse, ServerError> {
     let name = UserName::parse(params.name).map_err(|e| ServerError::params_invalid().context(e))?;
     let email = UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
     let password = UserPassword::parse(params.password).map_err(|e| ServerError::params_invalid().context(e))?;
@@ -105,7 +112,7 @@ pub(crate) async fn get_user_profile(
     // update the user active time
     AUTHORIZED_USERS.store_auth(logged_user, true);
 
-    let mut user_profile = UserProfile::default();
+    let mut user_profile = UserProfilePB::default();
     user_profile.set_id(user_table.id.to_string());
     user_profile.set_email(user_table.email);
     user_profile.set_name(user_table.name);
@@ -116,7 +123,7 @@ pub(crate) async fn get_user_profile(
 pub(crate) async fn set_user_profile(
     pool: &PgPool,
     logged_user: LoggedUser,
-    params: UpdateUserParams,
+    params: UpdateUserParamsPB,
 ) -> Result<FlowyResponse, ServerError> {
     let mut transaction = pool
         .begin()
@@ -204,7 +211,7 @@ async fn insert_new_user(
     name: &str,
     email: &str,
     password: &str,
-) -> Result<SignUpResponse, ServerError> {
+) -> Result<SignUpResponsePB, ServerError> {
     let uuid = uuid::Uuid::new_v4();
     let token = Token::create_token(&uuid.to_string())?;
     let password = hash_password(password)?;
@@ -223,7 +230,7 @@ async fn insert_new_user(
     .await
     .map_err(|e| ServerError::internal().context(e))?;
 
-    let mut response = SignUpResponse::default();
+    let mut response = SignUpResponsePB::default();
     response.set_user_id(uuid.to_string());
     response.set_name(name.to_string());
     response.set_email(email.to_string());

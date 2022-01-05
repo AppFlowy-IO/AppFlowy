@@ -12,20 +12,18 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   final IUser userManager;
   final IUserListener listener;
 
-  MenuUserBloc(this.userManager, this.listener) : super(MenuUserState.initial(userManager.user));
-
-  @override
-  Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
-    yield* event.map(
-      initial: (_) async* {
-        listener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
-        listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
-        listener.start();
-
-        await _initUser();
-      },
-      fetchWorkspaces: (_FetchWorkspaces value) async* {},
-    );
+  MenuUserBloc(this.userManager, this.listener) : super(MenuUserState.initial(userManager.user)) {
+    on<MenuUserEvent>((event, emit) async {
+      await event.map(
+        initial: (_) async {
+          listener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
+          listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
+          listener.start();
+          await _initUser();
+        },
+        fetchWorkspaces: (_FetchWorkspaces value) async {},
+      );
+    });
   }
 
   @override

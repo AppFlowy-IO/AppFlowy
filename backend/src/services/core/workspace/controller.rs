@@ -11,7 +11,11 @@ use anyhow::Context;
 use backend_service::errors::{invalid_params, ServerError};
 use flowy_core_data_model::{
     parser::workspace::WorkspaceIdentify,
+<<<<<<< HEAD
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
+=======
+    protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
+>>>>>>> upstream/main
 };
 use sqlx::{postgres::PgArguments, Postgres};
 use uuid::Uuid;
@@ -21,7 +25,7 @@ pub(crate) async fn create_workspace(
     name: &str,
     desc: &str,
     logged_user: LoggedUser,
-) -> Result<Workspace, ServerError> {
+) -> Result<WorkspacePB, ServerError> {
     let user_id = logged_user.as_uuid()?.to_string();
     let (sql, args, workspace) = NewWorkspaceBuilder::new(&user_id).name(name).desc(desc).build()?;
 
@@ -74,7 +78,7 @@ pub async fn read_workspaces(
     transaction: &mut DBTransaction<'_>,
     workspace_id: Option<String>,
     logged_user: LoggedUser,
-) -> Result<RepeatedWorkspace, ServerError> {
+) -> Result<RepeatedWorkspacePB, ServerError> {
     let user_id = logged_user.as_uuid()?.to_string();
 
     let mut builder = SqlBuilder::select(WORKSPACE_TABLE)
@@ -92,7 +96,7 @@ pub async fn read_workspaces(
         .await
         .map_err(map_sqlx_error)?;
 
-    let mut repeated_workspace = RepeatedWorkspace::default();
+    let mut repeated_workspace = RepeatedWorkspacePB::default();
     let mut workspaces = vec![];
     // Opti: combine the query
     for table in tables {
@@ -105,7 +109,7 @@ pub async fn read_workspaces(
         .context("Get workspace app")
         .unwrap_or_default();
 
-        let mut workspace: Workspace = table.into();
+        let mut workspace: WorkspacePB = table.into();
         workspace.set_apps(apps);
         workspaces.push(workspace);
     }
@@ -119,7 +123,11 @@ async fn read_workspace_apps<'c>(
     user: &LoggedUser,
     transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
+<<<<<<< HEAD
 ) -> Result<RepeatedApp, ServerError> {
+=======
+) -> Result<RepeatedAppPB, ServerError> {
+>>>>>>> upstream/main
     let workspace_id = WorkspaceIdentify::parse(workspace_id.to_owned()).map_err(invalid_params)?;
     let (sql, args) = SqlBuilder::select("app_table")
         .add_field("*")
@@ -138,7 +146,7 @@ async fn read_workspace_apps<'c>(
         apps.push(app);
     }
 
-    let mut repeated_app = RepeatedApp::default();
+    let mut repeated_app = RepeatedAppPB::default();
     repeated_app.set_items(apps.into());
     Ok(repeated_app)
 }

@@ -1,10 +1,15 @@
 use crate::{
     context::DocumentUser,
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/edit/editor.rs
     errors::FlowyError,
     services::doc::{
+=======
+    core::{
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/edit/editor.rs
         web_socket::{make_document_ws_manager, DocumentWebSocketManager},
         *,
     },
+    errors::FlowyError,
 };
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -150,7 +155,7 @@ impl ClientDocumentEditor {
 
     async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
         let delta_data = delta.to_bytes();
-        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
+        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
         let revision = Revision::new(&self.doc_id, base_rev_id, rev_id, delta_data, &user_id, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
