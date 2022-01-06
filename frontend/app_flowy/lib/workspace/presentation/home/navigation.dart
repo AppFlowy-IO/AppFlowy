@@ -6,6 +6,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:flowy_infra/theme.dart';
 
 typedef NaviAction = void Function();
 
@@ -81,6 +82,7 @@ class FlowyNavigation extends StatelessWidget {
   }
 
   Widget _renderCollapse(BuildContext context, PublishNotifier<bool> collapsedNotifier) {
+    final theme = context.watch<AppTheme>();
     return ChangeNotifierProvider.value(
       value: collapsedNotifier,
       child: Consumer(
@@ -94,7 +96,7 @@ class FlowyNavigation extends StatelessWidget {
                   notifier.value = false;
                 },
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: svg("home/hide_menu"),
+                icon: svg("home/hide_menu", color: theme.textColor),
               ),
             );
           } else {

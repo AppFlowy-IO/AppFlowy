@@ -54,7 +54,7 @@ class TrashHeader extends StatelessWidget {
           child: FlowyText(
             item.title,
             fontSize: 12,
-            color: theme.shader3,
+            color: theme.textColor,
           ),
         ),
       );
