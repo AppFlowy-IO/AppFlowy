@@ -114,6 +114,7 @@ impl EditorCommandQueue {
                     let read_guard = self.document.read().await;
                     let mut server_prime: Option<RichTextDelta> = None;
                     let client_prime: RichTextDelta;
+                    // The document is empty if its text is equal to the initial text.
                     if read_guard.is_empty::<NewlineDoc>() {
                         // Do nothing
                         client_prime = new_delta;
@@ -122,7 +123,6 @@ impl EditorCommandQueue {
                         client_prime = c_prime;
                         server_prime = Some(s_prime);
                     }
-
                     drop(read_guard);
                     Ok::<TransformDeltas, CollaborateError>(TransformDeltas {
                         client_prime,

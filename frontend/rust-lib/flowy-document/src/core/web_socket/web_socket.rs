@@ -130,17 +130,12 @@ impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
 }
 
 async fn transform_pushed_revisions(
-    revisions: &[Revision],
+    revisions: Vec<Revision>,
     edit_cmd: &UnboundedSender<EditorCommand>,
 ) -> FlowyResult<TransformDeltas> {
     let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
-    // Transform the revision
-    let _ = edit_cmd.send(EditorCommand::TransformRevision {
-        revisions: revisions.to_vec(),
-        ret,
-    });
-    let transformed_delta = rx.await.map_err(internal_error)??;
-    Ok(transformed_delta)
+    let _ = edit_cmd.send(EditorCommand::TransformRevision { revisions, ret });
+    Ok(rx.await.map_err(internal_error)??)
 }
 
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
@@ -170,7 +165,8 @@ pub(crate) async fn handle_remote_revision(
     let TransformDeltas {
         client_prime,
         server_prime,
-    } = transform_pushed_revisions(&revisions, &edit_cmd_tx).await?;
+    } = transform_pushed_revisions(revisions.clone(), &edit_cmd_tx).await?;
+
     match server_prime {
         None => {
             // The server_prime is None means the client local revisions conflict with the

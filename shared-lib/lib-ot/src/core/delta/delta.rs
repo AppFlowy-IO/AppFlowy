@@ -241,7 +241,7 @@ where
                 .next_op_with_len(length)
                 .unwrap_or_else(|| OpBuilder::retain(length).build());
 
-            debug_assert_eq!(op.len(), other_op.len());
+            // debug_assert_eq!(op.len(), other_op.len(), "Composing delta failed,");
 
             match (&op, &other_op) {
                 (Operation::Retain(retain), Operation::Retain(other_retain)) => {
