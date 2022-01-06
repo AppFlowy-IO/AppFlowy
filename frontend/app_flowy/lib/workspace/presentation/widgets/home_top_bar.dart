@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pbenum.dart';
@@ -15,7 +16,9 @@ class HomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final theme = context.watch<AppTheme>();
+    return Container(
+      color: theme.surface,
       height: HomeSizes.topBarHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

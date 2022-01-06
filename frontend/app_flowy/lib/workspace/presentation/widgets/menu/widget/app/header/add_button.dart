@@ -75,7 +75,7 @@ class CreateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.main2);
+    final config = HoverDisplayConfig(hoverColor: theme.hover);
 
     return FlowyHover(
       config: config,

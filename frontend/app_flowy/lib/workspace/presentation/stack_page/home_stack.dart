@@ -1,8 +1,10 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -27,13 +29,14 @@ class HomeStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Log.info('HomePage build');
+    final theme = context.watch<AppTheme>();
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         getIt<HomeStackManager>().stackTopBar(),
         Expanded(
           child: Container(
-            color: Theme.of(context).colorScheme.background,
+            color: theme.surface,
             child: FocusTraversalGroup(
               child: getIt<HomeStackManager>().stackWidget(),
             ),

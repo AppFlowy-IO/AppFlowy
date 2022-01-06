@@ -10,7 +10,6 @@ enum ThemeType {
 const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xFFFFFFFF);
-const _gray_shade200 = Color(0xFFEEEEEE);
 const _main2 = Color(0xff00b7ea);
 
 class AppTheme {
@@ -51,6 +50,8 @@ class AppTheme {
   late Color main1;
   late Color main2;
 
+  late Color shadowColor;
+
   /// Default constructor
   AppTheme({this.isDark = false});
 
@@ -59,7 +60,7 @@ class AppTheme {
     switch (t) {
       case ThemeType.light:
         return AppTheme(isDark: false)
-          ..surface = _gray_shade200
+          ..surface = Colors.white
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
@@ -71,8 +72,8 @@ class AppTheme {
           ..shader4 = const Color(0xffbdbdbd)
           ..shader5 = const Color(0xffe0e0e0)
           ..shader6 = const Color(0xfff2f2f2)
-          ..shader7 = _gray_shade200
-          ..bg1 = _gray_shade200
+          ..shader7 = const Color(0xffffffff)
+          ..bg1 = const Color(0xfff7f8fc)
           ..bg2 = const Color(0xffedeef2)
           ..bg3 = const Color(0xffe2e4eb)
           ..bg4 = const Color(0xff2c144b)
@@ -87,7 +88,8 @@ class AppTheme {
           ..tint9 = const Color(0xffdefff1)
           ..main1 = const Color(0xff00bcf0)
           ..main2 = const Color(0xff00b7ea)
-          ..textColor = _black;
+          ..textColor = _black
+          ..shadowColor = _black;
 
       case ThemeType.dark:
         return AppTheme(isDark: true)
@@ -119,18 +121,20 @@ class AppTheme {
           ..tint9 = const Color(0xffdefff1)
           ..main1 = const Color(0xff00bcf0)
           ..main2 = const Color(0xff00b7ea)
-          ..textColor = _white;
+          ..textColor = _white
+          ..shadowColor = _white;
     }
   }
 
   ThemeData get themeData {
     var t = ThemeData(
-      textTheme: TextTheme(bodyText1: TextStyle(), bodyText2: TextStyle().apply(color: textColor)),
+      textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
       textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
-      canvasColor: shader7,
-      hoverColor: main2,
+      canvasColor: shader6,
+      //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
+      // hoverColor: main2,
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,
