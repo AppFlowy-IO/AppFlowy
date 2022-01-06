@@ -128,12 +128,13 @@ class AppTheme {
 
   ThemeData get themeData {
     var t = ThemeData(
-      textTheme: TextTheme(bodyText1: TextStyle(), bodyText2: TextStyle().apply(color: textColor)),
+      textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
       textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       canvasColor: shader6,
-      hoverColor: main2,
+      //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
+      // hoverColor: main2,
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,
