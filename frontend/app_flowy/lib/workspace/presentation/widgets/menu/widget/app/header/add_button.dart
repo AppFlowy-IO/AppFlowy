@@ -28,7 +28,7 @@ class AddButton extends StatelessWidget {
           onSelected: onSelected,
         ).show(context);
       },
-      icon: svg("home/add").padding(horizontal: 3, vertical: 3),
+      icon: svg("home/add", color: theme.textColor).padding(horizontal: 3, vertical: 3),
     );
   }
 }
@@ -75,7 +75,7 @@ class CreateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.main2);
+    final config = HoverDisplayConfig(hoverColor: theme.hover);
 
     return FlowyHover(
       config: config,
