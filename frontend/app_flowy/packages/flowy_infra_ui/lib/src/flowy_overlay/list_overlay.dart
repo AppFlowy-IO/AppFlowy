@@ -45,7 +45,7 @@ class ListOverlay extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        decoration: FlowyDecoration.decoration(theme.bg1, theme.main2),
+        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.1)),
         constraints: BoxConstraints.tight(Size(width, totalHeight)),
         child: Padding(
           padding: padding,

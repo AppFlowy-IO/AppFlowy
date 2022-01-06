@@ -9,12 +9,10 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-
 import '../menu_app.dart';
 import 'add_button.dart';
 import 'right_click_action.dart';
@@ -56,7 +54,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: theme.main1,
+            iconColor: theme.shader1,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
