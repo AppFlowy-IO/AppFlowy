@@ -1,4 +1,4 @@
-use crate::{errors::FlowyError, services::server::DocumentServerAPI};
+use crate::{errors::FlowyError, server::DocumentServerAPI};
 use backend_service::{configuration::*, request::HttpRequestBuilder};
 use flowy_collaboration::entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use lib_infra::future::FutureResult;

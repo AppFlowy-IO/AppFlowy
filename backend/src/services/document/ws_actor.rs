@@ -8,11 +8,23 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
+<<<<<<< HEAD
     protobuf::{DocumentClientWSData, DocumentClientWSDataType, Revision},
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
 use futures::stream::StreamExt;
 use std::{convert::TryInto, sync::Arc};
+=======
+    protobuf::{
+        DocumentClientWSData as DocumentClientWSDataPB,
+        DocumentClientWSDataType as DocumentClientWSDataTypePB,
+        Revision as RevisionPB,
+    },
+    sync::{RevisionUser, ServerDocumentManager, SyncResponse},
+};
+use futures::stream::StreamExt;
+use std::sync::Arc;
+>>>>>>> upstream/main
 use tokio::sync::{mpsc, oneshot};
 
 pub enum WSActorMessage {
@@ -68,12 +80,20 @@ impl DocumentWebSocketActor {
 
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
+<<<<<<< HEAD
         let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSData>(&data))
+=======
+        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
+>>>>>>> upstream/main
             .await
             .map_err(internal_error)??;
 
         tracing::debug!(
+<<<<<<< HEAD
             "[DocumentWebSocketActor]: receive client data: {}:{}, {:?}",
+=======
+            "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
+>>>>>>> upstream/main
             document_client_data.doc_id,
             document_client_data.id,
             document_client_data.ty
@@ -86,14 +106,22 @@ impl DocumentWebSocketActor {
         });
 
         match &document_client_data.ty {
+<<<<<<< HEAD
             DocumentClientWSDataType::ClientPushRev => {
+=======
+            DocumentClientWSDataTypePB::ClientPushRev => {
+>>>>>>> upstream/main
                 let _ = self
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
             },
+<<<<<<< HEAD
             DocumentClientWSDataType::ClientPing => {
+=======
+            DocumentClientWSDataTypePB::ClientPing => {
+>>>>>>> upstream/main
                 let _ = self
                     .doc_manager
                     .handle_client_ping(user, document_client_data)
@@ -107,9 +135,9 @@ impl DocumentWebSocketActor {
 }
 
 #[allow(dead_code)]
-fn verify_md5(revision: &Revision) -> Result<()> {
+fn verify_md5(revision: &RevisionPB) -> Result<()> {
     if md5(&revision.delta_data) != revision.md5 {
-        return Err(ServerError::internal().context("Revision md5 not match"));
+        return Err(ServerError::internal().context("RevisionPB md5 not match"));
     }
     Ok(())
 }
@@ -147,6 +175,7 @@ impl RevisionUser for ServerDocUser {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
+<<<<<<< HEAD
             SyncResponse::NewRevision(revisions) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
@@ -154,6 +183,12 @@ impl RevisionUser for ServerDocUser {
                         .into_iter()
                         .map(|revision| revision.try_into().unwrap())
                         .collect::<Vec<_>>();
+=======
+            SyncResponse::NewRevision(mut repeated_revision) => {
+                let kv_store = self.persistence.kv_store();
+                tokio::task::spawn(async move {
+                    let revisions = repeated_revision.take_items().into();
+>>>>>>> upstream/main
                     match kv_store.batch_set_revision(revisions).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),

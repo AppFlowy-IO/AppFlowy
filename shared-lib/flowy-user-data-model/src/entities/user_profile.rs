@@ -68,7 +68,6 @@ impl UpdateUserRequest {
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
 pub struct UpdateUserParams {
-    // TODO: remove user id
     #[pb(index = 1)]
     pub id: String,
 

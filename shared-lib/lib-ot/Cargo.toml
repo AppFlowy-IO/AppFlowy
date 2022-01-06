@@ -13,6 +13,8 @@ serde = { version = "1.0", features = ["derive"] }
 tokio = {version = "1", features = ["sync"]}
 dashmap = "4.0"
 md5 = "0.7.0"
+anyhow = "1.0"
+thiserror = "1.0"
 
 serde_json = {version = "1.0"}
 derive_more = {version = "0.99", features = ["display"]}

@@ -2,6 +2,7 @@ use crate::{
     core::{operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
+
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -12,7 +13,7 @@ use std::{
     str::FromStr,
 };
 
-// Opti: optimize the memory usage with Arc_mut or Cow
+// TODO: optimize the memory usage with Arc_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
     pub ops: Vec<Operation<T>>,
@@ -149,17 +150,17 @@ where
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
         let mut new_s = String::new();
-        let chars = &mut s.chars();
+        let code_point_iter = &mut s.code_point_iter();
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
-                    for c in chars.take(retain.n as usize) {
-                        new_s.push(c);
+                    for c in code_point_iter.take(retain.n as usize) {
+                        new_s.push_str(str::from_utf8(c.0).unwrap_or(""));
                     }
                 },
                 Operation::Delete(delete) => {
                     for _ in 0..*delete {
-                        chars.next();
+                        code_point_iter.next();
                     }
                 },
                 Operation::Insert(insert) => {
@@ -186,7 +187,7 @@ where
                     }
                 },
                 Operation::Insert(insert) => {
-                    inverted.delete(insert.count_of_code_units());
+                    inverted.delete(insert.count_of_utf16_code_units());
                 },
                 Operation::Delete(delete) => {
                     inverted.insert(&chars.take(*delete as usize).collect::<String>(), op.get_attributes());
@@ -240,7 +241,7 @@ where
                 .next_op_with_len(length)
                 .unwrap_or_else(|| OpBuilder::retain(length).build());
 
-            debug_assert_eq!(op.len(), other_op.len());
+            // debug_assert_eq!(op.len(), other_op.len(), "Composing delta failed,");
 
             match (&op, &other_op) {
                 (Operation::Retain(retain), Operation::Retain(other_retain)) => {
@@ -263,7 +264,6 @@ where
                 },
             }
         }
-
         Ok(new_delta)
     }
 
@@ -294,12 +294,12 @@ where
                 (Some(Operation::Insert(insert)), _) => {
                     // let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
                     a_prime.insert(&insert.s, insert.attributes.clone());
-                    b_prime.retain(insert.count_of_code_units(), insert.attributes.clone());
+                    b_prime.retain(insert.count_of_utf16_code_units(), insert.attributes.clone());
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
-                    a_prime.retain(o_insert.count_of_code_units(), composed_attrs.clone());
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
+                    a_prime.retain(o_insert.count_of_utf16_code_units(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
                 },
@@ -310,7 +310,7 @@ where
                     return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
@@ -427,6 +427,18 @@ where
     }
 }
 
+/// Removes trailing retain operation with empty attributes, if present.
+pub fn trim<T>(delta: &mut Delta<T>)
+where
+    T: Attributes,
+{
+    if let Some(last) = delta.ops.last() {
+        if last.is_retain() && last.is_plain() {
+            delta.ops.pop();
+        }
+    }
+}
+
 fn invert_from_other<T: Attributes>(
     base: &mut Delta<T>,
     other: &Delta<T>,
@@ -456,17 +468,20 @@ fn invert_from_other<T: Attributes>(
     });
 }
 
-fn transform_op_attribute<T: Attributes>(left: &Option<Operation<T>>, right: &Option<Operation<T>>) -> T {
+fn transform_op_attribute<T: Attributes>(
+    left: &Option<Operation<T>>,
+    right: &Option<Operation<T>>,
+) -> Result<T, OTError> {
     if left.is_none() {
         if right.is_none() {
-            return T::default();
+            return Ok(T::default());
         }
-        return right.as_ref().unwrap().get_attributes();
+        return Ok(right.as_ref().unwrap().get_attributes());
     }
     let left = left.as_ref().unwrap().get_attributes();
     let right = right.as_ref().unwrap().get_attributes();
-    // TODO: It's ok to unwrap?
-    left.transform(&right).unwrap().0
+    // TODO: replace with anyhow and thiserror.
+    Ok(left.transform(&right)?.0)
 }
 
 impl<T> Delta<T>

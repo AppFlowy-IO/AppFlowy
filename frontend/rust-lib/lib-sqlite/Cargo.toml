@@ -16,5 +16,5 @@ scheduled-thread-pool = "0.2.5"
 error-chain = "=0.12.0"
 log = "0.4.11"
 
-[features]
-windows = ["libsqlite3-sys/bundled-windows"]
+#[features]
+#windows = ["libsqlite3-sys/bundled-windows"]

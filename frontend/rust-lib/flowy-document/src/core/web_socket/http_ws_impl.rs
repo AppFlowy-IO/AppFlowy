@@ -1,5 +1,10 @@
+<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/web_socket/http_ws_impl.rs
 use crate::services::{
     doc::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
+=======
+use crate::{
+    core::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
+>>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/web_socket/http_ws_impl.rs
     ws_receivers::{DocumentWSReceiver, DocumentWebSocket},
 };
 use async_stream::stream;
@@ -94,7 +99,7 @@ impl DocumentWSReceiver for HttpWebSocketManager {
     fn receive_ws_data(&self, doc_data: DocumentServerWSData) {
         match self.ws_msg_tx.send(doc_data) {
             Ok(_) => {},
-            Err(e) => tracing::error!("❌Propagate ws message failed. {}", e),
+            Err(e) => tracing::error!("❌ Propagate ws message failed. {}", e),
         }
     }
 
@@ -104,6 +109,10 @@ impl DocumentWSReceiver for HttpWebSocketManager {
             Err(e) => tracing::error!("{}", e),
         }
     }
+}
+
+impl std::ops::Drop for HttpWebSocketManager {
+    fn drop(&mut self) { tracing::debug!("{} HttpWebSocketManager was drop", self.doc_id) }
 }
 
 pub trait DocumentWSSteamConsumer: Send + Sync {
@@ -177,7 +186,7 @@ impl DocumentWSStream {
             .await
             .map_err(internal_error)?;
 
-        tracing::debug!("[DocumentStream]: receives new message: {:?}", ty);
+        tracing::debug!("[DocumentStream]: new message: {:?}", ty);
         match ty {
             DocumentServerWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;

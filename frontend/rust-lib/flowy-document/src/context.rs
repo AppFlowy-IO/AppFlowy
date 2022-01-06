@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 use crate::{
     errors::FlowyError,
     services::{
@@ -8,6 +9,16 @@ use crate::{
 };
 use backend_service::configuration::ClientServerConfiguration;
 
+=======
+use crate::errors::FlowyError;
+use backend_service::configuration::ClientServerConfiguration;
+
+use crate::{
+    controller::DocumentController,
+    core::{DocumentWSReceivers, DocumentWebSocket},
+    server::construct_doc_server,
+};
+>>>>>>> upstream/main
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
 

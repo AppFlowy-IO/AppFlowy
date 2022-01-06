@@ -6,15 +6,23 @@ use backend::{
 use backend_service::{
     configuration::{get_client_server_configuration, ClientServerConfiguration},
     errors::ServerError,
-    user_request::*,
-    workspace_request::*,
+    http_request::*,
 };
+use flowy_collaboration::{
+    document::default::initial_delta_string,
+    entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
+};
+<<<<<<< HEAD
 use flowy_collaboration::{
     document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::{create_doc_request, read_doc_request};
+=======
+use flowy_core_data_model::entities::prelude::*;
+use flowy_document::server::{create_doc_request, read_doc_request};
+>>>>>>> upstream/main
 use flowy_user_data_model::entities::*;
 use lib_infra::uuid_string;
 use sqlx::{Connection, Executor, PgConnection, PgPool};

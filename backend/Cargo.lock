@@ -2059,6 +2059,7 @@ dependencies = [
 name = "lib-ot"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytecount",
  "bytes",
  "dashmap",
@@ -2070,6 +2071,7 @@ dependencies = [
  "serde_json",
  "strum",
  "strum_macros",
+ "thiserror",
  "tokio",
  "tracing",
 ]

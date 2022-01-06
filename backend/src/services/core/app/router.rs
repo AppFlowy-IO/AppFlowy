@@ -17,7 +17,11 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::app::{AppDesc, AppName},
+<<<<<<< HEAD
     protobuf::{AppId, CreateAppParams, UpdateAppParams},
+=======
+    protobuf::{AppId as AppIdPB, CreateAppParams as CreateAppParamsPB, UpdateAppParams as UpdateAppParamsPB},
+>>>>>>> upstream/main
 };
 use protobuf::Message;
 use sqlx::PgPool;
@@ -27,7 +31,7 @@ pub async fn create_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: CreateAppParams = parse_from_payload(payload).await?;
+    let params: CreateAppParamsPB = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
@@ -44,7 +48,11 @@ pub async fn create_handler(
 }
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
+<<<<<<< HEAD
     let params: AppId = parse_from_payload(payload).await?;
+=======
+    let params: AppIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
     let app_id = check_app_id(params.app_id)?;
 
     let mut transaction = pool
@@ -61,7 +69,7 @@ pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser
 }
 
 pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: UpdateAppParams = parse_from_payload(payload).await?;
+    let params: UpdateAppParamsPB = parse_from_payload(payload).await?;
     let app_id = check_app_id(params.get_app_id().to_string())?;
     let name = match params.has_name() {
         false => None,
@@ -96,7 +104,11 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 }
 
 pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
+<<<<<<< HEAD
     let params: AppId = parse_from_payload(payload).await?;
+=======
+    let params: AppIdPB = parse_from_payload(payload).await?;
+>>>>>>> upstream/main
     let app_id = check_app_id(params.app_id.to_owned())?;
     let mut transaction = pool
         .begin()

@@ -1,27 +1,17 @@
 use lib_ot::rich_text::RichTextDelta;
 
-const MAX_UNDOS: usize = 20;
+const MAX_UNDOES: usize = 20;
 
 #[derive(Debug, Clone)]
 pub struct UndoResult {
-    #[allow(dead_code)]
-    success: bool,
-
-    #[allow(dead_code)]
-    len: usize,
-}
-
-impl UndoResult {
-    pub fn fail() -> Self { UndoResult { success: false, len: 0 } }
-
-    pub fn success(len: usize) -> Self { UndoResult { success: true, len } }
+    pub delta: RichTextDelta,
 }
 
 #[derive(Debug, Clone)]
 pub struct History {
     #[allow(dead_code)]
     cur_undo: usize,
-    undos: Vec<RichTextDelta>,
+    undoes: Vec<RichTextDelta>,
     redoes: Vec<RichTextDelta>,
     capacity: usize,
 }
@@ -30,9 +20,9 @@ impl std::default::Default for History {
     fn default() -> Self {
         History {
             cur_undo: 1,
-            undos: Vec::new(),
+            undoes: Vec::new(),
             redoes: Vec::new(),
-            capacity: MAX_UNDOS,
+            capacity: MAX_UNDOES,
         }
     }
 }
@@ -40,11 +30,11 @@ impl std::default::Default for History {
 impl History {
     pub fn new() -> Self { History::default() }
 
-    pub fn can_undo(&self) -> bool { !self.undos.is_empty() }
+    pub fn can_undo(&self) -> bool { !self.undoes.is_empty() }
 
     pub fn can_redo(&self) -> bool { !self.redoes.is_empty() }
 
-    pub fn add_undo(&mut self, delta: RichTextDelta) { self.undos.push(delta); }
+    pub fn add_undo(&mut self, delta: RichTextDelta) { self.undoes.push(delta); }
 
     pub fn add_redo(&mut self, delta: RichTextDelta) { self.redoes.push(delta); }
 
@@ -56,8 +46,8 @@ impl History {
         self.redoes.clear();
         self.add_undo(delta);
 
-        if self.undos.len() > self.capacity {
-            self.undos.remove(0);
+        if self.undoes.len() > self.capacity {
+            self.undoes.remove(0);
         }
     }
 
@@ -65,7 +55,7 @@ impl History {
         if !self.can_undo() {
             return None;
         }
-        let delta = self.undos.pop().unwrap();
+        let delta = self.undoes.pop().unwrap();
         Some(delta)
     }
 

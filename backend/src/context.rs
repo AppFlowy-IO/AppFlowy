@@ -5,7 +5,15 @@ use crate::services::{
 use actix::Addr;
 use actix_web::web::Data;
 
+<<<<<<< HEAD
 use crate::services::document::{persistence::DocumentKVPersistence, ws_receiver::make_document_ws_receiver};
+=======
+use crate::services::document::{
+    persistence::DocumentKVPersistence,
+    ws_receiver::{make_document_ws_receiver, DocumentPersistenceImpl},
+};
+use flowy_collaboration::sync::ServerDocumentManager;
+>>>>>>> upstream/main
 use lib_ws::WSModule;
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -15,6 +23,10 @@ pub struct AppContext {
     pub ws_server: Data<Addr<WSServer>>,
     pub persistence: Data<Arc<FlowyPersistence>>,
     pub ws_receivers: Data<WebSocketReceivers>,
+<<<<<<< HEAD
+=======
+    pub document_manager: Data<Arc<ServerDocumentManager>>,
+>>>>>>> upstream/main
 }
 
 impl AppContext {
@@ -25,12 +37,23 @@ impl AppContext {
         let kv_store = make_document_kv_store(pg_pool.clone());
         let persistence = Arc::new(FlowyPersistence { pg_pool, kv_store });
 
+<<<<<<< HEAD
         let document_ws_receiver = make_document_ws_receiver(persistence.clone());
+=======
+        let document_persistence = Arc::new(DocumentPersistenceImpl(persistence.clone()));
+        let document_manager = Arc::new(ServerDocumentManager::new(document_persistence));
+
+        let document_ws_receiver = make_document_ws_receiver(persistence.clone(), document_manager.clone());
+>>>>>>> upstream/main
         ws_receivers.set(WSModule::Doc, document_ws_receiver);
         AppContext {
             ws_server,
             persistence: Data::new(persistence),
             ws_receivers: Data::new(ws_receivers),
+<<<<<<< HEAD
+=======
+            document_manager: Data::new(document_manager),
+>>>>>>> upstream/main
         }
     }
 }

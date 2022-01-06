@@ -12,27 +12,26 @@ part 'welcome_bloc.freezed.dart';
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserRepo repo;
   final IUserListener listener;
-  WelcomeBloc({required this.repo, required this.listener}) : super(WelcomeState.initial());
-
-  @override
-  Stream<WelcomeState> mapEventToState(
-    WelcomeEvent event,
-  ) async* {
-    yield* event.map(initial: (e) async* {
-      listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
-      listener.start();
-      //
-      yield* _fetchWorkspaces();
-    }, openWorkspace: (e) async* {
-      yield* _openWorkspace(e.workspace);
-    }, createWorkspace: (e) async* {
-      yield* _createWorkspace(e.name, e.desc);
-    }, workspacesReveived: (e) async* {
-      yield e.workspacesOrFail.fold(
-        (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
-      );
-    });
+  WelcomeBloc({required this.repo, required this.listener}) : super(WelcomeState.initial()) {
+    on<WelcomeEvent>(
+      (event, emit) async {
+        await event.map(initial: (e) async {
+          listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
+          listener.start();
+          //
+          await _fetchWorkspaces(emit);
+        }, openWorkspace: (e) async {
+          await _openWorkspace(e.workspace, emit);
+        }, createWorkspace: (e) async {
+          await _createWorkspace(e.name, e.desc, emit);
+        }, workspacesReveived: (e) async {
+          emit(e.workspacesOrFail.fold(
+            (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
+            (error) => state.copyWith(successOrFailure: right(error)),
+          ));
+        });
+      },
+    );
   }
 
   @override
@@ -41,31 +40,31 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     super.close();
   }
 
-  Stream<WelcomeState> _fetchWorkspaces() async* {
+  Future<void> _fetchWorkspaces(Emitter<WelcomeState> emit) async {
     final workspacesOrFailed = await repo.getWorkspaces();
-    yield workspacesOrFailed.fold(
+    emit(workspacesOrFailed.fold(
       (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
       },
-    );
+    ));
   }
 
-  Stream<WelcomeState> _openWorkspace(Workspace workspace) async* {
+  Future<void> _openWorkspace(Workspace workspace, Emitter<WelcomeState> emit) async {
     final result = await repo.openWorkspace(workspace.id);
-    yield result.fold(
+    emit(result.fold(
       (workspaces) => state.copyWith(successOrFailure: left(unit)),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
       },
-    );
+    ));
   }
 
-  Stream<WelcomeState> _createWorkspace(String name, String desc) async* {
+  Future<void> _createWorkspace(String name, String desc, Emitter<WelcomeState> emit) async {
     final result = await repo.createWorkspace(name, desc);
-    yield result.fold(
+    emit(result.fold(
       (workspace) {
         return state.copyWith(successOrFailure: left(unit));
       },
@@ -73,7 +72,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
       },
-    );
+    ));
   }
 
   void _workspacesUpdated(Either<List<Workspace>, FlowyError> workspacesOrFail) {

@@ -1,8 +1,12 @@
 use bytes::Bytes;
 use flowy_collaboration::entities::{
     doc::{DocumentDelta, DocumentId},
+<<<<<<< HEAD
     prelude::Revision,
     revision::RepeatedRevision,
+=======
+    revision::{RepeatedRevision, Revision},
+>>>>>>> upstream/main
 };
 use flowy_database::SqliteConnection;
 use futures::{FutureExt, StreamExt};
@@ -217,7 +221,11 @@ impl ViewController {
     }
 
     pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
+<<<<<<< HEAD
         let doc = self.document_ctx.controller.apply_document_delta(params).await?;
+=======
+        let doc = self.document_ctx.controller.receive_local_delta(params).await?;
+>>>>>>> upstream/main
         Ok(doc)
     }
 
