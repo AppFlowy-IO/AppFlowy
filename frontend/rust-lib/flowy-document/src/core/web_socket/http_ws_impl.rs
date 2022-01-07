@@ -1,15 +1,5 @@
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/web_socket/http_ws_impl.rs
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/web_socket/http_ws_impl.rs
-use crate::services::{
-    doc::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
-=======
 use crate::{
     core::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/web_socket/http_ws_impl.rs
-=======
-use crate::{
-    core::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/web_socket/http_ws_impl.rs
     ws_receivers::{DocumentWSReceiver, DocumentWebSocket},
 };
 use async_stream::stream;

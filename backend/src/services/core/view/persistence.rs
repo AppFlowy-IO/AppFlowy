@@ -3,15 +3,7 @@ use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
     parser::view::ViewIdentify,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::{RepeatedView, View, ViewType},
-=======
     protobuf::{RepeatedView as RepeatedViewPB, View as ViewPB, ViewType as ViewTypePB},
->>>>>>> upstream/main
-=======
-    protobuf::{RepeatedView as RepeatedViewPB, View as ViewPB, ViewType as ViewTypePB},
->>>>>>> upstream/main
 };
 use protobuf::ProtobufEnum;
 use sqlx::postgres::PgArguments;
@@ -41,15 +33,7 @@ impl NewViewSqlBuilder {
         Self { table }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub fn from_view(view: View) -> Result<Self, ServerError> {
-=======
     pub fn from_view(view: ViewPB) -> Result<Self, ServerError> {
->>>>>>> upstream/main
-=======
-    pub fn from_view(view: ViewPB) -> Result<Self, ServerError> {
->>>>>>> upstream/main
         let view_id = ViewIdentify::parse(view.id).map_err(invalid_params)?;
         let view_id = Uuid::parse_str(view_id.as_ref())?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.create_time, 0), Utc);
