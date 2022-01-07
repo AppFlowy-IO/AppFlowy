@@ -91,8 +91,8 @@
     "quote": "Cita Blocco"
   },
   "tooltip":{
-    "lightMode" : "Passa alla modalità Luce",
-    "darkMode" : "Passa alla modalità Buio"
+    "lightMode" : "Passa alla modalità Chiara",
+    "darkMode" : "Passa alla modalità Scura"
   },
   "contactsPage": {
     "title": "Contatti",
@@ -122,10 +122,10 @@
     },
     "google": {
       "title": "GOOGLE SIGN-IN",
-      "instruction1": "Al fine di importare i tuoi Contatti Google è necessario autorizzare questa applicaizone ad utilizzare il tuo beowser web.",
-      "instruction2": "Copia questo codice nella tua clipboard premendo l'icona o selezionando il testo:",
+      "instruction1": "Al fine di importare i tuoi Contatti Google è necessario autorizzare questa applicazione ad utilizzare il tuo beowser web.",
+      "instruction2": "Copia questo codice negli appunti premendo l'icona o selezionando il testo:",
       "instruction3": "Naviga sul seguente link con il tuo browser web e inserisci il codice seguente:",
-      "instruction4": "Premi il bottono qui sotto quando hai completato l'iscrizione:"
+      "instruction4": "Premi il bottone qui sotto quando hai completato l'iscrizione:"
     }
   }
 }
