@@ -20,21 +20,11 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
-=======
-=======
->>>>>>> upstream/main
     protobuf::{
         CreateWorkspaceParams as CreateWorkspaceParamsPB,
         UpdateWorkspaceParams as UpdateWorkspaceParamsPB,
         WorkspaceId as WorkspaceIdPB,
     },
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
 };
 use sqlx::PgPool;
 
@@ -64,15 +54,7 @@ pub async fn read_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    let params: WorkspaceId = parse_from_payload(payload).await?;
-=======
     let params: WorkspaceIdPB = parse_from_payload(payload).await?;
->>>>>>> upstream/main
-=======
-    let params: WorkspaceIdPB = parse_from_payload(payload).await?;
->>>>>>> upstream/main
     let mut transaction = pool
         .begin()
         .await
@@ -98,15 +80,7 @@ pub async fn delete_handler(
     pool: Data<PgPool>,
     _logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    let params: WorkspaceId = parse_from_payload(payload).await?;
-=======
     let params: WorkspaceIdPB = parse_from_payload(payload).await?;
->>>>>>> upstream/main
-=======
-    let params: WorkspaceIdPB = parse_from_payload(payload).await?;
->>>>>>> upstream/main
     let workspace_id = check_workspace_id(params.get_workspace_id().to_owned())?;
     let mut transaction = pool
         .begin()

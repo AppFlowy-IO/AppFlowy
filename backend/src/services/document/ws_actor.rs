@@ -8,14 +8,6 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::{DocumentClientWSData, DocumentClientWSDataType, Revision},
-    sync::{RevisionUser, ServerDocumentManager, SyncResponse},
-};
-use futures::stream::StreamExt;
-use std::{convert::TryInto, sync::Arc};
-=======
     protobuf::{
         DocumentClientWSData as DocumentClientWSDataPB,
         DocumentClientWSDataType as DocumentClientWSDataTypePB,
@@ -25,18 +17,6 @@ use std::{convert::TryInto, sync::Arc};
 };
 use futures::stream::StreamExt;
 use std::sync::Arc;
->>>>>>> upstream/main
-=======
-    protobuf::{
-        DocumentClientWSData as DocumentClientWSDataPB,
-        DocumentClientWSDataType as DocumentClientWSDataTypePB,
-        Revision as RevisionPB,
-    },
-    sync::{RevisionUser, ServerDocumentManager, SyncResponse},
-};
-use futures::stream::StreamExt;
-use std::sync::Arc;
->>>>>>> upstream/main
 use tokio::sync::{mpsc, oneshot};
 
 pub enum WSActorMessage {
@@ -92,28 +72,12 @@ impl DocumentWebSocketActor {
 
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
-<<<<<<< HEAD
-<<<<<<< HEAD
-        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSData>(&data))
-=======
         let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
->>>>>>> upstream/main
-=======
-        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
->>>>>>> upstream/main
             .await
             .map_err(internal_error)??;
 
         tracing::debug!(
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "[DocumentWebSocketActor]: receive client data: {}:{}, {:?}",
-=======
             "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
->>>>>>> upstream/main
-=======
-            "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
->>>>>>> upstream/main
             document_client_data.doc_id,
             document_client_data.id,
             document_client_data.ty
@@ -126,30 +90,14 @@ impl DocumentWebSocketActor {
         });
 
         match &document_client_data.ty {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            DocumentClientWSDataType::ClientPushRev => {
-=======
             DocumentClientWSDataTypePB::ClientPushRev => {
->>>>>>> upstream/main
-=======
-            DocumentClientWSDataTypePB::ClientPushRev => {
->>>>>>> upstream/main
                 let _ = self
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
             },
-<<<<<<< HEAD
-<<<<<<< HEAD
-            DocumentClientWSDataType::ClientPing => {
-=======
             DocumentClientWSDataTypePB::ClientPing => {
->>>>>>> upstream/main
-=======
-            DocumentClientWSDataTypePB::ClientPing => {
->>>>>>> upstream/main
                 let _ = self
                     .doc_manager
                     .handle_client_ping(user, document_client_data)
@@ -203,26 +151,10 @@ impl RevisionUser for ServerDocUser {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
-<<<<<<< HEAD
-<<<<<<< HEAD
-            SyncResponse::NewRevision(revisions) => {
-                let kv_store = self.persistence.kv_store();
-                tokio::task::spawn(async move {
-                    let revisions = revisions
-                        .into_iter()
-                        .map(|revision| revision.try_into().unwrap())
-                        .collect::<Vec<_>>();
-=======
-=======
->>>>>>> upstream/main
             SyncResponse::NewRevision(mut repeated_revision) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
                     let revisions = repeated_revision.take_items().into();
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
                     match kv_store.batch_set_revision(revisions).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),
