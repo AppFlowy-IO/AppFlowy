@@ -1,16 +1,7 @@
 use bytes::Bytes;
 use flowy_collaboration::entities::{
     doc::{DocumentDelta, DocumentId},
-<<<<<<< HEAD
-<<<<<<< HEAD
-    prelude::Revision,
-    revision::RepeatedRevision,
-=======
     revision::{RepeatedRevision, Revision},
->>>>>>> upstream/main
-=======
-    revision::{RepeatedRevision, Revision},
->>>>>>> upstream/main
 };
 use flowy_database::SqliteConnection;
 use futures::{FutureExt, StreamExt};

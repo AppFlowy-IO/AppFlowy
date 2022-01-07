@@ -10,7 +10,6 @@ use lib_ot::{
         RichTextDelta,
     },
 };
-use crate::document::InsertExt;
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {

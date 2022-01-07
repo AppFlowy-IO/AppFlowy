@@ -344,7 +344,6 @@ impl DocumentCommandQueue {
                 let result = self
                     .synchronizer
                     .reset(persistence, repeated_revision)
-
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
@@ -355,7 +354,6 @@ impl DocumentCommandQueue {
 
 impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
-
         log::debug!("{} DocumentCommandQueue was drop", self.doc_id);
     }
 }

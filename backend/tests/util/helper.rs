@@ -16,7 +16,7 @@ use flowy_collaboration::{
 
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::server::{create_doc_request, read_doc_request};
-};
+
 
 use flowy_user_data_model::entities::*;
 use lib_infra::uuid_string;
