@@ -1,18 +1,6 @@
 use crate::{
     document::Document,
     entities::{
-<<<<<<< HEAD
-<<<<<<< HEAD
-        revision::{Revision, RevisionRange},
-        ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
-    },
-    errors::CollaborateError,
-    sync::DocumentPersistence,
-};
-
-=======
-=======
->>>>>>> upstream/main
         revision::RevisionRange,
         ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
     },
@@ -21,10 +9,6 @@ use crate::{
     sync::DocumentPersistence,
     util::*,
 };
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
@@ -46,15 +30,7 @@ pub enum SyncResponse {
     Pull(DocumentServerWSData),
     Push(DocumentServerWSData),
     Ack(DocumentServerWSData),
-<<<<<<< HEAD
-<<<<<<< HEAD
-    NewRevision(Vec<Revision>),
-=======
     NewRevision(RepeatedRevisionPB),
->>>>>>> upstream/main
-=======
-    NewRevision(RepeatedRevisionPB),
->>>>>>> upstream/main
 }
 
 pub struct RevisionSynchronizer {
@@ -73,23 +49,6 @@ impl RevisionSynchronizer {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
-    pub async fn sync_revisions(
-        &self,
-        doc_id: String,
-        user: Arc<dyn RevisionUser>,
-        revisions: Vec<Revision>,
-        persistence: Arc<dyn DocumentPersistence>,
-    ) -> Result<(), CollaborateError> {
-        if revisions.is_empty() {
-            // Return all the revisions to client
-            let revisions = persistence.get_doc_revisions(&doc_id).await?;
-            let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, revisions);
-=======
-=======
->>>>>>> upstream/main
     #[tracing::instrument(level = "debug", skip(self, user, repeated_revision, persistence), err)]
     pub async fn sync_revisions(
         &self,
@@ -103,24 +62,12 @@ impl RevisionSynchronizer {
             let revisions = persistence.get_doc_revisions(&doc_id).await?;
             let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
             let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, repeated_revision);
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
             user.receive(SyncResponse::Push(data));
             return Ok(());
         }
 
         let server_base_rev_id = self.rev_id.load(SeqCst);
-<<<<<<< HEAD
-<<<<<<< HEAD
-        let first_revision = revisions.first().unwrap().clone();
-=======
         let first_revision = repeated_revision.get_items().first().unwrap().clone();
->>>>>>> upstream/main
-=======
-        let first_revision = repeated_revision.get_items().first().unwrap().clone();
->>>>>>> upstream/main
         if self.is_applied_before(&first_revision, &persistence).await {
             // Server has received this revision before, so ignore the following revisions
             return Ok(());
@@ -131,23 +78,10 @@ impl RevisionSynchronizer {
                 let server_rev_id = next(server_base_rev_id);
                 if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    for revision in &revisions {
-                        let _ = self.compose_revision(revision)?;
-                    }
-                    user.receive(SyncResponse::NewRevision(revisions));
-=======
-=======
->>>>>>> upstream/main
                     for revision in repeated_revision.get_items() {
                         let _ = self.compose_revision(revision)?;
                     }
                     user.receive(SyncResponse::NewRevision(repeated_revision));
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
@@ -169,38 +103,14 @@ impl RevisionSynchronizer {
                 // delta.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
-<<<<<<< HEAD
-<<<<<<< HEAD
-                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
-=======
                 let _ = self
                     .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
                     .await;
->>>>>>> upstream/main
-=======
-                let _ = self
-                    .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
-                    .await;
->>>>>>> upstream/main
             },
         }
         Ok(())
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub async fn pong(
-        &self,
-        doc_id: String,
-        user: Arc<dyn RevisionUser>,
-        persistence: Arc<dyn DocumentPersistence>,
-        rev_id: i64,
-    ) -> Result<(), CollaborateError> {
-        let server_base_rev_id = self.rev_id.load(SeqCst);
-        match server_base_rev_id.cmp(&rev_id) {
-=======
-=======
->>>>>>> upstream/main
     #[tracing::instrument(level = "debug", skip(self, user, persistence), fields(server_rev_id), err)]
     pub async fn pong(
         &self,
@@ -212,10 +122,6 @@ impl RevisionSynchronizer {
         let server_rev_id = self.rev_id();
         tracing::Span::current().record("server_rev_id", &server_rev_id);
         match server_rev_id.cmp(&client_rev_id) {
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
             Ordering::Less => tracing::error!(
                 "[Pong] Client should not send ping and the server should pull the revisions from the client"
             ),
@@ -224,38 +130,17 @@ impl RevisionSynchronizer {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
-<<<<<<< HEAD
-<<<<<<< HEAD
-                let from_rev_id = rev_id;
-                let to_rev_id = server_base_rev_id;
-                tracing::trace!("[Pong]: Push revisions to user");
-                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
-=======
-=======
->>>>>>> upstream/main
                 let from_rev_id = client_rev_id;
                 let to_rev_id = server_rev_id;
                 tracing::trace!("[Pong]: Push revisions to user");
                 let _ = self
                     .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
                     .await;
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
             },
         }
         Ok(())
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub fn doc_json(&self) -> String { self.document.read().to_json() }
-
-    fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
-=======
-=======
->>>>>>> upstream/main
     #[tracing::instrument(level = "debug", skip(self, repeated_revision, persistence), fields(doc_id), err)]
     pub async fn reset(
         &self,
@@ -277,10 +162,6 @@ impl RevisionSynchronizer {
     pub fn doc_json(&self) -> String { self.document.read().to_json() }
 
     fn compose_revision(&self, revision: &RevisionPB) -> Result<(), CollaborateError> {
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
@@ -288,15 +169,7 @@ impl RevisionSynchronizer {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-<<<<<<< HEAD
-<<<<<<< HEAD
-    fn transform_revision(&self, revision: &Revision) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
-=======
     fn transform_revision(&self, revision: &RevisionPB) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
->>>>>>> upstream/main
-=======
-    fn transform_revision(&self, revision: &RevisionPB) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
->>>>>>> upstream/main
         let cli_delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let result = self.document.read().delta().transform(&cli_delta)?;
         Ok(result)
@@ -316,22 +189,9 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    #[allow(dead_code)]
-    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
-
-    async fn is_applied_before(&self, new_revision: &Revision, persistence: &Arc<dyn DocumentPersistence>) -> bool {
-=======
     pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 
     async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
->>>>>>> upstream/main
-=======
-    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
-
-    async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
->>>>>>> upstream/main
         if let Ok(revisions) = persistence.get_revisions(&self.doc_id, vec![new_revision.rev_id]).await {
             if let Some(revision) = revisions.first() {
                 if revision.md5 == new_revision.md5 {
@@ -366,13 +226,6 @@ impl RevisionSynchronizer {
             },
         };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
-        user.receive(SyncResponse::Push(data));
-=======
-=======
->>>>>>> upstream/main
         tracing::debug!("Push revision: {} -> {} to client", from, to);
         match repeated_revision_from_revision_pbs(revisions) {
             Ok(repeated_revision) => {
@@ -381,23 +234,8 @@ impl RevisionSynchronizer {
             },
             Err(e) => tracing::error!("{}", e),
         }
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
     }
 }
 
 #[inline]
 fn next(rev_id: i64) -> i64 { rev_id + 1 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-// #[inline]
-// fn md5<T: AsRef<[u8]>>(data: T) -> String {
-//     let md5 = format!("{:x}", md5::compute(data));
-//     md5
-// }
-=======
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main

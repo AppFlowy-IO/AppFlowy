@@ -107,23 +107,9 @@ impl std::ops::DerefMut for RepeatedRevision {
 }
 
 impl RepeatedRevision {
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/entities/revision.rs
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/entities/revision.rs
-    pub fn new(items: Vec<Revision>) -> Self {
-        if cfg!(debug_assertions) {
-            let mut sorted_items = items.clone();
-            sorted_items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-            assert_eq!(sorted_items, items, "The items passed in should be sorted")
-        }
 
-=======
     pub fn new(mut items: Vec<Revision>) -> Self {
         items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
->>>>>>> upstream/main:shared-lib/lib-ot/src/revision/model.rs
-=======
-    pub fn new(mut items: Vec<Revision>) -> Self {
-        items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
->>>>>>> upstream/main:shared-lib/lib-ot/src/revision/model.rs
         Self { items }
     }
 
@@ -196,19 +182,11 @@ pub enum RevisionState {
     Ack   = 1,
 }
 
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/entities/revision.rs
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/entities/revision.rs
-=======
-=======
->>>>>>> upstream/main:shared-lib/lib-ot/src/revision/model.rs
+
 impl AsRef<RevisionState> for RevisionState {
     fn as_ref(&self) -> &RevisionState { &self }
 }
 
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/entities/revision.rs
->>>>>>> upstream/main:shared-lib/lib-ot/src/revision/model.rs
-=======
->>>>>>> upstream/main:shared-lib/lib-ot/src/revision/model.rs
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
     DeprecatedLocal  = 0,

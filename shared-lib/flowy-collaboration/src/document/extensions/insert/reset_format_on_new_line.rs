@@ -1,12 +1,4 @@
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/document/extensions/insert/reset_format_on_new_line.rs
-<<<<<<< HEAD:shared-lib/flowy-collaboration/src/document/extensions/insert/reset_format_on_new_line.rs
-use crate::util::is_newline;
-=======
 use crate::{document::InsertExt, util::is_newline};
->>>>>>> upstream/main:shared-lib/flowy-collaboration/src/core/document/extensions/insert/reset_format_on_new_line.rs
-=======
-use crate::{document::InsertExt, util::is_newline};
->>>>>>> upstream/main:shared-lib/flowy-collaboration/src/core/document/extensions/insert/reset_format_on_new_line.rs
 use lib_ot::{
     core::{CharMetric, DeltaBuilder, DeltaIter, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
