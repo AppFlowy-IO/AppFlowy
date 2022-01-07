@@ -36,7 +36,6 @@ pub struct FlowySDKConfig {
     root: String,
     log_filter: String,
     server_config: ClientServerConfiguration,
-    ws: Arc<dyn FlowyRawWebSocket>,
 }
 
 impl fmt::Debug for FlowySDKConfig {
@@ -50,19 +49,12 @@ impl fmt::Debug for FlowySDKConfig {
 }
 
 impl FlowySDKConfig {
-    pub fn new(
-        root: &str,
-        server_config: ClientServerConfiguration,
-        name: &str,
-        ws: Option<Arc<dyn FlowyRawWebSocket>>,
-    ) -> Self {
-        let ws = ws.unwrap_or_else(default_web_socket);
+    pub fn new(root: &str, server_config: ClientServerConfiguration, name: &str) -> Self {
         FlowySDKConfig {
             name: name.to_owned(),
             root: root.to_owned(),
             log_filter: crate_log_filter(None),
             server_config,
-            ws,
         }
     }
 
@@ -107,7 +99,7 @@ impl FlowySDK {
 
         let ws_conn = Arc::new(FlowyWebSocketConnect::new(
             config.server_config.ws_addr(),
-            config.ws.clone(),
+            default_web_socket(),
         ));
         let user_session = mk_user_session(&config);
         let flowy_document = mk_document(&ws_conn, &user_session, &config.server_config);
@@ -146,6 +138,7 @@ fn _init(
 
     dispatch.spawn(async move {
         user_session.init();
+        ws_conn.init().await;
         listen_on_websocket(ws_conn.clone());
         _listen_user_status(ws_conn.clone(), subscribe_user_status, core.clone()).await;
     });
@@ -163,9 +156,9 @@ async fn _listen_user_status(
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
             match status {
-                UserStatus::Login { token } => {
+                UserStatus::Login { token, user_id } => {
                     let _ = core.user_did_sign_in(&token).await?;
-                    let _ = ws_conn.start(token).await?;
+                    let _ = ws_conn.start(token, user_id).await?;
                 },
                 UserStatus::Logout { .. } => {
                     core.user_did_logout().await;
@@ -177,7 +170,7 @@ async fn _listen_user_status(
                 },
                 UserStatus::SignUp { profile, ret } => {
                     let _ = core.user_did_sign_up(&profile.token).await?;
-                    let _ = ws_conn.start(profile.token.clone()).await?;
+                    let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 },
             }

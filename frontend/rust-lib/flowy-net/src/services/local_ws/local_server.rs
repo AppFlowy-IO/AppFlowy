@@ -15,27 +15,13 @@ use flowy_collaboration::{
     util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
+use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},
     sync::Arc,
 };
-use tokio::sync::mpsc;
-
-pub(crate) fn spawn_server(receivers: Arc<DashMap<WSModule, Arc<dyn WSMessageReceiver>>>) -> Arc<LocalDocumentServer> {
-    let (server_tx, mut server_rx) = mpsc::unbounded_channel();
-    let server = Arc::new(LocalDocumentServer::new(server_tx));
-    tokio::spawn(async move {
-        while let Some(message) = server_rx.recv().await {
-            match receivers.get(&message.module) {
-                None => tracing::error!("Can't find any handler for message: {:?}", message),
-                Some(handler) => handler.receive_message(message.clone()),
-            }
-        }
-    });
-    server
-}
+use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 pub struct LocalDocumentServer {
     pub doc_manager: Arc<ServerDocumentManager>,
@@ -49,14 +35,19 @@ impl LocalDocumentServer {
         LocalDocumentServer { doc_manager, sender }
     }
 
-    pub async fn handle_client_data(&self, client_data: DocumentClientWSData) -> Result<(), CollaborateError> {
+    pub async fn handle_client_data(
+        &self,
+        client_data: DocumentClientWSData,
+        user_id: String,
+    ) -> Result<(), CollaborateError> {
         tracing::debug!(
-            "[LocalDocumentServer] receive client data: {}:{:?} ",
+            "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.doc_id,
-            client_data.ty
+            client_data.id(),
+            client_data.ty,
         );
         let user = Arc::new(LocalDocumentUser {
-            user_id: "fake_user_id".to_owned(),
+            user_id,
             ws_sender: self.sender.clone(),
         });
         let ty = client_data.ty.clone();
@@ -146,6 +137,13 @@ impl RevisionUser for LocalDocumentUser {
 
     fn receive(&self, resp: SyncResponse) {
         let sender = self.ws_sender.clone();
+        let send_fn = |sender: UnboundedSender<WebSocketRawMessage>, msg: WebSocketRawMessage| match sender.send(msg) {
+            Ok(_) => {},
+            Err(e) => {
+                tracing::error!("LocalDocumentUser send message failed: {}", e);
+            },
+        };
+
         tokio::spawn(async move {
             match resp {
                 SyncResponse::Pull(data) => {
@@ -154,7 +152,7 @@ impl RevisionUser for LocalDocumentUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).unwrap();
+                    send_fn(sender, msg);
                 },
                 SyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
@@ -162,7 +160,7 @@ impl RevisionUser for LocalDocumentUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).unwrap();
+                    send_fn(sender, msg);
                 },
                 SyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
@@ -170,9 +168,9 @@ impl RevisionUser for LocalDocumentUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).unwrap();
+                    send_fn(sender, msg);
                 },
-                SyncResponse::NewRevision(_) => {
+                SyncResponse::NewRevision(mut _repeated_revision) => {
                     // unimplemented!()
                 },
             }

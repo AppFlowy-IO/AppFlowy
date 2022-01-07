@@ -5,6 +5,7 @@ use tokio::sync::mpsc;
 pub enum UserStatus {
     Login {
         token: String,
+        user_id: String,
     },
     Logout {
         token: String,

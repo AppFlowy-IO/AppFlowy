@@ -6,17 +6,20 @@ use lib_infra::future::FutureResult;
 use lib_ws::{WSConnectState, WSMessageReceiver, WSModule, WebSocketRawMessage};
 
 use crate::services::{
-    local_ws::local_server::{spawn_server, LocalDocumentServer},
+    local_ws::local_server::LocalDocumentServer,
     ws_conn::{FlowyRawWebSocket, FlowyWSSender},
 };
+use parking_lot::RwLock;
 use std::{convert::TryFrom, sync::Arc};
-use tokio::sync::{broadcast, broadcast::Receiver};
+use tokio::sync::{broadcast, broadcast::Receiver, mpsc, mpsc::UnboundedReceiver};
 
 pub struct LocalWebSocket {
     receivers: Arc<DashMap<WSModule, Arc<dyn WSMessageReceiver>>>,
     state_sender: broadcast::Sender<WSConnectState>,
     ws_sender: LocalWSSender,
     server: Arc<LocalDocumentServer>,
+    server_rx: RwLock<Option<UnboundedReceiver<WebSocketRawMessage>>>,
+    user_id: Arc<RwLock<Option<String>>>,
 }
 
 impl std::default::Default for LocalWebSocket {
@@ -24,13 +27,19 @@ impl std::default::Default for LocalWebSocket {
         let (state_sender, _) = broadcast::channel(16);
         let ws_sender = LocalWSSender::default();
         let receivers = Arc::new(DashMap::new());
-        let server = spawn_server(receivers.clone());
+
+        let (server_tx, server_rx) = mpsc::unbounded_channel();
+        let server = Arc::new(LocalDocumentServer::new(server_tx));
+        let server_rx = RwLock::new(Some(server_rx));
+        let user_token = Arc::new(RwLock::new(None));
 
         LocalWebSocket {
             receivers,
             state_sender,
             ws_sender,
             server,
+            server_rx,
+            user_id: user_token,
         }
     }
 }
@@ -38,15 +47,26 @@ impl std::default::Default for LocalWebSocket {
 impl LocalWebSocket {
     fn spawn_client(&self, _addr: String) {
         let mut ws_receiver = self.ws_sender.subscribe();
-        let server = self.server.clone();
+        let local_server = self.server.clone();
+        let user_id = self.user_id.clone();
         tokio::spawn(async move {
             loop {
+                // Polling the web socket message sent by user
                 match ws_receiver.recv().await {
                     Ok(message) => {
-                        let fut = || async {
+                        let user_id = user_id.read().clone();
+                        if user_id.is_none() {
+                            continue;
+                        }
+                        let user_id = user_id.unwrap();
+                        let server = local_server.clone();
+                        let fut = || async move {
                             let bytes = Bytes::from(message.data);
                             let client_data = DocumentClientWSData::try_from(bytes).map_err(internal_error)?;
-                            let _ = server.handle_client_data(client_data).await?;
+                            let _ = server
+                                .handle_client_data(client_data, user_id)
+                                .await
+                                .map_err(internal_error)?;
                             Ok::<(), FlowyError>(())
                         };
                         match fut().await {
@@ -62,7 +82,22 @@ impl LocalWebSocket {
 }
 
 impl FlowyRawWebSocket for LocalWebSocket {
-    fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError> {
+    fn initialize(&self) -> FutureResult<(), FlowyError> {
+        let mut server_rx = self.server_rx.write().take().expect("Only take once");
+        let receivers = self.receivers.clone();
+        tokio::spawn(async move {
+            while let Some(message) = server_rx.recv().await {
+                match receivers.get(&message.module) {
+                    None => tracing::error!("Can't find any handler for message: {:?}", message),
+                    Some(handler) => handler.receive_message(message.clone()),
+                }
+            }
+        });
+        FutureResult::new(async { Ok(()) })
+    }
+
+    fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), FlowyError> {
+        *self.user_id.write() = Some(user_id);
         self.spawn_client(addr);
         FutureResult::new(async { Ok(()) })
     }

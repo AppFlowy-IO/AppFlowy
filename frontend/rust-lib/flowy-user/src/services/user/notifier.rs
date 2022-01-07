@@ -16,9 +16,10 @@ impl std::default::Default for UserNotifier {
 impl UserNotifier {
     pub(crate) fn new() -> Self { UserNotifier::default() }
 
-    pub(crate) fn notify_login(&self, token: &str) {
+    pub(crate) fn notify_login(&self, token: &str, user_id: &str) {
         let _ = self.user_status_notifier.send(UserStatus::Login {
             token: token.to_owned(),
+            user_id: user_id.to_owned(),
         });
     }
 

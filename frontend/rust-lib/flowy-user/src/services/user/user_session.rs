@@ -67,7 +67,7 @@ impl UserSession {
 
     pub fn init(&self) {
         if let Ok(session) = self.get_session() {
-            self.notifier.notify_login(&session.token);
+            self.notifier.notify_login(&session.token, &session.user_id);
         }
     }
 
@@ -97,7 +97,7 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
-            self.notifier.notify_login(&user_profile.token);
+            self.notifier.notify_login(&user_profile.token, &user_profile.id);
             Ok(user_profile)
         }
     }

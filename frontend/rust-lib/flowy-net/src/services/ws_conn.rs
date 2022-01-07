@@ -9,7 +9,8 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 
 pub trait FlowyRawWebSocket: Send + Sync {
-    fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError>;
+    fn initialize(&self) -> FutureResult<(), FlowyError>;
+    fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), FlowyError>;
     fn stop_connect(&self) -> FutureResult<(), FlowyError>;
     fn subscribe_connect_state(&self) -> broadcast::Receiver<WSConnectState>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
@@ -39,10 +40,17 @@ impl FlowyWebSocketConnect {
         }
     }
 
-    pub async fn start(&self, token: String) -> Result<(), FlowyError> {
-        let addr = format!("{}/{}", self.addr, token);
+    pub async fn init(&self) {
+        match self.inner.initialize().await {
+            Ok(_) => {},
+            Err(e) => tracing::error!("FlowyWebSocketConnect init error: {:?}", e),
+        }
+    }
+
+    pub async fn start(&self, token: String, user_id: String) -> Result<(), FlowyError> {
+        let addr = format!("{}/{}", self.addr, &token);
         self.inner.stop_connect().await?;
-        let _ = self.inner.start_connect(addr).await?;
+        let _ = self.inner.start_connect(addr, user_id).await?;
         Ok(())
     }
 

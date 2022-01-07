@@ -122,17 +122,17 @@ impl RevisionSynchronizer {
         let server_rev_id = self.rev_id();
         tracing::Span::current().record("server_rev_id", &server_rev_id);
         match server_rev_id.cmp(&client_rev_id) {
-            Ordering::Less => tracing::error!(
-                "[Pong] Client should not send ping and the server should pull the revisions from the client"
-            ),
-            Ordering::Equal => tracing::debug!("[Pong]: The document:{} is up to date.", doc_id),
+            Ordering::Less => {
+                tracing::error!("Client should not send ping and the server should pull the revisions from the client")
+            },
+            Ordering::Equal => tracing::debug!("{} is up to date.", doc_id),
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let from_rev_id = client_rev_id;
                 let to_rev_id = server_rev_id;
-                tracing::trace!("[Pong]: Push revisions to user");
+                tracing::trace!("Push revisions to user");
                 let _ = self
                     .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
                     .await;

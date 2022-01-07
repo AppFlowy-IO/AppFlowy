@@ -38,7 +38,7 @@ impl std::default::Default for FlowySDKTest {
 
 impl FlowySDKTest {
     pub fn new(server_config: ClientServerConfiguration, ws: Option<Arc<dyn FlowyRawWebSocket>>) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string(), None).log_filter("debug");
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string()).log_filter("debug");
         let sdk = FlowySDK::new(config);
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk, ws }

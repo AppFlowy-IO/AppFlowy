@@ -272,8 +272,8 @@ impl DocumentWSSink {
                 Ok(())
             },
             Some(data) => {
-                tracing::debug!("[DocumentSink]: Try send: {}:{:?}-{}", data.doc_id, data.ty, data.id());
-                self.ws_sender.send(data).map_err(internal_error)
+                tracing::debug!("[DocumentSink]: send: {}:{}-{:?}", data.doc_id, data.id(), data.ty);
+                self.ws_sender.send(data)
                 // let _ = tokio::time::timeout(Duration::from_millis(2000),
             },
         }

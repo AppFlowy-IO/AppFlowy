@@ -206,7 +206,6 @@ impl OpenDocHandle {
         result
     }
 
-    #[tracing::instrument(level = "debug", skip(self, user), err)]
     async fn apply_ping(&self, rev_id: i64, user: Arc<dyn RevisionUser>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
