@@ -11,15 +11,7 @@ use anyhow::Context;
 use backend_service::errors::{invalid_params, ServerError};
 use flowy_core_data_model::{
     parser::workspace::WorkspaceIdentify,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
-=======
     protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
->>>>>>> upstream/main
-=======
-    protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
->>>>>>> upstream/main
 };
 use sqlx::{postgres::PgArguments, Postgres};
 use uuid::Uuid;
@@ -127,15 +119,7 @@ async fn read_workspace_apps<'c>(
     user: &LoggedUser,
     transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
-<<<<<<< HEAD
-<<<<<<< HEAD
-) -> Result<RepeatedApp, ServerError> {
-=======
 ) -> Result<RepeatedAppPB, ServerError> {
->>>>>>> upstream/main
-=======
-) -> Result<RepeatedAppPB, ServerError> {
->>>>>>> upstream/main
     let workspace_id = WorkspaceIdentify::parse(workspace_id.to_owned()).map_err(invalid_params)?;
     let (sql, args) = SqlBuilder::select("app_table")
         .add_field("*")
