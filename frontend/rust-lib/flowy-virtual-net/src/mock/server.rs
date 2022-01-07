@@ -10,10 +10,7 @@ use flowy_collaboration::{
     sync::*,
     util::repeated_revision_from_repeated_revision_pb,
 };
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
+
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{

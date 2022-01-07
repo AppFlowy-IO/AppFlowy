@@ -8,16 +8,12 @@ use backend_service::{
     errors::ServerError,
     http_request::*,
 };
-
 use flowy_collaboration::{
     document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
-
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::server::{create_doc_request, read_doc_request};
-
-
 use flowy_user_data_model::entities::*;
 use lib_infra::uuid_string;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
