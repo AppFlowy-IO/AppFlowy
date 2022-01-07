@@ -93,7 +93,6 @@ pub struct DocumentServerWSData {
 
 pub struct DocumentServerWSDataBuilder();
 impl DocumentServerWSDataBuilder {
-
     pub fn build_push_message(doc_id: &str, repeated_revision: RepeatedRevision) -> DocumentServerWSData {
         let bytes: Bytes = repeated_revision.try_into().unwrap();
         DocumentServerWSData {

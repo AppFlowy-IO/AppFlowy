@@ -1,15 +1,6 @@
 use crate::{
     context::DocumentUser,
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/edit/editor.rs
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/edit/editor.rs
-    errors::FlowyError,
-    services::doc::{
-=======
     core::{
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/edit/editor.rs
-=======
-    core::{
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/edit/editor.rs
         web_socket::{make_document_ws_manager, DocumentWebSocketManager},
         *,
     },

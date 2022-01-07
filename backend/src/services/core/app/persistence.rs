@@ -3,15 +3,7 @@ use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
     parser::app::AppIdentify,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::{App, ColorStyle, RepeatedView},
-=======
     protobuf::{App as AppPB, ColorStyle as ColorStylePB, RepeatedView as RepeatedViewPB},
->>>>>>> upstream/main
-=======
-    protobuf::{App as AppPB, ColorStyle as ColorStylePB, RepeatedView as RepeatedViewPB},
->>>>>>> upstream/main
 };
 use protobuf::Message;
 use sqlx::postgres::PgArguments;

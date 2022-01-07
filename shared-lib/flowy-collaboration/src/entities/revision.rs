@@ -107,7 +107,6 @@ impl std::ops::DerefMut for RepeatedRevision {
 }
 
 impl RepeatedRevision {
-
     pub fn new(mut items: Vec<Revision>) -> Self {
         items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
         Self { items }
@@ -181,7 +180,6 @@ pub enum RevisionState {
     Local = 0,
     Ack   = 1,
 }
-
 
 impl AsRef<RevisionState> for RevisionState {
     fn as_ref(&self) -> &RevisionState { &self }
