@@ -5,11 +5,12 @@ use std::{fmt, fmt::Formatter, slice};
 pub struct FlowyStr(pub String);
 
 impl FlowyStr {
+    // https://stackoverflow.com/questions/2241348/what-is-unicode-utf-8-utf-16
     pub fn count_utf16_code_units(&self) -> usize { count_utf16_code_units(&self.0) }
 
-    pub fn utf16_iter(&self) -> FlowyUtf16Iterator { FlowyUtf16Iterator::new(self, 0) }
+    pub fn utf16_iter(&self) -> FlowyUtf16CodePointIterator { FlowyUtf16CodePointIterator::new(self, 0) }
 
-    pub fn code_point_iter(&self) -> CodePointIterator { CodePointIterator::new(self) }
+    pub fn code_point_iter(&self) -> Utf16CodeUnitIterator { Utf16CodeUnitIterator::new(self) }
 
     pub fn sub_str(&self, interval: Interval) -> String {
         match self.with_interval(interval) {
@@ -19,7 +20,7 @@ impl FlowyStr {
     }
 
     pub fn with_interval(&self, interval: Interval) -> Option<FlowyStr> {
-        let mut iter = CodePointIterator::new(self);
+        let mut iter = Utf16CodeUnitIterator::new(self);
         let mut buf = vec![];
         while let Some((byte, _len)) = iter.next() {
             if interval.start < iter.code_point_offset && interval.end >= iter.code_point_offset {
@@ -38,7 +39,7 @@ impl FlowyStr {
     }
 }
 
-pub struct CodePointIterator<'a> {
+pub struct Utf16CodeUnitIterator<'a> {
     s: &'a FlowyStr,
     bytes_offset: usize,
     code_point_offset: usize,
@@ -46,9 +47,9 @@ pub struct CodePointIterator<'a> {
     iter: slice::Iter<'a, u8>,
 }
 
-impl<'a> CodePointIterator<'a> {
+impl<'a> Utf16CodeUnitIterator<'a> {
     pub fn new(s: &'a FlowyStr) -> Self {
-        CodePointIterator {
+        Utf16CodeUnitIterator {
             s,
             bytes_offset: 0,
             code_point_offset: 0,
@@ -58,7 +59,7 @@ impl<'a> CodePointIterator<'a> {
     }
 }
 
-impl<'a> Iterator for CodePointIterator<'a> {
+impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
     type Item = (&'a [u8], usize);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -168,19 +169,19 @@ impl<'de> Deserialize<'de> for FlowyStr {
     }
 }
 
-pub struct FlowyUtf16Iterator<'a> {
+pub struct FlowyUtf16CodePointIterator<'a> {
     s: &'a FlowyStr,
     offset: usize,
 }
 
-impl<'a> FlowyUtf16Iterator<'a> {
-    pub fn new(s: &'a FlowyStr, offset: usize) -> Self { FlowyUtf16Iterator { s, offset } }
+impl<'a> FlowyUtf16CodePointIterator<'a> {
+    pub fn new(s: &'a FlowyStr, offset: usize) -> Self { FlowyUtf16CodePointIterator { s, offset } }
 }
 
 use crate::core::Interval;
 use std::str;
 
-impl<'a> Iterator for FlowyUtf16Iterator<'a> {
+impl<'a> Iterator for FlowyUtf16CodePointIterator<'a> {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {

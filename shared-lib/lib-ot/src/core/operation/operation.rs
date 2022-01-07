@@ -67,7 +67,7 @@ where
         match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
-            Operation::Insert(i) => i.count_of_code_units(),
+            Operation::Insert(i) => i.count_of_utf16_code_units(),
         }
     }
 
@@ -95,7 +95,7 @@ where
                         .build(),
                 );
                 right = Some(
-                    OpBuilder::<T>::insert(&insert.s[index..insert.count_of_code_units()])
+                    OpBuilder::<T>::insert(&insert.s[index..insert.count_of_utf16_code_units()])
                         .attributes(attributes)
                         .build(),
                 );
@@ -112,7 +112,7 @@ where
                 .attributes(retain.attributes.clone())
                 .build(),
             Operation::Insert(insert) => {
-                if interval.start > insert.count_of_code_units() {
+                if interval.start > insert.count_of_utf16_code_units() {
                     OpBuilder::insert("").build()
                 } else {
                     // let s = &insert
@@ -291,7 +291,7 @@ impl<T> Insert<T>
 where
     T: Attributes,
 {
-    pub fn count_of_code_units(&self) -> usize { self.s.count_utf16_code_units() }
+    pub fn count_of_utf16_code_units(&self) -> usize { self.s.count_utf16_code_units() }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
         if self.attributes == attributes {

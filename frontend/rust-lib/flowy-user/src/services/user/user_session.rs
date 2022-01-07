@@ -1,7 +1,6 @@
-use std::sync::Arc;
-
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 
 use backend_service::configuration::ClientServerConfiguration;
@@ -293,6 +292,7 @@ struct Session {
     user_id: String,
     token: String,
     email: String,
+    #[serde(default)]
     name: String,
 }
 

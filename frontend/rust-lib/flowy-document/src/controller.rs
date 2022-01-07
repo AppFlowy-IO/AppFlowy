@@ -79,7 +79,7 @@ impl DocumentController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.doc_id), err)]
-    pub async fn apply_document_delta(&self, delta: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
+    pub async fn receive_local_delta(&self, delta: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
         let editor = self.get_editor(&delta.doc_id).await?;
         let _ = editor.compose_local_delta(Bytes::from(delta.delta_json)).await?;
         let document_json = editor.document_json().await?;
@@ -121,8 +121,7 @@ impl DocumentController {
             token,
             server: self.server.clone(),
         });
-        let doc_editor =
-            ClientDocumentEditor::new(doc_id, user, pool, rev_manager, self.ws_sender.clone(), server).await?;
+        let doc_editor = ClientDocumentEditor::new(doc_id, user, rev_manager, self.ws_sender.clone(), server).await?;
         self.ws_receivers.add(doc_id, doc_editor.ws_handler());
         self.open_cache.insert(&doc_id, &doc_editor);
         Ok(doc_editor)

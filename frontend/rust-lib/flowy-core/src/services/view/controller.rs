@@ -225,7 +225,7 @@ impl ViewController {
     }
 
     pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let doc = self.document_ctx.controller.apply_document_delta(params).await?;
+        let doc = self.document_ctx.controller.receive_local_delta(params).await?;
         Ok(doc)
     }
 

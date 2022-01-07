@@ -1,6 +1,5 @@
 use crate::core::{
     web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer, HttpWebSocketManager},
-    DocumentMD5,
     DocumentWSReceiver,
     DocumentWebSocket,
     EditorCommand,
@@ -20,7 +19,7 @@ use lib_infra::future::FutureResult;
 
 use crate::core::web_socket::local_ws_impl::LocalWebSocketManager;
 use flowy_collaboration::entities::ws::DocumentServerWSDataType;
-use lib_ot::rich_text::RichTextDelta;
+
 use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
 use tokio::sync::{broadcast, mpsc::UnboundedSender, oneshot, RwLock};
@@ -33,7 +32,7 @@ pub(crate) trait DocumentWebSocketManager: Send + Sync {
 pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
-    editor_edit_queue: UnboundedSender<EditorCommand>,
+    edit_cmd_tx: UnboundedSender<EditorCommand>,
     rev_manager: Arc<RevisionManager>,
     ws: Arc<dyn DocumentWebSocket>,
 ) -> Arc<dyn DocumentWebSocketManager> {
@@ -41,51 +40,22 @@ pub(crate) async fn make_document_ws_manager(
         let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
         let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
             doc_id: doc_id.clone(),
-            user_id: user_id.clone(),
-            editor_edit_queue: editor_edit_queue.clone(),
+            edit_cmd_tx,
             rev_manager: rev_manager.clone(),
             shared_sink: shared_sink.clone(),
         });
-        let ws_stream_provider = DocumentWSSinkDataProviderAdapter(shared_sink.clone());
+        let ws_stream_provider = DocumentWSSinkDataProviderAdapter(shared_sink);
         let ws_manager = Arc::new(HttpWebSocketManager::new(
             &doc_id,
             ws.clone(),
             Arc::new(ws_stream_provider),
             ws_stream_consumer,
         ));
-        notify_user_has_connected(&user_id, &doc_id, rev_manager.clone(), shared_sink).await;
-        listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager.clone());
-
+        listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager);
         Arc::new(ws_manager)
     } else {
         Arc::new(Arc::new(LocalWebSocketManager {}))
     }
-}
-
-async fn notify_user_has_connected(
-    _user_id: &str,
-    _doc_id: &str,
-    _rev_manager: Arc<RevisionManager>,
-    _shared_sink: Arc<SharedWSSinkDataProvider>,
-) {
-    // let need_notify = match shared_sink.front().await {
-    //     None => true,
-    //     Some(data) => data.ty != DocumentClientWSDataType::UserConnect,
-    // };
-    //
-    // if need_notify {
-    //     let revision_data: Bytes =
-    // rev_manager.latest_revision().await.try_into().unwrap();
-    //     let new_connect = NewDocumentUser {
-    //         user_id: user_id.to_owned(),
-    //         doc_id: doc_id.to_owned(),
-    //         revision_data: revision_data.to_vec(),
-    //     };
-    //
-    //     let data =
-    // DocumentWSDataBuilder::build_new_document_user_message(doc_id,
-    // new_connect);     shared_sink.push_front(data).await;
-    // }
 }
 
 fn listen_document_ws_state(
@@ -108,23 +78,19 @@ fn listen_document_ws_state(
 
 pub(crate) struct DocumentWebSocketSteamConsumerAdapter {
     pub(crate) doc_id: String,
-    pub(crate) user_id: String,
-    pub(crate) editor_edit_queue: UnboundedSender<EditorCommand>,
+    pub(crate) edit_cmd_tx: UnboundedSender<EditorCommand>,
     pub(crate) rev_manager: Arc<RevisionManager>,
     pub(crate) shared_sink: Arc<SharedWSSinkDataProvider>,
 }
 
 impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError> {
-        let user_id = self.user_id.clone();
         let rev_manager = self.rev_manager.clone();
-        let edit_cmd_tx = self.editor_edit_queue.clone();
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
         let shared_sink = self.shared_sink.clone();
         let doc_id = self.doc_id.clone();
         FutureResult::new(async move {
-            if let Some(server_composed_revision) =
-                handle_push_rev(&doc_id, &user_id, edit_cmd_tx, rev_manager, bytes).await?
-            {
+            if let Some(server_composed_revision) = handle_remote_revision(edit_cmd_tx, rev_manager, bytes).await? {
                 let data = DocumentClientWSData::from_revisions(&doc_id, vec![server_composed_revision]);
                 shared_sink.push_back(data).await;
             }
@@ -164,71 +130,16 @@ impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
 }
 
 async fn transform_pushed_revisions(
-    revisions: &[Revision],
+    revisions: Vec<Revision>,
     edit_cmd: &UnboundedSender<EditorCommand>,
 ) -> FlowyResult<TransformDeltas> {
     let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
-    // Transform the revision
-    let _ = edit_cmd.send(EditorCommand::TransformRevision {
-        revisions: revisions.to_vec(),
-        ret,
-    });
-    let transformed_delta = rx.await.map_err(internal_error)??;
-    Ok(transformed_delta)
-}
-
-async fn compose_pushed_delta(
-    delta: RichTextDelta,
-    edit_cmd: &UnboundedSender<EditorCommand>,
-) -> FlowyResult<DocumentMD5> {
-    // compose delta
-    let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
-    let _ = edit_cmd.send(EditorCommand::ComposeDelta { delta, ret });
-    let md5 = rx.await.map_err(internal_error)??;
-    Ok(md5)
-}
-
-async fn override_client_delta(
-    delta: RichTextDelta,
-    edit_cmd: &UnboundedSender<EditorCommand>,
-) -> FlowyResult<DocumentMD5> {
-    let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
-    let _ = edit_cmd.send(EditorCommand::OverrideDelta { delta, ret });
-    let md5 = rx.await.map_err(internal_error)??;
-    Ok(md5)
-}
-
-async fn make_client_and_server_revision(
-    doc_id: &str,
-    user_id: &str,
-    base_rev_id: i64,
-    rev_id: i64,
-    client_delta: RichTextDelta,
-    server_delta: Option<RichTextDelta>,
-    md5: DocumentMD5,
-) -> (Revision, Option<Revision>) {
-    let client_revision = Revision::new(
-        &doc_id,
-        base_rev_id,
-        rev_id,
-        client_delta.to_bytes(),
-        &user_id,
-        md5.clone(),
-    );
-
-    match server_delta {
-        None => (client_revision, None),
-        Some(server_delta) => {
-            let server_revision = Revision::new(&doc_id, base_rev_id, rev_id, server_delta.to_bytes(), &user_id, md5);
-            (client_revision, Some(server_revision))
-        },
-    }
+    let _ = edit_cmd.send(EditorCommand::TransformRevision { revisions, ret });
+    Ok(rx.await.map_err(internal_error)??)
 }
 
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
-pub(crate) async fn handle_push_rev(
-    doc_id: &str,
-    user_id: &str,
+pub(crate) async fn handle_remote_revision(
     edit_cmd_tx: UnboundedSender<EditorCommand>,
     rev_manager: Arc<RevisionManager>,
     bytes: Bytes,
@@ -254,37 +165,30 @@ pub(crate) async fn handle_push_rev(
     let TransformDeltas {
         client_prime,
         server_prime,
-    } = transform_pushed_revisions(&revisions, &edit_cmd_tx).await?;
+    } = transform_pushed_revisions(revisions.clone(), &edit_cmd_tx).await?;
+
     match server_prime {
         None => {
             // The server_prime is None means the client local revisions conflict with the
             // server, and it needs to override the client delta.
-            let md5 = override_client_delta(client_prime.clone(), &edit_cmd_tx).await?;
-            let repeated_revision = RepeatedRevision::new(revisions);
-            assert_eq!(repeated_revision.last().unwrap().md5, md5);
-            let _ = rev_manager.reset_document(repeated_revision).await?;
+            let (ret, rx) = oneshot::channel();
+            let _ = edit_cmd_tx.send(EditorCommand::OverrideDelta {
+                revisions,
+                delta: client_prime,
+                ret,
+            });
+            let _ = rx.await.map_err(internal_error)??;
             Ok(None)
         },
         Some(server_prime) => {
-            let md5 = compose_pushed_delta(client_prime.clone(), &edit_cmd_tx).await?;
-            for revision in &revisions {
-                let _ = rev_manager.add_remote_revision(revision).await?;
-            }
-            let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
-            let (client_revision, server_revision) = make_client_and_server_revision(
-                doc_id,
-                user_id,
-                base_rev_id,
-                rev_id,
-                client_prime,
-                Some(server_prime),
-                md5,
-            )
-            .await;
-
-            // save the client revision
-            let _ = rev_manager.add_remote_revision(&client_revision).await?;
-            Ok(server_revision)
+            let (ret, rx) = oneshot::channel();
+            let _ = edit_cmd_tx.send(EditorCommand::ComposeRemoteDelta {
+                revisions,
+                client_delta: client_prime,
+                server_delta: server_prime,
+                ret,
+            });
+            Ok(rx.await.map_err(internal_error)??)
         },
     }
 }

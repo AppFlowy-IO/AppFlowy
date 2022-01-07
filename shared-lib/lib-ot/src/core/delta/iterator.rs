@@ -181,7 +181,7 @@ where
             Operation::<T>::Insert(insert) => {
                 tracing::trace!("extend insert attributes with {} ", &insert.attributes);
                 attributes.extend_other(insert.attributes.clone());
-                length = insert.count_of_code_units();
+                length = insert.count_of_utf16_code_units();
             },
         }
 

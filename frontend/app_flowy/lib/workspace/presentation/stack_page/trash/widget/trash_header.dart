@@ -61,7 +61,7 @@ class TrashHeader extends StatelessWidget {
     });
 
     return Container(
-      color: theme.bg1,
+      color: theme.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

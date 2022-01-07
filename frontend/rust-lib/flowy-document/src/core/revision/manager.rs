@@ -9,16 +9,12 @@ use flowy_collaboration::{
         doc::DocumentInfo,
         revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
     },
-    util::{md5, pair_rev_id_from_revisions, RevIdCounter},
+    util::{make_delta_from_revisions, md5, pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::FlowyResult;
 use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
-use lib_ot::{
-    core::{Operation, OperationTransformable},
-    errors::OTError,
-    rich_text::RichTextDelta,
-};
+use lib_ot::{core::Operation, errors::OTError, rich_text::RichTextDelta};
 use std::{collections::VecDeque, sync::Arc};
 use tokio::sync::RwLock;
 
@@ -239,18 +235,8 @@ impl RevisionLoader {
 
 fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<DocumentInfo> {
     let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
-    let mut delta = RichTextDelta::new();
-    for (_, revision) in revisions.into_iter().enumerate() {
-        match RichTextDelta::from_bytes(revision.delta_data) {
-            Ok(local_delta) => {
-                delta = delta.compose(&local_delta)?;
-            },
-            Err(e) => {
-                tracing::error!("Deserialize delta from revision failed: {}", e);
-            },
-        }
-    }
-    correct_delta_if_need(&mut delta);
+    let mut delta = make_delta_from_revisions(revisions)?;
+    correct_delta(&mut delta);
 
     Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
         doc_id: doc_id.to_owned(),
@@ -259,15 +245,21 @@ fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<
         base_rev_id,
     })
 }
-fn correct_delta_if_need(delta: &mut RichTextDelta) {
-    if delta.ops.last().is_none() {
-        return;
+
+// quill-editor requires the delta should end with '\n' and only contains the
+// insert operation. The function, correct_delta maybe be removed in the future.
+fn correct_delta(delta: &mut RichTextDelta) {
+    if let Some(op) = delta.ops.last() {
+        let op_data = op.get_data();
+        if !op_data.ends_with('\n') {
+            log::warn!("The document must end with newline. Correcting it by inserting newline op");
+            delta.ops.push(Operation::Insert("\n".into()));
+        }
     }
 
-    let data = delta.ops.last().as_ref().unwrap().get_data();
-    if !data.ends_with('\n') {
-        log::error!("❌The op must end with newline. Correcting it by inserting newline op");
-        delta.ops.push(Operation::Insert("\n".into()));
+    if let Some(op) = delta.ops.iter().find(|op| !op.is_insert()) {
+        log::warn!("The document can only contains insert operations, but found {:?}", op);
+        delta.ops.retain(|op| op.is_insert());
     }
 }
 

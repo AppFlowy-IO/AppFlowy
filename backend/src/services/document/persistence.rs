@@ -5,37 +5,19 @@ use crate::{
 use anyhow::Context;
 use backend_service::errors::{internal_error, ServerError};
 use bytes::Bytes;
-use flowy_collaboration::protobuf::{
-    CreateDocParams,
-    DocumentId,
-    DocumentInfo,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    RepeatedRevision,
-    ResetDocumentParams,
-    Revision,
-=======
-    RepeatedRevision as RepeatedRevisionPB,
-    ResetDocumentParams,
-    Revision as RevisionPB,
->>>>>>> upstream/main
-=======
-    RepeatedRevision as RepeatedRevisionPB,
-    ResetDocumentParams,
-    Revision as RevisionPB,
->>>>>>> upstream/main
+use flowy_collaboration::{
+    protobuf::{
+        CreateDocParams,
+        DocumentId,
+        DocumentInfo,
+        RepeatedRevision as RepeatedRevisionPB,
+        ResetDocumentParams,
+        Revision as RevisionPB,
+    },
+    sync::ServerDocumentManager,
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-use flowy_collaboration::sync::ServerDocumentManager;
->>>>>>> upstream/main
-=======
-use flowy_collaboration::sync::ServerDocumentManager;
->>>>>>> upstream/main
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -59,28 +41,6 @@ pub async fn read_document(
     make_doc_from_revisions(&params.doc_id, revisions)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#[tracing::instrument(level = "debug", skip(kv_store, params), fields(delta), err)]
-pub async fn reset_document(
-    kv_store: &Arc<DocumentKVPersistence>,
-    mut params: ResetDocumentParams,
-) -> Result<(), ServerError> {
-    let revisions = params.take_revisions().take_items();
-    let doc_id = params.take_doc_id();
-    kv_store
-        .transaction(|mut transaction| {
-            Box::pin(async move {
-                let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
-                let items = revisions_to_key_value_items(revisions.into())?;
-                let _ = transaction.batch_set(items).await?;
-                Ok(())
-            })
-        })
-        .await
-=======
-=======
->>>>>>> upstream/main
 #[tracing::instrument(level = "debug", skip(document_manager, params), fields(delta), err)]
 pub async fn reset_document(
     document_manager: &Arc<ServerDocumentManager>,
@@ -96,10 +56,6 @@ pub async fn reset_document(
         .await
         .map_err(internal_error)?;
     Ok(())
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
 }
 
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
@@ -125,30 +81,14 @@ impl std::ops::DerefMut for DocumentKVPersistence {
 impl DocumentKVPersistence {
     pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
-=======
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
->>>>>>> upstream/main
-=======
-    pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
->>>>>>> upstream/main
         let items = revisions_to_key_value_items(revisions)?;
         self.inner
             .transaction(|mut t| Box::pin(async move { t.batch_set(items).await }))
             .await
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevision, ServerError> {
-=======
     pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevisionPB, ServerError> {
->>>>>>> upstream/main
-=======
-    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevisionPB, ServerError> {
->>>>>>> upstream/main
         let doc_id = doc_id.to_owned();
         let items = self
             .inner
@@ -161,15 +101,7 @@ impl DocumentKVPersistence {
         &self,
         doc_id: &str,
         rev_ids: T,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ) -> Result<RepeatedRevision, ServerError> {
-=======
     ) -> Result<RepeatedRevisionPB, ServerError> {
->>>>>>> upstream/main
-=======
-    ) -> Result<RepeatedRevisionPB, ServerError> {
->>>>>>> upstream/main
         let rev_ids = rev_ids.into();
         let items = match rev_ids {
             None => {
@@ -220,29 +152,13 @@ impl DocumentKVPersistence {
 }
 
 #[inline]
-<<<<<<< HEAD
-<<<<<<< HEAD
-fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
-=======
 pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
->>>>>>> upstream/main
-=======
-pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
->>>>>>> upstream/main
     let mut items = vec![];
     for revision in revisions {
         let key = make_revision_key(&revision.doc_id, revision.rev_id);
 
         if revision.delta_data.is_empty() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            return Err(ServerError::internal().context("The delta_data of Revision should not be empty"));
-=======
             return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));
->>>>>>> upstream/main
-=======
-            return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));
->>>>>>> upstream/main
         }
 
         let value = Bytes::from(revision.write_to_bytes().unwrap());
@@ -252,19 +168,6 @@ pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<Ke
 }
 
 #[inline]
-<<<<<<< HEAD
-<<<<<<< HEAD
-fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
-    let mut revisions = items
-        .into_iter()
-        .filter_map(|kv| parse_from_bytes::<Revision>(&kv.value).ok())
-        .collect::<Vec<Revision>>();
-
-    revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-    let mut repeated_revision = RepeatedRevision::new();
-=======
-=======
->>>>>>> upstream/main
 fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
     let mut revisions = items
         .into_iter()
@@ -273,10 +176,6 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
 
     revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
     let mut repeated_revision = RepeatedRevisionPB::new();
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
     repeated_revision.set_items(revisions.into());
     repeated_revision
 }
@@ -285,15 +184,7 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
 fn make_revision_key(doc_id: &str, rev_id: i64) -> String { format!("{}:{}", doc_id, rev_id) }
 
 #[inline]
-<<<<<<< HEAD
-<<<<<<< HEAD
-fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<DocumentInfo, ServerError> {
-=======
 fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {
->>>>>>> upstream/main
-=======
-fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {
->>>>>>> upstream/main
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Err(ServerError::record_not_found().context(format!("{} not exist", doc_id)));
@@ -302,15 +193,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> R
     let mut document_delta = RichTextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    // TODO: generate delta from revision should be wrapped into function.
-=======
     // TODO: replace with make_delta_from_revisions
->>>>>>> upstream/main
-=======
-    // TODO: replace with make_delta_from_revisions
->>>>>>> upstream/main
     for revision in revisions {
         base_rev_id = revision.base_rev_id;
         rev_id = revision.rev_id;
@@ -322,6 +205,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> R
         let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(internal_error)?;
         document_delta = document_delta.compose(&delta).map_err(internal_error)?;
     }
+
     let text = document_delta.to_json();
     let mut document_info = DocumentInfo::new();
     document_info.set_doc_id(doc_id.to_owned());

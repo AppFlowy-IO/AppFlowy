@@ -477,11 +477,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "0cb120d08d92c7091bfc0c9466a41c2b21965ca7"
+      ref: "1ce8188c47d3983268067b39a3e8cc8aef898864"
+      resolved-ref: "1ce8188c47d3983268067b39a3e8cc8aef898864"
       url: "https://github.com/appflowy/flutter-quill.git"
     source: git
-    version: "3.0.4"
+    version: "3.1.0"
   flutter_svg:
     dependency: "direct main"
     description:
