@@ -1,12 +1,5 @@
 use bytes::Bytes;
 use dashmap::DashMap;
-<<<<<<< HEAD
-<<<<<<< HEAD
-use flowy_collaboration::{entities::prelude::*, errors::CollaborateError, sync::*};
-// use flowy_net::services::ws::*;
-=======
-=======
->>>>>>> upstream/main
 use flowy_collaboration::{
     entities::{
         doc::DocumentInfo,
@@ -17,10 +10,7 @@ use flowy_collaboration::{
     sync::*,
     util::repeated_revision_from_repeated_revision_pb,
 };
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
+
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
@@ -103,21 +93,7 @@ impl DocumentPersistence for MockDocServerPersistence {
         })
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError> {
-        let doc_id = doc_id.to_owned();
-        Box::pin(async move { DocumentInfo::from_revisions(&doc_id, revisions) })
-    }
 
-    fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
-        Box::pin(async move { Ok(vec![]) })
-    }
-
-    fn get_doc_revisions(&self, _doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> { unimplemented!() }
-=======
-=======
->>>>>>> upstream/main
     fn create_doc(
         &self,
         doc_id: &str,
@@ -141,10 +117,6 @@ impl DocumentPersistence for MockDocServerPersistence {
     fn reset_document(&self, _doc_id: &str, _revisions: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
         unimplemented!()
     }
-<<<<<<< HEAD
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
 }
 
 #[derive(Debug)]

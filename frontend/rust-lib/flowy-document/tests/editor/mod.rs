@@ -5,15 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-<<<<<<< HEAD
-<<<<<<< HEAD
-use flowy_collaboration::document::{CustomDocument, Document};
-=======
 use flowy_collaboration::document::{Document, InitialDocumentText};
->>>>>>> upstream/main
-=======
-use flowy_collaboration::document::{Document, InitialDocumentText};
->>>>>>> upstream/main
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},

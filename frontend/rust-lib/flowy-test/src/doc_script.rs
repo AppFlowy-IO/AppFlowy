@@ -1,14 +1,6 @@
 use crate::{helper::ViewTest, FlowySDKTest};
 use flowy_collaboration::entities::revision::RevisionState;
-<<<<<<< HEAD
-<<<<<<< HEAD
-use flowy_document::services::doc::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
-=======
 use flowy_document::core::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
->>>>>>> upstream/main
-=======
-use flowy_document::core::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
->>>>>>> upstream/main
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};

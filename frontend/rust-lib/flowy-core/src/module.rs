@@ -1,17 +1,5 @@
 use std::sync::Arc;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-use backend_service::configuration::ClientServerConfiguration;
-use flowy_database::DBConnection;
-use flowy_document::context::DocumentContext;
-use lib_dispatch::prelude::*;
-use lib_sqlite::ConnectionPool;
-
-=======
->>>>>>> upstream/main
-=======
->>>>>>> upstream/main
 use crate::{
     context::CoreContext,
     errors::FlowyError,
