@@ -2,17 +2,8 @@ use crate::core::RevisionRecord;
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/revision/memory.rs
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/revision/cache/memory.rs
-use std::{sync::Arc, time::Duration};
-=======
 use futures_util::{stream, stream::StreamExt};
 use std::{borrow::Cow, sync::Arc, time::Duration};
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/revision/memory.rs
-=======
-use futures_util::{stream, stream::StreamExt};
-use std::{borrow::Cow, sync::Arc, time::Duration};
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/revision/cache/memory.rs
 use tokio::{sync::RwLock, task::JoinHandle};
 
 pub(crate) trait RevisionMemoryCacheDelegate: Send + Sync {
@@ -41,22 +32,12 @@ impl RevisionMemoryCache {
 
     pub(crate) fn contains(&self, rev_id: &i64) -> bool { self.revs_map.contains_key(rev_id) }
 
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/revision/memory.rs
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/services/doc/revision/cache/memory.rs
-    pub(crate) async fn add(&self, record: &RevisionRecord) {
-=======
-=======
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/revision/cache/memory.rs
     pub(crate) async fn add<'a>(&'a self, record: Cow<'a, RevisionRecord>) {
         let record = match record {
             Cow::Borrowed(record) => record.clone(),
             Cow::Owned(record) => record,
         };
 
-<<<<<<< HEAD:frontend/rust-lib/flowy-document/src/core/revision/memory.rs
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/core/revision/memory.rs
-=======
->>>>>>> upstream/main:frontend/rust-lib/flowy-document/src/services/doc/revision/cache/memory.rs
         if let Some(rev_id) = self.pending_write_revs.read().await.last() {
             if *rev_id >= record.revision.rev_id {
                 tracing::error!("Duplicated revision added to memory_cache");

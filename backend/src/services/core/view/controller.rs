@@ -11,15 +11,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision},
-<<<<<<< HEAD
-<<<<<<< HEAD
-    protobuf::CreateDocParams,
-=======
     protobuf::CreateDocParams as CreateDocParamsPB,
->>>>>>> upstream/main
-=======
-    protobuf::CreateDocParams as CreateDocParamsPB,
->>>>>>> upstream/main
 };
 use flowy_core_data_model::{
     parser::{
@@ -77,21 +69,9 @@ pub(crate) async fn delete_view(
 pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
     kv_store: Arc<DocumentKVPersistence>,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    params: CreateViewParams,
-    user_id: &str,
-) -> Result<View, ServerError> {
-=======
     params: CreateViewParamsPB,
     user_id: &str,
 ) -> Result<ViewPB, ServerError> {
->>>>>>> upstream/main
-=======
-    params: CreateViewParamsPB,
-    user_id: &str,
-) -> Result<ViewPB, ServerError> {
->>>>>>> upstream/main
     let view_id = check_view_id(params.view_id.clone())?;
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
     let belong_to_id = AppIdentify::parse(params.belong_to_id).map_err(invalid_params)?;
@@ -114,15 +94,7 @@ pub(crate) async fn create_view(
     let md5 = format!("{:x}", md5::compute(&delta_data));
     let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
     let repeated_revision = RepeatedRevision::new(vec![revision]);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    let mut create_doc_params = CreateDocParams::new();
-=======
     let mut create_doc_params = CreateDocParamsPB::new();
->>>>>>> upstream/main
-=======
-    let mut create_doc_params = CreateDocParamsPB::new();
->>>>>>> upstream/main
     create_doc_params.set_revisions(repeated_revision.try_into().unwrap());
     create_doc_params.set_id(view.id.clone());
     let _ = create_document(&kv_store, create_doc_params).await?;
