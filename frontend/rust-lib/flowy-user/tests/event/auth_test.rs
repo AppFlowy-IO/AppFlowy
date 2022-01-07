@@ -5,7 +5,7 @@ use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 #[tokio::test]
 async fn sign_up_with_invalid_email() {
     for email in invalid_email_test_case() {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let request = SignUpRequest {
             email: email.to_string(),
             name: valid_name(),
@@ -27,7 +27,7 @@ async fn sign_up_with_invalid_email() {
 #[tokio::test]
 async fn sign_up_with_invalid_password() {
     for password in invalid_password_test_case() {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let request = SignUpRequest {
             email: random_email(),
             name: valid_name(),
@@ -45,7 +45,7 @@ async fn sign_up_with_invalid_password() {
 
 #[tokio::test]
 async fn sign_in_success() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = UserModuleEventBuilder::new(test.clone()).event(SignOut).sync_send();
     let sign_up_context = test.sign_up().await;
 
@@ -67,7 +67,7 @@ async fn sign_in_success() {
 #[tokio::test]
 async fn sign_in_with_invalid_email() {
     for email in invalid_email_test_case() {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let request = SignInRequest {
             email: email.to_string(),
             password: login_password(),
@@ -90,7 +90,7 @@ async fn sign_in_with_invalid_email() {
 #[tokio::test]
 async fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
 
         let request = SignInRequest {
             email: random_email(),

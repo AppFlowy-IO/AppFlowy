@@ -123,11 +123,15 @@ impl ServerDocumentManager {
         }
 
         let mut write_guard = self.open_doc_map.write().await;
-        let doc = self.persistence.read_doc(doc_id).await.unwrap();
-        let handler = self.create_document_handler(doc).await.map_err(internal_error).unwrap();
-        write_guard.insert(doc_id.to_owned(), handler.clone());
-        drop(write_guard);
-        Some(handler)
+        match self.persistence.read_doc(doc_id).await {
+            Ok(doc) => {
+                let handler = self.create_document_handler(doc).await.map_err(internal_error).unwrap();
+                write_guard.insert(doc_id.to_owned(), handler.clone());
+                drop(write_guard);
+                Some(handler)
+            },
+            Err(_) => None,
+        }
     }
 
     #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]

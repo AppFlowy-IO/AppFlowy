@@ -6,7 +6,7 @@ use flowy_document::{
     core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
     errors::{internal_error, FlowyError},
 };
-use flowy_net::services::ws::FlowyWSConnect;
+use flowy_net::services::ws_conn::FlowyWebSocketConnect;
 use flowy_user::services::user::UserSession;
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
@@ -14,7 +14,7 @@ use std::{convert::TryInto, path::Path, sync::Arc};
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
     pub fn resolve(
-        ws_manager: Arc<FlowyWSConnect>,
+        ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
     ) -> (
         Arc<dyn DocumentUser>,
@@ -24,11 +24,11 @@ impl DocumentDepsResolver {
         let user = Arc::new(DocumentUserImpl { user: user_session });
 
         let ws_sender = Arc::new(DocumentWebSocketAdapter {
-            ws_manager: ws_manager.clone(),
+            ws_conn: ws_conn.clone(),
         });
         let ws_receivers = Arc::new(DocumentWSReceivers::new());
         let receiver = Arc::new(WSMessageReceiverAdaptor(ws_receivers.clone()));
-        ws_manager.add_receiver(receiver).unwrap();
+        ws_conn.add_ws_message_receiver(receiver).unwrap();
         (user, ws_receivers, ws_sender)
     }
 }
@@ -61,7 +61,7 @@ impl DocumentUser for DocumentUserImpl {
 }
 
 struct DocumentWebSocketAdapter {
-    ws_manager: Arc<FlowyWSConnect>,
+    ws_conn: Arc<FlowyWebSocketConnect>,
 }
 
 impl DocumentWebSocket for DocumentWebSocketAdapter {
@@ -71,13 +71,12 @@ impl DocumentWebSocket for DocumentWebSocketAdapter {
             module: WSModule::Doc,
             data: bytes.to_vec(),
         };
-        let sender = self.ws_manager.ws_sender().map_err(internal_error)?;
+        let sender = self.ws_conn.ws_sender().map_err(internal_error)?;
         sender.send(msg).map_err(internal_error)?;
-
         Ok(())
     }
 
-    fn subscribe_state_changed(&self) -> WSStateReceiver { self.ws_manager.subscribe_websocket_state() }
+    fn subscribe_state_changed(&self) -> WSStateReceiver { self.ws_conn.subscribe_websocket_state() }
 }
 
 struct WSMessageReceiverAdaptor(Arc<DocumentWSReceivers>);

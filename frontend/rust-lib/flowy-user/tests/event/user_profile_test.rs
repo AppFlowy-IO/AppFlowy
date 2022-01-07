@@ -6,7 +6,7 @@ use serial_test::*;
 
 #[tokio::test]
 async fn user_profile_get_failed() {
-    let sdk = FlowySDKTest::setup();
+    let sdk = FlowySDKTest::default();
     let result = UserModuleEventBuilder::new(sdk)
         .event(GetUserProfile)
         .assert_error()
@@ -18,7 +18,7 @@ async fn user_profile_get_failed() {
 #[tokio::test]
 #[serial]
 async fn user_profile_get() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let user_profile = test.init_user().await;
     let user = UserModuleEventBuilder::new(test.clone())
         .event(GetUserProfile)
@@ -30,7 +30,7 @@ async fn user_profile_get() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_name() {
-    let sdk = FlowySDKTest::setup();
+    let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_name = "hello_world".to_owned();
     let request = UpdateUserRequest::new(&user.id).name(&new_name);
@@ -51,7 +51,7 @@ async fn user_update_with_name() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_email() {
-    let sdk = FlowySDKTest::setup();
+    let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_email = format!("{}@gmail.com", uuid_string());
     let request = UpdateUserRequest::new(&user.id).email(&new_email);
@@ -71,7 +71,7 @@ async fn user_update_with_email() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_password() {
-    let sdk = FlowySDKTest::setup();
+    let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_password = "H123world!".to_owned();
     let request = UpdateUserRequest::new(&user.id).password(&new_password);
@@ -86,7 +86,7 @@ async fn user_update_with_password() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_email() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let user = test.init_user().await;
     for email in invalid_email_test_case() {
         let request = UpdateUserRequest::new(&user.id).email(&email);
@@ -105,7 +105,7 @@ async fn user_update_with_invalid_email() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_password() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let user = test.init_user().await;
     for password in invalid_password_test_case() {
         let request = UpdateUserRequest::new(&user.id).password(&password);
@@ -121,7 +121,7 @@ async fn user_update_with_invalid_password() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_name() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let user = test.init_user().await;
     let request = UpdateUserRequest::new(&user.id).name("");
     UserModuleEventBuilder::new(test.clone())

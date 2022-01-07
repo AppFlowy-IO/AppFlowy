@@ -119,7 +119,7 @@ impl CoreContext {
             .payload(repeated_workspace)
             .send();
 
-        log::debug!("workspace initialize after sign up");
+        tracing::debug!("Create default workspace after sign up");
         let _ = self.init(&token).await?;
         Ok(())
     }
@@ -130,13 +130,13 @@ impl CoreContext {
                 return Ok(());
             }
         }
-        log::debug!("Start initializing flowy core");
+        tracing::debug!("Start initializing flowy core");
         INIT_WORKSPACE.write().insert(token.to_owned(), true);
         let _ = self.workspace_controller.init()?;
         let _ = self.app_controller.init()?;
         let _ = self.view_controller.init()?;
         let _ = self.trash_controller.init()?;
-        log::debug!("Finish initializing core");
+        tracing::debug!("Finish initializing core");
 
         Ok(())
     }

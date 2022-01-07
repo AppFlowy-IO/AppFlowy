@@ -17,10 +17,8 @@ use backend::services::document::persistence::{read_document, reset_document};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::protobuf::{RepeatedRevision as RepeatedRevisionPB, DocumentId as DocumentIdPB};
 use flowy_collaboration::sync::ServerDocumentManager;
+use flowy_net::services::ws_conn::FlowyWebSocketConnect;
 use lib_ot::core::Interval;
-
-use flowy_net::services::ws::FlowyWSConnect;
-
 
 pub struct DocumentTest {
     server: TestServer,
@@ -39,7 +37,7 @@ pub enum DocScript {
 impl DocumentTest {
     pub async fn new() -> Self {
         let server = spawn_server().await;
-        let flowy_test = FlowySDKTest::setup_with(server.client_server_config.clone());
+        let flowy_test = FlowySDKTest::new(server.client_server_config.clone(), None);
         Self { server, flowy_test }
     }
 
@@ -57,7 +55,7 @@ struct ScriptContext {
     client_editor: Option<Arc<ClientDocumentEditor>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
-    ws_conn: Arc<FlowyWSConnect>,
+    ws_conn: Arc<FlowyWebSocketConnect>,
     server: TestServer,
     doc_id: String,
 }
@@ -65,7 +63,7 @@ struct ScriptContext {
 impl ScriptContext {
     async fn new(client_sdk: FlowySDKTest, server: TestServer) -> Self {
         let user_session = client_sdk.user_session.clone();
-        let ws_manager = client_sdk.ws_manager.clone();
+        let ws_manager = client_sdk.ws_conn.clone();
         let doc_id = create_doc(&client_sdk).await;
 
         Self {
@@ -80,7 +78,7 @@ impl ScriptContext {
 
     async fn open_doc(&mut self) {
         let doc_id = self.doc_id.clone();
-        let edit_context = self.client_sdk.document_ctx.controller.open(doc_id).await.unwrap();
+        let edit_context = self.client_sdk.document_ctx.controller.open_document(doc_id).await.unwrap();
         self.client_editor = Some(edit_context);
     }
 

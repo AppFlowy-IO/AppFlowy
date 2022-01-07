@@ -9,6 +9,7 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}
 lib-ws = { path = "../../../shared-lib/lib-ws" }
@@ -19,6 +20,6 @@ parking_lot = "0.11"
 strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
-
+dashmap = {version = "4.0"}
 [features]
 http_server = []

@@ -1,4 +1,5 @@
 use crate::{helper::ViewTest, FlowySDKTest};
+use backend_service::configuration::get_client_server_configuration;
 use flowy_collaboration::entities::revision::RevisionState;
 use flowy_document::core::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
@@ -6,8 +7,6 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 pub enum EditorScript {
-    StartWs,
-    StopWs,
     InsertText(&'static str, usize),
     Delete(Interval),
     Replace(Interval, &'static str),
@@ -16,8 +15,6 @@ pub enum EditorScript {
     AssertNextRevId(Option<i64>),
     AssertCurrentRevId(i64),
     AssertJson(&'static str),
-
-    WaitSyncFinished,
 }
 
 pub struct EditorTest {
@@ -27,10 +24,11 @@ pub struct EditorTest {
 
 impl EditorTest {
     pub async fn new() -> Self {
-        let sdk = FlowySDKTest::setup();
+        let server_config = get_client_server_configuration().unwrap();
+        let sdk = FlowySDKTest::new(server_config, None);
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.document_ctx.controller.open(&test.view.id).await.unwrap();
+        let editor = sdk.document_ctx.controller.open_document(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 
@@ -46,17 +44,11 @@ impl EditorTest {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache();
         let _user_id = self.sdk.user_session.user_id().unwrap();
-        let ws_manager = self.sdk.ws_manager.clone();
-        let token = self.sdk.user_session.token().unwrap();
+        // let ws_manager = self.sdk.ws_conn.clone();
+        // let token = self.sdk.user_session.token().unwrap();
         let wait_millis = 2 * SYNC_INTERVAL_IN_MILLIS;
 
         match script {
-            EditorScript::StartWs => {
-                ws_manager.start(token.clone()).await.unwrap();
-            },
-            EditorScript::StopWs => {
-                ws_manager.stop().await;
-            },
             EditorScript::InsertText(s, offset) => {
                 self.editor.insert(offset, s).await.unwrap();
             },
@@ -90,10 +82,6 @@ impl EditorTest {
                     eprintln!("❌ receive: {}", delta.to_json());
                 }
                 assert_eq!(expected_delta, delta);
-            },
-            EditorScript::WaitSyncFinished => {
-                // Workaround: just wait two seconds
-                sleep(Duration::from_millis(2000)).await;
             },
         }
         sleep(Duration::from_millis(wait_millis)).await;

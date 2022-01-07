@@ -4,7 +4,6 @@ members = [
   "lib-log",
   "lib-sqlite",
   "flowy-net",
-  "flowy-virtual-net",
   "flowy-sdk",
   "dart-ffi",
   "flowy-user",

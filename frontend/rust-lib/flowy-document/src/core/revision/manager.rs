@@ -1,5 +1,5 @@
 use crate::{
-    core::{revision::RevisionCache, RevisionRecord},
+    core::{revision::DocumentRevisionCache, RevisionRecord},
     errors::FlowyError,
 };
 use bytes::Bytes;
@@ -22,16 +22,16 @@ pub trait RevisionServer: Send + Sync {
     fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError>;
 }
 
-pub struct RevisionManager {
+pub struct DocumentRevisionManager {
     pub(crate) doc_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
-    cache: Arc<RevisionCache>,
+    cache: Arc<DocumentRevisionCache>,
     sync_seq: Arc<RevisionSyncSequence>,
 }
 
-impl RevisionManager {
-    pub fn new(user_id: &str, doc_id: &str, cache: Arc<RevisionCache>) -> Self {
+impl DocumentRevisionManager {
+    pub fn new(user_id: &str, doc_id: &str, cache: Arc<DocumentRevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         let sync_seq = Arc::new(RevisionSyncSequence::new());
         Self {
@@ -70,8 +70,8 @@ impl RevisionManager {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        self.rev_id_counter.set(revision.rev_id);
         let _ = self.cache.add(revision.clone(), RevisionState::Ack, true).await?;
+        self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
 
@@ -194,7 +194,7 @@ struct RevisionLoader {
     doc_id: String,
     user_id: String,
     server: Arc<dyn RevisionServer>,
-    cache: Arc<RevisionCache>,
+    cache: Arc<DocumentRevisionCache>,
 }
 
 impl RevisionLoader {
@@ -272,6 +272,6 @@ impl RevisionSyncSequence {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl RevisionManager {
-    pub fn revision_cache(&self) -> Arc<RevisionCache> { self.cache.clone() }
+impl DocumentRevisionManager {
+    pub fn revision_cache(&self) -> Arc<DocumentRevisionCache> { self.cache.clone() }
 }

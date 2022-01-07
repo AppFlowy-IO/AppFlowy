@@ -17,11 +17,8 @@ async fn doc_sync_test() {
 async fn doc_sync_retry_ws_conn() {
     let scripts = vec![
         InsertText("1", 0),
-        StopWs,
         InsertText("2", 1),
         InsertText("3", 2),
-        StartWs,
-        WaitSyncFinished,
         AssertRevisionState(2, RevisionState::Ack),
         AssertRevisionState(3, RevisionState::Ack),
         AssertNextRevId(None),

@@ -129,7 +129,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocumentId) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
-        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
+        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
 
         KV::set_str(LATEST_VIEW_ID, doc_id.clone());
         let document_json = editor.document_json().await?;
@@ -141,7 +141,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn close_view(&self, params: DocumentId) -> Result<(), FlowyError> {
-        let _ = self.document_ctx.controller.close(&params.doc_id)?;
+        let _ = self.document_ctx.controller.close_document(&params.doc_id)?;
         Ok(())
     }
 
@@ -152,14 +152,14 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document_ctx.controller.close(&params.doc_id)?;
+        let _ = self.document_ctx.controller.close_document(&params.doc_id)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
-        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
+        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
         let document_json = editor.document_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
@@ -177,7 +177,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
+        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
         let delta_json = editor.document_json().await?;
         Ok(ExportData {
             data: delta_json,

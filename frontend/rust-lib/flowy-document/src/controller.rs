@@ -2,7 +2,7 @@ use crate::{
     context::DocumentUser,
     core::{
         edit::ClientDocumentEditor,
-        revision::{RevisionCache, RevisionManager, RevisionServer},
+        revision::{DocumentRevisionCache, DocumentRevisionManager, RevisionServer},
         DocumentWSReceivers,
         DocumentWebSocket,
         WSStateReceiver,
@@ -54,14 +54,14 @@ impl DocumentController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
-    pub async fn open<T: AsRef<str>>(&self, doc_id: T) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
+    pub async fn open_document<T: AsRef<str>>(&self, doc_id: T) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
         self.get_editor(doc_id).await
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
-    pub fn close<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
+    pub fn close_document<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
         self.open_cache.remove(doc_id);
@@ -127,10 +127,10 @@ impl DocumentController {
         Ok(doc_editor)
     }
 
-    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<DocumentRevisionManager, FlowyError> {
         let user_id = self.user.user_id()?;
-        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
-        Ok(RevisionManager::new(&user_id, doc_id, cache))
+        let cache = Arc::new(DocumentRevisionCache::new(&user_id, doc_id, pool));
+        Ok(DocumentRevisionManager::new(&user_id, doc_id, cache))
     }
 }
 

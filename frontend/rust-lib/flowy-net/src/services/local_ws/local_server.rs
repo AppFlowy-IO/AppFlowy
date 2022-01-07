@@ -6,12 +6,16 @@ use flowy_collaboration::{
         ws::{DocumentClientWSData, DocumentClientWSDataType},
     },
     errors::CollaborateError,
-    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::{
+        DocumentClientWSData as DocumentClientWSDataPB,
+        RepeatedRevision as RepeatedRevisionPB,
+        Revision as RevisionPB,
+    },
     sync::*,
     util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ws::{WSModule, WebSocketRawMessage};
+use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},
@@ -19,62 +23,76 @@ use std::{
 };
 use tokio::sync::mpsc;
 
-pub struct MockDocServer {
-    pub manager: Arc<ServerDocumentManager>,
+pub(crate) fn spawn_server(receivers: Arc<DashMap<WSModule, Arc<dyn WSMessageReceiver>>>) -> Arc<LocalDocumentServer> {
+    let (server_tx, mut server_rx) = mpsc::unbounded_channel();
+    let server = Arc::new(LocalDocumentServer::new(server_tx));
+    tokio::spawn(async move {
+        while let Some(message) = server_rx.recv().await {
+            match receivers.get(&message.module) {
+                None => tracing::error!("Can't find any handler for message: {:?}", message),
+                Some(handler) => handler.receive_message(message.clone()),
+            }
+        }
+    });
+    server
 }
 
-impl std::default::Default for MockDocServer {
-    fn default() -> Self {
-        let persistence = Arc::new(MockDocServerPersistence::default());
-        let manager = Arc::new(ServerDocumentManager::new(persistence));
-        MockDocServer { manager }
+pub struct LocalDocumentServer {
+    pub doc_manager: Arc<ServerDocumentManager>,
+    sender: mpsc::UnboundedSender<WebSocketRawMessage>,
+}
+
+impl LocalDocumentServer {
+    pub fn new(sender: mpsc::UnboundedSender<WebSocketRawMessage>) -> Self {
+        let persistence = Arc::new(LocalDocServerPersistence::default());
+        let doc_manager = Arc::new(ServerDocumentManager::new(persistence));
+        LocalDocumentServer { doc_manager, sender }
     }
-}
 
-impl MockDocServer {
-    pub async fn handle_client_data(
-        &self,
-        client_data: DocumentClientWSData,
-    ) -> Option<mpsc::Receiver<WebSocketRawMessage>> {
-        match client_data.ty {
+    pub async fn handle_client_data(&self, client_data: DocumentClientWSData) -> Result<(), CollaborateError> {
+        tracing::debug!(
+            "[LocalDocumentServer] receive client data: {}:{:?} ",
+            client_data.doc_id,
+            client_data.ty
+        );
+        let user = Arc::new(LocalDocumentUser {
+            user_id: "fake_user_id".to_owned(),
+            ws_sender: self.sender.clone(),
+        });
+        let ty = client_data.ty.clone();
+        let document_client_data: DocumentClientWSDataPB = client_data.try_into().unwrap();
+        match ty {
             DocumentClientWSDataType::ClientPushRev => {
-                let (tx, rx) = mpsc::channel(1);
-                let user = Arc::new(MockDocUser {
-                    user_id: "fake_user_id".to_owned(),
-                    tx,
-                });
-                let pb_client_data: flowy_collaboration::protobuf::DocumentClientWSData =
-                    client_data.try_into().unwrap();
-                self.manager
-                    .handle_client_revisions(user, pb_client_data)
-                    .await
-                    .unwrap();
-                Some(rx)
+                let _ = self
+                    .doc_manager
+                    .handle_client_revisions(user, document_client_data)
+                    .await?;
             },
             DocumentClientWSDataType::ClientPing => {
-                todo!()
+                let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
             },
         }
+        Ok(())
     }
 }
 
-struct MockDocServerPersistence {
+struct LocalDocServerPersistence {
     inner: Arc<DashMap<String, DocumentInfo>>,
 }
 
-impl Debug for MockDocServerPersistence {
+impl Debug for LocalDocServerPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("MockDocServerPersistence") }
 }
 
-impl std::default::Default for MockDocServerPersistence {
+impl std::default::Default for LocalDocServerPersistence {
     fn default() -> Self {
-        MockDocServerPersistence {
+        LocalDocServerPersistence {
             inner: Arc::new(DashMap::new()),
         }
     }
 }
 
-impl DocumentPersistence for MockDocServerPersistence {
+impl DocumentPersistence for LocalDocServerPersistence {
     fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let inner = self.inner.clone();
         let doc_id = doc_id.to_owned();
@@ -118,16 +136,16 @@ impl DocumentPersistence for MockDocServerPersistence {
 }
 
 #[derive(Debug)]
-struct MockDocUser {
+struct LocalDocumentUser {
     user_id: String,
-    tx: mpsc::Sender<WebSocketRawMessage>,
+    ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
 }
 
-impl RevisionUser for MockDocUser {
+impl RevisionUser for LocalDocumentUser {
     fn user_id(&self) -> String { self.user_id.clone() }
 
     fn receive(&self, resp: SyncResponse) {
-        let sender = self.tx.clone();
+        let sender = self.ws_sender.clone();
         tokio::spawn(async move {
             match resp {
                 SyncResponse::Pull(data) => {
@@ -136,7 +154,7 @@ impl RevisionUser for MockDocUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).await.unwrap();
+                    sender.send(msg).unwrap();
                 },
                 SyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
@@ -144,7 +162,7 @@ impl RevisionUser for MockDocUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).await.unwrap();
+                    sender.send(msg).unwrap();
                 },
                 SyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
@@ -152,7 +170,7 @@ impl RevisionUser for MockDocUser {
                         module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
-                    sender.send(msg).await.unwrap();
+                    sender.send(msg).unwrap();
                 },
                 SyncResponse::NewRevision(_) => {
                     // unimplemented!()

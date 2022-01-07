@@ -59,7 +59,7 @@ impl std::default::Default for WSController {
 impl WSController {
     pub fn new() -> Self { WSController::default() }
 
-    pub fn add_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
+    pub fn add_ws_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             log::error!("WsSource's {:?} is already registered", source);
@@ -133,7 +133,7 @@ impl WSController {
 
     pub fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_notify.subscribe() }
 
-    pub fn sender(&self) -> Result<Arc<WSSender>, WSError> {
+    pub fn ws_message_sender(&self) -> Result<Arc<WSSender>, WSError> {
         match self.sender_ctrl.read().sender() {
             None => Err(WSError::internal().context("WsSender is not initialized, should call connect first")),
             Some(sender) => Ok(sender),

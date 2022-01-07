@@ -42,7 +42,7 @@ async fn workspace_create_with_apps() {
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
     for (name, code) in invalid_workspace_name_test_case() {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let request = CreateWorkspaceRequest {
             name,
             desc: "".to_owned(),
@@ -62,7 +62,7 @@ async fn workspace_create_with_invalid_name() {
 
 #[tokio::test]
 async fn workspace_update_with_invalid_name() {
-    let sdk = FlowySDKTest::setup();
+    let sdk = FlowySDKTest::default();
     for (name, code) in invalid_workspace_name_test_case() {
         let request = CreateWorkspaceRequest {
             name,

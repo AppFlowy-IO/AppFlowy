@@ -1,7 +1,7 @@
 use crate::{
     core::revision::{
         disk::{DocumentRevisionDiskCache, RevisionChangeset, RevisionTableState, SQLitePersistence},
-        memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
+        memory::{DocumentRevisionMemoryCache, RevisionMemoryCacheDelegate},
     },
     errors::FlowyError,
 };
@@ -17,17 +17,17 @@ use std::{
 };
 use tokio::task::spawn_blocking;
 
-pub struct RevisionCache {
+pub struct DocumentRevisionCache {
     doc_id: String,
     disk_cache: Arc<dyn DocumentRevisionDiskCache<Error = FlowyError>>,
-    memory_cache: Arc<RevisionMemoryCache>,
+    memory_cache: Arc<DocumentRevisionMemoryCache>,
     latest_rev_id: AtomicI64,
 }
 
-impl RevisionCache {
-    pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
+impl DocumentRevisionCache {
+    pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> DocumentRevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
-        let memory_cache = Arc::new(RevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
+        let memory_cache = Arc::new(DocumentRevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
         let doc_id = doc_id.to_owned();
         Self {
             doc_id,
@@ -44,7 +44,7 @@ impl RevisionCache {
         write_to_disk: bool,
     ) -> FlowyResult<RevisionRecord> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(FlowyError::internal().context(format!("Duplicate remote revision id: {}", revision.rev_id)));
+            return Err(FlowyError::internal().context(format!("Duplicate revision: {} {:?}", revision.rev_id, state)));
         }
         let state = state.as_ref().clone();
         let rev_id = revision.rev_id;
@@ -53,6 +53,7 @@ impl RevisionCache {
             state,
             write_to_disk,
         };
+
         self.memory_cache.add(Cow::Borrowed(&record)).await;
         self.set_latest_rev_id(rev_id);
         Ok(record)
@@ -131,10 +132,15 @@ impl RevisionCache {
 }
 
 impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
+    #[tracing::instrument(level = "debug", skip(self, records), fields(checkpoint_result), err)]
     fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         records.retain(|record| record.write_to_disk);
         if !records.is_empty() {
+            tracing::Span::current().record(
+                "checkpoint_result",
+                &format!("{} records were saved", records.len()).as_str(),
+            );
             let _ = self.write_revision_records(records, &conn)?;
         }
         Ok(())

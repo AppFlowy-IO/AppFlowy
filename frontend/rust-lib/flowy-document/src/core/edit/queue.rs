@@ -1,4 +1,4 @@
-use crate::{context::DocumentUser, core::RevisionManager};
+use crate::{context::DocumentUser, core::DocumentRevisionManager};
 use async_stream::stream;
 use flowy_collaboration::{
     document::{history::UndoResult, Document, NewlineDoc},
@@ -18,14 +18,14 @@ use tokio::sync::{mpsc, oneshot, RwLock};
 pub(crate) struct EditorCommandQueue {
     document: Arc<RwLock<Document>>,
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<DocumentRevisionManager>,
     receiver: Option<mpsc::UnboundedReceiver<EditorCommand>>,
 }
 
 impl EditorCommandQueue {
     pub(crate) fn new(
         user: Arc<dyn DocumentUser>,
-        rev_manager: Arc<RevisionManager>,
+        rev_manager: Arc<DocumentRevisionManager>,
         delta: RichTextDelta,
         receiver: mpsc::UnboundedReceiver<EditorCommand>,
     ) -> Self {

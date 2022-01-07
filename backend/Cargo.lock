@@ -1387,6 +1387,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
+ "dashmap",
+ "flowy-collaboration",
  "flowy-derive",
  "flowy-error",
  "lib-dispatch",
@@ -1413,7 +1415,6 @@ dependencies = [
  "flowy-document",
  "flowy-net",
  "flowy-user",
- "flowy-virtual-net",
  "futures-core",
  "lib-dispatch",
  "lib-infra",
@@ -1502,21 +1503,6 @@ dependencies = [
  "protobuf",
  "unicode-segmentation",
  "validator",
-]
-
-[[package]]
-name = "flowy-virtual-net"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "dashmap",
- "flowy-collaboration",
- "flowy-net",
- "lib-infra",
- "lib-ws",
- "parking_lot",
- "tokio",
- "tracing",
 ]
 
 [[package]]

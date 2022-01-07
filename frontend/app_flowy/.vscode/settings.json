@@ -22,4 +22,5 @@
     "files.associations": {
         "*.log.*": "log"
     },
+    "editor.formatOnSave": true,
 }

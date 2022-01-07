@@ -1,9 +1,9 @@
 use crate::core::{
     web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer, HttpWebSocketManager},
+    DocumentRevisionManager,
     DocumentWSReceiver,
     DocumentWebSocket,
     EditorCommand,
-    RevisionManager,
     TransformDeltas,
 };
 use bytes::Bytes;
@@ -17,7 +17,6 @@ use flowy_collaboration::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
-use crate::core::web_socket::local_ws_impl::LocalWebSocketManager;
 use flowy_collaboration::entities::ws::DocumentServerWSDataType;
 
 use lib_ws::WSConnectState;
@@ -33,36 +32,54 @@ pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: UnboundedSender<EditorCommand>,
-    rev_manager: Arc<RevisionManager>,
-    ws: Arc<dyn DocumentWebSocket>,
+    rev_manager: Arc<DocumentRevisionManager>,
+    ws_conn: Arc<dyn DocumentWebSocket>,
 ) -> Arc<dyn DocumentWebSocketManager> {
-    if cfg!(feature = "http_server") {
-        let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
-        let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
-            doc_id: doc_id.clone(),
-            edit_cmd_tx,
-            rev_manager: rev_manager.clone(),
-            shared_sink: shared_sink.clone(),
-        });
-        let ws_stream_provider = DocumentWSSinkDataProviderAdapter(shared_sink);
-        let ws_manager = Arc::new(HttpWebSocketManager::new(
-            &doc_id,
-            ws.clone(),
-            Arc::new(ws_stream_provider),
-            ws_stream_consumer,
-        ));
-        listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager);
-        Arc::new(ws_manager)
-    } else {
-        Arc::new(Arc::new(LocalWebSocketManager {}))
-    }
+    // if cfg!(feature = "http_server") {
+    //     let shared_sink =
+    // Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
+    //     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
+    //         doc_id: doc_id.clone(),
+    //         edit_cmd_tx,
+    //         rev_manager: rev_manager.clone(),
+    //         shared_sink: shared_sink.clone(),
+    //     });
+    //     let data_provider =
+    // Arc::new(DocumentWSSinkDataProviderAdapter(shared_sink));
+    //     let ws_manager = Arc::new(HttpWebSocketManager::new(
+    //         &doc_id,
+    //         ws_conn,
+    //         data_provider,
+    //         ws_stream_consumer,
+    //     ));
+    //     listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(),
+    // rev_manager);     Arc::new(ws_manager)
+    // } else {
+    //     Arc::new(Arc::new(LocalWebSocketManager {}))
+    // }
+    let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
+    let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
+        doc_id: doc_id.clone(),
+        edit_cmd_tx,
+        rev_manager: rev_manager.clone(),
+        shared_sink: shared_sink.clone(),
+    });
+    let data_provider = Arc::new(DocumentWSSinkDataProviderAdapter(shared_sink));
+    let ws_manager = Arc::new(HttpWebSocketManager::new(
+        &doc_id,
+        ws_conn,
+        data_provider,
+        ws_stream_consumer,
+    ));
+    listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager);
+    Arc::new(ws_manager)
 }
 
 fn listen_document_ws_state(
     _user_id: &str,
     _doc_id: &str,
     mut subscriber: broadcast::Receiver<WSConnectState>,
-    _rev_manager: Arc<RevisionManager>,
+    _rev_manager: Arc<DocumentRevisionManager>,
 ) {
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
@@ -79,7 +96,7 @@ fn listen_document_ws_state(
 pub(crate) struct DocumentWebSocketSteamConsumerAdapter {
     pub(crate) doc_id: String,
     pub(crate) edit_cmd_tx: UnboundedSender<EditorCommand>,
-    pub(crate) rev_manager: Arc<RevisionManager>,
+    pub(crate) rev_manager: Arc<DocumentRevisionManager>,
     pub(crate) shared_sink: Arc<SharedWSSinkDataProvider>,
 }
 
@@ -141,7 +158,7 @@ async fn transform_pushed_revisions(
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
 pub(crate) async fn handle_remote_revision(
     edit_cmd_tx: UnboundedSender<EditorCommand>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<DocumentRevisionManager>,
     bytes: Bytes,
 ) -> FlowyResult<Option<Revision>> {
     let mut revisions = RepeatedRevision::try_from(bytes)?.into_inner();
@@ -202,12 +219,12 @@ enum SourceType {
 #[derive(Clone)]
 pub(crate) struct SharedWSSinkDataProvider {
     shared: Arc<RwLock<VecDeque<DocumentClientWSData>>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<DocumentRevisionManager>,
     source_ty: Arc<RwLock<SourceType>>,
 }
 
 impl SharedWSSinkDataProvider {
-    pub(crate) fn new(rev_manager: Arc<RevisionManager>) -> Self {
+    pub(crate) fn new(rev_manager: Arc<DocumentRevisionManager>) -> Self {
         SharedWSSinkDataProvider {
             shared: Arc::new(RwLock::new(VecDeque::new())),
             rev_manager,
@@ -241,7 +258,6 @@ impl SharedWSSinkDataProvider {
 
                 match self.rev_manager.next_sync_revision().await? {
                     Some(rev) => {
-                        tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", rev.doc_id, rev.rev_id);
                         let doc_id = rev.doc_id.clone();
                         Ok(Some(DocumentClientWSData::from_revisions(&doc_id, vec![rev])))
                     },

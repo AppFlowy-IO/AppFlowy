@@ -1,5 +1,5 @@
 use crate::{
-    core::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
+    core::{web_socket::ws_manager::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
     ws_receivers::{DocumentWSReceiver, DocumentWebSocket},
 };
 use async_stream::stream;
@@ -27,7 +27,7 @@ pub(crate) struct HttpWebSocketManager {
     doc_id: String,
     data_provider: Arc<dyn DocumentWSSinkDataProvider>,
     stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
-    ws: Arc<dyn DocumentWebSocket>,
+    ws_conn: Arc<dyn DocumentWebSocket>,
     ws_msg_tx: UnboundedSender<DocumentServerWSData>,
     ws_msg_rx: Option<UnboundedReceiver<DocumentServerWSData>>,
     stop_sync_tx: SinkStopTx,
@@ -37,7 +37,7 @@ pub(crate) struct HttpWebSocketManager {
 impl HttpWebSocketManager {
     pub(crate) fn new(
         doc_id: &str,
-        ws: Arc<dyn DocumentWebSocket>,
+        ws_conn: Arc<dyn DocumentWebSocket>,
         data_provider: Arc<dyn DocumentWSSinkDataProvider>,
         stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ) -> Self {
@@ -49,7 +49,7 @@ impl HttpWebSocketManager {
             doc_id,
             data_provider,
             stream_consumer,
-            ws,
+            ws_conn,
             ws_msg_tx,
             ws_msg_rx: Some(ws_msg_rx),
             stop_sync_tx,
@@ -64,7 +64,7 @@ impl HttpWebSocketManager {
         let sink = DocumentWSSink::new(
             &self.doc_id,
             self.data_provider.clone(),
-            self.ws.clone(),
+            self.ws_conn.clone(),
             self.stop_sync_tx.subscribe(),
         );
         let stream = DocumentWSStream::new(
@@ -200,7 +200,6 @@ impl DocumentWSStream {
                 // Notify the user that someone has connected to this document
             },
         }
-
         Ok(())
     }
 }
@@ -260,7 +259,7 @@ impl DocumentWSSink {
             .for_each(|_| async {
                 match self.send_next_revision().await {
                     Ok(_) => {},
-                    Err(e) => log::error!("[DocumentSink]: send msg failed, {:?}", e),
+                    Err(e) => log::error!("[DocumentSink]: Send failed, {:?}", e),
                 }
             })
             .await;
@@ -273,6 +272,7 @@ impl DocumentWSSink {
                 Ok(())
             },
             Some(data) => {
+                tracing::debug!("[DocumentSink]: Try send: {}:{:?}-{}", data.doc_id, data.ty, data.id());
                 self.ws_sender.send(data).map_err(internal_error)
                 // let _ = tokio::time::timeout(Duration::from_millis(2000),
             },

@@ -18,7 +18,7 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
 pub struct ClientDocumentEditor {
     pub doc_id: String,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<DocumentRevisionManager>,
     ws_manager: Arc<dyn DocumentWebSocketManager>,
     edit_queue: UnboundedSender<EditorCommand>,
 }
@@ -27,7 +27,7 @@ impl ClientDocumentEditor {
     pub(crate) async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: DocumentRevisionManager,
         ws: Arc<dyn DocumentWebSocket>,
         server: Arc<dyn RevisionServer>,
     ) -> FlowyResult<Arc<Self>> {
@@ -157,7 +157,7 @@ impl ClientDocumentEditor {
 
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<DocumentRevisionManager>,
     delta: RichTextDelta,
 ) -> UnboundedSender<EditorCommand> {
     let (sender, receiver) = mpsc::unbounded_channel::<EditorCommand>();
@@ -184,5 +184,5 @@ impl ClientDocumentEditor {
         Ok(delta)
     }
 
-    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
+    pub fn rev_manager(&self) -> Arc<DocumentRevisionManager> { self.rev_manager.clone() }
 }

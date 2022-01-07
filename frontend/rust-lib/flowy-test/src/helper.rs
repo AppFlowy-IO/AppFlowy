@@ -28,7 +28,7 @@ pub struct WorkspaceTest {
 
 impl WorkspaceTest {
     pub async fn new() -> Self {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let workspace = create_workspace(&sdk, "Workspace", "").await;
         open_workspace(&sdk, &workspace.id).await;
@@ -45,7 +45,7 @@ pub struct AppTest {
 
 impl AppTest {
     pub async fn new() -> Self {
-        let sdk = FlowySDKTest::setup();
+        let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let workspace = create_workspace(&sdk, "Workspace", "").await;
         open_workspace(&sdk, &workspace.id).await;

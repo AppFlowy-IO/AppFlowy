@@ -8,7 +8,7 @@ use flowy_test::{helper::*, FlowySDKTest};
 #[tokio::test]
 #[should_panic]
 async fn view_delete() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = test.init_user().await;
 
     let test = ViewTest::new(&test).await;
@@ -21,7 +21,7 @@ async fn view_delete() {
 
 #[tokio::test]
 async fn view_delete_then_putback() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = test.init_user().await;
 
     let test = ViewTest::new(&test).await;
@@ -44,7 +44,7 @@ async fn view_delete_then_putback() {
 
 #[tokio::test]
 async fn view_delete_all() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = test.init_user().await;
 
     let test = ViewTest::new(&test).await;
@@ -66,7 +66,7 @@ async fn view_delete_all() {
 
 #[tokio::test]
 async fn view_delete_all_permanent() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = test.init_user().await;
 
     let test = ViewTest::new(&test).await;
@@ -85,7 +85,7 @@ async fn view_delete_all_permanent() {
 
 #[tokio::test]
 async fn view_open_doc() {
-    let test = FlowySDKTest::setup();
+    let test = FlowySDKTest::default();
     let _ = test.init_user().await;
 
     let test = ViewTest::new(&test).await;

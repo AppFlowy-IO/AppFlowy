@@ -2,7 +2,6 @@ use crate::core::RevisionRecord;
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
-use futures_util::{stream, stream::StreamExt};
 use std::{borrow::Cow, sync::Arc, time::Duration};
 use tokio::{sync::RwLock, task::JoinHandle};
 
@@ -11,7 +10,7 @@ pub(crate) trait RevisionMemoryCacheDelegate: Send + Sync {
     fn receive_ack(&self, doc_id: &str, rev_id: i64);
 }
 
-pub(crate) struct RevisionMemoryCache {
+pub(crate) struct DocumentRevisionMemoryCache {
     doc_id: String,
     revs_map: Arc<DashMap<i64, RevisionRecord>>,
     delegate: Arc<dyn RevisionMemoryCacheDelegate>,
@@ -19,9 +18,9 @@ pub(crate) struct RevisionMemoryCache {
     defer_save: RwLock<Option<JoinHandle<()>>>,
 }
 
-impl RevisionMemoryCache {
+impl DocumentRevisionMemoryCache {
     pub(crate) fn new(doc_id: &str, delegate: Arc<dyn RevisionMemoryCacheDelegate>) -> Self {
-        RevisionMemoryCache {
+        DocumentRevisionMemoryCache {
             doc_id: doc_id.to_owned(),
             revs_map: Arc::new(DashMap::new()),
             delegate,
@@ -38,15 +37,19 @@ impl RevisionMemoryCache {
             Cow::Owned(record) => record,
         };
 
+        let rev_id = record.revision.rev_id;
+        if self.revs_map.contains_key(&rev_id) {
+            return;
+        }
+
         if let Some(rev_id) = self.pending_write_revs.read().await.last() {
             if *rev_id >= record.revision.rev_id {
                 tracing::error!("Duplicated revision added to memory_cache");
                 return;
             }
         }
-        // TODO: Remove outdated revisions to reduce memory usage
-        self.revs_map.insert(record.revision.rev_id, record.clone());
-        self.pending_write_revs.write().await.push(record.revision.rev_id);
+        self.revs_map.insert(rev_id, record);
+        self.pending_write_revs.write().await.push(rev_id);
         self.make_checkpoint().await;
     }
 
@@ -79,16 +82,19 @@ impl RevisionMemoryCache {
 
     pub(crate) async fn reset_with_revisions(&self, revision_records: &[RevisionRecord]) -> FlowyResult<()> {
         self.revs_map.clear();
-        self.pending_write_revs.write().await.clear();
         if let Some(handler) = self.defer_save.write().await.take() {
             handler.abort();
         }
-        stream::iter(revision_records)
-            .for_each(|record| async move {
-                self.add(Cow::Borrowed(record)).await;
-            })
-            .await;
 
+        let mut write_guard = self.pending_write_revs.write().await;
+        write_guard.clear();
+        for record in revision_records {
+            self.revs_map.insert(record.revision.rev_id, record.clone());
+            write_guard.push(record.revision.rev_id);
+        }
+        drop(write_guard);
+
+        self.make_checkpoint().await;
         Ok(())
     }
 
@@ -107,9 +113,8 @@ impl RevisionMemoryCache {
         let delegate = self.delegate.clone();
 
         *self.defer_save.write().await = Some(tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_millis(300)).await;
+            tokio::time::sleep(Duration::from_millis(600)).await;
             let mut revs_write_guard = pending_write_revs.write().await;
-            // TODO:
             // It may cause performance issues because we hold the write lock of the
             // rev_order and the lock will be released after the checkpoint has been written
             // to the disk.
