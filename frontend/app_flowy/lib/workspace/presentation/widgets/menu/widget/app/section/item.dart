@@ -44,7 +44,7 @@ class ViewSectionItem extends StatelessWidget {
             onTap: () => onSelected(context.read<ViewBloc>().state.view),
             child: FlowyHover(
               config: HoverDisplayConfig(hoverColor: theme.bg3),
-              builder: (_, onHover) => _render(context, onHover, state),
+              builder: (_, onHover) => _render(context, onHover, state, theme.textColor),
               isOnSelected: () => state.isEditing || isSelected,
             ),
           );
@@ -53,9 +53,9 @@ class ViewSectionItem extends StatelessWidget {
     );
   }
 
-  Widget _render(BuildContext context, bool onHover, ViewState state) {
+  Widget _render(BuildContext context, bool onHover, ViewState state, Color icon) {
     List<Widget> children = [
-      SizedBox(width: 16, height: 16, child: state.view.thumbnail()),
+      SizedBox(width: 16, height: 16, child: state.view.thumbnail(icon)),
       const HSpace(2),
       Expanded(child: FlowyText.regular(state.view.name, fontSize: 12, overflow: TextOverflow.clip)),
     ];

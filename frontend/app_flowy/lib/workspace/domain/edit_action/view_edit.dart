@@ -24,11 +24,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   Widget get icon {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return svg('editor/edit');
+        return svg('editor/edit', color: const Color(0xffa1a1a1));
       case ViewDisclosureAction.delete:
-        return svg('editor/delete');
+        return svg('editor/delete', color: const Color(0xffa1a1a1));
       case ViewDisclosureAction.duplicate:
-        return svg('editor/copy');
+        return svg('editor/copy', color: const Color(0xffa1a1a1));
     }
   }
 }
