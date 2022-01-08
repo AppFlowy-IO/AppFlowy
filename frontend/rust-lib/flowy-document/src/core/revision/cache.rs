@@ -132,7 +132,7 @@ impl DocumentRevisionCache {
 }
 
 impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
-    #[tracing::instrument(level = "debug", skip(self, records), fields(checkpoint_result), err)]
+    #[tracing::instrument(level = "trace", skip(self, records), fields(checkpoint_result), err)]
     fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         records.retain(|record| record.write_to_disk);

@@ -6,7 +6,7 @@ use flowy_document::{
     core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
     errors::{internal_error, FlowyError},
 };
-use flowy_net::services::ws_conn::{FlowyWSSender, FlowyWebSocketConnect};
+use flowy_net::services::ws_conn::FlowyWebSocketConnect;
 use flowy_user::services::user::UserSession;
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};

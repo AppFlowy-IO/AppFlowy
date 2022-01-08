@@ -724,7 +724,7 @@ fn attributes_preserve_header_format_on_merge() {
 fn attributes_format_emoji() {
     let emoji_s = "👋 ";
     let s: FlowyStr = emoji_s.into();
-    let len = s.count_utf16_code_units();
+    let len = s.utf16_size();
     assert_eq!(3, len);
     assert_eq!(2, s.graphemes(true).count());
     let ops = vec![

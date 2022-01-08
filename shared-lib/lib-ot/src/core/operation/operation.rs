@@ -291,7 +291,7 @@ impl<T> Insert<T>
 where
     T: Attributes,
 {
-    pub fn count_of_utf16_code_units(&self) -> usize { self.s.count_utf16_code_units() }
+    pub fn count_of_utf16_code_units(&self) -> usize { self.s.utf16_size() }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
         if self.attributes == attributes {

@@ -169,11 +169,10 @@ impl RevisionSyncSequence {
                     "The ack rev_id:{} is not equal to the current rev_id:{}",
                     rev_id, pop_rev_id
                 );
-                // tracing::error!("{}", desc);
                 return Err(FlowyError::internal().context(desc));
             }
 
-            tracing::debug!("pop revision {}", pop_rev_id);
+            tracing::trace!("{} revision finish synchronizing", pop_rev_id);
             self.revs_map.remove(&pop_rev_id);
             let _ = self.local_revs.write().await.pop_front();
         }

@@ -298,20 +298,20 @@ fn delta_next_op_with_len_cross_op_return_last() {
 #[test]
 fn lengths() {
     let mut delta = RichTextDelta::default();
-    assert_eq!(delta.base_len, 0);
-    assert_eq!(delta.target_len, 0);
+    assert_eq!(delta.utf16_base_len, 0);
+    assert_eq!(delta.utf16_target_len, 0);
     delta.retain(5, RichTextAttributes::default());
-    assert_eq!(delta.base_len, 5);
-    assert_eq!(delta.target_len, 5);
+    assert_eq!(delta.utf16_base_len, 5);
+    assert_eq!(delta.utf16_target_len, 5);
     delta.insert("abc", RichTextAttributes::default());
-    assert_eq!(delta.base_len, 5);
-    assert_eq!(delta.target_len, 8);
+    assert_eq!(delta.utf16_base_len, 5);
+    assert_eq!(delta.utf16_target_len, 8);
     delta.retain(2, RichTextAttributes::default());
-    assert_eq!(delta.base_len, 7);
-    assert_eq!(delta.target_len, 10);
+    assert_eq!(delta.utf16_base_len, 7);
+    assert_eq!(delta.utf16_target_len, 10);
     delta.delete(2);
-    assert_eq!(delta.base_len, 9);
-    assert_eq!(delta.target_len, 10);
+    assert_eq!(delta.utf16_base_len, 9);
+    assert_eq!(delta.utf16_target_len, 10);
 }
 #[test]
 fn sequence() {
@@ -331,7 +331,7 @@ fn apply_1000() {
         let mut rng = Rng::default();
         let s: FlowyStr = rng.gen_string(50).into();
         let delta = rng.gen_delta(&s);
-        assert_eq!(s.count_utf16_code_units(), delta.base_len);
+        assert_eq!(s.utf16_size(), delta.utf16_base_len);
     }
 }
 
@@ -372,8 +372,8 @@ fn invert() {
         let s = rng.gen_string(50);
         let delta_a = rng.gen_delta(&s);
         let delta_b = delta_a.invert_str(&s);
-        assert_eq!(delta_a.base_len, delta_b.target_len);
-        assert_eq!(delta_a.target_len, delta_b.base_len);
+        assert_eq!(delta_a.utf16_base_len, delta_b.utf16_target_len);
+        assert_eq!(delta_a.utf16_target_len, delta_b.utf16_base_len);
         assert_eq!(delta_b.apply(&delta_a.apply(&s).unwrap()).unwrap(), s);
     }
 }
@@ -444,14 +444,14 @@ fn compose() {
         let s = rng.gen_string(20);
         let a = rng.gen_delta(&s);
         let after_a: FlowyStr = a.apply(&s).unwrap().into();
-        assert_eq!(a.target_len, after_a.count_utf16_code_units());
+        assert_eq!(a.utf16_target_len, after_a.utf16_size());
 
         let b = rng.gen_delta(&after_a);
         let after_b: FlowyStr = b.apply(&after_a).unwrap().into();
-        assert_eq!(b.target_len, after_b.count_utf16_code_units());
+        assert_eq!(b.utf16_target_len, after_b.utf16_size());
 
         let ab = a.compose(&b).unwrap();
-        assert_eq!(ab.target_len, b.target_len);
+        assert_eq!(ab.utf16_target_len, b.utf16_target_len);
         let after_ab: FlowyStr = ab.apply(&s).unwrap().into();
         assert_eq!(after_b, after_ab);
     }

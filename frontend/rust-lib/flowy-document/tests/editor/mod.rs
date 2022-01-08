@@ -297,8 +297,9 @@ impl Rng {
 
     pub fn gen_delta(&mut self, s: &str) -> RichTextDelta {
         let mut delta = RichTextDelta::default();
+        let s = FlowyStr::from(s);
         loop {
-            let left = s.chars().count() - delta.base_len;
+            let left = s.utf16_size() - delta.utf16_base_len;
             if left == 0 {
                 break;
             }

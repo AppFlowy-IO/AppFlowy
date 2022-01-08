@@ -1,7 +1,6 @@
-use crate::{helper::ViewTest, FlowySDKTest};
-use backend_service::configuration::get_client_server_configuration;
 use flowy_collaboration::entities::revision::RevisionState;
 use flowy_document::core::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
+use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -24,8 +23,7 @@ pub struct EditorTest {
 
 impl EditorTest {
     pub async fn new() -> Self {
-        let server_config = get_client_server_configuration().unwrap();
-        let sdk = FlowySDKTest::new(server_config, None);
+        let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
         let editor = sdk.document_ctx.controller.open_document(&test.view.id).await.unwrap();
@@ -36,8 +34,6 @@ impl EditorTest {
         for script in scripts {
             self.run_script(script).await;
         }
-
-        sleep(Duration::from_secs(3)).await;
     }
 
     async fn run_script(&mut self, script: EditorScript) {
@@ -46,7 +42,6 @@ impl EditorTest {
         let _user_id = self.sdk.user_session.user_id().unwrap();
         // let ws_manager = self.sdk.ws_conn.clone();
         // let token = self.sdk.user_session.token().unwrap();
-        let wait_millis = 2 * SYNC_INTERVAL_IN_MILLIS;
 
         match script {
             EditorScript::InsertText(s, offset) => {
@@ -84,6 +79,6 @@ impl EditorTest {
                 assert_eq!(expected_delta, delta);
             },
         }
-        sleep(Duration::from_millis(wait_millis)).await;
+        sleep(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS)).await;
     }
 }

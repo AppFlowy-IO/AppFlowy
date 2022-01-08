@@ -120,7 +120,7 @@ impl RevisionTableSql {
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
             .filter(dsl::doc_id.eq(changeset.doc_id));
         let _ = update(filter).set(dsl::state.eq(changeset.state)).execute(conn)?;
-        tracing::debug!("Set {} to {:?}", changeset.rev_id, changeset.state);
+        tracing::debug!("Save revision:{} state to {:?}", changeset.rev_id, changeset.state);
         Ok(())
     }
 

@@ -74,8 +74,7 @@ impl Builder {
         let _ = LogTracer::builder()
             .with_max_level(LevelFilter::Trace)
             .init()
-            .map_err(|e| format!("{:?}", e))
-            .unwrap();
+            .map_err(|e| format!("{:?}", e))?;
 
         *LOG_GUARD.write().unwrap() = Some(guard);
         Ok(())

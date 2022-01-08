@@ -6,11 +6,9 @@ pub struct FlowyStr(pub String);
 
 impl FlowyStr {
     // https://stackoverflow.com/questions/2241348/what-is-unicode-utf-8-utf-16
-    pub fn count_utf16_code_units(&self) -> usize { count_utf16_code_units(&self.0) }
+    pub fn utf16_size(&self) -> usize { count_utf16_code_units(&self.0) }
 
-    pub fn utf16_iter(&self) -> FlowyUtf16CodePointIterator { FlowyUtf16CodePointIterator::new(self, 0) }
-
-    pub fn code_point_iter(&self) -> Utf16CodeUnitIterator { Utf16CodeUnitIterator::new(self) }
+    pub fn utf16_code_unit_iter(&self) -> Utf16CodeUnitIterator { Utf16CodeUnitIterator::new(self) }
 
     pub fn sub_str(&self, interval: Interval) -> String {
         match self.with_interval(interval) {
@@ -23,7 +21,7 @@ impl FlowyStr {
         let mut iter = Utf16CodeUnitIterator::new(self);
         let mut buf = vec![];
         while let Some((byte, _len)) = iter.next() {
-            if interval.start < iter.code_point_offset && interval.end >= iter.code_point_offset {
+            if interval.start < iter.code_unit_offset && interval.end >= iter.code_unit_offset {
                 buf.extend_from_slice(byte);
             }
         }
@@ -37,12 +35,15 @@ impl FlowyStr {
             Err(_e) => None,
         }
     }
+
+    #[allow(dead_code)]
+    fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator { FlowyUtf16CodePointIterator::new(self, 0) }
 }
 
 pub struct Utf16CodeUnitIterator<'a> {
     s: &'a FlowyStr,
     bytes_offset: usize,
-    code_point_offset: usize,
+    code_unit_offset: usize,
     iter_index: usize,
     iter: slice::Iter<'a, u8>,
 }
@@ -52,7 +53,7 @@ impl<'a> Utf16CodeUnitIterator<'a> {
         Utf16CodeUnitIterator {
             s,
             bytes_offset: 0,
-            code_point_offset: 0,
+            code_unit_offset: 0,
             iter_index: 0,
             iter: s.as_bytes().iter(),
         }
@@ -69,7 +70,7 @@ impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
         while let Some(&b) = self.iter.next() {
             self.iter_index += 1;
 
-            let mut code_point_count = 0;
+            let mut code_unit_count = 0;
             if self.bytes_offset > self.iter_index {
                 continue;
             }
@@ -79,16 +80,16 @@ impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
             }
 
             if (b as i8) >= -0x40 {
-                code_point_count += 1
+                code_unit_count += 1
             }
             if b >= 0xf0 {
-                code_point_count += 1
+                code_unit_count += 1
             }
 
             self.bytes_offset += len_utf8_from_first_byte(b);
-            self.code_point_offset += code_point_count;
+            self.code_unit_offset += code_unit_count;
 
-            if code_point_count == 1 {
+            if code_unit_count == 1 {
                 break;
             }
         }
@@ -201,7 +202,6 @@ impl<'a> Iterator for FlowyUtf16CodePointIterator<'a> {
 }
 
 pub fn count_utf16_code_units(s: &str) -> usize {
-    // bytecount::num_chars(s.as_bytes())
     let mut utf16_count = 0;
     for &b in s.as_bytes() {
         if (b as i8) >= -0x40 {
@@ -231,9 +231,9 @@ mod tests {
     use crate::core::{FlowyStr, Interval};
 
     #[test]
-    fn flowy_str_utf16_test() {
+    fn flowy_str_utf16_code_point_iter_test1() {
         let s: FlowyStr = "👋😁👋😁".into();
-        let mut iter = s.utf16_iter();
+        let mut iter = s.utf16_code_point_iter();
         assert_eq!(iter.next().unwrap(), "👋".to_string());
         assert_eq!(iter.next().unwrap(), "😁".to_string());
         assert_eq!(iter.next().unwrap(), "👋".to_string());
@@ -242,15 +242,15 @@ mod tests {
     }
 
     #[test]
-    fn flowy_str_utf16_iter_test() {
+    fn flowy_str_utf16_code_point_iter_test2() {
         let s: FlowyStr = "👋👋😁😁👋👋".into();
-        let iter = s.utf16_iter();
+        let iter = s.utf16_code_point_iter();
         let result = iter.skip(2).take(2).collect::<String>();
         assert_eq!(result, "😁😁".to_string());
     }
 
     #[test]
-    fn flowy_str_code_point_test() {
+    fn flowy_str_code_unit_test() {
         let s: FlowyStr = "👋 \n👋".into();
         let output = s.with_interval(Interval::new(0, 2)).unwrap().0;
         assert_eq!(output, "👋");

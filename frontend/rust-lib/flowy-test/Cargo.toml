@@ -10,7 +10,6 @@ flowy-sdk = { path = "../flowy-sdk"}
 flowy-user = { path = "../flowy-user"}
 flowy-net = { path = "../flowy-net"}
 flowy-core = { path = "../flowy-core", default-features = false}
-flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
 lib-dispatch = { path = "../lib-dispatch" }
 
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }

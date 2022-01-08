@@ -1,5 +1,4 @@
-use std::{fs, path::PathBuf, sync::Arc};
-
+use crate::prelude::*;
 use flowy_collaboration::entities::doc::DocumentInfo;
 use flowy_core::{
     entities::{
@@ -18,8 +17,7 @@ use flowy_user::{
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
 use lib_infra::uuid_string;
-
-use crate::prelude::*;
+use std::{fs, path::PathBuf, sync::Arc};
 
 pub struct WorkspaceTest {
     pub sdk: FlowySDKTest,

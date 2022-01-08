@@ -37,7 +37,7 @@ pub enum DocScript {
 impl DocumentTest {
     pub async fn new() -> Self {
         let server = spawn_server().await;
-        let flowy_test = FlowySDKTest::new(server.client_server_config.clone(), None);
+        let flowy_test = FlowySDKTest::new(server.client_server_config.clone());
         Self { server, flowy_test }
     }
 

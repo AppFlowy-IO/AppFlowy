@@ -17,8 +17,8 @@ use std::{
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
     pub ops: Vec<Operation<T>>,
-    pub base_len: usize,
-    pub target_len: usize,
+    pub utf16_base_len: usize,
+    pub utf16_target_len: usize,
 }
 
 impl<T> Default for Delta<T>
@@ -28,8 +28,8 @@ where
     fn default() -> Self {
         Self {
             ops: Vec::new(),
-            base_len: 0,
-            target_len: 0,
+            utf16_base_len: 0,
+            utf16_target_len: 0,
         }
     }
 }
@@ -72,8 +72,8 @@ where
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             ops: Vec::with_capacity(capacity),
-            base_len: 0,
-            target_len: 0,
+            utf16_base_len: 0,
+            utf16_target_len: 0,
         }
     }
 
@@ -89,7 +89,7 @@ where
         if n == 0 {
             return;
         }
-        self.base_len += n as usize;
+        self.utf16_base_len += n as usize;
         if let Some(Operation::Delete(n_last)) = self.ops.last_mut() {
             *n_last += n;
         } else {
@@ -103,7 +103,7 @@ where
             return;
         }
 
-        self.target_len += s.count_utf16_code_units();
+        self.utf16_target_len += s.utf16_size();
         let new_last = match self.ops.as_mut_slice() {
             [.., Operation::<T>::Insert(insert)] => {
                 //
@@ -131,8 +131,8 @@ where
         if n == 0 {
             return;
         }
-        self.base_len += n as usize;
-        self.target_len += n as usize;
+        self.utf16_base_len += n as usize;
+        self.utf16_target_len += n as usize;
 
         if let Some(Operation::<T>::Retain(retain)) = self.ops.last_mut() {
             if let Some(new_op) = retain.merge_or_new(n, attributes) {
@@ -146,11 +146,11 @@ where
     /// Applies an operation to a string, returning a new string.
     pub fn apply(&self, s: &str) -> Result<String, OTError> {
         let s: FlowyStr = s.into();
-        if s.count_utf16_code_units() != self.base_len {
+        if s.utf16_size() != self.utf16_base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
         let mut new_s = String::new();
-        let code_point_iter = &mut s.code_point_iter();
+        let code_point_iter = &mut s.utf16_code_unit_iter();
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
@@ -271,11 +271,11 @@ where
     where
         Self: Sized,
     {
-        if self.base_len != other.base_len {
+        if self.utf16_base_len != other.utf16_base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
                 .msg(format!(
                     "cur base length: {}, other base length: {}",
-                    self.base_len, other.base_len
+                    self.utf16_base_len, other.utf16_base_len
                 ))
                 .build());
         }

@@ -1436,7 +1436,6 @@ dependencies = [
  "claim",
  "flowy-collaboration",
  "flowy-core",
- "flowy-document",
  "flowy-net",
  "flowy-sdk",
  "flowy-user",
