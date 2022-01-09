@@ -35,13 +35,13 @@ where
     }
 
     // get the next operation interval
-    pub fn next_iv(&self) -> Interval { self.next_iv_before(None).unwrap_or_else(|| Interval::new(0, 0)) }
+    pub fn next_iv(&self) -> Interval { self.next_iv_with_len(None).unwrap_or_else(|| Interval::new(0, 0)) }
 
     pub fn next_op(&mut self) -> Option<Operation<T>> { self.next_with_len(None) }
 
     // get the last operation before the end.
     // checkout the delta_next_op_with_len_cross_op_return_last test for more detail
-    pub fn next_with_len(&mut self, force_end: Option<usize>) -> Option<Operation<T>> {
+    pub fn next_with_len(&mut self, expected_len: Option<usize>) -> Option<Operation<T>> {
         let mut find_op = None;
         let holder = self.next_op.clone();
         let mut next_op = holder.as_ref();
@@ -53,7 +53,9 @@ where
         let mut consume_len = 0;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self.next_iv_before(force_end).unwrap_or_else(|| Interval::new(0, 0));
+            let interval = self
+                .next_iv_with_len(expected_len)
+                .unwrap_or_else(|| Interval::new(0, 0));
 
             // cache the op if the interval is empty. e.g. last_op_before(Some(0))
             if interval.is_empty() {
@@ -79,7 +81,7 @@ where
         }
 
         if find_op.is_some() {
-            if let Some(end) = force_end {
+            if let Some(end) = expected_len {
                 // try to find the next op before the index if consume_len less than index
                 if end > consume_len && self.has_next() {
                     return self.next_with_len(Some(end - consume_len));
@@ -111,12 +113,12 @@ where
         }
     }
 
-    fn next_iv_before(&self, force_end: Option<usize>) -> Option<Interval> {
+    fn next_iv_with_len(&self, expected_len: Option<usize>) -> Option<Interval> {
         let op = self.next_iter_op()?;
         let start = self.consume_count;
-        let end = match force_end {
+        let end = match expected_len {
             None => self.consume_count + op.len(),
-            Some(index) => self.consume_count + min(index, op.len()),
+            Some(expected_len) => self.consume_count + min(expected_len, op.len()),
         };
 
         let intersect = Interval::new(start, end).intersect(self.consume_iv);
@@ -155,34 +157,34 @@ where
 
 type SeekResult = Result<(), OTError>;
 pub trait Metric {
-    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult;
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, offset: usize) -> SeekResult;
 }
 
 pub struct OpMetric();
 
 impl Metric for OpMetric {
-    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.op_index, index)?;
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, offset: usize) -> SeekResult {
+        let _ = check_bound(cursor.op_index, offset)?;
         let mut seek_cursor = OpCursor::new(cursor.delta, cursor.origin_iv);
-        let mut offset = 0;
+        let mut cur_offset = 0;
         while let Some((_, op)) = seek_cursor.iter.next() {
-            offset += op.len();
-            if offset > index {
+            cur_offset += op.len();
+            if cur_offset > offset {
                 break;
             }
         }
-        cursor.descend(offset);
+        cursor.descend(cur_offset);
         Ok(())
     }
 }
 
-pub struct CharMetric();
+pub struct Utf16CodeUnitMetric();
 
-impl Metric for CharMetric {
-    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult {
-        if index > 0 {
-            let _ = check_bound(cursor.consume_count, index)?;
-            let _ = cursor.next_with_len(Some(index));
+impl Metric for Utf16CodeUnitMetric {
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, offset: usize) -> SeekResult {
+        if offset > 0 {
+            let _ = check_bound(cursor.consume_count, offset)?;
+            let _ = cursor.next_with_len(Some(offset));
         }
 
         Ok(())

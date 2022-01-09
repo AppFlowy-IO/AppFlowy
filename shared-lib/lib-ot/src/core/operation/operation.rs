@@ -67,7 +67,7 @@ where
         match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
-            Operation::Insert(i) => i.count_of_utf16_code_units(),
+            Operation::Insert(i) => i.utf16_size(),
         }
     }
 
@@ -95,7 +95,7 @@ where
                         .build(),
                 );
                 right = Some(
-                    OpBuilder::<T>::insert(&insert.s[index..insert.count_of_utf16_code_units()])
+                    OpBuilder::<T>::insert(&insert.s[index..insert.utf16_size()])
                         .attributes(attributes)
                         .build(),
                 );
@@ -112,17 +112,10 @@ where
                 .attributes(retain.attributes.clone())
                 .build(),
             Operation::Insert(insert) => {
-                if interval.start > insert.count_of_utf16_code_units() {
+                if interval.start > insert.utf16_size() {
                     OpBuilder::insert("").build()
                 } else {
-                    // let s = &insert
-                    //     .s
-                    //     .chars()
-                    //     .skip(interval.start)
-                    //     .take(min(interval.size(), insert.count_of_code_units()))
-                    //     .collect::<String>();
-
-                    let s = insert.s.sub_str(interval);
+                    let s = insert.s.sub_str(interval).unwrap_or_else(|| "".to_owned());
                     OpBuilder::insert(&s).attributes(insert.attributes.clone()).build()
                 }
             },
@@ -291,7 +284,7 @@ impl<T> Insert<T>
 where
     T: Attributes,
 {
-    pub fn count_of_utf16_code_units(&self) -> usize { self.s.utf16_size() }
+    pub fn utf16_size(&self) -> usize { self.s.utf16_size() }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
         if self.attributes == attributes {

@@ -32,7 +32,7 @@ impl View {
         for ext in &self.insert_exts {
             if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
                 trim(&mut delta);
-                tracing::debug!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::debug!("[{}]: process delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }

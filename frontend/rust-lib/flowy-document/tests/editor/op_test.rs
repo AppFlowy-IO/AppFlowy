@@ -184,7 +184,7 @@ fn delta_get_ops_in_interval_7() {
 }
 
 #[test]
-fn delta_seek_1() {
+fn delta_op_seek() {
     let mut delta = RichTextDelta::default();
     let insert_a = OpBuilder::insert("12345").build();
     let retain_a = OpBuilder::retain(3).build();
@@ -196,41 +196,17 @@ fn delta_seek_1() {
 }
 
 #[test]
-fn delta_seek_2() {
+fn delta_utf16_code_unit_seek() {
     let mut delta = RichTextDelta::default();
     delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
-    assert_eq!(iter.next_op_with_len(1).unwrap(), OpBuilder::insert("1").build());
-}
-
-#[test]
-fn delta_seek_3() {
-    let mut delta = RichTextDelta::default();
-    delta.add(OpBuilder::insert("12345").build());
-
-    let mut iter = DeltaIter::new(&delta);
-    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("12").build());
-
-    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("34").build());
-
-    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("5").build());
-
-    assert_eq!(iter.next_op_with_len(1), None);
-}
-
-#[test]
-fn delta_seek_4() {
-    let mut delta = RichTextDelta::default();
-    delta.add(OpBuilder::insert("12345").build());
-
-    let mut iter = DeltaIter::new(&delta);
-    iter.seek::<CharMetric>(3);
+    iter.seek::<Utf16CodeUnitMetric>(3);
     assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("45").build());
 }
 
 #[test]
-fn delta_seek_5() {
+fn delta_utf16_code_unit_seek_with_attributes() {
     let mut delta = RichTextDelta::default();
     let attributes = AttributeBuilder::new()
         .add_attr(RichTextAttribute::Bold(true))
@@ -241,7 +217,7 @@ fn delta_seek_5() {
     delta.add(OpBuilder::insert("\n").build());
 
     let mut iter = DeltaIter::new(&delta);
-    iter.seek::<CharMetric>(0);
+    iter.seek::<Utf16CodeUnitMetric>(0);
 
     assert_eq!(
         iter.next_op_with_len(4).unwrap(),
@@ -250,12 +226,42 @@ fn delta_seek_5() {
 }
 
 #[test]
-fn delta_next_op_len_test() {
+fn delta_next_op_len() {
     let mut delta = RichTextDelta::default();
     delta.add(OpBuilder::insert("12345").build());
+    let mut iter = DeltaIter::new(&delta);
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("12").build());
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("34").build());
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("5").build());
+    assert_eq!(iter.next_op_with_len(1), None);
+}
+
+#[test]
+fn delta_next_op_len_with_chinese() {
+    let mut delta = RichTextDelta::default();
+    delta.add(OpBuilder::insert("你好").build());
 
     let mut iter = DeltaIter::new(&delta);
-    iter.seek::<CharMetric>(3);
+    assert_eq!(iter.next_op_len().unwrap(), 2);
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("你好").build());
+}
+
+#[test]
+fn delta_next_op_len_with_english() {
+    let mut delta = RichTextDelta::default();
+    delta.add(OpBuilder::insert("ab").build());
+    let mut iter = DeltaIter::new(&delta);
+    assert_eq!(iter.next_op_len().unwrap(), 2);
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("ab").build());
+}
+
+#[test]
+fn delta_next_op_len_after_seek() {
+    let mut delta = RichTextDelta::default();
+    delta.add(OpBuilder::insert("12345").build());
+    let mut iter = DeltaIter::new(&delta);
+    assert_eq!(iter.next_op_len().unwrap(), 5);
+    iter.seek::<Utf16CodeUnitMetric>(3);
     assert_eq!(iter.next_op_len().unwrap(), 2);
     assert_eq!(iter.next_op_with_len(1).unwrap(), OpBuilder::insert("4").build());
     assert_eq!(iter.next_op_len().unwrap(), 1);
@@ -263,7 +269,7 @@ fn delta_next_op_len_test() {
 }
 
 #[test]
-fn delta_next_op_len_test2() {
+fn delta_next_op_len_none() {
     let mut delta = RichTextDelta::default();
     delta.add(OpBuilder::insert("12345").build());
     let mut iter = DeltaIter::new(&delta);
@@ -290,7 +296,7 @@ fn delta_next_op_with_len_cross_op_return_last() {
     delta.add(OpBuilder::insert("678").build());
 
     let mut iter = DeltaIter::new(&delta);
-    iter.seek::<CharMetric>(4);
+    iter.seek::<Utf16CodeUnitMetric>(4);
     assert_eq!(iter.next_op_len().unwrap(), 1);
     assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::retain(1).build());
 }
@@ -475,7 +481,7 @@ fn transform_random_delta() {
 }
 
 #[test]
-fn transform_with_two_delta_test() {
+fn transform_with_two_delta() {
     let mut a = RichTextDelta::default();
     let mut a_s = String::new();
     a.insert(
@@ -515,7 +521,7 @@ fn transform_with_two_delta_test() {
 }
 
 #[test]
-fn transform_two_plain_delta_test() {
+fn transform_two_plain_delta() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(1, "456", 0),
@@ -527,7 +533,7 @@ fn transform_two_plain_delta_test() {
 }
 
 #[test]
-fn transform_two_plain_delta_test2() {
+fn transform_two_plain_delta2() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(1, "456", 0),
@@ -719,6 +725,16 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         ),
     ];
     TestBuilder::new().run_scripts::<PlainDoc>(ops);
+}
+
+#[test]
+fn delta_compose_str() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Insert(0, "2", 1),
+        AssertDocJson(0, r#"[{"insert":"12\n"}]"#),
+    ];
+    TestBuilder::new().run_scripts::<NewlineDoc>(ops);
 }
 
 #[test]

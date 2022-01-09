@@ -1,5 +1,5 @@
 use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
-use std::{fmt, fmt::Formatter, slice};
+use std::{fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FlowyStr(pub String);
@@ -10,18 +10,11 @@ impl FlowyStr {
 
     pub fn utf16_code_unit_iter(&self) -> Utf16CodeUnitIterator { Utf16CodeUnitIterator::new(self) }
 
-    pub fn sub_str(&self, interval: Interval) -> String {
-        match self.with_interval(interval) {
-            None => "".to_owned(),
-            Some(s) => s.0,
-        }
-    }
-
-    pub fn with_interval(&self, interval: Interval) -> Option<FlowyStr> {
+    pub fn sub_str(&self, interval: Interval) -> Option<String> {
         let mut iter = Utf16CodeUnitIterator::new(self);
         let mut buf = vec![];
         while let Some((byte, _len)) = iter.next() {
-            if interval.start < iter.code_unit_offset && interval.end >= iter.code_unit_offset {
+            if iter.utf16_offset >= interval.start && iter.utf16_offset < interval.end {
                 buf.extend_from_slice(byte);
             }
         }
@@ -31,76 +24,13 @@ impl FlowyStr {
         }
 
         match str::from_utf8(&buf) {
-            Ok(item) => Some(item.into()),
+            Ok(item) => Some(item.to_owned()),
             Err(_e) => None,
         }
     }
 
     #[allow(dead_code)]
     fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator { FlowyUtf16CodePointIterator::new(self, 0) }
-}
-
-pub struct Utf16CodeUnitIterator<'a> {
-    s: &'a FlowyStr,
-    bytes_offset: usize,
-    code_unit_offset: usize,
-    iter_index: usize,
-    iter: slice::Iter<'a, u8>,
-}
-
-impl<'a> Utf16CodeUnitIterator<'a> {
-    pub fn new(s: &'a FlowyStr) -> Self {
-        Utf16CodeUnitIterator {
-            s,
-            bytes_offset: 0,
-            code_unit_offset: 0,
-            iter_index: 0,
-            iter: s.as_bytes().iter(),
-        }
-    }
-}
-
-impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
-    type Item = (&'a [u8], usize);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let start = self.bytes_offset;
-        let _end = start;
-
-        while let Some(&b) = self.iter.next() {
-            self.iter_index += 1;
-
-            let mut code_unit_count = 0;
-            if self.bytes_offset > self.iter_index {
-                continue;
-            }
-
-            if self.bytes_offset == self.iter_index {
-                break;
-            }
-
-            if (b as i8) >= -0x40 {
-                code_unit_count += 1
-            }
-            if b >= 0xf0 {
-                code_unit_count += 1
-            }
-
-            self.bytes_offset += len_utf8_from_first_byte(b);
-            self.code_unit_offset += code_unit_count;
-
-            if code_unit_count == 1 {
-                break;
-            }
-        }
-
-        if start == self.bytes_offset {
-            return None;
-        }
-
-        let byte = &self.s.as_bytes()[start..self.bytes_offset];
-        Some((byte, self.bytes_offset - start))
-    }
 }
 
 impl std::ops::Deref for FlowyStr {
@@ -170,6 +100,52 @@ impl<'de> Deserialize<'de> for FlowyStr {
     }
 }
 
+pub struct Utf16CodeUnitIterator<'a> {
+    s: &'a FlowyStr,
+    byte_offset: usize,
+    utf16_offset: usize,
+    utf16_count: usize,
+}
+
+impl<'a> Utf16CodeUnitIterator<'a> {
+    pub fn new(s: &'a FlowyStr) -> Self {
+        Utf16CodeUnitIterator {
+            s,
+            byte_offset: 0,
+            utf16_offset: 0,
+            utf16_count: 0,
+        }
+    }
+}
+
+impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
+    type Item = (&'a [u8], usize);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let _len = self.s.len();
+        if self.byte_offset == self.s.len() {
+            None
+        } else {
+            let b = self.s.as_bytes()[self.byte_offset];
+            let start = self.byte_offset;
+            let end = self.byte_offset + len_utf8_from_first_byte(b);
+            if (b as i8) >= -0x40 {
+                self.utf16_count += 1;
+            }
+            if b >= 0xf0 {
+                self.utf16_count += 1;
+            }
+
+            if self.utf16_count > 0 {
+                self.utf16_offset = self.utf16_count - 1;
+            }
+            self.byte_offset = end;
+            let byte = &self.s.as_bytes()[start..end];
+            Some((byte, end - start))
+        }
+    }
+}
+
 pub struct FlowyUtf16CodePointIterator<'a> {
     s: &'a FlowyStr,
     offset: usize,
@@ -231,37 +207,75 @@ mod tests {
     use crate::core::{FlowyStr, Interval};
 
     #[test]
+    fn flowy_str_code_unit() {
+        let size = FlowyStr::from("👋").utf16_size();
+        assert_eq!(size, 2);
+
+        let s: FlowyStr = "👋 \n👋".into();
+        let output = s.sub_str(Interval::new(0, size)).unwrap();
+        assert_eq!(output, "👋");
+
+        let output = s.sub_str(Interval::new(2, 3)).unwrap();
+        assert_eq!(output, " ");
+
+        let output = s.sub_str(Interval::new(3, 4)).unwrap();
+        assert_eq!(output, "\n");
+
+        let output = s.sub_str(Interval::new(4, 4 + size)).unwrap();
+        assert_eq!(output, "👋");
+    }
+
+    #[test]
+    fn flowy_str_sub_str_in_chinese() {
+        let s: FlowyStr = "你好\n😁".into();
+        let size = s.utf16_size();
+        assert_eq!(size, 5);
+
+        let output1 = s.sub_str(Interval::new(0, 2)).unwrap();
+        let output2 = s.sub_str(Interval::new(2, 3)).unwrap();
+        let output3 = s.sub_str(Interval::new(3, 5)).unwrap();
+        assert_eq!(output1, "你好");
+        assert_eq!(output2, "\n");
+        assert_eq!(output3, "😁");
+    }
+
+    #[test]
+    fn flowy_str_sub_str_in_chinese2() {
+        let s: FlowyStr = "😁 \n".into();
+        let size = s.utf16_size();
+        assert_eq!(size, 4);
+
+        let output1 = s.sub_str(Interval::new(0, 3)).unwrap();
+        let output2 = s.sub_str(Interval::new(3, 4)).unwrap();
+        assert_eq!(output1, "😁 ");
+        assert_eq!(output2, "\n");
+    }
+
+    #[test]
+    fn flowy_str_sub_str_in_english() {
+        let s: FlowyStr = "ab".into();
+        let size = s.utf16_size();
+        assert_eq!(size, 2);
+
+        let output = s.sub_str(Interval::new(0, 2)).unwrap();
+        assert_eq!(output, "ab");
+    }
+
+    #[test]
     fn flowy_str_utf16_code_point_iter_test1() {
-        let s: FlowyStr = "👋😁👋😁".into();
+        let s: FlowyStr = "👋😁👋".into();
         let mut iter = s.utf16_code_point_iter();
         assert_eq!(iter.next().unwrap(), "👋".to_string());
         assert_eq!(iter.next().unwrap(), "😁".to_string());
         assert_eq!(iter.next().unwrap(), "👋".to_string());
-        assert_eq!(iter.next().unwrap(), "😁".to_string());
         assert_eq!(iter.next(), None);
     }
 
     #[test]
     fn flowy_str_utf16_code_point_iter_test2() {
-        let s: FlowyStr = "👋👋😁😁👋👋".into();
+        let s: FlowyStr = "👋😁👋".into();
         let iter = s.utf16_code_point_iter();
-        let result = iter.skip(2).take(2).collect::<String>();
-        assert_eq!(result, "😁😁".to_string());
-    }
-
-    #[test]
-    fn flowy_str_code_unit_test() {
-        let s: FlowyStr = "👋 \n👋".into();
-        let output = s.with_interval(Interval::new(0, 2)).unwrap().0;
-        assert_eq!(output, "👋");
-
-        let output = s.with_interval(Interval::new(2, 3)).unwrap().0;
-        assert_eq!(output, " ");
-
-        let output = s.with_interval(Interval::new(3, 4)).unwrap().0;
-        assert_eq!(output, "\n");
-
-        let output = s.with_interval(Interval::new(4, 6)).unwrap().0;
-        assert_eq!(output, "👋");
+        let result = iter.skip(1).take(1).collect::<String>();
+        assert_eq!(result, "😁".to_string());
     }
 }

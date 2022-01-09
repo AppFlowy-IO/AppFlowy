@@ -727,6 +727,7 @@ fn attributes_format_emoji() {
     let len = s.utf16_size();
     assert_eq!(3, len);
     assert_eq!(2, s.graphemes(true).count());
+    
     let ops = vec![
         Insert(0, emoji_s, 0),
         AssertDocJson(0, r#"[{"insert":"👋 \n"}]"#),

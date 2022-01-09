@@ -1,6 +1,6 @@
 use crate::{document::DeleteExt, util::is_newline};
 use lib_ot::{
-    core::{Attributes, CharMetric, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
+    core::{Attributes, DeltaBuilder, DeltaIter, Interval, Utf16CodeUnitMetric, NEW_LINE},
     rich_text::{plain_attributes, RichTextDelta},
 };
 
@@ -22,7 +22,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
             return None;
         }
 
-        iter.seek::<CharMetric>(interval.size() - 1);
+        iter.seek::<Utf16CodeUnitMetric>(interval.size() - 1);
         let mut new_delta = DeltaBuilder::new()
             .retain(interval.start)
             .delete(interval.size())

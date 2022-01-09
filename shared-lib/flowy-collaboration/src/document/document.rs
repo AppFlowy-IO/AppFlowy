@@ -112,7 +112,6 @@ impl Document {
         let text = data.to_string();
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
-
         let delta = self.view.insert(&self.delta, &text, interval)?;
         self.compose_delta(delta.clone())?;
         Ok(delta)

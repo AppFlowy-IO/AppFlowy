@@ -23,7 +23,7 @@ where
     pub fn from_offset(delta: &'a Delta<T>, offset: usize) -> Self {
         let interval = Interval::new(0, MAX_IV_LEN);
         let mut iter = Self::from_interval(delta, interval);
-        iter.seek::<CharMetric>(offset);
+        iter.seek::<Utf16CodeUnitMetric>(offset);
         iter
     }
 
@@ -181,7 +181,7 @@ where
             Operation::<T>::Insert(insert) => {
                 tracing::trace!("extend insert attributes with {} ", &insert.attributes);
                 attributes.extend_other(insert.attributes.clone());
-                length = insert.count_of_utf16_code_units();
+                length = insert.utf16_size();
             },
         }
 

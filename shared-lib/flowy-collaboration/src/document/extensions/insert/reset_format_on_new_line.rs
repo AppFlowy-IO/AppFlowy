@@ -1,6 +1,6 @@
 use crate::{document::InsertExt, util::is_newline};
 use lib_ot::{
-    core::{CharMetric, DeltaBuilder, DeltaIter, NEW_LINE},
+    core::{DeltaBuilder, DeltaIter, Utf16CodeUnitMetric, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
 };
 
@@ -14,7 +14,7 @@ impl InsertExt for ResetLineFormatOnNewLine {
         }
 
         let mut iter = DeltaIter::new(delta);
-        iter.seek::<CharMetric>(index);
+        iter.seek::<Utf16CodeUnitMetric>(index);
         let next_op = iter.next_op()?;
         if !next_op.get_data().starts_with(NEW_LINE) {
             return None;

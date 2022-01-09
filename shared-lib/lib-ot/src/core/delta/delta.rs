@@ -187,7 +187,7 @@ where
                     }
                 },
                 Operation::Insert(insert) => {
-                    inverted.delete(insert.count_of_utf16_code_units());
+                    inverted.delete(insert.utf16_size());
                 },
                 Operation::Delete(delete) => {
                     inverted.insert(&chars.take(*delete as usize).collect::<String>(), op.get_attributes());
@@ -294,12 +294,12 @@ where
                 (Some(Operation::Insert(insert)), _) => {
                     // let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
                     a_prime.insert(&insert.s, insert.attributes.clone());
-                    b_prime.retain(insert.count_of_utf16_code_units(), insert.attributes.clone());
+                    b_prime.retain(insert.utf16_size(), insert.attributes.clone());
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
                     let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
-                    a_prime.retain(o_insert.count_of_utf16_code_units(), composed_attrs.clone());
+                    a_prime.retain(o_insert.utf16_size(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
                 },
