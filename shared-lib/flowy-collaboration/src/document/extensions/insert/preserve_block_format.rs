@@ -13,7 +13,7 @@ use lib_ot::{
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {
-    fn ext_name(&self) -> &str { std::any::type_name::<PreserveBlockFormatOnInsert>() }
+    fn ext_name(&self) -> &str { "PreserveBlockFormatOnInsert" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {

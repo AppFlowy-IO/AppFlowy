@@ -109,7 +109,7 @@ impl DocumentRevisionCache {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id, revisions))]
-    pub async fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
+    pub async fn reset_with_revisions(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
         let revision_records = revisions
             .to_vec()
             .into_iter()

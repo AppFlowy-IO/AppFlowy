@@ -10,6 +10,7 @@ extend = [
 ]
 
 [env]
+RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
@@ -22,6 +23,7 @@ SDK_EXT = "a"
 APP_ENVIRONMENT = "local"
 
 [env.development-mac]
+RUST_LOG = "trace"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 BUILD_FLAG = "debug"

@@ -7,7 +7,7 @@ use lib_ot::{
 pub struct AutoExitBlock {}
 
 impl InsertExt for AutoExitBlock {
-    fn ext_name(&self) -> &str { std::any::type_name::<AutoExitBlock>() }
+    fn ext_name(&self) -> &str { "AutoExitBlock" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // Auto exit block will be triggered by enter two new lines

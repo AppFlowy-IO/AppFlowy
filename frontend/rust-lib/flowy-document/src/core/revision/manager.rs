@@ -60,7 +60,10 @@ impl DocumentRevisionManager {
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_document(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self.cache.reset_document(&self.doc_id, revisions.into_inner()).await?;
+        let _ = self
+            .cache
+            .reset_with_revisions(&self.doc_id, revisions.into_inner())
+            .await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }

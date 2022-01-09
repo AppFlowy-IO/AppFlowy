@@ -111,7 +111,7 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, user, persistence), fields(server_rev_id), err)]
+    #[tracing::instrument(level = "trace", skip(self, user, persistence), fields(server_rev_id), err)]
     pub async fn pong(
         &self,
         user: Arc<dyn RevisionUser>,
@@ -125,7 +125,7 @@ impl RevisionSynchronizer {
             Ordering::Less => {
                 tracing::error!("Client should not send ping and the server should pull the revisions from the client")
             },
-            Ordering::Equal => tracing::debug!("{} is up to date.", doc_id),
+            Ordering::Equal => tracing::trace!("{} is up to date.", doc_id),
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime

@@ -89,7 +89,7 @@ impl ServerDocumentManager {
         let doc_id = client_data.doc_id.clone();
         match self.get_document_handler(&doc_id).await {
             None => {
-                tracing::warn!("Document:{} doesn't exist, ignore pinging", doc_id);
+                tracing::trace!("Document:{} doesn't exist, ignore pinging", doc_id);
                 Ok(())
             },
             Some(handler) => {

@@ -10,7 +10,7 @@ use crate::{
 
 pub struct ResolveInlineFormat {}
 impl FormatExt for ResolveInlineFormat {
-    fn ext_name(&self) -> &str { std::any::type_name::<ResolveInlineFormat>() }
+    fn ext_name(&self) -> &str { "ResolveInlineFormat" }
 
     fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Inline {

@@ -53,19 +53,19 @@ impl FlowySDKConfig {
         FlowySDKConfig {
             name: name.to_owned(),
             root: root.to_owned(),
-            log_filter: crate_log_filter(None),
+            log_filter: crate_log_filter("info".to_owned()),
             server_config,
         }
     }
 
     pub fn log_filter(mut self, filter: &str) -> Self {
-        self.log_filter = crate_log_filter(Some(filter.to_owned()));
+        self.log_filter = crate_log_filter(filter.to_owned());
         self
     }
 }
 
-fn crate_log_filter(level: Option<String>) -> String {
-    let level = level.unwrap_or_else(|| std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()));
+fn crate_log_filter(level: String) -> String {
+    let level = std::env::var("RUST_LOG").unwrap_or(level);
     let mut filters = vec![];
     filters.push(format!("flowy_sdk={}", level));
     filters.push(format!("flowy_core={}", level));
@@ -73,6 +73,8 @@ fn crate_log_filter(level: Option<String>) -> String {
     filters.push(format!("flowy_document={}", level));
     filters.push(format!("flowy_collaboration={}", level));
     filters.push(format!("flowy_net={}", level));
+    filters.push(format!("dart_ffi={}", "info"));
+    filters.push(format!("dart_database={}", "info"));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));

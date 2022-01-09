@@ -6,7 +6,7 @@ use lib_ot::{
 
 pub struct DefaultInsertAttribute {}
 impl InsertExt for DefaultInsertAttribute {
-    fn ext_name(&self) -> &str { std::any::type_name::<DefaultInsertAttribute>() }
+    fn ext_name(&self) -> &str { "DefaultInsertAttribute" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         let iter = DeltaIter::new(delta);

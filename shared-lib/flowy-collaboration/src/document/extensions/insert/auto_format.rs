@@ -8,7 +8,7 @@ use url::Url;
 
 pub struct AutoFormatExt {}
 impl InsertExt for AutoFormatExt {
-    fn ext_name(&self) -> &str { std::any::type_name::<AutoFormatExt>() }
+    fn ext_name(&self) -> &str { "AutoFormatExt" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // enter whitespace to trigger auto format

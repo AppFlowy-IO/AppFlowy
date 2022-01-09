@@ -181,7 +181,7 @@ impl DocumentWSStream {
             .await
             .map_err(internal_error)?;
 
-        tracing::debug!("[DocumentStream]: new message: {:?}", ty);
+        tracing::trace!("[DocumentStream]: new message: {:?}", ty);
         match ty {
             DocumentServerWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
@@ -272,7 +272,7 @@ impl DocumentWSSink {
                 Ok(())
             },
             Some(data) => {
-                tracing::debug!("[DocumentSink]: send: {}:{}-{:?}", data.doc_id, data.id(), data.ty);
+                tracing::trace!("[DocumentSink]: send: {}:{}-{:?}", data.doc_id, data.id(), data.ty);
                 self.ws_sender.send(data)
                 // let _ = tokio::time::timeout(Duration::from_millis(2000),
             },

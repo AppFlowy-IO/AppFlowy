@@ -10,6 +10,20 @@
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
+            "env":{
+                "RUST_LOG":"info",
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "app_flowy(trace)",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "build_flowy_sdk",
+            "env":{
+                "RUST_LOG":"trace",
+            },
             "cwd": "${workspaceRoot}"
         },
         {

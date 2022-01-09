@@ -9,7 +9,7 @@ use lib_ot::{
 
 pub struct PreserveInlineFormat {}
 impl InsertExt for PreserveInlineFormat {
-    fn ext_name(&self) -> &str { std::any::type_name::<PreserveInlineFormat>() }
+    fn ext_name(&self) -> &str { "PreserveInlineFormat" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if contain_newline(text) {
@@ -53,7 +53,7 @@ impl InsertExt for PreserveInlineFormat {
 
 pub struct PreserveLineFormatOnSplit {}
 impl InsertExt for PreserveLineFormatOnSplit {
-    fn ext_name(&self) -> &str { std::any::type_name::<PreserveLineFormatOnSplit>() }
+    fn ext_name(&self) -> &str { "PreserveLineFormatOnSplit" }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {

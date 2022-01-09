@@ -56,6 +56,18 @@ async fn document_sync_insert_in_chinese() {
 }
 
 #[tokio::test]
+async fn document_sync_insert_with_emoji() {
+    let s = "😁".to_owned();
+    let offset = count_utf16_code_units(&s);
+    let scripts = vec![
+        InsertText("😁", 0),
+        InsertText("☺️", offset),
+        AssertJson(r#"[{"insert":"😁☺️\n"}]"#),
+    ];
+    EditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn document_sync_delete_in_english() {
     let scripts = vec![
         InsertText("1", 0),

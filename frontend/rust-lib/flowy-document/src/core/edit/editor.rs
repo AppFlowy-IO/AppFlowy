@@ -18,6 +18,7 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
 pub struct ClientDocumentEditor {
     pub doc_id: String,
+    #[allow(dead_code)]
     rev_manager: Arc<DocumentRevisionManager>,
     ws_manager: Arc<dyn DocumentWebSocketManager>,
     edit_queue: UnboundedSender<EditorCommand>,

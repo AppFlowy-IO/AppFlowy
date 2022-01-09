@@ -40,7 +40,7 @@ impl LocalDocumentServer {
         client_data: DocumentClientWSData,
         user_id: String,
     ) -> Result<(), CollaborateError> {
-        tracing::debug!(
+        tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
             client_data.doc_id,
             client_data.id(),
@@ -72,7 +72,7 @@ struct LocalDocServerPersistence {
 }
 
 impl Debug for LocalDocServerPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("MockDocServerPersistence") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalDocServerPersistence") }
 }
 
 impl std::default::Default for LocalDocServerPersistence {
@@ -89,10 +89,7 @@ impl DocumentPersistence for LocalDocServerPersistence {
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
             match inner.get(&doc_id) {
-                None => {
-                    //
-                    Err(CollaborateError::record_not_found())
-                },
+                None => Err(CollaborateError::record_not_found()),
                 Some(val) => {
                     //
                     Ok(val.value().clone())

@@ -69,6 +69,7 @@ impl Document {
     pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) { self.notify = Some(notify); }
 
     pub fn set_delta(&mut self, data: RichTextDelta) {
+        tracing::trace!("document: {}", data.to_json());
         self.delta = data;
 
         match &self.notify {
@@ -80,7 +81,6 @@ impl Document {
     }
 
     pub fn compose_delta(&mut self, delta: RichTextDelta) -> Result<(), CollaborateError> {
-        tracing::trace!("👉 receive change: {}", delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
         let composed_delta = self.delta.compose(&delta)?;
         let mut undo_delta = delta.invert(&self.delta);
@@ -97,12 +97,10 @@ impl Document {
             self.last_edit_time = now;
         }
 
-        tracing::trace!("👉 receive change undo: {}", undo_delta);
         if !undo_delta.is_empty() {
+            tracing::trace!("add history delta: {}", undo_delta);
             self.history.record(undo_delta);
         }
-
-        tracing::trace!("compose result: {}", composed_delta.to_json());
 
         self.set_delta(composed_delta);
         Ok(())
@@ -133,7 +131,7 @@ impl Document {
         attribute: RichTextAttribute,
     ) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        tracing::trace!("format with {} at {}", attribute, interval);
+        tracing::trace!("format {} with {}", interval, attribute);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
         self.compose_delta(format_delta.clone())?;
         Ok(format_delta)
@@ -192,7 +190,6 @@ impl Document {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
-        tracing::trace!("Invert {}", delta);
         let new_delta = self.delta.compose(delta)?;
         let inverted_delta = delta.invert(&self.delta);
         Ok((new_delta, inverted_delta))

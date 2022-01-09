@@ -394,9 +394,7 @@ where
         if other.is_empty() {
             return inverted;
         }
-        tracing::trace!("🌜Calculate invert delta");
-        tracing::trace!("current: {}", self);
-        tracing::trace!("other: {}", other);
+
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.len() as usize;
@@ -409,20 +407,19 @@ where
                     match op.has_attribute() {
                         true => invert_from_other(&mut inverted, other, op, index, index + len),
                         false => {
-                            tracing::trace!("invert retain: {} by retain {} {}", op, len, op.get_attributes());
+                            // tracing::trace!("invert retain: {} by retain {} {}", op, len,
+                            // op.get_attributes());
                             inverted.retain(len as usize, op.get_attributes())
                         },
                     }
                     index += len;
                 },
                 Operation::Insert(_) => {
-                    tracing::trace!("invert insert: {} by delete {}", op, len);
+                    // tracing::trace!("invert insert: {} by delete {}", op, len);
                     inverted.delete(len as usize);
                 },
             }
         }
-
-        tracing::trace!("🌛invert result: {}", inverted);
         inverted
     }
 }

@@ -130,13 +130,11 @@ impl CoreContext {
                 return Ok(());
             }
         }
-        tracing::debug!("Start initializing flowy core");
         INIT_WORKSPACE.write().insert(token.to_owned(), true);
         let _ = self.workspace_controller.init()?;
         let _ = self.app_controller.init()?;
         let _ = self.view_controller.init()?;
         let _ = self.trash_controller.init()?;
-        tracing::debug!("Finish initializing core");
 
         Ok(())
     }

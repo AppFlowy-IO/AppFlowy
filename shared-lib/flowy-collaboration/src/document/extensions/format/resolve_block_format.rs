@@ -10,7 +10,7 @@ use crate::{
 
 pub struct ResolveBlockFormat {}
 impl FormatExt for ResolveBlockFormat {
-    fn ext_name(&self) -> &str { std::any::type_name::<ResolveBlockFormat>() }
+    fn ext_name(&self) -> &str { "ResolveBlockFormat" }
 
     fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Block {

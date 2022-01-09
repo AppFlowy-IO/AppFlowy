@@ -34,7 +34,7 @@ impl std::default::Default for FlowySDKTest {
 
 impl FlowySDKTest {
     pub fn new(server_config: ClientServerConfiguration) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string()).log_filter("debug");
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string()).log_filter("trace");
         let sdk = FlowySDK::new(config);
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }

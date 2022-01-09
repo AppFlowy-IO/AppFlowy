@@ -58,7 +58,7 @@ impl EditorCommandQueue {
             .await;
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     async fn handle_command(&self, command: EditorCommand) -> Result<(), FlowyError> {
         match command {
             EditorCommand::ComposeLocalDelta { delta, ret } => {
@@ -289,6 +289,7 @@ pub(crate) enum EditorCommand {
     ReadDoc {
         ret: Ret<String>,
     },
+    #[allow(dead_code)]
     ReadDocDelta {
         ret: Ret<RichTextDelta>,
     },
