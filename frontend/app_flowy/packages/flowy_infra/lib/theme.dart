@@ -93,9 +93,9 @@ class AppTheme {
 
       case ThemeType.dark:
         return AppTheme(isDark: true)
-          ..surface = _black
-          ..hover = _main2
-          ..selector = _black
+          ..surface = const Color(0xff292929)
+          ..hover = const Color(0xff1f1f1f)
+          ..selector = const Color(0xff333333)
           ..red = const Color(0xfffb006d)
           ..yellow = const Color(0xffffd667)
           ..green = const Color(0xff66cf80)
@@ -110,17 +110,17 @@ class AppTheme {
           ..bg2 = _black
           ..bg3 = _grey
           ..bg4 = const Color(0xff2c144b)
-          ..tint1 = const Color(0xffe8e0ff)
-          ..tint2 = const Color(0xffffe7fd)
-          ..tint3 = const Color(0xffffe7ee)
-          ..tint4 = const Color(0xffffefe3)
-          ..tint5 = const Color(0xfffff2cd)
-          ..tint6 = _black
-          ..tint7 = const Color(0xffddffd6)
-          ..tint8 = const Color(0xffdefff1)
-          ..tint9 = const Color(0xffdefff1)
+          ..tint1 = const Color(0xffc3adff)
+          ..tint2 = const Color(0xffffadf9)
+          ..tint3 = const Color(0xffffadad)
+          ..tint4 = const Color(0xffffcfad)
+          ..tint5 = const Color(0xfffffead)
+          ..tint6 = const Color(0xffe6ffa3)
+          ..tint7 = const Color(0xffbcffad)
+          ..tint8 = const Color(0xffadffe2)
+          ..tint9 = const Color(0xffade4ff)
           ..main1 = const Color(0xff00bcf0)
-          ..main2 = const Color(0xff00b7ea)
+          ..main2 = const Color(0xff009cc7)
           ..textColor = _white
           ..shadowColor = _white;
     }
@@ -141,9 +141,9 @@ class AppTheme {
           primaryVariant: main2,
           secondary: main2,
           secondaryVariant: main2,
-          background: bg1,
+          background: surface,
           surface: surface,
-          onBackground: bg1,
+          onBackground: surface,
           onSurface: surface,
           onError: red,
           onPrimary: bg1,
