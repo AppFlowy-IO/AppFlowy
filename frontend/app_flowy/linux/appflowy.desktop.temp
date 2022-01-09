@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=AppFlowy
 Comment=An Open Source Alternative to Notion
-Icon=[CHANGE_THIS]/AppFlowy/flowy_logo.svg
+Icon=app_flowy
 Exec=[CHANGE_THIS]/AppFlowy/app_flowy
 Categories=Office
 Type=Application
