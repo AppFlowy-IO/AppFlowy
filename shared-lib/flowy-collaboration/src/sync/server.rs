@@ -17,17 +17,19 @@ use tokio::{
 };
 
 pub trait DocumentPersistence: Send + Sync + Debug {
-    fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
-    fn create_doc(
+    fn create_document(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
-    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
-
-    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
+    fn read_revisions(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
 
     fn reset_document(
         &self,
@@ -123,7 +125,7 @@ impl ServerDocumentManager {
         }
 
         let mut write_guard = self.open_doc_map.write().await;
-        match self.persistence.read_doc(doc_id).await {
+        match self.persistence.read_document(doc_id).await {
             Ok(doc) => {
                 let handler = self.create_document_handler(doc).await.map_err(internal_error).unwrap();
                 write_guard.insert(doc_id.to_owned(), handler.clone());
@@ -140,7 +142,7 @@ impl ServerDocumentManager {
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<Arc<OpenDocHandle>, CollaborateError> {
-        let doc = self.persistence.create_doc(doc_id, repeated_revision).await?;
+        let doc = self.persistence.create_document(doc_id, repeated_revision).await?;
         let handler = self.create_document_handler(doc).await?;
         self.open_doc_map
             .write()

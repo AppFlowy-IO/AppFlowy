@@ -59,7 +59,7 @@ impl RevisionSynchronizer {
         let doc_id = self.doc_id.clone();
         if repeated_revision.get_items().is_empty() {
             // Return all the revisions to client
-            let revisions = persistence.get_doc_revisions(&doc_id).await?;
+            let revisions = persistence.read_revisions(&doc_id, None).await?;
             let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
             let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, repeated_revision);
             user.receive(SyncResponse::Push(data));
@@ -192,7 +192,8 @@ impl RevisionSynchronizer {
     pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 
     async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
-        if let Ok(revisions) = persistence.get_revisions(&self.doc_id, vec![new_revision.rev_id]).await {
+        let rev_ids = Some(vec![new_revision.rev_id]);
+        if let Ok(revisions) = persistence.read_revisions(&self.doc_id, rev_ids).await {
             if let Some(revision) = revisions.first() {
                 if revision.md5 == new_revision.md5 {
                     return true;
@@ -211,7 +212,7 @@ impl RevisionSynchronizer {
         to: i64,
     ) {
         let rev_ids: Vec<i64> = (from..=to).collect();
-        let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
+        let revisions = match persistence.read_revisions(&self.doc_id, Some(rev_ids)).await {
             Ok(revisions) => {
                 assert_eq!(
                     revisions.is_empty(),

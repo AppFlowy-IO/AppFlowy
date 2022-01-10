@@ -175,7 +175,6 @@ impl RevisionSyncSequence {
                 return Err(FlowyError::internal().context(desc));
             }
 
-            tracing::trace!("{} revision finish synchronizing", pop_rev_id);
             self.revs_map.remove(&pop_rev_id);
             let _ = self.local_revs.write().await.pop_front();
         }

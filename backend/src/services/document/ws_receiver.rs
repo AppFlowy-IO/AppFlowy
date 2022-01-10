@@ -76,13 +76,13 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
     }
 }
 
-pub struct DocumentPersistenceImpl(pub Arc<FlowyPersistence>);
-impl Debug for DocumentPersistenceImpl {
+pub struct HttpServerDocumentPersistence(pub Arc<FlowyPersistence>);
+impl Debug for HttpServerDocumentPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
 }
 
-impl DocumentPersistence for DocumentPersistenceImpl {
-    fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
+impl DocumentPersistence for HttpServerDocumentPersistence {
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),
             ..Default::default()
@@ -99,7 +99,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn create_doc(
+    fn create_document(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
@@ -120,23 +120,24 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+    fn read_revisions(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            let mut repeated_revision = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
-            Ok(repeated_revision.take_items().into())
-        };
-
-        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
-    }
-
-    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        let kv_store = self.0.kv_store();
-        let doc_id = doc_id.to_owned();
-        let f = || async move {
-            let mut repeated_revision = kv_store.get_doc_revisions(&doc_id).await?;
-            Ok(repeated_revision.take_items().into())
+            match rev_ids {
+                None => {
+                    let mut repeated_revision = kv_store.get_doc_revisions(&doc_id).await?;
+                    Ok(repeated_revision.take_items().into())
+                },
+                Some(rev_ids) => {
+                    let mut repeated_revision = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
+                    Ok(repeated_revision.take_items().into())
+                },
+            }
         };
 
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })

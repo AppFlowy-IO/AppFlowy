@@ -7,7 +7,7 @@ use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
     services::{
-        local_ws::LocalWebSocket,
+        local::LocalWebSocket,
         ws_conn::{listen_on_websocket, FlowyRawWebSocket, FlowyWebSocketConnect},
     },
 };

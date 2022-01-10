@@ -121,7 +121,7 @@ impl RevisionTableSql {
             .filter(dsl::doc_id.eq(changeset.doc_id));
         let _ = update(filter).set(dsl::state.eq(changeset.state)).execute(conn)?;
         tracing::debug!(
-            "[[RevisionTable]] Save:{} state to {:?}",
+            "[RevisionTable] update revision:{} state:to {:?}",
             changeset.rev_id,
             changeset.state
         );

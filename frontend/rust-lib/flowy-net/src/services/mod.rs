@@ -1,3 +1,3 @@
-pub mod http_ws;
-pub mod local_ws;
+pub mod http;
+pub mod local;
 pub mod ws_conn;

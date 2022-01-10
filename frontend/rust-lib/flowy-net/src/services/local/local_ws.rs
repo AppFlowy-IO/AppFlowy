@@ -1,14 +1,13 @@
+use crate::services::{
+    local::local_server::LocalDocumentServer,
+    ws_conn::{FlowyRawWebSocket, FlowyWSSender},
+};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::ws::*;
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 use lib_ws::{WSConnectState, WSMessageReceiver, WSModule, WebSocketRawMessage};
-
-use crate::services::{
-    local_ws::local_server::LocalDocumentServer,
-    ws_conn::{FlowyRawWebSocket, FlowyWSSender},
-};
 use parking_lot::RwLock;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc, mpsc::UnboundedReceiver};

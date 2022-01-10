@@ -83,7 +83,7 @@ impl DocumentWebSocketActor {
             document_client_data.ty
         );
 
-        let user = Arc::new(ServerDocUser {
+        let user = Arc::new(HttpDocumentUser {
             user,
             socket,
             persistence,
@@ -119,13 +119,13 @@ fn verify_md5(revision: &RevisionPB) -> Result<()> {
 }
 
 #[derive(Clone)]
-pub struct ServerDocUser {
+pub struct HttpDocumentUser {
     pub user: Arc<WSUser>,
     pub(crate) socket: Socket,
     pub persistence: Arc<FlowyPersistence>,
 }
 
-impl std::fmt::Debug for ServerDocUser {
+impl std::fmt::Debug for HttpDocumentUser {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.debug_struct("ServerDocUser")
             .field("user", &self.user)
@@ -134,7 +134,7 @@ impl std::fmt::Debug for ServerDocUser {
     }
 }
 
-impl RevisionUser for ServerDocUser {
+impl RevisionUser for HttpDocumentUser {
     fn user_id(&self) -> String { self.user.id().to_string() }
 
     fn receive(&self, resp: SyncResponse) {
