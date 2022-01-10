@@ -10,7 +10,6 @@ enum ThemeType {
 const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xFFFFFFFF);
-const _main2 = Color(0xff00b7ea);
 
 class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;
@@ -46,6 +45,7 @@ class AppTheme {
   late Color tint8;
   late Color tint9;
   late Color textColor;
+  late Color iconColor;
 
   late Color main1;
   late Color main2;
@@ -89,6 +89,7 @@ class AppTheme {
           ..main1 = const Color(0xff00bcf0)
           ..main2 = const Color(0xff00b7ea)
           ..textColor = _black
+          ..iconColor = _black
           ..shadowColor = _black;
 
       case ThemeType.dark:
@@ -122,6 +123,7 @@ class AppTheme {
           ..main1 = const Color(0xff00bcf0)
           ..main2 = const Color(0xff009cc7)
           ..textColor = _white
+          ..iconColor = _white
           ..shadowColor = _white;
     }
   }

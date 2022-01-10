@@ -4,7 +4,6 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:flowy_infra/theme.dart';
 
 class MenuTopBar extends StatelessWidget {
@@ -26,7 +25,7 @@ class MenuTopBar extends StatelessWidget {
                 width: 28,
                 onPressed: () => context.read<MenuBloc>().add(const MenuEvent.collapse()),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                icon: svg("home/hide_menu", color: theme.textColor),
+                icon: svg("home/hide_menu", color: theme.iconColor),
               )
             ],
           ),
