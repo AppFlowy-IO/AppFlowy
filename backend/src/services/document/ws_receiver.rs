@@ -18,7 +18,7 @@ use flowy_collaboration::{
         RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
-    sync::{DocumentPersistence, ServerDocumentManager},
+    sync::{ServerDocumentManager, ServerDocumentPersistence},
     util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;
@@ -81,7 +81,7 @@ impl Debug for HttpServerDocumentPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
 }
 
-impl DocumentPersistence for HttpServerDocumentPersistence {
+impl ServerDocumentPersistence for HttpServerDocumentPersistence {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),

@@ -10,10 +10,6 @@ mod sql_tables;
 #[macro_use]
 extern crate flowy_database;
 
-pub mod prelude {
-    pub use crate::{entities::*, services::server::*};
-}
-
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }

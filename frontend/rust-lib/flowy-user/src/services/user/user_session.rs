@@ -1,9 +1,3 @@
-use parking_lot::RwLock;
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::mpsc;
-
-use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::{
     kv::KV,
     query_dsl::*,
@@ -14,29 +8,29 @@ use flowy_database::{
 };
 use flowy_user_data_model::entities::{SignInResponse, SignUpResponse};
 use lib_sqlite::ConnectionPool;
+use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use tokio::sync::mpsc;
 
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
     errors::{ErrorCode, FlowyError},
+    module::UserCloudService,
     notify::*,
-    services::{
-        server::{construct_user_server, Server},
-        user::{database::UserDB, notifier::UserNotifier},
-    },
+    services::user::{database::UserDB, notifier::UserNotifier},
     sql_tables::{UserTable, UserTableChangeset},
 };
 
 pub struct UserSessionConfig {
     root_dir: String,
-    server_config: ClientServerConfiguration,
     session_cache_key: String,
 }
 
 impl UserSessionConfig {
-    pub fn new(root_dir: &str, server_config: &ClientServerConfiguration, session_cache_key: &str) -> Self {
+    pub fn new(root_dir: &str, session_cache_key: &str) -> Self {
         Self {
             root_dir: root_dir.to_owned(),
-            server_config: server_config.clone(),
             session_cache_key: session_cache_key.to_owned(),
         }
     }
@@ -45,21 +39,19 @@ impl UserSessionConfig {
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
-    #[allow(dead_code)]
-    server: Server,
+    cloud_service: Arc<dyn UserCloudService>,
     session: RwLock<Option<Session>>,
     pub notifier: UserNotifier,
 }
 
 impl UserSession {
-    pub fn new(config: UserSessionConfig) -> Self {
+    pub fn new(config: UserSessionConfig, cloud_service: Arc<dyn UserCloudService>) -> Self {
         let db = UserDB::new(&config.root_dir);
-        let server = construct_user_server(&config.server_config);
         let notifier = UserNotifier::new();
         Self {
             database: db,
             config,
-            server,
+            cloud_service,
             session: RwLock::new(None),
             notifier,
         }
@@ -92,7 +84,7 @@ impl UserSession {
         if self.is_login(&params.email) {
             self.user_profile().await
         } else {
-            let resp = self.server.sign_in(params).await?;
+            let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
@@ -107,7 +99,7 @@ impl UserSession {
         if self.is_login(&params.email) {
             self.user_profile().await
         } else {
-            let resp = self.server.sign_up(params).await?;
+            let resp = self.cloud_service.sign_up(params).await?;
             let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
@@ -180,7 +172,7 @@ impl UserSession {
 
 impl UserSession {
     fn read_user_profile_on_server(&self, token: &str) -> Result<(), FlowyError> {
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let token = token.to_owned();
         tokio::spawn(async move {
             match server.get_user(&token).await {
@@ -200,7 +192,7 @@ impl UserSession {
     }
 
     async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), FlowyError> {
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
             match server.update_user(&token, params).await {
@@ -216,7 +208,7 @@ impl UserSession {
     }
 
     async fn sign_out_on_server(&self, token: &str) -> Result<(), FlowyError> {
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
             match server.sign_out(&token).await {
@@ -273,7 +265,7 @@ impl UserSession {
 }
 
 pub async fn update_user(
-    _server: Server,
+    _cloud_service: Arc<dyn UserCloudService>,
     pool: Arc<ConnectionPool>,
     params: UpdateUserParams,
 ) -> Result<(), FlowyError> {

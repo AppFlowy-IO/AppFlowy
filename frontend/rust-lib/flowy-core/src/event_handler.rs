@@ -66,7 +66,7 @@ fn read_workspaces_on_server(
     user_id: String,
     params: WorkspaceId,
 ) -> Result<(), FlowyError> {
-    let (token, server) = (core.user.token()?, core.server.clone());
+    let (token, server) = (core.user.token()?, core.cloud_service.clone());
     let app_ctrl = core.app_controller.clone();
     let view_ctrl = core.view_controller.clone();
     let conn = core.database.db_connection()?;

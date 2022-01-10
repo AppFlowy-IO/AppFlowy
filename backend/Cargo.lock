@@ -1247,7 +1247,6 @@ dependencies = [
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
- "backend-service",
  "bincode",
  "bytes",
  "chrono",
@@ -1263,7 +1262,6 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
- "flowy-net",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1327,7 +1325,6 @@ name = "flowy-document"
 version = "0.1.0"
 dependencies = [
  "async-stream",
- "backend-service",
  "bytecount",
  "byteorder",
  "bytes",
@@ -1342,9 +1339,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "futures",
- "futures-core",
  "futures-util",
- "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
@@ -1386,11 +1381,15 @@ name = "flowy-net"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "backend-service",
  "bytes",
  "dashmap",
  "flowy-collaboration",
+ "flowy-core-data-model",
  "flowy-derive",
  "flowy-error",
+ "flowy-user-data-model",
+ "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ws",
@@ -1455,7 +1454,6 @@ dependencies = [
 name = "flowy-user"
 version = "0.1.0"
 dependencies = [
- "backend-service",
  "bytes",
  "dart-notify",
  "dashmap",
@@ -1465,7 +1463,6 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
- "flowy-net",
  "flowy-user-data-model",
  "futures-core",
  "lazy_static",

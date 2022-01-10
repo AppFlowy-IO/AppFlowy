@@ -1,9 +1,9 @@
 use crate::{
     entities::trash::{RepeatedTrash, RepeatedTrashId, Trash, TrashId, TrashType},
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    services::{server::Server, trash::sql::TrashTableSql},
+    services::trash::sql::TrashTableSql,
 };
 use crossbeam_utils::thread;
 use flowy_database::SqliteConnection;
@@ -13,18 +13,22 @@ use tokio::sync::{broadcast, mpsc};
 pub struct TrashController {
     pub database: Arc<dyn WorkspaceDatabase>,
     notify: broadcast::Sender<TrashEvent>,
-    server: Server,
+    cloud_service: Arc<dyn CoreCloudService>,
     user: Arc<dyn WorkspaceUser>,
 }
 
 impl TrashController {
-    pub fn new(database: Arc<dyn WorkspaceDatabase>, server: Server, user: Arc<dyn WorkspaceUser>) -> Self {
+    pub fn new(
+        database: Arc<dyn WorkspaceDatabase>,
+        cloud_service: Arc<dyn CoreCloudService>,
+        user: Arc<dyn WorkspaceUser>,
+    ) -> Self {
         let (tx, _) = broadcast::channel(10);
 
         Self {
             database,
             notify: tx,
-            server,
+            cloud_service,
             user,
         }
     }
@@ -194,7 +198,7 @@ impl TrashController {
     fn create_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         // TODO: retry?
         let _ = tokio::spawn(async move {
             match server.create_trash(&token, trash_identifiers).await {
@@ -209,7 +213,7 @@ impl TrashController {
     fn delete_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let _ = tokio::spawn(async move {
             match server.delete_trash(&token, trash_identifiers).await {
                 Ok(_) => {},
@@ -222,7 +226,7 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn read_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let pool = self.database.db_pool()?;
 
         tokio::spawn(async move {
@@ -255,7 +259,7 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     async fn delete_all_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         server.delete_trash(&token, RepeatedTrashId::all()).await
     }
 }

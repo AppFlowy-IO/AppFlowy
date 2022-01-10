@@ -13,7 +13,7 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 pub struct LocalDocumentServer {
     pub doc_manager: Arc<ServerDocumentManager>,
     sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-    persistence: Arc<dyn DocumentPersistence>,
+    persistence: Arc<dyn ServerDocumentPersistence>,
 }
 
 impl LocalDocumentServer {
@@ -64,7 +64,7 @@ impl LocalDocumentServer {
 struct LocalDocumentUser {
     user_id: String,
     ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-    persistence: Arc<dyn DocumentPersistence>,
+    persistence: Arc<dyn ServerDocumentPersistence>,
 }
 
 impl RevisionUser for LocalDocumentUser {

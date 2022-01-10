@@ -30,7 +30,7 @@ impl std::default::Default for LocalServerDocumentPersistence {
     }
 }
 
-impl DocumentPersistence for LocalServerDocumentPersistence {
+impl ServerDocumentPersistence for LocalServerDocumentPersistence {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let inner = self.inner.clone();
         let doc_id = doc_id.to_owned();

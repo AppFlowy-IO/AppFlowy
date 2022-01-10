@@ -4,11 +4,10 @@ use crate::{
         trash::TrashType,
     },
     errors::*,
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::*,
     services::{
         app::sql::{AppTable, AppTableChangeset, AppTableSql},
-        server::Server,
         TrashController,
         TrashEvent,
     },
@@ -21,7 +20,7 @@ pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     trash_can: Arc<TrashController>,
-    server: Server,
+    cloud_service: Arc<dyn CoreCloudService>,
 }
 
 impl AppController {
@@ -29,13 +28,13 @@ impl AppController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         trash_can: Arc<TrashController>,
-        server: Server,
+        cloud_service: Arc<dyn CoreCloudService>,
     ) -> Self {
         Self {
             user,
             database,
             trash_can,
-            server,
+            cloud_service,
         }
     }
 
@@ -115,14 +114,14 @@ impl AppController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_app_on_server(&self, params: CreateAppParams) -> Result<App, FlowyError> {
         let token = self.user.token()?;
-        let app = self.server.create_app(&token, params).await?;
+        let app = self.cloud_service.create_app(&token, params).await?;
         Ok(app)
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), FlowyError> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         tokio::spawn(async move {
             match server.update_app(&token, params).await {
                 Ok(_) => {},
@@ -138,7 +137,7 @@ impl AppController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let pool = self.database.db_pool()?;
         tokio::spawn(async move {
             // Opti: retry?

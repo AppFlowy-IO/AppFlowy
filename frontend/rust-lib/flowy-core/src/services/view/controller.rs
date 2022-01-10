@@ -13,10 +13,9 @@ use crate::{
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
     services::{
-        server::Server,
         view::sql::{ViewTable, ViewTableChangeset, ViewTableSql},
         TrashController,
         TrashEvent,
@@ -31,7 +30,7 @@ const LATEST_VIEW_ID: &str = "latest_view_id";
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
-    server: Server,
+    cloud_service: Arc<dyn CoreCloudService>,
     database: Arc<dyn WorkspaceDatabase>,
     trash_controller: Arc<TrashController>,
     document_ctx: Arc<DocumentContext>,
@@ -41,13 +40,13 @@ impl ViewController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
-        server: Server,
+        cloud_service: Arc<dyn CoreCloudService>,
         trash_can: Arc<TrashController>,
         document_ctx: Arc<DocumentContext>,
     ) -> Self {
         Self {
             user,
-            server,
+            cloud_service,
             database,
             trash_controller: trash_can,
             document_ctx,
@@ -238,14 +237,14 @@ impl ViewController {
     #[tracing::instrument(skip(self), err)]
     async fn create_view_on_server(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let token = self.user.token()?;
-        let view = self.server.create_view(&token, params).await?;
+        let view = self.cloud_service.create_view(&token, params).await?;
         Ok(view)
     }
 
     #[tracing::instrument(skip(self), err)]
     fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), FlowyError> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         tokio::spawn(async move {
             match server.update_view(&token, params).await {
                 Ok(_) => {},
@@ -261,7 +260,7 @@ impl ViewController {
     #[tracing::instrument(skip(self), err)]
     fn read_view_on_server(&self, params: ViewId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let pool = self.database.db_pool()?;
         // TODO: Retry with RetryAction?
         tokio::spawn(async move {

@@ -16,7 +16,7 @@ use tokio::{
     task::spawn_blocking,
 };
 
-pub trait DocumentPersistence: Send + Sync + Debug {
+pub trait ServerDocumentPersistence: Send + Sync + Debug {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
     fn create_document(
@@ -40,11 +40,11 @@ pub trait DocumentPersistence: Send + Sync + Debug {
 
 pub struct ServerDocumentManager {
     open_doc_map: Arc<RwLock<HashMap<String, Arc<OpenDocHandle>>>>,
-    persistence: Arc<dyn DocumentPersistence>,
+    persistence: Arc<dyn ServerDocumentPersistence>,
 }
 
 impl ServerDocumentManager {
-    pub fn new(persistence: Arc<dyn DocumentPersistence>) -> Self {
+    pub fn new(persistence: Arc<dyn ServerDocumentPersistence>) -> Self {
         Self {
             open_doc_map: Arc::new(RwLock::new(HashMap::new())),
             persistence,
@@ -169,12 +169,12 @@ impl std::ops::Drop for ServerDocumentManager {
 struct OpenDocHandle {
     doc_id: String,
     sender: mpsc::Sender<DocumentCommand>,
-    persistence: Arc<dyn DocumentPersistence>,
+    persistence: Arc<dyn ServerDocumentPersistence>,
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
 
 impl OpenDocHandle {
-    fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: DocumentInfo, persistence: Arc<dyn ServerDocumentPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(100);
         let users = DashMap::new();
@@ -257,17 +257,17 @@ enum DocumentCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
         user: Arc<dyn RevisionUser>,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         rev_id: i64,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Reset {
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         repeated_revision: RepeatedRevisionPB,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },

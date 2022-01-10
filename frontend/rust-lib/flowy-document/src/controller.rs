@@ -8,7 +8,7 @@ use crate::{
         WSStateReceiver,
     },
     errors::FlowyError,
-    server::Server,
+    DocumentCloudService,
 };
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -22,7 +22,7 @@ use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
 pub struct DocumentController {
-    server: Server,
+    cloud_service: Arc<dyn DocumentCloudService>,
     ws_receivers: Arc<DocumentWSReceivers>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     open_cache: Arc<OpenDocCache>,
@@ -31,14 +31,14 @@ pub struct DocumentController {
 
 impl DocumentController {
     pub(crate) fn new(
-        server: Server,
+        cloud_service: Arc<dyn DocumentCloudService>,
         user: Arc<dyn DocumentUser>,
         ws_receivers: Arc<DocumentWSReceivers>,
         ws_sender: Arc<dyn DocumentWebSocket>,
     ) -> Self {
         let open_cache = Arc::new(OpenDocCache::new());
         Self {
-            server,
+            cloud_service,
             ws_receivers,
             ws_sender,
             open_cache,
@@ -119,7 +119,7 @@ impl DocumentController {
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
         let server = Arc::new(RevisionServerImpl {
             token,
-            server: self.server.clone(),
+            server: self.cloud_service.clone(),
         });
         let doc_editor = ClientDocumentEditor::new(doc_id, user, rev_manager, self.ws_sender.clone(), server).await?;
         self.ws_receivers.add(doc_id, doc_editor.ws_handler());
@@ -136,7 +136,7 @@ impl DocumentController {
 
 struct RevisionServerImpl {
     token: String,
-    server: Server,
+    server: Arc<dyn DocumentCloudService>,
 }
 
 impl RevisionServer for RevisionServerImpl {
@@ -149,7 +149,7 @@ impl RevisionServer for RevisionServerImpl {
         let token = self.token.clone();
 
         FutureResult::new(async move {
-            match server.read_doc(&token, params).await? {
+            match server.read_document(&token, params).await? {
                 None => Err(FlowyError::record_not_found().context("Remote doesn't have this document")),
                 Some(doc) => Ok(doc),
             }

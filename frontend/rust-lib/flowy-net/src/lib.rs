@@ -1,3 +1,4 @@
+pub mod cloud;
 pub mod entities;
 mod event;
 mod handlers;

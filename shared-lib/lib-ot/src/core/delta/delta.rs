@@ -446,7 +446,7 @@ fn invert_from_other<T: Attributes>(
     tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
-        Operation::Delete(n) => {
+        Operation::Delete(_n) => {
             // tracing::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         },

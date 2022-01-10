@@ -6,7 +6,7 @@ use crate::{
     },
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    sync::DocumentPersistence,
+    sync::ServerDocumentPersistence,
     util::*,
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
@@ -54,7 +54,7 @@ impl RevisionSynchronizer {
         &self,
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
     ) -> Result<(), CollaborateError> {
         let doc_id = self.doc_id.clone();
         if repeated_revision.get_items().is_empty() {
@@ -115,7 +115,7 @@ impl RevisionSynchronizer {
     pub async fn pong(
         &self,
         user: Arc<dyn RevisionUser>,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         client_rev_id: i64,
     ) -> Result<(), CollaborateError> {
         let doc_id = self.doc_id.clone();
@@ -144,7 +144,7 @@ impl RevisionSynchronizer {
     #[tracing::instrument(level = "debug", skip(self, repeated_revision, persistence), fields(doc_id), err)]
     pub async fn reset(
         &self,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<(), CollaborateError> {
         let doc_id = self.doc_id.clone();
@@ -191,7 +191,11 @@ impl RevisionSynchronizer {
 
     pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 
-    async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
+    async fn is_applied_before(
+        &self,
+        new_revision: &RevisionPB,
+        persistence: &Arc<dyn ServerDocumentPersistence>,
+    ) -> bool {
         let rev_ids = Some(vec![new_revision.rev_id]);
         if let Ok(revisions) = persistence.read_revisions(&self.doc_id, rev_ids).await {
             if let Some(revision) = revisions.first() {
@@ -207,7 +211,7 @@ impl RevisionSynchronizer {
     async fn push_revisions_to_user(
         &self,
         user: Arc<dyn RevisionUser>,
-        persistence: Arc<dyn DocumentPersistence>,
+        persistence: Arc<dyn ServerDocumentPersistence>,
         from: i64,
         to: i64,
     ) {

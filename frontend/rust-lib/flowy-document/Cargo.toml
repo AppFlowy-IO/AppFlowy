@@ -9,7 +9,6 @@ edition = "2018"
 [dependencies]
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
@@ -24,7 +23,6 @@ diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
 unicode-segmentation = "1.8"
-lazy_static = "1.4.0"
 log = "0.4.14"
 tokio = {version = "1", features = ["sync"]}
 tracing = { version = "0.1", features = ["log"] }
@@ -38,7 +36,6 @@ url = "2.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 chrono = "0.4.19"
-futures-core = { version = "0.3", default-features = false }
 futures-util = "0.3.15"
 byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
@@ -52,7 +49,6 @@ flowy-net = { path = "../flowy-net" }
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
-env_logger = "0.8.2"
 
 
 [features]

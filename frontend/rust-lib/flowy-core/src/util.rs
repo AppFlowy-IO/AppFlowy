@@ -1,5 +1,5 @@
 #![allow(clippy::type_complexity)]
-use crate::{module::WorkspaceUser, services::server::Server};
+use crate::module::{CoreCloudService, WorkspaceUser};
 use lib_infra::retry::Action;
 use pin_project::pin_project;
 use std::{
@@ -10,12 +10,12 @@ use std::{
     task::{Context, Poll},
 };
 
-pub(crate) type Builder<Fut> = Box<dyn Fn(String, Server) -> Fut + Send + Sync>;
+pub(crate) type Builder<Fut> = Box<dyn Fn(String, Arc<dyn CoreCloudService>) -> Fut + Send + Sync>;
 
 #[allow(dead_code)]
 pub(crate) struct RetryAction<Fut, T, E> {
     token: String,
-    server: Server,
+    cloud_service: Arc<dyn CoreCloudService>,
     user: Arc<dyn WorkspaceUser>,
     builder: Builder<Fut>,
     phantom: PhantomData<(T, E)>,
@@ -23,15 +23,15 @@ pub(crate) struct RetryAction<Fut, T, E> {
 
 impl<Fut, T, E> RetryAction<Fut, T, E> {
     #[allow(dead_code)]
-    pub(crate) fn new<F>(server: Server, user: Arc<dyn WorkspaceUser>, builder: F) -> Self
+    pub(crate) fn new<F>(cloud_service: Arc<dyn CoreCloudService>, user: Arc<dyn WorkspaceUser>, builder: F) -> Self
     where
         Fut: Future<Output = Result<T, E>> + Send + Sync + 'static,
-        F: Fn(String, Server) -> Fut + Send + Sync + 'static,
+        F: Fn(String, Arc<dyn CoreCloudService>) -> Fut + Send + Sync + 'static,
     {
         let token = user.token().unwrap_or_else(|_| "".to_owned());
         Self {
             token,
-            server,
+            cloud_service,
             user,
             builder: Box::new(builder),
             phantom: PhantomData,
@@ -50,7 +50,7 @@ where
     type Error = E;
 
     fn run(&mut self) -> Self::Future {
-        let fut = (self.builder)(self.token.clone(), self.server.clone());
+        let fut = (self.builder)(self.token.clone(), self.cloud_service.clone());
         Box::pin(RetryActionFut { fut: Box::pin(fut) })
     }
 }

@@ -6,14 +6,17 @@ use backend::{
 use backend_service::{
     configuration::{get_client_server_configuration, ClientServerConfiguration},
     errors::ServerError,
-    http_request::*,
 };
 use flowy_collaboration::{
     document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;
-use flowy_document::server::{create_doc_request, read_doc_request};
+use flowy_net::cloud::{
+    core::*,
+    document::{create_document_request, read_document_request},
+    user::*,
+};
 use flowy_user_data_model::entities::*;
 use lib_infra::uuid_string;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
@@ -153,13 +156,13 @@ impl TestUserServer {
 
     pub async fn read_doc(&self, params: DocumentId) -> Option<DocumentInfo> {
         let url = format!("{}/api/doc", self.http_addr());
-        let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
+        let doc = read_document_request(self.user_token(), params, &url).await.unwrap();
         doc
     }
 
     pub async fn create_doc(&self, params: CreateDocParams) {
         let url = format!("{}/api/doc", self.http_addr());
-        let _ = create_doc_request(self.user_token(), params, &url).await.unwrap();
+        let _ = create_document_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn register_user(&self) -> SignUpResponse {

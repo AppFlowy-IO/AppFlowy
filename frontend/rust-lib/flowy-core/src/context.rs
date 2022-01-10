@@ -1,19 +1,16 @@
-use std::{collections::HashMap, sync::Arc};
-
 use chrono::Utc;
-use lazy_static::lazy_static;
-use parking_lot::RwLock;
-
 use flowy_collaboration::document::default::{initial_delta, initial_read_me};
 use flowy_core_data_model::{entities::view::CreateViewParams, user_default};
-use flowy_net::entities::NetworkType;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     entities::workspace::RepeatedWorkspace,
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
-    services::{server::Server, AppController, TrashController, ViewController, WorkspaceController},
+    services::{AppController, TrashController, ViewController, WorkspaceController},
 };
 
 lazy_static! {
@@ -22,7 +19,7 @@ lazy_static! {
 
 pub struct CoreContext {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) server: Server,
+    pub(crate) cloud_service: Arc<dyn CoreCloudService>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
@@ -33,7 +30,7 @@ pub struct CoreContext {
 impl CoreContext {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        server: Server,
+        cloud_service: Arc<dyn CoreCloudService>,
         database: Arc<dyn WorkspaceDatabase>,
         workspace_controller: Arc<WorkspaceController>,
         app_controller: Arc<AppController>,
@@ -46,7 +43,7 @@ impl CoreContext {
 
         Self {
             user,
-            server,
+            cloud_service,
             database,
             workspace_controller,
             app_controller,
@@ -55,14 +52,14 @@ impl CoreContext {
         }
     }
 
-    pub fn network_state_changed(&self, new_type: NetworkType) {
-        match new_type {
-            NetworkType::UnknownNetworkType => {},
-            NetworkType::Wifi => {},
-            NetworkType::Cell => {},
-            NetworkType::Ethernet => {},
-        }
-    }
+    // pub fn network_state_changed(&self, new_type: NetworkType) {
+    //     match new_type {
+    //         NetworkType::UnknownNetworkType => {},
+    //         NetworkType::Wifi => {},
+    //         NetworkType::Cell => {},
+    //         NetworkType::Ethernet => {},
+    //     }
+    // }
 
     pub async fn user_did_sign_in(&self, token: &str) -> FlowyResult<()> {
         log::debug!("workspace initialize after sign in");

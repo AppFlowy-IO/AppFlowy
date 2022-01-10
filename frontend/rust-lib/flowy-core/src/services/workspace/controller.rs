@@ -1,10 +1,9 @@
 use crate::{
     errors::*,
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::*,
     services::{
         read_local_workspace_apps,
-        server::Server,
         workspace::sql::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
         TrashController,
     },
@@ -17,7 +16,7 @@ pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub(crate) trash_controller: Arc<TrashController>,
-    server: Server,
+    cloud_service: Arc<dyn CoreCloudService>,
 }
 
 impl WorkspaceController {
@@ -25,13 +24,13 @@ impl WorkspaceController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         trash_can: Arc<TrashController>,
-        server: Server,
+        cloud_service: Arc<dyn CoreCloudService>,
     ) -> Self {
         Self {
             user,
             database,
             trash_controller: trash_can,
-            server,
+            cloud_service,
         }
     }
 
@@ -182,13 +181,13 @@ impl WorkspaceController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, FlowyError> {
         let token = self.user.token()?;
-        let workspace = self.server.create_workspace(&token, params).await?;
+        let workspace = self.cloud_service.create_workspace(&token, params).await?;
         Ok(workspace)
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), FlowyError> {
-        let (token, server) = (self.user.token()?, self.server.clone());
+        let (token, server) = (self.user.token()?, self.cloud_service.clone());
         tokio::spawn(async move {
             match server.update_workspace(&token, params).await {
                 Ok(_) => {},
@@ -206,7 +205,7 @@ impl WorkspaceController {
         let params = WorkspaceId {
             workspace_id: Some(workspace_id.to_string()),
         };
-        let (token, server) = (self.user.token()?, self.server.clone());
+        let (token, server) = (self.user.token()?, self.cloud_service.clone());
         tokio::spawn(async move {
             match server.delete_workspace(&token, params).await {
                 Ok(_) => {},

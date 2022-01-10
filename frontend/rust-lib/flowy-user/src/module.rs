@@ -1,6 +1,13 @@
 use lib_dispatch::prelude::*;
 
-use crate::{event::UserEvent, handlers::*, services::user::UserSession};
+use crate::{
+    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
+    errors::FlowyError,
+    event::UserEvent,
+    handlers::*,
+    services::user::UserSession,
+};
+use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
 pub fn create(user_session: Arc<UserSession>) -> Module {
@@ -14,4 +21,13 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::SignOut, sign_out)
         .event(UserEvent::UpdateUser, update_user_handler)
         .event(UserEvent::CheckUser, check_user_handler)
+}
+
+pub trait UserCloudService: Send + Sync {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
+    fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError>;
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
+    fn ws_addr(&self) -> String;
 }

@@ -91,9 +91,8 @@ impl TestBuilder {
     pub fn new() -> Self {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
-            color_eyre::install().unwrap();
+            let _ = color_eyre::install();
             std::env::set_var("RUST_LOG", LEVEL);
-            env_logger::init();
         });
 
         Self {

@@ -1,10 +1,8 @@
-use crate::errors::FlowyError;
-use backend_service::configuration::ClientServerConfiguration;
-
 use crate::{
     controller::DocumentController,
     core::{DocumentWSReceivers, DocumentWebSocket},
-    server::construct_doc_server,
+    errors::FlowyError,
+    DocumentCloudService,
 };
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
@@ -26,10 +24,14 @@ impl DocumentContext {
         user: Arc<dyn DocumentUser>,
         ws_receivers: Arc<DocumentWSReceivers>,
         ws_sender: Arc<dyn DocumentWebSocket>,
-        server_config: &ClientServerConfiguration,
+        cloud_service: Arc<dyn DocumentCloudService>,
     ) -> DocumentContext {
-        let server = construct_doc_server(server_config);
-        let doc_ctrl = Arc::new(DocumentController::new(server, user.clone(), ws_receivers, ws_sender));
+        let doc_ctrl = Arc::new(DocumentController::new(
+            cloud_service,
+            user.clone(),
+            ws_receivers,
+            ws_sender,
+        ));
         Self {
             controller: doc_ctrl,
             user,

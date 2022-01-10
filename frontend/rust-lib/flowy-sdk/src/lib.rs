@@ -1,6 +1,6 @@
 mod deps_resolve;
 pub mod module;
-use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
+use crate::deps_resolve::*;
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
 use flowy_document::context::DocumentContext;
@@ -12,7 +12,7 @@ use flowy_net::{
     },
 };
 use flowy_user::{
-    prelude::UserStatus,
+    entities::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
 use lib_dispatch::prelude::*;
@@ -103,7 +103,7 @@ impl FlowySDK {
             config.server_config.ws_addr(),
             default_web_socket(),
         ));
-        let user_session = mk_user_session(&config);
+        let user_session = mk_user_session(&config, &config.server_config);
         let flowy_document = mk_document(&ws_conn, &user_session, &config.server_config);
         let core_ctx = mk_core_context(&user_session, &flowy_document, &config.server_config);
 
@@ -186,9 +186,9 @@ async fn _listen_user_status(
     }
 }
 
-async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, core: Arc<CoreContext>) {
-    while let Ok(new_type) = subscribe.recv().await {
-        core.network_state_changed(new_type);
+async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, _core: Arc<CoreContext>) {
+    while let Ok(_new_type) = subscribe.recv().await {
+        // core.network_state_changed(new_type);
     }
 }
 
@@ -209,10 +209,11 @@ fn init_log(config: &FlowySDKConfig) {
     }
 }
 
-fn mk_user_session(config: &FlowySDKConfig) -> Arc<UserSession> {
+fn mk_user_session(config: &FlowySDKConfig, server_config: &ClientServerConfiguration) -> Arc<UserSession> {
     let session_cache_key = format!("{}_session_cache", &config.name);
-    let user_config = UserSessionConfig::new(&config.root, &config.server_config, &session_cache_key);
-    Arc::new(UserSession::new(user_config))
+    let user_config = UserSessionConfig::new(&config.root, &session_cache_key);
+    let cloud_service = UserDepsResolver::resolve(server_config);
+    Arc::new(UserSession::new(user_config, cloud_service))
 }
 
 fn mk_core_context(
@@ -220,9 +221,8 @@ fn mk_core_context(
     flowy_document: &Arc<DocumentContext>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<CoreContext> {
-    let workspace_deps = WorkspaceDepsResolver::new(user_session.clone());
-    let (user, database) = workspace_deps.split_into();
-    init_core(user, database, flowy_document.clone(), server_config)
+    let (user, database, cloud_service) = CoreDepsResolver::resolve(user_session.clone(), server_config);
+    init_core(user, database, flowy_document.clone(), cloud_service)
 }
 
 fn default_web_socket() -> Arc<dyn FlowyRawWebSocket> {
@@ -234,10 +234,15 @@ fn default_web_socket() -> Arc<dyn FlowyRawWebSocket> {
 }
 
 pub fn mk_document(
-    ws_manager: &Arc<FlowyWebSocketConnect>,
+    ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<DocumentContext> {
-    let (user, ws_receivers, ws_sender) = DocumentDepsResolver::resolve(ws_manager.clone(), user_session.clone());
-    Arc::new(DocumentContext::new(user, ws_receivers, ws_sender, server_config))
+    let dependencies = DocumentDepsResolver::resolve(ws_conn.clone(), user_session.clone(), server_config);
+    Arc::new(DocumentContext::new(
+        dependencies.user,
+        dependencies.ws_receivers,
+        dependencies.ws_sender,
+        dependencies.cloud_service,
+    ))
 }
