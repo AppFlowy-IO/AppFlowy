@@ -65,7 +65,7 @@ class MenuUser extends StatelessWidget {
       backgroundColor: theme.surface,
       child: IconButton(
           icon: Icon(theme.isDark ? Icons.dark_mode : Icons.light_mode),
-          color: (theme.textColor),
+          color: (theme.iconColor),
           onPressed: () {
             context.read<ThemeModel>().swapTheme();
           }),

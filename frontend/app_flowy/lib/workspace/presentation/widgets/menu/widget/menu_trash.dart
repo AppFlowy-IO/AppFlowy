@@ -31,7 +31,7 @@ class MenuTrash extends StatelessWidget {
   Widget _render(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return Row(children: [
-      SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.textColor)),
+      SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
       const HSpace(6),
       FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
     ]);

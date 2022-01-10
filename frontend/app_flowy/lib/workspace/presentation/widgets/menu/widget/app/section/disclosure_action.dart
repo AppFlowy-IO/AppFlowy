@@ -33,7 +33,7 @@ class ViewDisclosureButton extends StatelessWidget
         onTap();
         show(context, context);
       },
-      icon: svg("editor/details", color: theme.textColor),
+      icon: svg("editor/details", color: theme.iconColor),
     );
   }
 
