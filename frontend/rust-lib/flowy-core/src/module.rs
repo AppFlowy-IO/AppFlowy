@@ -48,7 +48,7 @@ pub fn init_core(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<DocumentContext>,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
 ) -> Arc<CoreContext> {
     let trash_controller = Arc::new(TrashController::new(
         database.clone(),
@@ -133,7 +133,7 @@ pub fn create(core: Arc<CoreContext>) -> Module {
     module
 }
 
-pub trait CoreCloudService: Send + Sync {
+pub trait WorkspaceCloudService: Send + Sync {
     fn init(&self);
 
     // Workspace

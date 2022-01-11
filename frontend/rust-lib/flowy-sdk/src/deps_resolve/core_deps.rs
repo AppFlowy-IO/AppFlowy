@@ -1,7 +1,7 @@
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{
     errors::FlowyError,
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     prelude::{
         App,
         AppId,
@@ -23,7 +23,7 @@ use flowy_core::{
 };
 use flowy_database::ConnectionPool;
 use flowy_net::cloud::core::{CoreHttpCloudService, CoreLocalCloudService};
-use flowy_user::services::user::UserSession;
+use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
@@ -35,7 +35,7 @@ impl CoreDepsResolver {
     ) -> (
         Arc<dyn WorkspaceUser>,
         Arc<dyn WorkspaceDatabase>,
-        Arc<dyn CoreCloudService>,
+        Arc<dyn WorkspaceCloudService>,
     ) {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
@@ -58,7 +58,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
     fn token(&self) -> Result<String, FlowyError> { self.0.token().map_err(|e| FlowyError::internal().context(e)) }
 }
 
-fn make_core_cloud_service(config: &ClientServerConfiguration) -> Arc<dyn CoreCloudService> {
+fn make_core_cloud_service(config: &ClientServerConfiguration) -> Arc<dyn WorkspaceCloudService> {
     if cfg!(feature = "http_server") {
         Arc::new(CoreHttpCloudServiceAdaptor::new(config))
     } else {
@@ -70,19 +70,8 @@ struct CoreHttpCloudServiceAdaptor(CoreHttpCloudService);
 impl CoreHttpCloudServiceAdaptor {
     fn new(config: &ClientServerConfiguration) -> Self { Self(CoreHttpCloudService::new(config.clone())) }
 }
-impl CoreCloudService for CoreHttpCloudServiceAdaptor {
-    fn init(&self) {
-        // let mut rx = BACKEND_API_MIDDLEWARE.invalid_token_subscribe();
-        // tokio::spawn(async move {
-        //     while let Ok(invalid_token) = rx.recv().await {
-        //         let error = FlowyError::new(ErrorCode::UserUnauthorized, "");
-        //         send_dart_notification(&invalid_token,
-        // WorkspaceNotification::UserUnauthorized)             .error(error)
-        //             .send()
-        //     }
-        // });
-        self.0.init()
-    }
+impl WorkspaceCloudService for CoreHttpCloudServiceAdaptor {
+    fn init(&self) { self.0.init() }
 
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
         self.0.create_workspace(token, params)
@@ -148,7 +137,7 @@ impl CoreLocalCloudServiceAdaptor {
     fn new(config: &ClientServerConfiguration) -> Self { Self(CoreLocalCloudService::new(config)) }
 }
 
-impl CoreCloudService for CoreLocalCloudServiceAdaptor {
+impl WorkspaceCloudService for CoreLocalCloudServiceAdaptor {
     fn init(&self) { self.0.init() }
 
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {

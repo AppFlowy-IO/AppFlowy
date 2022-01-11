@@ -13,7 +13,7 @@ use crate::{
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
     errors::{FlowyError, FlowyResult},
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
     services::{
         view::sql::{ViewTable, ViewTableChangeset, ViewTableSql},
@@ -30,7 +30,7 @@ const LATEST_VIEW_ID: &str = "latest_view_id";
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
     database: Arc<dyn WorkspaceDatabase>,
     trash_controller: Arc<TrashController>,
     document_ctx: Arc<DocumentContext>,
@@ -40,7 +40,7 @@ impl ViewController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
-        cloud_service: Arc<dyn CoreCloudService>,
+        cloud_service: Arc<dyn WorkspaceCloudService>,
         trash_can: Arc<TrashController>,
         document_ctx: Arc<DocumentContext>,
     ) -> Self {

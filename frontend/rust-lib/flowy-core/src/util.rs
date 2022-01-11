@@ -1,5 +1,5 @@
 #![allow(clippy::type_complexity)]
-use crate::module::{CoreCloudService, WorkspaceUser};
+use crate::module::{WorkspaceCloudService, WorkspaceUser};
 use lib_infra::retry::Action;
 use pin_project::pin_project;
 use std::{
@@ -10,12 +10,12 @@ use std::{
     task::{Context, Poll},
 };
 
-pub(crate) type Builder<Fut> = Box<dyn Fn(String, Arc<dyn CoreCloudService>) -> Fut + Send + Sync>;
+pub(crate) type Builder<Fut> = Box<dyn Fn(String, Arc<dyn WorkspaceCloudService>) -> Fut + Send + Sync>;
 
 #[allow(dead_code)]
 pub(crate) struct RetryAction<Fut, T, E> {
     token: String,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
     user: Arc<dyn WorkspaceUser>,
     builder: Builder<Fut>,
     phantom: PhantomData<(T, E)>,
@@ -23,10 +23,14 @@ pub(crate) struct RetryAction<Fut, T, E> {
 
 impl<Fut, T, E> RetryAction<Fut, T, E> {
     #[allow(dead_code)]
-    pub(crate) fn new<F>(cloud_service: Arc<dyn CoreCloudService>, user: Arc<dyn WorkspaceUser>, builder: F) -> Self
+    pub(crate) fn new<F>(
+        cloud_service: Arc<dyn WorkspaceCloudService>,
+        user: Arc<dyn WorkspaceUser>,
+        builder: F,
+    ) -> Self
     where
         Fut: Future<Output = Result<T, E>> + Send + Sync + 'static,
-        F: Fn(String, Arc<dyn CoreCloudService>) -> Fut + Send + Sync + 'static,
+        F: Fn(String, Arc<dyn WorkspaceCloudService>) -> Fut + Send + Sync + 'static,
     {
         let token = user.token().unwrap_or_else(|_| "".to_owned());
         Self {

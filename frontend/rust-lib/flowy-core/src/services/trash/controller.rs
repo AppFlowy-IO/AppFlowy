@@ -1,7 +1,7 @@
 use crate::{
     entities::trash::{RepeatedTrash, RepeatedTrashId, Trash, TrashId, TrashType},
     errors::{FlowyError, FlowyResult},
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
     services::trash::sql::TrashTableSql,
 };
@@ -13,14 +13,14 @@ use tokio::sync::{broadcast, mpsc};
 pub struct TrashController {
     pub database: Arc<dyn WorkspaceDatabase>,
     notify: broadcast::Sender<TrashEvent>,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
     user: Arc<dyn WorkspaceUser>,
 }
 
 impl TrashController {
     pub fn new(
         database: Arc<dyn WorkspaceDatabase>,
-        cloud_service: Arc<dyn CoreCloudService>,
+        cloud_service: Arc<dyn WorkspaceCloudService>,
         user: Arc<dyn WorkspaceUser>,
     ) -> Self {
         let (tx, _) = broadcast::channel(10);

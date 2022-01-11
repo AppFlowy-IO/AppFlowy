@@ -4,7 +4,7 @@ use crate::{
         trash::TrashType,
     },
     errors::*,
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::*,
     services::{
         app::sql::{AppTable, AppTableChangeset, AppTableSql},
@@ -20,7 +20,7 @@ pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     trash_can: Arc<TrashController>,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
 }
 
 impl AppController {
@@ -28,7 +28,7 @@ impl AppController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         trash_can: Arc<TrashController>,
-        cloud_service: Arc<dyn CoreCloudService>,
+        cloud_service: Arc<dyn WorkspaceCloudService>,
     ) -> Self {
         Self {
             user,

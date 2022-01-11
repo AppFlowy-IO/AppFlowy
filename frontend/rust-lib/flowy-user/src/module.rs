@@ -1,12 +1,13 @@
-use lib_dispatch::prelude::*;
-
-use crate::{
-    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::FlowyError,
-    event::UserEvent,
-    handlers::*,
-    services::user::UserSession,
+use crate::{errors::FlowyError, event::UserEvent, handlers::*, services::UserSession};
+use flowy_user_data_model::entities::{
+    SignInParams,
+    SignInResponse,
+    SignUpParams,
+    SignUpResponse,
+    UpdateUserParams,
+    UserProfile,
 };
+use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 

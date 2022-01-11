@@ -4,7 +4,7 @@ use std::convert::TryInto;
 use actix_web::web::Data;
 use flowy_document::core::edit::ClientDocumentEditor;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
-use flowy_user::services::user::UserSession;
+use flowy_user::services::UserSession;
 use futures_util::{stream, stream::StreamExt};
 use std::sync::Arc;
 use bytes::Bytes;

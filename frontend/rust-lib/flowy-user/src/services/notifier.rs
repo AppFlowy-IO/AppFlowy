@@ -1,6 +1,23 @@
-use crate::entities::{UserProfile, UserStatus};
-
+use flowy_user_data_model::entities::UserProfile;
 use tokio::sync::{broadcast, mpsc};
+
+#[derive(Clone)]
+pub enum UserStatus {
+    Login {
+        token: String,
+        user_id: String,
+    },
+    Logout {
+        token: String,
+    },
+    Expired {
+        token: String,
+    },
+    SignUp {
+        profile: UserProfile,
+        ret: mpsc::Sender<()>,
+    },
+}
 
 pub struct UserNotifier {
     user_status_notifier: broadcast::Sender<UserStatus>,

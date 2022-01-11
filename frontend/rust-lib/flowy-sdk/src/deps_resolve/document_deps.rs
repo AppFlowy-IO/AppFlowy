@@ -15,7 +15,7 @@ use flowy_net::{
     cloud::document::{DocumentHttpCloudService, DocumentLocalCloudService},
     services::ws_conn::FlowyWebSocketConnect,
 };
-use flowy_user::services::user::UserSession;
+use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};

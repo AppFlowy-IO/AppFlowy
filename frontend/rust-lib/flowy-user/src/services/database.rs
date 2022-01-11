@@ -1,10 +1,12 @@
-use crate::errors::FlowyError;
-use flowy_database::{DBConnection, Database};
+use flowy_database::{schema::user_table, DBConnection, Database};
+use flowy_error::FlowyError;
+use flowy_user_data_model::entities::{SignInResponse, SignUpResponse, UpdateUserParams, UserProfile};
 use lazy_static::lazy_static;
 use lib_sqlite::ConnectionPool;
 use once_cell::sync::Lazy;
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, sync::Arc, time::Duration};
+
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);
 }
@@ -100,11 +102,68 @@ fn is_user_db_init(user_id: &str) -> bool {
     }
 }
 
-#[cfg(test)]
-mod tests {
+#[derive(Clone, Default, Queryable, Identifiable, Insertable)]
+#[table_name = "user_table"]
+pub struct UserTable {
+    pub(crate) id: String,
+    pub(crate) name: String,
+    pub(crate) token: String,
+    pub(crate) email: String,
+    pub(crate) workspace: String, // deprecated
+}
 
-    #[test]
-    fn init_db_test() {
-        // init_user_db(".").unwrap();
+impl UserTable {
+    pub fn new(id: String, name: String, email: String, token: String) -> Self {
+        Self {
+            id,
+            name,
+            email,
+            token,
+            workspace: "".to_owned(),
+        }
+    }
+
+    pub fn set_workspace(mut self, workspace: String) -> Self {
+        self.workspace = workspace;
+        self
+    }
+}
+
+impl std::convert::From<SignUpResponse> for UserTable {
+    fn from(resp: SignUpResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
+}
+
+impl std::convert::From<SignInResponse> for UserTable {
+    fn from(resp: SignInResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
+}
+
+impl std::convert::From<UserTable> for UserProfile {
+    fn from(table: UserTable) -> Self {
+        UserProfile {
+            id: table.id,
+            email: table.email,
+            name: table.name,
+            token: table.token,
+        }
+    }
+}
+
+#[derive(AsChangeset, Identifiable, Default, Debug)]
+#[table_name = "user_table"]
+pub struct UserTableChangeset {
+    pub id: String,
+    pub workspace: Option<String>, // deprecated
+    pub name: Option<String>,
+    pub email: Option<String>,
+}
+
+impl UserTableChangeset {
+    pub fn new(params: UpdateUserParams) -> Self {
+        UserTableChangeset {
+            id: params.id,
+            workspace: None,
+            name: params.name,
+            email: params.email,
+        }
     }
 }

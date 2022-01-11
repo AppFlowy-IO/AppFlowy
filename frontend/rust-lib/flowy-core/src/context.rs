@@ -8,7 +8,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     entities::workspace::RepeatedWorkspace,
     errors::{FlowyError, FlowyResult},
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
     services::{AppController, TrashController, ViewController, WorkspaceController},
 };
@@ -19,7 +19,7 @@ lazy_static! {
 
 pub struct CoreContext {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) cloud_service: Arc<dyn CoreCloudService>,
+    pub(crate) cloud_service: Arc<dyn WorkspaceCloudService>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
@@ -30,7 +30,7 @@ pub struct CoreContext {
 impl CoreContext {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        cloud_service: Arc<dyn CoreCloudService>,
+        cloud_service: Arc<dyn WorkspaceCloudService>,
         database: Arc<dyn WorkspaceDatabase>,
         workspace_controller: Arc<WorkspaceController>,
         app_controller: Arc<AppController>,

@@ -1,6 +1,6 @@
 use crate::{
     errors::*,
-    module::{CoreCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
     notify::*,
     services::{
         read_local_workspace_apps,
@@ -16,7 +16,7 @@ pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub(crate) trash_controller: Arc<TrashController>,
-    cloud_service: Arc<dyn CoreCloudService>,
+    cloud_service: Arc<dyn WorkspaceCloudService>,
 }
 
 impl WorkspaceController {
@@ -24,7 +24,7 @@ impl WorkspaceController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         trash_can: Arc<TrashController>,
-        cloud_service: Arc<dyn CoreCloudService>,
+        cloud_service: Arc<dyn WorkspaceCloudService>,
     ) -> Self {
         Self {
             user,

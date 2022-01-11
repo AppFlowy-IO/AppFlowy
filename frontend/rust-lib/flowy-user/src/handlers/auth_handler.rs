@@ -1,4 +1,6 @@
-use crate::{entities::*, errors::FlowyError, services::user::UserSession};
+use crate::services::UserSession;
+use flowy_error::FlowyError;
+use flowy_user_data_model::entities::*;
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 

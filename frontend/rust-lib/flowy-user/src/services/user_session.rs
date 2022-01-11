@@ -1,3 +1,12 @@
+use crate::{
+    errors::{ErrorCode, FlowyError},
+    module::UserCloudService,
+    notify::*,
+    services::{
+        database::{UserDB, UserTable, UserTableChangeset},
+        notifier::UserNotifier,
+    },
+};
 use flowy_database::{
     kv::KV,
     query_dsl::*,
@@ -6,21 +15,19 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_user_data_model::entities::{SignInResponse, SignUpResponse};
+use flowy_user_data_model::entities::{
+    SignInParams,
+    SignInResponse,
+    SignUpParams,
+    SignUpResponse,
+    UpdateUserParams,
+    UserProfile,
+};
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::mpsc;
-
-use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
-    errors::{ErrorCode, FlowyError},
-    module::UserCloudService,
-    notify::*,
-    services::user::{database::UserDB, notifier::UserNotifier},
-    sql_tables::{UserTable, UserTableChangeset},
-};
 
 pub struct UserSessionConfig {
     root_dir: String,

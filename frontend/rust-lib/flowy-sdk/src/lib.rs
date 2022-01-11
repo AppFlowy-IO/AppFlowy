@@ -11,10 +11,7 @@ use flowy_net::{
         ws_conn::{listen_on_websocket, FlowyRawWebSocket, FlowyWebSocketConnect},
     },
 };
-use flowy_user::{
-    entities::UserStatus,
-    services::user::{UserSession, UserSessionConfig},
-};
+use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_ws::WSController;
 use module::mk_modules;
