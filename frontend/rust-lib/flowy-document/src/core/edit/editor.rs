@@ -2,7 +2,13 @@ use crate::{
     context::DocumentUser,
     core::{
         web_socket::{make_document_ws_manager, DocumentWebSocketManager},
-        *,
+        DocumentMD5,
+        DocumentRevisionManager,
+        DocumentWSReceiver,
+        DocumentWebSocket,
+        EditorCommand,
+        EditorCommandQueue,
+        RevisionServer,
     },
     errors::FlowyError,
 };
@@ -20,7 +26,7 @@ pub struct ClientDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<DocumentRevisionManager>,
-    ws_manager: Arc<dyn DocumentWebSocketManager>,
+    ws_manager: Arc<DocumentWebSocketManager>,
     edit_queue: UnboundedSender<EditorCommand>,
 }
 
@@ -153,7 +159,7 @@ impl ClientDocumentEditor {
     #[tracing::instrument(level = "debug", skip(self))]
     pub fn stop(&self) { self.ws_manager.stop(); }
 
-    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.receiver() }
+    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.clone() }
 }
 
 fn spawn_edit_queue(

@@ -62,15 +62,15 @@ impl DocumentWebSocketActor {
         match msg {
             WSActorMessage::ClientData {
                 client_data,
-                persistence,
+                persistence: _,
                 ret,
             } => {
-                let _ = ret.send(self.handle_client_data(client_data, persistence).await);
+                let _ = ret.send(self.handle_client_data(client_data).await);
             },
         }
     }
 
-    async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
+    async fn handle_client_data(&self, client_data: WSClientData) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
         let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
             .await
@@ -83,11 +83,7 @@ impl DocumentWebSocketActor {
             document_client_data.ty
         );
 
-        let user = Arc::new(HttpDocumentUser {
-            user,
-            socket,
-            persistence,
-        });
+        let user = Arc::new(HttpDocumentUser { user, socket });
 
         match &document_client_data.ty {
             DocumentClientWSDataTypePB::ClientPushRev => {
@@ -122,7 +118,6 @@ fn verify_md5(revision: &RevisionPB) -> Result<()> {
 pub struct HttpDocumentUser {
     pub user: Arc<WSUser>,
     pub(crate) socket: Socket,
-    pub persistence: Arc<FlowyPersistence>,
 }
 
 impl std::fmt::Debug for HttpDocumentUser {
@@ -150,17 +145,6 @@ impl RevisionUser for HttpDocumentUser {
             SyncResponse::Ack(data) => {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
-            },
-            SyncResponse::NewRevision(mut repeated_revision) => {
-                let kv_store = self.persistence.kv_store();
-                tokio::task::spawn(async move {
-                    let revisions = repeated_revision.take_items().into();
-                    match kv_store.batch_set_revision(revisions).await {
-                        Ok(_) => {},
-                        Err(e) => log::error!("{}", e),
-                    }
-                });
-                Ok(())
             },
         };
 

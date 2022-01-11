@@ -1,6 +1,6 @@
-use crate::services::{
+use crate::ws::{
+    connection::{FlowyRawWebSocket, FlowyWSSender},
     local::local_server::LocalDocumentServer,
-    ws_conn::{FlowyRawWebSocket, FlowyWSSender},
 };
 use bytes::Bytes;
 use dashmap::DashMap;

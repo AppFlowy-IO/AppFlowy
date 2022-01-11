@@ -7,7 +7,7 @@ use actix_web::web::Data;
 
 use crate::services::document::{
     persistence::DocumentKVPersistence,
-    ws_receiver::{make_document_ws_receiver, HttpServerDocumentPersistence},
+    ws_receiver::{make_document_ws_receiver, HttpDocumentCloudPersistence},
 };
 use flowy_collaboration::sync::ServerDocumentManager;
 use lib_ws::WSModule;
@@ -28,16 +28,16 @@ impl AppContext {
         let mut ws_receivers = WebSocketReceivers::new();
 
         let kv_store = make_document_kv_store(pg_pool.clone());
-        let persistence = Arc::new(FlowyPersistence { pg_pool, kv_store });
+        let flowy_persistence = Arc::new(FlowyPersistence { pg_pool, kv_store });
 
-        let document_persistence = Arc::new(HttpServerDocumentPersistence(persistence.clone()));
+        let document_persistence = Arc::new(HttpDocumentCloudPersistence(flowy_persistence.kv_store()));
         let document_manager = Arc::new(ServerDocumentManager::new(document_persistence));
 
-        let document_ws_receiver = make_document_ws_receiver(persistence.clone(), document_manager.clone());
+        let document_ws_receiver = make_document_ws_receiver(flowy_persistence.clone(), document_manager.clone());
         ws_receivers.set(WSModule::Doc, document_ws_receiver);
         AppContext {
             ws_server,
-            persistence: Data::new(persistence),
+            persistence: Data::new(flowy_persistence),
             ws_receivers: Data::new(ws_receivers),
             document_manager: Data::new(document_manager),
         }

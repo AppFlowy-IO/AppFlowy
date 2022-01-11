@@ -1,10 +1,11 @@
 use crate::{
     entities::revision::{RepeatedRevision, Revision},
     errors::{CollaborateError, CollaborateResult},
-    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::{DocumentInfo as DocumentInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
 };
 use lib_ot::{
     core::{OperationTransformable, NEW_LINE, WHITESPACE},
+    errors::OTError,
     rich_text::RichTextDelta,
 };
 use std::{
@@ -115,4 +116,40 @@ pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
     } else {
         (0, rev_id)
     }
+}
+
+#[inline]
+pub fn make_doc_from_revisions(
+    doc_id: &str,
+    mut revisions: RepeatedRevisionPB,
+) -> Result<Option<DocumentInfoPB>, OTError> {
+    let revisions = revisions.take_items();
+    if revisions.is_empty() {
+        // return Err(CollaborateError::record_not_found().context(format!("{} not
+        // exist", doc_id)));
+        return Ok(None);
+    }
+
+    let mut document_delta = RichTextDelta::new();
+    let mut base_rev_id = 0;
+    let mut rev_id = 0;
+    for revision in revisions {
+        base_rev_id = revision.base_rev_id;
+        rev_id = revision.rev_id;
+
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+
+        let delta = RichTextDelta::from_bytes(revision.delta_data)?;
+        document_delta = document_delta.compose(&delta)?;
+    }
+
+    let text = document_delta.to_json();
+    let mut document_info = DocumentInfoPB::new();
+    document_info.set_doc_id(doc_id.to_owned());
+    document_info.set_text(text);
+    document_info.set_base_rev_id(base_rev_id);
+    document_info.set_rev_id(rev_id);
+    Ok(Some(document_info))
 }

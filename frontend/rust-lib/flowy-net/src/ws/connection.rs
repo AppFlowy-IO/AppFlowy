@@ -94,31 +94,27 @@ impl FlowyWebSocketConnect {
 
 #[tracing::instrument(level = "debug", skip(ws_conn))]
 pub fn listen_on_websocket(ws_conn: Arc<FlowyWebSocketConnect>) {
-    if cfg!(feature = "http_server") {
-        let ws = ws_conn.inner.clone();
-        let mut notify = ws_conn.inner.subscribe_connect_state();
-        let _ = tokio::spawn(async move {
-            loop {
-                match notify.recv().await {
-                    Ok(state) => {
-                        tracing::info!("Websocket state changed: {}", state);
-                        match state {
-                            WSConnectState::Init => {},
-                            WSConnectState::Connected => {},
-                            WSConnectState::Connecting => {},
-                            WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
-                        }
-                    },
-                    Err(e) => {
-                        tracing::error!("Websocket state notify error: {:?}", e);
-                        break;
-                    },
-                }
+    let ws = ws_conn.inner.clone();
+    let mut notify = ws_conn.inner.subscribe_connect_state();
+    let _ = tokio::spawn(async move {
+        loop {
+            match notify.recv().await {
+                Ok(state) => {
+                    tracing::info!("Websocket state changed: {}", state);
+                    match state {
+                        WSConnectState::Init => {},
+                        WSConnectState::Connected => {},
+                        WSConnectState::Connecting => {},
+                        WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
+                    }
+                },
+                Err(e) => {
+                    tracing::error!("Websocket state notify error: {:?}", e);
+                    break;
+                },
             }
-        });
-    } else {
-        // do nothing
-    };
+        }
+    });
 }
 
 async fn retry_connect(ws: Arc<dyn FlowyRawWebSocket>, count: usize) {

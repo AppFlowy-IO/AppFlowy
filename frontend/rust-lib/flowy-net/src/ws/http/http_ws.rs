@@ -1,4 +1,4 @@
-use crate::services::ws_conn::{FlowyRawWebSocket, FlowyWSSender};
+use crate::ws::connection::{FlowyRawWebSocket, FlowyWSSender};
 use flowy_error::internal_error;
 pub use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;

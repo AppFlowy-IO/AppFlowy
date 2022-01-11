@@ -1,5 +1,5 @@
 use flowy_core::context::CoreContext;
-use flowy_net::services::ws_conn::FlowyWebSocketConnect;
+use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;

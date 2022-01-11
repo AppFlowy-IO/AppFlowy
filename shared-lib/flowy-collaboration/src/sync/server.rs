@@ -16,7 +16,9 @@ use tokio::{
     task::spawn_blocking,
 };
 
-pub trait ServerDocumentPersistence: Send + Sync + Debug {
+pub trait DocumentCloudPersistence: Send + Sync + Debug {
+    fn enable_sync(&self) -> bool;
+
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
     fn create_document(
@@ -31,6 +33,8 @@ pub trait ServerDocumentPersistence: Send + Sync + Debug {
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
 
+    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+
     fn reset_document(
         &self,
         doc_id: &str,
@@ -40,11 +44,11 @@ pub trait ServerDocumentPersistence: Send + Sync + Debug {
 
 pub struct ServerDocumentManager {
     open_doc_map: Arc<RwLock<HashMap<String, Arc<OpenDocHandle>>>>,
-    persistence: Arc<dyn ServerDocumentPersistence>,
+    persistence: Arc<dyn DocumentCloudPersistence>,
 }
 
 impl ServerDocumentManager {
-    pub fn new(persistence: Arc<dyn ServerDocumentPersistence>) -> Self {
+    pub fn new(persistence: Arc<dyn DocumentCloudPersistence>) -> Self {
         Self {
             open_doc_map: Arc::new(RwLock::new(HashMap::new())),
             persistence,
@@ -91,7 +95,7 @@ impl ServerDocumentManager {
         let doc_id = client_data.doc_id.clone();
         match self.get_document_handler(&doc_id).await {
             None => {
-                tracing::trace!("Document:{} doesn't exist, ignore pinging", doc_id);
+                tracing::trace!("Document:{} doesn't exist, ignore client ping", doc_id);
                 Ok(())
             },
             Some(handler) => {
@@ -169,23 +173,26 @@ impl std::ops::Drop for ServerDocumentManager {
 struct OpenDocHandle {
     doc_id: String,
     sender: mpsc::Sender<DocumentCommand>,
-    persistence: Arc<dyn ServerDocumentPersistence>,
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
 
 impl OpenDocHandle {
-    fn new(doc: DocumentInfo, persistence: Arc<dyn ServerDocumentPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(100);
         let users = DashMap::new();
-        let queue = DocumentCommandQueue::new(receiver, doc)?;
-        tokio::task::spawn(queue.run());
-        Ok(Self {
-            doc_id,
-            sender,
+
+        let delta = RichTextDelta::from_bytes(&doc.text)?;
+        let synchronizer = Arc::new(RevisionSynchronizer::new(
+            &doc.doc_id,
+            doc.rev_id,
+            Document::from_delta(delta),
             persistence,
-            users,
-        })
+        ));
+
+        let queue = DocumentCommandQueue::new(&doc.doc_id, receiver, synchronizer)?;
+        tokio::task::spawn(queue.run());
+        Ok(Self { doc_id, sender, users })
     }
 
     #[tracing::instrument(level = "debug", skip(self, user, repeated_revision), err)]
@@ -195,12 +202,10 @@ impl OpenDocHandle {
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
-        let persistence = self.persistence.clone();
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::ApplyRevisions {
             user,
             repeated_revision,
-            persistence,
             ret,
         };
 
@@ -211,13 +216,7 @@ impl OpenDocHandle {
     async fn apply_ping(&self, rev_id: i64, user: Arc<dyn RevisionUser>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
-        let persistence = self.persistence.clone();
-        let msg = DocumentCommand::Ping {
-            user,
-            persistence,
-            rev_id,
-            ret,
-        };
+        let msg = DocumentCommand::Ping { user, rev_id, ret };
         let result = self.send(msg, rx).await?;
         result
     }
@@ -225,12 +224,7 @@ impl OpenDocHandle {
     #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]
     async fn apply_document_reset(&self, repeated_revision: RepeatedRevisionPB) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
-        let persistence = self.persistence.clone();
-        let msg = DocumentCommand::Reset {
-            persistence,
-            repeated_revision,
-            ret,
-        };
+        let msg = DocumentCommand::Reset { repeated_revision, ret };
         let result = self.send(msg, rx).await?;
         result
     }
@@ -247,8 +241,7 @@ impl OpenDocHandle {
 
 impl std::ops::Drop for OpenDocHandle {
     fn drop(&mut self) {
-        //
-        log::debug!("{} OpenDocHandle was drop", self.doc_id);
+        tracing::debug!("{} OpenDocHandle was drop", self.doc_id);
     }
 }
 
@@ -257,17 +250,14 @@ enum DocumentCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
-        persistence: Arc<dyn ServerDocumentPersistence>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
         user: Arc<dyn RevisionUser>,
-        persistence: Arc<dyn ServerDocumentPersistence>,
         rev_id: i64,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Reset {
-        persistence: Arc<dyn ServerDocumentPersistence>,
         repeated_revision: RepeatedRevisionPB,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
@@ -280,16 +270,13 @@ struct DocumentCommandQueue {
 }
 
 impl DocumentCommandQueue {
-    fn new(receiver: mpsc::Receiver<DocumentCommand>, doc: DocumentInfo) -> Result<Self, CollaborateError> {
-        let delta = RichTextDelta::from_bytes(&doc.text)?;
-        let synchronizer = Arc::new(RevisionSynchronizer::new(
-            &doc.doc_id,
-            doc.rev_id,
-            Document::from_delta(delta),
-        ));
-
+    fn new(
+        doc_id: &str,
+        receiver: mpsc::Receiver<DocumentCommand>,
+        synchronizer: Arc<RevisionSynchronizer>,
+    ) -> Result<Self, CollaborateError> {
         Ok(Self {
-            doc_id: doc.doc_id,
+            doc_id: doc_id.to_owned(),
             receiver: Some(receiver),
             synchronizer,
         })
@@ -317,39 +304,21 @@ impl DocumentCommandQueue {
             DocumentCommand::ApplyRevisions {
                 user,
                 repeated_revision,
-                persistence,
                 ret,
             } => {
                 let result = self
                     .synchronizer
-                    .sync_revisions(user, repeated_revision, persistence)
+                    .sync_revisions(user, repeated_revision)
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
             },
-            DocumentCommand::Ping {
-                user,
-                persistence,
-                rev_id,
-                ret,
-            } => {
-                let result = self
-                    .synchronizer
-                    .pong(user, persistence, rev_id)
-                    .await
-                    .map_err(internal_error);
+            DocumentCommand::Ping { user, rev_id, ret } => {
+                let result = self.synchronizer.pong(user, rev_id).await.map_err(internal_error);
                 let _ = ret.send(result);
             },
-            DocumentCommand::Reset {
-                persistence,
-                repeated_revision,
-                ret,
-            } => {
-                let result = self
-                    .synchronizer
-                    .reset(persistence, repeated_revision)
-                    .await
-                    .map_err(internal_error);
+            DocumentCommand::Reset { repeated_revision, ret } => {
+                let result = self.synchronizer.reset(repeated_revision).await.map_err(internal_error);
                 let _ = ret.send(result);
             },
         }
@@ -358,7 +327,7 @@ impl DocumentCommandQueue {
 
 impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
-        log::debug!("{} DocumentCommandQueue was drop", self.doc_id);
+        tracing::debug!("{} DocumentCommandQueue was drop", self.doc_id);
     }
 }
 

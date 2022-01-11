@@ -13,7 +13,7 @@ use flowy_document::{
 };
 use flowy_net::{
     cloud::document::{DocumentHttpCloudService, DocumentLocalCloudService},
-    services::ws_conn::FlowyWebSocketConnect,
+    ws::connection::FlowyWebSocketConnect,
 };
 use flowy_user::services::UserSession;
 use lib_infra::future::FutureResult;

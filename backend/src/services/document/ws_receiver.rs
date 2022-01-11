@@ -2,7 +2,7 @@ use crate::{
     context::FlowyPersistence,
     services::{
         document::{
-            persistence::{create_document, read_document, revisions_to_key_value_items},
+            persistence::{create_document, read_document, revisions_to_key_value_items, DocumentKVPersistence},
             ws_actor::{DocumentWebSocketActor, WSActorMessage},
         },
         web_socket::{WSClientData, WebSocketReceiver},
@@ -18,7 +18,7 @@ use flowy_collaboration::{
         RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
-    sync::{ServerDocumentManager, ServerDocumentPersistence},
+    sync::{DocumentCloudPersistence, ServerDocumentManager},
     util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;
@@ -76,18 +76,19 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
     }
 }
 
-pub struct HttpServerDocumentPersistence(pub Arc<FlowyPersistence>);
-impl Debug for HttpServerDocumentPersistence {
+pub struct HttpDocumentCloudPersistence(pub Arc<DocumentKVPersistence>);
+impl Debug for HttpDocumentCloudPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
 }
 
-impl ServerDocumentPersistence for HttpServerDocumentPersistence {
+impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
+    fn enable_sync(&self) -> bool { true }
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
-        let kv_store = self.0.kv_store();
+        let kv_store = self.0.clone();
         Box::pin(async move {
             let mut pb_doc = read_document(&kv_store, params)
                 .await
@@ -104,7 +105,7 @@ impl ServerDocumentPersistence for HttpServerDocumentPersistence {
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<DocumentInfo, CollaborateError> {
-        let kv_store = self.0.kv_store();
+        let kv_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
             let revisions = repeated_revision_from_repeated_revision_pb(repeated_revision.clone())?.into_inner();
@@ -125,19 +126,22 @@ impl ServerDocumentPersistence for HttpServerDocumentPersistence {
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        let kv_store = self.0.kv_store();
+        let kv_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            match rev_ids {
-                None => {
-                    let mut repeated_revision = kv_store.get_doc_revisions(&doc_id).await?;
-                    Ok(repeated_revision.take_items().into())
-                },
-                Some(rev_ids) => {
-                    let mut repeated_revision = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
-                    Ok(repeated_revision.take_items().into())
-                },
-            }
+            let mut repeated_revision = kv_store.get_revisions(&doc_id, rev_ids).await?;
+            Ok(repeated_revision.take_items().into())
+        };
+
+        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
+    }
+
+    fn save_revisions(&self, mut repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+        let kv_store = self.0.clone();
+        let f = || async move {
+            let revisions = repeated_revision.take_items().into();
+            let _ = kv_store.set_revision(revisions).await?;
+            Ok(())
         };
 
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
@@ -148,7 +152,7 @@ impl ServerDocumentPersistence for HttpServerDocumentPersistence {
         doc_id: &str,
         mut repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError> {
-        let kv_store = self.0.kv_store();
+        let kv_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         let f = || async move {
             kv_store

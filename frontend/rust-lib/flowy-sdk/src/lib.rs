@@ -6,9 +6,9 @@ use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
 use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
-    services::{
+    ws::{
+        connection::{listen_on_websocket, FlowyRawWebSocket, FlowyWebSocketConnect},
         local::LocalWebSocket,
-        ws_conn::{listen_on_websocket, FlowyRawWebSocket, FlowyWebSocketConnect},
     },
 };
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};

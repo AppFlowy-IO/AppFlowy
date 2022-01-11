@@ -1,4 +1,4 @@
-use crate::services::local::persistence::LocalServerDocumentPersistence;
+use crate::ws::local::persistence::LocalDocumentCloudPersistence;
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::ws::{DocumentClientWSData, DocumentClientWSDataType},
@@ -13,12 +13,12 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 pub struct LocalDocumentServer {
     pub doc_manager: Arc<ServerDocumentManager>,
     sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-    persistence: Arc<dyn ServerDocumentPersistence>,
+    persistence: Arc<LocalDocumentCloudPersistence>,
 }
 
 impl LocalDocumentServer {
     pub fn new(sender: mpsc::UnboundedSender<WebSocketRawMessage>) -> Self {
-        let persistence = Arc::new(LocalServerDocumentPersistence::default());
+        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
         LocalDocumentServer {
             doc_manager,
@@ -41,7 +41,6 @@ impl LocalDocumentServer {
         let user = Arc::new(LocalDocumentUser {
             user_id,
             ws_sender: self.sender.clone(),
-            persistence: self.persistence.clone(),
         });
         let ty = client_data.ty.clone();
         let document_client_data: DocumentClientWSDataPB = client_data.try_into().unwrap();
@@ -64,7 +63,6 @@ impl LocalDocumentServer {
 struct LocalDocumentUser {
     user_id: String,
     ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-    persistence: Arc<dyn ServerDocumentPersistence>,
 }
 
 impl RevisionUser for LocalDocumentUser {
@@ -104,9 +102,6 @@ impl RevisionUser for LocalDocumentUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
-                SyncResponse::NewRevision(mut _repeated_revision) => {
-                    // unimplemented!()
                 },
             }
         });
