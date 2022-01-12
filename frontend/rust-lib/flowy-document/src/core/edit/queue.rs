@@ -15,7 +15,7 @@ use lib_ot::{
     core::{Interval, OperationTransformable},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
-use std::{cell::Cell, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::{oneshot, RwLock};
 
 // The EditorCommandQueue executes each command that will alter the document in
