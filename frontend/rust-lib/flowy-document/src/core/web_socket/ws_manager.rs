@@ -3,6 +3,7 @@ use crate::{
     ws_receivers::{DocumentWSReceiver, DocumentWebSocket},
 };
 use async_stream::stream;
+use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_collaboration::entities::{
     revision::{RevId, RevisionRange},
@@ -17,21 +18,35 @@ use tokio::{
     sync::{
         broadcast,
         mpsc,
-        mpsc::{UnboundedReceiver, UnboundedSender},
+        mpsc::{Receiver, Sender},
     },
     task::spawn_blocking,
     time::{interval, Duration},
 };
+
+// The consumer consumes the messages pushed by the web socket.
+pub trait DocumentWSSteamConsumer: Send + Sync {
+    fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
+    fn receive_ack(&self, id: String, ty: DocumentServerWSDataType) -> FutureResult<(), FlowyError>;
+    fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> FutureResult<(), FlowyError>;
+    fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
+}
+
+// The sink provides the data that will be sent through the web socket to the
+// backend.
+pub trait DocumentWSSinkDataProvider: Send + Sync {
+    fn next(&self) -> FutureResult<Option<DocumentClientWSData>, FlowyError>;
+}
 
 pub struct DocumentWebSocketManager {
     doc_id: String,
     data_provider: Arc<dyn DocumentWSSinkDataProvider>,
     stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws_conn: Arc<dyn DocumentWebSocket>,
-    ws_msg_tx: UnboundedSender<DocumentServerWSData>,
-    ws_msg_rx: Option<UnboundedReceiver<DocumentServerWSData>>,
+    ws_passthrough_tx: Sender<DocumentServerWSData>,
+    ws_passthrough_rx: Option<Receiver<DocumentServerWSData>>,
+    state_passthrough_tx: broadcast::Sender<WSConnectState>,
     stop_sync_tx: SinkStopTx,
-    state: broadcast::Sender<WSConnectState>,
 }
 
 impl DocumentWebSocketManager {
@@ -41,26 +56,26 @@ impl DocumentWebSocketManager {
         data_provider: Arc<dyn DocumentWSSinkDataProvider>,
         stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ) -> Self {
-        let (ws_msg_tx, ws_msg_rx) = mpsc::unbounded_channel();
+        let (ws_passthrough_tx, ws_passthrough_rx) = mpsc::channel(1000);
         let (stop_sync_tx, _) = tokio::sync::broadcast::channel(2);
         let doc_id = doc_id.to_string();
-        let (state, _) = broadcast::channel(2);
+        let (state_passthrough_tx, _) = broadcast::channel(2);
         let mut manager = DocumentWebSocketManager {
             doc_id,
             data_provider,
             stream_consumer,
             ws_conn,
-            ws_msg_tx,
-            ws_msg_rx: Some(ws_msg_rx),
+            ws_passthrough_tx,
+            ws_passthrough_rx: Some(ws_passthrough_rx),
+            state_passthrough_tx,
             stop_sync_tx,
-            state,
         };
         manager.run();
         manager
     }
 
     fn run(&mut self) {
-        let ws_msg_rx = self.ws_msg_rx.take().expect("Only take once");
+        let ws_msg_rx = self.ws_passthrough_rx.take().expect("Only take once");
         let sink = DocumentWSSink::new(
             &self.doc_id,
             self.data_provider.clone(),
@@ -77,7 +92,7 @@ impl DocumentWebSocketManager {
         tokio::spawn(stream.run());
     }
 
-    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state.subscribe() }
+    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_passthrough_tx.subscribe() }
 
     pub(crate) fn stop(&self) {
         if self.stop_sync_tx.send(()).is_ok() {
@@ -86,16 +101,22 @@ impl DocumentWebSocketManager {
     }
 }
 
+//  DocumentWebSocketManager registers itself as a DocumentWSReceiver for each
+//  opened document. It will receive the web socket message and parser it into
+//  DocumentServerWSData.
+#[async_trait]
 impl DocumentWSReceiver for DocumentWebSocketManager {
-    fn receive_ws_data(&self, doc_data: DocumentServerWSData) {
-        match self.ws_msg_tx.send(doc_data) {
-            Ok(_) => {},
-            Err(e) => tracing::error!("❌ Propagate ws message failed. {}", e),
-        }
+    #[tracing::instrument(level = "debug", skip(self, doc_data), err)]
+    async fn receive_ws_data(&self, doc_data: DocumentServerWSData) -> Result<(), FlowyError> {
+        let _ = self.ws_passthrough_tx.send(doc_data).await.map_err(|e| {
+            let err_msg = format!("{} passthrough error: {}", self.doc_id, e);
+            FlowyError::internal().context(err_msg)
+        })?;
+        Ok(())
     }
 
-    fn connect_state_changed(&self, state: &WSConnectState) {
-        match self.state.send(state.clone()) {
+    fn connect_state_changed(&self, state: WSConnectState) {
+        match self.state_passthrough_tx.send(state) {
             Ok(_) => {},
             Err(e) => tracing::error!("{}", e),
         }
@@ -103,20 +124,13 @@ impl DocumentWSReceiver for DocumentWebSocketManager {
 }
 
 impl std::ops::Drop for DocumentWebSocketManager {
-    fn drop(&mut self) { tracing::debug!("{} HttpWebSocketManager was drop", self.doc_id) }
-}
-
-pub trait DocumentWSSteamConsumer: Send + Sync {
-    fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
-    fn receive_ack(&self, id: String, ty: DocumentServerWSDataType) -> FutureResult<(), FlowyError>;
-    fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> FutureResult<(), FlowyError>;
-    fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
+    fn drop(&mut self) { tracing::trace!("{} DocumentWebSocketManager was dropped", self.doc_id) }
 }
 
 pub struct DocumentWSStream {
     doc_id: String,
     consumer: Arc<dyn DocumentWSSteamConsumer>,
-    ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentServerWSData>>,
+    ws_msg_rx: Option<mpsc::Receiver<DocumentServerWSData>>,
     stop_rx: Option<SinkStopRx>,
 }
 
@@ -124,7 +138,7 @@ impl DocumentWSStream {
     pub fn new(
         doc_id: &str,
         consumer: Arc<dyn DocumentWSSteamConsumer>,
-        ws_msg_rx: mpsc::UnboundedReceiver<DocumentServerWSData>,
+        ws_msg_rx: mpsc::Receiver<DocumentServerWSData>,
         stop_rx: SinkStopRx,
     ) -> Self {
         DocumentWSStream {
@@ -193,21 +207,14 @@ impl DocumentWSStream {
             DocumentServerWSDataType::UserConnect => {
                 let new_user = NewDocumentUser::try_from(bytes)?;
                 let _ = self.consumer.receive_new_user_connect(new_user).await;
-                // Notify the user that someone has connected to this document
             },
         }
         Ok(())
     }
 }
 
-pub type Tick = ();
-pub type SinkStopRx = broadcast::Receiver<()>;
-pub type SinkStopTx = broadcast::Sender<()>;
-
-pub trait DocumentWSSinkDataProvider: Send + Sync {
-    fn next(&self) -> FutureResult<Option<DocumentClientWSData>, FlowyError>;
-}
-
+type SinkStopRx = broadcast::Receiver<()>;
+type SinkStopTx = broadcast::Sender<()>;
 pub struct DocumentWSSink {
     provider: Arc<dyn DocumentWSSinkDataProvider>,
     ws_sender: Arc<dyn DocumentWebSocket>,
@@ -231,7 +238,7 @@ impl DocumentWSSink {
     }
 
     pub async fn run(mut self) {
-        let (tx, mut rx) = mpsc::unbounded_channel();
+        let (tx, mut rx) = mpsc::channel(1);
         let mut stop_rx = self.stop_rx.take().expect("Only take once");
         let doc_id = self.doc_id.clone();
         tokio::spawn(tick(tx));
@@ -245,7 +252,7 @@ impl DocumentWSSink {
                         }
                     },
                     _ = stop_rx.recv() => {
-                        tracing::debug!("[DocumentSink:{}] loop exit", doc_id);
+                        tracing::trace!("[DocumentSink:{}] loop exit", doc_id);
                         break
                     },
                 };
@@ -275,9 +282,9 @@ impl DocumentWSSink {
     }
 }
 
-async fn tick(sender: mpsc::UnboundedSender<Tick>) {
+async fn tick(sender: mpsc::Sender<()>) {
     let mut interval = interval(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS));
-    while sender.send(()).is_ok() {
+    while sender.send(()).await.is_ok() {
         interval.tick().await;
     }
 }

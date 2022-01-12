@@ -13,18 +13,13 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 pub struct LocalDocumentServer {
     pub doc_manager: Arc<ServerDocumentManager>,
     sender: mpsc::UnboundedSender<WebSocketRawMessage>,
-    persistence: Arc<LocalDocumentCloudPersistence>,
 }
 
 impl LocalDocumentServer {
     pub fn new(sender: mpsc::UnboundedSender<WebSocketRawMessage>) -> Self {
         let persistence = Arc::new(LocalDocumentCloudPersistence::default());
-        let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
-        LocalDocumentServer {
-            doc_manager,
-            sender,
-            persistence,
-        }
+        let doc_manager = Arc::new(ServerDocumentManager::new(persistence));
+        LocalDocumentServer { doc_manager, sender }
     }
 
     pub async fn handle_client_data(

@@ -87,7 +87,12 @@ impl DocumentWebSocket for DocumentWebSocketImpl {
 struct WSMessageReceiverImpl(Arc<DocumentWSReceivers>);
 impl WSMessageReceiver for WSMessageReceiverImpl {
     fn source(&self) -> WSModule { WSModule::Doc }
-    fn receive_message(&self, msg: WebSocketRawMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
+    fn receive_message(&self, msg: WebSocketRawMessage) {
+        let receivers = self.0.clone();
+        tokio::spawn(async move {
+            receivers.did_receive_data(Bytes::from(msg.data)).await;
+        });
+    }
 }
 
 fn make_document_cloud_service(server_config: &ClientServerConfiguration) -> Arc<dyn DocumentCloudService> {

@@ -194,7 +194,7 @@ impl OpenDocCache {
 fn listen_ws_state_changed(mut state_receiver: WSStateReceiver, receivers: Arc<DocumentWSReceivers>) {
     tokio::spawn(async move {
         while let Ok(state) = state_receiver.recv().await {
-            receivers.ws_connect_state_changed(&state);
+            receivers.ws_connect_state_changed(&state).await;
         }
     });
 }

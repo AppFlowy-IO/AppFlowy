@@ -166,7 +166,7 @@ impl ServerDocumentManager {
 
 impl std::ops::Drop for ServerDocumentManager {
     fn drop(&mut self) {
-        log::debug!("ServerDocumentManager was drop");
+        log::trace!("ServerDocumentManager was dropped");
     }
 }
 
@@ -241,7 +241,7 @@ impl OpenDocHandle {
 
 impl std::ops::Drop for OpenDocHandle {
     fn drop(&mut self) {
-        tracing::debug!("{} OpenDocHandle was drop", self.doc_id);
+        tracing::trace!("{} OpenDocHandle was dropped", self.doc_id);
     }
 }
 
@@ -327,7 +327,7 @@ impl DocumentCommandQueue {
 
 impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
-        tracing::debug!("{} DocumentCommandQueue was drop", self.doc_id);
+        tracing::trace!("{} DocumentCommandQueue was dropped", self.doc_id);
     }
 }
 

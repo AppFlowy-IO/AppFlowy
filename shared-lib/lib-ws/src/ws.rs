@@ -160,7 +160,6 @@ async fn spawn_stream_and_handlers(
 pub struct WSHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
-    // Opti: Hashmap would be better
     handlers: Handlers,
 }
 

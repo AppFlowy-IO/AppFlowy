@@ -1,8 +1,7 @@
 use crate::{
     context::DocumentUser,
     core::{
-        web_socket::{make_document_ws_manager, DocumentWebSocketManager},
-        DocumentMD5,
+        web_socket::{make_document_ws_manager, DocumentWebSocketManager, EditorCommandSender},
         DocumentRevisionManager,
         DocumentWSReceiver,
         DocumentWebSocket,
@@ -20,14 +19,14 @@ use lib_ot::{
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use std::sync::Arc;
-use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
+use tokio::sync::{mpsc, oneshot};
 
 pub struct ClientDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<DocumentRevisionManager>,
     ws_manager: Arc<DocumentWebSocketManager>,
-    edit_queue: UnboundedSender<EditorCommand>,
+    edit_cmd_tx: EditorCommandSender,
 }
 
 impl ClientDocumentEditor {
@@ -43,11 +42,11 @@ impl ClientDocumentEditor {
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
 
-        let edit_queue = spawn_edit_queue(user, rev_manager.clone(), delta);
+        let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), delta);
         let ws_manager = make_document_ws_manager(
             doc_id.clone(),
             user_id.clone(),
-            edit_queue.clone(),
+            edit_cmd_tx.clone(),
             rev_manager.clone(),
             ws,
         )
@@ -56,7 +55,7 @@ impl ClientDocumentEditor {
             doc_id,
             rev_manager,
             ws_manager,
-            edit_queue,
+            edit_cmd_tx,
         });
         Ok(editor)
     }
@@ -68,7 +67,7 @@ impl ClientDocumentEditor {
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -76,7 +75,7 @@ impl ClientDocumentEditor {
     pub async fn delete(&self, interval: Interval) -> Result<(), FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::Delete { interval, ret };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -88,7 +87,7 @@ impl ClientDocumentEditor {
             attribute,
             ret,
         };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -100,7 +99,7 @@ impl ClientDocumentEditor {
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -108,21 +107,21 @@ impl ClientDocumentEditor {
     pub async fn can_undo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
         let msg = EditorCommand::CanUndo { ret };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         rx.await.unwrap_or(false)
     }
 
     pub async fn can_redo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
         let msg = EditorCommand::CanRedo { ret };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         rx.await.unwrap_or(false)
     }
 
     pub async fn undo(&self) -> Result<(), FlowyError> {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Undo { ret };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -130,15 +129,15 @@ impl ClientDocumentEditor {
     pub async fn redo(&self) -> Result<(), FlowyError> {
         let (ret, rx) = oneshot::channel();
         let msg = EditorCommand::Redo { ret };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
 
     pub async fn document_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadDoc { ret };
-        let _ = self.edit_queue.send(msg);
+        let msg = EditorCommand::ReadDocumentAsJson { ret };
+        let _ = self.edit_cmd_tx.send(msg).await;
         let json = rx.await.map_err(internal_error)??;
         Ok(json)
     }
@@ -151,7 +150,7 @@ impl ClientDocumentEditor {
             delta: delta.clone(),
             ret,
         };
-        let _ = self.edit_queue.send(msg);
+        let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
@@ -162,12 +161,13 @@ impl ClientDocumentEditor {
     pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.clone() }
 }
 
+// The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<DocumentRevisionManager>,
     delta: RichTextDelta,
-) -> UnboundedSender<EditorCommand> {
-    let (sender, receiver) = mpsc::unbounded_channel::<EditorCommand>();
+) -> EditorCommandSender {
+    let (sender, receiver) = mpsc::channel(1000);
     let actor = EditorCommandQueue::new(user, rev_manager, delta, receiver);
     tokio::spawn(actor.run());
     sender
@@ -176,17 +176,17 @@ fn spawn_edit_queue(
 #[cfg(feature = "flowy_unit_test")]
 impl ClientDocumentEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
-        let msg = EditorCommand::ReadDoc { ret };
-        let _ = self.edit_queue.send(msg);
+        let (ret, rx) = oneshot::channel::<CollaborateResult<crate::core::DocumentMD5>>();
+        let msg = EditorCommand::ReadDocumentAsJson { ret };
+        let _ = self.edit_cmd_tx.send(msg).await;
         let s = rx.await.map_err(internal_error)??;
         Ok(s)
     }
 
     pub async fn doc_delta(&self) -> FlowyResult<RichTextDelta> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
-        let msg = EditorCommand::ReadDocDelta { ret };
-        let _ = self.edit_queue.send(msg);
+        let msg = EditorCommand::ReadDocumentAsDelta { ret };
+        let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)
     }

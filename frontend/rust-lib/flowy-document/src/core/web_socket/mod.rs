@@ -4,7 +4,6 @@ pub use ws_manager::*;
 use crate::core::{
     web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer},
     DocumentRevisionManager,
-    DocumentWSReceiver,
     DocumentWebSocket,
     EditorCommand,
     TransformDeltas,
@@ -21,12 +20,20 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
-use tokio::sync::{broadcast, mpsc::UnboundedSender, oneshot, RwLock};
+use tokio::sync::{
+    broadcast,
+    mpsc::{Receiver, Sender},
+    oneshot,
+    RwLock,
+};
+
+pub(crate) type EditorCommandSender = Sender<EditorCommand>;
+pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 
 pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
-    edit_cmd_tx: UnboundedSender<EditorCommand>,
+    edit_cmd_tx: EditorCommandSender,
     rev_manager: Arc<DocumentRevisionManager>,
     ws_conn: Arc<dyn DocumentWebSocket>,
 ) -> Arc<DocumentWebSocketManager> {
@@ -68,7 +75,7 @@ fn listen_document_ws_state(
 
 pub(crate) struct DocumentWebSocketSteamConsumerAdapter {
     pub(crate) doc_id: String,
-    pub(crate) edit_cmd_tx: UnboundedSender<EditorCommand>,
+    pub(crate) edit_cmd_tx: EditorCommandSender,
     pub(crate) rev_manager: Arc<DocumentRevisionManager>,
     pub(crate) shared_sink: Arc<SharedWSSinkDataProvider>,
 }
@@ -94,7 +101,7 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     }
 
     fn receive_new_user_connect(&self, _new_user: NewDocumentUser) -> FutureResult<(), FlowyError> {
-        // the _new_user will be used later
+        // Do nothing by now, just a placeholder for future extension.
         FutureResult::new(async move { Ok(()) })
     }
 
@@ -121,7 +128,7 @@ impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
 
 async fn transform_pushed_revisions(
     revisions: Vec<Revision>,
-    edit_cmd: &UnboundedSender<EditorCommand>,
+    edit_cmd: &EditorCommandSender,
 ) -> FlowyResult<TransformDeltas> {
     let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
     let _ = edit_cmd.send(EditorCommand::TransformRevision { revisions, ret });
@@ -130,7 +137,7 @@ async fn transform_pushed_revisions(
 
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
 pub(crate) async fn handle_remote_revision(
-    edit_cmd_tx: UnboundedSender<EditorCommand>,
+    edit_cmd_tx: EditorCommandSender,
     rev_manager: Arc<DocumentRevisionManager>,
     bytes: Bytes,
 ) -> FlowyResult<Option<Revision>> {

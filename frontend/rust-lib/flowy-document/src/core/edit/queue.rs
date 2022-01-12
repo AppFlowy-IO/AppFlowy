@@ -1,4 +1,7 @@
-use crate::{context::DocumentUser, core::DocumentRevisionManager};
+use crate::{
+    context::DocumentUser,
+    core::{web_socket::EditorCommandReceiver, DocumentRevisionManager},
+};
 use async_stream::stream;
 use flowy_collaboration::{
     document::{history::UndoResult, Document, NewlineDoc},
@@ -12,14 +15,16 @@ use lib_ot::{
     core::{Interval, OperationTransformable},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
-use std::sync::Arc;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use std::{cell::Cell, sync::Arc};
+use tokio::sync::{oneshot, RwLock};
 
+// The EditorCommandQueue executes each command that will alter the document in
+// serial.
 pub(crate) struct EditorCommandQueue {
     document: Arc<RwLock<Document>>,
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<DocumentRevisionManager>,
-    receiver: Option<mpsc::UnboundedReceiver<EditorCommand>>,
+    receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditorCommandQueue {
@@ -27,7 +32,7 @@ impl EditorCommandQueue {
         user: Arc<dyn DocumentUser>,
         rev_manager: Arc<DocumentRevisionManager>,
         delta: RichTextDelta,
-        receiver: mpsc::UnboundedReceiver<EditorCommand>,
+        receiver: EditorCommandReceiver,
     ) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
@@ -183,11 +188,11 @@ impl EditorCommandQueue {
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             },
-            EditorCommand::ReadDoc { ret } => {
+            EditorCommand::ReadDocumentAsJson { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            EditorCommand::ReadDocDelta { ret } => {
+            EditorCommand::ReadDocumentAsDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
             },
@@ -286,11 +291,11 @@ pub(crate) enum EditorCommand {
     Redo {
         ret: Ret<()>,
     },
-    ReadDoc {
+    ReadDocumentAsJson {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadDocDelta {
+    ReadDocumentAsDelta {
         ret: Ret<RichTextDelta>,
     },
 }
@@ -310,8 +315,8 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::CanRedo { .. } => "CanRedo",
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
-            EditorCommand::ReadDoc { .. } => "ReadDoc",
-            EditorCommand::ReadDocDelta { .. } => "ReadDocDelta",
+            EditorCommand::ReadDocumentAsJson { .. } => "ReadDocumentAsJson",
+            EditorCommand::ReadDocumentAsDelta { .. } => "ReadDocumentAsDelta",
         };
         f.write_str(s)
     }
