@@ -8,9 +8,9 @@ AssetImage assetImageForViewType(ViewType type) {
 }
 
 extension SvgViewType on View {
-  Widget thumbnail() {
+  Widget thumbnail({Color? iconColor}) {
     final imageName = _imageNameForViewType(viewType);
-    final Widget widget = svg(imageName);
+    final Widget widget = svg(imageName, color: iconColor);
     return widget;
   }
 }
