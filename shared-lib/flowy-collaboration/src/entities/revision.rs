@@ -181,6 +181,15 @@ pub enum RevisionState {
     Ack   = 1,
 }
 
+impl RevisionState {
+    pub fn is_local(&self) -> bool {
+        match self {
+            RevisionState::Local => true,
+            RevisionState::Ack => false,
+        }
+    }
+}
+
 impl AsRef<RevisionState> for RevisionState {
     fn as_ref(&self) -> &RevisionState { &self }
 }

@@ -1,5 +1,5 @@
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_collaboration::document::{NewlineDoc, PlainDoc, RECORD_THRESHOLD};
+use flowy_collaboration::client_document::{NewlineDoc, PlainDoc, RECORD_THRESHOLD};
 use lib_ot::core::{Interval, NEW_LINE, WHITESPACE};
 
 #[test]

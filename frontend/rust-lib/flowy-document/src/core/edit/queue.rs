@@ -4,7 +4,7 @@ use crate::{
 };
 use async_stream::stream;
 use flowy_collaboration::{
-    document::{history::UndoResult, Document, NewlineDoc},
+    client_document::{history::UndoResult, ClientDocument, NewlineDoc},
     entities::revision::{RepeatedRevision, RevId, Revision},
     errors::CollaborateError,
     util::make_delta_from_revisions,
@@ -21,7 +21,7 @@ use tokio::sync::{oneshot, RwLock};
 // The EditorCommandQueue executes each command that will alter the document in
 // serial.
 pub(crate) struct EditorCommandQueue {
-    document: Arc<RwLock<Document>>,
+    document: Arc<RwLock<ClientDocument>>,
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<DocumentRevisionManager>,
     receiver: Option<EditorCommandReceiver>,
@@ -34,7 +34,7 @@ impl EditorCommandQueue {
         delta: RichTextDelta,
         receiver: EditorCommandReceiver,
     ) -> Self {
-        let document = Arc::new(RwLock::new(Document::from_delta(delta)));
+        let document = Arc::new(RwLock::new(ClientDocument::from_delta(delta)));
         Self {
             document,
             user,

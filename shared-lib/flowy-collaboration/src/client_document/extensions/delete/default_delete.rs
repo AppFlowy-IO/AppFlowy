@@ -1,4 +1,4 @@
-use crate::document::DeleteExt;
+use crate::client_document::DeleteExt;
 use lib_ot::{
     core::{DeltaBuilder, Interval},
     rich_text::RichTextDelta,

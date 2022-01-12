@@ -14,7 +14,7 @@ use flowy_collaboration::{
         ResetDocumentParams,
         Revision as RevisionPB,
     },
-    sync::ServerDocumentManager,
+    server_document::ServerDocumentManager,
     util::make_doc_from_revisions,
 };
 

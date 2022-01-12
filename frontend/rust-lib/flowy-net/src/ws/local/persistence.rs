@@ -4,7 +4,7 @@ use flowy_collaboration::{
     entities::doc::DocumentInfo,
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    sync::*,
+    server_document::*,
     util::{make_doc_from_revisions, repeated_revision_from_repeated_revision_pb},
 };
 use lib_infra::future::BoxResultFuture;

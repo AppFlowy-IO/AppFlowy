@@ -138,7 +138,7 @@ impl ViewController {
         })
     }
 
-    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn close_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         let _ = self.document_ctx.controller.close_document(&params.doc_id)?;
         Ok(())

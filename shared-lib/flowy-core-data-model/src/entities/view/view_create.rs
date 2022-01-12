@@ -7,7 +7,7 @@ use crate::{
         view::{ViewName, ViewThumbnail},
     },
 };
-use flowy_collaboration::document::default::initial_delta_string;
+use flowy_collaboration::client_document::default::initial_delta_string;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 

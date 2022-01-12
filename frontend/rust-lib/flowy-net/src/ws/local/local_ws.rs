@@ -50,22 +50,21 @@ impl std::default::Default for LocalWebSocket {
 }
 
 impl LocalWebSocket {
-    fn restart_ws_receiver(&self) -> mpsc::Receiver<()> {
+    fn cancel_pre_spawn_client(&self) {
         if let Some(stop_tx) = self.local_server_stop_tx.read().clone() {
             tokio::spawn(async move {
                 let _ = stop_tx.send(()).await;
             });
         }
-        let (stop_tx, stop_rx) = mpsc::channel::<()>(1);
-        *self.local_server_stop_tx.write() = Some(stop_tx);
-        stop_rx
     }
 
     fn spawn_client_ws_receiver(&self, _addr: String) {
         let mut ws_receiver = self.ws_sender.subscribe();
         let local_server = self.local_server.clone();
         let user_id = self.user_id.clone();
-        let mut stop_rx = self.restart_ws_receiver();
+        let _ = self.cancel_pre_spawn_client();
+        let (stop_tx, mut stop_rx) = mpsc::channel::<()>(1);
+        *self.local_server_stop_tx.write() = Some(stop_tx);
         tokio::spawn(async move {
             loop {
                 tokio::select! {

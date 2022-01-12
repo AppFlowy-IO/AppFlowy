@@ -2,7 +2,7 @@
 
 use crate::util::helper::{ViewTest, *};
 use flowy_collaboration::{
-    document::{Document, PlainDoc},
+    client_document::{ClientDocument, PlainDoc},
     entities::{
         doc::{CreateDocParams, DocumentId},
         revision::{md5, RepeatedRevision, Revision},
@@ -240,7 +240,7 @@ async fn doc_create() {
     let server = TestUserServer::new().await;
     let doc_id = uuid::Uuid::new_v4().to_string();
     let user_id = "a".to_owned();
-    let mut document = Document::new::<PlainDoc>();
+    let mut document = ClientDocument::new::<PlainDoc>();
     let mut offset = 0;
     for i in 0..1000 {
         let content = i.to_string();

@@ -1,12 +1,11 @@
 use crate::{
-    document::Document,
     entities::{
         revision::RevisionRange,
         ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
     },
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    sync::DocumentCloudPersistence,
+    server_document::{document_pad::ServerDocument, DocumentCloudPersistence},
     util::*,
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
@@ -35,7 +34,7 @@ pub enum SyncResponse {
 pub struct RevisionSynchronizer {
     pub doc_id: String,
     pub rev_id: AtomicI64,
-    document: Arc<RwLock<Document>>,
+    document: Arc<RwLock<ServerDocument>>,
     persistence: Arc<dyn DocumentCloudPersistence>,
 }
 
@@ -43,7 +42,7 @@ impl RevisionSynchronizer {
     pub fn new(
         doc_id: &str,
         rev_id: i64,
-        document: Document,
+        document: ServerDocument,
         persistence: Arc<dyn DocumentCloudPersistence>,
     ) -> RevisionSynchronizer {
         let document = Arc::new(RwLock::new(document));
@@ -100,7 +99,7 @@ impl RevisionSynchronizer {
             },
             Ordering::Equal => {
                 // Do nothing
-                log::warn!("Applied revision rev_id is the same as cur_rev_id");
+                tracing::warn!("Applied revision rev_id is the same as cur_rev_id");
             },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
@@ -147,7 +146,7 @@ impl RevisionSynchronizer {
         let delta = make_delta_from_revision_pb(revisions)?;
 
         let _ = self.persistence.reset_document(&doc_id, repeated_revision).await?;
-        *self.document.write() = Document::from_delta(delta);
+        *self.document.write() = ServerDocument::from_delta(delta);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
     }

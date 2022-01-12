@@ -1,5 +1,5 @@
 use crate::{
-    document::{
+    client_document::{
         default::initial_delta,
         history::{History, UndoResult},
         view::{View, RECORD_THRESHOLD},
@@ -26,7 +26,7 @@ impl InitialDocumentText for NewlineDoc {
     fn initial_delta() -> RichTextDelta { initial_delta() }
 }
 
-pub struct Document {
+pub struct ClientDocument {
     delta: RichTextDelta,
     history: History,
     view: View,
@@ -34,11 +34,11 @@ pub struct Document {
     notify: Option<mpsc::UnboundedSender<()>>,
 }
 
-impl Document {
+impl ClientDocument {
     pub fn new<C: InitialDocumentText>() -> Self { Self::from_delta(C::initial_delta()) }
 
     pub fn from_delta(delta: RichTextDelta) -> Self {
-        Document {
+        ClientDocument {
             delta,
             history: History::new(),
             view: View::new(),
@@ -185,7 +185,7 @@ impl Document {
     pub fn is_empty<C: InitialDocumentText>(&self) -> bool { self.delta == C::initial_delta() }
 }
 
-impl Document {
+impl ClientDocument {
     fn invert(&self, delta: &RichTextDelta) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
         // c = a.compose(b)
         // d = b.invert(a)

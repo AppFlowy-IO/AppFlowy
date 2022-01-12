@@ -96,7 +96,7 @@ impl DocumentWebSocketManager {
 
     pub(crate) fn stop(&self) {
         if self.stop_sync_tx.send(()).is_ok() {
-            tracing::debug!("{} stop sync", self.doc_id)
+            tracing::trace!("{} stop sync", self.doc_id)
         }
     }
 }
@@ -132,6 +132,10 @@ pub struct DocumentWSStream {
     consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws_msg_rx: Option<mpsc::Receiver<DocumentServerWSData>>,
     stop_rx: Option<SinkStopRx>,
+}
+
+impl std::ops::Drop for DocumentWSStream {
+    fn drop(&mut self) { tracing::trace!("{} DocumentWSStream was dropped", self.doc_id) }
 }
 
 impl DocumentWSStream {
@@ -280,6 +284,10 @@ impl DocumentWSSink {
             },
         }
     }
+}
+
+impl std::ops::Drop for DocumentWSSink {
+    fn drop(&mut self) { tracing::trace!("{} DocumentWSSink was dropped", self.doc_id) }
 }
 
 async fn tick(sender: mpsc::Sender<()>) {

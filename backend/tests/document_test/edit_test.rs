@@ -1,5 +1,5 @@
 use crate::document_test::edit_script::{DocScript, DocumentTest};
-use flowy_collaboration::document::{Document, NewlineDoc};
+use flowy_collaboration::client_document::{ClientDocument, NewlineDoc};
 use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 
 #[rustfmt::skip]
@@ -75,7 +75,7 @@ async fn delta_sync_while_editing_with_attribute() {
 #[actix_rt::test]
 async fn delta_sync_with_server_push() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<NewlineDoc>();
+    let mut document = ClientDocument::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     document.insert(3, "456").unwrap();
     let json = document.to_json();
@@ -109,7 +109,7 @@ async fn delta_sync_with_server_push() {
 #[actix_rt::test]
 async fn delta_sync_with_server_push_after_reset_document() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<NewlineDoc>();
+    let mut document = ClientDocument::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 
@@ -148,7 +148,7 @@ async fn delta_sync_with_server_push_after_reset_document() {
 #[actix_rt::test]
 async fn delta_sync_while_local_rev_less_than_server_rev() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<NewlineDoc>();
+    let mut document = ClientDocument::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 
@@ -190,7 +190,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
 #[actix_rt::test]
 async fn delta_sync_while_local_rev_greater_than_server_rev() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<NewlineDoc>();
+    let mut document = ClientDocument::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 

@@ -5,7 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_collaboration::document::{Document, InitialDocumentText};
+use flowy_collaboration::client_document::{ClientDocument, InitialDocumentText};
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
@@ -82,7 +82,7 @@ pub enum TestOp {
 }
 
 pub struct TestBuilder {
-    documents: Vec<Document>,
+    documents: Vec<ClientDocument>,
     deltas: Vec<Option<RichTextDelta>>,
     primes: Vec<Option<RichTextDelta>>,
 }
@@ -266,7 +266,7 @@ impl TestBuilder {
     }
 
     pub fn run_scripts<C: InitialDocumentText>(mut self, scripts: Vec<TestOp>) {
-        self.documents = vec![Document::new::<C>(), Document::new::<C>()];
+        self.documents = vec![ClientDocument::new::<C>(), ClientDocument::new::<C>()];
         self.primes = vec![None, None];
         self.deltas = vec![None, None];
         for (_i, op) in scripts.iter().enumerate() {

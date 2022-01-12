@@ -18,7 +18,7 @@ use flowy_collaboration::{
         RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
-    sync::{DocumentCloudPersistence, ServerDocumentManager},
+    server_document::{DocumentCloudPersistence, ServerDocumentManager},
     util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;

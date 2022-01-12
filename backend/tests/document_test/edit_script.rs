@@ -16,7 +16,7 @@ use parking_lot::RwLock;
 use backend::services::document::persistence::{read_document, reset_document};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::protobuf::{RepeatedRevision as RepeatedRevisionPB, DocumentId as DocumentIdPB};
-use flowy_collaboration::sync::ServerDocumentManager;
+use flowy_collaboration::server_document::ServerDocumentManager;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
 use lib_ot::core::Interval;
 

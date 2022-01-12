@@ -4,7 +4,7 @@ use backend_service::{
     response::FlowyResponse,
 };
 use flowy_collaboration::{
-    document::default::initial_delta_string,
+    client_document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
 };
 use flowy_error::FlowyError;

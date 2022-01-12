@@ -1,4 +1,4 @@
-use flowy_collaboration::document::{Document, PlainDoc};
+use flowy_collaboration::client_document::{ClientDocument, PlainDoc};
 use lib_ot::{
     core::*,
     rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributeValue, RichTextDelta},
@@ -104,10 +104,13 @@ fn delta_serde_null_test() {
 
 #[test]
 fn document_insert_serde_test() {
-    let mut document = Document::new::<PlainDoc>();
+    let mut document = ClientDocument::new::<PlainDoc>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
     assert_eq!(r#"[{"insert":"123\n"}]"#, json);
-    assert_eq!(r#"[{"insert":"123\n"}]"#, Document::from_json(&json).unwrap().to_json());
+    assert_eq!(
+        r#"[{"insert":"123\n"}]"#,
+        ClientDocument::from_json(&json).unwrap().to_json()
+    );
 }

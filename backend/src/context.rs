@@ -9,7 +9,7 @@ use crate::services::document::{
     persistence::DocumentKVPersistence,
     ws_receiver::{make_document_ws_receiver, HttpDocumentCloudPersistence},
 };
-use flowy_collaboration::sync::ServerDocumentManager;
+use flowy_collaboration::server_document::ServerDocumentManager;
 use lib_ws::WSModule;
 use sqlx::PgPool;
 use std::sync::Arc;

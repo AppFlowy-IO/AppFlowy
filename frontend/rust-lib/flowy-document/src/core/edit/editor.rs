@@ -155,10 +155,13 @@ impl ClientDocumentEditor {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
     pub fn stop(&self) { self.ws_manager.stop(); }
 
     pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.clone() }
+}
+
+impl std::ops::Drop for ClientDocumentEditor {
+    fn drop(&mut self) { tracing::trace!("{} ClientDocumentEditor was dropped", self.doc_id) }
 }
 
 // The edit queue will exit after the EditorCommandSender was dropped.

@@ -14,7 +14,7 @@ pub fn initial_read_me() -> RichTextDelta {
 
 #[cfg(test)]
 mod tests {
-    use crate::document::default::initial_read_me;
+    use crate::client_document::default::initial_read_me;
 
     #[test]
     fn load_read_me() {

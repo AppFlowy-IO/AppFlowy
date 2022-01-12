@@ -205,12 +205,12 @@ where
     T: Attributes,
 {
     pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<Operation<T>> {
-        tracing::trace!(
-            "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
-            n,
-            self.attributes,
-            attributes
-        );
+        // tracing::trace!(
+        //     "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
+        //     n,
+        //     self.attributes,
+        //     attributes
+        // );
         if self.attributes == attributes {
             self.n += n;
             None

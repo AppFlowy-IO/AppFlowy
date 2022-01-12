@@ -1,4 +1,4 @@
-use crate::{document::InsertExt, util::is_newline};
+use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{DeltaBuilder, DeltaIter, Utf16CodeUnitMetric, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},

@@ -8,7 +8,7 @@ use backend_service::{
     errors::ServerError,
 };
 use flowy_collaboration::{
-    document::default::initial_delta_string,
+    client_document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;

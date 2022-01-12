@@ -1,9 +1,8 @@
 use crate::{
-    document::Document,
     entities::{doc::DocumentInfo, ws::DocumentServerWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{DocumentClientWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    sync::{RevisionSynchronizer, RevisionUser, SyncResponse},
+    server_document::{document_pad::ServerDocument, RevisionSynchronizer, RevisionUser, SyncResponse},
 };
 use async_stream::stream;
 use dashmap::DashMap;
@@ -186,7 +185,7 @@ impl OpenDocHandle {
         let synchronizer = Arc::new(RevisionSynchronizer::new(
             &doc.doc_id,
             doc.rev_id,
-            Document::from_delta(delta),
+            ServerDocument::from_delta(delta),
             persistence,
         ));
 

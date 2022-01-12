@@ -14,7 +14,7 @@ use flowy_collaboration::{
         DocumentId as DocumentIdPB,
         ResetDocumentParams as ResetDocumentParamsPB,
     },
-    sync::ServerDocumentManager,
+    server_document::ServerDocumentManager,
 };
 use std::sync::Arc;
 

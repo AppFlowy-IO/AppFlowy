@@ -1,4 +1,4 @@
-use crate::{document::InsertExt, util::is_whitespace};
+use crate::{client_document::InsertExt, util::is_whitespace};
 use lib_ot::{
     core::{count_utf16_code_units, DeltaBuilder, DeltaIter},
     rich_text::{plain_attributes, RichTextAttribute, RichTextAttributes, RichTextDelta},

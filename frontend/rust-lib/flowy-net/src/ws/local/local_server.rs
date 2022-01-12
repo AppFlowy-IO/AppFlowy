@@ -4,14 +4,14 @@ use flowy_collaboration::{
     entities::ws::{DocumentClientWSData, DocumentClientWSDataType},
     errors::CollaborateError,
     protobuf::DocumentClientWSData as DocumentClientWSDataPB,
-    sync::*,
+    server_document::*,
 };
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, fmt::Debug, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 pub struct LocalDocumentServer {
-    pub doc_manager: Arc<ServerDocumentManager>,
+    doc_manager: Arc<ServerDocumentManager>,
     sender: mpsc::UnboundedSender<WebSocketRawMessage>,
 }
 

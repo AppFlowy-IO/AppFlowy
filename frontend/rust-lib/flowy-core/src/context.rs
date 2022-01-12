@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flowy_collaboration::document::default::{initial_delta, initial_read_me};
+use flowy_collaboration::client_document::default::{initial_delta, initial_read_me};
 use flowy_core_data_model::{entities::view::CreateViewParams, user_default};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
