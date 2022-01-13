@@ -1,9 +1,6 @@
 use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
-use flowy_collaboration::entities::{
-    doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
-    ws::DocumentClientWSData,
-};
+use flowy_collaboration::entities::ws::DocumentClientWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     context::DocumentUser,
@@ -12,11 +9,12 @@ use flowy_document::{
     DocumentCloudService,
 };
 use flowy_net::{
-    cloud::document::{DocumentHttpCloudService, DocumentLocalCloudService},
+    http_server::document::DocumentHttpCloudService,
+    local_server::LocalServer,
     ws::connection::FlowyWebSocketConnect,
 };
 use flowy_user::services::UserSession;
-use lib_infra::future::FutureResult;
+
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
@@ -30,6 +28,7 @@ pub struct DocumentDependencies {
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
     pub fn resolve(
+        local_server: Option<Arc<LocalServer>>,
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
@@ -39,7 +38,12 @@ impl DocumentDepsResolver {
         let ws_receivers = Arc::new(DocumentWSReceivers::new());
         let receiver = Arc::new(WSMessageReceiverImpl(ws_receivers.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
-        let cloud_service = make_document_cloud_service(server_config);
+
+        let cloud_service: Arc<dyn DocumentCloudService> = match local_server {
+            None => Arc::new(DocumentHttpCloudService::new(server_config.clone())),
+            Some(local_server) => local_server,
+        };
+
         DocumentDependencies {
             user,
             ws_receivers,
@@ -92,51 +96,5 @@ impl WSMessageReceiver for WSMessageReceiverImpl {
         tokio::spawn(async move {
             receivers.did_receive_data(Bytes::from(msg.data)).await;
         });
-    }
-}
-
-fn make_document_cloud_service(server_config: &ClientServerConfiguration) -> Arc<dyn DocumentCloudService> {
-    if cfg!(feature = "http_server") {
-        Arc::new(DocumentHttpCloudServiceAdaptor::new(server_config.clone()))
-    } else {
-        Arc::new(DocumentLocalCloudServiceAdaptor::new())
-    }
-}
-
-struct DocumentHttpCloudServiceAdaptor(DocumentHttpCloudService);
-impl DocumentHttpCloudServiceAdaptor {
-    fn new(config: ClientServerConfiguration) -> Self {
-        DocumentHttpCloudServiceAdaptor(DocumentHttpCloudService::new(config))
-    }
-}
-impl DocumentCloudService for DocumentHttpCloudServiceAdaptor {
-    fn create_document(&self, token: &str, params: CreateDocParams) -> FutureResult<(), FlowyError> {
-        self.0.create_document_request(token, params)
-    }
-
-    fn read_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-        self.0.read_document_request(token, params)
-    }
-
-    fn update_document(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
-        self.0.update_document_request(token, params)
-    }
-}
-
-struct DocumentLocalCloudServiceAdaptor(DocumentLocalCloudService);
-impl DocumentLocalCloudServiceAdaptor {
-    fn new() -> Self { Self(DocumentLocalCloudService {}) }
-}
-impl DocumentCloudService for DocumentLocalCloudServiceAdaptor {
-    fn create_document(&self, token: &str, params: CreateDocParams) -> FutureResult<(), FlowyError> {
-        self.0.create_document_request(token, params)
-    }
-
-    fn read_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-        self.0.read_document_request(token, params)
-    }
-
-    fn update_document(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
-        self.0.update_document_request(token, params)
     }
 }

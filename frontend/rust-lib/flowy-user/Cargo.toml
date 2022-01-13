@@ -17,7 +17,6 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["db", "backend"] }
 lib-sqlite = { path = "../lib-sqlite" }
 
-
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
 serde = { version = "1.0", features = ["derive"] }

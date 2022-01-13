@@ -13,6 +13,9 @@ flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
 backend-service = { path = "../../../shared-lib/backend-service" }
 flowy-core-data-model = { path = "../../../shared-lib/flowy-core-data-model" }
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
+flowy-core = { path = "../flowy-core" }
+flowy-user = { path = "../flowy-user" }
+flowy-document = { path = "../flowy-document" }
 lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}
@@ -25,5 +28,7 @@ strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
 dashmap = {version = "4.0"}
+async-stream = "0.3.2"
+futures-util = "0.3.15"
 [features]
 http_server = []

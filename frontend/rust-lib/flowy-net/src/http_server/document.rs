@@ -3,10 +3,8 @@ use backend_service::{
     request::{HttpRequestBuilder, ResponseMiddleware},
     response::FlowyResponse,
 };
-use flowy_collaboration::{
-    client_document::default::initial_delta_string,
-    entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
-};
+use flowy_collaboration::entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -20,53 +18,23 @@ impl DocumentHttpCloudService {
     pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
 }
 
-impl DocumentHttpCloudService {
-    pub fn create_document_request(&self, token: &str, params: CreateDocParams) -> FutureResult<(), FlowyError> {
+impl DocumentCloudService for DocumentHttpCloudService {
+    fn create_document(&self, token: &str, params: CreateDocParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    pub fn read_document_request(
-        &self,
-        token: &str,
-        params: DocumentId,
-    ) -> FutureResult<Option<DocumentInfo>, FlowyError> {
+    fn read_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
     }
 
-    pub fn update_document_request(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_document(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
-    }
-}
-
-pub struct DocumentLocalCloudService {}
-
-impl DocumentLocalCloudService {
-    pub fn create_document_request(&self, _token: &str, _params: CreateDocParams) -> FutureResult<(), FlowyError> {
-        FutureResult::new(async { Ok(()) })
-    }
-
-    pub fn read_document_request(
-        &self,
-        _token: &str,
-        params: DocumentId,
-    ) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-        let doc = DocumentInfo {
-            doc_id: params.doc_id,
-            text: initial_delta_string(),
-            rev_id: 0,
-            base_rev_id: 0,
-        };
-        FutureResult::new(async { Ok(Some(doc)) })
-    }
-
-    pub fn update_document_request(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
-        FutureResult::new(async { Ok(()) })
     }
 }
 

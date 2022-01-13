@@ -1,5 +1,3 @@
-use crate::ws::local::DocumentCloudStorage;
-
 use flowy_collaboration::{
     entities::doc::DocumentInfo,
     errors::CollaborateError,
@@ -13,6 +11,21 @@ use std::{
     fmt::{Debug, Formatter},
     sync::Arc,
 };
+
+pub trait DocumentCloudStorage: Send + Sync {
+    fn set_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+    fn get_revisions(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<RepeatedRevisionPB, CollaborateError>;
+
+    fn reset_document(
+        &self,
+        doc_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError>;
+}
 
 pub(crate) struct LocalDocumentCloudPersistence {
     // For the moment, we use memory to cache the data, it will be implemented with other storage.

@@ -12,7 +12,7 @@ use flowy_collaboration::{
     entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;
-use flowy_net::cloud::{
+use flowy_net::http_server::{
     core::*,
     document::{create_document_request, read_document_request},
     user::*,

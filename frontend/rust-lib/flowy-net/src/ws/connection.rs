@@ -4,6 +4,7 @@ pub use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 pub use lib_ws::{WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 
+use lib_ws::WSController;
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::broadcast;
@@ -30,7 +31,18 @@ pub struct FlowyWebSocketConnect {
 }
 
 impl FlowyWebSocketConnect {
-    pub fn new(addr: String, ws: Arc<dyn FlowyRawWebSocket>) -> Self {
+    pub fn new(addr: String) -> Self {
+        let ws = Arc::new(Arc::new(WSController::new()));
+        let (status_notifier, _) = broadcast::channel(10);
+        FlowyWebSocketConnect {
+            inner: ws,
+            connect_type: RwLock::new(NetworkType::default()),
+            status_notifier,
+            addr,
+        }
+    }
+
+    pub fn from_local(addr: String, ws: Arc<dyn FlowyRawWebSocket>) -> Self {
         let (status_notifier, _) = broadcast::channel(10);
         FlowyWebSocketConnect {
             inner: ws,

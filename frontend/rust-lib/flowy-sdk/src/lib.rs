@@ -6,14 +6,12 @@ use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
 use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
-    ws::{
-        connection::{listen_on_websocket, FlowyRawWebSocket, FlowyWebSocketConnect},
-        local::LocalWebSocket,
-    },
+    local_server::LocalServer,
+    ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
 };
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
-use lib_ws::WSController;
+
 use module::mk_modules;
 pub use module::*;
 use std::{
@@ -88,6 +86,7 @@ pub struct FlowySDK {
     pub core: Arc<CoreContext>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
+    pub local_server: Option<Arc<LocalServer>>,
 }
 
 impl FlowySDK {
@@ -96,18 +95,25 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
 
-        let ws_conn = Arc::new(FlowyWebSocketConnect::new(
-            config.server_config.ws_addr(),
-            default_web_socket(),
-        ));
-        let user_session = mk_user_session(&config, &config.server_config);
-        let flowy_document = mk_document(&ws_conn, &user_session, &config.server_config);
-        let core_ctx = mk_core_context(&user_session, &flowy_document, &config.server_config);
+        let ws_addr = config.server_config.ws_addr();
+        let (local_server, ws_conn) = if cfg!(feature = "http_server") {
+            let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
+            (None, ws_conn)
+        } else {
+            let context = flowy_net::local_server::build_server(&config.server_config);
+            let local_ws = Arc::new(context.local_ws);
+            let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
+            (Some(Arc::new(context.local_server)), ws_conn)
+        };
+
+        let user_session = mk_user_session(&config, &local_server, &config.server_config);
+        let flowy_document = mk_document(&local_server, &ws_conn, &user_session, &config.server_config);
+        let core_ctx = mk_core_context(&local_server, &user_session, &flowy_document, &config.server_config);
 
         //
         let modules = mk_modules(&ws_conn, &core_ctx, &user_session);
         let dispatcher = Arc::new(EventDispatcher::construct(|| modules));
-        _init(&dispatcher, &ws_conn, &user_session, &core_ctx);
+        _init(&local_server, &dispatcher, &ws_conn, &user_session, &core_ctx);
 
         Self {
             config,
@@ -116,6 +122,7 @@ impl FlowySDK {
             core: core_ctx,
             dispatcher,
             ws_conn,
+            local_server,
         }
     }
 
@@ -123,6 +130,7 @@ impl FlowySDK {
 }
 
 fn _init(
+    local_server: &Option<Arc<LocalServer>>,
     dispatch: &EventDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
@@ -134,8 +142,13 @@ fn _init(
     let cloned_core = core.clone();
     let user_session = user_session.clone();
     let ws_conn = ws_conn.clone();
+    let local_server = local_server.clone();
 
     dispatch.spawn(async move {
+        if let Some(local_server) = local_server.as_ref() {
+            local_server.run();
+        }
+
         user_session.init();
         ws_conn.init().await;
         listen_on_websocket(ws_conn.clone());
@@ -206,36 +219,40 @@ fn init_log(config: &FlowySDKConfig) {
     }
 }
 
-fn mk_user_session(config: &FlowySDKConfig, server_config: &ClientServerConfiguration) -> Arc<UserSession> {
+fn mk_user_session(
+    config: &FlowySDKConfig,
+    local_server: &Option<Arc<LocalServer>>,
+    server_config: &ClientServerConfiguration,
+) -> Arc<UserSession> {
     let session_cache_key = format!("{}_session_cache", &config.name);
     let user_config = UserSessionConfig::new(&config.root, &session_cache_key);
-    let cloud_service = UserDepsResolver::resolve(server_config);
+    let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
 }
 
 fn mk_core_context(
+    local_server: &Option<Arc<LocalServer>>,
     user_session: &Arc<UserSession>,
     flowy_document: &Arc<DocumentContext>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<CoreContext> {
-    let (user, database, cloud_service) = CoreDepsResolver::resolve(user_session.clone(), server_config);
+    let (user, database, cloud_service) =
+        CoreDepsResolver::resolve(local_server.clone(), user_session.clone(), server_config);
     init_core(user, database, flowy_document.clone(), cloud_service)
 }
 
-fn default_web_socket() -> Arc<dyn FlowyRawWebSocket> {
-    if cfg!(feature = "http_server") {
-        Arc::new(Arc::new(WSController::new()))
-    } else {
-        Arc::new(LocalWebSocket::default())
-    }
-}
-
 pub fn mk_document(
+    local_server: &Option<Arc<LocalServer>>,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<DocumentContext> {
-    let dependencies = DocumentDepsResolver::resolve(ws_conn.clone(), user_session.clone(), server_config);
+    let dependencies = DocumentDepsResolver::resolve(
+        local_server.clone(),
+        ws_conn.clone(),
+        user_session.clone(),
+        server_config,
+    );
     Arc::new(DocumentContext::new(
         dependencies.user,
         dependencies.ws_receivers,
