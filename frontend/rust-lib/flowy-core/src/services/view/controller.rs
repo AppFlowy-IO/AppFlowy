@@ -8,15 +8,15 @@ use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
 use crate::{
+    dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::{
         trash::{RepeatedTrashId, TrashType},
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
     errors::{FlowyError, FlowyResult},
     module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    notify::{send_dart_notification, WorkspaceNotification},
     services::{
-        view::sql::{ViewTable, ViewTableChangeset, ViewTableSql},
+        view::sql::{ViewChangeset, ViewTable, ViewTableSql},
         TrashController,
         TrashEvent,
     },
@@ -92,8 +92,7 @@ impl ViewController {
     }
 
     pub(crate) fn save_view(&self, view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let view_table = ViewTable::new(view);
-        let _ = ViewTableSql::create_view(view_table, conn)?;
+        let _ = ViewTableSql::create_view(view, conn)?;
         Ok(())
     }
 
@@ -196,7 +195,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<View, FlowyError> {
         let conn = &*self.database.db_connection()?;
-        let changeset = ViewTableChangeset::new(params.clone());
+        let changeset = ViewChangeset::new(params.clone());
         let view_id = changeset.id.clone();
 
         let updated_view = conn.immediate_transaction::<_, FlowyError, _>(|| {
@@ -267,8 +266,7 @@ impl ViewController {
             match server.read_view(&token, params).await {
                 Ok(Some(view)) => match pool.get() {
                     Ok(conn) => {
-                        let view_table = ViewTable::new(view.clone());
-                        let result = ViewTableSql::create_view(view_table, &conn);
+                        let result = ViewTableSql::create_view(view.clone(), &conn);
                         match result {
                             Ok(_) => {
                                 send_dart_notification(&view.id, WorkspaceNotification::ViewUpdated)

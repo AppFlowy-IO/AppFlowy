@@ -17,11 +17,12 @@ use lib_infra::timestamp;
 pub struct ViewTableSql {}
 
 impl ViewTableSql {
-    pub(crate) fn create_view(view_table: ViewTable, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    pub(crate) fn create_view(view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        let view_table = ViewTable::new(view);
         match diesel_record_count!(view_table, &view_table.id, conn) {
             0 => diesel_insert_table!(view_table, &view_table, conn),
             _ => {
-                let changeset = ViewTableChangeset::from_table(view_table);
+                let changeset = ViewChangeset::from_table(view_table);
                 diesel_update_table!(view_table, changeset, conn)
             },
         }
@@ -54,7 +55,7 @@ impl ViewTableSql {
         Ok(view_tables)
     }
 
-    pub(crate) fn update_view(changeset: ViewTableChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    pub(crate) fn update_view(changeset: ViewChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_update_table!(view_table, changeset, conn);
         Ok(())
     }
@@ -181,7 +182,7 @@ impl std::convert::From<ViewTable> for Trash {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "view_table"]
-pub(crate) struct ViewTableChangeset {
+pub(crate) struct ViewChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
@@ -189,9 +190,9 @@ pub(crate) struct ViewTableChangeset {
     pub modified_time: i64,
 }
 
-impl ViewTableChangeset {
+impl ViewChangeset {
     pub(crate) fn new(params: UpdateViewParams) -> Self {
-        ViewTableChangeset {
+        ViewChangeset {
             id: params.view_id,
             name: params.name,
             desc: params.desc,
@@ -201,7 +202,7 @@ impl ViewTableChangeset {
     }
 
     pub(crate) fn from_table(table: ViewTable) -> Self {
-        ViewTableChangeset {
+        ViewChangeset {
             id: table.id,
             name: Some(table.name),
             desc: Some(table.desc),

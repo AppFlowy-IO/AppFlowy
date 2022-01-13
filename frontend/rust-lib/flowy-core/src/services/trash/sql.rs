@@ -12,13 +12,13 @@ use flowy_database::{
 pub struct TrashTableSql {}
 
 impl TrashTableSql {
-    pub(crate) fn create_trash(repeated_trash: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        for trash in repeated_trash {
+    pub(crate) fn create_trash(trashes: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        for trash in trashes {
             let trash_table: TrashTable = trash.into();
             match diesel_record_count!(trash_table, &trash_table.id, conn) {
                 0 => diesel_insert_table!(trash_table, &trash_table, conn),
                 _ => {
-                    let changeset = TrashTableChangeset::from(trash_table);
+                    let changeset = TrashChangeset::from(trash_table);
                     diesel_update_table!(trash_table, changeset, conn)
                 },
             }
@@ -88,15 +88,15 @@ impl std::convert::From<Trash> for TrashTable {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "trash_table"]
-pub(crate) struct TrashTableChangeset {
+pub(crate) struct TrashChangeset {
     pub id: String,
     pub name: Option<String>,
     pub modified_time: i64,
 }
 
-impl std::convert::From<TrashTable> for TrashTableChangeset {
+impl std::convert::From<TrashTable> for TrashChangeset {
     fn from(trash: TrashTable) -> Self {
-        TrashTableChangeset {
+        TrashChangeset {
             id: trash.id,
             name: Some(trash.name),
             modified_time: trash.modified_time,

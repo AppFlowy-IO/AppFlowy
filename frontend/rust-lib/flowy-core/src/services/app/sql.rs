@@ -20,18 +20,19 @@ use crate::errors::FlowyError;
 pub struct AppTableSql {}
 
 impl AppTableSql {
-    pub(crate) fn create_app(app_table: AppTable, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    pub(crate) fn create_app(app: App, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        let app_table = AppTable::new(app);
         match diesel_record_count!(app_table, &app_table.id, conn) {
             0 => diesel_insert_table!(app_table, &app_table, conn),
             _ => {
-                let changeset = AppTableChangeset::from_table(app_table);
+                let changeset = AppChangeset::from_table(app_table);
                 diesel_update_table!(app_table, changeset, conn)
             },
         }
         Ok(())
     }
 
-    pub(crate) fn update_app(changeset: AppTableChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    pub(crate) fn update_app(changeset: AppChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_update_table!(app_table, changeset, conn);
         Ok(())
     }
@@ -160,16 +161,16 @@ impl_sql_binary_expression!(ColorStyleCol);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "app_table"]
-pub(crate) struct AppTableChangeset {
+pub(crate) struct AppChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
     pub is_trash: Option<bool>,
 }
 
-impl AppTableChangeset {
+impl AppChangeset {
     pub(crate) fn new(params: UpdateAppParams) -> Self {
-        AppTableChangeset {
+        AppChangeset {
             id: params.app_id,
             name: params.name,
             desc: params.desc,
@@ -178,7 +179,7 @@ impl AppTableChangeset {
     }
 
     pub(crate) fn from_table(table: AppTable) -> Self {
-        AppTableChangeset {
+        AppChangeset {
             id: table.id,
             name: Some(table.name),
             desc: Some(table.desc),

@@ -6,10 +6,10 @@ use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
+    dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::workspace::RepeatedWorkspace,
     errors::{FlowyError, FlowyResult},
     module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    notify::{send_dart_notification, WorkspaceNotification},
     services::{AppController, TrashController, ViewController, WorkspaceController},
 };
 

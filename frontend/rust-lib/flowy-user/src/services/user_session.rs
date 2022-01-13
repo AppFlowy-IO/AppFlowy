@@ -1,7 +1,7 @@
 use crate::{
+    dart_notification::*,
     errors::{ErrorCode, FlowyError},
     module::UserCloudService,
-    notify::*,
     services::{
         database::{UserDB, UserTable, UserTableChangeset},
         notifier::UserNotifier,

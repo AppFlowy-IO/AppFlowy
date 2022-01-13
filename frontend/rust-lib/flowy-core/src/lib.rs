@@ -11,8 +11,7 @@ mod macros;
 extern crate flowy_database;
 
 pub mod context;
-pub mod event_handler;
-mod notify;
+mod dart_notification;
 pub mod protobuf;
 mod util;
 

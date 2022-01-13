@@ -1,10 +1,10 @@
 use crate::{
+    dart_notification::*,
     errors::*,
     module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    notify::*,
     services::{
         read_local_workspace_apps,
-        workspace::sql::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
+        workspace::sql::{WorkspaceTableChangeset, WorkspaceTableSql},
         TrashController,
     },
 };
@@ -47,7 +47,6 @@ impl WorkspaceController {
     pub(crate) async fn create_workspace_on_local(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
-        let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
         let conn = &*self.database.db_connection()?;
         //[[immediate_transaction]]
         // https://sqlite.org/lang_transaction.html
@@ -61,7 +60,7 @@ impl WorkspaceController {
         // other journaling modes, EXCLUSIVE prevents other database connections from
         // reading the database while the transaction is underway.
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            WorkspaceTableSql::create_workspace(workspace_table, conn)?;
+            WorkspaceTableSql::create_workspace(&user_id, workspace.clone(), conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
             send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
                 .payload(repeated_workspace)

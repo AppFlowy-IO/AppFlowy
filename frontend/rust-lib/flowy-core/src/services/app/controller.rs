@@ -1,13 +1,13 @@
 use crate::{
+    dart_notification::*,
     entities::{
         app::{App, CreateAppParams, *},
         trash::TrashType,
     },
     errors::*,
     module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    notify::*,
     services::{
-        app::sql::{AppTable, AppTableChangeset, AppTableSql},
+        app::sql::{AppChangeset, AppTable, AppTableSql},
         TrashController,
         TrashEvent,
     },
@@ -61,8 +61,7 @@ impl AppController {
     }
 
     pub(crate) fn save_app(&self, app: App, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let app_table = AppTable::new(app);
-        let _ = AppTableSql::create_app(app_table, &*conn)?;
+        let _ = AppTableSql::create_app(app, &*conn)?;
         Ok(())
     }
 
@@ -80,7 +79,7 @@ impl AppController {
     }
 
     pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), FlowyError> {
-        let changeset = AppTableChangeset::new(params.clone());
+        let changeset = AppChangeset::new(params.clone());
         let app_id = changeset.id.clone();
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
@@ -144,8 +143,7 @@ impl AppController {
             match server.read_app(&token, params).await {
                 Ok(Some(app)) => match pool.get() {
                     Ok(conn) => {
-                        let app_table = AppTable::new(app.clone());
-                        let result = AppTableSql::create_app(app_table, &*conn);
+                        let result = AppTableSql::create_app(app.clone(), &*conn);
                         match result {
                             Ok(_) => {
                                 send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)

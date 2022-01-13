@@ -8,7 +8,6 @@ use crate::{
     },
     errors::FlowyError,
     event::WorkspaceEvent,
-    event_handler::*,
     services::{
         app::event_handler::*,
         trash::event_handler::*,

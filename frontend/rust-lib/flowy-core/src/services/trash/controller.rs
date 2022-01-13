@@ -1,8 +1,8 @@
 use crate::{
+    dart_notification::{send_anonymous_dart_notification, WorkspaceNotification},
     entities::trash::{RepeatedTrash, RepeatedTrashId, Trash, TrashId, TrashType},
     errors::{FlowyError, FlowyResult},
     module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    notify::{send_anonymous_dart_notification, WorkspaceNotification},
     services::trash::sql::TrashTableSql,
 };
 use crossbeam_utils::thread;
