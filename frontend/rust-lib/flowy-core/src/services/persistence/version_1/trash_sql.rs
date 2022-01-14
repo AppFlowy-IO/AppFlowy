@@ -9,8 +9,7 @@ use flowy_database::{
     SqliteConnection,
 };
 
-pub struct TrashTableSql {}
-
+pub struct TrashTableSql();
 impl TrashTableSql {
     pub(crate) fn create_trash(trashes: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         for trash in trashes {

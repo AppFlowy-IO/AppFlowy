@@ -10,8 +10,7 @@ use flowy_database::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
 };
-pub(crate) struct WorkspaceTableSql {}
-
+pub(crate) struct WorkspaceTableSql();
 impl WorkspaceTableSql {
     pub(crate) fn create_workspace(
         user_id: &str,
@@ -22,7 +21,7 @@ impl WorkspaceTableSql {
         match diesel_record_count!(workspace_table, &table.id, conn) {
             0 => diesel_insert_table!(workspace_table, &table, conn),
             _ => {
-                let changeset = WorkspaceTableChangeset::from_table(table);
+                let changeset = WorkspaceChangeset::from_table(table);
                 diesel_update_table!(workspace_table, changeset, conn);
             },
         }
@@ -49,10 +48,7 @@ impl WorkspaceTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn update_workspace(
-        changeset: WorkspaceTableChangeset,
-        conn: &SqliteConnection,
-    ) -> Result<(), FlowyError> {
+    pub(crate) fn update_workspace(changeset: WorkspaceChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_update_table!(workspace_table, changeset, conn);
         Ok(())
     }
@@ -106,15 +102,15 @@ impl std::convert::From<WorkspaceTable> for Workspace {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "workspace_table"]
-pub struct WorkspaceTableChangeset {
+pub struct WorkspaceChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
 }
 
-impl WorkspaceTableChangeset {
+impl WorkspaceChangeset {
     pub fn new(params: UpdateWorkspaceParams) -> Self {
-        WorkspaceTableChangeset {
+        WorkspaceChangeset {
             id: params.id,
             name: params.name,
             desc: params.desc,
@@ -122,7 +118,7 @@ impl WorkspaceTableChangeset {
     }
 
     pub(crate) fn from_table(table: WorkspaceTable) -> Self {
-        WorkspaceTableChangeset {
+        WorkspaceChangeset {
             id: table.id,
             name: Some(table.name),
             desc: Some(table.desc),

@@ -3,7 +3,7 @@ import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
 
 typedef UserNotificationCallback = void Function(UserNotification, Either<Uint8List, FlowyError>);
 

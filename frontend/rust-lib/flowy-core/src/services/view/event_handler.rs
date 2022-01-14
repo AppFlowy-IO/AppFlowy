@@ -70,9 +70,9 @@ pub(crate) async fn delete_view_handler(
     }
 
     let trash = view_controller
-        .read_view_tables(params.items)?
+        .read_local_views(params.items)?
         .into_iter()
-        .map(|view_table| view_table.into())
+        .map(|view| view.into())
         .collect::<Vec<Trash>>();
 
     let _ = trash_controller.add(trash).await?;

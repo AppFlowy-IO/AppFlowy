@@ -2,18 +2,14 @@ use crate::{
     context::CoreContext,
     dart_notification::{send_dart_notification, WorkspaceNotification},
     errors::FlowyError,
-    services::{
-        get_current_workspace,
-        read_local_workspace_apps,
-        workspace::sql::WorkspaceTableSql,
-        WorkspaceController,
-    },
+    services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
 };
 use flowy_core_data_model::entities::{
     app::RepeatedApp,
     view::View,
     workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceId, *},
 };
+use flowy_error::FlowyResult;
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
@@ -53,21 +49,19 @@ pub(crate) async fn read_workspaces_handler(
 ) -> DataResult<RepeatedWorkspace, FlowyError> {
     let params: WorkspaceId = data.into_inner().try_into()?;
     let user_id = core.user.user_id()?;
-    let conn = &*core.database.db_connection()?;
     let workspace_controller = core.workspace_controller.clone();
 
     let trash_controller = core.trash_controller.clone();
-    let workspaces = conn.immediate_transaction::<_, FlowyError, _>(|| {
-        let mut workspaces = workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, conn)?;
+    let workspaces = core.persistence.begin_transaction(|transaction| {
+        let mut workspaces =
+            workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, &transaction)?;
         for workspace in workspaces.iter_mut() {
-            let apps = read_local_workspace_apps(&workspace.id, trash_controller.clone(), conn)?.into_inner();
+            let apps = read_local_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?.into_inner();
             workspace.apps.items = apps;
         }
         Ok(workspaces)
     })?;
-
     let _ = read_workspaces_on_server(core, user_id, params);
-
     data_result(workspaces)
 }
 
@@ -80,10 +74,11 @@ pub async fn read_cur_workspace_handler(
     let params = WorkspaceId {
         workspace_id: Some(workspace_id.clone()),
     };
-    let conn = &*core.database.db_connection()?;
-    let workspace = core
-        .workspace_controller
-        .read_local_workspace(workspace_id, &user_id, conn)?;
+
+    let workspace = core.persistence.begin_transaction(|transaction| {
+        core.workspace_controller
+            .read_local_workspace(workspace_id, &user_id, &transaction)
+    })?;
 
     let latest_view: Option<View> = core.view_controller.latest_visit_view().unwrap_or(None);
     let setting = CurrentWorkspaceSetting { workspace, latest_view };
@@ -98,30 +93,29 @@ fn read_workspaces_on_server(
     params: WorkspaceId,
 ) -> Result<(), FlowyError> {
     let (token, server) = (core.user.token()?, core.cloud_service.clone());
-    let app_ctrl = core.app_controller.clone();
-    let view_ctrl = core.view_controller.clone();
-    let conn = core.database.db_connection()?;
+    let _app_ctrl = core.app_controller.clone();
+    let _view_ctrl = core.view_controller.clone();
+    let persistence = core.persistence.clone();
 
     tokio::spawn(async move {
-        // Opti: handle the error and retry?
         let workspaces = server.read_workspace(&token, params).await?;
-        let _ = (&*conn).immediate_transaction::<_, FlowyError, _>(|| {
+        let _ = persistence.begin_transaction(|transaction| {
             tracing::debug!("Save {} workspace", workspaces.len());
             for workspace in &workspaces.items {
                 let m_workspace = workspace.clone();
                 let apps = m_workspace.apps.clone().into_inner();
-                let _ = WorkspaceTableSql::create_workspace(&user_id, m_workspace, &*conn)?;
+                let _ = transaction.create_workspace(&user_id, m_workspace)?;
                 tracing::debug!("Save {} apps", apps.len());
                 for app in apps {
                     let views = app.belongings.clone().into_inner();
-                    match app_ctrl.save_app(app, &*conn) {
+                    match transaction.create_app(app) {
                         Ok(_) => {},
                         Err(e) => log::error!("create app failed: {:?}", e),
                     }
 
                     tracing::debug!("Save {} views", views.len());
                     for view in views {
-                        match view_ctrl.save_view(view, &*conn) {
+                        match transaction.create_view(view) {
                             Ok(_) => {},
                             Err(e) => log::error!("create view failed: {:?}", e),
                         }

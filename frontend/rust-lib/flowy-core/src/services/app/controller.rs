@@ -5,35 +5,35 @@ use crate::{
         trash::TrashType,
     },
     errors::*,
-    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{WorkspaceCloudService, WorkspaceUser},
     services::{
-        app::sql::{AppChangeset, AppTable, AppTableSql},
+        persistence::{AppChangeset, FlowyCorePersistence, FlowyCorePersistenceTransaction},
         TrashController,
         TrashEvent,
     },
 };
-use flowy_database::SqliteConnection;
+
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
-    database: Arc<dyn WorkspaceDatabase>,
-    trash_can: Arc<TrashController>,
+    persistence: Arc<FlowyCorePersistence>,
+    trash_controller: Arc<TrashController>,
     cloud_service: Arc<dyn WorkspaceCloudService>,
 }
 
 impl AppController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        database: Arc<dyn WorkspaceDatabase>,
+        persistence: Arc<FlowyCorePersistence>,
         trash_can: Arc<TrashController>,
         cloud_service: Arc<dyn WorkspaceCloudService>,
     ) -> Self {
         Self {
             user,
-            database,
-            trash_can,
+            persistence,
+            trash_controller: trash_can,
             cloud_service,
         }
     }
@@ -50,62 +50,52 @@ impl AppController {
     }
 
     pub(crate) async fn create_app_on_local(&self, app: App) -> Result<App, FlowyError> {
-        let conn = &*self.database.db_connection()?;
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.save_app(app.clone(), &*conn)?;
-            let _ = notify_apps_changed(&app.workspace_id, self.trash_can.clone(), conn)?;
+        let _ = self.persistence.begin_transaction(|transaction| {
+            let _ = transaction.create_app(app.clone())?;
+            let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
             Ok(())
         })?;
-
         Ok(app)
     }
 
-    pub(crate) fn save_app(&self, app: App, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let _ = AppTableSql::create_app(app, &*conn)?;
-        Ok(())
-    }
-
     pub(crate) async fn read_app(&self, params: AppId) -> Result<App, FlowyError> {
-        let conn = self.database.db_connection()?;
-        let app_table = AppTableSql::read_app(&params.app_id, &*conn)?;
-
-        let trash_ids = self.trash_can.read_trash_ids(&conn)?;
-        if trash_ids.contains(&app_table.id) {
-            return Err(FlowyError::record_not_found());
-        }
-
+        let app = self.persistence.begin_transaction(|transaction| {
+            let app = transaction.read_app(&params.app_id)?;
+            let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
+            if trash_ids.contains(&app.id) {
+                return Err(FlowyError::record_not_found());
+            }
+            Ok(app)
+        })?;
         let _ = self.read_app_on_server(params)?;
-        Ok(app_table.into())
+        Ok(app)
     }
 
     pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), FlowyError> {
         let changeset = AppChangeset::new(params.clone());
         let app_id = changeset.id.clone();
-        let conn = &*self.database.db_connection()?;
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = AppTableSql::update_app(changeset, conn)?;
-            let app: App = AppTableSql::read_app(&app_id, conn)?.into();
-            send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
-                .payload(app)
-                .send();
-            Ok(())
-        })?;
 
+        let app = self.persistence.begin_transaction(|transaction| {
+            let _ = transaction.update_app(changeset)?;
+            let app = transaction.read_app(&app_id)?;
+            Ok(app)
+        })?;
+        send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
+            .payload(app)
+            .send();
         let _ = self.update_app_on_server(params)?;
         Ok(())
     }
 
-    pub(crate) fn read_app_tables(&self, ids: Vec<String>) -> Result<Vec<AppTable>, FlowyError> {
-        let conn = &*self.database.db_connection()?;
-        let mut app_tables = vec![];
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            for app_id in ids {
-                app_tables.push(AppTableSql::read_app(&app_id, conn)?);
+    pub(crate) fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<App>, FlowyError> {
+        let apps = self.persistence.begin_transaction(|transaction| {
+            let mut apps = vec![];
+            for id in ids {
+                apps.push(transaction.read_app(&id)?);
             }
-            Ok(())
+            Ok(apps)
         })?;
-
-        Ok(app_tables)
+        Ok(apps)
     }
 }
 
@@ -137,23 +127,18 @@ impl AppController {
     fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
-        let pool = self.database.db_pool()?;
+        let persistence = self.persistence.clone();
         tokio::spawn(async move {
-            // Opti: retry?
             match server.read_app(&token, params).await {
-                Ok(Some(app)) => match pool.get() {
-                    Ok(conn) => {
-                        let result = AppTableSql::create_app(app.clone(), &*conn);
-                        match result {
-                            Ok(_) => {
-                                send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
-                                    .payload(app)
-                                    .send();
-                            },
-                            Err(e) => log::error!("Save app failed: {:?}", e),
-                        }
-                    },
-                    Err(e) => log::error!("Require db connection failed: {:?}", e),
+                Ok(Some(app)) => {
+                    match persistence.begin_transaction(|transaction| transaction.create_app(app.clone())) {
+                        Ok(_) => {
+                            send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
+                                .payload(app)
+                                .send();
+                        },
+                        Err(e) => log::error!("Save app failed: {:?}", e),
+                    }
                 },
                 Ok(None) => {},
                 Err(e) => log::error!("Read app failed: {:?}", e),
@@ -163,9 +148,9 @@ impl AppController {
     }
 
     fn listen_trash_controller_event(&self) {
-        let mut rx = self.trash_can.subscribe();
-        let database = self.database.clone();
-        let trash_can = self.trash_can.clone();
+        let mut rx = self.trash_controller.subscribe();
+        let persistence = self.persistence.clone();
+        let trash_controller = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
@@ -175,76 +160,69 @@ impl AppController {
                     }
                 }));
                 if let Some(event) = stream.next().await {
-                    handle_trash_event(database.clone(), trash_can.clone(), event).await
+                    handle_trash_event(persistence.clone(), trash_controller.clone(), event).await
                 }
             }
         });
     }
 }
 
-#[tracing::instrument(level = "trace", skip(database, trash_can))]
-async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc<TrashController>, event: TrashEvent) {
-    let db_result = database.db_connection();
+#[tracing::instrument(level = "trace", skip(persistence, trash_controller))]
+async fn handle_trash_event(
+    persistence: Arc<FlowyCorePersistence>,
+    trash_controller: Arc<TrashController>,
+    event: TrashEvent,
+) {
     match event {
         TrashEvent::NewTrash(identifiers, ret) | TrashEvent::Putback(identifiers, ret) => {
-            let result = || {
-                let conn = &*db_result?;
-                let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
-                    for identifier in identifiers.items {
-                        let app_table = AppTableSql::read_app(&identifier.id, conn)?;
-                        let _ = notify_apps_changed(&app_table.workspace_id, trash_can.clone(), conn)?;
-                    }
-                    Ok(())
-                })?;
-                Ok::<(), FlowyError>(())
-            };
-            let _ = ret.send(result()).await;
+            let result = persistence.begin_transaction(|transaction| {
+                for identifier in identifiers.items {
+                    let app = transaction.read_app(&identifier.id)?;
+                    let _ = notify_apps_changed(&app.workspace_id, trash_controller.clone(), &transaction)?;
+                }
+                Ok(())
+            });
+            let _ = ret.send(result).await;
         },
         TrashEvent::Delete(identifiers, ret) => {
-            let result = || {
-                let conn = &*db_result?;
-                let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
-                    let mut notify_ids = HashSet::new();
-                    for identifier in identifiers.items {
-                        let app_table = AppTableSql::read_app(&identifier.id, conn)?;
-                        let _ = AppTableSql::delete_app(&identifier.id, conn)?;
-                        notify_ids.insert(app_table.workspace_id);
-                    }
+            let result = persistence.begin_transaction(|transaction| {
+                let mut notify_ids = HashSet::new();
+                for identifier in identifiers.items {
+                    let app = transaction.read_app(&identifier.id)?;
+                    let _ = transaction.delete_app(&identifier.id)?;
+                    notify_ids.insert(app.workspace_id);
+                }
 
-                    for notify_id in notify_ids {
-                        let _ = notify_apps_changed(&notify_id, trash_can.clone(), conn)?;
-                    }
-                    Ok(())
-                })?;
-                Ok::<(), FlowyError>(())
-            };
-            let _ = ret.send(result()).await;
+                for notify_id in notify_ids {
+                    let _ = notify_apps_changed(&notify_id, trash_controller.clone(), &transaction)?;
+                }
+                Ok(())
+            });
+            let _ = ret.send(result).await;
         },
     }
 }
 
-#[tracing::instrument(skip(workspace_id, trash_can, conn), err)]
-fn notify_apps_changed(
+#[tracing::instrument(skip(workspace_id, trash_controller, transaction), err)]
+fn notify_apps_changed<'a>(
     workspace_id: &str,
-    trash_can: Arc<TrashController>,
-    conn: &SqliteConnection,
+    trash_controller: Arc<TrashController>,
+    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
-    let repeated_app = read_local_workspace_apps(workspace_id, trash_can, conn)?;
+    let repeated_app = read_local_workspace_apps(workspace_id, trash_controller, transaction)?;
     send_dart_notification(workspace_id, WorkspaceNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
         .send();
     Ok(())
 }
 
-pub fn read_local_workspace_apps(
+pub fn read_local_workspace_apps<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,
-    conn: &SqliteConnection,
+    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
 ) -> Result<RepeatedApp, FlowyError> {
-    let mut app_tables = AppTableSql::read_workspace_apps(workspace_id, false, conn)?;
-    let trash_ids = trash_controller.read_trash_ids(conn)?;
-    app_tables.retain(|app_table| !trash_ids.contains(&app_table.id));
-
-    let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();
+    let mut apps = transaction.read_workspace_apps(workspace_id)?;
+    let trash_ids = trash_controller.read_trash_ids(transaction)?;
+    apps.retain(|app| !trash_ids.contains(&app.id));
     Ok(RepeatedApp { items: apps })
 }

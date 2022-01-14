@@ -10,6 +10,7 @@ use crate::{
     event::WorkspaceEvent,
     services::{
         app::event_handler::*,
+        persistence::FlowyCorePersistence,
         trash::event_handler::*,
         view::event_handler::*,
         workspace::event_handler::*,
@@ -49,15 +50,17 @@ pub fn init_core(
     flowy_document: Arc<DocumentContext>,
     cloud_service: Arc<dyn WorkspaceCloudService>,
 ) -> Arc<CoreContext> {
+    let persistence = Arc::new(FlowyCorePersistence::new(database.clone()));
+
     let trash_controller = Arc::new(TrashController::new(
-        database.clone(),
+        persistence.clone(),
         cloud_service.clone(),
         user.clone(),
     ));
 
     let view_controller = Arc::new(ViewController::new(
         user.clone(),
-        database.clone(),
+        persistence.clone(),
         cloud_service.clone(),
         trash_controller.clone(),
         flowy_document,
@@ -65,14 +68,14 @@ pub fn init_core(
 
     let app_controller = Arc::new(AppController::new(
         user.clone(),
-        database.clone(),
+        persistence.clone(),
         trash_controller.clone(),
         cloud_service.clone(),
     ));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),
-        database.clone(),
+        persistence.clone(),
         trash_controller.clone(),
         cloud_service.clone(),
     ));
@@ -80,7 +83,7 @@ pub fn init_core(
     Arc::new(CoreContext::new(
         user,
         cloud_service,
-        database,
+        persistence,
         workspace_controller,
         app_controller,
         view_controller,

@@ -21,14 +21,14 @@ pub(crate) async fn create_app_handler(
 
 pub(crate) async fn delete_app_handler(
     data: Data<QueryAppRequest>,
-    view_controller: Unit<Arc<AppController>>,
+    app_controller: Unit<Arc<AppController>>,
     trash_controller: Unit<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
     let params: AppId = data.into_inner().try_into()?;
-    let trash = view_controller
-        .read_app_tables(vec![params.app_id])?
+    let trash = app_controller
+        .read_local_apps(vec![params.app_id])?
         .into_iter()
-        .map(|view_table| view_table.into())
+        .map(|app| app.into())
         .collect::<Vec<Trash>>();
 
     let _ = trash_controller.add(trash).await?;

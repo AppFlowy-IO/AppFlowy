@@ -1,10 +1,7 @@
-use crate::{
-    entities::{
-        app::{App, ColorStyle, UpdateAppParams},
-        trash::{Trash, TrashType},
-        view::RepeatedView,
-    },
-    services::workspace::sql::WorkspaceTable,
+use crate::entities::{
+    app::{App, ColorStyle, UpdateAppParams},
+    trash::{Trash, TrashType},
+    view::RepeatedView,
 };
 use diesel::sql_types::Binary;
 use flowy_database::{
@@ -15,10 +12,9 @@ use flowy_database::{
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
-use crate::errors::FlowyError;
+use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
 
-pub struct AppTableSql {}
-
+pub struct AppTableSql();
 impl AppTableSql {
     pub(crate) fn create_app(app: App, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let app_table = AppTable::new(app);
@@ -161,7 +157,7 @@ impl_sql_binary_expression!(ColorStyleCol);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "app_table"]
-pub(crate) struct AppChangeset {
+pub struct AppChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,

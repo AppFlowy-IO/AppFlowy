@@ -9,8 +9,14 @@ use crate::{
     dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::workspace::RepeatedWorkspace,
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
-    services::{AppController, TrashController, ViewController, WorkspaceController},
+    module::{WorkspaceCloudService, WorkspaceUser},
+    services::{
+        persistence::FlowyCorePersistence,
+        AppController,
+        TrashController,
+        ViewController,
+        WorkspaceController,
+    },
 };
 
 lazy_static! {
@@ -20,7 +26,7 @@ lazy_static! {
 pub struct CoreContext {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) cloud_service: Arc<dyn WorkspaceCloudService>,
-    pub(crate) database: Arc<dyn WorkspaceDatabase>,
+    pub(crate) persistence: Arc<FlowyCorePersistence>,
     pub workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
     pub(crate) view_controller: Arc<ViewController>,
@@ -31,7 +37,7 @@ impl CoreContext {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn WorkspaceCloudService>,
-        database: Arc<dyn WorkspaceDatabase>,
+        persistence: Arc<FlowyCorePersistence>,
         workspace_controller: Arc<WorkspaceController>,
         app_controller: Arc<AppController>,
         view_controller: Arc<ViewController>,
@@ -44,7 +50,7 @@ impl CoreContext {
         Self {
             user,
             cloud_service,
-            database,
+            persistence,
             workspace_controller,
             app_controller,
             view_controller,

@@ -1,4 +1,4 @@
-use crate::impl_def_and_def_mut;
+use crate::{entities::app::App, impl_def_and_def_mut};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::fmt::Formatter;
 
@@ -123,3 +123,15 @@ pub struct RepeatedTrash {
 }
 
 impl_def_and_def_mut!(RepeatedTrash, Trash);
+
+impl std::convert::From<App> for Trash {
+    fn from(app: App) -> Self {
+        Trash {
+            id: app.id,
+            name: app.name,
+            modified_time: app.modified_time,
+            create_time: app.create_time,
+            ty: TrashType::App,
+        }
+    }
+}

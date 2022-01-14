@@ -4,7 +4,7 @@ use crate::{
         view::{RepeatedView, UpdateViewParams, View, ViewType},
     },
     errors::FlowyError,
-    services::app::sql::AppTable,
+    services::persistence::version_1::app_sql::AppTable,
 };
 use diesel::sql_types::Integer;
 use flowy_database::{
@@ -14,8 +14,7 @@ use flowy_database::{
 };
 use lib_infra::timestamp;
 
-pub struct ViewTableSql {}
-
+pub struct ViewTableSql();
 impl ViewTableSql {
     pub(crate) fn create_view(view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let view_table = ViewTable::new(view);
@@ -182,7 +181,7 @@ impl std::convert::From<ViewTable> for Trash {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "view_table"]
-pub(crate) struct ViewChangeset {
+pub struct ViewChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,

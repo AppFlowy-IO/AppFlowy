@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'helper.dart';
 
