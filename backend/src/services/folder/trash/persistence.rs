@@ -1,4 +1,4 @@
-use crate::services::core::{app::persistence::AppTable, view::persistence::ViewTable};
+use crate::services::folder::{app::persistence::AppTable, view::persistence::ViewTable};
 use flowy_core_data_model::protobuf::{Trash, TrashType};
 
 pub(crate) const TRASH_TABLE: &str = "trash_table";

@@ -14,7 +14,8 @@ pub struct WebSocketRawMessage {
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum WSModule {
-    Doc = 0,
+    Doc    = 0,
+    Folder = 1,
 }
 
 impl std::default::Default for WSModule {
@@ -25,6 +26,7 @@ impl ToString for WSModule {
     fn to_string(&self) -> String {
         match self {
             WSModule::Doc => "0".to_string(),
+            WSModule::Folder => "1".to_string(),
         }
     }
 }

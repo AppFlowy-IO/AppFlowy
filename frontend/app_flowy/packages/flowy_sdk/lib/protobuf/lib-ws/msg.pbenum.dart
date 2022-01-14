@@ -11,9 +11,11 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class WSModule extends $pb.ProtobufEnum {
   static const WSModule Doc = WSModule._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
+  static const WSModule Folder = WSModule._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Folder');
 
   static const $core.List<WSModule> values = <WSModule> [
     Doc,
+    Folder,
   ];
 
   static final $core.Map<$core.int, WSModule> _byValue = $pb.ProtobufEnum.initByValue(values);

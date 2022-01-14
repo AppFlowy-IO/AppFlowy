@@ -1,7 +1,7 @@
 use crate::{
     context::FlowyPersistence,
     entities::logged_user::LoggedUser,
-    services::core::trash::{create_trash, delete_all_trash, delete_trash, read_trash},
+    services::folder::trash::{create_trash, delete_all_trash, delete_trash, read_trash},
     util::serde_ext::parse_from_payload,
 };
 use ::protobuf::ProtobufEnum;

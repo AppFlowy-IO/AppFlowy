@@ -10,7 +10,7 @@ mod macros;
 #[macro_use]
 extern crate flowy_database;
 
-pub mod context;
+pub mod controller;
 mod dart_notification;
 pub mod protobuf;
 mod util;

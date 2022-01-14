@@ -22,10 +22,10 @@ use std::{
 
 pub trait RevisionUser: Send + Sync + Debug {
     fn user_id(&self) -> String;
-    fn receive(&self, resp: SyncResponse);
+    fn receive(&self, resp: RevisionSyncResponse);
 }
 
-pub enum SyncResponse {
+pub enum RevisionSyncResponse {
     Pull(ServerRevisionWSData),
     Push(ServerRevisionWSData),
     Ack(ServerRevisionWSData),
@@ -66,7 +66,7 @@ impl RevisionSynchronizer {
             let revisions = self.persistence.read_revisions(&doc_id, None).await?;
             let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
             let data = ServerRevisionWSDataBuilder::build_push_message(&doc_id, repeated_revision);
-            user.receive(SyncResponse::Push(data));
+            user.receive(RevisionSyncResponse::Push(data));
             return Ok(());
         }
 
@@ -94,7 +94,7 @@ impl RevisionSynchronizer {
                         end: first_revision.rev_id,
                     };
                     let msg = ServerRevisionWSDataBuilder::build_pull_message(&self.doc_id, range);
-                    user.receive(SyncResponse::Pull(msg));
+                    user.receive(RevisionSyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
@@ -221,7 +221,7 @@ impl RevisionSynchronizer {
         match repeated_revision_from_revision_pbs(revisions) {
             Ok(repeated_revision) => {
                 let data = ServerRevisionWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
-                user.receive(SyncResponse::Push(data));
+                user.receive(RevisionSyncResponse::Push(data));
             },
             Err(e) => tracing::error!("{}", e),
         }

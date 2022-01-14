@@ -1,6 +1,6 @@
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::workspace::{
+    services::folder::workspace::{
         create_workspace,
         delete_workspace,
         persistence::check_workspace_id,

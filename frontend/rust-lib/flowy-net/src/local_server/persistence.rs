@@ -12,42 +12,40 @@ use std::{
     sync::Arc,
 };
 
-pub trait DocumentCloudStorage: Send + Sync {
+pub trait RevisionCloudStorage: Send + Sync {
     fn set_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
     fn get_revisions(
         &self,
-        doc_id: &str,
+        object_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<RepeatedRevisionPB, CollaborateError>;
 
-    fn reset_document(
+    fn reset_object(
         &self,
-        doc_id: &str,
+        object_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-pub(crate) struct LocalDocumentCloudPersistence {
+pub(crate) struct LocalRevisionCloudPersistence {
     // For the moment, we use memory to cache the data, it will be implemented with other storage.
     // Like the Firestore,Dropbox.etc.
-    storage: Arc<dyn DocumentCloudStorage>,
+    storage: Arc<dyn RevisionCloudStorage>,
 }
 
-impl Debug for LocalDocumentCloudPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalDocServerPersistence") }
+impl Debug for LocalRevisionCloudPersistence {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalRevisionCloudPersistence") }
 }
 
-impl std::default::Default for LocalDocumentCloudPersistence {
+impl std::default::Default for LocalRevisionCloudPersistence {
     fn default() -> Self {
-        LocalDocumentCloudPersistence {
+        LocalRevisionCloudPersistence {
             storage: Arc::new(MemoryDocumentCloudStorage::default()),
         }
     }
 }
 
-impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
-    fn enable_sync(&self) -> bool { false }
-
+impl DocumentCloudPersistence for LocalRevisionCloudPersistence {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
@@ -107,7 +105,7 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
-            let _ = storage.reset_document(&doc_id, revisions).await?;
+            let _ = storage.reset_object(&doc_id, revisions).await?;
             Ok(())
         })
     }
@@ -117,7 +115,7 @@ struct MemoryDocumentCloudStorage {}
 impl std::default::Default for MemoryDocumentCloudStorage {
     fn default() -> Self { Self {} }
 }
-impl DocumentCloudStorage for MemoryDocumentCloudStorage {
+impl RevisionCloudStorage for MemoryDocumentCloudStorage {
     fn set_revisions(&self, _repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
         Box::pin(async move { Ok(()) })
     }
@@ -133,7 +131,7 @@ impl DocumentCloudStorage for MemoryDocumentCloudStorage {
         })
     }
 
-    fn reset_document(
+    fn reset_object(
         &self,
         _doc_id: &str,
         _repeated_revision: RepeatedRevisionPB,

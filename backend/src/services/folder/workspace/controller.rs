@@ -1,7 +1,7 @@
 use super::persistence::NewWorkspaceBuilder;
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::{
+    services::folder::{
         app::{controller::read_app, persistence::AppTable},
         workspace::persistence::*,
     },

@@ -1262,6 +1262,7 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
+ "flowy-sync",
  "futures",
  "futures-core",
  "lazy_static",

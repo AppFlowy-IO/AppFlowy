@@ -1,12 +1,12 @@
 use crate::{
     entities::logged_user::LoggedUser,
     services::{
-        core::{
+        document::persistence::DocumentKVPersistence,
+        folder::{
             app::controller::{delete_app, read_app_table},
             trash::persistence::{TrashTable, TRASH_TABLE},
             view::{delete_view, read_view_table},
         },
-        document::persistence::DocumentKVPersistence,
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };

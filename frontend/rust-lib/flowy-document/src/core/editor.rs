@@ -2,7 +2,7 @@ use crate::{
     context::DocumentUser,
     core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
-    ws_receivers::DocumentWSReceiver,
+    DocumentWSReceiver,
 };
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -38,7 +38,7 @@ impl ClientDocumentEditor {
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
         mut rev_manager: RevisionManager,
-        ws: Arc<dyn RevisionWebSocket>,
+        web_socket: Arc<dyn RevisionWebSocket>,
         server: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document_info = rev_manager.load::<DocumentInfoBuilder>(server).await?;
@@ -53,7 +53,7 @@ impl ClientDocumentEditor {
             user_id.clone(),
             edit_cmd_tx.clone(),
             rev_manager.clone(),
-            ws,
+            web_socket,
         )
         .await;
         let editor = Arc::new(Self {

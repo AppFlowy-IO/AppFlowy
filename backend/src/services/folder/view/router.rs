@@ -1,7 +1,7 @@
 use crate::{
     context::FlowyPersistence,
     entities::logged_user::LoggedUser,
-    services::core::view::{
+    services::folder::view::{
         create_view,
         delete_view,
         persistence::{check_view_id, check_view_ids},

@@ -13,11 +13,12 @@ const WSModule$json = const {
   '1': 'WSModule',
   '2': const [
     const {'1': 'Doc', '2': 0},
+    const {'1': 'Folder', '2': 1},
   ],
 };
 
 /// Descriptor for `WSModule`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wSModuleDescriptor = $convert.base64Decode('CghXU01vZHVsZRIHCgNEb2MQAA==');
+final $typed_data.Uint8List wSModuleDescriptor = $convert.base64Decode('CghXU01vZHVsZRIHCgNEb2MQABIKCgZGb2xkZXIQAQ==');
 @$core.Deprecated('Use webSocketRawMessageDescriptor instead')
 const WebSocketRawMessage$json = const {
   '1': 'WebSocketRawMessage',

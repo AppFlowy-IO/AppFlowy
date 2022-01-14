@@ -1,5 +1,5 @@
 use crate::{
-    context::CoreContext,
+    controller::FolderManager,
     dart_notification::{send_dart_notification, WorkspaceNotification},
     errors::FlowyError,
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
@@ -42,17 +42,17 @@ pub(crate) async fn open_workspace_handler(
     data_result(workspaces)
 }
 
-#[tracing::instrument(skip(data, core), err)]
+#[tracing::instrument(skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
     data: Data<QueryWorkspaceRequest>,
-    core: Unit<Arc<CoreContext>>,
+    folder: Unit<Arc<FolderManager>>,
 ) -> DataResult<RepeatedWorkspace, FlowyError> {
     let params: WorkspaceId = data.into_inner().try_into()?;
-    let user_id = core.user.user_id()?;
-    let workspace_controller = core.workspace_controller.clone();
+    let user_id = folder.user.user_id()?;
+    let workspace_controller = folder.workspace_controller.clone();
 
-    let trash_controller = core.trash_controller.clone();
-    let workspaces = core.persistence.begin_transaction(|transaction| {
+    let trash_controller = folder.trash_controller.clone();
+    let workspaces = folder.persistence.begin_transaction(|transaction| {
         let mut workspaces =
             workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, &transaction)?;
         for workspace in workspaces.iter_mut() {
@@ -61,41 +61,40 @@ pub(crate) async fn read_workspaces_handler(
         }
         Ok(workspaces)
     })?;
-    let _ = read_workspaces_on_server(core, user_id, params);
+    let _ = read_workspaces_on_server(folder, user_id, params);
     data_result(workspaces)
 }
 
-#[tracing::instrument(skip(core), err)]
+#[tracing::instrument(skip(folder), err)]
 pub async fn read_cur_workspace_handler(
-    core: Unit<Arc<CoreContext>>,
+    folder: Unit<Arc<FolderManager>>,
 ) -> DataResult<CurrentWorkspaceSetting, FlowyError> {
     let workspace_id = get_current_workspace()?;
-    let user_id = core.user.user_id()?;
+    let user_id = folder.user.user_id()?;
     let params = WorkspaceId {
         workspace_id: Some(workspace_id.clone()),
     };
 
-    let workspace = core.persistence.begin_transaction(|transaction| {
-        core.workspace_controller
+    let workspace = folder.persistence.begin_transaction(|transaction| {
+        folder
+            .workspace_controller
             .read_local_workspace(workspace_id, &user_id, &transaction)
     })?;
 
-    let latest_view: Option<View> = core.view_controller.latest_visit_view().unwrap_or(None);
+    let latest_view: Option<View> = folder.view_controller.latest_visit_view().unwrap_or(None);
     let setting = CurrentWorkspaceSetting { workspace, latest_view };
-    let _ = read_workspaces_on_server(core, user_id, params);
+    let _ = read_workspaces_on_server(folder, user_id, params);
     data_result(setting)
 }
 
-#[tracing::instrument(level = "debug", skip(core), err)]
+#[tracing::instrument(level = "debug", skip(folder_manager), err)]
 fn read_workspaces_on_server(
-    core: Unit<Arc<CoreContext>>,
+    folder_manager: Unit<Arc<FolderManager>>,
     user_id: String,
     params: WorkspaceId,
 ) -> Result<(), FlowyError> {
-    let (token, server) = (core.user.token()?, core.cloud_service.clone());
-    let _app_ctrl = core.app_controller.clone();
-    let _view_ctrl = core.view_controller.clone();
-    let persistence = core.persistence.clone();
+    let (token, server) = (folder_manager.user.token()?, folder_manager.cloud_service.clone());
+    let persistence = folder_manager.persistence.clone();
 
     tokio::spawn(async move {
         let workspaces = server.read_workspace(&token, params).await?;

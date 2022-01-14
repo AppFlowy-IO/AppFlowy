@@ -1,10 +1,9 @@
 pub mod context;
-pub(crate) mod controller;
+mod controller;
 pub mod core;
 // mod notify;
 pub mod protobuf;
-pub mod ws_receivers;
-
+pub use controller::*;
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }

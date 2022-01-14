@@ -1,4 +1,4 @@
-use crate::ws::connection::{FlowyRawWebSocket, FlowyWSSender};
+use crate::ws::connection::{FlowyRawWebSocket, FlowyWebSocket};
 use dashmap::DashMap;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
@@ -65,7 +65,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
         Ok(())
     }
 
-    fn sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> {
+    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
         let ws = LocalWebSocketAdaptor(self.server_ws_sender.clone());
         Ok(Arc::new(ws))
     }
@@ -74,7 +74,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
 #[derive(Clone)]
 struct LocalWebSocketAdaptor(broadcast::Sender<WebSocketRawMessage>);
 
-impl FlowyWSSender for LocalWebSocketAdaptor {
+impl FlowyWebSocket for LocalWebSocketAdaptor {
     fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError> {
         let _ = self.0.send(msg);
         Ok(())

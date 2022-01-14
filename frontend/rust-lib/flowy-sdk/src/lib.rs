@@ -2,7 +2,7 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::*;
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_core::{context::CoreContext, errors::FlowyError, module::init_core};
+use flowy_core::{controller::FolderManager, errors::FlowyError};
 use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
@@ -83,7 +83,7 @@ pub struct FlowySDK {
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub document_ctx: Arc<DocumentContext>,
-    pub core: Arc<CoreContext>,
+    pub core: Arc<FolderManager>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
@@ -108,7 +108,13 @@ impl FlowySDK {
 
         let user_session = mk_user_session(&config, &local_server, &config.server_config);
         let flowy_document = mk_document(&local_server, &ws_conn, &user_session, &config.server_config);
-        let core_ctx = mk_core_context(&local_server, &user_session, &flowy_document, &config.server_config);
+        let core_ctx = mk_core_context(
+            &local_server,
+            &user_session,
+            &flowy_document,
+            &config.server_config,
+            &ws_conn,
+        );
 
         //
         let modules = mk_modules(&ws_conn, &core_ctx, &user_session);
@@ -134,12 +140,12 @@ fn _init(
     dispatch: &EventDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
-    core: &Arc<CoreContext>,
+    folder_manager: &Arc<FolderManager>,
 ) {
     let subscribe_user_status = user_session.notifier.subscribe_user_status();
     let subscribe_network_type = ws_conn.subscribe_network_ty();
-    let core = core.clone();
-    let cloned_core = core.clone();
+    let folder_manager = folder_manager.clone();
+    let cloned_folder_manager = folder_manager.clone();
     let user_session = user_session.clone();
     let ws_conn = ws_conn.clone();
     let local_server = local_server.clone();
@@ -152,36 +158,36 @@ fn _init(
         user_session.init();
         ws_conn.init().await;
         listen_on_websocket(ws_conn.clone());
-        _listen_user_status(ws_conn.clone(), subscribe_user_status, core.clone()).await;
+        _listen_user_status(ws_conn.clone(), subscribe_user_status, folder_manager.clone()).await;
     });
 
     dispatch.spawn(async move {
-        _listen_network_status(subscribe_network_type, cloned_core).await;
+        _listen_network_status(subscribe_network_type, cloned_folder_manager).await;
     });
 }
 
 async fn _listen_user_status(
     ws_conn: Arc<FlowyWebSocketConnect>,
     mut subscribe: broadcast::Receiver<UserStatus>,
-    core: Arc<CoreContext>,
+    folder_manager: Arc<FolderManager>,
 ) {
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
             match status {
                 UserStatus::Login { token, user_id } => {
-                    let _ = core.user_did_sign_in(&token).await?;
+                    let _ = folder_manager.user_did_sign_in(&token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 },
                 UserStatus::Logout { .. } => {
-                    core.user_did_logout().await;
+                    folder_manager.user_did_logout().await;
                     let _ = ws_conn.stop().await;
                 },
                 UserStatus::Expired { .. } => {
-                    core.user_session_expired().await;
+                    folder_manager.user_session_expired().await;
                     let _ = ws_conn.stop().await;
                 },
                 UserStatus::SignUp { profile, ret } => {
-                    let _ = core.user_did_sign_up(&profile.token).await?;
+                    let _ = folder_manager.user_did_sign_up(&profile.token).await?;
                     let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 },
@@ -196,7 +202,7 @@ async fn _listen_user_status(
     }
 }
 
-async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, _core: Arc<CoreContext>) {
+async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, _core: Arc<FolderManager>) {
     while let Ok(_new_type) = subscribe.recv().await {
         // core.network_state_changed(new_type);
     }
@@ -235,10 +241,15 @@ fn mk_core_context(
     user_session: &Arc<UserSession>,
     flowy_document: &Arc<DocumentContext>,
     server_config: &ClientServerConfiguration,
-) -> Arc<CoreContext> {
-    let (user, database, cloud_service) =
-        CoreDepsResolver::resolve(local_server.clone(), user_session.clone(), server_config);
-    init_core(user, database, flowy_document.clone(), cloud_service)
+    ws_conn: &Arc<FlowyWebSocketConnect>,
+) -> Arc<FolderManager> {
+    CoreDepsResolver::resolve(
+        local_server.clone(),
+        user_session.clone(),
+        server_config,
+        flowy_document,
+        ws_conn.clone(),
+    )
 }
 
 pub fn mk_document(
@@ -247,16 +258,10 @@ pub fn mk_document(
     user_session: &Arc<UserSession>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<DocumentContext> {
-    let dependencies = DocumentDepsResolver::resolve(
+    Arc::new(DocumentDepsResolver::resolve(
         local_server.clone(),
         ws_conn.clone(),
         user_session.clone(),
         server_config,
-    );
-    Arc::new(DocumentContext::new(
-        dependencies.user,
-        dependencies.ws_receivers,
-        dependencies.ws_sender,
-        dependencies.cloud_service,
     ))
 }

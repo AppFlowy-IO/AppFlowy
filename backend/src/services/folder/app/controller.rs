@@ -1,8 +1,8 @@
-use crate::services::core::view::read_view_belong_to_id;
+use crate::services::folder::view::read_view_belong_to_id;
 
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::{app::persistence::*, trash::read_trash_ids},
+    services::folder::{app::persistence::*, trash::read_trash_ids},
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};

@@ -3,10 +3,10 @@ use bytes::Bytes;
 use flowy_collaboration::entities::ws::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
-    context::DocumentUser,
+    context::{DocumentContext, DocumentUser},
     errors::{internal_error, FlowyError},
-    ws_receivers::DocumentWSReceivers,
     DocumentCloudService,
+    DocumentController,
 };
 use flowy_net::{
     http_server::document::DocumentHttpCloudService,
@@ -18,13 +18,6 @@ use flowy_user::services::UserSession;
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct DocumentDependencies {
-    pub user: Arc<dyn DocumentUser>,
-    pub ws_receivers: Arc<DocumentWSReceivers>,
-    pub ws_sender: Arc<dyn RevisionWebSocket>,
-    pub cloud_service: Arc<dyn DocumentCloudService>,
-}
-
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
     pub fn resolve(
@@ -32,23 +25,21 @@ impl DocumentDepsResolver {
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-    ) -> DocumentDependencies {
+    ) -> DocumentContext {
         let user = Arc::new(DocumentUserImpl(user_session));
         let ws_sender = Arc::new(DocumentWebSocketImpl(ws_conn.clone()));
-        let ws_receivers = Arc::new(DocumentWSReceivers::new());
-        let receiver = Arc::new(WSMessageReceiverImpl(ws_receivers.clone()));
-        ws_conn.add_ws_message_receiver(receiver).unwrap();
-
         let cloud_service: Arc<dyn DocumentCloudService> = match local_server {
             None => Arc::new(DocumentHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
         };
 
-        DocumentDependencies {
+        let document_controller = Arc::new(DocumentController::new(cloud_service, user.clone(), ws_sender));
+        let receiver = Arc::new(DocumentWSMessageReceiverImpl(document_controller.clone()));
+        ws_conn.add_ws_message_receiver(receiver).unwrap();
+
+        DocumentContext {
+            controller: document_controller,
             user,
-            ws_receivers,
-            ws_sender,
-            cloud_service,
         }
     }
 }
@@ -80,7 +71,7 @@ impl RevisionWebSocket for DocumentWebSocketImpl {
             module: WSModule::Doc,
             data: bytes.to_vec(),
         };
-        let sender = self.0.ws_sender()?;
+        let sender = self.0.web_socket()?;
         sender.send(msg).map_err(internal_error)?;
         Ok(())
     }
@@ -88,13 +79,13 @@ impl RevisionWebSocket for DocumentWebSocketImpl {
     fn subscribe_state_changed(&self) -> WSStateReceiver { self.0.subscribe_websocket_state() }
 }
 
-struct WSMessageReceiverImpl(Arc<DocumentWSReceivers>);
-impl WSMessageReceiver for WSMessageReceiverImpl {
+struct DocumentWSMessageReceiverImpl(Arc<DocumentController>);
+impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
     fn source(&self) -> WSModule { WSModule::Doc }
     fn receive_message(&self, msg: WebSocketRawMessage) {
-        let receivers = self.0.clone();
+        let handler = self.0.clone();
         tokio::spawn(async move {
-            receivers.did_receive_data(Bytes::from(msg.data)).await;
+            handler.did_receive_ws_data(Bytes::from(msg.data)).await;
         });
     }
 }

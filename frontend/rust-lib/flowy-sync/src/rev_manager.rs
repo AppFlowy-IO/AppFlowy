@@ -1,5 +1,4 @@
 use crate::{RevisionCache, RevisionRecord};
-
 use dashmap::DashMap;
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
@@ -8,7 +7,6 @@ use flowy_collaboration::{
 use flowy_error::{FlowyError, FlowyResult};
 use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
-
 use std::{collections::VecDeque, sync::Arc};
 use tokio::sync::RwLock;
 

@@ -6,4 +6,5 @@ message WebSocketRawMessage {
 }
 enum WSModule {
     Doc = 0;
+    Folder = 1;
 }

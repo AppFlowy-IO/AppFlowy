@@ -1,6 +1,9 @@
+use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::client_document::default::{initial_delta, initial_read_me};
 use flowy_core_data_model::{entities::view::CreateViewParams, user_default};
+use flowy_document::context::DocumentContext;
+use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
@@ -23,7 +26,7 @@ lazy_static! {
     static ref INIT_WORKSPACE: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
 }
 
-pub struct CoreContext {
+pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) cloud_service: Arc<dyn WorkspaceCloudService>,
     pub(crate) persistence: Arc<FlowyCorePersistence>,
@@ -31,21 +34,48 @@ pub struct CoreContext {
     pub(crate) app_controller: Arc<AppController>,
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) trash_controller: Arc<TrashController>,
+    ws_sender: Arc<dyn RevisionWebSocket>,
 }
 
-impl CoreContext {
+impl FolderManager {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn WorkspaceCloudService>,
         persistence: Arc<FlowyCorePersistence>,
-        workspace_controller: Arc<WorkspaceController>,
-        app_controller: Arc<AppController>,
-        view_controller: Arc<ViewController>,
-        trash_controller: Arc<TrashController>,
+        flowy_document: Arc<DocumentContext>,
+        ws_sender: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(token) = user.token() {
             INIT_WORKSPACE.write().insert(token, false);
         }
+
+        let trash_controller = Arc::new(TrashController::new(
+            persistence.clone(),
+            cloud_service.clone(),
+            user.clone(),
+        ));
+
+        let view_controller = Arc::new(ViewController::new(
+            user.clone(),
+            persistence.clone(),
+            cloud_service.clone(),
+            trash_controller.clone(),
+            flowy_document,
+        ));
+
+        let app_controller = Arc::new(AppController::new(
+            user.clone(),
+            persistence.clone(),
+            trash_controller.clone(),
+            cloud_service.clone(),
+        ));
+
+        let workspace_controller = Arc::new(WorkspaceController::new(
+            user.clone(),
+            persistence.clone(),
+            trash_controller.clone(),
+            cloud_service.clone(),
+        ));
 
         Self {
             user,
@@ -55,6 +85,7 @@ impl CoreContext {
             app_controller,
             view_controller,
             trash_controller,
+            ws_sender,
         }
     }
 
@@ -66,6 +97,8 @@ impl CoreContext {
     //         NetworkType::Ethernet => {},
     //     }
     // }
+
+    pub async fn did_receive_ws_data(&self, _data: Bytes) {}
 
     pub async fn user_did_sign_in(&self, token: &str) -> FlowyResult<()> {
         log::debug!("workspace initialize after sign in");

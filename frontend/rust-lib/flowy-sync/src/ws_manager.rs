@@ -43,7 +43,7 @@ pub struct RevisionWebSocketManager {
     pub object_id: String,
     data_provider: Arc<dyn RevisionWSSinkDataProvider>,
     stream_consumer: Arc<dyn RevisionWSSteamConsumer>,
-    ws_conn: Arc<dyn RevisionWebSocket>,
+    web_socket: Arc<dyn RevisionWebSocket>,
     pub ws_passthrough_tx: Sender<ServerRevisionWSData>,
     ws_passthrough_rx: Option<Receiver<ServerRevisionWSData>>,
     pub state_passthrough_tx: broadcast::Sender<WSConnectState>,
@@ -53,7 +53,7 @@ pub struct RevisionWebSocketManager {
 impl RevisionWebSocketManager {
     pub fn new(
         object_id: &str,
-        ws_conn: Arc<dyn RevisionWebSocket>,
+        web_socket: Arc<dyn RevisionWebSocket>,
         data_provider: Arc<dyn RevisionWSSinkDataProvider>,
         stream_consumer: Arc<dyn RevisionWSSteamConsumer>,
         ping_duration: Duration,
@@ -66,7 +66,7 @@ impl RevisionWebSocketManager {
             object_id,
             data_provider,
             stream_consumer,
-            ws_conn,
+            web_socket,
             ws_passthrough_tx,
             ws_passthrough_rx: Some(ws_passthrough_rx),
             state_passthrough_tx,
@@ -81,7 +81,7 @@ impl RevisionWebSocketManager {
         let sink = RevisionWSSink::new(
             &self.object_id,
             self.data_provider.clone(),
-            self.ws_conn.clone(),
+            self.web_socket.clone(),
             self.stop_sync_tx.subscribe(),
             ping_duration,
         );

@@ -1,4 +1,4 @@
-use crate::local_server::persistence::LocalDocumentCloudPersistence;
+use crate::local_server::persistence::LocalRevisionCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -35,7 +35,7 @@ impl LocalServer {
         client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
-        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
+        let persistence = Arc::new(LocalRevisionCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence));
         let stop_tx = RwLock::new(None);
 
@@ -122,7 +122,7 @@ impl LocalWebSocketRunner {
             client_data.ty,
         );
         let client_ws_sender = self.client_ws_sender.clone();
-        let user = Arc::new(LocalDocumentUser {
+        let user = Arc::new(LocalRevisionUser {
             user_id,
             client_ws_sender,
         });
@@ -144,15 +144,15 @@ impl LocalWebSocketRunner {
 }
 
 #[derive(Debug)]
-struct LocalDocumentUser {
+struct LocalRevisionUser {
     user_id: String,
     client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
 }
 
-impl RevisionUser for LocalDocumentUser {
+impl RevisionUser for LocalRevisionUser {
     fn user_id(&self) -> String { self.user_id.clone() }
 
-    fn receive(&self, resp: SyncResponse) {
+    fn receive(&self, resp: RevisionSyncResponse) {
         let sender = self.client_ws_sender.clone();
         let send_fn = |sender: UnboundedSender<WebSocketRawMessage>, msg: WebSocketRawMessage| match sender.send(msg) {
             Ok(_) => {},
@@ -163,7 +163,7 @@ impl RevisionUser for LocalDocumentUser {
 
         tokio::spawn(async move {
             match resp {
-                SyncResponse::Pull(data) => {
+                RevisionSyncResponse::Pull(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
                         module: WSModule::Doc,
@@ -171,7 +171,7 @@ impl RevisionUser for LocalDocumentUser {
                     };
                     send_fn(sender, msg);
                 },
-                SyncResponse::Push(data) => {
+                RevisionSyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
                         module: WSModule::Doc,
@@ -179,7 +179,7 @@ impl RevisionUser for LocalDocumentUser {
                     };
                     send_fn(sender, msg);
                 },
-                SyncResponse::Ack(data) => {
+                RevisionSyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
                         module: WSModule::Doc,

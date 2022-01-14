@@ -63,14 +63,14 @@ struct ScriptContext {
 impl ScriptContext {
     async fn new(client_sdk: FlowySDKTest, server: TestServer) -> Self {
         let user_session = client_sdk.user_session.clone();
-        let ws_manager = client_sdk.ws_conn.clone();
+        let ws_conn = client_sdk.ws_conn.clone();
         let doc_id = create_doc(&client_sdk).await;
 
         Self {
             client_editor: None,
             client_sdk,
             client_user_session: user_session,
-            ws_conn: ws_manager,
+            ws_conn,
             server,
             doc_id,
         }

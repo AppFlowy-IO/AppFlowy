@@ -1,6 +1,6 @@
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::app::{
+    services::folder::app::{
         controller::{create_app, delete_app, read_app, update_app},
         persistence::check_app_id,
     },

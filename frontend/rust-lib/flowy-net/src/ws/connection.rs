@@ -16,10 +16,10 @@ pub trait FlowyRawWebSocket: Send + Sync {
     fn subscribe_connect_state(&self) -> broadcast::Receiver<WSConnectState>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
     fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError>;
-    fn sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError>;
+    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError>;
 }
 
-pub trait FlowyWSSender: Send + Sync {
+pub trait FlowyWebSocket: Send + Sync {
     fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError>;
 }
 
@@ -101,12 +101,12 @@ impl FlowyWebSocketConnect {
         Ok(())
     }
 
-    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> { self.inner.sender() }
+    pub fn web_socket(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> { self.inner.sender() }
 }
 
 #[tracing::instrument(level = "debug", skip(ws_conn))]
 pub fn listen_on_websocket(ws_conn: Arc<FlowyWebSocketConnect>) {
-    let ws = ws_conn.inner.clone();
+    let raw_web_socket = ws_conn.inner.clone();
     let mut notify = ws_conn.inner.subscribe_connect_state();
     let _ = tokio::spawn(async move {
         loop {
@@ -117,7 +117,7 @@ pub fn listen_on_websocket(ws_conn: Arc<FlowyWebSocketConnect>) {
                         WSConnectState::Init => {},
                         WSConnectState::Connected => {},
                         WSConnectState::Connecting => {},
-                        WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
+                        WSConnectState::Disconnected => retry_connect(raw_web_socket.clone(), 100).await,
                     }
                 },
                 Err(e) => {

@@ -13,8 +13,8 @@ use crate::{
     },
     context::AppContext,
     services::{
-        core::{app::router as app, trash::router as trash, view::router as view, workspace::router as workspace},
         document::router as doc,
+        folder::{app::router as app, trash::router as trash, view::router as view, workspace::router as workspace},
         user::router as user,
         web_socket::WSServer,
     },
@@ -131,7 +131,7 @@ fn user_scope() -> Scope {
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = crate::services::core::log::Builder::new("flowy-server")
+    let _ = crate::services::log::Builder::new("flowy-server")
         .env_filter("Trace")
         .build();
     let pg_pool = get_connection_pool(&configuration.database)

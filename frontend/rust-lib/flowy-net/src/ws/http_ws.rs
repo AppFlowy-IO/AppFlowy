@@ -1,4 +1,4 @@
-use crate::ws::connection::{FlowyRawWebSocket, FlowyWSSender};
+use crate::ws::connection::{FlowyRawWebSocket, FlowyWebSocket};
 use flowy_error::internal_error;
 pub use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
@@ -42,13 +42,13 @@ impl FlowyRawWebSocket for Arc<WSController> {
         Ok(())
     }
 
-    fn sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> {
+    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
         let sender = self.ws_message_sender().map_err(internal_error)?;
         Ok(sender)
     }
 }
 
-impl FlowyWSSender for WSSender {
+impl FlowyWebSocket for WSSender {
     fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError> {
         let _ = self.send_msg(msg).map_err(internal_error)?;
         Ok(())

@@ -1,6 +1,6 @@
 use crate::{
     core::{EditorCommand, TransformDeltas, SYNC_INTERVAL_IN_MILLIS},
-    ws_receivers::DocumentWSReceiver,
+    DocumentWSReceiver,
 };
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -37,7 +37,7 @@ pub(crate) async fn make_document_ws_manager(
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
     rev_manager: Arc<RevisionManager>,
-    ws_conn: Arc<dyn RevisionWebSocket>,
+    web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
@@ -50,7 +50,7 @@ pub(crate) async fn make_document_ws_manager(
     let ping_duration = Duration::from_millis(SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
         &doc_id,
-        ws_conn,
+        web_socket,
         data_provider,
         ws_stream_consumer,
         ping_duration,

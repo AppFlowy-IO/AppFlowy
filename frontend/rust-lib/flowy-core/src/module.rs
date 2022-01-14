@@ -1,5 +1,5 @@
 use crate::{
-    context::CoreContext,
+    controller::FolderManager,
     entities::{
         app::{App, AppId, CreateAppParams, UpdateAppParams},
         trash::{RepeatedTrash, RepeatedTrashId},
@@ -14,14 +14,11 @@ use crate::{
         trash::event_handler::*,
         view::event_handler::*,
         workspace::event_handler::*,
-        AppController,
-        TrashController,
-        ViewController,
-        WorkspaceController,
     },
 };
 use flowy_database::DBConnection;
 use flowy_document::context::DocumentContext;
+use flowy_sync::RevisionWebSocket;
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use lib_sqlite::ConnectionPool;
@@ -44,61 +41,32 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn init_core(
+pub fn init_folder(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<DocumentContext>,
     cloud_service: Arc<dyn WorkspaceCloudService>,
-) -> Arc<CoreContext> {
+    ws_sender: Arc<dyn RevisionWebSocket>,
+) -> Arc<FolderManager> {
     let persistence = Arc::new(FlowyCorePersistence::new(database.clone()));
 
-    let trash_controller = Arc::new(TrashController::new(
-        persistence.clone(),
-        cloud_service.clone(),
-        user.clone(),
-    ));
-
-    let view_controller = Arc::new(ViewController::new(
-        user.clone(),
-        persistence.clone(),
-        cloud_service.clone(),
-        trash_controller.clone(),
-        flowy_document,
-    ));
-
-    let app_controller = Arc::new(AppController::new(
-        user.clone(),
-        persistence.clone(),
-        trash_controller.clone(),
-        cloud_service.clone(),
-    ));
-
-    let workspace_controller = Arc::new(WorkspaceController::new(
-        user.clone(),
-        persistence.clone(),
-        trash_controller.clone(),
-        cloud_service.clone(),
-    ));
-
-    Arc::new(CoreContext::new(
+    Arc::new(FolderManager::new(
         user,
         cloud_service,
         persistence,
-        workspace_controller,
-        app_controller,
-        view_controller,
-        trash_controller,
+        flowy_document,
+        ws_sender,
     ))
 }
 
-pub fn create(core: Arc<CoreContext>) -> Module {
+pub fn create(folder: Arc<FolderManager>) -> Module {
     let mut module = Module::new()
         .name("Flowy-Workspace")
-        .data(core.workspace_controller.clone())
-        .data(core.app_controller.clone())
-        .data(core.view_controller.clone())
-        .data(core.trash_controller.clone())
-        .data(core.clone());
+        .data(folder.workspace_controller.clone())
+        .data(folder.app_controller.clone())
+        .data(folder.view_controller.clone())
+        .data(folder.trash_controller.clone())
+        .data(folder.clone());
 
     module = module
         .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)

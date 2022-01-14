@@ -5,9 +5,12 @@ use crate::services::{
 use actix::Addr;
 use actix_web::web::Data;
 
-use crate::services::document::{
-    persistence::DocumentKVPersistence,
-    ws_receiver::{make_document_ws_receiver, HttpDocumentCloudPersistence},
+use crate::services::{
+    document::{
+        persistence::DocumentKVPersistence,
+        ws_receiver::{make_document_ws_receiver, HttpDocumentCloudPersistence},
+    },
+    folder::ws_receiver::make_folder_ws_receiver,
 };
 use flowy_collaboration::server_document::ServerDocumentManager;
 use lib_ws::WSModule;
@@ -35,6 +38,10 @@ impl AppContext {
 
         let document_ws_receiver = make_document_ws_receiver(flowy_persistence.clone(), document_manager.clone());
         ws_receivers.set(WSModule::Doc, document_ws_receiver);
+
+        let folder_ws_receiver = make_folder_ws_receiver(flowy_persistence.clone());
+        ws_receivers.set(WSModule::Folder, folder_ws_receiver);
+
         AppContext {
             ws_server,
             persistence: Data::new(flowy_persistence),

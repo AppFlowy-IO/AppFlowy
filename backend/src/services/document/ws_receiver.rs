@@ -3,7 +3,7 @@ use crate::{
     services::{
         document::{
             persistence::{create_document, read_document, revisions_to_key_value_items, DocumentKVPersistence},
-            ws_actor::{DocumentWebSocketActor, WSActorMessage},
+            ws_actor::{DocumentWSActorMessage, DocumentWebSocketActor},
         },
         web_socket::{WSClientData, WebSocketReceiver},
     },
@@ -33,7 +33,7 @@ pub fn make_document_ws_receiver(
     persistence: Arc<FlowyPersistence>,
     document_manager: Arc<ServerDocumentManager>,
 ) -> Arc<DocumentWebSocketReceiver> {
-    let (ws_sender, rx) = tokio::sync::mpsc::channel(100);
+    let (ws_sender, rx) = tokio::sync::mpsc::channel(1000);
     let actor = DocumentWebSocketActor::new(rx, document_manager);
     tokio::task::spawn(actor.run());
 
@@ -41,12 +41,12 @@ pub fn make_document_ws_receiver(
 }
 
 pub struct DocumentWebSocketReceiver {
-    ws_sender: mpsc::Sender<WSActorMessage>,
+    ws_sender: mpsc::Sender<DocumentWSActorMessage>,
     persistence: Arc<FlowyPersistence>,
 }
 
 impl DocumentWebSocketReceiver {
-    pub fn new(persistence: Arc<FlowyPersistence>, ws_sender: mpsc::Sender<WSActorMessage>) -> Self {
+    pub fn new(persistence: Arc<FlowyPersistence>, ws_sender: mpsc::Sender<DocumentWSActorMessage>) -> Self {
         Self { ws_sender, persistence }
     }
 }
@@ -58,7 +58,7 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
         let persistence = self.persistence.clone();
 
         actix_rt::spawn(async move {
-            let msg = WSActorMessage::ClientData {
+            let msg = DocumentWSActorMessage::ClientData {
                 client_data: data,
                 persistence,
                 ret,
@@ -82,7 +82,6 @@ impl Debug for HttpDocumentCloudPersistence {
 }
 
 impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
-    fn enable_sync(&self) -> bool { true }
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),

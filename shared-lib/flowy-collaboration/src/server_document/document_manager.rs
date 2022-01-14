@@ -2,7 +2,7 @@ use crate::{
     entities::{doc::DocumentInfo, ws::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    server_document::{document_pad::ServerDocument, RevisionSynchronizer, RevisionUser, SyncResponse},
+    server_document::{document_pad::ServerDocument, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
 };
 use async_stream::stream;
 use dashmap::DashMap;
@@ -16,8 +16,6 @@ use tokio::{
 };
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn enable_sync(&self) -> bool;
-
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
     fn create_document(
@@ -78,9 +76,9 @@ impl ServerDocumentManager {
         };
 
         if result.is_ok() {
-            cloned_user.receive(SyncResponse::Ack(ServerRevisionWSDataBuilder::build_ack_message(
-                &object_id, ack_id,
-            )));
+            cloned_user.receive(RevisionSyncResponse::Ack(
+                ServerRevisionWSDataBuilder::build_ack_message(&object_id, ack_id),
+            ));
         }
         result
     }
