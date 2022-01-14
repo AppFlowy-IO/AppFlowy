@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 enum UserNotification {
     Unknown = 0;
     UserAuthChanged = 1;

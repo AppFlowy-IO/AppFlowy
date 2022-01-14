@@ -2,20 +2,14 @@ use crate::errors::FlowyError;
 use async_trait::async_trait;
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::entities::ws::{DocumentClientWSData, DocumentServerWSData};
+use flowy_collaboration::entities::ws::{ServerRevisionWSData};
 use lib_ws::WSConnectState;
 use std::{convert::TryInto, sync::Arc};
 
 #[async_trait]
 pub(crate) trait DocumentWSReceiver: Send + Sync {
-    async fn receive_ws_data(&self, data: DocumentServerWSData) -> Result<(), FlowyError>;
+    async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError>;
     fn connect_state_changed(&self, state: WSConnectState);
-}
-
-pub type WSStateReceiver = tokio::sync::broadcast::Receiver<WSConnectState>;
-pub trait DocumentWebSocket: Send + Sync {
-    fn send(&self, data: DocumentClientWSData) -> Result<(), FlowyError>;
-    fn subscribe_state_changed(&self) -> WSStateReceiver;
 }
 
 pub struct DocumentWSReceivers {
@@ -44,9 +38,9 @@ impl DocumentWSReceivers {
     pub(crate) fn remove(&self, id: &str) { self.receivers.remove(id); }
 
     pub async fn did_receive_data(&self, data: Bytes) {
-        let data: DocumentServerWSData = data.try_into().unwrap();
-        match self.receivers.get(&data.doc_id) {
-            None => tracing::error!("Can't find any source handler for {:?}", data.doc_id),
+        let data: ServerRevisionWSData = data.try_into().unwrap();
+        match self.receivers.get(&data.object_id) {
+            None => tracing::error!("Can't find any source handler for {:?}", data.object_id),
             Some(handler) => match handler.receive_ws_data(data).await {
                 Ok(_) => {},
                 Err(e) => tracing::error!("{}", e),

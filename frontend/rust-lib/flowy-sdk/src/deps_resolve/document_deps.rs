@@ -1,11 +1,11 @@
 use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::DocumentClientWSData;
+use flowy_collaboration::entities::ws::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     context::DocumentUser,
-    core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
     errors::{internal_error, FlowyError},
+    ws_receivers::DocumentWSReceivers,
     DocumentCloudService,
 };
 use flowy_net::{
@@ -13,15 +13,15 @@ use flowy_net::{
     local_server::LocalServer,
     ws::connection::FlowyWebSocketConnect,
 };
+use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
-
 use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDependencies {
     pub user: Arc<dyn DocumentUser>,
     pub ws_receivers: Arc<DocumentWSReceivers>,
-    pub ws_sender: Arc<dyn DocumentWebSocket>,
+    pub ws_sender: Arc<dyn RevisionWebSocket>,
     pub cloud_service: Arc<dyn DocumentCloudService>,
 }
 
@@ -73,8 +73,8 @@ impl DocumentUser for DocumentUserImpl {
 }
 
 struct DocumentWebSocketImpl(Arc<FlowyWebSocketConnect>);
-impl DocumentWebSocket for DocumentWebSocketImpl {
-    fn send(&self, data: DocumentClientWSData) -> Result<(), FlowyError> {
+impl RevisionWebSocket for DocumentWebSocketImpl {
+    fn send(&self, data: ClientRevisionWSData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
             module: WSModule::Doc,

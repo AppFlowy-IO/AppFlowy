@@ -1,30 +1,26 @@
 use crate::{
     context::DocumentUser,
-    core::{
-        edit::ClientDocumentEditor,
-        revision::{DocumentRevisionCache, DocumentRevisionManager, RevisionServer},
-        DocumentWSReceivers,
-        DocumentWebSocket,
-        WSStateReceiver,
-    },
+    core::ClientDocumentEditor,
     errors::FlowyError,
+    ws_receivers::DocumentWSReceivers,
     DocumentCloudService,
 };
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::{
-    doc::{DocumentDelta, DocumentId, DocumentInfo},
-    revision::RepeatedRevision,
+    doc::{DocumentDelta, DocumentId},
+    revision::{md5, RepeatedRevision, Revision},
 };
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
+use flowy_sync::{RevisionCache, RevisionCloudService, RevisionManager, RevisionWebSocket, WSStateReceiver};
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
 pub struct DocumentController {
     cloud_service: Arc<dyn DocumentCloudService>,
     ws_receivers: Arc<DocumentWSReceivers>,
-    ws_sender: Arc<dyn DocumentWebSocket>,
+    ws_sender: Arc<dyn RevisionWebSocket>,
     open_cache: Arc<OpenDocCache>,
     user: Arc<dyn DocumentUser>,
 }
@@ -34,7 +30,7 @@ impl DocumentController {
         cloud_service: Arc<dyn DocumentCloudService>,
         user: Arc<dyn DocumentUser>,
         ws_receivers: Arc<DocumentWSReceivers>,
-        ws_sender: Arc<dyn DocumentWebSocket>,
+        ws_sender: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         let open_cache = Arc::new(OpenDocCache::new());
         Self {
@@ -93,7 +89,7 @@ impl DocumentController {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.user.db_pool()?;
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
-        let _ = rev_manager.reset_document(revisions).await?;
+        let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 
@@ -127,10 +123,10 @@ impl DocumentController {
         Ok(doc_editor)
     }
 
-    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<DocumentRevisionManager, FlowyError> {
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         let user_id = self.user.user_id()?;
-        let cache = Arc::new(DocumentRevisionCache::new(&user_id, doc_id, pool));
-        Ok(DocumentRevisionManager::new(&user_id, doc_id, cache))
+        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
+        Ok(RevisionManager::new(&user_id, doc_id, cache))
     }
 }
 
@@ -139,19 +135,26 @@ struct RevisionServerImpl {
     server: Arc<dyn DocumentCloudService>,
 }
 
-impl RevisionServer for RevisionServerImpl {
+impl RevisionCloudService for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError> {
+    fn fetch_object(&self, user_id: &str, doc_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),
         };
         let server = self.server.clone();
         let token = self.token.clone();
+        let user_id = user_id.to_string();
 
         FutureResult::new(async move {
             match server.read_document(&token, params).await? {
                 None => Err(FlowyError::record_not_found().context("Remote doesn't have this document")),
-                Some(doc) => Ok(doc),
+                Some(doc) => {
+                    let delta_data = Bytes::from(doc.text.clone());
+                    let doc_md5 = md5(&delta_data);
+                    let revision =
+                        Revision::new(&doc.doc_id, doc.base_rev_id, doc.rev_id, delta_data, &user_id, doc_md5);
+                    Ok(vec![revision])
+                },
             }
         })
     }

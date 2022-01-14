@@ -9,8 +9,8 @@ use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
     protobuf::{
-        DocumentClientWSData as DocumentClientWSDataPB,
-        DocumentClientWSDataType as DocumentClientWSDataTypePB,
+        ClientRevisionWSData as ClientRevisionWSDataPB,
+        ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
         Revision as RevisionPB,
     },
     server_document::{RevisionUser, ServerDocumentManager, SyncResponse},
@@ -72,28 +72,28 @@ impl DocumentWebSocketActor {
 
     async fn handle_client_data(&self, client_data: WSClientData) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
-        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
+        let document_client_data = spawn_blocking(move || parse_from_bytes::<ClientRevisionWSDataPB>(&data))
             .await
             .map_err(internal_error)??;
 
         tracing::debug!(
             "[DocumentWebSocketActor]: receive: {}:{}, {:?}",
-            document_client_data.doc_id,
-            document_client_data.id,
+            document_client_data.object_id,
+            document_client_data.data_id,
             document_client_data.ty
         );
 
         let user = Arc::new(HttpDocumentUser { user, socket });
 
         match &document_client_data.ty {
-            DocumentClientWSDataTypePB::ClientPushRev => {
+            ClientRevisionWSDataTypePB::ClientPushRev => {
                 let _ = self
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
             },
-            DocumentClientWSDataTypePB::ClientPing => {
+            ClientRevisionWSDataTypePB::ClientPing => {
                 let _ = self
                     .doc_manager
                     .handle_client_ping(user, document_client_data)

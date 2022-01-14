@@ -152,7 +152,7 @@ impl DocumentKVPersistence {
 pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
     let mut items = vec![];
     for revision in revisions {
-        let key = make_revision_key(&revision.doc_id, revision.rev_id);
+        let key = make_revision_key(&revision.object_id, revision.rev_id);
 
         if revision.delta_data.is_empty() {
             return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));

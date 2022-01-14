@@ -1,5 +1,5 @@
 use flowy_collaboration::entities::revision::RevisionState;
-use flowy_document::core::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
+use flowy_document::core::{ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;

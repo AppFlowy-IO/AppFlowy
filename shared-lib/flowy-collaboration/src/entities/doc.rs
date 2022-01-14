@@ -73,7 +73,7 @@ impl std::convert::TryFrom<Revision> for DocumentInfo {
         let doc_json = delta.to_json();
 
         Ok(DocumentInfo {
-            doc_id: revision.doc_id,
+            doc_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,

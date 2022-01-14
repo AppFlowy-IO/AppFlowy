@@ -15,25 +15,25 @@ import 'ws.pbenum.dart';
 
 export 'ws.pbenum.dart';
 
-class DocumentClientWSData extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentClientWSData', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..e<DocumentClientWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentClientWSDataType.ClientPushRev, valueOf: DocumentClientWSDataType.valueOf, enumValues: DocumentClientWSDataType.values)
+class ClientRevisionWSData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClientRevisionWSData', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId')
+    ..e<ClientRevisionWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: ClientRevisionWSDataType.ClientPushRev, valueOf: ClientRevisionWSDataType.valueOf, enumValues: ClientRevisionWSDataType.values)
     ..aOM<$0.RepeatedRevision>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisions', subBuilder: $0.RepeatedRevision.create)
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dataId')
     ..hasRequiredFields = false
   ;
 
-  DocumentClientWSData._() : super();
-  factory DocumentClientWSData({
-    $core.String? docId,
-    DocumentClientWSDataType? ty,
+  ClientRevisionWSData._() : super();
+  factory ClientRevisionWSData({
+    $core.String? objectId,
+    ClientRevisionWSDataType? ty,
     $0.RepeatedRevision? revisions,
-    $core.String? id,
+    $core.String? dataId,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (objectId != null) {
+      _result.objectId = objectId;
     }
     if (ty != null) {
       _result.ty = ty;
@@ -41,45 +41,45 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
     if (revisions != null) {
       _result.revisions = revisions;
     }
-    if (id != null) {
-      _result.id = id;
+    if (dataId != null) {
+      _result.dataId = dataId;
     }
     return _result;
   }
-  factory DocumentClientWSData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocumentClientWSData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ClientRevisionWSData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClientRevisionWSData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocumentClientWSData clone() => DocumentClientWSData()..mergeFromMessage(this);
+  ClientRevisionWSData clone() => ClientRevisionWSData()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocumentClientWSData copyWith(void Function(DocumentClientWSData) updates) => super.copyWith((message) => updates(message as DocumentClientWSData)) as DocumentClientWSData; // ignore: deprecated_member_use
+  ClientRevisionWSData copyWith(void Function(ClientRevisionWSData) updates) => super.copyWith((message) => updates(message as ClientRevisionWSData)) as ClientRevisionWSData; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocumentClientWSData create() => DocumentClientWSData._();
-  DocumentClientWSData createEmptyInstance() => create();
-  static $pb.PbList<DocumentClientWSData> createRepeated() => $pb.PbList<DocumentClientWSData>();
+  static ClientRevisionWSData create() => ClientRevisionWSData._();
+  ClientRevisionWSData createEmptyInstance() => create();
+  static $pb.PbList<ClientRevisionWSData> createRepeated() => $pb.PbList<ClientRevisionWSData>();
   @$core.pragma('dart2js:noInline')
-  static DocumentClientWSData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentClientWSData>(create);
-  static DocumentClientWSData? _defaultInstance;
+  static ClientRevisionWSData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientRevisionWSData>(create);
+  static ClientRevisionWSData? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get objectId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set objectId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasObjectId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearObjectId() => clearField(1);
 
   @$pb.TagNumber(2)
-  DocumentClientWSDataType get ty => $_getN(1);
+  ClientRevisionWSDataType get ty => $_getN(1);
   @$pb.TagNumber(2)
-  set ty(DocumentClientWSDataType v) { setField(2, v); }
+  set ty(ClientRevisionWSDataType v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTy() => $_has(1);
   @$pb.TagNumber(2)
@@ -97,32 +97,32 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
   $0.RepeatedRevision ensureRevisions() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $core.String get id => $_getSZ(3);
+  $core.String get dataId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set id($core.String v) { $_setString(3, v); }
+  set dataId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasId() => $_has(3);
+  $core.bool hasDataId() => $_has(3);
   @$pb.TagNumber(4)
-  void clearId() => clearField(4);
+  void clearDataId() => clearField(4);
 }
 
-class DocumentServerWSData extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentServerWSData', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..e<DocumentServerWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentServerWSDataType.ServerAck, valueOf: DocumentServerWSDataType.valueOf, enumValues: DocumentServerWSDataType.values)
+class ServerRevisionWSData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ServerRevisionWSData', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId')
+    ..e<ServerRevisionWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: ServerRevisionWSDataType.ServerAck, valueOf: ServerRevisionWSDataType.valueOf, enumValues: ServerRevisionWSDataType.values)
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  DocumentServerWSData._() : super();
-  factory DocumentServerWSData({
-    $core.String? docId,
-    DocumentServerWSDataType? ty,
+  ServerRevisionWSData._() : super();
+  factory ServerRevisionWSData({
+    $core.String? objectId,
+    ServerRevisionWSDataType? ty,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (objectId != null) {
+      _result.objectId = objectId;
     }
     if (ty != null) {
       _result.ty = ty;
@@ -132,40 +132,40 @@ class DocumentServerWSData extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory DocumentServerWSData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocumentServerWSData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ServerRevisionWSData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ServerRevisionWSData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocumentServerWSData clone() => DocumentServerWSData()..mergeFromMessage(this);
+  ServerRevisionWSData clone() => ServerRevisionWSData()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocumentServerWSData copyWith(void Function(DocumentServerWSData) updates) => super.copyWith((message) => updates(message as DocumentServerWSData)) as DocumentServerWSData; // ignore: deprecated_member_use
+  ServerRevisionWSData copyWith(void Function(ServerRevisionWSData) updates) => super.copyWith((message) => updates(message as ServerRevisionWSData)) as ServerRevisionWSData; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocumentServerWSData create() => DocumentServerWSData._();
-  DocumentServerWSData createEmptyInstance() => create();
-  static $pb.PbList<DocumentServerWSData> createRepeated() => $pb.PbList<DocumentServerWSData>();
+  static ServerRevisionWSData create() => ServerRevisionWSData._();
+  ServerRevisionWSData createEmptyInstance() => create();
+  static $pb.PbList<ServerRevisionWSData> createRepeated() => $pb.PbList<ServerRevisionWSData>();
   @$core.pragma('dart2js:noInline')
-  static DocumentServerWSData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentServerWSData>(create);
-  static DocumentServerWSData? _defaultInstance;
+  static ServerRevisionWSData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServerRevisionWSData>(create);
+  static ServerRevisionWSData? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get objectId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set objectId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasObjectId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearObjectId() => clearField(1);
 
   @$pb.TagNumber(2)
-  DocumentServerWSDataType get ty => $_getN(1);
+  ServerRevisionWSDataType get ty => $_getN(1);
   @$pb.TagNumber(2)
-  set ty(DocumentServerWSDataType v) { setField(2, v); }
+  set ty(ServerRevisionWSDataType v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTy() => $_has(1);
   @$pb.TagNumber(2)

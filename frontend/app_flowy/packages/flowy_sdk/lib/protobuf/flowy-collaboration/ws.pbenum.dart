@@ -9,37 +9,37 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class DocumentClientWSDataType extends $pb.ProtobufEnum {
-  static const DocumentClientWSDataType ClientPushRev = DocumentClientWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPushRev');
-  static const DocumentClientWSDataType ClientPing = DocumentClientWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPing');
+class ClientRevisionWSDataType extends $pb.ProtobufEnum {
+  static const ClientRevisionWSDataType ClientPushRev = ClientRevisionWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPushRev');
+  static const ClientRevisionWSDataType ClientPing = ClientRevisionWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPing');
 
-  static const $core.List<DocumentClientWSDataType> values = <DocumentClientWSDataType> [
+  static const $core.List<ClientRevisionWSDataType> values = <ClientRevisionWSDataType> [
     ClientPushRev,
     ClientPing,
   ];
 
-  static final $core.Map<$core.int, DocumentClientWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static DocumentClientWSDataType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ClientRevisionWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ClientRevisionWSDataType? valueOf($core.int value) => _byValue[value];
 
-  const DocumentClientWSDataType._($core.int v, $core.String n) : super(v, n);
+  const ClientRevisionWSDataType._($core.int v, $core.String n) : super(v, n);
 }
 
-class DocumentServerWSDataType extends $pb.ProtobufEnum {
-  static const DocumentServerWSDataType ServerAck = DocumentServerWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerAck');
-  static const DocumentServerWSDataType ServerPushRev = DocumentServerWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerPushRev');
-  static const DocumentServerWSDataType ServerPullRev = DocumentServerWSDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerPullRev');
-  static const DocumentServerWSDataType UserConnect = DocumentServerWSDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserConnect');
+class ServerRevisionWSDataType extends $pb.ProtobufEnum {
+  static const ServerRevisionWSDataType ServerAck = ServerRevisionWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerAck');
+  static const ServerRevisionWSDataType ServerPushRev = ServerRevisionWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerPushRev');
+  static const ServerRevisionWSDataType ServerPullRev = ServerRevisionWSDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerPullRev');
+  static const ServerRevisionWSDataType UserConnect = ServerRevisionWSDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserConnect');
 
-  static const $core.List<DocumentServerWSDataType> values = <DocumentServerWSDataType> [
+  static const $core.List<ServerRevisionWSDataType> values = <ServerRevisionWSDataType> [
     ServerAck,
     ServerPushRev,
     ServerPullRev,
     UserConnect,
   ];
 
-  static final $core.Map<$core.int, DocumentServerWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static DocumentServerWSDataType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ServerRevisionWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ServerRevisionWSDataType? valueOf($core.int value) => _byValue[value];
 
-  const DocumentServerWSDataType._($core.int v, $core.String n) : super(v, n);
+  const ServerRevisionWSDataType._($core.int v, $core.String n) : super(v, n);
 }
 

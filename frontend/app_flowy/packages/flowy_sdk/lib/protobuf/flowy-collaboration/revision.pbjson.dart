@@ -12,13 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const RevisionState$json = const {
   '1': 'RevisionState',
   '2': const [
-    const {'1': 'Local', '2': 0},
+    const {'1': 'Sync', '2': 0},
     const {'1': 'Ack', '2': 1},
   ],
 };
 
 /// Descriptor for `RevisionState`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List revisionStateDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblN0YXRlEgkKBUxvY2FsEAASBwoDQWNrEAE=');
+final $typed_data.Uint8List revisionStateDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblN0YXRlEggKBFN5bmMQABIHCgNBY2sQAQ==');
 @$core.Deprecated('Use revTypeDescriptor instead')
 const RevType$json = const {
   '1': 'RevType',
@@ -38,14 +38,14 @@ const Revision$json = const {
     const {'1': 'rev_id', '3': 2, '4': 1, '5': 3, '10': 'revId'},
     const {'1': 'delta_data', '3': 3, '4': 1, '5': 12, '10': 'deltaData'},
     const {'1': 'md5', '3': 4, '4': 1, '5': 9, '10': 'md5'},
-    const {'1': 'doc_id', '3': 5, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'object_id', '3': 5, '4': 1, '5': 9, '10': 'objectId'},
     const {'1': 'ty', '3': 6, '4': 1, '5': 14, '6': '.RevType', '10': 'ty'},
     const {'1': 'user_id', '3': 7, '4': 1, '5': 9, '10': 'userId'},
   ],
 };
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSHQoKZGVsdGFfZGF0YRgDIAEoDFIJZGVsdGFEYXRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eRIXCgd1c2VyX2lkGAcgASgJUgZ1c2VySWQ=');
+final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSHQoKZGVsdGFfZGF0YRgDIAEoDFIJZGVsdGFEYXRhEhAKA21kNRgEIAEoCVIDbWQ1EhsKCW9iamVjdF9pZBgFIAEoCVIIb2JqZWN0SWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eRIXCgd1c2VyX2lkGAcgASgJUgZ1c2VySWQ=');
 @$core.Deprecated('Use repeatedRevisionDescriptor instead')
 const RepeatedRevision$json = const {
   '1': 'RepeatedRevision',
@@ -70,11 +70,11 @@ final $typed_data.Uint8List revIdDescriptor = $convert.base64Decode('CgVSZXZJZBI
 const RevisionRange$json = const {
   '1': 'RevisionRange',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'object_id', '3': 1, '4': 1, '5': 9, '10': 'objectId'},
     const {'1': 'start', '3': 2, '4': 1, '5': 3, '10': 'start'},
     const {'1': 'end', '3': 3, '4': 1, '5': 3, '10': 'end'},
   ],
 };
 
 /// Descriptor for `RevisionRange`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionRangeDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblJhbmdlEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSFAoFc3RhcnQYAiABKANSBXN0YXJ0EhAKA2VuZBgDIAEoA1IDZW5k');
+final $typed_data.Uint8List revisionRangeDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblJhbmdlEhsKCW9iamVjdF9pZBgBIAEoCVIIb2JqZWN0SWQSFAoFc3RhcnQYAiABKANSBXN0YXJ0EhAKA2VuZBgDIAEoA1IDZW5k');

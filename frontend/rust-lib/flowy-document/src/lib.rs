@@ -3,10 +3,7 @@ pub(crate) mod controller;
 pub mod core;
 // mod notify;
 pub mod protobuf;
-mod ws_receivers;
-
-#[macro_use]
-extern crate flowy_database;
+pub mod ws_receivers;
 
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};

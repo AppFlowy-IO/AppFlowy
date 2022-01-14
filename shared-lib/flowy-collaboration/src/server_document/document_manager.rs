@@ -1,7 +1,7 @@
 use crate::{
-    entities::{doc::DocumentInfo, ws::DocumentServerWSDataBuilder},
+    entities::{doc::DocumentInfo, ws::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
-    protobuf::{DocumentClientWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::{document_pad::ServerDocument, RevisionSynchronizer, RevisionUser, SyncResponse},
 };
 use async_stream::stream;
@@ -57,16 +57,16 @@ impl ServerDocumentManager {
     pub async fn handle_client_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        mut client_data: DocumentClientWSData,
+        mut client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
         let repeated_revision = client_data.take_revisions();
         let cloned_user = user.clone();
-        let ack_id = rev_id_from_str(&client_data.id)?;
-        let doc_id = client_data.doc_id;
+        let ack_id = rev_id_from_str(&client_data.data_id)?;
+        let object_id = client_data.object_id;
 
-        let result = match self.get_document_handler(&doc_id).await {
+        let result = match self.get_document_handler(&object_id).await {
             None => {
-                let _ = self.create_document(&doc_id, repeated_revision).await.map_err(|e| {
+                let _ = self.create_document(&object_id, repeated_revision).await.map_err(|e| {
                     CollaborateError::internal().context(format!("Server crate document failed: {}", e))
                 })?;
                 Ok(())
@@ -78,8 +78,8 @@ impl ServerDocumentManager {
         };
 
         if result.is_ok() {
-            cloned_user.receive(SyncResponse::Ack(DocumentServerWSDataBuilder::build_ack_message(
-                &doc_id, ack_id,
+            cloned_user.receive(SyncResponse::Ack(ServerRevisionWSDataBuilder::build_ack_message(
+                &object_id, ack_id,
             )));
         }
         result
@@ -88,10 +88,10 @@ impl ServerDocumentManager {
     pub async fn handle_client_ping(
         &self,
         user: Arc<dyn RevisionUser>,
-        client_data: DocumentClientWSData,
+        client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let rev_id = rev_id_from_str(&client_data.id)?;
-        let doc_id = client_data.doc_id.clone();
+        let rev_id = rev_id_from_str(&client_data.data_id)?;
+        let doc_id = client_data.object_id.clone();
         match self.get_document_handler(&doc_id).await {
             None => {
                 tracing::trace!("Document:{} doesn't exist, ignore client ping", doc_id);

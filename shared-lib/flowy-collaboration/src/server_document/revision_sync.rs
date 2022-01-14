@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         revision::RevisionRange,
-        ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
+        ws::{ServerRevisionWSData, ServerRevisionWSDataBuilder},
     },
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
@@ -26,9 +26,9 @@ pub trait RevisionUser: Send + Sync + Debug {
 }
 
 pub enum SyncResponse {
-    Pull(DocumentServerWSData),
-    Push(DocumentServerWSData),
-    Ack(DocumentServerWSData),
+    Pull(ServerRevisionWSData),
+    Push(ServerRevisionWSData),
+    Ack(ServerRevisionWSData),
 }
 
 pub struct RevisionSynchronizer {
@@ -65,7 +65,7 @@ impl RevisionSynchronizer {
             // Return all the revisions to client
             let revisions = self.persistence.read_revisions(&doc_id, None).await?;
             let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
-            let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, repeated_revision);
+            let data = ServerRevisionWSDataBuilder::build_push_message(&doc_id, repeated_revision);
             user.receive(SyncResponse::Push(data));
             return Ok(());
         }
@@ -89,11 +89,11 @@ impl RevisionSynchronizer {
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
-                        doc_id: self.doc_id.clone(),
+                        object_id: self.doc_id.clone(),
                         start: server_rev_id,
                         end: first_revision.rev_id,
                     };
-                    let msg = DocumentServerWSDataBuilder::build_pull_message(&self.doc_id, range);
+                    let msg = ServerRevisionWSDataBuilder::build_pull_message(&self.doc_id, range);
                     user.receive(SyncResponse::Pull(msg));
                 }
             },
@@ -220,7 +220,7 @@ impl RevisionSynchronizer {
         tracing::debug!("Push revision: {} -> {} to client", from, to);
         match repeated_revision_from_revision_pbs(revisions) {
             Ok(repeated_revision) => {
-                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
+                let data = ServerRevisionWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
                 user.receive(SyncResponse::Push(data));
             },
             Err(e) => tracing::error!("{}", e),

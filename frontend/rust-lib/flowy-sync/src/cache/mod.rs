@@ -1,13 +1,13 @@
-use crate::{
-    core::revision::{
-        disk::{DocumentRevisionDiskCache, RevisionChangeset, RevisionTableState, SQLitePersistence},
-        memory::{DocumentRevisionMemoryCache, RevisionMemoryCacheDelegate},
-    },
-    errors::FlowyError,
+mod disk;
+mod memory;
+
+use crate::cache::{
+    disk::{RevisionChangeset, RevisionDiskCache, RevisionTableState, SQLitePersistence},
+    memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
 };
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
-use flowy_error::{internal_error, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use std::{
     borrow::Cow,
     sync::{
@@ -17,17 +17,17 @@ use std::{
 };
 use tokio::task::spawn_blocking;
 
-pub struct DocumentRevisionCache {
+pub struct RevisionCache {
     doc_id: String,
-    disk_cache: Arc<dyn DocumentRevisionDiskCache<Error = FlowyError>>,
-    memory_cache: Arc<DocumentRevisionMemoryCache>,
+    disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    memory_cache: Arc<RevisionMemoryCache>,
     latest_rev_id: AtomicI64,
 }
 
-impl DocumentRevisionCache {
-    pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> DocumentRevisionCache {
+impl RevisionCache {
+    pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
-        let memory_cache = Arc::new(DocumentRevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
+        let memory_cache = Arc::new(RevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
         let doc_id = doc_id.to_owned();
         Self {
             doc_id,
@@ -99,7 +99,7 @@ impl DocumentRevisionCache {
                 .map_err(internal_error)??;
 
             if records.len() != range_len {
-                log::error!("Revisions len is not equal to range required");
+                tracing::error!("Revisions len is not equal to range required");
             }
         }
         Ok(records
@@ -115,13 +115,13 @@ impl DocumentRevisionCache {
             .into_iter()
             .map(|revision| RevisionRecord {
                 revision,
-                state: RevisionState::Local,
+                state: RevisionState::Sync,
                 write_to_disk: false,
             })
             .collect::<Vec<_>>();
 
         let _ = self.memory_cache.reset_with_revisions(&revision_records).await?;
-        let _ = self.disk_cache.reset_document(doc_id, revision_records)?;
+        let _ = self.disk_cache.reset_object(doc_id, revision_records)?;
         Ok(())
     }
 
@@ -146,9 +146,9 @@ impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
         Ok(())
     }
 
-    fn receive_ack(&self, doc_id: &str, rev_id: i64) {
+    fn receive_ack(&self, object_id: &str, rev_id: i64) {
         let changeset = RevisionChangeset {
-            doc_id: doc_id.to_string(),
+            object_id: object_id.to_string(),
             rev_id: rev_id.into(),
             state: RevisionTableState::Ack,
         };

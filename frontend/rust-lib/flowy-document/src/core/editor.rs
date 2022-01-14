@@ -1,21 +1,25 @@
 use crate::{
     context::DocumentUser,
-    core::{
-        web_socket::{make_document_ws_manager, DocumentWebSocketManager, EditorCommandSender},
-        DocumentRevisionManager,
-        DocumentWSReceiver,
-        DocumentWebSocket,
-        EditorCommand,
-        EditorCommandQueue,
-        RevisionServer,
-    },
+    core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
+    ws_receivers::DocumentWSReceiver,
 };
 use bytes::Bytes;
-use flowy_collaboration::errors::CollaborateResult;
+use flowy_collaboration::{
+    entities::{doc::DocumentInfo, revision::Revision},
+    errors::CollaborateResult,
+    util::make_delta_from_revisions,
+};
 use flowy_error::{internal_error, FlowyResult};
+use flowy_sync::{
+    RevisionCloudService,
+    RevisionManager,
+    RevisionObjectBuilder,
+    RevisionWebSocket,
+    RevisionWebSocketManager,
+};
 use lib_ot::{
-    core::Interval,
+    core::{Interval, Operation},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use std::sync::Arc;
@@ -24,8 +28,8 @@ use tokio::sync::{mpsc, oneshot};
 pub struct ClientDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
-    rev_manager: Arc<DocumentRevisionManager>,
-    ws_manager: Arc<DocumentWebSocketManager>,
+    rev_manager: Arc<RevisionManager>,
+    ws_manager: Arc<RevisionWebSocketManager>,
     edit_cmd_tx: EditorCommandSender,
 }
 
@@ -33,11 +37,12 @@ impl ClientDocumentEditor {
     pub(crate) async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
-        mut rev_manager: DocumentRevisionManager,
-        ws: Arc<dyn DocumentWebSocket>,
-        server: Arc<dyn RevisionServer>,
+        mut rev_manager: RevisionManager,
+        ws: Arc<dyn RevisionWebSocket>,
+        server: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let delta = rev_manager.load_document(server).await?;
+        let document_info = rev_manager.load::<DocumentInfoBuilder>(server).await?;
+        let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
@@ -167,7 +172,7 @@ impl std::ops::Drop for ClientDocumentEditor {
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<DocumentRevisionManager>,
+    rev_manager: Arc<RevisionManager>,
     delta: RichTextDelta,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
@@ -194,5 +199,40 @@ impl ClientDocumentEditor {
         Ok(delta)
     }
 
-    pub fn rev_manager(&self) -> Arc<DocumentRevisionManager> { self.rev_manager.clone() }
+    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
+}
+
+struct DocumentInfoBuilder();
+impl RevisionObjectBuilder for DocumentInfoBuilder {
+    type Output = DocumentInfo;
+
+    fn build_with_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+        let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
+        let mut delta = make_delta_from_revisions(revisions)?;
+        correct_delta(&mut delta);
+
+        Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
+            doc_id: object_id.to_owned(),
+            text: delta.to_json(),
+            rev_id,
+            base_rev_id,
+        })
+    }
+}
+
+// quill-editor requires the delta should end with '\n' and only contains the
+// insert operation. The function, correct_delta maybe be removed in the future.
+fn correct_delta(delta: &mut RichTextDelta) {
+    if let Some(op) = delta.ops.last() {
+        let op_data = op.get_data();
+        if !op_data.ends_with('\n') {
+            tracing::warn!("The document must end with newline. Correcting it by inserting newline op");
+            delta.ops.push(Operation::Insert("\n".into()));
+        }
+    }
+
+    if let Some(op) = delta.ops.iter().find(|op| !op.is_insert()) {
+        tracing::warn!("The document can only contains insert operations, but found {:?}", op);
+        delta.ops.retain(|op| op.is_insert());
+    }
 }

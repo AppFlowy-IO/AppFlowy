@@ -18,7 +18,7 @@ pub struct Revision {
     pub md5: String,
 
     #[pb(index = 5)]
-    pub doc_id: String,
+    pub object_id: String,
 
     #[pb(index = 6)]
     ty: RevType, // Deprecated
@@ -41,14 +41,21 @@ impl Revision {
 
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
 
-    pub fn initial_revision(user_id: &str, doc_id: &str, delta_data: Bytes) -> Self {
+    pub fn initial_revision(user_id: &str, object_id: &str, delta_data: Bytes) -> Self {
         let md5 = md5(&delta_data);
-        Self::new(doc_id, 0, 0, delta_data, user_id, md5)
+        Self::new(object_id, 0, 0, delta_data, user_id, md5)
     }
 
-    pub fn new(doc_id: &str, base_rev_id: i64, rev_id: i64, delta_data: Bytes, user_id: &str, md5: String) -> Revision {
+    pub fn new(
+        object_id: &str,
+        base_rev_id: i64,
+        rev_id: i64,
+        delta_data: Bytes,
+        user_id: &str,
+        md5: String,
+    ) -> Revision {
         let user_id = user_id.to_owned();
-        let doc_id = doc_id.to_owned();
+        let object_id = object_id.to_owned();
         let delta_data = delta_data.to_vec();
         let base_rev_id = base_rev_id;
         let rev_id = rev_id;
@@ -62,7 +69,7 @@ impl Revision {
             rev_id,
             delta_data,
             md5,
-            doc_id,
+            object_id,
             ty: RevType::DeprecatedLocal,
             user_id,
         }
@@ -75,7 +82,7 @@ impl std::convert::From<Revision> for RepeatedRevision {
 
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
+        let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
         let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         match RichTextDelta::from_bytes(&self.delta_data) {
@@ -142,7 +149,7 @@ impl std::fmt::Display for RevId {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RevisionRange {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub object_id: String,
 
     #[pb(index = 2)]
     pub start: i64,
@@ -177,14 +184,14 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevisionState {
-    Local = 0,
-    Ack   = 1,
+    Sync = 0,
+    Ack  = 1,
 }
 
 impl RevisionState {
-    pub fn is_local(&self) -> bool {
+    pub fn is_need_sync(&self) -> bool {
         match self {
-            RevisionState::Local => true,
+            RevisionState::Sync => true,
             RevisionState::Ack => false,
         }
     }

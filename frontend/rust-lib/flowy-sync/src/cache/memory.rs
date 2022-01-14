@@ -1,4 +1,4 @@
-use crate::core::RevisionRecord;
+use crate::RevisionRecord;
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
@@ -7,21 +7,21 @@ use tokio::{sync::RwLock, task::JoinHandle};
 
 pub(crate) trait RevisionMemoryCacheDelegate: Send + Sync {
     fn checkpoint_tick(&self, records: Vec<RevisionRecord>) -> FlowyResult<()>;
-    fn receive_ack(&self, doc_id: &str, rev_id: i64);
+    fn receive_ack(&self, object_id: &str, rev_id: i64);
 }
 
-pub(crate) struct DocumentRevisionMemoryCache {
-    doc_id: String,
+pub(crate) struct RevisionMemoryCache {
+    object_id: String,
     revs_map: Arc<DashMap<i64, RevisionRecord>>,
     delegate: Arc<dyn RevisionMemoryCacheDelegate>,
     pending_write_revs: Arc<RwLock<Vec<i64>>>,
     defer_save: RwLock<Option<JoinHandle<()>>>,
 }
 
-impl DocumentRevisionMemoryCache {
-    pub(crate) fn new(doc_id: &str, delegate: Arc<dyn RevisionMemoryCacheDelegate>) -> Self {
-        DocumentRevisionMemoryCache {
-            doc_id: doc_id.to_owned(),
+impl RevisionMemoryCache {
+    pub(crate) fn new(object_id: &str, delegate: Arc<dyn RevisionMemoryCacheDelegate>) -> Self {
+        RevisionMemoryCache {
+            object_id: object_id.to_owned(),
             revs_map: Arc::new(DashMap::new()),
             delegate,
             pending_write_revs: Arc::new(RwLock::new(vec![])),
@@ -62,7 +62,7 @@ impl DocumentRevisionMemoryCache {
         if !self.pending_write_revs.read().await.contains(rev_id) {
             // The revision must be saved on disk if the pending_write_revs
             // doesn't contains the rev_id.
-            self.delegate.receive_ack(&self.doc_id, *rev_id);
+            self.delegate.receive_ack(&self.object_id, *rev_id);
         } else {
             self.make_checkpoint().await;
         }

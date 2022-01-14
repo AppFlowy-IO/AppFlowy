@@ -9,7 +9,7 @@ use flowy_core_data_model::entities::{
     view::View,
     workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceId, *},
 };
-use flowy_error::FlowyResult;
+
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 

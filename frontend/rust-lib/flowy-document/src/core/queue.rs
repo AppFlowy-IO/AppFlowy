@@ -1,7 +1,4 @@
-use crate::{
-    context::DocumentUser,
-    core::{web_socket::EditorCommandReceiver, DocumentRevisionManager},
-};
+use crate::{context::DocumentUser, core::web_socket::EditorCommandReceiver};
 use async_stream::stream;
 use flowy_collaboration::{
     client_document::{history::UndoResult, ClientDocument, NewlineDoc},
@@ -10,6 +7,7 @@ use flowy_collaboration::{
     util::make_delta_from_revisions,
 };
 use flowy_error::FlowyError;
+use flowy_sync::RevisionManager;
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -23,14 +21,14 @@ use tokio::sync::{oneshot, RwLock};
 pub(crate) struct EditorCommandQueue {
     document: Arc<RwLock<ClientDocument>>,
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<DocumentRevisionManager>,
+    rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditorCommandQueue {
     pub(crate) fn new(
         user: Arc<dyn DocumentUser>,
-        rev_manager: Arc<DocumentRevisionManager>,
+        rev_manager: Arc<RevisionManager>,
         delta: RichTextDelta,
         receiver: EditorCommandReceiver,
     ) -> Self {
@@ -88,7 +86,7 @@ impl EditorCommandQueue {
                 }
 
                 let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-                let doc_id = self.rev_manager.doc_id.clone();
+                let doc_id = self.rev_manager.object_id.clone();
                 let user_id = self.user.user_id()?;
                 let (client_revision, server_revision) = make_client_and_server_revision(
                     &doc_id,
@@ -110,7 +108,7 @@ impl EditorCommandQueue {
 
                 let repeated_revision = RepeatedRevision::new(revisions);
                 assert_eq!(repeated_revision.last().unwrap().md5, md5);
-                let _ = self.rev_manager.reset_document(repeated_revision).await?;
+                let _ = self.rev_manager.reset_object(repeated_revision).await?;
                 let _ = ret.send(Ok(()));
             },
             EditorCommand::TransformRevision { revisions, ret } => {
@@ -204,7 +202,14 @@ impl EditorCommandQueue {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
-        let revision = Revision::new(&self.rev_manager.doc_id, base_rev_id, rev_id, delta_data, &user_id, md5);
+        let revision = Revision::new(
+            &self.rev_manager.object_id,
+            base_rev_id,
+            rev_id,
+            delta_data,
+            &user_id,
+            md5,
+        );
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }

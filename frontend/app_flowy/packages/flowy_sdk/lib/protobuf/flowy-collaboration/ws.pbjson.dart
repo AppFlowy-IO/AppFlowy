@@ -8,20 +8,20 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use documentClientWSDataTypeDescriptor instead')
-const DocumentClientWSDataType$json = const {
-  '1': 'DocumentClientWSDataType',
+@$core.Deprecated('Use clientRevisionWSDataTypeDescriptor instead')
+const ClientRevisionWSDataType$json = const {
+  '1': 'ClientRevisionWSDataType',
   '2': const [
     const {'1': 'ClientPushRev', '2': 0},
     const {'1': 'ClientPing', '2': 1},
   ],
 };
 
-/// Descriptor for `DocumentClientWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List documentClientWSDataTypeDescriptor = $convert.base64Decode('ChhEb2N1bWVudENsaWVudFdTRGF0YVR5cGUSEQoNQ2xpZW50UHVzaFJldhAAEg4KCkNsaWVudFBpbmcQAQ==');
-@$core.Deprecated('Use documentServerWSDataTypeDescriptor instead')
-const DocumentServerWSDataType$json = const {
-  '1': 'DocumentServerWSDataType',
+/// Descriptor for `ClientRevisionWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List clientRevisionWSDataTypeDescriptor = $convert.base64Decode('ChhDbGllbnRSZXZpc2lvbldTRGF0YVR5cGUSEQoNQ2xpZW50UHVzaFJldhAAEg4KCkNsaWVudFBpbmcQAQ==');
+@$core.Deprecated('Use serverRevisionWSDataTypeDescriptor instead')
+const ServerRevisionWSDataType$json = const {
+  '1': 'ServerRevisionWSDataType',
   '2': const [
     const {'1': 'ServerAck', '2': 0},
     const {'1': 'ServerPushRev', '2': 1},
@@ -30,33 +30,33 @@ const DocumentServerWSDataType$json = const {
   ],
 };
 
-/// Descriptor for `DocumentServerWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List documentServerWSDataTypeDescriptor = $convert.base64Decode('ChhEb2N1bWVudFNlcnZlcldTRGF0YVR5cGUSDQoJU2VydmVyQWNrEAASEQoNU2VydmVyUHVzaFJldhABEhEKDVNlcnZlclB1bGxSZXYQAhIPCgtVc2VyQ29ubmVjdBAD');
-@$core.Deprecated('Use documentClientWSDataDescriptor instead')
-const DocumentClientWSData$json = const {
-  '1': 'DocumentClientWSData',
+/// Descriptor for `ServerRevisionWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List serverRevisionWSDataTypeDescriptor = $convert.base64Decode('ChhTZXJ2ZXJSZXZpc2lvbldTRGF0YVR5cGUSDQoJU2VydmVyQWNrEAASEQoNU2VydmVyUHVzaFJldhABEhEKDVNlcnZlclB1bGxSZXYQAhIPCgtVc2VyQ29ubmVjdBAD');
+@$core.Deprecated('Use clientRevisionWSDataDescriptor instead')
+const ClientRevisionWSData$json = const {
+  '1': 'ClientRevisionWSData',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.DocumentClientWSDataType', '10': 'ty'},
+    const {'1': 'object_id', '3': 1, '4': 1, '5': 9, '10': 'objectId'},
+    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.ClientRevisionWSDataType', '10': 'ty'},
     const {'1': 'revisions', '3': 3, '4': 1, '5': 11, '6': '.RepeatedRevision', '10': 'revisions'},
-    const {'1': 'id', '3': 4, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'data_id', '3': 4, '4': 1, '5': 9, '10': 'dataId'},
   ],
 };
 
-/// Descriptor for `DocumentClientWSData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentClientWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudENsaWVudFdTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRDbGllbnRXU0RhdGFUeXBlUgJ0eRIvCglyZXZpc2lvbnMYAyABKAsyES5SZXBlYXRlZFJldmlzaW9uUglyZXZpc2lvbnMSDgoCaWQYBCABKAlSAmlk');
-@$core.Deprecated('Use documentServerWSDataDescriptor instead')
-const DocumentServerWSData$json = const {
-  '1': 'DocumentServerWSData',
+/// Descriptor for `ClientRevisionWSData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientRevisionWSDataDescriptor = $convert.base64Decode('ChRDbGllbnRSZXZpc2lvbldTRGF0YRIbCglvYmplY3RfaWQYASABKAlSCG9iamVjdElkEikKAnR5GAIgASgOMhkuQ2xpZW50UmV2aXNpb25XU0RhdGFUeXBlUgJ0eRIvCglyZXZpc2lvbnMYAyABKAsyES5SZXBlYXRlZFJldmlzaW9uUglyZXZpc2lvbnMSFwoHZGF0YV9pZBgEIAEoCVIGZGF0YUlk');
+@$core.Deprecated('Use serverRevisionWSDataDescriptor instead')
+const ServerRevisionWSData$json = const {
+  '1': 'ServerRevisionWSData',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.DocumentServerWSDataType', '10': 'ty'},
+    const {'1': 'object_id', '3': 1, '4': 1, '5': 9, '10': 'objectId'},
+    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.ServerRevisionWSDataType', '10': 'ty'},
     const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
-/// Descriptor for `DocumentServerWSData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentServerWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudFNlcnZlcldTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRTZXJ2ZXJXU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');
+/// Descriptor for `ServerRevisionWSData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List serverRevisionWSDataDescriptor = $convert.base64Decode('ChRTZXJ2ZXJSZXZpc2lvbldTRGF0YRIbCglvYmplY3RfaWQYASABKAlSCG9iamVjdElkEikKAnR5GAIgASgOMhkuU2VydmVyUmV2aXNpb25XU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');
 @$core.Deprecated('Use newDocumentUserDescriptor instead')
 const NewDocumentUser$json = const {
   '1': 'NewDocumentUser',

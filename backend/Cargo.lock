@@ -1339,6 +1339,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-sync",
  "futures",
  "futures-util",
  "lib-dispatch",
@@ -1419,6 +1420,7 @@ dependencies = [
  "flowy-database",
  "flowy-document",
  "flowy-net",
+ "flowy-sync",
  "flowy-user",
  "futures-core",
  "lib-dispatch",
@@ -1427,6 +1429,32 @@ dependencies = [
  "lib-ws",
  "log",
  "parking_lot",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-sync"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "diesel",
+ "diesel_derives",
+ "flowy-collaboration",
+ "flowy-database",
+ "flowy-error",
+ "futures-util",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
  "tokio",
  "tracing",
 ]

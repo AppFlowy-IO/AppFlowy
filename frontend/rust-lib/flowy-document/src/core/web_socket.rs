@@ -1,25 +1,27 @@
-mod ws_manager;
-pub use ws_manager::*;
-
-use crate::core::{
-    web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer},
-    DocumentRevisionManager,
-    DocumentWebSocket,
-    EditorCommand,
-    TransformDeltas,
+use crate::{
+    core::{EditorCommand, TransformDeltas, SYNC_INTERVAL_IN_MILLIS},
+    ws_receivers::DocumentWSReceiver,
 };
+use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
         revision::{RepeatedRevision, Revision, RevisionRange},
-        ws::{DocumentClientWSData, DocumentServerWSDataType, NewDocumentUser},
+        ws::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
     },
     errors::CollaborateResult,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_sync::{
+    RevisionManager,
+    RevisionWSSinkDataProvider,
+    RevisionWSSteamConsumer,
+    RevisionWebSocket,
+    RevisionWebSocketManager,
+};
 use lib_infra::future::FutureResult;
 use lib_ws::WSConnectState;
-use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
+use std::{collections::VecDeque, convert::TryFrom, sync::Arc, time::Duration};
 use tokio::sync::{
     broadcast,
     mpsc::{Receiver, Sender},
@@ -34,22 +36,24 @@ pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
-    rev_manager: Arc<DocumentRevisionManager>,
-    ws_conn: Arc<dyn DocumentWebSocket>,
-) -> Arc<DocumentWebSocketManager> {
+    rev_manager: Arc<RevisionManager>,
+    ws_conn: Arc<dyn RevisionWebSocket>,
+) -> Arc<RevisionWebSocketManager> {
     let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
-        doc_id: doc_id.clone(),
+        object_id: doc_id.clone(),
         edit_cmd_tx,
         rev_manager: rev_manager.clone(),
         shared_sink: shared_sink.clone(),
     });
     let data_provider = Arc::new(DocumentWSSinkDataProviderAdapter(shared_sink));
-    let ws_manager = Arc::new(DocumentWebSocketManager::new(
+    let ping_duration = Duration::from_millis(SYNC_INTERVAL_IN_MILLIS);
+    let ws_manager = Arc::new(RevisionWebSocketManager::new(
         &doc_id,
         ws_conn,
         data_provider,
         ws_stream_consumer,
+        ping_duration,
     ));
     listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager);
     ws_manager
@@ -59,7 +63,7 @@ fn listen_document_ws_state(
     _user_id: &str,
     _doc_id: &str,
     mut subscriber: broadcast::Receiver<WSConnectState>,
-    _rev_manager: Arc<DocumentRevisionManager>,
+    _rev_manager: Arc<RevisionManager>,
 ) {
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
@@ -74,28 +78,28 @@ fn listen_document_ws_state(
 }
 
 pub(crate) struct DocumentWebSocketSteamConsumerAdapter {
-    pub(crate) doc_id: String,
+    pub(crate) object_id: String,
     pub(crate) edit_cmd_tx: EditorCommandSender,
-    pub(crate) rev_manager: Arc<DocumentRevisionManager>,
+    pub(crate) rev_manager: Arc<RevisionManager>,
     pub(crate) shared_sink: Arc<SharedWSSinkDataProvider>,
 }
 
-impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
+impl RevisionWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError> {
         let rev_manager = self.rev_manager.clone();
         let edit_cmd_tx = self.edit_cmd_tx.clone();
         let shared_sink = self.shared_sink.clone();
-        let doc_id = self.doc_id.clone();
+        let object_id = self.object_id.clone();
         FutureResult::new(async move {
             if let Some(server_composed_revision) = handle_remote_revision(edit_cmd_tx, rev_manager, bytes).await? {
-                let data = DocumentClientWSData::from_revisions(&doc_id, vec![server_composed_revision]);
+                let data = ClientRevisionWSData::from_revisions(&object_id, vec![server_composed_revision]);
                 shared_sink.push_back(data).await;
             }
             Ok(())
         })
     }
 
-    fn receive_ack(&self, id: String, ty: DocumentServerWSDataType) -> FutureResult<(), FlowyError> {
+    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> FutureResult<(), FlowyError> {
         let shared_sink = self.shared_sink.clone();
         FutureResult::new(async move { shared_sink.ack(id, ty).await })
     }
@@ -108,10 +112,10 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError> {
         let rev_manager = self.rev_manager.clone();
         let shared_sink = self.shared_sink.clone();
-        let doc_id = self.doc_id.clone();
+        let object_id = self.object_id.clone();
         FutureResult::new(async move {
             let revisions = rev_manager.get_revisions_in_range(range).await?;
-            let data = DocumentClientWSData::from_revisions(&doc_id, revisions);
+            let data = ClientRevisionWSData::from_revisions(&object_id, revisions);
             shared_sink.push_back(data).await;
             Ok(())
         })
@@ -119,8 +123,8 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
 }
 
 pub(crate) struct DocumentWSSinkDataProviderAdapter(pub(crate) Arc<SharedWSSinkDataProvider>);
-impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
-    fn next(&self) -> FutureResult<Option<DocumentClientWSData>, FlowyError> {
+impl RevisionWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
+    fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let shared_sink = self.0.clone();
         FutureResult::new(async move { shared_sink.next().await })
     }
@@ -138,7 +142,7 @@ async fn transform_pushed_revisions(
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
 pub(crate) async fn handle_remote_revision(
     edit_cmd_tx: EditorCommandSender,
-    rev_manager: Arc<DocumentRevisionManager>,
+    rev_manager: Arc<RevisionManager>,
     bytes: Bytes,
 ) -> FlowyResult<Option<Revision>> {
     let mut revisions = RepeatedRevision::try_from(bytes)?.into_inner();
@@ -198,13 +202,13 @@ enum SourceType {
 
 #[derive(Clone)]
 pub(crate) struct SharedWSSinkDataProvider {
-    shared: Arc<RwLock<VecDeque<DocumentClientWSData>>>,
-    rev_manager: Arc<DocumentRevisionManager>,
+    shared: Arc<RwLock<VecDeque<ClientRevisionWSData>>>,
+    rev_manager: Arc<RevisionManager>,
     source_ty: Arc<RwLock<SourceType>>,
 }
 
 impl SharedWSSinkDataProvider {
-    pub(crate) fn new(rev_manager: Arc<DocumentRevisionManager>) -> Self {
+    pub(crate) fn new(rev_manager: Arc<RevisionManager>) -> Self {
         SharedWSSinkDataProvider {
             shared: Arc::new(RwLock::new(VecDeque::new())),
             rev_manager,
@@ -213,11 +217,11 @@ impl SharedWSSinkDataProvider {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn push_front(&self, data: DocumentClientWSData) { self.shared.write().await.push_front(data); }
+    pub(crate) async fn push_front(&self, data: ClientRevisionWSData) { self.shared.write().await.push_front(data); }
 
-    async fn push_back(&self, data: DocumentClientWSData) { self.shared.write().await.push_back(data); }
+    async fn push_back(&self, data: ClientRevisionWSData) { self.shared.write().await.push_back(data); }
 
-    async fn next(&self) -> FlowyResult<Option<DocumentClientWSData>> {
+    async fn next(&self) -> FlowyResult<Option<ClientRevisionWSData>> {
         let source_ty = self.source_ty.read().await.clone();
         match source_ty {
             SourceType::Shared => match self.shared.read().await.front() {
@@ -226,7 +230,7 @@ impl SharedWSSinkDataProvider {
                     Ok(None)
                 },
                 Some(data) => {
-                    tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", data.doc_id, data.ty);
+                    tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", data.object_id, data.ty);
                     Ok(Some(data.clone()))
                 },
             },
@@ -238,21 +242,21 @@ impl SharedWSSinkDataProvider {
 
                 match self.rev_manager.next_sync_revision().await? {
                     Some(rev) => {
-                        let doc_id = rev.doc_id.clone();
-                        Ok(Some(DocumentClientWSData::from_revisions(&doc_id, vec![rev])))
+                        let doc_id = rev.object_id.clone();
+                        Ok(Some(ClientRevisionWSData::from_revisions(&doc_id, vec![rev])))
                     },
                     None => {
                         //
-                        let doc_id = self.rev_manager.doc_id.clone();
+                        let doc_id = self.rev_manager.object_id.clone();
                         let latest_rev_id = self.rev_manager.rev_id();
-                        Ok(Some(DocumentClientWSData::ping(&doc_id, latest_rev_id)))
+                        Ok(Some(ClientRevisionWSData::ping(&doc_id, latest_rev_id)))
                     },
                 }
             },
         }
     }
 
-    async fn ack(&self, id: String, _ty: DocumentServerWSDataType) -> FlowyResult<()> {
+    async fn ack(&self, id: String, _ty: ServerRevisionWSDataType) -> FlowyResult<()> {
         // let _ = self.rev_manager.ack_revision(id).await?;
         let source_ty = self.source_ty.read().await.clone();
         match source_ty {
@@ -286,5 +290,26 @@ impl SharedWSSinkDataProvider {
         }
 
         Ok(())
+    }
+}
+
+//  RevisionWebSocketManager registers itself as a DocumentWSReceiver for each
+//  opened document.
+#[async_trait]
+impl DocumentWSReceiver for RevisionWebSocketManager {
+    #[tracing::instrument(level = "debug", skip(self, data), err)]
+    async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError> {
+        let _ = self.ws_passthrough_tx.send(data).await.map_err(|e| {
+            let err_msg = format!("{} passthrough error: {}", self.object_id, e);
+            FlowyError::internal().context(err_msg)
+        })?;
+        Ok(())
+    }
+
+    fn connect_state_changed(&self, state: WSConnectState) {
+        match self.state_passthrough_tx.send(state) {
+            Ok(_) => {},
+            Err(e) => tracing::error!("{}", e),
+        }
     }
 }

@@ -1,4 +1,4 @@
-use crate::core::revision::{disk::DocumentRevisionDiskCache, RevisionRecord};
+use crate::{cache::disk::RevisionDiskCache, RevisionRecord};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_collaboration::{
@@ -6,6 +6,7 @@ use flowy_collaboration::{
     util::md5,
 };
 use flowy_database::{
+    impl_sql_integer_expression,
     insert_or_ignore_into,
     prelude::*,
     schema::{rev_table, rev_table::dsl},
@@ -19,35 +20,35 @@ pub struct SQLitePersistence {
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl DocumentRevisionDiskCache for SQLitePersistence {
+impl RevisionDiskCache for SQLitePersistence {
     type Error = FlowyError;
 
     fn write_revision_records(
         &self,
-        revisions: Vec<RevisionRecord>,
+        revision_records: Vec<RevisionRecord>,
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error> {
-        let _ = RevisionTableSql::create(revisions, conn)?;
+        let _ = RevisionTableSql::create(revision_records, conn)?;
         Ok(())
     }
 
     fn read_revision_records(
         &self,
-        doc_id: &str,
+        object_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = RevisionTableSql::read(&self.user_id, doc_id, rev_ids, &*conn)?;
+        let records = RevisionTableSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
         Ok(records)
     }
 
     fn read_revision_records_with_range(
         &self,
-        doc_id: &str,
+        object_id: &str,
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let revisions = RevisionTableSql::read_with_range(&self.user_id, doc_id, range.clone(), conn)?;
+        let revisions = RevisionTableSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
@@ -64,18 +65,18 @@ impl DocumentRevisionDiskCache for SQLitePersistence {
 
     fn delete_revision_records(
         &self,
-        doc_id: &str,
+        object_id: &str,
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error> {
-        let _ = RevisionTableSql::delete(doc_id, rev_ids, conn)?;
+        let _ = RevisionTableSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
-    fn reset_document(&self, doc_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+    fn reset_object(&self, object_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.delete_revision_records(doc_id, None, &*conn)?;
+            let _ = self.delete_revision_records(object_id, None, &*conn)?;
             let _ = self.write_revision_records(revision_records, &*conn)?;
             Ok(())
         })
@@ -101,7 +102,7 @@ impl RevisionTableSql {
             .map(|record| {
                 let rev_state: RevisionTableState = record.state.into();
                 (
-                    dsl::doc_id.eq(record.revision.doc_id),
+                    dsl::doc_id.eq(record.revision.object_id),
                     dsl::base_rev_id.eq(record.revision.base_rev_id),
                     dsl::rev_id.eq(record.revision.rev_id),
                     dsl::data.eq(record.revision.delta_data),
@@ -118,7 +119,7 @@ impl RevisionTableSql {
     pub(crate) fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
-            .filter(dsl::doc_id.eq(changeset.doc_id));
+            .filter(dsl::doc_id.eq(changeset.object_id));
         let _ = update(filter).set(dsl::state.eq(changeset.state)).execute(conn)?;
         tracing::debug!(
             "[RevisionTable] update revision:{} state:to {:?}",
@@ -130,11 +131,11 @@ impl RevisionTableSql {
 
     pub(crate) fn read(
         user_id: &str,
-        doc_id: &str,
+        object_id: &str,
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<Vec<RevisionRecord>, FlowyError> {
-        let mut sql = dsl::rev_table.filter(dsl::doc_id.eq(doc_id)).into_boxed();
+        let mut sql = dsl::rev_table.filter(dsl::doc_id.eq(object_id)).into_boxed();
         if let Some(rev_ids) = rev_ids {
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
@@ -149,14 +150,14 @@ impl RevisionTableSql {
 
     pub(crate) fn read_with_range(
         user_id: &str,
-        doc_id: &str,
+        object_id: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
     ) -> Result<Vec<RevisionRecord>, FlowyError> {
         let rev_tables = dsl::rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
-            .filter(dsl::doc_id.eq(doc_id))
+            .filter(dsl::doc_id.eq(object_id))
             .order(dsl::rev_id.asc())
             .load::<RevisionTable>(conn)?;
 
@@ -167,8 +168,12 @@ impl RevisionTableSql {
         Ok(revisions)
     }
 
-    pub(crate) fn delete(doc_id: &str, rev_ids: Option<Vec<i64>>, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let mut sql = dsl::rev_table.filter(dsl::doc_id.eq(doc_id)).into_boxed();
+    pub(crate) fn delete(
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+        conn: &SqliteConnection,
+    ) -> Result<(), FlowyError> {
+        let mut sql = dsl::rev_table.filter(dsl::doc_id.eq(object_id)).into_boxed();
         if let Some(rev_ids) = rev_ids {
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
@@ -195,22 +200,22 @@ pub(crate) struct RevisionTable {
 #[repr(i32)]
 #[sql_type = "Integer"]
 pub enum RevisionTableState {
-    Local = 0,
-    Ack   = 1,
+    Sync = 0,
+    Ack  = 1,
 }
 
 impl std::default::Default for RevisionTableState {
-    fn default() -> Self { RevisionTableState::Local }
+    fn default() -> Self { RevisionTableState::Sync }
 }
 
 impl std::convert::From<i32> for RevisionTableState {
     fn from(value: i32) -> Self {
         match value {
-            0 => RevisionTableState::Local,
+            0 => RevisionTableState::Sync,
             1 => RevisionTableState::Ack,
             o => {
-                log::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                RevisionTableState::Local
+                tracing::error!("Unsupported rev state {}, fallback to RevState::Local", o);
+                RevisionTableState::Sync
             },
         }
     }
@@ -224,7 +229,7 @@ impl_sql_integer_expression!(RevisionTableState);
 impl std::convert::From<RevisionTableState> for RevisionState {
     fn from(s: RevisionTableState) -> Self {
         match s {
-            RevisionTableState::Local => RevisionState::Local,
+            RevisionTableState::Sync => RevisionState::Sync,
             RevisionTableState::Ack => RevisionState::Ack,
         }
     }
@@ -233,7 +238,7 @@ impl std::convert::From<RevisionTableState> for RevisionState {
 impl std::convert::From<RevisionState> for RevisionTableState {
     fn from(s: RevisionState) -> Self {
         match s {
-            RevisionState::Local => RevisionTableState::Local,
+            RevisionState::Sync => RevisionTableState::Sync,
             RevisionState::Ack => RevisionTableState::Ack,
         }
     }
@@ -274,7 +279,7 @@ impl std::convert::From<i32> for RevTableType {
             0 => RevTableType::Local,
             1 => RevTableType::Remote,
             o => {
-                log::error!("Unsupported rev type {}, fallback to RevTableType::Local", o);
+                tracing::error!("Unsupported rev type {}, fallback to RevTableType::Local", o);
                 RevTableType::Local
             },
         }
@@ -304,7 +309,7 @@ impl std::convert::From<RevTableType> for RevType {
 }
 
 pub struct RevisionChangeset {
-    pub(crate) doc_id: String,
+    pub(crate) object_id: String,
     pub(crate) rev_id: RevId,
     pub(crate) state: RevisionTableState,
 }

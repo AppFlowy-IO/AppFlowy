@@ -1,4 +1,5 @@
 mod version_1;
+mod version_2;
 
 use std::sync::Arc;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
@@ -63,14 +64,4 @@ impl FlowyCorePersistence {
         let conn = self.database.db_connection()?;
         conn.immediate_transaction::<_, FlowyError, _>(|| f(Box::new(V1Transaction(&conn))))
     }
-
-    // pub fn scope_transaction<F, O>(&self, f: F) -> FlowyResult<O>
-    // where
-    //     F: for<'a> FnOnce(Box<dyn FlowyCorePersistenceTransaction + 'a>) ->
-    // FlowyResult<O>, {
-    //     match thread::scope(|_s| self.begin_transaction(f)) {
-    //         Ok(result) => result,
-    //         Err(e) => Err(FlowyError::internal().context(e)),
-    //     }
-    // }
 }

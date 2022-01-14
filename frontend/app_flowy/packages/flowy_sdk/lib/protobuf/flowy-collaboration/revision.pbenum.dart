@@ -10,11 +10,11 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class RevisionState extends $pb.ProtobufEnum {
-  static const RevisionState Local = RevisionState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Local');
+  static const RevisionState Sync = RevisionState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Sync');
   static const RevisionState Ack = RevisionState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ack');
 
   static const $core.List<RevisionState> values = <RevisionState> [
-    Local,
+    Sync,
     Ack,
   ];
 

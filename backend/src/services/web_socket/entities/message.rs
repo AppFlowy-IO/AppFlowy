@@ -1,6 +1,6 @@
 use actix::Message;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::{DocumentClientWSData, DocumentServerWSData};
+use flowy_collaboration::entities::ws::{ClientRevisionWSData, ServerRevisionWSData};
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::convert::TryInto;
 
@@ -14,8 +14,8 @@ impl std::ops::Deref for WebSocketMessage {
     fn deref(&self) -> &Self::Target { &self.0 }
 }
 
-impl std::convert::From<DocumentClientWSData> for WebSocketMessage {
-    fn from(data: DocumentClientWSData) -> Self {
+impl std::convert::From<ClientRevisionWSData> for WebSocketMessage {
+    fn from(data: ClientRevisionWSData) -> Self {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
             module: WSModule::Doc,
@@ -27,8 +27,8 @@ impl std::convert::From<DocumentClientWSData> for WebSocketMessage {
     }
 }
 
-impl std::convert::From<DocumentServerWSData> for WebSocketMessage {
-    fn from(data: DocumentServerWSData) -> Self {
+impl std::convert::From<ServerRevisionWSData> for WebSocketMessage {
+    fn from(data: ServerRevisionWSData) -> Self {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
             module: WSModule::Doc,

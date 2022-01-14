@@ -5,10 +5,10 @@ use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::{
         doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
-        ws::{DocumentClientWSData, DocumentClientWSDataType},
+        ws::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
-    protobuf::DocumentClientWSData as DocumentClientWSDataPB,
+    protobuf::ClientRevisionWSData as ClientRevisionWSDataPB,
     server_document::*,
 };
 use flowy_core::module::WorkspaceCloudService;
@@ -105,19 +105,19 @@ impl LocalWebSocketRunner {
 
     async fn handle_message(&self, message: WebSocketRawMessage) -> Result<(), FlowyError> {
         let bytes = Bytes::from(message.data);
-        let client_data = DocumentClientWSData::try_from(bytes).map_err(internal_error)?;
+        let client_data = ClientRevisionWSData::try_from(bytes).map_err(internal_error)?;
         let _ = self.handle_client_data(client_data, "".to_owned()).await?;
         Ok(())
     }
 
     pub async fn handle_client_data(
         &self,
-        client_data: DocumentClientWSData,
+        client_data: ClientRevisionWSData,
         user_id: String,
     ) -> Result<(), CollaborateError> {
         tracing::trace!(
             "[LocalDocumentServer] receive: {}:{}-{:?} ",
-            client_data.doc_id,
+            client_data.object_id,
             client_data.id(),
             client_data.ty,
         );
@@ -127,15 +127,15 @@ impl LocalWebSocketRunner {
             client_ws_sender,
         });
         let ty = client_data.ty.clone();
-        let document_client_data: DocumentClientWSDataPB = client_data.try_into().unwrap();
+        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
         match ty {
-            DocumentClientWSDataType::ClientPushRev => {
+            ClientRevisionWSDataType::ClientPushRev => {
                 let _ = self
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await?;
             },
-            DocumentClientWSDataType::ClientPing => {
+            ClientRevisionWSDataType::ClientPing => {
                 let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
             },
         }

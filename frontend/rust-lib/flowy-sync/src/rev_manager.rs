@@ -1,41 +1,40 @@
-use crate::{
-    core::{revision::DocumentRevisionCache, RevisionRecord},
-    errors::FlowyError,
-};
-use bytes::Bytes;
+use crate::{RevisionCache, RevisionRecord};
+
 use dashmap::DashMap;
 use flowy_collaboration::{
-    entities::{
-        doc::DocumentInfo,
-        revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
-    },
-    util::{make_delta_from_revisions, md5, pair_rev_id_from_revisions, RevIdCounter},
+    entities::revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
+    util::{pair_rev_id_from_revisions, RevIdCounter},
 };
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
-use lib_ot::{core::Operation, rich_text::RichTextDelta};
+
 use std::{collections::VecDeque, sync::Arc};
 use tokio::sync::RwLock;
 
-pub trait RevisionServer: Send + Sync {
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError>;
+pub trait RevisionCloudService: Send + Sync {
+    fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError>;
 }
 
-pub struct DocumentRevisionManager {
-    pub(crate) doc_id: String,
+pub trait RevisionObjectBuilder: Send + Sync {
+    type Output;
+    fn build_with_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output>;
+}
+
+pub struct RevisionManager {
+    pub object_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
-    revision_cache: Arc<DocumentRevisionCache>,
+    revision_cache: Arc<RevisionCache>,
     revision_sync_seq: Arc<RevisionSyncSequence>,
 }
 
-impl DocumentRevisionManager {
-    pub fn new(user_id: &str, doc_id: &str, revision_cache: Arc<DocumentRevisionCache>) -> Self {
+impl RevisionManager {
+    pub fn new(user_id: &str, object_id: &str, revision_cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         let revision_sync_seq = Arc::new(RevisionSyncSequence::new());
         Self {
-            doc_id: doc_id.to_string(),
+            object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
             revision_cache,
@@ -43,27 +42,28 @@ impl DocumentRevisionManager {
         }
     }
 
-    pub async fn load_document(&mut self, server: Arc<dyn RevisionServer>) -> FlowyResult<RichTextDelta> {
+    pub async fn load<Builder>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<Builder::Output>
+    where
+        Builder: RevisionObjectBuilder,
+    {
         let revisions = RevisionLoader {
-            doc_id: self.doc_id.clone(),
+            object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
-            server,
+            cloud,
             revision_cache: self.revision_cache.clone(),
             revision_sync_seq: self.revision_sync_seq.clone(),
         }
         .load()
         .await?;
-        let doc = mk_doc_from_revisions(&self.doc_id, revisions)?;
-        self.rev_id_counter.set(doc.rev_id);
-        Ok(doc.delta()?)
+        Builder::build_with_revisions(&self.object_id, revisions)
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
-    pub async fn reset_document(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
         let _ = self
             .revision_cache
-            .reset_with_revisions(&self.doc_id, revisions.into_inner())
+            .reset_with_revisions(&self.object_id, revisions.into_inner())
             .await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
@@ -90,7 +90,7 @@ impl DocumentRevisionManager {
 
         let record = self
             .revision_cache
-            .add(revision.clone(), RevisionState::Local, true)
+            .add(revision.clone(), RevisionState::Sync, true)
             .await?;
         self.revision_sync_seq.add_revision_record(record).await?;
         Ok(())
@@ -115,7 +115,7 @@ impl DocumentRevisionManager {
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
-        debug_assert!(range.doc_id == self.doc_id);
+        debug_assert!(range.object_id == self.object_id);
         let revisions = self.revision_cache.revisions_in_range(range.clone()).await?;
         Ok(revisions)
     }
@@ -160,7 +160,7 @@ impl RevisionSyncSequence {
     fn new() -> Self { RevisionSyncSequence::default() }
 
     async fn add_revision_record(&self, record: RevisionRecord) -> FlowyResult<()> {
-        if !record.state.is_local() {
+        if !record.state.is_need_sync() {
             return Ok(());
         }
 
@@ -204,37 +204,29 @@ impl RevisionSyncSequence {
 }
 
 struct RevisionLoader {
-    doc_id: String,
+    object_id: String,
     user_id: String,
-    server: Arc<dyn RevisionServer>,
-    revision_cache: Arc<DocumentRevisionCache>,
+    cloud: Arc<dyn RevisionCloudService>,
+    revision_cache: Arc<RevisionCache>,
     revision_sync_seq: Arc<RevisionSyncSequence>,
 }
 
 impl RevisionLoader {
     async fn load(&self) -> Result<Vec<Revision>, FlowyError> {
-        let records = self.revision_cache.batch_get(&self.doc_id)?;
+        let records = self.revision_cache.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;
         if records.is_empty() {
-            let doc = self.server.fetch_document(&self.doc_id).await?;
-            let delta_data = Bytes::from(doc.text.clone());
-            let doc_md5 = md5(&delta_data);
-            let revision = Revision::new(
-                &doc.doc_id,
-                doc.base_rev_id,
-                doc.rev_id,
-                delta_data,
-                &self.user_id,
-                doc_md5,
-            );
-            let _ = self
-                .revision_cache
-                .add(revision.clone(), RevisionState::Ack, true)
-                .await?;
-            revisions = vec![revision];
+            let remote_revisions = self.cloud.fetch_object(&self.user_id, &self.object_id).await?;
+            for revision in &remote_revisions {
+                let _ = self
+                    .revision_cache
+                    .add(revision.clone(), RevisionState::Ack, true)
+                    .await?;
+            }
+            revisions = remote_revisions;
         } else {
             stream::iter(records.clone())
-                .filter(|record| future::ready(record.state == RevisionState::Local))
+                .filter(|record| future::ready(record.state == RevisionState::Sync))
                 .for_each(|record| async move {
                     let f = || async {
                         // Sync the records if their state is RevisionState::Local.
@@ -255,36 +247,6 @@ impl RevisionLoader {
     }
 }
 
-fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<DocumentInfo> {
-    let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
-    let mut delta = make_delta_from_revisions(revisions)?;
-    correct_delta(&mut delta);
-
-    Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
-        doc_id: doc_id.to_owned(),
-        text: delta.to_json(),
-        rev_id,
-        base_rev_id,
-    })
-}
-
-// quill-editor requires the delta should end with '\n' and only contains the
-// insert operation. The function, correct_delta maybe be removed in the future.
-fn correct_delta(delta: &mut RichTextDelta) {
-    if let Some(op) = delta.ops.last() {
-        let op_data = op.get_data();
-        if !op_data.ends_with('\n') {
-            log::warn!("The document must end with newline. Correcting it by inserting newline op");
-            delta.ops.push(Operation::Insert("\n".into()));
-        }
-    }
-
-    if let Some(op) = delta.ops.iter().find(|op| !op.is_insert()) {
-        log::warn!("The document can only contains insert operations, but found {:?}", op);
-        delta.ops.retain(|op| op.is_insert());
-    }
-}
-
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionSyncSequence {
     #[allow(dead_code)]
@@ -294,6 +256,6 @@ impl RevisionSyncSequence {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl DocumentRevisionManager {
-    pub fn revision_cache(&self) -> Arc<DocumentRevisionCache> { self.revision_cache.clone() }
+impl RevisionManager {
+    pub fn revision_cache(&self) -> Arc<RevisionCache> { self.revision_cache.clone() }
 }

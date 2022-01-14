@@ -1,10 +1,11 @@
 use crate::{
     controller::DocumentController,
-    core::{DocumentWSReceivers, DocumentWebSocket},
     errors::FlowyError,
+    ws_receivers::DocumentWSReceivers,
     DocumentCloudService,
 };
 use flowy_database::ConnectionPool;
+use flowy_sync::RevisionWebSocket;
 use std::sync::Arc;
 
 pub trait DocumentUser: Send + Sync {
@@ -23,7 +24,7 @@ impl DocumentContext {
     pub fn new(
         user: Arc<dyn DocumentUser>,
         ws_receivers: Arc<DocumentWSReceivers>,
-        ws_sender: Arc<dyn DocumentWebSocket>,
+        ws_sender: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn DocumentCloudService>,
     ) -> DocumentContext {
         let doc_ctrl = Arc::new(DocumentController::new(
