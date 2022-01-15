@@ -176,28 +176,6 @@ struct OpenDocHandle {
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
 
-impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
-    fn read_revisions(
-        &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        (**self).read_revisions(object_id, rev_ids)
-    }
-
-    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
-        (**self).save_revisions(repeated_revision)
-    }
-
-    fn reset_object(
-        &self,
-        object_id: &str,
-        repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<(), CollaborateError> {
-        (**self).reset_document(object_id, repeated_revision)
-    }
-}
-
 impl OpenDocHandle {
     fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
@@ -260,6 +238,28 @@ impl OpenDocHandle {
 impl std::ops::Drop for OpenDocHandle {
     fn drop(&mut self) {
         tracing::trace!("{} OpenDocHandle was dropped", self.doc_id);
+    }
+}
+
+impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
+    fn read_revisions(
+        &self,
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+        (**self).read_revisions(object_id, rev_ids)
+    }
+
+    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+        (**self).save_revisions(repeated_revision)
+    }
+
+    fn reset_object(
+        &self,
+        object_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError> {
+        (**self).reset_document(object_id, repeated_revision)
     }
 }
 

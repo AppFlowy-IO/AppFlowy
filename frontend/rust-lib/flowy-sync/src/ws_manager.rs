@@ -147,13 +147,13 @@ impl RevisionWSStream {
                                 yield msg
                             },
                             None => {
-                                tracing::debug!("[RevisionWSStream:{}] loop exit", object_id);
+                                tracing::debug!("[RevisionWSStream]:{} loop exit", object_id);
                                 break;
                             },
                         }
                     },
                     _ = stop_rx.recv() => {
-                        tracing::debug!("[RevisionWSStream:{}] loop exit", object_id);
+                        tracing::debug!("[RevisionWSStream]:{} loop exit", object_id);
                         break
                     },
                 };
@@ -164,7 +164,7 @@ impl RevisionWSStream {
             .for_each(|msg| async {
                 match self.handle_message(msg).await {
                     Ok(_) => {},
-                    Err(e) => tracing::error!("[RevisionWSStream:{}] error: {}", self.object_id, e),
+                    Err(e) => tracing::error!("[RevisionWSStream]:{} error: {}", self.object_id, e),
                 }
             })
             .await;

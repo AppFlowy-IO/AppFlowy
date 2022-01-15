@@ -1,8 +1,47 @@
 use crate::{entities::app::App, impl_def_and_def_mut};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+pub struct Trash {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub modified_time: i64,
+
+    #[pb(index = 4)]
+    pub create_time: i64,
+
+    #[pb(index = 5)]
+    pub ty: TrashType,
+}
+
+#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedTrash {
+    #[pb(index = 1)]
+    pub items: Vec<Trash>,
+}
+
+impl_def_and_def_mut!(RepeatedTrash, Trash);
+
+impl std::convert::From<App> for Trash {
+    fn from(app: App) -> Self {
+        Trash {
+            id: app.id,
+            name: app.name,
+            modified_time: app.modified_time,
+            create_time: app.create_time,
+            ty: TrashType::App,
+        }
+    }
+}
+
+#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum TrashType {
     Unknown = 0,
     View    = 1,
@@ -96,42 +135,4 @@ impl std::convert::From<&Trash> for TrashId {
 
 impl std::fmt::Display for TrashId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{:?}:{}", self.ty, self.id)) }
-}
-
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
-pub struct Trash {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub modified_time: i64,
-
-    #[pb(index = 4)]
-    pub create_time: i64,
-
-    #[pb(index = 5)]
-    pub ty: TrashType,
-}
-
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedTrash {
-    #[pb(index = 1)]
-    pub items: Vec<Trash>,
-}
-
-impl_def_and_def_mut!(RepeatedTrash, Trash);
-
-impl std::convert::From<App> for Trash {
-    fn from(app: App) -> Self {
-        Trash {
-            id: app.id,
-            name: app.name,
-            modified_time: app.modified_time,
-            create_time: app.create_time,
-            ty: TrashType::App,
-        }
-    }
 }

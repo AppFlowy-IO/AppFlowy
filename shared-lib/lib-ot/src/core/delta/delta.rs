@@ -13,7 +13,7 @@ use std::{
     str::FromStr,
 };
 
-// TODO: optimize the memory usage with Arc_mut or Cow
+// TODO: optimize the memory usage with Arc::make_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
     pub ops: Vec<Operation<T>>,

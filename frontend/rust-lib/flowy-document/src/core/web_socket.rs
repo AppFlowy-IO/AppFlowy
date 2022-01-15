@@ -132,14 +132,20 @@ impl RevisionWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
 
 async fn transform_pushed_revisions(
     revisions: Vec<Revision>,
-    edit_cmd: &EditorCommandSender,
+    edit_cmd_tx: &EditorCommandSender,
 ) -> FlowyResult<TransformDeltas> {
     let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
-    let _ = edit_cmd.send(EditorCommand::TransformRevision { revisions, ret });
-    Ok(rx.await.map_err(internal_error)??)
+    edit_cmd_tx
+        .send(EditorCommand::TransformRevision { revisions, ret })
+        .await
+        .map_err(internal_error)?;
+    let transform_delta = rx
+        .await
+        .map_err(|e| FlowyError::internal().context(format!("transform_pushed_revisions failed: {}", e)))??;
+    Ok(transform_delta)
 }
 
-#[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
+#[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes), err)]
 pub(crate) async fn handle_remote_revision(
     edit_cmd_tx: EditorCommandSender,
     rev_manager: Arc<RevisionManager>,
@@ -173,23 +179,33 @@ pub(crate) async fn handle_remote_revision(
             // The server_prime is None means the client local revisions conflict with the
             // server, and it needs to override the client delta.
             let (ret, rx) = oneshot::channel();
-            let _ = edit_cmd_tx.send(EditorCommand::OverrideDelta {
-                revisions,
-                delta: client_prime,
-                ret,
-            });
-            let _ = rx.await.map_err(internal_error)??;
+            let _ = edit_cmd_tx
+                .send(EditorCommand::OverrideDelta {
+                    revisions,
+                    delta: client_prime,
+                    ret,
+                })
+                .await;
+            let _ = rx.await.map_err(|e| {
+                FlowyError::internal().context(format!("handle EditorCommand::OverrideDelta failed: {}", e))
+            })??;
             Ok(None)
         },
         Some(server_prime) => {
             let (ret, rx) = oneshot::channel();
-            let _ = edit_cmd_tx.send(EditorCommand::ComposeRemoteDelta {
-                revisions,
-                client_delta: client_prime,
-                server_delta: server_prime,
-                ret,
-            });
-            Ok(rx.await.map_err(internal_error)??)
+            edit_cmd_tx
+                .send(EditorCommand::ComposeRemoteDelta {
+                    revisions,
+                    client_delta: client_prime,
+                    server_delta: server_prime,
+                    ret,
+                })
+                .await
+                .map_err(internal_error)?;
+            let result = rx.await.map_err(|e| {
+                FlowyError::internal().context(format!("handle EditorCommand::ComposeRemoteDelta failed: {}", e))
+            })??;
+            Ok(result)
         },
     }
 }

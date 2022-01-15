@@ -1,8 +1,5 @@
 use crate::util::find_newline;
-use lib_ot::{
-    core::RichTextOperation,
-    rich_text::{plain_attributes, AttributeScope, RichTextAttribute, RichTextDelta},
-};
+use lib_ot::rich_text::{plain_attributes, AttributeScope, RichTextAttribute, RichTextDelta, RichTextOperation};
 
 pub(crate) fn line_break(
     op: &RichTextOperation,

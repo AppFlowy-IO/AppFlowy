@@ -1,4 +1,4 @@
-mod version_1;
+pub mod version_1;
 mod version_2;
 
 use std::sync::Arc;

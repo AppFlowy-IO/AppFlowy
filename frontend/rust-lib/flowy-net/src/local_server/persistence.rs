@@ -12,6 +12,8 @@ use std::{
     sync::Arc,
 };
 
+// For the moment, we use memory to cache the data, it will be implemented with
+// other storage. Like the Firestore,Dropbox.etc.
 pub trait RevisionCloudStorage: Send + Sync {
     fn set_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
     fn get_revisions(
@@ -28,8 +30,6 @@ pub trait RevisionCloudStorage: Send + Sync {
 }
 
 pub(crate) struct LocalDocumentCloudPersistence {
-    // For the moment, we use memory to cache the data, it will be implemented with other storage.
-    // Like the Firestore,Dropbox.etc.
     storage: Arc<dyn RevisionCloudStorage>,
 }
 

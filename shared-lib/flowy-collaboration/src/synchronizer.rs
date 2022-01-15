@@ -8,7 +8,7 @@ use crate::{
     util::*,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Delta, OperationTransformable};
+use lib_ot::core::{Attributes, Delta};
 use parking_lot::RwLock;
 use serde::de::DeserializeOwned;
 use std::{

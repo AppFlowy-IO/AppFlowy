@@ -1,4 +1,6 @@
-use crate::core::{trim, Attributes, Delta};
+use crate::core::{trim, Attributes, Delta, PlainTextAttributes};
+
+pub type PlainDeltaBuilder = DeltaBuilder<PlainTextAttributes>;
 
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,

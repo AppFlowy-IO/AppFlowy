@@ -4,6 +4,7 @@ use flowy_collaboration::entities::{
     revision::{RepeatedRevision, Revision},
 };
 
+use flowy_collaboration::client_document::default::initial_delta_string;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -61,7 +62,13 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let delta_data = Bytes::from(params.view_data.clone());
+        let view_data = if params.view_data.is_empty() {
+            initial_delta_string()
+        } else {
+            params.view_data.clone()
+        };
+
+        let delta_data = Bytes::from(view_data);
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
@@ -110,22 +117,20 @@ impl ViewController {
         })
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn open_view(&self, params: DocumentId) -> Result<DocumentDelta, FlowyError> {
-        let doc_id = params.doc_id.clone();
-        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
-
-        KV::set_str(LATEST_VIEW_ID, doc_id.clone());
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn open_view(&self, doc_id: &str) -> Result<DocumentDelta, FlowyError> {
+        let editor = self.document_ctx.controller.open_document(doc_id).await?;
+        KV::set_str(LATEST_VIEW_ID, doc_id.to_owned());
         let document_json = editor.document_json().await?;
         Ok(DocumentDelta {
-            doc_id,
+            doc_id: doc_id.to_string(),
             delta_json: document_json,
         })
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn close_view(&self, params: DocumentId) -> Result<(), FlowyError> {
-        let _ = self.document_ctx.controller.close_document(&params.doc_id)?;
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn close_view(&self, doc_id: &str) -> Result<(), FlowyError> {
+        let _ = self.document_ctx.controller.close_document(doc_id)?;
         Ok(())
     }
 
@@ -140,13 +145,13 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn duplicate_view(&self, params: DocumentId) -> Result<(), FlowyError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn duplicate_view(&self, doc_id: &str) -> Result<(), FlowyError> {
         let view = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_view(&params.doc_id))?;
+            .begin_transaction(|transaction| transaction.read_view(doc_id))?;
 
-        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
+        let editor = self.document_ctx.controller.open_document(doc_id).await?;
         let document_json = editor.document_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),

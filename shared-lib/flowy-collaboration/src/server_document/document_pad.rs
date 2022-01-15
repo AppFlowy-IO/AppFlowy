@@ -17,8 +17,6 @@ impl ServerDocument {
         let doc_id = doc_id.to_owned();
         ServerDocument { doc_id, delta }
     }
-
-    pub fn is_empty<C: InitialDocumentText>(&self) -> bool { self.delta == C::initial_delta() }
 }
 
 impl RevisionSyncObject<RichTextAttributes> for ServerDocument {

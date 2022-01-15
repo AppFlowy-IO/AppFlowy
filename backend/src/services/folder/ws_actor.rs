@@ -11,7 +11,6 @@ use flowy_collaboration::{
         ClientRevisionWSData as ClientRevisionWSDataPB,
         ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
     },
-    server_document::ServerDocumentManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use futures::stream::StreamExt;

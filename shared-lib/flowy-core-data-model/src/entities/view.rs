@@ -7,11 +7,11 @@ use crate::{
         view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
     },
 };
-use flowy_collaboration::{client_document::default::initial_delta_string, entities::doc::DocumentId};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -41,7 +41,8 @@ pub struct View {
     pub create_time: i64,
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
+#[derive(PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct RepeatedView {
     #[pb(index = 1)]
     pub items: Vec<View>,
@@ -61,7 +62,7 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum ViewType {
     Blank = 0,
     Doc   = 1,
@@ -155,7 +156,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
-        let view_data = initial_delta_string();
+        let view_data = "".to_string();
         let view_id = uuid::Uuid::new_v4().to_string();
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
@@ -188,14 +189,6 @@ pub struct ViewId {
 
 impl std::convert::From<String> for ViewId {
     fn from(view_id: String) -> Self { ViewId { view_id } }
-}
-
-impl std::convert::From<ViewId> for DocumentId {
-    fn from(identifier: ViewId) -> Self {
-        DocumentId {
-            doc_id: identifier.view_id,
-        }
-    }
 }
 
 impl TryInto<ViewId> for QueryViewRequest {

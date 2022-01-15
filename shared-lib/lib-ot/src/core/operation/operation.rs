@@ -1,12 +1,13 @@
 use crate::{
     core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
+    errors::OTError,
     rich_text::{RichTextAttribute, RichTextAttributes},
 };
 use serde::__private::Formatter;
 use std::{
     cmp::min,
     fmt,
-    fmt::Debug,
+    fmt::{Debug, Display},
     ops::{Deref, DerefMut},
 };
 
@@ -17,13 +18,6 @@ pub trait Attributes: fmt::Display + Eq + PartialEq + Default + Clone + Debug + 
     fn remove_empty(&mut self);
 
     fn extend_other(&mut self, other: Self);
-}
-
-pub type RichTextOperation = Operation<RichTextAttributes>;
-impl RichTextOperation {
-    pub fn contain_attribute(&self, attribute: &RichTextAttribute) -> bool {
-        self.get_attributes().contains_key(&attribute.key)
-    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -327,4 +321,26 @@ where
             attributes: T::default(),
         }
     }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Default)]
+pub struct PlainTextAttributes();
+impl fmt::Display for PlainTextAttributes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("PlainTextAttributes") }
+}
+
+impl Attributes for PlainTextAttributes {
+    fn is_empty(&self) -> bool { true }
+
+    fn remove_empty(&mut self) {}
+
+    fn extend_other(&mut self, _other: Self) {}
+}
+
+impl OperationTransformable for PlainTextAttributes {
+    fn compose(&self, _other: &Self) -> Result<Self, OTError> { Ok(self.clone()) }
+
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> { Ok((self.clone(), other.clone())) }
+
+    fn invert(&self, _other: &Self) -> Self { self.clone() }
 }

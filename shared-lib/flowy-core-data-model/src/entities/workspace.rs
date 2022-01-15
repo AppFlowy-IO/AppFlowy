@@ -5,9 +5,10 @@ use crate::{
     parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
 };
 use flowy_derive::ProtoBuf;
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Workspace {
     #[pb(index = 1)]
     pub id: String,

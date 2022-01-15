@@ -84,7 +84,7 @@ pub(crate) async fn open_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let doc = controller.open_view(params.into()).await?;
+    let doc = controller.open_view(&params.view_id).await?;
     data_result(doc)
 }
 
@@ -93,7 +93,7 @@ pub(crate) async fn close_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let _ = controller.close_view(params.into()).await?;
+    let _ = controller.close_view(&params.view_id).await?;
     Ok(())
 }
 
@@ -103,7 +103,7 @@ pub(crate) async fn duplicate_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let _ = controller.duplicate_view(params.into()).await?;
+    let _ = controller.duplicate_view(&params.view_id).await?;
     Ok(())
 }
 
