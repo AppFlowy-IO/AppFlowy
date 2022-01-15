@@ -27,25 +27,25 @@ pub trait RevisionCloudStorage: Send + Sync {
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-pub(crate) struct LocalRevisionCloudPersistence {
+pub(crate) struct LocalDocumentCloudPersistence {
     // For the moment, we use memory to cache the data, it will be implemented with other storage.
     // Like the Firestore,Dropbox.etc.
     storage: Arc<dyn RevisionCloudStorage>,
 }
 
-impl Debug for LocalRevisionCloudPersistence {
+impl Debug for LocalDocumentCloudPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalRevisionCloudPersistence") }
 }
 
-impl std::default::Default for LocalRevisionCloudPersistence {
+impl std::default::Default for LocalDocumentCloudPersistence {
     fn default() -> Self {
-        LocalRevisionCloudPersistence {
+        LocalDocumentCloudPersistence {
             storage: Arc::new(MemoryDocumentCloudStorage::default()),
         }
     }
 }
 
-impl DocumentCloudPersistence for LocalRevisionCloudPersistence {
+impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();

@@ -5,12 +5,12 @@ use crate::{
     },
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    server_document::{document_pad::ServerDocument, DocumentCloudPersistence},
     util::*,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
+use lib_ot::core::{Attributes, Delta, OperationTransformable};
 use parking_lot::RwLock;
+use serde::de::DeserializeOwned;
 use std::{
     cmp::Ordering,
     fmt::Debug,
@@ -26,14 +26,28 @@ pub trait RevisionUser: Send + Sync + Debug {
     fn receive(&self, resp: RevisionSyncResponse);
 }
 
-pub trait RevisionSyncObject {
-    type SyncObject;
-
-    fn read_revisions(&self, rev_ids: Option<Vec<i64>>) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
+pub trait RevisionSyncPersistence: Send + Sync + 'static {
+    fn read_revisions(
+        &self,
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
 
     fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_object(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+    fn reset_object(
+        &self,
+        object_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError>;
+}
+
+pub trait RevisionSyncObject<T: Attributes>: Send + Sync + 'static {
+    fn id(&self) -> &str;
+    fn compose(&mut self, other: &Delta<T>) -> Result<(), CollaborateError>;
+    fn transform(&self, other: &Delta<T>) -> Result<(Delta<T>, Delta<T>), CollaborateError>;
+    fn to_json(&self) -> String;
+    fn set_delta(&mut self, new_delta: Delta<T>);
 }
 
 pub enum RevisionSyncResponse {
@@ -42,25 +56,29 @@ pub enum RevisionSyncResponse {
     Ack(ServerRevisionWSData),
 }
 
-pub struct RevisionSynchronizer {
-    pub doc_id: String,
-    pub rev_id: AtomicI64,
-    document: Arc<RwLock<ServerDocument>>,
-    persistence: Arc<dyn DocumentCloudPersistence>,
+pub struct RevisionSynchronizer<T: Attributes> {
+    object_id: String,
+    rev_id: AtomicI64,
+    object: Arc<RwLock<dyn RevisionSyncObject<T>>>,
+    persistence: Arc<dyn RevisionSyncPersistence>,
 }
 
-impl RevisionSynchronizer {
-    pub fn new(
-        doc_id: &str,
-        rev_id: i64,
-        document: ServerDocument,
-        persistence: Arc<dyn DocumentCloudPersistence>,
-    ) -> RevisionSynchronizer {
-        let document = Arc::new(RwLock::new(document));
+impl<T> RevisionSynchronizer<T>
+where
+    T: Attributes + DeserializeOwned + serde::Serialize + 'static,
+{
+    pub fn new<S, P>(rev_id: i64, sync_object: S, persistence: P) -> RevisionSynchronizer<T>
+    where
+        S: RevisionSyncObject<T>,
+        P: RevisionSyncPersistence,
+    {
+        let object = Arc::new(RwLock::new(sync_object));
+        let persistence = Arc::new(persistence);
+        let object_id = object.read().id().to_owned();
         RevisionSynchronizer {
-            doc_id: doc_id.to_string(),
+            object_id,
             rev_id: AtomicI64::new(rev_id),
-            document,
+            object,
             persistence,
         }
     }
@@ -71,7 +89,7 @@ impl RevisionSynchronizer {
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<(), CollaborateError> {
-        let doc_id = self.doc_id.clone();
+        let doc_id = self.object_id.clone();
         if repeated_revision.get_items().is_empty() {
             // Return all the revisions to client
             let revisions = self.persistence.read_revisions(&doc_id, None).await?;
@@ -100,11 +118,11 @@ impl RevisionSynchronizer {
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
-                        object_id: self.doc_id.clone(),
+                        object_id: self.object_id.clone(),
                         start: server_rev_id,
                         end: first_revision.rev_id,
                     };
-                    let msg = ServerRevisionWSDataBuilder::build_pull_message(&self.doc_id, range);
+                    let msg = ServerRevisionWSDataBuilder::build_pull_message(&self.object_id, range);
                     user.receive(RevisionSyncResponse::Pull(msg));
                 }
             },
@@ -126,7 +144,7 @@ impl RevisionSynchronizer {
 
     #[tracing::instrument(level = "trace", skip(self, user), fields(server_rev_id), err)]
     pub async fn pong(&self, user: Arc<dyn RevisionUser>, client_rev_id: i64) -> Result<(), CollaborateError> {
-        let doc_id = self.doc_id.clone();
+        let doc_id = self.object_id.clone();
         let server_rev_id = self.rev_id();
         tracing::Span::current().record("server_rev_id", &server_rev_id);
 
@@ -150,43 +168,42 @@ impl RevisionSynchronizer {
 
     #[tracing::instrument(level = "debug", skip(self, repeated_revision), fields(doc_id), err)]
     pub async fn reset(&self, repeated_revision: RepeatedRevisionPB) -> Result<(), CollaborateError> {
-        let doc_id = self.doc_id.clone();
+        let doc_id = self.object_id.clone();
         tracing::Span::current().record("doc_id", &doc_id.as_str());
         let revisions: Vec<RevisionPB> = repeated_revision.get_items().to_vec();
         let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
         let delta = make_delta_from_revision_pb(revisions)?;
-
-        let _ = self.persistence.reset_document(&doc_id, repeated_revision).await?;
-        *self.document.write() = ServerDocument::from_delta(delta);
+        let _ = self.persistence.reset_object(&doc_id, repeated_revision).await?;
+        self.object.write().set_delta(delta);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
     }
 
-    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+    pub fn object_json(&self) -> String { self.object.read().to_json() }
 
     fn compose_revision(&self, revision: &RevisionPB) -> Result<(), CollaborateError> {
-        let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
+        let delta = Delta::<T>::from_bytes(&revision.delta_data)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    fn transform_revision(&self, revision: &RevisionPB) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
-        let cli_delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-        let result = self.document.read().delta().transform(&cli_delta)?;
+    fn transform_revision(&self, revision: &RevisionPB) -> Result<(Delta<T>, Delta<T>), CollaborateError> {
+        let cli_delta = Delta::<T>::from_bytes(&revision.delta_data)?;
+        let result = self.object.read().transform(&cli_delta)?;
         Ok(result)
     }
 
-    fn compose_delta(&self, delta: RichTextDelta) -> Result<(), CollaborateError> {
+    fn compose_delta(&self, delta: Delta<T>) -> Result<(), CollaborateError> {
         if delta.is_empty() {
             log::warn!("Composed delta is empty");
         }
 
-        match self.document.try_write_for(Duration::from_millis(300)) {
+        match self.object.try_write_for(Duration::from_millis(300)) {
             None => log::error!("Failed to acquire write lock of document"),
             Some(mut write_guard) => {
-                let _ = write_guard.compose_delta(delta);
+                let _ = write_guard.compose(&delta)?;
             },
         }
         Ok(())
@@ -197,10 +214,10 @@ impl RevisionSynchronizer {
     async fn is_applied_before(
         &self,
         new_revision: &RevisionPB,
-        persistence: &Arc<dyn DocumentCloudPersistence>,
+        persistence: &Arc<dyn RevisionSyncPersistence>,
     ) -> bool {
         let rev_ids = Some(vec![new_revision.rev_id]);
-        if let Ok(revisions) = persistence.read_revisions(&self.doc_id, rev_ids).await {
+        if let Ok(revisions) = persistence.read_revisions(&self.object_id, rev_ids).await {
             if let Some(revision) = revisions.first() {
                 if revision.md5 == new_revision.md5 {
                     return true;
@@ -213,7 +230,7 @@ impl RevisionSynchronizer {
 
     async fn push_revisions_to_user(&self, user: Arc<dyn RevisionUser>, from: i64, to: i64) {
         let rev_ids: Vec<i64> = (from..=to).collect();
-        let revisions = match self.persistence.read_revisions(&self.doc_id, Some(rev_ids)).await {
+        let revisions = match self.persistence.read_revisions(&self.object_id, Some(rev_ids)).await {
             Ok(revisions) => {
                 assert_eq!(
                     revisions.is_empty(),
@@ -231,7 +248,7 @@ impl RevisionSynchronizer {
         tracing::debug!("Push revision: {} -> {} to client", from, to);
         match repeated_revision_from_revision_pbs(revisions) {
             Ok(repeated_revision) => {
-                let data = ServerRevisionWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
+                let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, repeated_revision);
                 user.receive(RevisionSyncResponse::Push(data));
             },
             Err(e) => tracing::error!("{}", e),

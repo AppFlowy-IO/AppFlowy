@@ -1,15 +1,16 @@
-use crate::local_server::persistence::LocalRevisionCloudPersistence;
+use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::{
         doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
-        ws::{ClientRevisionWSData, ClientRevisionWSDataType},
+        ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
     protobuf::ClientRevisionWSData as ClientRevisionWSDataPB,
-    server_document::*,
+    server_document::ServerDocumentManager,
+    synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use flowy_core::module::WorkspaceCloudService;
 use flowy_error::{internal_error, FlowyError};
@@ -35,7 +36,7 @@ impl LocalServer {
         client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
-        let persistence = Arc::new(LocalRevisionCloudPersistence::default());
+        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence));
         let stop_tx = RwLock::new(None);
 

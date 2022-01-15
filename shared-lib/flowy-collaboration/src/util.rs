@@ -12,6 +12,8 @@ use std::{
     convert::TryInto,
     sync::atomic::{AtomicI64, Ordering::SeqCst},
 };
+use serde::de::DeserializeOwned;
+use lib_ot::core::{Attributes, Delta};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> { s.find(NEW_LINE) }
@@ -57,10 +59,10 @@ pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<
     Ok(delta)
 }
 
-pub fn make_delta_from_revision_pb(revisions: Vec<RevisionPB>) -> CollaborateResult<RichTextDelta> {
-    let mut new_delta = RichTextDelta::new();
+pub fn make_delta_from_revision_pb<T>(revisions: Vec<RevisionPB>) -> CollaborateResult<Delta<T>> where T: Attributes + DeserializeOwned {
+    let mut new_delta = Delta::<T>::new();
     for revision in revisions {
-        let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(|e| {
+        let delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;

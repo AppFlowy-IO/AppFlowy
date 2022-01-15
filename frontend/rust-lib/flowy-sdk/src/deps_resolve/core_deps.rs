@@ -1,6 +1,6 @@
 use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::ClientRevisionWSData;
+use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_core::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},

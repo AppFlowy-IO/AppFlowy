@@ -13,7 +13,8 @@ use flowy_collaboration::{
         ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
         Revision as RevisionPB,
     },
-    server_document::{RevisionSyncResponse, RevisionUser, ServerDocumentManager},
+    server_document::ServerDocumentManager,
+    synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use futures::stream::StreamExt;
 use std::sync::Arc;

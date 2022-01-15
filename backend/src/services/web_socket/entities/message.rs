@@ -1,6 +1,6 @@
 use actix::Message;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::{ClientRevisionWSData, ServerRevisionWSData};
+use flowy_collaboration::entities::ws_data::{ClientRevisionWSData, ServerRevisionWSData};
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::convert::TryInto;
 

@@ -1,19 +1,22 @@
 use crate::{
-    entities::{doc::DocumentInfo, ws::ServerRevisionWSDataBuilder},
+    entities::{doc::DocumentInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
-    server_document::{document_pad::ServerDocument, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
+    server_document::document_pad::ServerDocument,
+    synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
 };
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
-use lib_ot::rich_text::RichTextDelta;
+use lib_ot::rich_text::{RichTextAttributes, RichTextDelta};
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
     task::spawn_blocking,
 };
+
+type RichTextRevisionSynchronizer = RevisionSynchronizer<RichTextAttributes>;
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
@@ -173,6 +176,28 @@ struct OpenDocHandle {
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
 
+impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
+    fn read_revisions(
+        &self,
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+        (**self).read_revisions(object_id, rev_ids)
+    }
+
+    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+        (**self).save_revisions(repeated_revision)
+    }
+
+    fn reset_object(
+        &self,
+        object_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError> {
+        (**self).reset_document(object_id, repeated_revision)
+    }
+}
+
 impl OpenDocHandle {
     fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
@@ -180,12 +205,8 @@ impl OpenDocHandle {
         let users = DashMap::new();
 
         let delta = RichTextDelta::from_bytes(&doc.text)?;
-        let synchronizer = Arc::new(RevisionSynchronizer::new(
-            &doc.doc_id,
-            doc.rev_id,
-            ServerDocument::from_delta(delta),
-            persistence,
-        ));
+        let sync_object = ServerDocument::from_delta(&doc_id, delta);
+        let synchronizer = Arc::new(RichTextRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 
         let queue = DocumentCommandQueue::new(&doc.doc_id, receiver, synchronizer)?;
         tokio::task::spawn(queue.run());
@@ -263,14 +284,14 @@ enum DocumentCommand {
 struct DocumentCommandQueue {
     pub doc_id: String,
     receiver: Option<mpsc::Receiver<DocumentCommand>>,
-    synchronizer: Arc<RevisionSynchronizer>,
+    synchronizer: Arc<RichTextRevisionSynchronizer>,
 }
 
 impl DocumentCommandQueue {
     fn new(
         doc_id: &str,
         receiver: mpsc::Receiver<DocumentCommand>,
-        synchronizer: Arc<RevisionSynchronizer>,
+        synchronizer: Arc<RichTextRevisionSynchronizer>,
     ) -> Result<Self, CollaborateError> {
         Ok(Self {
             doc_id: doc_id.to_owned(),

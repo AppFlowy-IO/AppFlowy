@@ -1,4 +1,4 @@
 pub mod doc;
 pub mod parser;
 pub mod revision;
-pub mod ws;
+pub mod ws_data;

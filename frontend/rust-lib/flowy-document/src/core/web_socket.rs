@@ -7,7 +7,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
         revision::{RepeatedRevision, Revision, RevisionRange},
-        ws::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
+        ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
     },
     errors::CollaborateResult,
 };

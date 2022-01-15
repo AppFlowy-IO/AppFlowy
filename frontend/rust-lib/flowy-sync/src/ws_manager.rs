@@ -2,7 +2,7 @@ use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::{
     revision::{RevId, RevisionRange},
-    ws::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
+    ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use futures_util::stream::StreamExt;

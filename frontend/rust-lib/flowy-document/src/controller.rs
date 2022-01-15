@@ -5,7 +5,7 @@ use dashmap::DashMap;
 use flowy_collaboration::entities::{
     doc::{DocumentDelta, DocumentId},
     revision::{md5, RepeatedRevision, Revision},
-    ws::ServerRevisionWSData,
+    ws_data::ServerRevisionWSData,
 };
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
