@@ -45,14 +45,14 @@ class AuthRouterImpl extends IAuthRouter {
     getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
   }
 
-  @override
-  void pushSignUpScreen(BuildContext context) {
-    Navigator.of(context).push(
-      PageRoutes.fade(
-        () => SignUpScreen(router: getIt<IAuthRouter>()),
-      ),
-    );
-  }
+  // @override
+  // void pushSignUpScreen(BuildContext context) {
+  //   Navigator.of(context).push(
+  //     PageRoutes.fade(
+  //       () => SignUpScreen(router: getIt<IAuthRouter>()),
+  //     ),
+  //   );
+  // }
 
   @override
   void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting) {

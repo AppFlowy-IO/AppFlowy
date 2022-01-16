@@ -55,13 +55,13 @@ class SplashRoute implements ISplashRoute {
     );
   }
 
-  @override
-  void pushSignInScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
-    );
-  }
+  // @override
+  // void pushSignInScreen(BuildContext context) {
+  //   Navigator.push(
+  //     context,
+  //     PageRoutes.fade(() => SignInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+  //   );
+  // }
 
   @override
   void pushSkipLoginScreen(BuildContext context) {

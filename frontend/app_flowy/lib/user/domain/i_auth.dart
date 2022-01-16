@@ -21,7 +21,7 @@ abstract class IAuth {
 
 abstract class IAuthRouter {
   void pushWelcomeScreen(BuildContext context, UserProfile userProfile);
-  void pushSignUpScreen(BuildContext context);
+  // void pushSignUpScreen(BuildContext context);
   void pushForgetPasswordScreen(BuildContext context);
   void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting);
 }

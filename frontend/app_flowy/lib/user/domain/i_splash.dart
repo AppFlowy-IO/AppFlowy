@@ -17,7 +17,7 @@ abstract class ISplashUserWatch {
 }
 
 abstract class ISplashRoute {
-  void pushSignInScreen(BuildContext context);
+  // void pushSignInScreen(BuildContext context);
   void pushSkipLoginScreen(BuildContext context);
 
   Future<void> pushWelcomeScreen(BuildContext context, UserProfile profile);
