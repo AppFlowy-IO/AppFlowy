@@ -11,9 +11,9 @@ class RoundedInputField extends StatefulWidget {
   final bool obscureText;
   final Widget? obscureIcon;
   final Widget? obscureHideIcon;
-  final Color normalBorderColor;
-  final Color highlightBorderColor;
-  final Color cursorColor;
+  final Color? normalBorderColor;
+  final Color? highlightBorderColor;
+  final Color? cursorColor;
   final String errorText;
   final TextStyle style;
   final ValueChanged<String>? onChanged;
@@ -31,9 +31,9 @@ class RoundedInputField extends StatefulWidget {
     this.obscureIcon,
     this.obscureHideIcon,
     this.onChanged,
-    this.normalBorderColor = Colors.transparent,
-    this.highlightBorderColor = Colors.transparent,
-    this.cursorColor = Colors.black,
+    this.normalBorderColor,
+    this.highlightBorderColor,
+    this.cursorColor,
     this.style = const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
   }) : super(key: key) {
     enableObscure = obscureText;
@@ -53,9 +53,9 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
             color: const Color(0xFF6F35A5),
           );
 
-    var borderColor = widget.normalBorderColor;
+    var borderColor = widget.normalBorderColor ?? Colors.grey.shade400;
     if (widget.errorText.isNotEmpty) {
-      borderColor = widget.highlightBorderColor;
+      borderColor = widget.highlightBorderColor ?? Colors.red;
     }
 
     List<Widget> children = [
