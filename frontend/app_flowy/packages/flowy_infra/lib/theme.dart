@@ -1,6 +1,7 @@
 import 'package:flowy_infra/color.dart';
 import 'package:flutter/material.dart';
 
+@Deprecated('')
 enum ThemeType {
   light,
   dark,
@@ -137,8 +138,8 @@ class AppTheme {
         iconTheme: IconThemeData(color: shader1),
         canvasColor: shader6,
 
-        //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
-        // hoverColor: main2,
+        // FIXME: Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
+        hoverColor: isDark ? const Color(0xFF1f1f1f) : const Color(0xFFe0e0e0),
 
         primaryColor: const Color(0xFF00bcf0),
 

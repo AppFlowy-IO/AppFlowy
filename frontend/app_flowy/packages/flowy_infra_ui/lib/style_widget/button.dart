@@ -113,7 +113,7 @@ class FlowyTextButton extends StatelessWidget {
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
       fillColor: fillColor,
-      hoverColor: hoverColor ?? Colors.transparent,
+      hoverColor: hoverColor ?? Theme.of(context).hoverColor,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
