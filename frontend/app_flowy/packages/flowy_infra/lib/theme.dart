@@ -135,7 +135,6 @@ class AppTheme {
 
         textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
         primaryIconTheme: IconThemeData(color: hover),
-        iconTheme: IconThemeData(color: shader1),
         canvasColor: shader6,
 
         // FIXME: Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
@@ -161,6 +160,8 @@ class AppTheme {
           buttonColor: Color(0xFF00bcf0),
           textTheme: ButtonTextTheme.normal,
         ),
+
+        iconTheme: IconThemeData(color: isDark ? const Color(0xFFffffff) : const Color(0xFF333333), size: 16),
 
         colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,

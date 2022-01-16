@@ -1,7 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -49,15 +48,12 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   Widget _renderCreateButton(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return SizedBox(
       width: 200,
       height: 40,
       child: FlowyTextButton(
         LocaleKeys.workspace_create.tr(),
         fontSize: 14,
-        hoverColor: theme.bg3,
         onPressed: () {
           context.read<WelcomeBloc>().add(WelcomeEvent.createWorkspace(LocaleKeys.workspace_hint.tr(), ""));
         },
@@ -70,7 +66,7 @@ class WelcomeScreen extends StatelessWidget {
       child: StyledListView(
         itemBuilder: (BuildContext context, int index) {
           final workspace = workspaces[index];
-          return WorkspaceItem(
+          return _WorkspaceItem(
             workspace: workspace,
             onPressed: (workspace) => _handleOnPress(context, workspace),
           );
@@ -87,20 +83,17 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-class WorkspaceItem extends StatelessWidget {
+class _WorkspaceItem extends StatelessWidget {
   final Workspace workspace;
   final void Function(Workspace workspace) onPressed;
-  const WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
+  const _WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return SizedBox(
       height: 46,
       child: FlowyTextButton(
         workspace.name,
-        hoverColor: theme.bg3,
         fontSize: 14,
         onPressed: () => onPressed(workspace),
       ),

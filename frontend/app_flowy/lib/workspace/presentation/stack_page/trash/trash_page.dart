@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/sizes.d
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/trash_cell.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
@@ -60,7 +59,6 @@ class _TrashStackPageState extends State<TrashStackPage> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     const horizontalPadding = 80.0;
     return BlocProvider(
       create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
@@ -69,7 +67,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
           return SizedBox.expand(
             child: Column(
               children: [
-                _renderTopBar(context, theme, state),
+                _renderTopBar(context, state),
                 const VSpace(32),
                 _renderTrashList(context, state),
               ],
@@ -113,7 +111,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
     );
   }
 
-  Widget _renderTopBar(BuildContext context, AppTheme theme, TrashState state) {
+  Widget _renderTopBar(BuildContext context, TrashState state) {
     return SizedBox(
       height: 36,
       child: Row(
@@ -125,7 +123,6 @@ class _TrashStackPageState extends State<TrashStackPage> {
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(), fontSize: 12),
               icon: svg('editor/restore'),
-              hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
             ),
           ),
@@ -135,7 +132,6 @@ class _TrashStackPageState extends State<TrashStackPage> {
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(), fontSize: 12),
               icon: svg('editor/delete'),
-              hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),
           )

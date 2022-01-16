@@ -8,7 +8,6 @@ import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_log/flowy_log.dart';
@@ -111,7 +110,6 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
   Widget build(BuildContext context) {
     _controller.text = widget.view.name;
 
-    final theme = context.watch<AppTheme>();
     return IntrinsicWidth(
       key: ValueKey(_controller.text),
       child: TextField(
@@ -123,12 +121,7 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
           border: InputBorder.none,
           isDense: true,
         ),
-        style: TextStyle(
-          color: theme.textColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: Theme.of(context).textTheme.subtitle2,
         // cursorColor: widget.cursorColor,
         // obscureText: widget.enableObscure,
       ),
