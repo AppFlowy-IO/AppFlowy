@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
-import 'package:flowy_infra/theme.dart';
 
 import 'widget/style_widgets/style_widgets.dart';
 
 DefaultStyles customStyles(BuildContext context) {
   const baseSpacing = Tuple2<double, double>(6, 0);
 
-  final theme = context.watch<AppTheme>();
-  final themeData = theme.themeData;
-  final fontFamily = makeFontFamily(themeData);
+  final fontFamily = _getFontFamily(context);
 
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
@@ -64,10 +60,10 @@ DefaultStyles customStyles(BuildContext context) {
         backgroundColor: Colors.blue.shade900.withOpacity(0.9),
       ),
       link: TextStyle(
-        color: themeData.colorScheme.secondary,
+        color: Theme.of(context).colorScheme.secondary,
         decoration: TextDecoration.underline,
       ),
-      color: (theme.isDark ? theme.shader1 : theme.shader7),
+      color: Theme.of(context).textTheme.bodyText1!.color,
       placeHolder: DefaultTextBlockStyle(
           defaultTextStyle.style.copyWith(
             fontSize: 20,
@@ -77,15 +73,14 @@ DefaultStyles customStyles(BuildContext context) {
           const Tuple2(0, 0),
           const Tuple2(0, 0),
           null),
-      lists:
-          DefaultListBlockStyle(baseStyle, baseSpacing, const Tuple2(0, 6), null, StyleWidgetBuilder.checkbox(theme)),
+      lists: DefaultListBlockStyle(baseStyle, baseSpacing, const Tuple2(0, 6), null, StyleWidgetBuilder.checkbox()),
       quote: DefaultTextBlockStyle(
           TextStyle(color: baseStyle.color!.withOpacity(0.6)),
           baseSpacing,
           const Tuple2(6, 2),
           BoxDecoration(
             border: Border(
-              left: BorderSide(width: 4, color: theme.main1),
+              left: BorderSide(width: 4, color: Theme.of(context).primaryColor),
             ),
           )),
       code: DefaultTextBlockStyle(
@@ -109,9 +104,9 @@ DefaultStyles customStyles(BuildContext context) {
       sizeHuge: const TextStyle(fontSize: 22));
 }
 
-String makeFontFamily(ThemeData themeData) {
+String _getFontFamily(BuildContext context) {
   String fontFamily;
-  switch (themeData.platform) {
+  switch (Theme.of(context).platform) {
     case TargetPlatform.iOS:
     case TargetPlatform.macOS:
       fontFamily = 'Mulish';

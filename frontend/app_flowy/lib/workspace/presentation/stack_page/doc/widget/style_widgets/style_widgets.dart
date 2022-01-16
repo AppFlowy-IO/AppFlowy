@@ -1,24 +1,20 @@
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 class StyleWidgetBuilder {
-  static QuillCheckboxBuilder checkbox(AppTheme theme) {
-    return EditorCheckboxBuilder(theme);
+  static QuillCheckboxBuilder checkbox() {
+    return EditorCheckboxBuilder();
   }
 }
 
 class EditorCheckboxBuilder extends QuillCheckboxBuilder {
-  final AppTheme theme;
-
-  EditorCheckboxBuilder(this.theme);
+  EditorCheckboxBuilder();
 
   @override
   Widget build({required BuildContext context, required bool isChecked, required ValueChanged<bool> onChanged}) {
     return FlowyEditorCheckbox(
-      theme: theme,
       isChecked: isChecked,
       onChanged: onChanged,
     );
@@ -26,15 +22,14 @@ class EditorCheckboxBuilder extends QuillCheckboxBuilder {
 }
 
 class FlowyEditorCheckbox extends StatefulWidget {
-  final bool isChecked;
-  final ValueChanged<bool> onChanged;
-  final AppTheme theme;
   const FlowyEditorCheckbox({
-    required this.theme,
     required this.isChecked,
     required this.onChanged,
     Key? key,
   }) : super(key: key);
+
+  final bool isChecked;
+  final ValueChanged<bool> onChanged;
 
   @override
   _FlowyEditorCheckboxState createState() => _FlowyEditorCheckboxState();
