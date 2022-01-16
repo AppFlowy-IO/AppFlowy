@@ -11,6 +11,7 @@ const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xFFFFFFFF);
 
+@Deprecated('Use `Theme.of(context).` instead')
 class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;
 
@@ -128,37 +129,69 @@ class AppTheme {
     }
   }
 
-  ThemeData get themeData {
-    var t = ThemeData(
-      textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
-      textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
-      primaryIconTheme: IconThemeData(color: hover),
-      iconTheme: IconThemeData(color: shader1),
-      canvasColor: shader6,
-      //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
-      // hoverColor: main2,
-      colorScheme: ColorScheme(
-          brightness: isDark ? Brightness.dark : Brightness.light,
-          primary: main1,
-          primaryVariant: main2,
-          secondary: main2,
-          secondaryVariant: main2,
-          background: surface,
-          surface: surface,
-          onBackground: surface,
-          onSurface: surface,
-          onError: red,
-          onPrimary: bg1,
-          onSecondary: bg1,
-          error: red),
-    );
+  ThemeData get themeData => ThemeData(
+        // textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
 
-    return t.copyWith(
+        textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
+        primaryIconTheme: IconThemeData(color: hover),
+        iconTheme: IconThemeData(color: shader1),
+        canvasColor: shader6,
+
+        //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
+        // hoverColor: main2,
+
+        primaryColor: const Color(0xFF00bcf0),
+
+        // TODO: Custom color with tins and shades
+        primarySwatch: Colors.blue,
+
+        scaffoldBackgroundColor: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
+        backgroundColor: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
+
+        textTheme: const TextTheme(
+          bodyText1: TextStyle(),
+          bodyText2: TextStyle(),
+        ).apply(
+          bodyColor: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
+          displayColor: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
+        ),
+
+        buttonTheme: const ButtonThemeData(
+          buttonColor: Color(0xFF00bcf0),
+          textTheme: ButtonTextTheme.normal,
+        ),
+
+        colorScheme: ColorScheme(
+          brightness: isDark ? Brightness.dark : Brightness.light,
+
+          // Brand styles.
+          primary: const Color(0xFF00bcf0),
+          primaryVariant: const Color(0xFF009cc7),
+          secondary: const Color(0xFFb061ff),
+          secondaryVariant: const Color(0xFF9327ff),
+          // onPrimary: const Color(0xFFf7f8fc),
+          // onSecondary: const Color(0xFFf7f8fc),
+          onPrimary: isDark ? Colors.white : Colors.black,
+          onSecondary: isDark ? Colors.white : Colors.black,
+
+          // Text styles.
+          onBackground: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
+          onSurface: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
+
+          // Backgrounds.
+          background: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
+          surface: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
+
+          // Alerts.
+          error: const Color(0xFFfb006d),
+          onError: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
+        ),
+      ).copyWith(
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         highlightColor: main1,
         indicatorColor: main1,
-        toggleableActiveColor: main1);
-  }
+        toggleableActiveColor: main1,
+      );
 
   Color shift(Color c, double d) => ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
 }
