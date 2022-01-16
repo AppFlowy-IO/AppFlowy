@@ -3,7 +3,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Trash {
     #[pb(index = 1)]
     pub id: String,
@@ -41,7 +41,7 @@ impl std::convert::From<App> for Trash {
     }
 }
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum TrashType {
     Unknown = 0,
     View    = 1,

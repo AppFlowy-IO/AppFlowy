@@ -24,6 +24,9 @@ macro_rules! impl_def_and_def_mut {
                 self.items.push(item);
             }
 
+            #[allow(dead_code)]
+            pub fn take_items(&mut self) -> Vec<$item> { std::mem::take(&mut self.items) }
+
             pub fn first_or_crash(&self) -> &$item { self.items.first().unwrap() }
         }
     };

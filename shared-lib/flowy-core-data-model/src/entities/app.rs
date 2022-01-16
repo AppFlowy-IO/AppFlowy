@@ -11,7 +11,7 @@ use flowy_derive::ProtoBuf;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct App {
     #[pb(index = 1)]
     pub id: String,
@@ -42,7 +42,7 @@ impl App {
     pub fn take_belongings(&mut self) -> RepeatedView { std::mem::take(&mut self.belongings) }
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct RepeatedApp {
     #[pb(index = 1)]

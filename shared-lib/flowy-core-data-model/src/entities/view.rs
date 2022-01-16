@@ -11,7 +11,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
-#[derive(PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -41,7 +41,7 @@ pub struct View {
     pub create_time: i64,
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct RepeatedView {
     #[pb(index = 1)]
@@ -62,7 +62,7 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum ViewType {
     Blank = 0,
     Doc   = 1,

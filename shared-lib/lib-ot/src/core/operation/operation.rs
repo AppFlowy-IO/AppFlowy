@@ -1,13 +1,12 @@
 use crate::{
     core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
     errors::OTError,
-    rich_text::{RichTextAttribute, RichTextAttributes},
 };
-use serde::__private::Formatter;
+use serde::{Deserialize, Serialize, __private::Formatter};
 use std::{
     cmp::min,
     fmt,
-    fmt::{Debug, Display},
+    fmt::Debug,
     ops::{Deref, DerefMut},
 };
 
@@ -323,7 +322,7 @@ where
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
 pub struct PlainTextAttributes();
 impl fmt::Display for PlainTextAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("PlainTextAttributes") }
