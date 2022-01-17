@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'base_styled_button.dart';
 
 class SecondaryTextButton extends StatelessWidget {

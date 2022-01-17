@@ -1,15 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+
+import 'package:app_flowy/common/theme/theme.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -17,7 +17,6 @@ class MenuUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocProvider<MenuUserBloc>(
       create: (context) => getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
@@ -27,7 +26,7 @@ class MenuUser extends StatelessWidget {
             const HSpace(10),
             _renderUserName(context),
             const HSpace(80),
-            (theme.isDark ? _renderLightMode(context) : _renderDarkMode(context)),
+            (_isDark(context) ? _renderLightMode(context) : _renderDarkMode(context)),
 
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
@@ -60,15 +59,12 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderThemeToggle(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return CircleAvatar(
-      backgroundColor: theme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: IconButton(
-          icon: Icon(theme.isDark ? Icons.dark_mode : Icons.light_mode),
-          color: (theme.iconColor),
-          onPressed: () {
-            context.read<ThemeModel>().swapTheme();
-          }),
+          icon: Icon(_isDark(context) ? Icons.dark_mode : Icons.light_mode),
+          color: Theme.of(context).iconTheme.color,
+          onPressed: () => context.read<ThemeCubit>().toggle()),
     );
   }
 
@@ -95,6 +91,7 @@ class MenuUser extends StatelessWidget {
       child: FlowyText(name, fontSize: 12),
     );
   }
+
   //ToDo: when the user is allowed to create another workspace,
   //we get the below block back
   // Widget _renderDropButton(BuildContext context) {
@@ -104,4 +101,9 @@ class MenuUser extends StatelessWidget {
   //     },
   //   );
   // }
+
+  bool _isDark(BuildContext context) {
+    // return context.watch<ThemeCubit>().state.isDark;
+    return Theme.of(context).brightness == Brightness.dark;
+  }
 }

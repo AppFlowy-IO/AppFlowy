@@ -1,14 +1,20 @@
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:window_size/window_size.dart';
-import 'package:app_flowy/startup/launcher.dart';
-import 'package:bloc/bloc.dart';
+
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_log/flowy_log.dart';
+
+import '../../common/theme/theme.dart';
+import 'package:app_flowy/startup/launcher.dart';
+import 'package:app_flowy/startup/startup.dart';
+
+class AppGlobals {
+  static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
+  static NavigatorState get nav => rootNavKey.currentState!;
+}
 
 class AppWidgetTask extends LaunchTask {
   @override
@@ -17,7 +23,8 @@ class AppWidgetTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) {
     final widget = context.getIt<EntryPoint>().create();
-    final app = ApplicationWidget(child: widget);
+    final app = _ApplicationWidget(child: widget);
+
     BlocOverrides.runZoned(
       () {
         runApp(
@@ -28,53 +35,45 @@ class AppWidgetTask extends LaunchTask {
               child: app),
         );
       },
-      blocObserver: ApplicationBlocObserver(),
+      blocObserver: _ApplicationBlocObserver(),
     );
 
     return Future(() => {});
   }
 }
 
-class ApplicationWidget extends StatelessWidget {
+class _ApplicationWidget extends StatelessWidget {
   final Widget child;
-  const ApplicationWidget({
+  const _ApplicationWidget({
     Key? key,
     required this.child,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-      create: (context) => ThemeModel(),
-      builder: (context, _) {
+  Widget build(BuildContext context) {
+    return BlocProvider<ThemeCubit>(
+      create: (_) => ThemeCubit(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(builder: (context, state) {
         const ratio = 1.73;
         const minWidth = 800.0;
         setWindowMinSize(const Size(minWidth, minWidth / ratio));
 
-        ThemeType themeType = context.select<ThemeModel, ThemeType>((value) => value.theme);
-        AppTheme theme = AppTheme.fromType(themeType);
-
-        return Provider.value(
-          value: theme,
-          child: MaterialApp(
-            builder: overlayManagerBuilder(),
-            debugShowCheckedModeBanner: false,
-            theme: theme.themeData,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            navigatorKey: AppGlobals.rootNavKey,
-            home: child,
-          ),
+        return MaterialApp(
+          builder: overlayManagerBuilder(),
+          debugShowCheckedModeBanner: false,
+          theme: state.themeData,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          navigatorKey: AppGlobals.rootNavKey,
+          home: child,
         );
-      });
+      }),
+    );
+  }
 }
 
-class AppGlobals {
-  static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
-  static NavigatorState get nav => rootNavKey.currentState!;
-}
-
-class ApplicationBlocObserver extends BlocObserver {
+class _ApplicationBlocObserver extends BlocObserver {
   @override
   // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
