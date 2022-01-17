@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 
-import 'package:bloc/bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:flowy_infra/color.dart';
 
 part 'theme.freezed.dart';
 
-class ThemeCubit extends Cubit<ThemeState> {
+class ThemeCubit extends HydratedCubit<ThemeState> {
   ThemeCubit() : super(ThemeState.initial());
 
   void toggle() => emit(state.copyWith(isDark: state.isDark ? false : true));
+
+  @override
+  ThemeState fromJson(Map<String, dynamic> json) => ThemeState(isDark: json['isDark'] as bool);
+
+  @override
+  Map<String, dynamic> toJson(ThemeState state) => <String, bool>{'isDark': state.isDark};
 }
 
 @freezed

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:window_size/window_size.dart';
+import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
 
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_log/flowy_log.dart';
@@ -21,11 +23,14 @@ class AppWidgetTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
   @override
-  Future<void> initialize(LaunchContext context) {
+  Future<void> initialize(LaunchContext context) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     final widget = context.getIt<EntryPoint>().create();
     final app = _ApplicationWidget(child: widget);
+    final storage = await HydratedStorage.build(storageDirectory: await getTemporaryDirectory());
 
-    BlocOverrides.runZoned(
+    HydratedBlocOverrides.runZoned(
       () {
         runApp(
           EasyLocalization(
@@ -35,6 +40,7 @@ class AppWidgetTask extends LaunchTask {
               child: app),
         );
       },
+      storage: storage,
       blocObserver: _ApplicationBlocObserver(),
     );
 
