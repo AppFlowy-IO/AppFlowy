@@ -5,6 +5,7 @@ use flowy_core_data_model::{entities::view::CreateViewParams, user_default};
 use flowy_document::context::DocumentContext;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
+
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
@@ -12,14 +13,8 @@ use crate::{
     dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::workspace::RepeatedWorkspace,
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceCloudService, WorkspaceUser},
-    services::{
-        persistence::FlowyCorePersistence,
-        AppController,
-        TrashController,
-        ViewController,
-        WorkspaceController,
-    },
+    module::{FolderCouldServiceV1, WorkspaceUser},
+    services::{persistence::FolderPersistence, AppController, TrashController, ViewController, WorkspaceController},
 };
 
 lazy_static! {
@@ -28,8 +23,8 @@ lazy_static! {
 
 pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) cloud_service: Arc<dyn WorkspaceCloudService>,
-    pub(crate) persistence: Arc<FlowyCorePersistence>,
+    pub(crate) cloud_service: Arc<dyn FolderCouldServiceV1>,
+    pub(crate) persistence: Arc<FolderPersistence>,
     pub workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
     pub(crate) view_controller: Arc<ViewController>,
@@ -40,8 +35,8 @@ pub struct FolderManager {
 impl FolderManager {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        cloud_service: Arc<dyn WorkspaceCloudService>,
-        persistence: Arc<FlowyCorePersistence>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
+        persistence: Arc<FolderPersistence>,
         flowy_document: Arc<DocumentContext>,
         ws_sender: Arc<dyn RevisionWebSocket>,
     ) -> Self {
@@ -106,13 +101,9 @@ impl FolderManager {
         Ok(())
     }
 
-    pub async fn user_did_logout(&self) {
-        // TODO: (nathan) do something here
-    }
+    pub async fn user_did_logout(&self) { self.persistence.user_did_logout() }
 
-    pub async fn user_session_expired(&self) {
-        // TODO: (nathan) do something here
-    }
+    pub async fn user_session_expired(&self) { self.persistence.user_did_logout(); }
 
     pub async fn user_did_sign_up(&self, _token: &str) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
@@ -156,6 +147,7 @@ impl FolderManager {
             .send();
 
         tracing::debug!("Create default workspace after sign up");
+        self.persistence.user_did_login().await?;
         let _ = self.init(&token).await?;
         Ok(())
     }

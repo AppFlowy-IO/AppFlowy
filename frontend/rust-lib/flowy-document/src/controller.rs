@@ -133,7 +133,7 @@ impl DocumentController {
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
-        let server = Arc::new(RevisionServerImpl {
+        let server = Arc::new(DocumentRevisionCloudServiceImpl {
             token,
             server: self.cloud_service.clone(),
         });
@@ -159,12 +159,12 @@ impl DocumentController {
     fn remove_ws_receiver(&self, id: &str) { self.ws_receivers.remove(id); }
 }
 
-struct RevisionServerImpl {
+struct DocumentRevisionCloudServiceImpl {
     token: String,
     server: Arc<dyn DocumentCloudService>,
 }
 
-impl RevisionCloudService for RevisionServerImpl {
+impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     #[tracing::instrument(level = "debug", skip(self))]
     fn fetch_object(&self, user_id: &str, doc_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         let params = DocumentId {

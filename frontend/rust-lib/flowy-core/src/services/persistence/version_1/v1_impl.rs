@@ -4,7 +4,7 @@ use crate::services::persistence::{
         view_sql::{ViewChangeset, ViewTableSql},
         workspace_sql::{WorkspaceChangeset, WorkspaceTableSql},
     },
-    FlowyCorePersistenceTransaction,
+    FolderPersistenceTransaction,
     TrashTableSql,
 };
 use flowy_core_data_model::entities::{
@@ -16,7 +16,7 @@ use lib_sqlite::DBConnection;
 
 pub struct V1Transaction<'a>(pub &'a DBConnection);
 
-impl<'a> FlowyCorePersistenceTransaction for V1Transaction<'a> {
+impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()> {
         let _ = WorkspaceTableSql::create_workspace(user_id, workspace, &*self.0)?;
         Ok(())
@@ -93,27 +93,35 @@ impl<'a> FlowyCorePersistenceTransaction for V1Transaction<'a> {
         Ok(())
     }
 
-    fn read_all_trash(&self) -> FlowyResult<RepeatedTrash> { TrashTableSql::read_all(&*self.0) }
-
-    fn delete_all_trash(&self) -> FlowyResult<()> { TrashTableSql::delete_all(&*self.0) }
-
-    fn read_trash(&self, trash_id: &str) -> FlowyResult<Trash> {
-        let table = TrashTableSql::read(trash_id, &*self.0)?;
-        Ok(Trash::from(table))
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+        match trash_id {
+            None => TrashTableSql::read_all(&*self.0),
+            Some(trash_id) => {
+                let table = TrashTableSql::read(&trash_id, &*self.0)?;
+                Ok(RepeatedTrash {
+                    items: vec![Trash::from(table)],
+                })
+            },
+        }
     }
 
-    fn delete_trash(&self, trash_ids: Vec<String>) -> FlowyResult<()> {
-        for trash_id in &trash_ids {
-            let _ = TrashTableSql::delete_trash(&trash_id, &*self.0)?;
+    fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> {
+        match trash_ids {
+            None => TrashTableSql::delete_all(&*self.0),
+            Some(trash_ids) => {
+                for trash_id in &trash_ids {
+                    let _ = TrashTableSql::delete_trash(&trash_id, &*self.0)?;
+                }
+                Ok(())
+            },
         }
-        Ok(())
     }
 }
 
 // https://www.reddit.com/r/rust/comments/droxdg/why_arent_traits_impld_for_boxdyn_trait/
-impl<T> FlowyCorePersistenceTransaction for Box<T>
+impl<T> FolderPersistenceTransaction for Box<T>
 where
-    T: FlowyCorePersistenceTransaction + ?Sized,
+    T: FolderPersistenceTransaction + ?Sized,
 {
     fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()> {
         (**self).create_workspace(user_id, workspace)
@@ -153,11 +161,7 @@ where
 
     fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> { (**self).create_trash(trashes) }
 
-    fn read_all_trash(&self) -> FlowyResult<RepeatedTrash> { (**self).read_all_trash() }
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> { (**self).read_trash(trash_id) }
 
-    fn delete_all_trash(&self) -> FlowyResult<()> { (**self).delete_all_trash() }
-
-    fn read_trash(&self, trash_id: &str) -> FlowyResult<Trash> { (**self).read_trash(trash_id) }
-
-    fn delete_trash(&self, trash_ids: Vec<String>) -> FlowyResult<()> { (**self).delete_trash(trash_ids) }
+    fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> { (**self).delete_trash(trash_ids) }
 }

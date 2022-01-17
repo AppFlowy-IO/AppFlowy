@@ -18,19 +18,19 @@ use std::{
 use tokio::task::spawn_blocking;
 
 pub struct RevisionCache {
-    doc_id: String,
+    object_id: String,
     disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
     latest_rev_id: AtomicI64,
 }
 
 impl RevisionCache {
-    pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
+    pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
-        let memory_cache = Arc::new(RevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
-        let doc_id = doc_id.to_owned();
+        let memory_cache = Arc::new(RevisionMemoryCache::new(object_id, Arc::new(disk_cache.clone())));
+        let object_id = object_id.to_owned();
         Self {
-            doc_id,
+            object_id,
             disk_cache,
             memory_cache,
             latest_rev_id: AtomicI64::new(0),
@@ -63,7 +63,10 @@ impl RevisionCache {
 
     pub async fn get(&self, rev_id: i64) -> Option<RevisionRecord> {
         match self.memory_cache.get(&rev_id).await {
-            None => match self.disk_cache.read_revision_records(&self.doc_id, Some(vec![rev_id])) {
+            None => match self
+                .disk_cache
+                .read_revision_records(&self.object_id, Some(vec![rev_id]))
+            {
                 Ok(mut records) => {
                     if !records.is_empty() {
                         assert_eq!(records.len(), 1);
@@ -93,7 +96,7 @@ impl RevisionCache {
         let range_len = range.len() as usize;
         if records.len() != range_len {
             let disk_cache = self.disk_cache.clone();
-            let doc_id = self.doc_id.clone();
+            let doc_id = self.object_id.clone();
             records = spawn_blocking(move || disk_cache.read_revision_records_with_range(&doc_id, &range))
                 .await
                 .map_err(internal_error)??;

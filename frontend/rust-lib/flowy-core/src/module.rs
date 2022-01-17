@@ -10,7 +10,7 @@ use crate::{
     event::WorkspaceEvent,
     services::{
         app::event_handler::*,
-        persistence::FlowyCorePersistence,
+        persistence::FolderPersistence,
         trash::event_handler::*,
         view::event_handler::*,
         workspace::event_handler::*,
@@ -45,11 +45,10 @@ pub fn init_folder(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<DocumentContext>,
-    cloud_service: Arc<dyn WorkspaceCloudService>,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
     ws_sender: Arc<dyn RevisionWebSocket>,
 ) -> Arc<FolderManager> {
-    let persistence = Arc::new(FlowyCorePersistence::new(database.clone()));
-
+    let persistence = Arc::new(FolderPersistence::new(user.clone(), database.clone()));
     Arc::new(FolderManager::new(
         user,
         cloud_service,
@@ -103,7 +102,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
     module
 }
 
-pub trait WorkspaceCloudService: Send + Sync {
+pub trait FolderCouldServiceV1: Send + Sync {
     fn init(&self);
 
     // Workspace
@@ -140,3 +139,5 @@ pub trait WorkspaceCloudService: Send + Sync {
 
     fn read_trash(&self, token: &str) -> FutureResult<RepeatedTrash, FlowyError>;
 }
+
+pub trait FolderCouldServiceV2: Send + Sync {}

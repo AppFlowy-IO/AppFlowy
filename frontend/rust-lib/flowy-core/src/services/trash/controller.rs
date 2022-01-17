@@ -2,24 +2,24 @@ use crate::{
     dart_notification::{send_anonymous_dart_notification, WorkspaceNotification},
     entities::trash::{RepeatedTrash, RepeatedTrashId, Trash, TrashId, TrashType},
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceCloudService, WorkspaceUser},
-    services::persistence::{FlowyCorePersistence, FlowyCorePersistenceTransaction},
+    module::{FolderCouldServiceV1, WorkspaceUser},
+    services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 
 use std::{fmt::Formatter, sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 
 pub struct TrashController {
-    persistence: Arc<FlowyCorePersistence>,
+    persistence: Arc<FolderPersistence>,
     notify: broadcast::Sender<TrashEvent>,
-    cloud_service: Arc<dyn WorkspaceCloudService>,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
     user: Arc<dyn WorkspaceUser>,
 }
 
 impl TrashController {
     pub fn new(
-        persistence: Arc<FlowyCorePersistence>,
-        cloud_service: Arc<dyn WorkspaceCloudService>,
+        persistence: Arc<FolderPersistence>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
         user: Arc<dyn WorkspaceUser>,
     ) -> Self {
         let (tx, _) = broadcast::channel(10);
@@ -37,10 +37,14 @@ impl TrashController {
     pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
         let trash = self.persistence.begin_transaction(|transaction| {
-            let trash = transaction.read_trash(trash_id);
-            let _ = transaction.delete_trash(vec![trash_id.to_owned()])?;
-            notify_trash_changed(transaction.read_all_trash()?);
-            trash
+            let mut repeated_trash = transaction.read_trash(Some(trash_id.to_owned()))?;
+            let _ = transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
+            notify_trash_changed(transaction.read_trash(None)?);
+
+            if repeated_trash.is_empty() {
+                return Err(FlowyError::internal().context("Try to put back trash is not exists"));
+            }
+            Ok(repeated_trash.pop().unwrap())
         })?;
 
         let identifier = TrashId {
@@ -62,8 +66,8 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self)  err)]
     pub async fn restore_all(&self) -> FlowyResult<()> {
         let repeated_trash = self.persistence.begin_transaction(|transaction| {
-            let trash = transaction.read_all_trash();
-            let _ = transaction.delete_all_trash();
+            let trash = transaction.read_trash(None);
+            let _ = transaction.delete_trash(None);
             trash
         })?;
 
@@ -81,7 +85,7 @@ impl TrashController {
     pub async fn delete_all(&self) -> FlowyResult<()> {
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_all_trash())?;
+            .begin_transaction(|transaction| transaction.read_trash(None))?;
         let trash_identifiers: RepeatedTrashId = repeated_trash.items.clone().into();
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
 
@@ -95,7 +99,7 @@ impl TrashController {
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_all_trash())?;
+            .begin_transaction(|transaction| transaction.read_trash(None))?;
         notify_trash_changed(repeated_trash);
         let _ = self.delete_trash_on_server(trash_identifiers)?;
 
@@ -121,7 +125,7 @@ impl TrashController {
                 .into_iter()
                 .map(|item| item.id)
                 .collect::<Vec<_>>();
-            transaction.delete_trash(ids)
+            transaction.delete_trash(Some(ids))
         })?;
 
         Ok(())
@@ -154,7 +158,7 @@ impl TrashController {
         let _ = self.persistence.begin_transaction(|transaction| {
             let _ = transaction.create_trash(repeated_trash.clone())?;
             let _ = self.create_trash_on_server(repeated_trash);
-            notify_trash_changed(transaction.read_all_trash()?);
+            notify_trash_changed(transaction.read_trash(None)?);
             Ok(())
         })?;
         let _ = self.notify.send(TrashEvent::NewTrash(identifiers.into(), tx));
@@ -168,17 +172,17 @@ impl TrashController {
     pub fn read_trash(&self) -> Result<RepeatedTrash, FlowyError> {
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_all_trash())?;
+            .begin_transaction(|transaction| transaction.read_trash(None))?;
         let _ = self.read_trash_on_server()?;
         Ok(repeated_trash)
     }
 
     pub fn read_trash_ids<'a>(
         &self,
-        transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+        transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<Vec<String>, FlowyError> {
         let ids = transaction
-            .read_all_trash()?
+            .read_trash(None)?
             .into_inner()
             .into_iter()
             .map(|item| item.id)
@@ -229,7 +233,7 @@ impl TrashController {
                     tracing::debug!("Remote trash count: {}", repeated_trash.items.len());
                     let result = persistence.begin_transaction(|transaction| {
                         let _ = transaction.create_trash(repeated_trash.items.clone())?;
-                        transaction.read_all_trash()
+                        transaction.read_trash(None)
                     });
 
                     match result {

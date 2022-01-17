@@ -61,7 +61,6 @@ impl ClientDocument {
     pub fn delta(&self) -> &RichTextDelta { &self.delta }
 
     pub fn md5(&self) -> String {
-        // TODO: Optimize the cost of calculating the md5
         let bytes = self.to_bytes();
         format!("{:x}", md5::compute(bytes))
     }

@@ -1,9 +1,9 @@
 use crate::{
     dart_notification::*,
     errors::*,
-    module::{WorkspaceCloudService, WorkspaceUser},
+    module::{FolderCouldServiceV1, WorkspaceUser},
     services::{
-        persistence::{FlowyCorePersistence, FlowyCorePersistenceTransaction, WorkspaceChangeset},
+        persistence::{FolderPersistence, FolderPersistenceTransaction, WorkspaceChangeset},
         read_local_workspace_apps,
         TrashController,
     },
@@ -14,17 +14,17 @@ use std::sync::Arc;
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
-    persistence: Arc<FlowyCorePersistence>,
+    persistence: Arc<FolderPersistence>,
     pub(crate) trash_controller: Arc<TrashController>,
-    cloud_service: Arc<dyn WorkspaceCloudService>,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
 }
 
 impl WorkspaceController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        persistence: Arc<FlowyCorePersistence>,
+        persistence: Arc<FolderPersistence>,
         trash_can: Arc<TrashController>,
-        cloud_service: Arc<dyn WorkspaceCloudService>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
     ) -> Self {
         Self {
             user,
@@ -119,7 +119,7 @@ impl WorkspaceController {
         &self,
         workspace_id: Option<String>,
         user_id: &str,
-        transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+        transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<RepeatedWorkspace, FlowyError> {
         let workspace_id = workspace_id.to_owned();
         let workspaces = transaction.read_workspaces(user_id, workspace_id)?;
@@ -130,7 +130,7 @@ impl WorkspaceController {
         &self,
         workspace_id: String,
         user_id: &str,
-        transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+        transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<Workspace, FlowyError> {
         let mut workspaces = transaction.read_workspaces(user_id, Some(workspace_id.clone()))?;
         if workspaces.is_empty() {

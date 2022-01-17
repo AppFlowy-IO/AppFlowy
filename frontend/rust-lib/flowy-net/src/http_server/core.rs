@@ -12,7 +12,7 @@ use flowy_core_data_model::entities::{
 };
 use flowy_error::FlowyError;
 
-use flowy_core::module::WorkspaceCloudService;
+use flowy_core::module::{FolderCouldServiceV1, FolderCouldServiceV2};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -26,7 +26,9 @@ impl CoreHttpCloudService {
     pub fn new(config: ClientServerConfiguration) -> CoreHttpCloudService { Self { config } }
 }
 
-impl WorkspaceCloudService for CoreHttpCloudService {
+impl FolderCouldServiceV2 for CoreHttpCloudService {}
+
+impl FolderCouldServiceV1 for CoreHttpCloudService {
     fn init(&self) {}
 
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {

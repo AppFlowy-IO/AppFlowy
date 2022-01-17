@@ -15,9 +15,9 @@ use crate::{
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceCloudService, WorkspaceUser},
+    module::{FolderCouldServiceV1, WorkspaceUser},
     services::{
-        persistence::{FlowyCorePersistence, FlowyCorePersistenceTransaction, ViewChangeset},
+        persistence::{FolderPersistence, FolderPersistenceTransaction, ViewChangeset},
         TrashController,
         TrashEvent,
     },
@@ -31,8 +31,8 @@ const LATEST_VIEW_ID: &str = "latest_view_id";
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
-    cloud_service: Arc<dyn WorkspaceCloudService>,
-    persistence: Arc<FlowyCorePersistence>,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
+    persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
     document_ctx: Arc<DocumentContext>,
 }
@@ -40,8 +40,8 @@ pub(crate) struct ViewController {
 impl ViewController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        persistence: Arc<FlowyCorePersistence>,
-        cloud_service: Arc<dyn WorkspaceCloudService>,
+        persistence: Arc<FolderPersistence>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
         trash_can: Arc<TrashController>,
         document_ctx: Arc<DocumentContext>,
     ) -> Self {
@@ -296,7 +296,7 @@ impl ViewController {
 
 #[tracing::instrument(level = "trace", skip(persistence, context, trash_can))]
 async fn handle_trash_event(
-    persistence: Arc<FlowyCorePersistence>,
+    persistence: Arc<FolderPersistence>,
     context: Arc<DocumentContext>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
@@ -347,7 +347,7 @@ async fn handle_trash_event(
 
 fn read_local_views_with_transaction<'a>(
     identifiers: RepeatedTrashId,
-    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+    transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> Result<Vec<View>, FlowyError> {
     let mut views = vec![];
     for identifier in identifiers.items {
@@ -365,7 +365,7 @@ fn notify_dart(view: View, notification: WorkspaceNotification) {
 fn notify_views_changed<'a>(
     belong_to_id: &str,
     trash_controller: Arc<TrashController>,
-    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+    transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
     let repeated_view = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), transaction)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
@@ -378,7 +378,7 @@ fn notify_views_changed<'a>(
 fn read_belonging_views_on_local<'a>(
     belong_to_id: &str,
     trash_controller: Arc<TrashController>,
-    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+    transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<RepeatedView> {
     let mut views = transaction.read_views(belong_to_id)?;
     let trash_ids = trash_controller.read_trash_ids(transaction)?;

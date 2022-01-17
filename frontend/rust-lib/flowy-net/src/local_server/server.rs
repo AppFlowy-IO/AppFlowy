@@ -12,7 +12,7 @@ use flowy_collaboration::{
     server_document::ServerDocumentManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
-use flowy_core::module::WorkspaceCloudService;
+use flowy_core::module::{FolderCouldServiceV1, FolderCouldServiceV2};
 use flowy_error::{internal_error, FlowyError};
 use futures_util::stream::StreamExt;
 use lib_ws::{WSModule, WebSocketRawMessage};
@@ -211,7 +211,9 @@ use flowy_user_data_model::entities::{
 };
 use lib_infra::{future::FutureResult, timestamp, uuid_string};
 
-impl WorkspaceCloudService for LocalServer {
+impl FolderCouldServiceV2 for LocalServer {}
+
+impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
 
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {

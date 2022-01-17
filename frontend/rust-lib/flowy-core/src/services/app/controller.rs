@@ -5,9 +5,9 @@ use crate::{
         trash::TrashType,
     },
     errors::*,
-    module::{WorkspaceCloudService, WorkspaceUser},
+    module::{FolderCouldServiceV1, WorkspaceUser},
     services::{
-        persistence::{AppChangeset, FlowyCorePersistence, FlowyCorePersistenceTransaction},
+        persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
         TrashController,
         TrashEvent,
     },
@@ -18,17 +18,17 @@ use std::{collections::HashSet, sync::Arc};
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
-    persistence: Arc<FlowyCorePersistence>,
+    persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
-    cloud_service: Arc<dyn WorkspaceCloudService>,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
 }
 
 impl AppController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
-        persistence: Arc<FlowyCorePersistence>,
+        persistence: Arc<FolderPersistence>,
         trash_can: Arc<TrashController>,
-        cloud_service: Arc<dyn WorkspaceCloudService>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
     ) -> Self {
         Self {
             user,
@@ -169,7 +169,7 @@ impl AppController {
 
 #[tracing::instrument(level = "trace", skip(persistence, trash_controller))]
 async fn handle_trash_event(
-    persistence: Arc<FlowyCorePersistence>,
+    persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -207,7 +207,7 @@ async fn handle_trash_event(
 fn notify_apps_changed<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,
-    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+    transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
     let repeated_app = read_local_workspace_apps(workspace_id, trash_controller, transaction)?;
     send_dart_notification(workspace_id, WorkspaceNotification::WorkspaceAppsChanged)
@@ -219,7 +219,7 @@ fn notify_apps_changed<'a>(
 pub fn read_local_workspace_apps<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,
-    transaction: &'a (dyn FlowyCorePersistenceTransaction + 'a),
+    transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> Result<RepeatedApp, FlowyError> {
     let mut apps = transaction.read_workspace_apps(workspace_id)?;
     let trash_ids = trash_controller.read_trash_ids(transaction)?;

@@ -4,7 +4,7 @@ use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_core::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},
-    module::{init_folder, WorkspaceCloudService, WorkspaceDatabase, WorkspaceUser},
+    module::{init_folder, FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
 };
 use flowy_database::ConnectionPool;
 use flowy_document::context::DocumentContext;
@@ -30,7 +30,7 @@ impl CoreDepsResolver {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
         let ws_sender = Arc::new(FolderWebSocketImpl(ws_conn.clone()));
-        let cloud_service: Arc<dyn WorkspaceCloudService> = match local_server {
+        let cloud_service: Arc<dyn FolderCouldServiceV1> = match local_server {
             None => Arc::new(CoreHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
         };
