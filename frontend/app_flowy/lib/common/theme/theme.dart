@@ -31,7 +31,17 @@ class ThemeState with _$ThemeState {
   ThemeData get themeData => FlowyTheme(isDark).themeData;
 }
 
-extension ColorSchemeExtension on ColorScheme {}
+extension ColorSchemeExtension on ColorScheme {
+  Color get red => const Color(0xFFffadad);
+  Color get orange => const Color(0xFFffcfad);
+  Color get yellow => const Color(0xFFfffead);
+  Color get lime => const Color(0xFFe6ffa3);
+  Color get green => const Color(0xFFbcffad);
+  Color get aqua => const Color(0xFFadffe2);
+  Color get blue => const Color(0xFFade4ff);
+  Color get purple => const Color(0xFFc3adff);
+  Color get pink => const Color(0xFFffadf9);
+}
 
 // FIXME: Different colors for different themes (light/dark).
 class FlowyTheme {

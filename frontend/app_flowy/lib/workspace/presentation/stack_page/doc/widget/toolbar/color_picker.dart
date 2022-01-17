@@ -1,9 +1,12 @@
-import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/utils/color.dart';
 
+import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+
+import '../../../../../../common/theme/theme.dart' show ColorSchemeExtension;
 import 'toolbar_icon_button.dart';
 
 class FlowyColorButton extends StatefulWidget {
@@ -157,19 +160,14 @@ int stringToHex(String code) {
 }
 
 class FlowyColorPicker extends StatefulWidget {
-  final List<int> colors = [
-    0xffe8e0ff,
-    0xffffe7fd,
-    0xffffe7ee,
-    0xffffefe3,
-    0xfffff2cd,
-    0xfff5ffdc,
-    0xffddffd6,
-    0xffdefff1,
-  ];
+  const FlowyColorPicker({
+    Key? key,
+    required this.onColorChanged,
+    this.initialColor = 0,
+  }) : super(key: key);
+
   final Function(Color?) onColorChanged;
   final int initialColor;
-  FlowyColorPicker({Key? key, required this.onColorChanged, this.initialColor = 0}) : super(key: key);
 
   @override
   State<FlowyColorPicker> createState() => _FlowyColorPickerState();
@@ -179,13 +177,25 @@ class FlowyColorPicker extends StatefulWidget {
 //       innerContent = IntrinsicWidth(child: IntrinsicHeight(child: innerContent));
 //     }
 class _FlowyColorPickerState extends State<FlowyColorPicker> {
+  late final List<Color> _colors = [
+    Theme.of(context).colorScheme.red,
+    Theme.of(context).colorScheme.orange,
+    Theme.of(context).colorScheme.yellow,
+    Theme.of(context).colorScheme.lime,
+    Theme.of(context).colorScheme.green,
+    Theme.of(context).colorScheme.aqua,
+    Theme.of(context).colorScheme.blue,
+    Theme.of(context).colorScheme.purple,
+    Theme.of(context).colorScheme.pink,
+  ];
+
   @override
   Widget build(BuildContext context) {
     const double width = 480;
     const int crossAxisCount = 6;
     const double mainAxisSpacing = 10;
     const double crossAxisSpacing = 10;
-    final numberOfRows = (widget.colors.length / crossAxisCount).ceil();
+    final numberOfRows = (_colors.length / crossAxisCount).ceil();
 
     const perRowHeight = ((width - ((crossAxisCount - 1) * mainAxisSpacing)) / crossAxisCount);
     final totalHeight = numberOfRows * perRowHeight + numberOfRows * crossAxisSpacing;
@@ -206,10 +216,11 @@ class _FlowyColorPickerState extends State<FlowyColorPicker> {
             ),
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                if (widget.colors.length > index) {
-                  final isSelected = widget.colors[index] == widget.initialColor;
+                if (_colors.length > index) {
+                  final isSelected = index == widget.initialColor;
+
                   return ColorItem(
-                    color: Color(widget.colors[index]),
+                    color: _colors[index],
                     onPressed: widget.onColorChanged,
                     isSelected: isSelected,
                   );
@@ -217,7 +228,7 @@ class _FlowyColorPickerState extends State<FlowyColorPicker> {
                   return null;
                 }
               },
-              childCount: widget.colors.length,
+              childCount: _colors.length,
             ),
           ),
         ],
