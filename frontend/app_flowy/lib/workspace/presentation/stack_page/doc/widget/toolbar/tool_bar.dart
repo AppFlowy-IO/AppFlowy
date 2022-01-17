@@ -28,10 +28,13 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).canvasColor,
-      constraints: BoxConstraints.tightFor(height: preferredSize.height),
-      child: ToolbarButtonList(buttons: children).padding(horizontal: 4, vertical: 4),
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 4,
+      child: Container(
+        constraints: BoxConstraints.tightFor(height: preferredSize.height),
+        child: ToolbarButtonList(buttons: children).padding(horizontal: 4, vertical: 4),
+      ),
     );
   }
 

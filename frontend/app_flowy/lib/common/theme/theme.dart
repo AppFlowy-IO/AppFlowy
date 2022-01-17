@@ -31,6 +31,7 @@ class ThemeState with _$ThemeState {
   ThemeData get themeData => FlowyTheme(isDark).themeData;
 }
 
+// FIXME: Different colors for different themes (light/dark).
 extension ColorSchemeExtension on ColorScheme {
   Color get red => const Color(0xFFffadad);
   Color get orange => const Color(0xFFffcfad);
@@ -43,7 +44,6 @@ extension ColorSchemeExtension on ColorScheme {
   Color get pink => const Color(0xFFffadf9);
 }
 
-// FIXME: Different colors for different themes (light/dark).
 class FlowyTheme {
   const FlowyTheme([this.isDark = false]);
 
@@ -59,6 +59,10 @@ class FlowyTheme {
 
         scaffoldBackgroundColor: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
         backgroundColor: isDark ? const Color(0xFF292929) : const Color(0xFFf7f8fc),
+
+        canvasColor: isDark ? Colors.grey.shade700 : Colors.grey.shade100,
+
+        hoverColor: isDark ? const Color(0xFF1f1f1f) : const Color(0xFFe0e0e0),
 
         textTheme: const TextTheme(
           bodyText1: TextStyle(),
@@ -86,8 +90,9 @@ class FlowyTheme {
           cursorColor: Color(0xFFb061ff),
           selectionHandleColor: Color(0xFFb061ff),
         ),
+
         primaryIconTheme: const IconThemeData(color: Color(0xFF00bcf0)),
-        canvasColor: Colors.grey.shade100,
+        iconTheme: IconThemeData(color: isDark ? const Color(0xFFffffff) : const Color(0xFF333333)),
 
         colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
@@ -114,9 +119,6 @@ class FlowyTheme {
           error: const Color(0xFFfb006d),
           onError: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
         ),
-
-        // TODO: Add iconTheme
-        // iconTheme: IconThemeData(color: Colors.purple.shade200, opacity: 0.8),
       ).copyWith(
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         highlightColor: const Color(0xFF00bcf0),
