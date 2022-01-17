@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/flowy_icon_data_icons.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
@@ -26,23 +25,22 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _renderExpandedIcon(context, theme),
+          _renderExpandedIcon(context),
           // HSpace(MenuAppSizes.iconPadding),
-          _renderTitle(context, theme),
+          _renderTitle(context),
           _renderAddButton(context),
         ],
       ),
     );
   }
 
-  Widget _renderExpandedIcon(BuildContext context, AppTheme theme) {
+  Widget _renderExpandedIcon(BuildContext context) {
     return SizedBox(
       width: MenuAppSizes.headerHeight,
       height: MenuAppSizes.headerHeight,
@@ -54,7 +52,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: theme.shader1,
+            iconColor: Colors.grey.shade800,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
@@ -64,7 +62,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderTitle(BuildContext context, AppTheme theme) {
+  Widget _renderTitle(BuildContext context) {
     return Expanded(
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
@@ -90,7 +88,6 @@ class MenuAppHeader extends StatelessWidget {
             builder: (context, app) => FlowyText.medium(
               app.name,
               fontSize: 12,
-              color: theme.textColor,
             ),
           ),
         ),

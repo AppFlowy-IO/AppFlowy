@@ -1,12 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/tasks/application_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -44,13 +42,12 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(widget.title, color: Colors.grey.shade400),
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
@@ -107,14 +104,13 @@ class _CreateFlowyAlertDialog extends State<FlowyAlertDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(widget.title, color: Colors.grey.shade400),
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
@@ -151,16 +147,15 @@ class OkCancelDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(theme.shader1)),
+            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(Colors.grey.shade800)),
             VSpace(Insets.sm * 1.5),
-            Container(color: theme.bg1, height: 1),
+            Container(color: Theme.of(context).backgroundColor, height: 1),
             VSpace(Insets.m * 1.5),
           ],
           Text(message, style: TextStyles.Body1.textHeight(1.5)),

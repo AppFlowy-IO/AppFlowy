@@ -1,8 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
-import 'package:flutter/material.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:provider/provider.dart';
 
 class ListOverlayFooter {
   Widget widget;
@@ -35,7 +34,6 @@ class ListOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     const padding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
     double totalHeight = height + padding.vertical;
     if (footer != null) {
@@ -45,7 +43,11 @@ class ListOverlay extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.1)),
+        decoration: FlowyDecoration.decoration(
+          Theme.of(context).colorScheme.surface,
+          // FIXME: Use `elevation`.
+          Colors.black12,
+        ),
         constraints: BoxConstraints.tight(Size(width, totalHeight)),
         child: Padding(
           padding: padding,

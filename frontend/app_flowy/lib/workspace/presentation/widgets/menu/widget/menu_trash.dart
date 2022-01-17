@@ -9,7 +9,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:flowy_infra/theme.dart';
 
 class MenuTrash extends StatelessWidget {
   const MenuTrash({Key? key}) : super(key: key);
@@ -29,9 +28,8 @@ class MenuTrash extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Row(children: [
-      SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
+      SizedBox(width: 16, height: 16, child: svg("home/trash", color: Theme.of(context).iconTheme.color!)),
       const HSpace(6),
       FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
     ]);

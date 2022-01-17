@@ -1,10 +1,9 @@
+import 'dart:ui';
+
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/dialog/dialog_size.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:ui';
 
 extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
@@ -36,11 +35,9 @@ class StyledDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     Widget innerContent = Container(
       padding: padding ?? EdgeInsets.all(Insets.lGutter),
-      color: bgColor ?? theme.shader7,
+      color: bgColor ?? Colors.grey.shade50,
       child: child,
     );
 

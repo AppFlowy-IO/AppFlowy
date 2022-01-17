@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/domain/edit_action/view_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -33,7 +32,6 @@ class ViewSectionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (ctx) => getIt<ViewBloc>(param1: view)..add(const ViewEvent.initial())),
@@ -43,8 +41,8 @@ class ViewSectionItem extends StatelessWidget {
           return InkWell(
             onTap: () => onSelected(context.read<ViewBloc>().state.view),
             child: FlowyHover(
-              config: HoverDisplayConfig(hoverColor: theme.bg3),
-              builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
+              config: HoverDisplayConfig(hoverColor: Theme.of(context).hoverColor),
+              builder: (_, onHover) => _render(context, onHover, state, Theme.of(context).iconTheme.color!),
               isOnSelected: () => state.isEditing || isSelected,
             ),
           );
