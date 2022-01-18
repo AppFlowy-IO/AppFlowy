@@ -38,10 +38,6 @@ pub struct App {
     pub create_time: i64,
 }
 
-impl App {
-    pub fn take_belongings(&mut self) -> RepeatedView { std::mem::take(&mut self.belongings) }
-}
-
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct RepeatedApp {

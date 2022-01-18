@@ -31,8 +31,6 @@ impl TrashController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), FlowyError> { Ok(()) }
-
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);

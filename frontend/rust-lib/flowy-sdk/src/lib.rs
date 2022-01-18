@@ -176,19 +176,23 @@ async fn _listen_user_status(
         let result = || async {
             match status {
                 UserStatus::Login { token, user_id } => {
-                    let _ = folder_manager.user_did_sign_in(&token).await?;
+                    tracing::trace!("User did login");
+                    let _ = folder_manager.initialize(&token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 },
                 UserStatus::Logout { .. } => {
-                    folder_manager.user_did_logout().await;
+                    tracing::trace!("User did logout");
+                    folder_manager.clear().await;
                     let _ = ws_conn.stop().await;
                 },
                 UserStatus::Expired { .. } => {
-                    folder_manager.user_session_expired().await;
+                    tracing::trace!("User session has been expired");
+                    folder_manager.clear().await;
                     let _ = ws_conn.stop().await;
                 },
                 UserStatus::SignUp { profile, ret } => {
-                    let _ = folder_manager.user_did_sign_up(&profile.token).await?;
+                    tracing::trace!("User did sign up");
+                    let _ = folder_manager.initialize_with_new_user(&profile.token).await?;
                     let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 },

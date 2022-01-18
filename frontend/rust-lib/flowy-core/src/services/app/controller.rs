@@ -38,7 +38,7 @@ impl AppController {
         }
     }
 
-    pub fn init(&self) -> Result<(), FlowyError> {
+    pub fn initialize(&self) -> Result<(), FlowyError> {
         self.listen_trash_controller_event();
         Ok(())
     }

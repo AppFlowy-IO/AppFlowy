@@ -6,13 +6,15 @@ use flowy_document::context::DocumentContext;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
+use futures_core::future::BoxFuture;
+
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::workspace::RepeatedWorkspace,
-    errors::{FlowyError, FlowyResult},
+    errors::FlowyResult,
     module::{FolderCouldServiceV1, WorkspaceUser},
     services::{persistence::FolderPersistence, AppController, TrashController, ViewController, WorkspaceController},
 };
@@ -95,27 +97,47 @@ impl FolderManager {
 
     pub async fn did_receive_ws_data(&self, _data: Bytes) {}
 
-    pub async fn user_did_sign_in(&self, token: &str) -> FlowyResult<()> {
-        log::debug!("workspace initialize after sign in");
-        let _ = self.init(token).await?;
+    pub async fn initialize(&self, token: &str) -> FlowyResult<()> {
+        self.initialize_with_fn(token, || Box::pin(async { Ok(()) })).await?;
         Ok(())
     }
 
-    pub async fn user_did_logout(&self) { self.persistence.user_did_logout() }
+    pub async fn clear(&self) { self.persistence.user_did_logout() }
 
-    pub async fn user_session_expired(&self) { self.persistence.user_did_logout(); }
+    pub async fn initialize_with_new_user(&self, token: &str) -> FlowyResult<()> {
+        self.initialize_with_fn(token, || Box::pin(self.initial_default_workspace()))
+            .await
+    }
 
-    pub async fn user_did_sign_up(&self, _token: &str) -> FlowyResult<()> {
+    async fn initialize_with_fn<'a, F>(&'a self, token: &str, f: F) -> FlowyResult<()>
+    where
+        F: FnOnce() -> BoxFuture<'a, FlowyResult<()>>,
+    {
+        if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
+            if *is_init {
+                return Ok(());
+            }
+        }
+        INIT_WORKSPACE.write().insert(token.to_owned(), true);
+
+        self.persistence.initialize().await?;
+        f().await?;
+        let _ = self.app_controller.initialize()?;
+        let _ = self.view_controller.initialize()?;
+        Ok(())
+    }
+
+    async fn initial_default_workspace(&self) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
         let time = Utc::now();
-        let mut workspace = user_default::create_default_workspace(time);
-        let apps = workspace.take_apps().into_inner();
+        let workspace = user_default::create_default_workspace(time);
+        let apps = workspace.apps.clone().into_inner();
         let cloned_workspace = workspace.clone();
 
         let _ = self.workspace_controller.create_workspace_on_local(workspace).await?;
-        for mut app in apps {
+        for app in apps {
             let app_id = app.id.clone();
-            let views = app.take_belongings().into_inner();
+            let views = app.belongings.clone().into_inner();
             let _ = self.app_controller.create_app_on_local(app).await?;
             for (index, view) in views.into_iter().enumerate() {
                 let view_data = if index == 0 {
@@ -145,25 +167,6 @@ impl FolderManager {
         send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
-
-        tracing::debug!("Create default workspace after sign up");
-        self.persistence.user_did_login().await?;
-        let _ = self.init(&token).await?;
-        Ok(())
-    }
-
-    async fn init(&self, token: &str) -> Result<(), FlowyError> {
-        if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
-            if *is_init {
-                return Ok(());
-            }
-        }
-        INIT_WORKSPACE.write().insert(token.to_owned(), true);
-        let _ = self.workspace_controller.init()?;
-        let _ = self.app_controller.init()?;
-        let _ = self.view_controller.init()?;
-        let _ = self.trash_controller.init()?;
-
         Ok(())
     }
 }

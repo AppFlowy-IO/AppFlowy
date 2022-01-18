@@ -34,8 +34,6 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), FlowyError> { Ok(()) }
-
     pub(crate) async fn create_workspace_from_params(
         &self,
         params: CreateWorkspaceParams,

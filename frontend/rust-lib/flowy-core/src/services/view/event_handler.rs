@@ -35,6 +35,8 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<View, FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
     let mut view = controller.read_view(params.clone()).await?;
+    // For the moment, app and view can contains lots of views. Reading the view
+    // belongings using the view_id.
     view.belongings = controller.read_views_belong_to(&params.view_id).await?;
 
     data_result(view)

@@ -2,7 +2,6 @@ use crate::{
     entities::revision::{md5, Revision},
     errors::{CollaborateError, CollaborateResult},
 };
-
 use dissimilar::*;
 use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
 use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainDelta, PlainDeltaBuilder, PlainTextAttributes};
@@ -33,6 +32,12 @@ impl std::default::Default for FolderPad {
     }
 }
 
+pub struct FolderChange {
+    pub delta: PlainDelta,
+    /// md5: the md5 of the FolderPad's delta after applying the change.
+    pub md5: String,
+}
+
 impl FolderPad {
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let mut folder_delta = PlainDelta::new();
@@ -60,7 +65,7 @@ impl FolderPad {
         Ok(folder)
     }
 
-    pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
         let workspace = Arc::new(workspace);
         if self.workspaces.contains(&workspace) {
             tracing::warn!("[RootFolder]: Duplicate workspace");
@@ -78,8 +83,8 @@ impl FolderPad {
         workspace_id: &str,
         name: Option<String>,
         desc: Option<String>,
-    ) -> CollaborateResult<Option<PlainDelta>> {
-        self.modify_workspace(workspace_id, |workspace| {
+    ) -> CollaborateResult<Option<FolderChange>> {
+        self.with_workspace(workspace_id, |workspace| {
             if let Some(name) = name {
                 workspace.name = name;
             }
@@ -112,16 +117,16 @@ impl FolderPad {
         }
     }
 
-    pub fn delete_workspace(&mut self, workspace_id: &str) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn delete_workspace(&mut self, workspace_id: &str) -> CollaborateResult<Option<FolderChange>> {
         self.modify_workspaces(|workspaces| {
             workspaces.retain(|w| w.id != workspace_id);
             Ok(Some(()))
         })
     }
 
-    pub fn create_app(&mut self, app: App) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn create_app(&mut self, app: App) -> CollaborateResult<Option<FolderChange>> {
         let workspace_id = app.workspace_id.clone();
-        self.modify_workspace(&workspace_id, move |workspace| {
+        self.with_workspace(&workspace_id, move |workspace| {
             if workspace.apps.contains(&app) {
                 tracing::warn!("[RootFolder]: Duplicate app");
                 return Ok(None);
@@ -145,8 +150,8 @@ impl FolderPad {
         app_id: &str,
         name: Option<String>,
         desc: Option<String>,
-    ) -> CollaborateResult<Option<PlainDelta>> {
-        self.modify_app(app_id, move |app| {
+    ) -> CollaborateResult<Option<FolderChange>> {
+        self.with_app(app_id, move |app| {
             if let Some(name) = name {
                 app.name = name;
             }
@@ -158,17 +163,17 @@ impl FolderPad {
         })
     }
 
-    pub fn delete_app(&mut self, app_id: &str) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn delete_app(&mut self, app_id: &str) -> CollaborateResult<Option<FolderChange>> {
         let app = self.read_app(app_id)?;
-        self.modify_workspace(&app.workspace_id, |workspace| {
+        self.with_workspace(&app.workspace_id, |workspace| {
             workspace.apps.retain(|app| app.id != app_id);
             Ok(Some(()))
         })
     }
 
-    pub fn create_view(&mut self, view: View) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn create_view(&mut self, view: View) -> CollaborateResult<Option<FolderChange>> {
         let app_id = view.belong_to_id.clone();
-        self.modify_app(&app_id, move |app| {
+        self.with_app(&app_id, move |app| {
             if app.belongings.contains(&view) {
                 tracing::warn!("[RootFolder]: Duplicate view");
                 return Ok(None);
@@ -193,12 +198,11 @@ impl FolderPad {
         for workspace in &self.workspaces {
             for app in &(*workspace.apps) {
                 if app.id == belong_to_id {
-                    return Ok(app.clone().belongings.take_items());
+                    return Ok(app.belongings.clone().take_items());
                 }
             }
         }
-        Err(CollaborateError::record_not_found()
-            .context(format!("Can't find any views with belong_to_id {}", belong_to_id)))
+        Ok(vec![])
     }
 
     pub fn update_view(
@@ -207,9 +211,9 @@ impl FolderPad {
         name: Option<String>,
         desc: Option<String>,
         modified_time: i64,
-    ) -> CollaborateResult<Option<PlainDelta>> {
+    ) -> CollaborateResult<Option<FolderChange>> {
         let view = self.read_view(view_id)?;
-        self.modify_view(&view.belong_to_id, view_id, |view| {
+        self.with_view(&view.belong_to_id, view_id, |view| {
             if let Some(name) = name {
                 view.name = name;
             }
@@ -223,16 +227,16 @@ impl FolderPad {
         })
     }
 
-    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChange>> {
         let view = self.read_view(view_id)?;
-        self.modify_app(&view.belong_to_id, |app| {
+        self.with_app(&view.belong_to_id, |app| {
             app.belongings.retain(|view| view.id != view_id);
             Ok(Some(()))
         })
     }
 
-    pub fn create_trash(&mut self, trash: Vec<Trash>) -> CollaborateResult<Option<PlainDelta>> {
-        self.modify_trash(|t| {
+    pub fn create_trash(&mut self, trash: Vec<Trash>) -> CollaborateResult<Option<FolderChange>> {
+        self.with_trash(|t| {
             let mut new_trash = trash.into_iter().map(Arc::new).collect::<Vec<Arc<Trash>>>();
             t.append(&mut new_trash);
 
@@ -250,13 +254,13 @@ impl FolderPad {
         }
     }
 
-    pub fn delete_trash(&mut self, trash_ids: Option<Vec<String>>) -> CollaborateResult<Option<PlainDelta>> {
+    pub fn delete_trash(&mut self, trash_ids: Option<Vec<String>>) -> CollaborateResult<Option<FolderChange>> {
         match trash_ids {
-            None => self.modify_trash(|trash| {
+            None => self.with_trash(|trash| {
                 trash.clear();
                 Ok(Some(()))
             }),
-            Some(trash_ids) => self.modify_trash(|trash| {
+            Some(trash_ids) => self.with_trash(|trash| {
                 trash.retain(|t| !trash_ids.contains(&t.id));
                 Ok(Some(()))
             }),
@@ -267,7 +271,7 @@ impl FolderPad {
 }
 
 impl FolderPad {
-    fn modify_workspaces<F>(&mut self, f: F) -> CollaborateResult<Option<PlainDelta>>
+    fn modify_workspaces<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
     where
         F: FnOnce(&mut Vec<Arc<Workspace>>) -> CollaborateResult<Option<()>>,
     {
@@ -279,12 +283,12 @@ impl FolderPad {
                 let new = self.to_json()?;
                 let delta = cal_diff(old, new);
                 self.root = self.root.compose(&delta)?;
-                Ok(Some(delta))
+                Ok(Some(FolderChange { delta, md5: self.md5() }))
             },
         }
     }
 
-    fn modify_workspace<F>(&mut self, workspace_id: &str, f: F) -> CollaborateResult<Option<PlainDelta>>
+    fn with_workspace<F>(&mut self, workspace_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
         F: FnOnce(&mut Workspace) -> CollaborateResult<Option<()>>,
     {
@@ -298,7 +302,7 @@ impl FolderPad {
         })
     }
 
-    fn modify_trash<F>(&mut self, f: F) -> CollaborateResult<Option<PlainDelta>>
+    fn with_trash<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
     where
         F: FnOnce(&mut Vec<Arc<Trash>>) -> CollaborateResult<Option<()>>,
     {
@@ -310,12 +314,12 @@ impl FolderPad {
                 let new = self.to_json()?;
                 let delta = cal_diff(old, new);
                 self.root = self.root.compose(&delta)?;
-                Ok(Some(delta))
+                Ok(Some(FolderChange { delta, md5: self.md5() }))
             },
         }
     }
 
-    fn modify_app<F>(&mut self, app_id: &str, f: F) -> CollaborateResult<Option<PlainDelta>>
+    fn with_app<F>(&mut self, app_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
         F: FnOnce(&mut App) -> CollaborateResult<Option<()>>,
     {
@@ -331,16 +335,17 @@ impl FolderPad {
             Some(workspace) => workspace.id.clone(),
         };
 
-        self.modify_workspace(&workspace_id, |workspace| {
+        self.with_workspace(&workspace_id, |workspace| {
+            // It's ok to unwrap because we get the workspace from the app_id.
             f(workspace.apps.iter_mut().find(|app| app_id == app.id).unwrap())
         })
     }
 
-    fn modify_view<F>(&mut self, belong_to_id: &str, view_id: &str, f: F) -> CollaborateResult<Option<PlainDelta>>
+    fn with_view<F>(&mut self, belong_to_id: &str, view_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
         F: FnOnce(&mut View) -> CollaborateResult<Option<()>>,
     {
-        self.modify_app(belong_to_id, |app| {
+        self.with_app(belong_to_id, |app| {
             match app.belongings.iter_mut().find(|view| view_id == view.id) {
                 None => {
                     tracing::warn!("[RootFolder]: Can't find any view with id: {}", view_id);
@@ -381,7 +386,7 @@ mod tests {
     #![allow(clippy::all)]
     use crate::folder::folder_pad::FolderPad;
     use chrono::Utc;
-    use flowy_core_data_model::entities::{app::App, view::View, workspace::Workspace};
+    use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
     use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};
 
     #[test]
@@ -391,11 +396,11 @@ mod tests {
         let _time = Utc::now();
         let mut workspace_1 = Workspace::default();
         workspace_1.name = "My first workspace".to_owned();
-        let delta_1 = folder.create_workspace(workspace_1).unwrap().unwrap();
+        let delta_1 = folder.create_workspace(workspace_1).unwrap().unwrap().delta;
 
         let mut workspace_2 = Workspace::default();
         workspace_2.name = "My second workspace".to_owned();
-        let delta_2 = folder.create_workspace(workspace_2).unwrap().unwrap();
+        let delta_2 = folder.create_workspace(workspace_2).unwrap().unwrap().delta;
 
         let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta_1, delta_2]);
         assert_eq!(folder, folder_from_delta);
@@ -404,13 +409,24 @@ mod tests {
     #[test]
     fn folder_update_workspace() {
         let (mut folder, initial_delta, workspace) = test_folder();
+        assert_folder_equal(
+            &folder,
+            &make_folder_from_delta(initial_delta.clone(), vec![]),
+            r#"{"workspaces":[{"id":"1","name":"😁 my first workspace","desc":"","apps":[],"modified_time":0,"create_time":0}],"trash":[]}"#,
+        );
+
         let delta = folder
-            .update_workspace(&workspace.id, Some("✅️".to_string()), None)
+            .update_workspace(&workspace.id, Some("☺️ rename workspace️".to_string()), None)
             .unwrap()
-            .unwrap();
+            .unwrap()
+            .delta;
 
         let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
-        assert_eq!(folder, folder_from_delta);
+        assert_folder_equal(
+            &folder,
+            &folder_from_delta,
+            r#"{"workspaces":[{"id":"1","name":"☺️ rename workspace️","desc":"","apps":[],"modified_time":0,"create_time":0}],"trash":[]}"#,
+        );
     }
 
     #[test]
@@ -418,55 +434,269 @@ mod tests {
         let (folder, initial_delta, _app) = test_app_folder();
         let folder_from_delta = make_folder_from_delta(initial_delta, vec![]);
         assert_eq!(folder, folder_from_delta);
+        assert_folder_equal(
+            &folder,
+            &folder_from_delta,
+            r#"{
+                "workspaces": [
+                    {
+                        "id": "1",
+                        "name": "😁 my first workspace",
+                        "desc": "",
+                        "apps": [
+                            {
+                                "id": "",
+                                "workspace_id": "1",
+                                "name": "😁 my first app",
+                                "desc": "",
+                                "belongings": [],
+                                "version": 0,
+                                "modified_time": 0,
+                                "create_time": 0
+                            }
+                        ],
+                        "modified_time": 0,
+                        "create_time": 0
+                    }
+                ],
+                "trash": []
+            }"#,
+        );
     }
 
     #[test]
     fn folder_update_app() {
         let (mut folder, initial_delta, app) = test_app_folder();
         let delta = folder
-            .update_app(&app.id, Some("😁😁😁".to_owned()), None)
+            .update_app(&app.id, Some("🤪 rename app".to_owned()), None)
             .unwrap()
-            .unwrap();
+            .unwrap()
+            .delta;
 
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
-        assert_eq!(folder, folder_from_delta);
+        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        assert_folder_equal(
+            &folder,
+            &new_folder,
+            r#"{
+                "workspaces": [
+                    {
+                        "id": "1",
+                        "name": "😁 my first workspace",
+                        "desc": "",
+                        "apps": [
+                            {
+                                "id": "",
+                                "workspace_id": "1",
+                                "name": "🤪 rename app",
+                                "desc": "",
+                                "belongings": [],
+                                "version": 0,
+                                "modified_time": 0,
+                                "create_time": 0
+                            }
+                        ],
+                        "modified_time": 0,
+                        "create_time": 0
+                    }
+                ],
+                "trash": []
+            }"#,
+        );
     }
 
     #[test]
     fn folder_delete_app() {
         let (mut folder, initial_delta, app) = test_app_folder();
-        let delta = folder.delete_app(&app.id).unwrap().unwrap();
-
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
-        assert_eq!(folder, folder_from_delta);
+        let delta = folder.delete_app(&app.id).unwrap().unwrap().delta;
+        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        assert_folder_equal(
+            &folder,
+            &new_folder,
+            r#"{
+                "workspaces": [
+                    {
+                        "id": "1",
+                        "name": "😁 my first workspace",
+                        "desc": "",
+                        "apps": [],
+                        "modified_time": 0,
+                        "create_time": 0
+                    }
+                ],
+                "trash": []
+            }"#,
+        );
     }
 
     #[test]
     fn folder_add_view() {
         let (folder, initial_delta, _view) = test_view_folder();
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![]);
-        assert_eq!(folder, folder_from_delta);
+        assert_folder_equal(
+            &folder,
+            &make_folder_from_delta(initial_delta, vec![]),
+            r#"
+        {
+            "workspaces": [
+                {
+                    "id": "1",
+                    "name": "😁 my first workspace",
+                    "desc": "",
+                    "apps": [
+                        {
+                            "id": "",
+                            "workspace_id": "1",
+                            "name": "😁 my first app",
+                            "desc": "",
+                            "belongings": [
+                                {
+                                    "id": "",
+                                    "belong_to_id": "",
+                                    "name": "🎃 my first view",
+                                    "desc": "",
+                                    "view_type": "Blank",
+                                    "version": 0,
+                                    "belongings": [],
+                                    "modified_time": 0,
+                                    "create_time": 0
+                                }
+                            ],
+                            "version": 0,
+                            "modified_time": 0,
+                            "create_time": 0
+                        }
+                    ],
+                    "modified_time": 0,
+                    "create_time": 0
+                }
+            ],
+            "trash": []
+        }"#,
+        );
     }
 
     #[test]
     fn folder_update_view() {
         let (mut folder, initial_delta, view) = test_view_folder();
         let delta = folder
-            .update_view(&view.id, Some("😁😁😁".to_owned()), None, 123)
+            .update_view(&view.id, Some("😦 rename view".to_owned()), None, 123)
             .unwrap()
-            .unwrap();
+            .unwrap()
+            .delta;
 
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
-        assert_eq!(folder, folder_from_delta);
+        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        assert_folder_equal(
+            &folder,
+            &new_folder,
+            r#"{
+                "workspaces": [
+                    {
+                        "id": "1",
+                        "name": "😁 my first workspace",
+                        "desc": "",
+                        "apps": [
+                            {
+                                "id": "",
+                                "workspace_id": "1",
+                                "name": "😁 my first app",
+                                "desc": "",
+                                "belongings": [
+                                    {
+                                        "id": "",
+                                        "belong_to_id": "",
+                                        "name": "😦 rename view",
+                                        "desc": "",
+                                        "view_type": "Blank",
+                                        "version": 0,
+                                        "belongings": [],
+                                        "modified_time": 123,
+                                        "create_time": 0
+                                    }
+                                ],
+                                "version": 0,
+                                "modified_time": 0,
+                                "create_time": 0
+                            }
+                        ],
+                        "modified_time": 0,
+                        "create_time": 0
+                    }
+                ],
+                "trash": []
+            }"#,
+        );
     }
 
     #[test]
     fn folder_delete_view() {
         let (mut folder, initial_delta, view) = test_view_folder();
-        let delta = folder.delete_view(&view.id).unwrap().unwrap();
+        let delta = folder.delete_view(&view.id).unwrap().unwrap().delta;
 
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
-        assert_eq!(folder, folder_from_delta);
+        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        assert_folder_equal(
+            &folder,
+            &new_folder,
+            r#"{
+                "workspaces": [
+                    {
+                        "id": "1",
+                        "name": "😁 my first workspace",
+                        "desc": "",
+                        "apps": [
+                            {
+                                "id": "",
+                                "workspace_id": "1",
+                                "name": "😁 my first app",
+                                "desc": "",
+                                "belongings": [],
+                                "version": 0,
+                                "modified_time": 0,
+                                "create_time": 0
+                            }
+                        ],
+                        "modified_time": 0,
+                        "create_time": 0
+                    }
+                ],
+                "trash": []
+            }"#,
+        );
+    }
+
+    #[test]
+    fn folder_add_trash() {
+        let (folder, initial_delta, _trash) = test_trash();
+        assert_folder_equal(
+            &folder,
+            &make_folder_from_delta(initial_delta, vec![]),
+            r#"{
+                    "workspaces": [],
+                    "trash": [
+                        {
+                            "id": "1",
+                            "name": "🚽 my first trash",
+                            "modified_time": 0,
+                            "create_time": 0,
+                            "ty": "Unknown"
+                        }
+                    ]
+                }
+            "#,
+        );
+    }
+
+    #[test]
+    fn folder_delete_trash() {
+        let (mut folder, initial_delta, trash) = test_trash();
+        let delta = folder.delete_trash(Some(vec![trash.id])).unwrap().unwrap().delta;
+        assert_folder_equal(
+            &folder,
+            &make_folder_from_delta(initial_delta, vec![delta]),
+            r#"{
+                    "workspaces": [],
+                    "trash": []
+                }
+            "#,
+        );
     }
 
     fn test_folder() -> (FolderPad, PlainDelta, Workspace) {
@@ -474,12 +704,12 @@ mod tests {
         let folder_json = serde_json::to_string(&folder).unwrap();
         let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
 
-        let _time = Utc::now();
         let mut workspace = Workspace::default();
+        workspace.name = "😁 my first workspace".to_owned();
         workspace.id = "1".to_owned();
 
         delta = delta
-            .compose(&folder.create_workspace(workspace.clone()).unwrap().unwrap())
+            .compose(&folder.create_workspace(workspace.clone()).unwrap().unwrap().delta)
             .unwrap();
 
         (folder, delta, workspace)
@@ -489,10 +719,10 @@ mod tests {
         let (mut folder, mut initial_delta, workspace) = test_folder();
         let mut app = App::default();
         app.workspace_id = workspace.id;
-        app.name = "My first app".to_owned();
+        app.name = "😁 my first app".to_owned();
 
         initial_delta = initial_delta
-            .compose(&folder.create_app(app.clone()).unwrap().unwrap())
+            .compose(&folder.create_app(app.clone()).unwrap().unwrap().delta)
             .unwrap();
 
         (folder, initial_delta, app)
@@ -502,13 +732,29 @@ mod tests {
         let (mut folder, mut initial_delta, app) = test_app_folder();
         let mut view = View::default();
         view.belong_to_id = app.id.clone();
-        view.name = "My first view".to_owned();
+        view.name = "🎃 my first view".to_owned();
 
         initial_delta = initial_delta
-            .compose(&folder.create_view(view.clone()).unwrap().unwrap())
+            .compose(&folder.create_view(view.clone()).unwrap().unwrap().delta)
             .unwrap();
 
         (folder, initial_delta, view)
+    }
+
+    fn test_trash() -> (FolderPad, PlainDelta, Trash) {
+        let mut folder = FolderPad::default();
+        let folder_json = serde_json::to_string(&folder).unwrap();
+        let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
+
+        let mut trash = Trash::default();
+        trash.name = "🚽 my first trash".to_owned();
+        trash.id = "1".to_owned();
+
+        delta = delta
+            .compose(&folder.create_trash(vec![trash.clone()]).unwrap().unwrap().delta)
+            .unwrap();
+
+        (folder, delta, trash)
     }
 
     fn make_folder_from_delta(mut initial_delta: PlainDelta, deltas: Vec<PlainDelta>) -> FolderPad {
@@ -516,5 +762,16 @@ mod tests {
             initial_delta = initial_delta.compose(&delta).unwrap();
         }
         FolderPad::from_delta(initial_delta).unwrap()
+    }
+
+    fn assert_folder_equal(old: &FolderPad, new: &FolderPad, expected: &str) {
+        assert_eq!(old, new);
+
+        let json1 = old.to_json().unwrap();
+        let json2 = new.to_json().unwrap();
+
+        let expect_folder: FolderPad = serde_json::from_str(expected).unwrap();
+        assert_eq!(json1, expect_folder.to_json().unwrap());
+        assert_eq!(json1, json2);
     }
 }

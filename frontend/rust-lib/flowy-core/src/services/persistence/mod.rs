@@ -57,7 +57,8 @@ impl FolderPersistence {
         }
     }
 
-    pub fn begin_transaction<F, O>(&self, f: F) -> FlowyResult<O>
+    #[allow(dead_code)]
+    pub fn begin_transaction2<F, O>(&self, f: F) -> FlowyResult<O>
     where
         F: for<'a> FnOnce(Box<dyn FolderPersistenceTransaction + 'a>) -> FlowyResult<O>,
     {
@@ -76,29 +77,34 @@ impl FolderPersistence {
         conn.immediate_transaction::<_, FlowyError, _>(|| f(Box::new(V1Transaction(&conn))))
     }
 
-    pub fn begin_transaction2<F, O>(&self, f: F) -> FlowyResult<O>
+    pub fn begin_transaction<F, O>(&self, f: F) -> FlowyResult<O>
     where
         F: FnOnce(Arc<dyn FolderPersistenceTransaction>) -> FlowyResult<O>,
     {
         match self.folder_editor.read().clone() {
-            None => Err(FlowyError::internal()),
+            None => {
+                tracing::error!("FolderEditor should be initialized after user login in.");
+                let editor = futures::executor::block_on(async { self.init_folder_editor().await })?;
+                f(editor)
+            },
             Some(editor) => f(editor),
         }
     }
 
-    pub fn user_did_logout(&self) {
-        // let user_id = user.user_id()?;
-        // let pool = database.db_pool()?;
-        // let folder_editor = Arc::new(FolderEditor::new(&user_id, pool)?);
-        *self.folder_editor.write() = None;
+    pub fn user_did_logout(&self) { *self.folder_editor.write() = None; }
+
+    pub async fn initialize(&self) -> FlowyResult<()> {
+        let _ = self.init_folder_editor().await?;
+        Ok(())
     }
 
-    pub async fn user_did_login(&self) -> FlowyResult<()> {
+    async fn init_folder_editor(&self) -> FlowyResult<Arc<FolderEditor>> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let pool = self.database.db_pool()?;
         let folder_editor = FolderEditor::new(&user_id, &token, pool).await?;
-        *self.folder_editor.write() = Some(Arc::new(folder_editor));
-        Ok(())
+        let editor = Arc::new(folder_editor);
+        *self.folder_editor.write() = Some(editor.clone());
+        Ok(editor)
     }
 }

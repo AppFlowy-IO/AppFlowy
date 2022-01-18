@@ -29,9 +29,6 @@ pub struct Workspace {
     pub create_time: i64,
 }
 
-impl Workspace {
-    pub fn take_apps(&mut self) -> RepeatedApp { std::mem::take(&mut self.apps) }
-}
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspace {
     #[pb(index = 1)]

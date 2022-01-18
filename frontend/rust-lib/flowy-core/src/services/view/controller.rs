@@ -54,7 +54,7 @@ impl ViewController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), FlowyError> {
+    pub(crate) fn initialize(&self) -> Result<(), FlowyError> {
         let _ = self.document_ctx.init()?;
         self.listen_trash_can_event();
         Ok(())
