@@ -142,7 +142,17 @@ flutter channel stable
 ```
 
 **Step 4:**
+* You should enable the specified platform first if you don't enable it before and then select the desktop device.
+```shell
+# for windows
+flutter config --enable-windows-desktop
 
+# for macos
+flutter config --enable-macos-desktop
+
+# for linux
+flutter config --enable-linux-desktop
+```
 * Open the `app_flowy` folder located at xx/appflowy/frontend with Visual Studio Code or other IDEs at your disposal.
 * Run the Generate Language Files command if you don't run it before or you have updated the localization files. Read more at [AppFlowy translation](https://github.com/AppFlowy-IO/docs/blob/main/welcome-to-the-appflowy-wiki/translation.md)
 
