@@ -59,3 +59,4 @@ windows/flutter/dart_ffi/
 **/**/*.lib
 **/**/*.dll
 **/**/*.so
+**/Brewfile.lock.json
