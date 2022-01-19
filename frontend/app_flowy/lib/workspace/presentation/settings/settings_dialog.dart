@@ -24,9 +24,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      title: SizedBox(
-        height: 600,
-        width: 800,
+      title: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 600,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
