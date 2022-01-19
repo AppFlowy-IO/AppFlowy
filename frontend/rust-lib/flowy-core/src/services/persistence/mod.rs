@@ -1,13 +1,18 @@
+mod migration;
 pub mod version_1;
 mod version_2;
 
+use flowy_collaboration::{
+    entities::revision::{Revision, RevisionState},
+    folder::FolderPad,
+};
 use parking_lot::RwLock;
 use std::sync::Arc;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 use crate::{
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::persistence::version_2::v2_impl::FolderEditor,
+    services::persistence::{migration::FolderMigration, version_2::v2_impl::FolderEditor},
 };
 use flowy_core_data_model::entities::{
     app::App,
@@ -17,6 +22,9 @@ use flowy_core_data_model::entities::{
     workspace::Workspace,
 };
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_sync::{mk_revision_disk_cache, RevisionCache, RevisionManager, RevisionRecord};
+
+pub const FOLDER_ID: &str = "flowy_folder";
 
 pub trait FolderPersistenceTransaction {
     fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()>;
@@ -57,8 +65,12 @@ impl FolderPersistence {
         }
     }
 
+    #[deprecated(
+        since = "0.0.3",
+        note = "please use `begin_transaction` instead, this interface will be removed in the future"
+    )]
     #[allow(dead_code)]
-    pub fn begin_transaction2<F, O>(&self, f: F) -> FlowyResult<O>
+    pub fn begin_transaction_v_1<F, O>(&self, f: F) -> FlowyResult<O>
     where
         F: for<'a> FnOnce(Box<dyn FolderPersistenceTransaction + 'a>) -> FlowyResult<O>,
     {
@@ -93,7 +105,13 @@ impl FolderPersistence {
 
     pub fn user_did_logout(&self) { *self.folder_editor.write() = None; }
 
-    pub async fn initialize(&self) -> FlowyResult<()> {
+    pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
+        let migrations = FolderMigration::new(user_id, self.database.clone());
+        if let Some(migrated_folder) = migrations.run_v1_migration()? {
+            tracing::trace!("Save migration folder");
+            self.save_folder(user_id, migrated_folder).await?;
+        }
+
         let _ = self.init_folder_editor().await?;
         Ok(())
     }
@@ -106,5 +124,21 @@ impl FolderPersistence {
         let editor = Arc::new(folder_editor);
         *self.folder_editor.write() = Some(editor.clone());
         Ok(editor)
+    }
+
+    pub async fn save_folder(&self, user_id: &str, folder: FolderPad) -> FlowyResult<()> {
+        let pool = self.database.db_pool()?;
+        let delta_data = folder.delta().to_bytes();
+        let md5 = folder.md5();
+        let revision = Revision::new(FOLDER_ID, 0, 0, delta_data, user_id, md5);
+        let record = RevisionRecord {
+            revision,
+            state: RevisionState::Sync,
+            write_to_disk: true,
+        };
+
+        let conn = pool.get()?;
+        let disk_cache = mk_revision_disk_cache(user_id, pool);
+        disk_cache.write_revision_records(vec![record], &conn)
     }
 }

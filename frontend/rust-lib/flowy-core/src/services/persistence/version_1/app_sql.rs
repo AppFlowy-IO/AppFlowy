@@ -41,12 +41,10 @@ impl AppTableSql {
 
     pub(crate) fn read_workspace_apps(
         workspace_id: &str,
-        is_trash: bool,
         conn: &SqliteConnection,
     ) -> Result<Vec<AppTable>, FlowyError> {
         let app_table = dsl::app_table
             .filter(app_table::workspace_id.eq(workspace_id))
-            .filter(app_table::is_trash.eq(is_trash))
             .order(app_table::create_time.asc())
             .load::<AppTable>(conn)?;
 

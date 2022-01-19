@@ -29,8 +29,8 @@ impl WorkspaceTableSql {
     }
 
     pub(crate) fn read_workspaces(
-        workspace_id: Option<String>,
         user_id: &str,
+        workspace_id: Option<String>,
         conn: &SqliteConnection,
     ) -> Result<Vec<WorkspaceTable>, FlowyError> {
         let mut filter = dsl::workspace_table

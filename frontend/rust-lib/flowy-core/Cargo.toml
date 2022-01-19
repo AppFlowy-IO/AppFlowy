@@ -44,8 +44,8 @@ crossbeam-utils = "0.8"
 chrono = "0.4"
 
 [dev-dependencies]
-flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"
+flowy-test = { path = "../flowy-test" }
 
 [features]
 default = []

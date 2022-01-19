@@ -83,6 +83,27 @@ impl ViewController {
         Ok(view)
     }
 
+    #[tracing::instrument(level = "debug", skip(self, view_id, view_data), err)]
+    pub(crate) async fn create_view_document_content(
+        &self,
+        view_id: &str,
+        view_data: String,
+    ) -> Result<(), FlowyError> {
+        if view_data.is_empty() {
+            return Err(FlowyError::internal().context("The content of the view should not be empty"));
+        }
+
+        let delta_data = Bytes::from(view_data);
+        let user_id = self.user.user_id()?;
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
+        let _ = self
+            .document_ctx
+            .controller
+            .save_document(view_id, repeated_revision)
+            .await?;
+        Ok(())
+    }
+
     pub(crate) async fn create_view_on_local(&self, view: View) -> Result<(), FlowyError> {
         let trash_controller = self.trash_controller.clone();
         self.persistence.begin_transaction(|transaction| {

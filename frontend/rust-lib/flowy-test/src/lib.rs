@@ -4,8 +4,9 @@ pub mod helper;
 use crate::helper::*;
 use backend_service::configuration::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
-use flowy_user::entities::UserProfile;
+use flowy_user::{entities::UserProfile, services::database::UserDB};
 use lib_infra::uuid_string;
+use std::sync::Arc;
 
 pub mod prelude {
     pub use crate::{event_builder::*, helper::*, *};
@@ -49,5 +50,17 @@ impl FlowySDKTest {
         let context = async_sign_up(self.inner.dispatcher()).await;
         init_user_setting(self.inner.dispatcher()).await;
         context.user_profile
+    }
+}
+
+pub struct MigrationTest {
+    pub db: UserDB,
+}
+
+impl MigrationTest {
+    pub fn new() -> Self {
+        let dir = root_dir();
+        let db = UserDB::new(&dir);
+        Self { db }
     }
 }

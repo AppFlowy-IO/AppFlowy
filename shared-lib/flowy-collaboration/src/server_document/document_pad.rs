@@ -23,7 +23,7 @@ impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
     fn id(&self) -> &str { &self.doc_id }
 
     fn compose(&mut self, other: &RichTextDelta) -> Result<(), CollaborateError> {
-        tracing::trace!("{} compose {}", &self.delta.to_json(), other.to_json());
+        // tracing::trace!("{} compose {}", &self.delta.to_json(), other.to_json());
         let new_delta = self.delta.compose(other)?;
         self.delta = new_delta;
         Ok(())

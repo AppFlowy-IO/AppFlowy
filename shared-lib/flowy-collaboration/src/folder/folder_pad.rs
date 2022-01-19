@@ -39,6 +39,15 @@ pub struct FolderChange {
 }
 
 impl FolderPad {
+    pub fn new(workspaces: Vec<Workspace>, trash: Vec<Trash>) -> CollaborateResult<Self> {
+        let mut pad = FolderPad::default();
+        pad.workspaces = workspaces.into_iter().map(Arc::new).collect::<Vec<_>>();
+        pad.trash = trash.into_iter().map(Arc::new).collect::<Vec<_>>();
+        let json = pad.to_json()?;
+        pad.root = PlainDeltaBuilder::new().insert(&json).build();
+        Ok(pad)
+    }
+
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let mut folder_delta = PlainDelta::new();
         for revision in revisions {
@@ -64,6 +73,8 @@ impl FolderPad {
         folder.root = delta;
         Ok(folder)
     }
+
+    pub fn delta(&self) -> &PlainDelta { &self.root }
 
     pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
         let workspace = Arc::new(workspace);

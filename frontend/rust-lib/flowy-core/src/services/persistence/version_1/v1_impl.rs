@@ -23,7 +23,7 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>> {
-        let tables = WorkspaceTableSql::read_workspaces(workspace_id, user_id, &*self.0)?;
+        let tables = WorkspaceTableSql::read_workspaces(user_id, workspace_id, &*self.0)?;
         let workspaces = tables.into_iter().map(Workspace::from).collect::<Vec<_>>();
         Ok(workspaces)
     }
@@ -52,7 +52,7 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
     }
 
     fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
-        let tables = AppTableSql::read_workspace_apps(workspace_id, false, &*self.0)?;
+        let tables = AppTableSql::read_workspace_apps(workspace_id, &*self.0)?;
         let apps = tables.into_iter().map(App::from).collect::<Vec<_>>();
         Ok(apps)
     }

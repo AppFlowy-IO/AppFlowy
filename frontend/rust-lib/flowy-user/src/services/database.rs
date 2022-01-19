@@ -11,12 +11,12 @@ lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);
 }
 
-pub(crate) struct UserDB {
+pub struct UserDB {
     db_dir: String,
 }
 
 impl UserDB {
-    pub(crate) fn new(db_dir: &str) -> Self {
+    pub fn new(db_dir: &str) -> Self {
         Self {
             db_dir: db_dir.to_owned(),
         }

@@ -1,4 +1,10 @@
-use crate::services::persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset};
+use crate::services::persistence::{
+    AppChangeset,
+    FolderPersistenceTransaction,
+    ViewChangeset,
+    WorkspaceChangeset,
+    FOLDER_ID,
+};
 use flowy_collaboration::{
     entities::revision::Revision,
     folder::{FolderChange, FolderPad},
@@ -13,8 +19,6 @@ use lib_infra::future::FutureResult;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
-
-const FOLDER_ID: &str = "flowy_folder";
 
 pub struct FolderEditor {
     user_id: String,

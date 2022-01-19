@@ -177,7 +177,7 @@ async fn _listen_user_status(
             match status {
                 UserStatus::Login { token, user_id } => {
                     tracing::trace!("User did login");
-                    let _ = folder_manager.initialize(&token).await?;
+                    let _ = folder_manager.initialize(&user_id).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 },
                 UserStatus::Logout { .. } => {
@@ -192,7 +192,9 @@ async fn _listen_user_status(
                 },
                 UserStatus::SignUp { profile, ret } => {
                     tracing::trace!("User did sign up");
-                    let _ = folder_manager.initialize_with_new_user(&profile.token).await?;
+                    let _ = folder_manager
+                        .initialize_with_new_user(&profile.id, &profile.token)
+                        .await?;
                     let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 },

@@ -39,10 +39,6 @@ impl WorkspaceController {
         params: CreateWorkspaceParams,
     ) -> Result<Workspace, FlowyError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
-        self.create_workspace_on_local(workspace).await
-    }
-
-    pub(crate) async fn create_workspace_on_local(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let workspaces = self.persistence.begin_transaction(|transaction| {
@@ -184,7 +180,7 @@ impl WorkspaceController {
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
-fn set_current_workspace(workspace_id: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned()); }
+pub fn set_current_workspace(workspace_id: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned()); }
 
 pub fn get_current_workspace() -> Result<String, FlowyError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {

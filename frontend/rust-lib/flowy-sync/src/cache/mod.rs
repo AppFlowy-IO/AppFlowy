@@ -24,6 +24,13 @@ pub struct RevisionCache {
     latest_rev_id: AtomicI64,
 }
 
+pub fn mk_revision_disk_cache(
+    user_id: &str,
+    pool: Arc<ConnectionPool>,
+) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+    Arc::new(SQLitePersistence::new(user_id, pool))
+}
+
 impl RevisionCache {
     pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
