@@ -33,6 +33,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
             const SettingsPanelHeader(),
             Expanded(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 1,
@@ -45,6 +46,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       currentIndex: _selectedViewIndex,
                     ),
                   ),
+                  const VerticalDivider(),
+                  const SizedBox(width: 10),
                   Expanded(
                     flex: 4,
                     child: settingsViews[_selectedViewIndex],

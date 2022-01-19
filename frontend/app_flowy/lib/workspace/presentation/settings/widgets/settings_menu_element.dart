@@ -1,3 +1,5 @@
+import 'package:flowy_infra/theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class SettingsMenuElement extends StatelessWidget {
@@ -18,18 +20,19 @@ class SettingsMenuElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return ListTile(
       leading: Icon(
         icon,
         size: 16,
-        color: Colors.black,
+        color: index == currentIndex ? Colors.black : theme.textColor,
       ),
       onTap: () {
         changeSelectedIndex(index);
       },
       selected: index == currentIndex,
       selectedColor: Colors.black,
-      selectedTileColor: Colors.blue.shade700,
+      selectedTileColor: theme.main2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
