@@ -23,7 +23,7 @@ class MenuUser extends StatelessWidget {
             const HSpace(10),
             _renderUserName(context),
             const Spacer(),
-            (_renderSettingsButton(context)),
+            _renderSettingsButton(context),
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
             //_renderDropButton(context),

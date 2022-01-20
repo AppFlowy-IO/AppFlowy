@@ -1,9 +1,9 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
-import 'package:flutter/material.dart';
-import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({Key? key}) : super(key: key);
