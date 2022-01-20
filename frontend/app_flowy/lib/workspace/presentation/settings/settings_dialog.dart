@@ -24,60 +24,37 @@ class _SettingsDialogState extends State<SettingsDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      title: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxHeight: 600,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SettingsPanelHeader(),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: SettingsMenu(
-                      changeSelectedIndex: (index) {
-                        setState(() {
-                          _selectedViewIndex = index;
-                        });
-                      },
-                      currentIndex: _selectedViewIndex,
-                    ),
-                  ),
-                  const VerticalDivider(),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 4,
-                    child: settingsViews[_selectedViewIndex],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SettingsPanelHeader extends StatelessWidget {
-  const SettingsPanelHeader({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Text(
-        //TODO: Change to i10n
+      title: const Text(
         'Settings',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 24,
+        ),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 600,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 1,
+              child: SettingsMenu(
+                changeSelectedIndex: (index) {
+                  setState(() {
+                    _selectedViewIndex = index;
+                  });
+                },
+                currentIndex: _selectedViewIndex,
+              ),
+            ),
+            const VerticalDivider(),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 4,
+              child: settingsViews[_selectedViewIndex],
+            )
+          ],
         ),
       ),
     );
