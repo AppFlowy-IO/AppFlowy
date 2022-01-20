@@ -2,6 +2,8 @@ import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -19,9 +21,9 @@ class SettingsAppearanceView extends StatelessWidget {
           ),
           Row(
             children: [
-              const Text(
-                'Light Mode',
-                style: TextStyle(
+              Text(
+                LocaleKeys.settings_appearance_lightLabel.tr(),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -32,9 +34,9 @@ class SettingsAppearanceView extends StatelessWidget {
                   context.read<ThemeModel>().swapTheme();
                 },
               ),
-              const Text(
-                'Dark Mode',
-                style: TextStyle(
+              Text(
+                LocaleKeys.settings_appearance_darkLabel.tr(),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

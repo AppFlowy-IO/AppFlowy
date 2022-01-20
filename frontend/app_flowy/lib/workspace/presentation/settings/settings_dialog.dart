@@ -2,6 +2,8 @@ import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appea
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({Key? key}) : super(key: key);
@@ -24,9 +26,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      title: const Text(
-        'Settings',
-        style: TextStyle(
+      title: Text(
+        LocaleKeys.settings_title.tr(),
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
       ),
