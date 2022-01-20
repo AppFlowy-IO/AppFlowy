@@ -5,8 +5,11 @@ services:
     build: .
     stdin_open: true 
     # tty: true
+    devices:
+      - "/dev/dri:/dev/dri"  # fixes MESA-LOADER error
     environment:
       - DISPLAY=${DISPLAY}
+      - NO_AT_BRIDGE=1  # fixes dbind-WARNING
     volumes:
       - $HOME/.Xauthority:/root/.Xauthority:rw
     network_mode: host
