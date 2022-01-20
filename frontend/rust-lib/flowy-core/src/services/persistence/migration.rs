@@ -1,11 +1,8 @@
 use crate::{
     module::WorkspaceDatabase,
-    services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql, FOLDER_ID},
+    services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
-use flowy_collaboration::{
-    entities::revision::{md5, Revision},
-    folder::FolderPad,
-};
+use flowy_collaboration::{entities::revision::md5, folder::FolderPad};
 use flowy_core_data_model::entities::{
     app::{App, RepeatedApp},
     view::{RepeatedView, View},
@@ -13,7 +10,6 @@ use flowy_core_data_model::entities::{
 };
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{RevisionCache, RevisionManager};
 use std::sync::Arc;
 
 pub(crate) const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";

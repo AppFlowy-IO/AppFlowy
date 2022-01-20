@@ -34,16 +34,19 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
-        let trash = self.persistence.begin_transaction(|transaction| {
-            let mut repeated_trash = transaction.read_trash(Some(trash_id.to_owned()))?;
-            let _ = transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
-            notify_trash_changed(transaction.read_trash(None)?);
+        let trash = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let mut repeated_trash = transaction.read_trash(Some(trash_id.to_owned()))?;
+                let _ = transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
+                notify_trash_changed(transaction.read_trash(None)?);
 
-            if repeated_trash.is_empty() {
-                return Err(FlowyError::internal().context("Try to put back trash is not exists"));
-            }
-            Ok(repeated_trash.pop().unwrap())
-        })?;
+                if repeated_trash.is_empty() {
+                    return Err(FlowyError::internal().context("Try to put back trash is not exists"));
+                }
+                Ok(repeated_trash.pop().unwrap())
+            })
+            .await?;
 
         let identifier = TrashId {
             id: trash.id,
@@ -63,11 +66,14 @@ impl TrashController {
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
     pub async fn restore_all(&self) -> FlowyResult<()> {
-        let repeated_trash = self.persistence.begin_transaction(|transaction| {
-            let trash = transaction.read_trash(None);
-            let _ = transaction.delete_trash(None);
-            trash
-        })?;
+        let repeated_trash = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let trash = transaction.read_trash(None);
+                let _ = transaction.delete_trash(None);
+                trash
+            })
+            .await?;
 
         let identifiers: RepeatedTrashId = repeated_trash.items.clone().into();
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
@@ -83,7 +89,8 @@ impl TrashController {
     pub async fn delete_all(&self) -> FlowyResult<()> {
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_trash(None))?;
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
         let trash_identifiers: RepeatedTrashId = repeated_trash.items.clone().into();
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
 
@@ -97,7 +104,8 @@ impl TrashController {
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_trash(None))?;
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
         notify_trash_changed(repeated_trash);
         let _ = self.delete_trash_on_server(trash_identifiers)?;
 
@@ -117,14 +125,17 @@ impl TrashController {
                 Err(e) => log::error!("{}", e),
             },
         }
-        let _ = self.persistence.begin_transaction(|transaction| {
-            let ids = trash_identifiers
-                .items
-                .into_iter()
-                .map(|item| item.id)
-                .collect::<Vec<_>>();
-            transaction.delete_trash(Some(ids))
-        })?;
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let ids = trash_identifiers
+                    .items
+                    .into_iter()
+                    .map(|item| item.id)
+                    .collect::<Vec<_>>();
+                transaction.delete_trash(Some(ids))
+            })
+            .await?;
 
         Ok(())
     }
@@ -153,12 +164,15 @@ impl TrashController {
             .as_str(),
         );
 
-        let _ = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.create_trash(repeated_trash.clone())?;
-            let _ = self.create_trash_on_server(repeated_trash);
-            notify_trash_changed(transaction.read_trash(None)?);
-            Ok(())
-        })?;
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.create_trash(repeated_trash.clone())?;
+                let _ = self.create_trash_on_server(repeated_trash);
+                notify_trash_changed(transaction.read_trash(None)?);
+                Ok(())
+            })
+            .await?;
         let _ = self.notify.send(TrashEvent::NewTrash(identifiers.into(), tx));
         let _ = rx.recv().await.unwrap()?;
 
@@ -167,10 +181,11 @@ impl TrashController {
 
     pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
 
-    pub fn read_trash(&self) -> Result<RepeatedTrash, FlowyError> {
+    pub async fn read_trash(&self) -> Result<RepeatedTrash, FlowyError> {
         let repeated_trash = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_trash(None))?;
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
         let _ = self.read_trash_on_server()?;
         Ok(repeated_trash)
     }
@@ -229,10 +244,12 @@ impl TrashController {
             match server.read_trash(&token).await {
                 Ok(repeated_trash) => {
                     tracing::debug!("Remote trash count: {}", repeated_trash.items.len());
-                    let result = persistence.begin_transaction(|transaction| {
-                        let _ = transaction.create_trash(repeated_trash.items.clone())?;
-                        transaction.read_trash(None)
-                    });
+                    let result = persistence
+                        .begin_transaction(|transaction| {
+                            let _ = transaction.create_trash(repeated_trash.items.clone())?;
+                            transaction.read_trash(None)
+                        })
+                        .await;
 
                     match result {
                         Ok(repeated_trash) => {

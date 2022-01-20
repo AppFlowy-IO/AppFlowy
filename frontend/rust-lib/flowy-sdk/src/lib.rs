@@ -250,7 +250,7 @@ fn mk_core_context(
     server_config: &ClientServerConfiguration,
     ws_conn: &Arc<FlowyWebSocketConnect>,
 ) -> Arc<FolderManager> {
-    CoreDepsResolver::resolve(
+    FolderDepsResolver::resolve(
         local_server.clone(),
         user_session.clone(),
         server_config,

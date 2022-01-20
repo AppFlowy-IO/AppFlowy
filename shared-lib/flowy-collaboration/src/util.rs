@@ -4,16 +4,15 @@ use crate::{
     protobuf::{DocumentInfo as DocumentInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
 };
 use lib_ot::{
-    core::{OperationTransformable, NEW_LINE, WHITESPACE},
+    core::{Attributes, Delta, OperationTransformable, NEW_LINE, WHITESPACE},
     errors::OTError,
     rich_text::RichTextDelta,
 };
+use serde::de::DeserializeOwned;
 use std::{
     convert::TryInto,
     sync::atomic::{AtomicI64, Ordering::SeqCst},
 };
-use serde::de::DeserializeOwned;
-use lib_ot::core::{Attributes, Delta};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> { s.find(NEW_LINE) }
@@ -47,10 +46,13 @@ impl RevIdCounter {
     pub fn set(&self, n: i64) { let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n)); }
 }
 
-pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<RichTextDelta> {
-    let mut delta = RichTextDelta::new();
+pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
+where
+    T: Attributes + DeserializeOwned,
+{
+    let mut delta = Delta::<T>::new();
     for revision in revisions {
-        let revision_delta = RichTextDelta::from_bytes(revision.delta_data).map_err(|e| {
+        let revision_delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
@@ -59,7 +61,10 @@ pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<
     Ok(delta)
 }
 
-pub fn make_delta_from_revision_pb<T>(revisions: Vec<RevisionPB>) -> CollaborateResult<Delta<T>> where T: Attributes + DeserializeOwned {
+pub fn make_delta_from_revision_pb<T>(revisions: Vec<RevisionPB>) -> CollaborateResult<Delta<T>>
+where
+    T: Attributes + DeserializeOwned,
+{
     let mut new_delta = Delta::<T>::new();
     for revision in revisions {
         let delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {

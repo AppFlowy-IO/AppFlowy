@@ -1,6 +1,7 @@
 use crate::{
     entities::revision::{md5, Revision},
     errors::{CollaborateError, CollaborateResult},
+    folder::builder::FolderPadBuilder,
 };
 use dissimilar::*;
 use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
@@ -10,10 +11,10 @@ use std::sync::Arc;
 
 #[derive(Debug, Deserialize, Serialize, Clone, Eq, PartialEq)]
 pub struct FolderPad {
-    workspaces: Vec<Arc<Workspace>>,
-    trash: Vec<Arc<Trash>>,
+    pub(crate) workspaces: Vec<Arc<Workspace>>,
+    pub(crate) trash: Vec<Arc<Trash>>,
     #[serde(skip)]
-    root: PlainDelta,
+    pub(crate) root: PlainDelta,
 }
 
 pub fn default_folder_delta() -> PlainDelta {
@@ -40,39 +41,17 @@ pub struct FolderChange {
 
 impl FolderPad {
     pub fn new(workspaces: Vec<Workspace>, trash: Vec<Trash>) -> CollaborateResult<Self> {
-        let mut pad = FolderPad::default();
-        pad.workspaces = workspaces.into_iter().map(Arc::new).collect::<Vec<_>>();
-        pad.trash = trash.into_iter().map(Arc::new).collect::<Vec<_>>();
-        let json = pad.to_json()?;
-        pad.root = PlainDeltaBuilder::new().insert(&json).build();
-        Ok(pad)
+        FolderPadBuilder::new()
+            .with_workspace(workspaces)
+            .with_trash(trash)
+            .build()
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let mut folder_delta = PlainDelta::new();
-        for revision in revisions {
-            if revision.delta_data.is_empty() {
-                tracing::warn!("revision delta_data is empty");
-            }
-
-            let delta = PlainDelta::from_bytes(revision.delta_data)?;
-            folder_delta = folder_delta.compose(&delta)?;
-        }
-
-        Self::from_delta(folder_delta)
+        FolderPadBuilder::new().build_with_revisions(revisions)
     }
 
-    pub fn from_delta(mut delta: PlainDelta) -> CollaborateResult<Self> {
-        if delta.is_empty() {
-            delta = default_folder_delta();
-        }
-        let folder_json = delta.apply("").unwrap();
-        let mut folder: FolderPad = serde_json::from_str(&folder_json).map_err(|e| {
-            CollaborateError::internal().context(format!("Deserialize json to root folder failed: {}", e))
-        })?;
-        folder.root = delta;
-        Ok(folder)
-    }
+    pub fn from_delta(delta: PlainDelta) -> CollaborateResult<Self> { FolderPadBuilder::new().build_with_delta(delta) }
 
     pub fn delta(&self) -> &PlainDelta { &self.root }
 

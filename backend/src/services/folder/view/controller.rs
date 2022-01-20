@@ -7,9 +7,10 @@ use crate::{
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};
-use bytes::Bytes;
+
 use chrono::Utc;
 use flowy_collaboration::{
+    client_document::default::initial_delta,
     entities::revision::{RepeatedRevision, Revision},
     protobuf::CreateDocParams as CreateDocParamsPB,
 };
@@ -90,9 +91,9 @@ pub(crate) async fn create_view(
         .await
         .map_err(map_sqlx_error)?;
 
-    let delta_data = Bytes::from(params.view_data);
-    let md5 = format!("{:x}", md5::compute(&delta_data));
-    let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
+    let initial_delta_data = initial_delta().to_bytes();
+    let md5 = format!("{:x}", md5::compute(&initial_delta_data));
+    let revision = Revision::new(&view.id, 0, 0, initial_delta_data, user_id, md5);
     let repeated_revision = RepeatedRevision::new(vec![revision]);
     let mut create_doc_params = CreateDocParamsPB::new();
     create_doc_params.set_revisions(repeated_revision.try_into().unwrap());

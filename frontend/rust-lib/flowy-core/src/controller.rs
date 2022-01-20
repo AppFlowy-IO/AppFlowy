@@ -6,16 +6,18 @@ use flowy_document::context::DocumentContext;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
-use flowy_collaboration::folder::FolderPad;
+use flowy_collaboration::{entities::ws_data::ServerRevisionWSData, folder::FolderPad};
 use parking_lot::RwLock;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, convert::TryInto, sync::Arc};
+use tokio::sync::RwLock as TokioRwLock;
 
 use crate::{
     dart_notification::{send_dart_notification, WorkspaceNotification},
     entities::workspace::RepeatedWorkspace,
     errors::FlowyResult,
-    module::{FolderCouldServiceV1, WorkspaceUser},
+    module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
+        folder_editor::FolderEditor,
         persistence::FolderPersistence,
         set_current_workspace,
         AppController,
@@ -33,24 +35,28 @@ pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) cloud_service: Arc<dyn FolderCouldServiceV1>,
     pub(crate) persistence: Arc<FolderPersistence>,
-    pub workspace_controller: Arc<WorkspaceController>,
+    pub(crate) workspace_controller: Arc<WorkspaceController>,
     pub(crate) app_controller: Arc<AppController>,
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) trash_controller: Arc<TrashController>,
-    ws_sender: Arc<dyn RevisionWebSocket>,
+    web_socket: Arc<dyn RevisionWebSocket>,
+    folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
 }
 
 impl FolderManager {
-    pub(crate) fn new(
+    pub fn new(
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
-        persistence: Arc<FolderPersistence>,
+        database: Arc<dyn WorkspaceDatabase>,
         flowy_document: Arc<DocumentContext>,
-        ws_sender: Arc<dyn RevisionWebSocket>,
+        web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(token) = user.token() {
             INIT_FOLDER_FLAG.write().insert(token, false);
         }
+
+        let folder_editor = Arc::new(TokioRwLock::new(None));
+        let persistence = Arc::new(FolderPersistence::new(database.clone(), folder_editor.clone()));
 
         let trash_controller = Arc::new(TrashController::new(
             persistence.clone(),
@@ -88,7 +94,8 @@ impl FolderManager {
             app_controller,
             view_controller,
             trash_controller,
-            ws_sender,
+            web_socket,
+            folder_editor,
         }
     }
 
@@ -101,7 +108,21 @@ impl FolderManager {
     //     }
     // }
 
-    pub async fn did_receive_ws_data(&self, _data: Bytes) {}
+    pub async fn did_receive_ws_data(&self, data: Bytes) {
+        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        match result {
+            Ok(data) => match self.folder_editor.read().await.clone() {
+                None => {},
+                Some(editor) => match editor.receive_ws_data(data).await {
+                    Ok(_) => {},
+                    Err(e) => tracing::error!("Folder receive data error: {:?}", e),
+                },
+            },
+            Err(e) => {
+                tracing::error!("Folder ws data parser failed: {:?}", e);
+            },
+        }
+    }
 
     pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
         if let Some(is_init) = INIT_FOLDER_FLAG.read().get(user_id) {
@@ -110,6 +131,12 @@ impl FolderManager {
             }
         }
         let _ = self.persistence.initialize(user_id).await?;
+
+        let token = self.user.token()?;
+        let pool = self.persistence.db_pool()?;
+        let folder_editor = FolderEditor::new(user_id, &token, pool, self.web_socket.clone()).await?;
+        *self.folder_editor.write().await = Some(Arc::new(folder_editor));
+
         let _ = self.app_controller.initialize()?;
         let _ = self.view_controller.initialize()?;
         INIT_FOLDER_FLAG.write().insert(user_id.to_owned(), true);
@@ -121,7 +148,7 @@ impl FolderManager {
         self.initialize(user_id).await
     }
 
-    pub async fn clear(&self) { self.persistence.user_did_logout() }
+    pub async fn clear(&self) { *self.folder_editor.write().await = None; }
 }
 
 struct DefaultFolderBuilder();

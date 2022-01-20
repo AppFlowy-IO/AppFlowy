@@ -6,13 +6,13 @@ use flowy_collaboration::{
     entities::revision::{Revision, RevisionState},
     folder::FolderPad,
 };
-use parking_lot::RwLock;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 use crate::{
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::persistence::{migration::FolderMigration, version_2::v2_impl::FolderEditor},
+    services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_core_data_model::entities::{
     app::App,
@@ -22,7 +22,8 @@ use flowy_core_data_model::entities::{
     workspace::Workspace,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{mk_revision_disk_cache, RevisionCache, RevisionManager, RevisionRecord};
+use flowy_sync::{mk_revision_disk_cache, RevisionRecord};
+use lib_sqlite::ConnectionPool;
 
 pub const FOLDER_ID: &str = "flowy_folder";
 
@@ -50,16 +51,13 @@ pub trait FolderPersistenceTransaction {
 }
 
 pub struct FolderPersistence {
-    user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
-    folder_editor: RwLock<Option<Arc<FolderEditor>>>,
+    folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>,
 }
 
 impl FolderPersistence {
-    pub fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>) -> Self {
-        let folder_editor = RwLock::new(None);
+    pub fn new(database: Arc<dyn WorkspaceDatabase>, folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>) -> Self {
         Self {
-            user,
             database,
             folder_editor,
         }
@@ -89,21 +87,17 @@ impl FolderPersistence {
         conn.immediate_transaction::<_, FlowyError, _>(|| f(Box::new(V1Transaction(&conn))))
     }
 
-    pub fn begin_transaction<F, O>(&self, f: F) -> FlowyResult<O>
+    pub async fn begin_transaction<F, O>(&self, f: F) -> FlowyResult<O>
     where
         F: FnOnce(Arc<dyn FolderPersistenceTransaction>) -> FlowyResult<O>,
     {
-        match self.folder_editor.read().clone() {
-            None => {
-                tracing::error!("FolderEditor should be initialized after user login in.");
-                let editor = futures::executor::block_on(async { self.init_folder_editor().await })?;
-                f(editor)
-            },
+        match self.folder_editor.read().await.clone() {
+            None => Err(FlowyError::internal().context("FolderEditor should be initialized after user login in.")),
             Some(editor) => f(editor),
         }
     }
 
-    pub fn user_did_logout(&self) { *self.folder_editor.write() = None; }
+    pub fn db_pool(&self) -> FlowyResult<Arc<ConnectionPool>> { self.database.db_pool() }
 
     pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
         let migrations = FolderMigration::new(user_id, self.database.clone());
@@ -112,18 +106,7 @@ impl FolderPersistence {
             self.save_folder(user_id, migrated_folder).await?;
         }
 
-        let _ = self.init_folder_editor().await?;
         Ok(())
-    }
-
-    async fn init_folder_editor(&self) -> FlowyResult<Arc<FolderEditor>> {
-        let user_id = self.user.user_id()?;
-        let token = self.user.token()?;
-        let pool = self.database.db_pool()?;
-        let folder_editor = FolderEditor::new(&user_id, &token, pool).await?;
-        let editor = Arc::new(folder_editor);
-        *self.folder_editor.write() = Some(editor.clone());
-        Ok(editor)
     }
 
     pub async fn save_folder(&self, user_id: &str, folder: FolderPad) -> FlowyResult<()> {

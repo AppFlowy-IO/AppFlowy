@@ -50,23 +50,29 @@ impl AppController {
     }
 
     pub(crate) async fn create_app_on_local(&self, app: App) -> Result<App, FlowyError> {
-        let _ = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.create_app(app.clone())?;
-            let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
-            Ok(())
-        })?;
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.create_app(app.clone())?;
+                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                Ok(())
+            })
+            .await?;
         Ok(app)
     }
 
     pub(crate) async fn read_app(&self, params: AppId) -> Result<App, FlowyError> {
-        let app = self.persistence.begin_transaction(|transaction| {
-            let app = transaction.read_app(&params.app_id)?;
-            let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
-            if trash_ids.contains(&app.id) {
-                return Err(FlowyError::record_not_found());
-            }
-            Ok(app)
-        })?;
+        let app = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let app = transaction.read_app(&params.app_id)?;
+                let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
+                if trash_ids.contains(&app.id) {
+                    return Err(FlowyError::record_not_found());
+                }
+                Ok(app)
+            })
+            .await?;
         let _ = self.read_app_on_server(params)?;
         Ok(app)
     }
@@ -75,11 +81,14 @@ impl AppController {
         let changeset = AppChangeset::new(params.clone());
         let app_id = changeset.id.clone();
 
-        let app = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.update_app(changeset)?;
-            let app = transaction.read_app(&app_id)?;
-            Ok(app)
-        })?;
+        let app = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.update_app(changeset)?;
+                let app = transaction.read_app(&app_id)?;
+                Ok(app)
+            })
+            .await?;
         send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
             .payload(app)
             .send();
@@ -87,14 +96,17 @@ impl AppController {
         Ok(())
     }
 
-    pub(crate) fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<App>, FlowyError> {
-        let apps = self.persistence.begin_transaction(|transaction| {
-            let mut apps = vec![];
-            for id in ids {
-                apps.push(transaction.read_app(&id)?);
-            }
-            Ok(apps)
-        })?;
+    pub(crate) async fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<App>, FlowyError> {
+        let apps = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let mut apps = vec![];
+                for id in ids {
+                    apps.push(transaction.read_app(&id)?);
+                }
+                Ok(apps)
+            })
+            .await?;
         Ok(apps)
     }
 }
@@ -131,7 +143,10 @@ impl AppController {
         tokio::spawn(async move {
             match server.read_app(&token, params).await {
                 Ok(Some(app)) => {
-                    match persistence.begin_transaction(|transaction| transaction.create_app(app.clone())) {
+                    match persistence
+                        .begin_transaction(|transaction| transaction.create_app(app.clone()))
+                        .await
+                    {
                         Ok(_) => {
                             send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
                                 .payload(app)
@@ -175,29 +190,33 @@ async fn handle_trash_event(
 ) {
     match event {
         TrashEvent::NewTrash(identifiers, ret) | TrashEvent::Putback(identifiers, ret) => {
-            let result = persistence.begin_transaction(|transaction| {
-                for identifier in identifiers.items {
-                    let app = transaction.read_app(&identifier.id)?;
-                    let _ = notify_apps_changed(&app.workspace_id, trash_controller.clone(), &transaction)?;
-                }
-                Ok(())
-            });
+            let result = persistence
+                .begin_transaction(|transaction| {
+                    for identifier in identifiers.items {
+                        let app = transaction.read_app(&identifier.id)?;
+                        let _ = notify_apps_changed(&app.workspace_id, trash_controller.clone(), &transaction)?;
+                    }
+                    Ok(())
+                })
+                .await;
             let _ = ret.send(result).await;
         },
         TrashEvent::Delete(identifiers, ret) => {
-            let result = persistence.begin_transaction(|transaction| {
-                let mut notify_ids = HashSet::new();
-                for identifier in identifiers.items {
-                    let app = transaction.read_app(&identifier.id)?;
-                    let _ = transaction.delete_app(&identifier.id)?;
-                    notify_ids.insert(app.workspace_id);
-                }
+            let result = persistence
+                .begin_transaction(|transaction| {
+                    let mut notify_ids = HashSet::new();
+                    for identifier in identifiers.items {
+                        let app = transaction.read_app(&identifier.id)?;
+                        let _ = transaction.delete_app(&identifier.id)?;
+                        notify_ids.insert(app.workspace_id);
+                    }
 
-                for notify_id in notify_ids {
-                    let _ = notify_apps_changed(&notify_id, trash_controller.clone(), &transaction)?;
-                }
-                Ok(())
-            });
+                    for notify_id in notify_ids {
+                        let _ = notify_apps_changed(&notify_id, trash_controller.clone(), &transaction)?;
+                    }
+                    Ok(())
+                })
+                .await;
             let _ = ret.send(result).await;
         },
     }

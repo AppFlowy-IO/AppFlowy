@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub(crate) async fn read_trash_handler(
     controller: Unit<Arc<TrashController>>,
 ) -> DataResult<RepeatedTrash, FlowyError> {
-    let repeated_trash = controller.read_trash()?;
+    let repeated_trash = controller.read_trash().await?;
     data_result(repeated_trash)
 }
 

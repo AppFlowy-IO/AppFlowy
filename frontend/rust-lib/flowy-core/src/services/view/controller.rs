@@ -106,36 +106,43 @@ impl ViewController {
 
     pub(crate) async fn create_view_on_local(&self, view: View) -> Result<(), FlowyError> {
         let trash_controller = self.trash_controller.clone();
-        self.persistence.begin_transaction(|transaction| {
-            let belong_to_id = view.belong_to_id.clone();
-            let _ = transaction.create_view(view)?;
-            let _ = notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
-            Ok(())
-        })
+        self.persistence
+            .begin_transaction(|transaction| {
+                let belong_to_id = view.belong_to_id.clone();
+                let _ = transaction.create_view(view)?;
+                let _ = notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
+                Ok(())
+            })
+            .await
     }
 
     #[tracing::instrument(skip(self, params), fields(view_id = %params.view_id), err)]
     pub(crate) async fn read_view(&self, params: ViewId) -> Result<View, FlowyError> {
-        let view = self.persistence.begin_transaction(|transaction| {
-            let view = transaction.read_view(&params.view_id)?;
-            let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
-            if trash_ids.contains(&view.id) {
-                return Err(FlowyError::record_not_found());
-            }
-            Ok(view)
-        })?;
+        let view = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let view = transaction.read_view(&params.view_id)?;
+                let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
+                if trash_ids.contains(&view.id) {
+                    return Err(FlowyError::record_not_found());
+                }
+                Ok(view)
+            })
+            .await?;
         let _ = self.read_view_on_server(params);
         Ok(view)
     }
 
-    pub(crate) fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<View>, FlowyError> {
-        self.persistence.begin_transaction(|transaction| {
-            let mut views = vec![];
-            for view_id in ids {
-                views.push(transaction.read_view(&view_id)?);
-            }
-            Ok(views)
-        })
+    pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<View>, FlowyError> {
+        self.persistence
+            .begin_transaction(|transaction| {
+                let mut views = vec![];
+                for view_id in ids {
+                    views.push(transaction.read_view(&view_id)?);
+                }
+                Ok(views)
+            })
+            .await
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -170,7 +177,8 @@ impl ViewController {
     pub(crate) async fn duplicate_view(&self, doc_id: &str) -> Result<(), FlowyError> {
         let view = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_view(doc_id))?;
+            .begin_transaction(|transaction| transaction.read_view(doc_id))
+            .await?;
 
         let editor = self.document_ctx.controller.open_document(doc_id).await?;
         let document_json = editor.document_json().await?;
@@ -201,24 +209,29 @@ impl ViewController {
     // belong_to_id will be the app_id or view_id.
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
-        self.persistence.begin_transaction(|transaction| {
-            read_belonging_views_on_local(belong_to_id, self.trash_controller.clone(), &transaction)
-        })
+        self.persistence
+            .begin_transaction(|transaction| {
+                read_belonging_views_on_local(belong_to_id, self.trash_controller.clone(), &transaction)
+            })
+            .await
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<View, FlowyError> {
         let changeset = ViewChangeset::new(params.clone());
         let view_id = changeset.id.clone();
-        let view = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.update_view(changeset)?;
-            let view = transaction.read_view(&view_id)?;
-            send_dart_notification(&view_id, WorkspaceNotification::ViewUpdated)
-                .payload(view.clone())
-                .send();
-            let _ = notify_views_changed(&view.belong_to_id, self.trash_controller.clone(), &transaction)?;
-            Ok(view)
-        })?;
+        let view = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.update_view(changeset)?;
+                let view = transaction.read_view(&view_id)?;
+                send_dart_notification(&view_id, WorkspaceNotification::ViewUpdated)
+                    .payload(view.clone())
+                    .send();
+                let _ = notify_views_changed(&view.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                Ok(view)
+            })
+            .await?;
 
         let _ = self.update_view_on_server(params);
         Ok(view)
@@ -229,13 +242,14 @@ impl ViewController {
         Ok(doc)
     }
 
-    pub(crate) fn latest_visit_view(&self) -> FlowyResult<Option<View>> {
+    pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<View>> {
         match KV::get_str(LATEST_VIEW_ID) {
             None => Ok(None),
             Some(view_id) => {
                 let view = self
                     .persistence
-                    .begin_transaction(|transaction| transaction.read_view(&view_id))?;
+                    .begin_transaction(|transaction| transaction.read_view(&view_id))
+                    .await?;
                 Ok(Some(view))
             },
         }
@@ -277,7 +291,10 @@ impl ViewController {
         tokio::spawn(async move {
             match server.read_view(&token, params).await {
                 Ok(Some(view)) => {
-                    match persistence.begin_transaction(|transaction| transaction.create_view(view.clone())) {
+                    match persistence
+                        .begin_transaction(|transaction| transaction.create_view(view.clone()))
+                        .await
+                    {
                         Ok(_) => {
                             send_dart_notification(&view.id, WorkspaceNotification::ViewUpdated)
                                 .payload(view.clone())
@@ -324,43 +341,49 @@ async fn handle_trash_event(
 ) {
     match event {
         TrashEvent::NewTrash(identifiers, ret) => {
-            let result = persistence.begin_transaction(|transaction| {
-                let views = read_local_views_with_transaction(identifiers, &transaction)?;
-                for view in views {
-                    let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
-                    notify_dart(view, WorkspaceNotification::ViewDeleted);
-                }
-                Ok(())
-            });
+            let result = persistence
+                .begin_transaction(|transaction| {
+                    let views = read_local_views_with_transaction(identifiers, &transaction)?;
+                    for view in views {
+                        let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
+                        notify_dart(view, WorkspaceNotification::ViewDeleted);
+                    }
+                    Ok(())
+                })
+                .await;
             let _ = ret.send(result).await;
         },
         TrashEvent::Putback(identifiers, ret) => {
-            let result = persistence.begin_transaction(|transaction| {
-                let views = read_local_views_with_transaction(identifiers, &transaction)?;
-                for view in views {
-                    let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
-                    notify_dart(view, WorkspaceNotification::ViewRestored);
-                }
-                Ok(())
-            });
+            let result = persistence
+                .begin_transaction(|transaction| {
+                    let views = read_local_views_with_transaction(identifiers, &transaction)?;
+                    for view in views {
+                        let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
+                        notify_dart(view, WorkspaceNotification::ViewRestored);
+                    }
+                    Ok(())
+                })
+                .await;
             let _ = ret.send(result).await;
         },
         TrashEvent::Delete(identifiers, ret) => {
-            let result = persistence.begin_transaction(|transaction| {
-                let mut notify_ids = HashSet::new();
-                for identifier in identifiers.items {
-                    let view = transaction.read_view(&identifier.id)?;
-                    let _ = transaction.delete_view(&identifier.id)?;
-                    let _ = context.controller.delete(&identifier.id)?;
-                    notify_ids.insert(view.belong_to_id);
-                }
+            let result = persistence
+                .begin_transaction(|transaction| {
+                    let mut notify_ids = HashSet::new();
+                    for identifier in identifiers.items {
+                        let view = transaction.read_view(&identifier.id)?;
+                        let _ = transaction.delete_view(&identifier.id)?;
+                        let _ = context.controller.delete(&identifier.id)?;
+                        notify_ids.insert(view.belong_to_id);
+                    }
 
-                for notify_id in notify_ids {
-                    let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
-                }
+                    for notify_id in notify_ids {
+                        let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
+                    }
 
-                Ok(())
-            });
+                    Ok(())
+                })
+                .await;
             let _ = ret.send(result).await;
         },
     }

@@ -7,11 +7,11 @@ use flowy_collaboration::{
     util::make_delta_from_revisions,
 };
 use flowy_error::FlowyError;
-use flowy_sync::RevisionManager;
+use flowy_sync::{DeltaMD5, RevisionManager, TransformDeltas};
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
-    rich_text::{RichTextAttribute, RichTextDelta},
+    rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
 };
 use std::sync::Arc;
 use tokio::sync::{oneshot, RwLock};
@@ -72,62 +72,36 @@ impl EditorCommandQueue {
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             },
-            EditorCommand::ComposeRemoteDelta {
-                revisions,
-                client_delta,
-                server_delta,
-                ret,
-            } => {
+            EditorCommand::ComposeRemoteDelta { client_delta, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.compose_delta(client_delta.clone())?;
                 let md5 = document.md5();
-                for revision in &revisions {
-                    let _ = self.rev_manager.add_remote_revision(revision).await?;
-                }
-
-                let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-                let doc_id = self.rev_manager.object_id.clone();
-                let user_id = self.user.user_id()?;
-                let (client_revision, server_revision) = make_client_and_server_revision(
-                    &doc_id,
-                    &user_id,
-                    base_rev_id,
-                    rev_id,
-                    client_delta,
-                    Some(server_delta),
-                    md5,
-                );
-                let _ = self.rev_manager.add_remote_revision(&client_revision).await?;
-                let _ = ret.send(Ok(server_revision));
+                drop(document);
+                let _ = ret.send(Ok(md5));
             },
-            EditorCommand::OverrideDelta { revisions, delta, ret } => {
+            EditorCommand::ResetDelta { delta, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.set_delta(delta);
                 let md5 = document.md5();
                 drop(document);
-
-                let repeated_revision = RepeatedRevision::new(revisions);
-                assert_eq!(repeated_revision.last().unwrap().md5, md5);
-                let _ = self.rev_manager.reset_object(repeated_revision).await?;
-                let _ = ret.send(Ok(()));
+                let _ = ret.send(Ok(md5));
             },
-            EditorCommand::TransformRevision { revisions, ret } => {
+            EditorCommand::TransformDelta { delta, ret } => {
                 let f = || async {
-                    let new_delta = make_delta_from_revisions(revisions)?;
                     let read_guard = self.document.read().await;
                     let mut server_prime: Option<RichTextDelta> = None;
                     let client_prime: RichTextDelta;
                     // The document is empty if its text is equal to the initial text.
                     if read_guard.is_empty::<NewlineDoc>() {
                         // Do nothing
-                        client_prime = new_delta;
+                        client_prime = delta;
                     } else {
-                        let (s_prime, c_prime) = read_guard.delta().transform(&new_delta)?;
+                        let (s_prime, c_prime) = read_guard.delta().transform(&delta)?;
                         client_prime = c_prime;
                         server_prime = Some(s_prime);
                     }
                     drop(read_guard);
-                    Ok::<TransformDeltas, CollaborateError>(TransformDeltas {
+                    Ok::<TransformDeltas<RichTextAttributes>, CollaborateError>(TransformDeltas {
                         client_prime,
                         server_prime,
                     })
@@ -251,19 +225,16 @@ pub(crate) enum EditorCommand {
         ret: Ret<()>,
     },
     ComposeRemoteDelta {
-        revisions: Vec<Revision>,
         client_delta: RichTextDelta,
-        server_delta: RichTextDelta,
-        ret: Ret<Option<Revision>>,
+        ret: Ret<DeltaMD5>,
     },
-    OverrideDelta {
-        revisions: Vec<Revision>,
+    ResetDelta {
         delta: RichTextDelta,
-        ret: Ret<()>,
+        ret: Ret<DeltaMD5>,
     },
-    TransformRevision {
-        revisions: Vec<Revision>,
-        ret: Ret<TransformDeltas>,
+    TransformDelta {
+        delta: RichTextDelta,
+        ret: Ret<TransformDeltas<RichTextAttributes>>,
     },
     Insert {
         index: usize,
@@ -310,8 +281,8 @@ impl std::fmt::Debug for EditorCommand {
         let s = match self {
             EditorCommand::ComposeLocalDelta { .. } => "ComposeLocalDelta",
             EditorCommand::ComposeRemoteDelta { .. } => "ComposeRemoteDelta",
-            EditorCommand::OverrideDelta { .. } => "OverrideDelta",
-            EditorCommand::TransformRevision { .. } => "TransformRevision",
+            EditorCommand::ResetDelta { .. } => "ResetDelta",
+            EditorCommand::TransformDelta { .. } => "TransformDelta",
             EditorCommand::Insert { .. } => "Insert",
             EditorCommand::Delete { .. } => "Delete",
             EditorCommand::Format { .. } => "Format",
@@ -325,9 +296,4 @@ impl std::fmt::Debug for EditorCommand {
         };
         f.write_str(s)
     }
-}
-
-pub(crate) struct TransformDeltas {
-    pub client_prime: RichTextDelta,
-    pub server_prime: Option<RichTextDelta>,
 }

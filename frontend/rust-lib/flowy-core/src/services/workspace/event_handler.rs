@@ -52,15 +52,19 @@ pub(crate) async fn read_workspaces_handler(
     let workspace_controller = folder.workspace_controller.clone();
 
     let trash_controller = folder.trash_controller.clone();
-    let workspaces = folder.persistence.begin_transaction(|transaction| {
-        let mut workspaces =
-            workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, &transaction)?;
-        for workspace in workspaces.iter_mut() {
-            let apps = read_local_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?.into_inner();
-            workspace.apps.items = apps;
-        }
-        Ok(workspaces)
-    })?;
+    let workspaces = folder
+        .persistence
+        .begin_transaction(|transaction| {
+            let mut workspaces =
+                workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, &transaction)?;
+            for workspace in workspaces.iter_mut() {
+                let apps =
+                    read_local_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?.into_inner();
+                workspace.apps.items = apps;
+            }
+            Ok(workspaces)
+        })
+        .await?;
     let _ = read_workspaces_on_server(folder, user_id, params);
     data_result(workspaces)
 }
@@ -75,13 +79,16 @@ pub async fn read_cur_workspace_handler(
         workspace_id: Some(workspace_id.clone()),
     };
 
-    let workspace = folder.persistence.begin_transaction(|transaction| {
-        folder
-            .workspace_controller
-            .read_local_workspace(workspace_id, &user_id, &transaction)
-    })?;
+    let workspace = folder
+        .persistence
+        .begin_transaction(|transaction| {
+            folder
+                .workspace_controller
+                .read_local_workspace(workspace_id, &user_id, &transaction)
+        })
+        .await?;
 
-    let latest_view: Option<View> = folder.view_controller.latest_visit_view().unwrap_or(None);
+    let latest_view: Option<View> = folder.view_controller.latest_visit_view().await.unwrap_or(None);
     let setting = CurrentWorkspaceSetting { workspace, latest_view };
     let _ = read_workspaces_on_server(folder, user_id, params);
     data_result(setting)
@@ -98,31 +105,33 @@ fn read_workspaces_on_server(
 
     tokio::spawn(async move {
         let workspaces = server.read_workspace(&token, params).await?;
-        let _ = persistence.begin_transaction(|transaction| {
-            tracing::debug!("Save {} workspace", workspaces.len());
-            for workspace in &workspaces.items {
-                let m_workspace = workspace.clone();
-                let apps = m_workspace.apps.clone().into_inner();
-                let _ = transaction.create_workspace(&user_id, m_workspace)?;
-                tracing::debug!("Save {} apps", apps.len());
-                for app in apps {
-                    let views = app.belongings.clone().into_inner();
-                    match transaction.create_app(app) {
-                        Ok(_) => {},
-                        Err(e) => log::error!("create app failed: {:?}", e),
-                    }
-
-                    tracing::debug!("Save {} views", views.len());
-                    for view in views {
-                        match transaction.create_view(view) {
+        let _ = persistence
+            .begin_transaction(|transaction| {
+                tracing::debug!("Save {} workspace", workspaces.len());
+                for workspace in &workspaces.items {
+                    let m_workspace = workspace.clone();
+                    let apps = m_workspace.apps.clone().into_inner();
+                    let _ = transaction.create_workspace(&user_id, m_workspace)?;
+                    tracing::debug!("Save {} apps", apps.len());
+                    for app in apps {
+                        let views = app.belongings.clone().into_inner();
+                        match transaction.create_app(app) {
                             Ok(_) => {},
-                            Err(e) => log::error!("create view failed: {:?}", e),
+                            Err(e) => log::error!("create app failed: {:?}", e),
+                        }
+
+                        tracing::debug!("Save {} views", views.len());
+                        for view in views {
+                            match transaction.create_view(view) {
+                                Ok(_) => {},
+                                Err(e) => log::error!("create view failed: {:?}", e),
+                            }
                         }
                     }
                 }
-            }
-            Ok(())
-        })?;
+                Ok(())
+            })
+            .await?;
 
         send_dart_notification(&token, WorkspaceNotification::WorkspaceListUpdated)
             .payload(workspaces)

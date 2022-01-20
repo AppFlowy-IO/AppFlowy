@@ -1,19 +1,21 @@
+use crate::{ResolverRevisionSink, RevisionManager};
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    revision::{RevId, RevisionRange},
+    revision::{RevId, Revision, RevisionRange},
     ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use futures_util::stream::StreamExt;
-use lib_infra::future::FutureResult;
+use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::WSConnectState;
-use std::{convert::TryFrom, sync::Arc};
+use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
 use tokio::{
     sync::{
         broadcast,
         mpsc,
         mpsc::{Receiver, Sender},
+        RwLock,
     },
     task::spawn_blocking,
     time::{interval, Duration},
@@ -34,14 +36,14 @@ pub trait RevisionWSSinkDataProvider: Send + Sync {
 }
 
 pub type WSStateReceiver = tokio::sync::broadcast::Receiver<WSConnectState>;
-pub trait RevisionWebSocket: Send + Sync {
+pub trait RevisionWebSocket: Send + Sync + 'static {
     fn send(&self, data: ClientRevisionWSData) -> Result<(), FlowyError>;
     fn subscribe_state_changed(&self) -> WSStateReceiver;
 }
 
 pub struct RevisionWebSocketManager {
     pub object_id: String,
-    data_provider: Arc<dyn RevisionWSSinkDataProvider>,
+    sink_provider: Arc<dyn RevisionWSSinkDataProvider>,
     stream_consumer: Arc<dyn RevisionWSSteamConsumer>,
     web_socket: Arc<dyn RevisionWebSocket>,
     pub ws_passthrough_tx: Sender<ServerRevisionWSData>,
@@ -54,7 +56,7 @@ impl RevisionWebSocketManager {
     pub fn new(
         object_id: &str,
         web_socket: Arc<dyn RevisionWebSocket>,
-        data_provider: Arc<dyn RevisionWSSinkDataProvider>,
+        sink_provider: Arc<dyn RevisionWSSinkDataProvider>,
         stream_consumer: Arc<dyn RevisionWSSteamConsumer>,
         ping_duration: Duration,
     ) -> Self {
@@ -64,7 +66,7 @@ impl RevisionWebSocketManager {
         let (state_passthrough_tx, _) = broadcast::channel(2);
         let mut manager = RevisionWebSocketManager {
             object_id,
-            data_provider,
+            sink_provider,
             stream_consumer,
             web_socket,
             ws_passthrough_tx,
@@ -80,7 +82,7 @@ impl RevisionWebSocketManager {
         let ws_msg_rx = self.ws_passthrough_rx.take().expect("Only take once");
         let sink = RevisionWSSink::new(
             &self.object_id,
-            self.data_provider.clone(),
+            self.sink_provider.clone(),
             self.web_socket.clone(),
             self.stop_sync_tx.subscribe(),
             ping_duration,
@@ -172,10 +174,7 @@ impl RevisionWSStream {
 
     async fn handle_message(&self, msg: ServerRevisionWSData) -> FlowyResult<()> {
         let ServerRevisionWSData { object_id: _, ty, data } = msg;
-        let bytes = spawn_blocking(move || Bytes::from(data))
-            .await
-            .map_err(internal_error)?;
-
+        let bytes = Bytes::from(data);
         tracing::trace!("[RevisionWSStream]: new message: {:?}", ty);
         match ty {
             ServerRevisionWSDataType::ServerPushRev => {
@@ -278,5 +277,112 @@ async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
     let mut interval = interval(duration);
     while sender.send(()).await.is_ok() {
         interval.tick().await;
+    }
+}
+
+#[derive(Clone)]
+enum Source {
+    Custom,
+    Revision,
+}
+
+#[derive(Clone)]
+pub struct CompositeWSSinkDataProvider {
+    object_id: String,
+    container: Arc<RwLock<VecDeque<ClientRevisionWSData>>>,
+    rev_manager: Arc<RevisionManager>,
+    source: Arc<RwLock<Source>>,
+}
+
+impl CompositeWSSinkDataProvider {
+    pub fn new(object_id: &str, rev_manager: Arc<RevisionManager>) -> Self {
+        CompositeWSSinkDataProvider {
+            object_id: object_id.to_owned(),
+            container: Arc::new(RwLock::new(VecDeque::new())),
+            rev_manager,
+            source: Arc::new(RwLock::new(Source::Custom)),
+        }
+    }
+
+    pub async fn push_data(&self, data: ClientRevisionWSData) { self.container.write().await.push_back(data); }
+
+    pub async fn next(&self) -> FlowyResult<Option<ClientRevisionWSData>> {
+        let source = self.source.read().await.clone();
+        let data = match source {
+            Source::Custom => match self.container.read().await.front() {
+                None => {
+                    *self.source.write().await = Source::Revision;
+                    Ok(None)
+                },
+                Some(data) => Ok(Some(data.clone())),
+            },
+            Source::Revision => {
+                if !self.container.read().await.is_empty() {
+                    *self.source.write().await = Source::Custom;
+                    return Ok(None);
+                }
+
+                match self.rev_manager.next_sync_revision().await? {
+                    Some(rev) => Ok(Some(ClientRevisionWSData::from_revisions(&self.object_id, vec![rev]))),
+                    None => Ok(Some(ClientRevisionWSData::ping(
+                        &self.object_id,
+                        self.rev_manager.rev_id(),
+                    ))),
+                }
+            },
+        };
+
+        if let Ok(Some(data)) = &data {
+            tracing::trace!("[CompositeWSSinkDataProvider]: {}:{:?}", data.object_id, data.ty);
+        }
+
+        data
+    }
+
+    pub async fn ack_data(&self, id: String, _ty: ServerRevisionWSDataType) -> FlowyResult<()> {
+        let source = self.source.read().await.clone();
+        match source {
+            Source::Custom => {
+                let should_pop = match self.container.read().await.front() {
+                    None => false,
+                    Some(val) => {
+                        let expected_id = val.id();
+                        if expected_id == id {
+                            true
+                        } else {
+                            tracing::error!("The front element's {} is not equal to the {}", expected_id, id);
+                            false
+                        }
+                    },
+                };
+                if should_pop {
+                    let _ = self.container.write().await.pop_front();
+                }
+                Ok(())
+            },
+            Source::Revision => {
+                let rev_id = id.parse::<i64>().map_err(|e| {
+                    FlowyError::internal().context(format!("Parse {} rev_id from {} failed. {}", self.object_id, id, e))
+                })?;
+                let _ = self.rev_manager.ack_revision(rev_id).await?;
+                Ok::<(), FlowyError>(())
+            },
+        }
+    }
+}
+
+impl ResolverRevisionSink for Arc<CompositeWSSinkDataProvider> {
+    fn send(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), FlowyError> {
+        let sink = self.clone();
+        Box::pin(async move {
+            sink.push_data(ClientRevisionWSData::from_revisions(&sink.object_id, revisions))
+                .await;
+            Ok(())
+        })
+    }
+
+    fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
+        let sink = self.clone();
+        Box::pin(async move { sink.ack_data(rev_id, ty).await })
     }
 }

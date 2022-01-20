@@ -26,7 +26,8 @@ pub(crate) async fn delete_app_handler(
 ) -> Result<(), FlowyError> {
     let params: AppId = data.into_inner().try_into()?;
     let trash = app_controller
-        .read_local_apps(vec![params.app_id])?
+        .read_local_apps(vec![params.app_id])
+        .await?
         .into_iter()
         .map(|app| app.into())
         .collect::<Vec<Trash>>();

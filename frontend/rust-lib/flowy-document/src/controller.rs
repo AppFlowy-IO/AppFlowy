@@ -97,12 +97,17 @@ impl DocumentController {
     }
 
     pub async fn did_receive_ws_data(&self, data: Bytes) {
-        let data: ServerRevisionWSData = data.try_into().unwrap();
-        match self.ws_receivers.get(&data.object_id) {
-            None => tracing::error!("Can't find any source handler for {:?}", data.object_id),
-            Some(handler) => match handler.receive_ws_data(data).await {
-                Ok(_) => {},
-                Err(e) => tracing::error!("{}", e),
+        let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
+        match result {
+            Ok(data) => match self.ws_receivers.get(&data.object_id) {
+                None => tracing::error!("Can't find any source handler for {:?}", data.object_id),
+                Some(handler) => match handler.receive_ws_data(data).await {
+                    Ok(_) => {},
+                    Err(e) => tracing::error!("{}", e),
+                },
+            },
+            Err(e) => {
+                tracing::error!("Document ws data parser failed: {:?}", e);
             },
         }
     }

@@ -8,17 +8,10 @@ use crate::{
     },
     errors::FlowyError,
     event::WorkspaceEvent,
-    services::{
-        app::event_handler::*,
-        persistence::FolderPersistence,
-        trash::event_handler::*,
-        view::event_handler::*,
-        workspace::event_handler::*,
-    },
+    services::{app::event_handler::*, trash::event_handler::*, view::event_handler::*, workspace::event_handler::*},
 };
 use flowy_database::DBConnection;
-use flowy_document::context::DocumentContext;
-use flowy_sync::RevisionWebSocket;
+
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use lib_sqlite::ConnectionPool;
@@ -39,23 +32,6 @@ pub trait WorkspaceDatabase: Send + Sync {
         let conn = pool.get().map_err(|e| FlowyError::internal().context(e))?;
         Ok(conn)
     }
-}
-
-pub fn init_folder(
-    user: Arc<dyn WorkspaceUser>,
-    database: Arc<dyn WorkspaceDatabase>,
-    flowy_document: Arc<DocumentContext>,
-    cloud_service: Arc<dyn FolderCouldServiceV1>,
-    ws_sender: Arc<dyn RevisionWebSocket>,
-) -> Arc<FolderManager> {
-    let persistence = Arc::new(FolderPersistence::new(user.clone(), database.clone()));
-    Arc::new(FolderManager::new(
-        user,
-        cloud_service,
-        persistence,
-        flowy_document,
-        ws_sender,
-    ))
 }
 
 pub fn create(folder: Arc<FolderManager>) -> Module {

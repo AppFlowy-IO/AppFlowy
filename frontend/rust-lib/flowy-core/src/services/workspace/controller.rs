@@ -41,10 +41,13 @@ impl WorkspaceController {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
-        let workspaces = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.create_workspace(&user_id, workspace.clone())?;
-            transaction.read_workspaces(&user_id, None)
-        })?;
+        let workspaces = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.create_workspace(&user_id, workspace.clone())?;
+                transaction.read_workspaces(&user_id, None)
+            })
+            .await?;
         let repeated_workspace = RepeatedWorkspace { items: workspaces };
         send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
@@ -57,11 +60,14 @@ impl WorkspaceController {
     pub(crate) async fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), FlowyError> {
         let changeset = WorkspaceChangeset::new(params.clone());
         let workspace_id = changeset.id.clone();
-        let workspace = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.update_workspace(changeset)?;
-            let user_id = self.user.user_id()?;
-            self.read_local_workspace(workspace_id.clone(), &user_id, &transaction)
-        })?;
+        let workspace = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.update_workspace(changeset)?;
+                let user_id = self.user.user_id()?;
+                self.read_local_workspace(workspace_id.clone(), &user_id, &transaction)
+            })
+            .await?;
 
         send_dart_notification(&workspace_id, WorkspaceNotification::WorkspaceUpdated)
             .payload(workspace)
@@ -75,10 +81,13 @@ impl WorkspaceController {
     pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), FlowyError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
-        let repeated_workspace = self.persistence.begin_transaction(|transaction| {
-            let _ = transaction.delete_workspace(workspace_id)?;
-            self.read_local_workspaces(None, &user_id, &transaction)
-        })?;
+        let repeated_workspace = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.delete_workspace(workspace_id)?;
+                self.read_local_workspaces(None, &user_id, &transaction)
+            })
+            .await?;
         send_dart_notification(&token, WorkspaceNotification::UserDeleteWorkspace)
             .payload(repeated_workspace)
             .send();
@@ -91,7 +100,8 @@ impl WorkspaceController {
         if let Some(workspace_id) = params.workspace_id {
             let workspace = self
                 .persistence
-                .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))?;
+                .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
+                .await?;
             set_current_workspace(&workspace.id);
             Ok(workspace)
         } else {
@@ -101,9 +111,12 @@ impl WorkspaceController {
 
     pub(crate) async fn read_current_workspace_apps(&self) -> Result<RepeatedApp, FlowyError> {
         let workspace_id = get_current_workspace()?;
-        let repeated_app = self.persistence.begin_transaction(|transaction| {
-            read_local_workspace_apps(&workspace_id, self.trash_controller.clone(), &transaction)
-        })?;
+        let repeated_app = self
+            .persistence
+            .begin_transaction(|transaction| {
+                read_local_workspace_apps(&workspace_id, self.trash_controller.clone(), &transaction)
+            })
+            .await?;
         // TODO: read from server
         Ok(repeated_app)
     }
