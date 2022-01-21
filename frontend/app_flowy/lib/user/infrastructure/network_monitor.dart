@@ -41,6 +41,8 @@ class NetworkMonitor {
           return NetworkType.Cell;
         case ConnectivityResult.none:
           return NetworkType.UnknownNetworkType;
+        case ConnectivityResult.bluetooth:
+          return NetworkType.UnknownNetworkType;
       }
     }();
     Log.info("Network type: $networkType");

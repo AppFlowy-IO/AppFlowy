@@ -175,14 +175,28 @@ script = [
 script_runner = "@shell"
 
 [tasks.generate_language_files]
+script_runner = "@shell"
 script = [
-  """
-  cd app_flowy/ 
+  '''
+  cd app_flowy
   flutter clean
   flutter pub get
   flutter pub run easy_localization:generate -S assets/translations/
   flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  """,
+  """
 ]
-script_runner = "@shell"
+
+
+[tasks.generate_language_files.windows]
+script_runner = "@duckscript"
+script = [
+  '''
+  cd app_flowy
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  exec cmd.exe /c flutter pub run easy_localization:generate -S assets/translations/
+  exec cmd.exe /c flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
+  '''
+]
+
 
