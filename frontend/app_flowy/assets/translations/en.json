@@ -90,7 +90,7 @@
     "inlineCode": "Inline Code",
     "quote": "Quote Block"
   },
-  "tooltip":{
+  "tooltip": {
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode"
   },
@@ -126,6 +126,17 @@
       "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
       "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
       "instruction4": "Press the button below when you've completed signup:"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "menu": {
+      "appearance": "Appearance",
+      "language": "Language"
+    },
+    "appearance": {
+      "lightLabel": "Light Mode",
+      "darkLabel": "Dark Mode"
     }
   }
 }
