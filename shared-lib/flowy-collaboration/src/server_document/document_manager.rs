@@ -1,9 +1,10 @@
 use crate::{
-    entities::{doc::DocumentInfo, ws_data::ServerRevisionWSDataBuilder},
+    entities::{document_info::DocumentInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::document_pad::ServerDocument,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
+    util::rev_id_from_str,
 };
 use async_stream::stream;
 use dashmap::DashMap;
@@ -16,8 +17,6 @@ use tokio::{
     task::spawn_blocking,
 };
 
-type RichTextRevisionSynchronizer = RevisionSynchronizer<RichTextAttributes>;
-
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
     fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
 
@@ -25,15 +24,15 @@ pub trait DocumentCloudPersistence: Send + Sync + Debug {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<DocumentInfo, CollaborateError>;
+    ) -> BoxResultFuture<Option<DocumentInfo>, CollaborateError>;
 
-    fn read_revisions(
+    fn read_document_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+    fn save_document_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
 
     fn reset_document(
         &self,
@@ -42,15 +41,37 @@ pub trait DocumentCloudPersistence: Send + Sync + Debug {
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
+impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
+    fn read_revisions(
+        &self,
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+        (**self).read_document_revisions(object_id, rev_ids)
+    }
+
+    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+        (**self).save_document_revisions(repeated_revision)
+    }
+
+    fn reset_object(
+        &self,
+        object_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError> {
+        (**self).reset_document(object_id, repeated_revision)
+    }
+}
+
 pub struct ServerDocumentManager {
-    open_doc_map: Arc<RwLock<HashMap<String, Arc<OpenDocHandle>>>>,
+    document_handlers: Arc<RwLock<HashMap<String, Arc<OpenDocumentHandler>>>>,
     persistence: Arc<dyn DocumentCloudPersistence>,
 }
 
 impl ServerDocumentManager {
     pub fn new(persistence: Arc<dyn DocumentCloudPersistence>) -> Self {
         Self {
-            open_doc_map: Arc::new(RwLock::new(HashMap::new())),
+            document_handlers: Arc::new(RwLock::new(HashMap::new())),
             persistence,
         }
     }
@@ -68,7 +89,7 @@ impl ServerDocumentManager {
         let result = match self.get_document_handler(&object_id).await {
             None => {
                 let _ = self.create_document(&object_id, repeated_revision).await.map_err(|e| {
-                    CollaborateError::internal().context(format!("Server crate document failed: {}", e))
+                    CollaborateError::internal().context(format!("Server create document failed: {}", e))
                 })?;
                 Ok(())
             },
@@ -123,12 +144,12 @@ impl ServerDocumentManager {
         }
     }
 
-    async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
-        if let Some(handler) = self.open_doc_map.read().await.get(doc_id).cloned() {
+    async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocumentHandler>> {
+        if let Some(handler) = self.document_handlers.read().await.get(doc_id).cloned() {
             return Some(handler);
         }
 
-        let mut write_guard = self.open_doc_map.write().await;
+        let mut write_guard = self.document_handlers.write().await;
         match self.persistence.read_document(doc_id).await {
             Ok(doc) => {
                 let handler = self.create_document_handler(doc).await.map_err(internal_error).unwrap();
@@ -145,21 +166,25 @@ impl ServerDocumentManager {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> Result<Arc<OpenDocHandle>, CollaborateError> {
-        let doc = self.persistence.create_document(doc_id, repeated_revision).await?;
-        let handler = self.create_document_handler(doc).await?;
-        self.open_doc_map
-            .write()
-            .await
-            .insert(doc_id.to_owned(), handler.clone());
-        Ok(handler)
+    ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
+        match self.persistence.create_document(doc_id, repeated_revision).await? {
+            None => Err(CollaborateError::internal().context("Create document info from revisions failed")),
+            Some(doc) => {
+                let handler = self.create_document_handler(doc).await?;
+                self.document_handlers
+                    .write()
+                    .await
+                    .insert(doc_id.to_owned(), handler.clone());
+                Ok(handler)
+            },
+        }
     }
 
-    async fn create_document_handler(&self, doc: DocumentInfo) -> Result<Arc<OpenDocHandle>, CollaborateError> {
+    async fn create_document_handler(&self, doc: DocumentInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
-        let handle = spawn_blocking(|| OpenDocHandle::new(doc, persistence))
+        let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
-            .map_err(|e| CollaborateError::internal().context(format!("Create open doc handler failed: {}", e)))?;
+            .map_err(|e| CollaborateError::internal().context(format!("Create document handler failed: {}", e)))?;
         Ok(Arc::new(handle?))
     }
 }
@@ -170,28 +195,35 @@ impl std::ops::Drop for ServerDocumentManager {
     }
 }
 
-struct OpenDocHandle {
+type DocumentRevisionSynchronizer = RevisionSynchronizer<RichTextAttributes>;
+
+struct OpenDocumentHandler {
     doc_id: String,
     sender: mpsc::Sender<DocumentCommand>,
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
 
-impl OpenDocHandle {
+impl OpenDocumentHandler {
     fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
-        let (sender, receiver) = mpsc::channel(100);
+        let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
         let delta = RichTextDelta::from_bytes(&doc.text)?;
         let sync_object = ServerDocument::from_delta(&doc_id, delta);
-        let synchronizer = Arc::new(RichTextRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
+        let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 
-        let queue = DocumentCommandQueue::new(&doc.doc_id, receiver, synchronizer)?;
+        let queue = DocumentCommandRunner::new(&doc.doc_id, receiver, synchronizer);
         tokio::task::spawn(queue.run());
         Ok(Self { doc_id, sender, users })
     }
 
-    #[tracing::instrument(level = "debug", skip(self, user, repeated_revision), err)]
+    #[tracing::instrument(
+        name = "server_document_apply_revision",
+        level = "trace",
+        skip(self, user, repeated_revision),
+        err
+    )]
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
@@ -235,31 +267,9 @@ impl OpenDocHandle {
     }
 }
 
-impl std::ops::Drop for OpenDocHandle {
+impl std::ops::Drop for OpenDocumentHandler {
     fn drop(&mut self) {
         tracing::trace!("{} OpenDocHandle was dropped", self.doc_id);
-    }
-}
-
-impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
-    fn read_revisions(
-        &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        (**self).read_revisions(object_id, rev_ids)
-    }
-
-    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
-        (**self).save_revisions(repeated_revision)
-    }
-
-    fn reset_object(
-        &self,
-        object_id: &str,
-        repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<(), CollaborateError> {
-        (**self).reset_document(object_id, repeated_revision)
     }
 }
 
@@ -281,30 +291,30 @@ enum DocumentCommand {
     },
 }
 
-struct DocumentCommandQueue {
+struct DocumentCommandRunner {
     pub doc_id: String,
     receiver: Option<mpsc::Receiver<DocumentCommand>>,
-    synchronizer: Arc<RichTextRevisionSynchronizer>,
+    synchronizer: Arc<DocumentRevisionSynchronizer>,
 }
 
-impl DocumentCommandQueue {
+impl DocumentCommandRunner {
     fn new(
         doc_id: &str,
         receiver: mpsc::Receiver<DocumentCommand>,
-        synchronizer: Arc<RichTextRevisionSynchronizer>,
-    ) -> Result<Self, CollaborateError> {
-        Ok(Self {
+        synchronizer: Arc<DocumentRevisionSynchronizer>,
+    ) -> Self {
+        Self {
             doc_id: doc_id.to_owned(),
             receiver: Some(receiver),
             synchronizer,
-        })
+        }
     }
 
     async fn run(mut self) {
         let mut receiver = self
             .receiver
             .take()
-            .expect("DocActor's receiver should only take one time");
+            .expect("DocumentCommandRunner's receiver should only take one time");
 
         let stream = stream! {
             loop {
@@ -343,16 +353,8 @@ impl DocumentCommandQueue {
     }
 }
 
-impl std::ops::Drop for DocumentCommandQueue {
+impl std::ops::Drop for DocumentCommandRunner {
     fn drop(&mut self) {
         tracing::trace!("{} DocumentCommandQueue was dropped", self.doc_id);
     }
-}
-
-fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
-    let rev_id = s
-        .to_owned()
-        .parse::<i64>()
-        .map_err(|e| CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", s, e)))?;
-    Ok(rev_id)
 }

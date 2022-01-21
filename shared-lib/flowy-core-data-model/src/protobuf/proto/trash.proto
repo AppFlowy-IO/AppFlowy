@@ -1,13 +1,5 @@
 syntax = "proto3";
 
-message RepeatedTrashId {
-    repeated TrashId items = 1;
-    bool delete_all = 2;
-}
-message TrashId {
-    string id = 1;
-    TrashType ty = 2;
-}
 message Trash {
     string id = 1;
     string name = 2;
@@ -17,6 +9,14 @@ message Trash {
 }
 message RepeatedTrash {
     repeated Trash items = 1;
+}
+message RepeatedTrashId {
+    repeated TrashId items = 1;
+    bool delete_all = 2;
+}
+message TrashId {
+    string id = 1;
+    TrashType ty = 2;
 }
 enum TrashType {
     Unknown = 0;

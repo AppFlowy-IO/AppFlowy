@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use flowy_collaboration::entities::doc::DocumentInfo;
+use flowy_collaboration::entities::document_info::DocumentInfo;
 use flowy_core::{
     entities::{
         app::*,

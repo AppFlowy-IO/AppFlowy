@@ -15,7 +15,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_collaboration::entities::doc::DocumentDelta;
+use flowy_collaboration::entities::document_info::DocumentDelta;
 use flowy_core_data_model::entities::share::{ExportData, ExportParams, ExportRequest};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};

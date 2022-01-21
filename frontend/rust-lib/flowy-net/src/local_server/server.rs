@@ -4,12 +4,13 @@ use bytes::Bytes;
 use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::{
-        doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
+        document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
     protobuf::ClientRevisionWSData as ClientRevisionWSDataPB,
     server_document::ServerDocumentManager,
+    server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use flowy_core::module::{FolderCouldServiceV1, FolderCouldServiceV2};
@@ -26,6 +27,7 @@ use tokio::sync::{broadcast, mpsc, mpsc::UnboundedSender};
 
 pub struct LocalServer {
     doc_manager: Arc<ServerDocumentManager>,
+    folder_manager: Arc<ServerFolderManager>,
     stop_tx: RwLock<Option<mpsc::Sender<()>>>,
     client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
     client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
@@ -37,11 +39,13 @@ impl LocalServer {
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
         let persistence = Arc::new(LocalDocumentCloudPersistence::default());
-        let doc_manager = Arc::new(ServerDocumentManager::new(persistence));
+        let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
+        let folder_manager = Arc::new(ServerFolderManager::new(persistence));
         let stop_tx = RwLock::new(None);
 
         LocalServer {
             doc_manager,
+            folder_manager,
             stop_tx,
             client_ws_sender,
             client_ws_receiver,
@@ -59,6 +63,7 @@ impl LocalServer {
         *self.stop_tx.write() = Some(stop_tx);
         let runner = LocalWebSocketRunner {
             doc_manager: self.doc_manager.clone(),
+            folder_manager: self.folder_manager.clone(),
             stop_rx: Some(stop_rx),
             client_ws_sender: self.client_ws_sender.clone(),
             client_ws_receiver: Some(self.client_ws_receiver.subscribe()),
@@ -69,6 +74,7 @@ impl LocalServer {
 
 struct LocalWebSocketRunner {
     doc_manager: Arc<ServerDocumentManager>,
+    folder_manager: Arc<ServerFolderManager>,
     stop_rx: Option<mpsc::Receiver<()>>,
     client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
     client_ws_receiver: Option<broadcast::Receiver<WebSocketRawMessage>>,
@@ -107,11 +113,54 @@ impl LocalWebSocketRunner {
     async fn handle_message(&self, message: WebSocketRawMessage) -> Result<(), FlowyError> {
         let bytes = Bytes::from(message.data);
         let client_data = ClientRevisionWSData::try_from(bytes).map_err(internal_error)?;
-        let _ = self.handle_client_data(client_data, "".to_owned()).await?;
+        match message.module {
+            WSModule::Doc => {
+                let _ = self.handle_document_client_data(client_data, "".to_owned()).await?;
+                Ok(())
+            },
+            WSModule::Folder => {
+                let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
+                Ok(())
+            },
+        }
+    }
+
+    pub async fn handle_folder_client_data(
+        &self,
+        client_data: ClientRevisionWSData,
+        user_id: String,
+    ) -> Result<(), CollaborateError> {
+        tracing::trace!(
+            "[LocalFolderServer] receive: {}:{}-{:?} ",
+            client_data.object_id,
+            client_data.id(),
+            client_data.ty,
+        );
+        let client_ws_sender = self.client_ws_sender.clone();
+        let user = Arc::new(LocalRevisionUser {
+            user_id,
+            client_ws_sender,
+        });
+        let ty = client_data.ty.clone();
+        let document_client_data: ClientRevisionWSDataPB = client_data.try_into().unwrap();
+        match ty {
+            ClientRevisionWSDataType::ClientPushRev => {
+                let _ = self
+                    .folder_manager
+                    .handle_client_revisions(user, document_client_data)
+                    .await?;
+            },
+            ClientRevisionWSDataType::ClientPing => {
+                let _ = self
+                    .folder_manager
+                    .handle_client_ping(user, document_client_data)
+                    .await?;
+            },
+        }
         Ok(())
     }
 
-    pub async fn handle_client_data(
+    pub async fn handle_document_client_data(
         &self,
         client_data: ClientRevisionWSData,
         user_id: String,

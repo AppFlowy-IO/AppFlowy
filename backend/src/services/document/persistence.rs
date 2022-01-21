@@ -15,7 +15,7 @@ use flowy_collaboration::{
         Revision as RevisionPB,
     },
     server_document::ServerDocumentManager,
-    util::make_doc_from_revisions,
+    util::make_document_info_pb_from_revisions_pb,
 };
 
 use protobuf::Message;
@@ -39,7 +39,7 @@ pub async fn read_document(
 ) -> Result<DocumentInfo, ServerError> {
     let _ = Uuid::parse_str(&params.doc_id).context("Parse document id to uuid failed")?;
     let revisions = kv_store.get_revisions(&params.doc_id, None).await?;
-    match make_doc_from_revisions(&params.doc_id, revisions) {
+    match make_document_info_pb_from_revisions_pb(&params.doc_id, revisions) {
         Ok(Some(document_info)) => Ok(document_info),
         Ok(None) => Err(ServerError::record_not_found().context(format!("{} not exist", params.doc_id))),
         Err(e) => Err(ServerError::internal().context(e)),

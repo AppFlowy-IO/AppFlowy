@@ -93,29 +93,29 @@ pub struct ServerRevisionWSData {
 
 pub struct ServerRevisionWSDataBuilder();
 impl ServerRevisionWSDataBuilder {
-    pub fn build_push_message(doc_id: &str, repeated_revision: RepeatedRevision) -> ServerRevisionWSData {
+    pub fn build_push_message(object_id: &str, repeated_revision: RepeatedRevision) -> ServerRevisionWSData {
         let bytes: Bytes = repeated_revision.try_into().unwrap();
         ServerRevisionWSData {
-            object_id: doc_id.to_string(),
+            object_id: object_id.to_string(),
             ty: ServerRevisionWSDataType::ServerPushRev,
             data: bytes.to_vec(),
         }
     }
 
-    pub fn build_pull_message(doc_id: &str, range: RevisionRange) -> ServerRevisionWSData {
+    pub fn build_pull_message(object_id: &str, range: RevisionRange) -> ServerRevisionWSData {
         let bytes: Bytes = range.try_into().unwrap();
         ServerRevisionWSData {
-            object_id: doc_id.to_string(),
+            object_id: object_id.to_string(),
             ty: ServerRevisionWSDataType::ServerPullRev,
             data: bytes.to_vec(),
         }
     }
 
-    pub fn build_ack_message(doc_id: &str, rev_id: i64) -> ServerRevisionWSData {
+    pub fn build_ack_message(object_id: &str, rev_id: i64) -> ServerRevisionWSData {
         let rev_id: RevId = rev_id.into();
         let bytes: Bytes = rev_id.try_into().unwrap();
         ServerRevisionWSData {
-            object_id: doc_id.to_string(),
+            object_id: object_id.to_string(),
             ty: ServerRevisionWSDataType::ServerAck,
             data: bytes.to_vec(),
         }

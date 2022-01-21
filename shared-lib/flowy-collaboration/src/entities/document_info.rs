@@ -3,7 +3,7 @@ use crate::{
     errors::CollaborateError,
 };
 use flowy_derive::ProtoBuf;
-use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
+use lib_ot::{errors::OTError, rich_text::RichTextDelta};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {
@@ -33,30 +33,6 @@ impl DocumentInfo {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
-    }
-
-    pub fn from_revisions(doc_id: &str, revisions: Vec<Revision>) -> Result<Self, CollaborateError> {
-        let mut document_delta = RichTextDelta::new();
-        let mut base_rev_id = 0;
-        let mut rev_id = 0;
-
-        for revision in revisions {
-            base_rev_id = revision.base_rev_id;
-            rev_id = revision.rev_id;
-            let delta = RichTextDelta::from_bytes(revision.delta_data)
-                .map_err(|e| CollaborateError::internal().context(format!("Parser revision failed. {:?}", e)))?;
-            document_delta = document_delta
-                .compose(&delta)
-                .map_err(|e| CollaborateError::internal().context(format!("Compose delta failed. {:?}", e)))?;
-        }
-        let text = document_delta.to_json();
-
-        Ok(DocumentInfo {
-            doc_id: doc_id.to_string(),
-            text,
-            rev_id,
-            base_rev_id,
-        })
     }
 }
 

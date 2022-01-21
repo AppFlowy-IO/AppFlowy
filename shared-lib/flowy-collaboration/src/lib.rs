@@ -4,6 +4,7 @@ pub mod errors;
 pub mod folder;
 pub mod protobuf;
 pub mod server_document;
+pub mod server_folder;
 pub mod synchronizer;
 pub mod util;
 

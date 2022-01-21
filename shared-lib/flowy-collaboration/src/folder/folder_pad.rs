@@ -1,11 +1,14 @@
 use crate::{
-    entities::revision::{md5, Revision},
+    entities::{
+        folder_info::FolderDelta,
+        revision::{md5, Revision},
+    },
     errors::{CollaborateError, CollaborateResult},
     folder::builder::FolderPadBuilder,
 };
 use dissimilar::*;
 use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainDelta, PlainDeltaBuilder, PlainTextAttributes};
+use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainDeltaBuilder, PlainTextAttributes};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -14,10 +17,10 @@ pub struct FolderPad {
     pub(crate) workspaces: Vec<Arc<Workspace>>,
     pub(crate) trash: Vec<Arc<Trash>>,
     #[serde(skip)]
-    pub(crate) root: PlainDelta,
+    pub(crate) root: FolderDelta,
 }
 
-pub fn default_folder_delta() -> PlainDelta {
+pub fn default_folder_delta() -> FolderDelta {
     PlainDeltaBuilder::new()
         .insert(r#"{"workspaces":[],"trash":[]}"#)
         .build()
@@ -34,7 +37,7 @@ impl std::default::Default for FolderPad {
 }
 
 pub struct FolderChange {
-    pub delta: PlainDelta,
+    pub delta: FolderDelta,
     /// md5: the md5 of the FolderPad's delta after applying the change.
     pub md5: String,
 }
@@ -51,9 +54,25 @@ impl FolderPad {
         FolderPadBuilder::new().build_with_revisions(revisions)
     }
 
-    pub fn from_delta(delta: PlainDelta) -> CollaborateResult<Self> { FolderPadBuilder::new().build_with_delta(delta) }
+    pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> { FolderPadBuilder::new().build_with_delta(delta) }
 
-    pub fn delta(&self) -> &PlainDelta { &self.root }
+    pub fn delta(&self) -> &FolderDelta { &self.root }
+
+    pub fn reset_folder(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
+        let folder = FolderPad::from_delta(delta)?;
+        self.workspaces = folder.workspaces;
+        self.trash = folder.trash;
+        self.root = folder.root;
+
+        Ok(self.md5())
+    }
+
+    pub fn compose_remote_delta(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
+        let composed_delta = self.root.compose(&delta)?;
+        self.reset_folder(composed_delta)
+    }
+
+    pub fn is_empty(&self) -> bool { self.workspaces.is_empty() && self.trash.is_empty() }
 
     pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
         let workspace = Arc::new(workspace);
@@ -374,7 +393,7 @@ fn cal_diff(old: String, new: String) -> Delta<PlainTextAttributes> {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::folder::folder_pad::FolderPad;
+    use crate::{entities::folder_info::FolderDelta, folder::folder_pad::FolderPad};
     use chrono::Utc;
     use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
     use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};
@@ -689,7 +708,7 @@ mod tests {
         );
     }
 
-    fn test_folder() -> (FolderPad, PlainDelta, Workspace) {
+    fn test_folder() -> (FolderPad, FolderDelta, Workspace) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
         let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
@@ -705,7 +724,7 @@ mod tests {
         (folder, delta, workspace)
     }
 
-    fn test_app_folder() -> (FolderPad, PlainDelta, App) {
+    fn test_app_folder() -> (FolderPad, FolderDelta, App) {
         let (mut folder, mut initial_delta, workspace) = test_folder();
         let mut app = App::default();
         app.workspace_id = workspace.id;
@@ -718,7 +737,7 @@ mod tests {
         (folder, initial_delta, app)
     }
 
-    fn test_view_folder() -> (FolderPad, PlainDelta, View) {
+    fn test_view_folder() -> (FolderPad, FolderDelta, View) {
         let (mut folder, mut initial_delta, app) = test_app_folder();
         let mut view = View::default();
         view.belong_to_id = app.id.clone();
@@ -731,7 +750,7 @@ mod tests {
         (folder, initial_delta, view)
     }
 
-    fn test_trash() -> (FolderPad, PlainDelta, Trash) {
+    fn test_trash() -> (FolderPad, FolderDelta, Trash) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
         let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
@@ -747,7 +766,7 @@ mod tests {
         (folder, delta, trash)
     }
 
-    fn make_folder_from_delta(mut initial_delta: PlainDelta, deltas: Vec<PlainDelta>) -> FolderPad {
+    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<PlainDelta>) -> FolderPad {
         for delta in deltas {
             initial_delta = initial_delta.compose(&delta).unwrap();
         }

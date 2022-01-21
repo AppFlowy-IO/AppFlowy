@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::{
-    doc::{DocumentDelta, DocumentId},
+    document_info::{DocumentDelta, DocumentId},
     revision::{md5, RepeatedRevision, Revision},
     ws_data::ServerRevisionWSData,
 };
@@ -100,7 +100,7 @@ impl DocumentController {
         let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
         match result {
             Ok(data) => match self.ws_receivers.get(&data.object_id) {
-                None => tracing::error!("Can't find any source handler for {:?}", data.object_id),
+                None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
                 Some(handler) => match handler.receive_ws_data(data).await {
                     Ok(_) => {},
                     Err(e) => tracing::error!("{}", e),

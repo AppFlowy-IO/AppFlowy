@@ -9,7 +9,7 @@ pub mod errors {
 }
 
 use crate::errors::FlowyError;
-use flowy_collaboration::entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_collaboration::entities::document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use lib_infra::future::FutureResult;
 
 pub trait DocumentCloudService: Send + Sync {

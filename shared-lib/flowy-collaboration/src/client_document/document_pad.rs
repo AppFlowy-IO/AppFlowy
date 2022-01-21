@@ -181,7 +181,10 @@ impl ClientDocument {
         }
     }
 
-    pub fn is_empty<C: InitialDocumentText>(&self) -> bool { self.delta == C::initial_delta() }
+    pub fn is_empty(&self) -> bool {
+        // The document is empty if its text is equal to the initial text.
+        self.delta == NewlineDoc::initial_delta()
+    }
 }
 
 impl ClientDocument {

@@ -5,7 +5,7 @@ use flowy_collaboration::entities::{
     revision::{RevId, Revision, RevisionRange},
     ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
 };
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use futures_util::stream::StreamExt;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::WSConnectState;
@@ -17,16 +17,15 @@ use tokio::{
         mpsc::{Receiver, Sender},
         RwLock,
     },
-    task::spawn_blocking,
     time::{interval, Duration},
 };
 
 // The consumer consumes the messages pushed by the web socket.
 pub trait RevisionWSSteamConsumer: Send + Sync {
-    fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
-    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> FutureResult<(), FlowyError>;
-    fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> FutureResult<(), FlowyError>;
-    fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
+    fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError>;
+    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
+    fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> BoxResultFuture<(), FlowyError>;
+    fn pull_revisions_in_range(&self, range: RevisionRange) -> BoxResultFuture<(), FlowyError>;
 }
 
 // The sink provides the data that will be sent through the web socket to the
@@ -173,9 +172,9 @@ impl RevisionWSStream {
     }
 
     async fn handle_message(&self, msg: ServerRevisionWSData) -> FlowyResult<()> {
-        let ServerRevisionWSData { object_id: _, ty, data } = msg;
+        let ServerRevisionWSData { object_id, ty, data } = msg;
         let bytes = Bytes::from(data);
-        tracing::trace!("[RevisionWSStream]: new message: {:?}", ty);
+        tracing::trace!("[RevisionWSStream]: new message: {}:{:?}", object_id, ty);
         match ty {
             ServerRevisionWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;

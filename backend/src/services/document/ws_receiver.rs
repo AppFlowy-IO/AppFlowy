@@ -10,7 +10,7 @@ use crate::{
 };
 use backend_service::errors::ServerError;
 use flowy_collaboration::{
-    entities::doc::DocumentInfo,
+    entities::document_info::DocumentInfo,
     errors::CollaborateError,
     protobuf::{
         CreateDocParams as CreateDocParamsPB,
@@ -19,7 +19,7 @@ use flowy_collaboration::{
         Revision as RevisionPB,
     },
     server_document::{DocumentCloudPersistence, ServerDocumentManager},
-    util::repeated_revision_from_repeated_revision_pb,
+    util::make_document_info_from_revisions_pb,
 };
 use lib_infra::future::BoxResultFuture;
 use std::{
@@ -103,12 +103,11 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<DocumentInfo, CollaborateError> {
+    ) -> BoxResultFuture<Option<DocumentInfo>, CollaborateError> {
         let kv_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
-            let revisions = repeated_revision_from_repeated_revision_pb(repeated_revision.clone())?.into_inner();
-            let doc = DocumentInfo::from_revisions(&doc_id, revisions)?;
+            let document_info = make_document_info_from_revisions_pb(&doc_id, repeated_revision.clone())?;
             let doc_id = doc_id.to_owned();
             let mut params = CreateDocParamsPB::new();
             params.set_id(doc_id);
@@ -116,11 +115,11 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
             let _ = create_document(&kv_store, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
-            Ok(doc)
+            Ok(document_info)
         })
     }
 
-    fn read_revisions(
+    fn read_document_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
@@ -135,7 +134,10 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 
-    fn save_revisions(&self, mut repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+    fn save_document_revisions(
+        &self,
+        mut repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError> {
         let kv_store = self.0.clone();
         let f = || async move {
             let revisions = repeated_revision.take_items().into();

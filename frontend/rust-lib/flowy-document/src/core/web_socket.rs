@@ -12,18 +12,7 @@ use flowy_collaboration::{
     errors::CollaborateResult,
 };
 use flowy_error::{internal_error, FlowyError};
-use flowy_sync::{
-    CompositeWSSinkDataProvider,
-    DeltaMD5,
-    ResolverTarget,
-    RevisionConflictResolver,
-    RevisionManager,
-    RevisionWSSinkDataProvider,
-    RevisionWSSteamConsumer,
-    RevisionWebSocket,
-    RevisionWebSocketManager,
-    TransformDeltas,
-};
+use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::{core::Delta, rich_text::RichTextAttributes};
 use lib_ws::WSConnectState;
@@ -45,15 +34,14 @@ pub(crate) async fn make_document_ws_manager(
     web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(&doc_id, rev_manager.clone()));
-    let resolver_target = Arc::new(DocumentRevisionResolver { edit_cmd_tx });
+    let resolve_target = Arc::new(DocumentRevisionResolveTarget { edit_cmd_tx });
     let resolver = RevisionConflictResolver::<RichTextAttributes>::new(
         &user_id,
-        resolver_target,
+        resolve_target,
         Arc::new(composite_sink_provider.clone()),
-        rev_manager.clone(),
+        rev_manager,
     );
     let ws_stream_consumer = Arc::new(DocumentWSSteamConsumerAdapter {
-        object_id: doc_id.clone(),
         resolver: Arc::new(resolver),
     });
 
@@ -66,16 +54,11 @@ pub(crate) async fn make_document_ws_manager(
         ws_stream_consumer,
         ping_duration,
     ));
-    listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager);
+    listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state());
     ws_manager
 }
 
-fn listen_document_ws_state(
-    _user_id: &str,
-    _doc_id: &str,
-    mut subscriber: broadcast::Receiver<WSConnectState>,
-    _rev_manager: Arc<RevisionManager>,
-) {
+fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broadcast::Receiver<WSConnectState>) {
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
             match state {
@@ -89,29 +72,28 @@ fn listen_document_ws_state(
 }
 
 pub(crate) struct DocumentWSSteamConsumerAdapter {
-    object_id: String,
     resolver: Arc<RevisionConflictResolver<RichTextAttributes>>,
 }
 
 impl RevisionWSSteamConsumer for DocumentWSSteamConsumerAdapter {
-    fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError> {
+    fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.resolver.clone();
-        FutureResult::new(async move { resolver.receive_bytes(bytes).await })
+        Box::pin(async move { resolver.receive_bytes(bytes).await })
     }
 
-    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> FutureResult<(), FlowyError> {
+    fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.resolver.clone();
-        FutureResult::new(async move { resolver.ack_revision(id, ty).await })
+        Box::pin(async move { resolver.ack_revision(id, ty).await })
     }
 
-    fn receive_new_user_connect(&self, _new_user: NewDocumentUser) -> FutureResult<(), FlowyError> {
+    fn receive_new_user_connect(&self, _new_user: NewDocumentUser) -> BoxResultFuture<(), FlowyError> {
         // Do nothing by now, just a placeholder for future extension.
-        FutureResult::new(async move { Ok(()) })
+        Box::pin(async move { Ok(()) })
     }
 
-    fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError> {
+    fn pull_revisions_in_range(&self, range: RevisionRange) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.resolver.clone();
-        FutureResult::new(async move { resolver.send_revisions(range).await })
+        Box::pin(async move { resolver.send_revisions(range).await })
     }
 }
 
@@ -123,11 +105,11 @@ impl RevisionWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
     }
 }
 
-struct DocumentRevisionResolver {
+struct DocumentRevisionResolveTarget {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ResolverTarget<RichTextAttributes> for DocumentRevisionResolver {
+impl ResolverTarget<RichTextAttributes> for DocumentRevisionResolveTarget {
     fn compose_delta(&self, delta: Delta<RichTextAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {

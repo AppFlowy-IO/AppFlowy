@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: ws.proto
+//  source: ws_data.proto
 //
 // @dart = 2.12
 // ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
@@ -11,9 +11,9 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'revision.pb.dart' as $0;
 
-import 'ws.pbenum.dart';
+import 'ws_data.pbenum.dart';
 
-export 'ws.pbenum.dart';
+export 'ws_data.pbenum.dart';
 
 class ClientRevisionWSData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClientRevisionWSData', createEmptyInstance: create)

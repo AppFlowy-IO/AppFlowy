@@ -14,122 +14,6 @@ import 'trash.pbenum.dart';
 
 export 'trash.pbenum.dart';
 
-class RepeatedTrashId extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedTrashId', createEmptyInstance: create)
-    ..pc<TrashId>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: TrashId.create)
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteAll')
-    ..hasRequiredFields = false
-  ;
-
-  RepeatedTrashId._() : super();
-  factory RepeatedTrashId({
-    $core.Iterable<TrashId>? items,
-    $core.bool? deleteAll,
-  }) {
-    final _result = create();
-    if (items != null) {
-      _result.items.addAll(items);
-    }
-    if (deleteAll != null) {
-      _result.deleteAll = deleteAll;
-    }
-    return _result;
-  }
-  factory RepeatedTrashId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedTrashId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RepeatedTrashId clone() => RepeatedTrashId()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedTrashId copyWith(void Function(RepeatedTrashId) updates) => super.copyWith((message) => updates(message as RepeatedTrashId)) as RepeatedTrashId; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RepeatedTrashId create() => RepeatedTrashId._();
-  RepeatedTrashId createEmptyInstance() => create();
-  static $pb.PbList<RepeatedTrashId> createRepeated() => $pb.PbList<RepeatedTrashId>();
-  @$core.pragma('dart2js:noInline')
-  static RepeatedTrashId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedTrashId>(create);
-  static RepeatedTrashId? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<TrashId> get items => $_getList(0);
-
-  @$pb.TagNumber(2)
-  $core.bool get deleteAll => $_getBF(1);
-  @$pb.TagNumber(2)
-  set deleteAll($core.bool v) { $_setBool(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasDeleteAll() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearDeleteAll() => clearField(2);
-}
-
-class TrashId extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TrashId', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..e<TrashType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: TrashType.Unknown, valueOf: TrashType.valueOf, enumValues: TrashType.values)
-    ..hasRequiredFields = false
-  ;
-
-  TrashId._() : super();
-  factory TrashId({
-    $core.String? id,
-    TrashType? ty,
-  }) {
-    final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (ty != null) {
-      _result.ty = ty;
-    }
-    return _result;
-  }
-  factory TrashId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory TrashId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  TrashId clone() => TrashId()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  TrashId copyWith(void Function(TrashId) updates) => super.copyWith((message) => updates(message as TrashId)) as TrashId; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static TrashId create() => TrashId._();
-  TrashId createEmptyInstance() => create();
-  static $pb.PbList<TrashId> createRepeated() => $pb.PbList<TrashId>();
-  @$core.pragma('dart2js:noInline')
-  static TrashId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrashId>(create);
-  static TrashId? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  TrashType get ty => $_getN(1);
-  @$pb.TagNumber(2)
-  set ty(TrashType v) { setField(2, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasTy() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTy() => clearField(2);
-}
-
 class Trash extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Trash', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
@@ -272,5 +156,121 @@ class RepeatedTrash extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<Trash> get items => $_getList(0);
+}
+
+class RepeatedTrashId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedTrashId', createEmptyInstance: create)
+    ..pc<TrashId>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: TrashId.create)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteAll')
+    ..hasRequiredFields = false
+  ;
+
+  RepeatedTrashId._() : super();
+  factory RepeatedTrashId({
+    $core.Iterable<TrashId>? items,
+    $core.bool? deleteAll,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    if (deleteAll != null) {
+      _result.deleteAll = deleteAll;
+    }
+    return _result;
+  }
+  factory RepeatedTrashId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedTrashId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RepeatedTrashId clone() => RepeatedTrashId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RepeatedTrashId copyWith(void Function(RepeatedTrashId) updates) => super.copyWith((message) => updates(message as RepeatedTrashId)) as RepeatedTrashId; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RepeatedTrashId create() => RepeatedTrashId._();
+  RepeatedTrashId createEmptyInstance() => create();
+  static $pb.PbList<RepeatedTrashId> createRepeated() => $pb.PbList<RepeatedTrashId>();
+  @$core.pragma('dart2js:noInline')
+  static RepeatedTrashId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedTrashId>(create);
+  static RepeatedTrashId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<TrashId> get items => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.bool get deleteAll => $_getBF(1);
+  @$pb.TagNumber(2)
+  set deleteAll($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDeleteAll() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDeleteAll() => clearField(2);
+}
+
+class TrashId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TrashId', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..e<TrashType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: TrashType.Unknown, valueOf: TrashType.valueOf, enumValues: TrashType.values)
+    ..hasRequiredFields = false
+  ;
+
+  TrashId._() : super();
+  factory TrashId({
+    $core.String? id,
+    TrashType? ty,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (ty != null) {
+      _result.ty = ty;
+    }
+    return _result;
+  }
+  factory TrashId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrashId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TrashId clone() => TrashId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TrashId copyWith(void Function(TrashId) updates) => super.copyWith((message) => updates(message as TrashId)) as TrashId; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TrashId create() => TrashId._();
+  TrashId createEmptyInstance() => create();
+  static $pb.PbList<TrashId> createRepeated() => $pb.PbList<TrashId>();
+  @$core.pragma('dart2js:noInline')
+  static TrashId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrashId>(create);
+  static TrashId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  TrashType get ty => $_getN(1);
+  @$pb.TagNumber(2)
+  set ty(TrashType v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTy() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTy() => clearField(2);
 }
 

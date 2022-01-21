@@ -39,7 +39,7 @@ impl FolderEditor {
         });
         let folder_pad = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(cloud).await?));
         let rev_manager = Arc::new(rev_manager);
-        let ws_manager = make_folder_ws_manager(rev_manager.clone(), web_socket, folder_pad.clone()).await;
+        let ws_manager = make_folder_ws_manager(user_id, rev_manager.clone(), web_socket, folder_pad.clone()).await;
 
         let user_id = user_id.to_owned();
         Ok(Self {

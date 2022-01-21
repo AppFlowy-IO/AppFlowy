@@ -3,7 +3,7 @@ use backend_service::{
     request::{HttpRequestBuilder, ResponseMiddleware},
     response::FlowyResponse,
 };
-use flowy_collaboration::entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_collaboration::entities::document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
 use lazy_static::lazy_static;

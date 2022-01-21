@@ -9,7 +9,7 @@ use backend_service::{
 };
 use flowy_collaboration::{
     client_document::default::initial_delta_string,
-    entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
+    entities::document_info::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;
 use flowy_net::http_server::{

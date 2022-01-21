@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    doc::{DocumentDelta, DocumentId},
+    document_info::{DocumentDelta, DocumentId},
     revision::{RepeatedRevision, Revision},
 };
 

@@ -4,7 +4,7 @@ use crate::util::helper::{ViewTest, *};
 use flowy_collaboration::{
     client_document::{ClientDocument, PlainDoc},
     entities::{
-        doc::{CreateDocParams, DocumentId},
+        document_info::{CreateDocParams, DocumentId},
         revision::{md5, RepeatedRevision, Revision},
     },
 };

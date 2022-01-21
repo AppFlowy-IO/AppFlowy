@@ -1,10 +1,9 @@
 use crate::{context::DocumentUser, core::web_socket::EditorCommandReceiver};
 use async_stream::stream;
 use flowy_collaboration::{
-    client_document::{history::UndoResult, ClientDocument, NewlineDoc},
-    entities::revision::{RepeatedRevision, RevId, Revision},
+    client_document::{history::UndoResult, ClientDocument},
+    entities::revision::{RevId, Revision},
     errors::CollaborateError,
-    util::make_delta_from_revisions,
 };
 use flowy_error::FlowyError;
 use flowy_sync::{DeltaMD5, RevisionManager, TransformDeltas};
@@ -91,8 +90,8 @@ impl EditorCommandQueue {
                     let read_guard = self.document.read().await;
                     let mut server_prime: Option<RichTextDelta> = None;
                     let client_prime: RichTextDelta;
-                    // The document is empty if its text is equal to the initial text.
-                    if read_guard.is_empty::<NewlineDoc>() {
+
+                    if read_guard.is_empty() {
                         // Do nothing
                         client_prime = delta;
                     } else {
@@ -189,35 +188,7 @@ impl EditorCommandQueue {
     }
 }
 
-fn make_client_and_server_revision(
-    doc_id: &str,
-    user_id: &str,
-    base_rev_id: i64,
-    rev_id: i64,
-    client_delta: RichTextDelta,
-    server_delta: Option<RichTextDelta>,
-    md5: DocumentMD5,
-) -> (Revision, Option<Revision>) {
-    let client_revision = Revision::new(
-        &doc_id,
-        base_rev_id,
-        rev_id,
-        client_delta.to_bytes(),
-        &user_id,
-        md5.clone(),
-    );
-
-    match server_delta {
-        None => (client_revision, None),
-        Some(server_delta) => {
-            let server_revision = Revision::new(&doc_id, base_rev_id, rev_id, server_delta.to_bytes(), &user_id, md5);
-            (client_revision, Some(server_revision))
-        },
-    }
-}
-
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
-pub(crate) type DocumentMD5 = String;
 
 pub(crate) enum EditorCommand {
     ComposeLocalDelta {

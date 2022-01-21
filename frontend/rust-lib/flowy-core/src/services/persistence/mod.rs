@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 use crate::{
-    module::{WorkspaceDatabase, WorkspaceUser},
+    module::WorkspaceDatabase,
     services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_core_data_model::entities::{

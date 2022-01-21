@@ -6,7 +6,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_collaboration::{
-    entities::{doc::DocumentInfo, revision::Revision},
+    entities::{document_info::DocumentInfo, revision::Revision},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
@@ -184,7 +184,7 @@ fn spawn_edit_queue(
 #[cfg(feature = "flowy_unit_test")]
 impl ClientDocumentEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<crate::core::DocumentMD5>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditorCommand::ReadDocumentAsJson { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let s = rx.await.map_err(internal_error)??;

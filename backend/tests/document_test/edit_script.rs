@@ -10,7 +10,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 use tokio::time::{sleep, Duration};
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams as ResetDocumentParamsPB};
+use flowy_collaboration::{entities::document_info::DocumentId, protobuf::ResetDocumentParams as ResetDocumentParamsPB};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use backend::services::document::persistence::{read_document, reset_document};

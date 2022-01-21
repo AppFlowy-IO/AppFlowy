@@ -89,12 +89,12 @@ where
         user: Arc<dyn RevisionUser>,
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<(), CollaborateError> {
-        let doc_id = self.object_id.clone();
+        let object_id = self.object_id.clone();
         if repeated_revision.get_items().is_empty() {
             // Return all the revisions to client
-            let revisions = self.persistence.read_revisions(&doc_id, None).await?;
+            let revisions = self.persistence.read_revisions(&object_id, None).await?;
             let repeated_revision = repeated_revision_from_revision_pbs(revisions)?;
-            let data = ServerRevisionWSDataBuilder::build_push_message(&doc_id, repeated_revision);
+            let data = ServerRevisionWSDataBuilder::build_push_message(&object_id, repeated_revision);
             user.receive(RevisionSyncResponse::Push(data));
             return Ok(());
         }
@@ -116,7 +116,7 @@ where
                     }
                     let _ = self.persistence.save_revisions(repeated_revision).await?;
                 } else {
-                    // The server document is outdated, pull the missing revision from the client.
+                    // The server delta is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
                         object_id: self.object_id.clone(),
                         start: server_rev_id,
@@ -128,10 +128,10 @@ where
             },
             Ordering::Equal => {
                 // Do nothing
-                tracing::warn!("Applied revision rev_id is the same as cur_rev_id");
+                tracing::warn!("Applied {} revision rev_id is the same as cur_rev_id", self.object_id);
             },
             Ordering::Greater => {
-                // The client document is outdated. Transform the client revision delta and then
+                // The client delta is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let from_rev_id = first_revision.rev_id;
@@ -144,7 +144,7 @@ where
 
     #[tracing::instrument(level = "trace", skip(self, user), fields(server_rev_id), err)]
     pub async fn pong(&self, user: Arc<dyn RevisionUser>, client_rev_id: i64) -> Result<(), CollaborateError> {
-        let doc_id = self.object_id.clone();
+        let object_id = self.object_id.clone();
         let server_rev_id = self.rev_id();
         tracing::Span::current().record("server_rev_id", &server_rev_id);
 
@@ -152,9 +152,9 @@ where
             Ordering::Less => {
                 tracing::error!("Client should not send ping and the server should pull the revisions from the client")
             },
-            Ordering::Equal => tracing::trace!("{} is up to date.", doc_id),
+            Ordering::Equal => tracing::trace!("{} is up to date.", object_id),
             Ordering::Greater => {
-                // The client document is outdated. Transform the client revision delta and then
+                // The client delta is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let from_rev_id = client_rev_id;
@@ -166,14 +166,14 @@ where
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, repeated_revision), fields(doc_id), err)]
+    #[tracing::instrument(level = "debug", skip(self, repeated_revision), fields(object_id), err)]
     pub async fn reset(&self, repeated_revision: RepeatedRevisionPB) -> Result<(), CollaborateError> {
-        let doc_id = self.object_id.clone();
-        tracing::Span::current().record("doc_id", &doc_id.as_str());
+        let object_id = self.object_id.clone();
+        tracing::Span::current().record("object_id", &object_id.as_str());
         let revisions: Vec<RevisionPB> = repeated_revision.get_items().to_vec();
         let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
         let delta = make_delta_from_revision_pb(revisions)?;
-        let _ = self.persistence.reset_object(&doc_id, repeated_revision).await?;
+        let _ = self.persistence.reset_object(&object_id, repeated_revision).await?;
         self.object.write().set_delta(delta);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
@@ -201,7 +201,7 @@ where
         }
 
         match self.object.try_write_for(Duration::from_millis(300)) {
-            None => log::error!("Failed to acquire write lock of document"),
+            None => log::error!("Failed to acquire write lock of object"),
             Some(mut write_guard) => {
                 let _ = write_guard.compose(&delta)?;
             },
@@ -230,29 +230,29 @@ where
 
     async fn push_revisions_to_user(&self, user: Arc<dyn RevisionUser>, from: i64, to: i64) {
         let rev_ids: Vec<i64> = (from..=to).collect();
-        let revisions = match self.persistence.read_revisions(&self.object_id, Some(rev_ids)).await {
+        tracing::debug!("Push revision: {} -> {} to client", from, to);
+        match self
+            .persistence
+            .read_revisions(&self.object_id, Some(rev_ids.clone()))
+            .await
+        {
             Ok(revisions) => {
-                assert_eq!(
-                    revisions.is_empty(),
-                    false,
-                    "revisions should not be empty if the doc exists"
-                );
-                revisions
+                if !rev_ids.is_empty() && revisions.is_empty() {
+                    tracing::trace!("{}: can not read the revisions in range {:?}", self.object_id, rev_ids);
+                    // assert_eq!(revisions.is_empty(), rev_ids.is_empty(),);
+                }
+                match repeated_revision_from_revision_pbs(revisions) {
+                    Ok(repeated_revision) => {
+                        let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, repeated_revision);
+                        user.receive(RevisionSyncResponse::Push(data));
+                    },
+                    Err(e) => tracing::error!("{}", e),
+                }
             },
             Err(e) => {
                 tracing::error!("{}", e);
-                vec![]
             },
         };
-
-        tracing::debug!("Push revision: {} -> {} to client", from, to);
-        match repeated_revision_from_revision_pbs(revisions) {
-            Ok(repeated_revision) => {
-                let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, repeated_revision);
-                user.receive(RevisionSyncResponse::Push(data));
-            },
-            Err(e) => tracing::error!("{}", e),
-        }
     }
 }
 
