@@ -82,12 +82,12 @@ pub(crate) async fn delete_view_handler(
     Ok(())
 }
 
-pub(crate) async fn open_view_handler(
+pub(crate) async fn open_document_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let doc = controller.open_view(&params.view_id).await?;
+    let doc = controller.open_document(&params.view_id).await?;
     data_result(doc)
 }
 

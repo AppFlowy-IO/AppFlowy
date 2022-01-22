@@ -15,19 +15,19 @@ export 'msg.pbenum.dart';
 
 class WebSocketRawMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WebSocketRawMessage', createEmptyInstance: create)
-    ..e<WSModule>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'module', $pb.PbFieldType.OE, defaultOrMaker: WSModule.Doc, valueOf: WSModule.valueOf, enumValues: WSModule.values)
+    ..e<WSChannel>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'channel', $pb.PbFieldType.OE, defaultOrMaker: WSChannel.Document, valueOf: WSChannel.valueOf, enumValues: WSChannel.values)
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   WebSocketRawMessage._() : super();
   factory WebSocketRawMessage({
-    WSModule? module,
+    WSChannel? channel,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (module != null) {
-      _result.module = module;
+    if (channel != null) {
+      _result.channel = channel;
     }
     if (data != null) {
       _result.data = data;
@@ -56,13 +56,13 @@ class WebSocketRawMessage extends $pb.GeneratedMessage {
   static WebSocketRawMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  WSModule get module => $_getN(0);
+  WSChannel get channel => $_getN(0);
   @$pb.TagNumber(1)
-  set module(WSModule v) { setField(1, v); }
+  set channel(WSChannel v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasModule() => $_has(0);
+  $core.bool hasChannel() => $_has(0);
   @$pb.TagNumber(1)
-  void clearModule() => clearField(1);
+  void clearChannel() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.List<$core.int> get data => $_getN(1);

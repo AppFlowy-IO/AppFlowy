@@ -2,13 +2,13 @@ use crate::services::{
     folder_editor::FolderEditor,
     persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset},
 };
-
 use flowy_core_data_model::entities::{
     app::App,
-    prelude::{RepeatedTrash, Trash, View, Workspace},
+    trash::{RepeatedTrash, Trash},
+    view::View,
+    workspace::Workspace,
 };
 use flowy_error::{FlowyError, FlowyResult};
-
 use std::sync::Arc;
 
 impl FolderPersistenceTransaction for FolderEditor {

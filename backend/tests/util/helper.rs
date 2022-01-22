@@ -11,7 +11,7 @@ use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::document_info::{CreateDocParams, DocumentId, DocumentInfo},
 };
-use flowy_core_data_model::entities::prelude::*;
+use flowy_core_data_model::entities::{app::*, trash::*, view::*, workspace::*};
 use flowy_net::http_server::{
     core::*,
     document::{create_document_request, read_document_request},
@@ -327,12 +327,12 @@ pub async fn create_test_view(application: &TestUserServer, app_id: &str) -> Vie
     app
 }
 
-pub struct WorkspaceTest {
+pub struct BackendWorkspaceTest {
     pub server: TestUserServer,
     pub workspace: Workspace,
 }
 
-impl WorkspaceTest {
+impl BackendWorkspaceTest {
     pub async fn new() -> Self {
         let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;
@@ -342,13 +342,13 @@ impl WorkspaceTest {
     pub async fn create_app(&self) -> App { create_test_app(&self.server, &self.workspace.id).await }
 }
 
-pub struct AppTest {
+pub struct BackendAppTest {
     pub server: TestUserServer,
     pub workspace: Workspace,
     pub app: App,
 }
 
-impl AppTest {
+impl BackendAppTest {
     pub async fn new() -> Self {
         let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;
@@ -357,14 +357,14 @@ impl AppTest {
     }
 }
 
-pub struct ViewTest {
+pub struct BackendViewTest {
     pub server: TestUserServer,
     pub workspace: Workspace,
     pub app: App,
     pub view: View,
 }
 
-impl ViewTest {
+impl BackendViewTest {
     pub async fn new() -> Self {
         let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;

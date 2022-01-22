@@ -1,4 +1,4 @@
-use crate::services::persistence::FOLDER_ID;
+use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
@@ -16,12 +16,12 @@ use std::{sync::Arc, time::Duration};
 
 pub(crate) async fn make_folder_ws_manager(
     user_id: &str,
+    folder_id: &str,
     rev_manager: Arc<RevisionManager>,
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_pad: Arc<RwLock<FolderPad>>,
 ) -> Arc<RevisionWebSocketManager> {
-    let object_id = FOLDER_ID;
-    let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(object_id, rev_manager.clone()));
+    let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(folder_id, rev_manager.clone()));
     let resolve_target = Arc::new(FolderRevisionResolveTarget { folder_pad });
     let resolver = RevisionConflictResolver::<PlainTextAttributes>::new(
         user_id,
@@ -35,9 +35,9 @@ pub(crate) async fn make_folder_ws_manager(
     });
 
     let sink_provider = Arc::new(FolderWSSinkDataProviderAdapter(composite_sink_provider));
-    let ping_duration = Duration::from_millis(2000);
+    let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);
     Arc::new(RevisionWebSocketManager::new(
-        object_id,
+        folder_id,
         web_socket,
         sink_provider,
         ws_stream_consumer,

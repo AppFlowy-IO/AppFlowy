@@ -78,7 +78,7 @@ impl ScriptContext {
 
     async fn open_doc(&mut self) {
         let doc_id = self.doc_id.clone();
-        let edit_context = self.client_sdk.document_ctx.controller.open_document(doc_id).await.unwrap();
+        let edit_context = self.client_sdk.document_manager.open_document(doc_id).await.unwrap();
         self.client_editor = Some(edit_context);
     }
 

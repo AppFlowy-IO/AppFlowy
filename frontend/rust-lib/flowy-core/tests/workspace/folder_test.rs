@@ -1,42 +1,77 @@
-use flowy_core::{
-    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest},
-    event::WorkspaceEvent::*,
-    prelude::*,
-};
-use flowy_test::{event_builder::*, helper::*, FlowySDKTest};
+use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
+use flowy_collaboration::{client_document::default::initial_delta_string, entities::revision::RevisionState};
+use flowy_core::entities::workspace::CreateWorkspaceRequest;
+use flowy_test::{event_builder::*, FlowySDKTest};
 
 #[tokio::test]
 async fn workspace_read_all() {
-    let test = WorkspaceTest::new().await;
-    let workspace = read_workspace(&test.sdk, QueryWorkspaceRequest::new(None)).await;
-    assert_eq!(workspace.len(), 2);
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![ReadAllWorkspaces]).await;
+    // The first workspace will be the default workspace
+    // The second workspace will be created by FolderTest
+    assert_eq!(test.all_workspace.len(), 2);
+
+    let new_name = "My new workspace".to_owned();
+    test.run_scripts(vec![
+        CreateWorkspace {
+            name: new_name.clone(),
+            desc: "Daily routines".to_owned(),
+        },
+        ReadAllWorkspaces,
+    ])
+    .await;
+    assert_eq!(test.all_workspace.len(), 3);
+    assert_eq!(test.all_workspace[2].name, new_name);
+}
+
+#[tokio::test]
+async fn workspace_create() {
+    let mut test = FolderTest::new().await;
+    let name = "My new workspace".to_owned();
+    let desc = "Daily routines".to_owned();
+    test.run_scripts(vec![CreateWorkspace {
+        name: name.clone(),
+        desc: desc.clone(),
+    }])
+    .await;
+
+    let workspace = test.workspace.clone();
+    assert_eq!(workspace.name, name);
+    assert_eq!(workspace.desc, desc);
+
+    test.run_scripts(vec![
+        ReadWorkspace(Some(workspace.id.clone())),
+        AssertWorkspace(workspace),
+    ])
+    .await;
 }
 
 #[tokio::test]
 async fn workspace_read() {
-    let test = WorkspaceTest::new().await;
-    let request = QueryWorkspaceRequest::new(Some(test.workspace.id.clone()));
-    let workspace_from_db = read_workspace(&test.sdk, request)
-        .await
-        .drain(..1)
-        .collect::<Vec<Workspace>>()
-        .pop()
-        .unwrap();
-    assert_eq!(test.workspace, workspace_from_db);
+    let mut test = FolderTest::new().await;
+    let workspace = test.workspace.clone();
+    let json = serde_json::to_string(&workspace).unwrap();
+
+    test.run_scripts(vec![
+        ReadWorkspace(Some(workspace.id.clone())),
+        AssertWorkspaceJson(json),
+        AssertWorkspace(workspace),
+    ])
+    .await;
 }
 
 #[tokio::test]
 async fn workspace_create_with_apps() {
-    let test = WorkspaceTest::new().await;
-    let app = create_app(&test.sdk, "App A", "AppFlowy GitHub Project", &test.workspace.id).await;
-    let request = QueryWorkspaceRequest::new(Some(test.workspace.id.clone()));
-    let workspace_from_db = read_workspace(&test.sdk, request)
-        .await
-        .drain(..1)
-        .collect::<Vec<Workspace>>()
-        .pop()
-        .unwrap();
-    assert_eq!(&app, workspace_from_db.apps.first_or_crash());
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![CreateApp {
+        name: "App",
+        desc: "App description",
+    }])
+    .await;
+
+    let app = test.app.clone();
+    let json = serde_json::to_string(&app).unwrap();
+    test.run_scripts(vec![ReadApp(app.id), AssertAppJson(json)]).await;
 }
 
 #[tokio::test]
@@ -48,29 +83,8 @@ async fn workspace_create_with_invalid_name() {
             desc: "".to_owned(),
         };
         assert_eq!(
-            CoreModuleEventBuilder::new(sdk)
-                .event(CreateWorkspace)
-                .request(request)
-                .async_send()
-                .await
-                .error()
-                .code,
-            code.value()
-        )
-    }
-}
-
-#[tokio::test]
-async fn workspace_update_with_invalid_name() {
-    let sdk = FlowySDKTest::default();
-    for (name, code) in invalid_workspace_name_test_case() {
-        let request = CreateWorkspaceRequest {
-            name,
-            desc: "".to_owned(),
-        };
-        assert_eq!(
-            CoreModuleEventBuilder::new(sdk.clone())
-                .event(CreateWorkspace)
+            FolderEventBuilder::new(sdk)
+                .event(flowy_core::event::WorkspaceEvent::CreateWorkspace)
                 .request(request)
                 .async_send()
                 .await
@@ -84,161 +98,262 @@ async fn workspace_update_with_invalid_name() {
 #[tokio::test]
 #[should_panic]
 async fn app_delete() {
-    let test = AppTest::new().await;
-    delete_app(&test.sdk, &test.app.id).await;
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    let _ = read_app(&test.sdk, query).await;
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    test.run_scripts(vec![DeleteApp, ReadApp(app.id)]).await;
 }
 
 #[tokio::test]
-async fn app_delete_then_putback() {
-    let test = AppTest::new().await;
-    delete_app(&test.sdk, &test.app.id).await;
-    putback_trash(
-        &test.sdk,
-        TrashId {
-            id: test.app.id.clone(),
-            ty: TrashType::App,
-        },
-    )
+async fn app_delete_then_restore() {
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    test.run_scripts(vec![
+        DeleteApp,
+        RestoreAppFromTrash,
+        ReadApp(app.id.clone()),
+        AssertApp(app),
+    ])
     .await;
-
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    let app = read_app(&test.sdk, query).await;
-    assert_eq!(&app, &test.app);
 }
 
 #[tokio::test]
 async fn app_read() {
-    let test = AppTest::new().await;
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    let app_from_db = read_app(&test.sdk, query).await;
-    assert_eq!(app_from_db, test.app);
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    test.run_scripts(vec![ReadApp(app.id.clone()), AssertApp(app)]).await;
+}
+
+#[tokio::test]
+async fn app_update() {
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    let new_name = "😁 hell world".to_owned();
+    assert_ne!(app.name, new_name);
+
+    test.run_scripts(vec![
+        UpdateApp {
+            name: Some(new_name.clone()),
+            desc: None,
+        },
+        ReadApp(app.id),
+    ])
+    .await;
+    assert_eq!(test.app.name, new_name);
 }
 
 #[tokio::test]
 async fn app_create_with_view() {
-    let test = AppTest::new().await;
-    let request_a = CreateViewRequest {
-        belong_to_id: test.app.id.clone(),
-        name: "View A".to_string(),
-        desc: "".to_string(),
-        thumbnail: Some("http://1.png".to_string()),
-        view_type: ViewType::Doc,
-    };
+    let mut test = FolderTest::new().await;
+    let mut app = test.app.clone();
+    test.run_scripts(vec![
+        CreateView {
+            name: "View A",
+            desc: "View A description",
+        },
+        CreateView {
+            name: "View B",
+            desc: "View B description",
+        },
+        ReadApp(app.id),
+    ])
+    .await;
 
-    let request_b = CreateViewRequest {
-        belong_to_id: test.app.id.clone(),
-        name: "View B".to_string(),
-        desc: "".to_string(),
-        thumbnail: Some("http://1.png".to_string()),
-        view_type: ViewType::Doc,
-    };
+    app = test.app.clone();
+    assert_eq!(app.belongings.len(), 3);
+    assert_eq!(app.belongings[1].name, "View A");
+    assert_eq!(app.belongings[2].name, "View B")
+}
 
-    let view_a = create_view_with_request(&test.sdk, request_a).await;
-    let view_b = create_view_with_request(&test.sdk, request_b).await;
+#[tokio::test]
+async fn view_update() {
+    let mut test = FolderTest::new().await;
+    let view = test.view.clone();
+    let new_name = "😁 123".to_owned();
+    assert_ne!(view.name, new_name);
 
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    let view_from_db = read_app(&test.sdk, query).await;
+    test.run_scripts(vec![
+        UpdateView {
+            name: Some(new_name.clone()),
+            desc: None,
+        },
+        ReadView(view.id),
+    ])
+    .await;
+    assert_eq!(test.view.name, new_name);
+}
 
-    assert_eq!(view_from_db.belongings[0], view_a);
-    assert_eq!(view_from_db.belongings[1], view_b);
+#[tokio::test]
+async fn open_document_view() {
+    let mut test = FolderTest::new().await;
+    assert_eq!(test.document_info, None);
+
+    test.run_scripts(vec![OpenDocument]).await;
+    let document_info = test.document_info.unwrap();
+    assert_eq!(document_info.text, initial_delta_string());
 }
 
 #[tokio::test]
 #[should_panic]
 async fn view_delete() {
-    let test = FlowySDKTest::default();
-    let _ = test.init_user().await;
-
-    let test = ViewTest::new(&test).await;
-    test.delete_views(vec![test.view.id.clone()]).await;
-    let query = QueryViewRequest {
-        view_ids: vec![test.view.id.clone()],
-    };
-    let _ = read_view(&test.sdk, query).await;
+    let mut test = FolderTest::new().await;
+    let view = test.view.clone();
+    test.run_scripts(vec![DeleteView, ReadView(view.id)]).await;
 }
 
 #[tokio::test]
-async fn view_delete_then_putback() {
-    let test = FlowySDKTest::default();
-    let _ = test.init_user().await;
-
-    let test = ViewTest::new(&test).await;
-    test.delete_views(vec![test.view.id.clone()]).await;
-    putback_trash(
-        &test.sdk,
-        TrashId {
-            id: test.view.id.clone(),
-            ty: TrashType::View,
-        },
-    )
+async fn view_delete_then_restore() {
+    let mut test = FolderTest::new().await;
+    let view = test.view.clone();
+    test.run_scripts(vec![
+        DeleteView,
+        RestoreViewFromTrash,
+        ReadView(view.id.clone()),
+        AssertView(view),
+    ])
     .await;
-
-    let query = QueryViewRequest {
-        view_ids: vec![test.view.id.clone()],
-    };
-    let view = read_view(&test.sdk, query).await;
-    assert_eq!(&view, &test.view);
 }
 
 #[tokio::test]
 async fn view_delete_all() {
-    let test = FlowySDKTest::default();
-    let _ = test.init_user().await;
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    test.run_scripts(vec![
+        CreateView {
+            name: "View A",
+            desc: "View A description",
+        },
+        CreateView {
+            name: "View B",
+            desc: "View B description",
+        },
+        ReadApp(app.id.clone()),
+    ])
+    .await;
 
-    let test = ViewTest::new(&test).await;
-    let view1 = test.view.clone();
-    let view2 = create_view(&test.sdk, &test.app.id).await;
-    let view3 = create_view(&test.sdk, &test.app.id).await;
-    let view_ids = vec![view1.id.clone(), view2.id.clone(), view3.id.clone()];
+    assert_eq!(test.app.belongings.len(), 3);
+    let view_ids = test
+        .app
+        .belongings
+        .iter()
+        .map(|view| view.id.clone())
+        .collect::<Vec<String>>();
+    test.run_scripts(vec![DeleteViews(view_ids), ReadApp(app.id), ReadTrash])
+        .await;
 
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    let app = read_app(&test.sdk, query.clone()).await;
-    assert_eq!(app.belongings.len(), view_ids.len());
-    test.delete_views(view_ids.clone()).await;
-
-    assert_eq!(read_app(&test.sdk, query).await.belongings.len(), 0);
-    assert_eq!(read_trash(&test.sdk).await.len(), view_ids.len());
+    assert_eq!(test.app.belongings.len(), 0);
+    assert_eq!(test.trash.len(), 3);
 }
 
 #[tokio::test]
 async fn view_delete_all_permanent() {
-    let test = FlowySDKTest::default();
-    let _ = test.init_user().await;
+    let mut test = FolderTest::new().await;
+    let app = test.app.clone();
+    test.run_scripts(vec![
+        CreateView {
+            name: "View A",
+            desc: "View A description",
+        },
+        ReadApp(app.id.clone()),
+    ])
+    .await;
 
-    let test = ViewTest::new(&test).await;
-    let view1 = test.view.clone();
-    let view2 = create_view(&test.sdk, &test.app.id).await;
+    let view_ids = test
+        .app
+        .belongings
+        .iter()
+        .map(|view| view.id.clone())
+        .collect::<Vec<String>>();
+    test.run_scripts(vec![DeleteViews(view_ids), ReadApp(app.id), DeleteAllTrash, ReadTrash])
+        .await;
 
-    let view_ids = vec![view1.id.clone(), view2.id.clone()];
-    test.delete_views_permanent(view_ids).await;
-
-    let query = QueryAppRequest {
-        app_ids: vec![test.app.id.clone()],
-    };
-    assert_eq!(read_app(&test.sdk, query).await.belongings.len(), 0);
-    assert_eq!(read_trash(&test.sdk).await.len(), 0);
+    assert_eq!(test.app.belongings.len(), 0);
+    assert_eq!(test.trash.len(), 0);
 }
 
 #[tokio::test]
-async fn view_open_doc() {
-    let test = FlowySDKTest::default();
-    let _ = test.init_user().await;
+async fn folder_sync_revision_state() {
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![
+        AssertRevisionState {
+            rev_id: 1,
+            state: RevisionState::Sync,
+        },
+        AssertNextSyncRevId(Some(1)),
+        AssertRevisionState {
+            rev_id: 1,
+            state: RevisionState::Ack,
+        },
+    ])
+    .await;
+}
 
-    let test = ViewTest::new(&test).await;
-    let request = QueryViewRequest {
-        view_ids: vec![test.view.id.clone()],
-    };
-    let _ = open_view(&test.sdk, request).await;
+#[tokio::test]
+async fn folder_sync_revision_seq() {
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![
+        AssertRevisionState {
+            rev_id: 1,
+            state: RevisionState::Sync,
+        },
+        AssertRevisionState {
+            rev_id: 2,
+            state: RevisionState::Sync,
+        },
+        AssertRevisionState {
+            rev_id: 3,
+            state: RevisionState::Sync,
+        },
+        AssertNextSyncRevId(Some(1)),
+        AssertNextSyncRevId(Some(2)),
+        AssertNextSyncRevId(Some(3)),
+        AssertRevisionState {
+            rev_id: 1,
+            state: RevisionState::Ack,
+        },
+        AssertRevisionState {
+            rev_id: 2,
+            state: RevisionState::Ack,
+        },
+        AssertRevisionState {
+            rev_id: 3,
+            state: RevisionState::Ack,
+        },
+    ])
+    .await;
+}
+
+#[tokio::test]
+async fn folder_sync_revision_with_new_app() {
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![
+        AssertNextSyncRevId(Some(1)),
+        AssertNextSyncRevId(Some(2)),
+        AssertNextSyncRevId(Some(3)),
+        CreateApp {
+            name: "New App",
+            desc: "",
+        },
+        AssertCurrentRevId(4),
+        AssertNextSyncRevId(Some(4)),
+        AssertNextSyncRevId(None),
+    ])
+    .await;
+}
+
+#[tokio::test]
+async fn folder_sync_revision_with_new_view() {
+    let mut test = FolderTest::new().await;
+    test.run_scripts(vec![
+        AssertNextSyncRevId(Some(1)),
+        AssertNextSyncRevId(Some(2)),
+        AssertNextSyncRevId(Some(3)),
+        CreateView {
+            name: "New App",
+            desc: "",
+        },
+        AssertCurrentRevId(4),
+        AssertNextSyncRevId(Some(4)),
+        AssertNextSyncRevId(None),
+    ])
+    .await;
 }

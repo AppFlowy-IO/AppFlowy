@@ -6,4 +6,4 @@ pub use editor::*;
 pub(crate) use queue::*;
 pub(crate) use web_socket::*;
 
-pub const SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
+pub const DOCUMENT_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;

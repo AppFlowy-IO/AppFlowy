@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct WebSocketRawMessage {
     // message fields
-    pub module: WSModule,
+    pub channel: WSChannel,
     pub data: ::std::vec::Vec<u8>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,19 +44,19 @@ impl WebSocketRawMessage {
         ::std::default::Default::default()
     }
 
-    // .WSModule module = 1;
+    // .WSChannel channel = 1;
 
 
-    pub fn get_module(&self) -> WSModule {
-        self.module
+    pub fn get_channel(&self) -> WSChannel {
+        self.channel
     }
-    pub fn clear_module(&mut self) {
-        self.module = WSModule::Doc;
+    pub fn clear_channel(&mut self) {
+        self.channel = WSChannel::Document;
     }
 
     // Param is passed by value, moved
-    pub fn set_module(&mut self, v: WSModule) {
-        self.module = v;
+    pub fn set_channel(&mut self, v: WSChannel) {
+        self.channel = v;
     }
 
     // bytes data = 2;
@@ -96,7 +96,7 @@ impl ::protobuf::Message for WebSocketRawMessage {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.module, 1, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.channel, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
@@ -113,8 +113,8 @@ impl ::protobuf::Message for WebSocketRawMessage {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.module != WSModule::Doc {
-            my_size += ::protobuf::rt::enum_size(1, self.module);
+        if self.channel != WSChannel::Document {
+            my_size += ::protobuf::rt::enum_size(1, self.channel);
         }
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::bytes_size(2, &self.data);
@@ -125,8 +125,8 @@ impl ::protobuf::Message for WebSocketRawMessage {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.module != WSModule::Doc {
-            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.module))?;
+        if self.channel != WSChannel::Document {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.channel))?;
         }
         if !self.data.is_empty() {
             os.write_bytes(2, &self.data)?;
@@ -169,10 +169,10 @@ impl ::protobuf::Message for WebSocketRawMessage {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WSModule>>(
-                "module",
-                |m: &WebSocketRawMessage| { &m.module },
-                |m: &mut WebSocketRawMessage| { &mut m.module },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WSChannel>>(
+                "channel",
+                |m: &WebSocketRawMessage| { &m.channel },
+                |m: &mut WebSocketRawMessage| { &mut m.channel },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
@@ -195,7 +195,7 @@ impl ::protobuf::Message for WebSocketRawMessage {
 
 impl ::protobuf::Clear for WebSocketRawMessage {
     fn clear(&mut self) {
-        self.module = WSModule::Doc;
+        self.channel = WSChannel::Document;
         self.data.clear();
         self.unknown_fields.clear();
     }
@@ -214,28 +214,28 @@ impl ::protobuf::reflect::ProtobufValue for WebSocketRawMessage {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum WSModule {
-    Doc = 0,
+pub enum WSChannel {
+    Document = 0,
     Folder = 1,
 }
 
-impl ::protobuf::ProtobufEnum for WSModule {
+impl ::protobuf::ProtobufEnum for WSChannel {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<WSModule> {
+    fn from_i32(value: i32) -> ::std::option::Option<WSChannel> {
         match value {
-            0 => ::std::option::Option::Some(WSModule::Doc),
-            1 => ::std::option::Option::Some(WSModule::Folder),
+            0 => ::std::option::Option::Some(WSChannel::Document),
+            1 => ::std::option::Option::Some(WSChannel::Folder),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [WSModule] = &[
-            WSModule::Doc,
-            WSModule::Folder,
+        static values: &'static [WSChannel] = &[
+            WSChannel::Document,
+            WSChannel::Folder,
         ];
         values
     }
@@ -243,43 +243,43 @@ impl ::protobuf::ProtobufEnum for WSModule {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WSModule>("WSModule", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WSChannel>("WSChannel", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for WSModule {
+impl ::std::marker::Copy for WSChannel {
 }
 
-impl ::std::default::Default for WSModule {
+impl ::std::default::Default for WSChannel {
     fn default() -> Self {
-        WSModule::Doc
+        WSChannel::Document
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WSModule {
+impl ::protobuf::reflect::ProtobufValue for WSChannel {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\tmsg.proto\"L\n\x13WebSocketRawMessage\x12!\n\x06module\x18\x01\x20\
-    \x01(\x0e2\t.WSModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\
-    \x04data*\x1f\n\x08WSModule\x12\x07\n\x03Doc\x10\0\x12\n\n\x06Folder\x10\
-    \x01J\x82\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\
-    \n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\
-    \x1b\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\
-    \x06\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\r\x13\n\
-    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\
-    \x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\
-    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\
-    \x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\t\x01\n\n\n\x03\
-    \x05\0\x01\x12\x03\x06\x05\r\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x0c\
-    \n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x07\n\x0c\n\x05\x05\0\x02\0\
-    \x02\x12\x03\x07\n\x0b\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\x04\x0f\n\
-    \x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\n\n\x0c\n\x05\x05\0\x02\x01\
-    \x02\x12\x03\x08\r\x0eb\x06proto3\
+    \n\tmsg.proto\"O\n\x13WebSocketRawMessage\x12$\n\x07channel\x18\x01\x20\
+    \x01(\x0e2\n.WSChannelR\x07channel\x12\x12\n\x04data\x18\x02\x20\x01(\
+    \x0cR\x04data*%\n\tWSChannel\x12\x0c\n\x08Document\x10\0\x12\n\n\x06Fold\
+    er\x10\x01J\x82\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\x0c\x12\x03\0\0\
+    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
+    \x02\x08\x1b\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\x04\
+    \0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x0e\x15\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x18\x19\n\x0b\n\x04\x04\
+    \0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
+    \x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0e\n\x0c\n\x05\x04\0\
+    \x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\t\x01\n\n\
+    \n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\
+    \x04\x11\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x0c\n\x0c\n\x05\x05\
+    \0\x02\0\x02\x12\x03\x07\x0f\x10\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\
+    \x04\x0f\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\n\n\x0c\n\x05\x05\
+    \0\x02\x01\x02\x12\x03\x08\r\x0eb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

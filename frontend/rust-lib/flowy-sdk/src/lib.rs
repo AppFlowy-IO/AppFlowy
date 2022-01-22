@@ -3,7 +3,6 @@ pub mod module;
 use crate::deps_resolve::*;
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{controller::FolderManager, errors::FlowyError};
-use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
     local_server::LocalServer,
@@ -12,6 +11,7 @@ use flowy_net::{
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 
+use flowy_document::FlowyDocumentManager;
 use module::mk_modules;
 pub use module::*;
 use std::{
@@ -83,8 +83,8 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub document_ctx: Arc<DocumentContext>,
-    pub core: Arc<FolderManager>,
+    pub document_manager: Arc<FlowyDocumentManager>,
+    pub folder_manager: Arc<FolderManager>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
@@ -108,25 +108,25 @@ impl FlowySDK {
         };
 
         let user_session = mk_user_session(&config, &local_server, &config.server_config);
-        let flowy_document = mk_document(&local_server, &ws_conn, &user_session, &config.server_config);
-        let core_ctx = mk_core_context(
+        let document_manager = mk_document(&local_server, &ws_conn, &user_session, &config.server_config);
+        let folder_manager = mk_folder_manager(
             &local_server,
             &user_session,
-            &flowy_document,
+            &document_manager,
             &config.server_config,
             &ws_conn,
         );
 
         //
-        let modules = mk_modules(&ws_conn, &core_ctx, &user_session);
+        let modules = mk_modules(&ws_conn, &folder_manager, &user_session);
         let dispatcher = Arc::new(EventDispatcher::construct(|| modules));
-        _init(&local_server, &dispatcher, &ws_conn, &user_session, &core_ctx);
+        _init(&local_server, &dispatcher, &ws_conn, &user_session, &folder_manager);
 
         Self {
             config,
             user_session,
-            document_ctx: flowy_document,
-            core: core_ctx,
+            document_manager,
+            folder_manager,
             dispatcher,
             ws_conn,
             local_server,
@@ -243,10 +243,10 @@ fn mk_user_session(
     Arc::new(UserSession::new(user_config, cloud_service))
 }
 
-fn mk_core_context(
+fn mk_folder_manager(
     local_server: &Option<Arc<LocalServer>>,
     user_session: &Arc<UserSession>,
-    flowy_document: &Arc<DocumentContext>,
+    document_manager: &Arc<FlowyDocumentManager>,
     server_config: &ClientServerConfiguration,
     ws_conn: &Arc<FlowyWebSocketConnect>,
 ) -> Arc<FolderManager> {
@@ -254,7 +254,7 @@ fn mk_core_context(
         local_server.clone(),
         user_session.clone(),
         server_config,
-        flowy_document,
+        document_manager,
         ws_conn.clone(),
     )
 }
@@ -264,11 +264,11 @@ pub fn mk_document(
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     server_config: &ClientServerConfiguration,
-) -> Arc<DocumentContext> {
-    Arc::new(DocumentDepsResolver::resolve(
+) -> Arc<FlowyDocumentManager> {
+    DocumentDepsResolver::resolve(
         local_server.clone(),
         ws_conn.clone(),
         user_session.clone(),
         server_config,
-    ))
+    )
 }

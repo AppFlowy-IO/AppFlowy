@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-collaboration/doc.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-collaboration/document_info.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
@@ -12,7 +12,7 @@ class DocRepository {
 
   Future<Either<DocumentDelta, FlowyError>> readDoc() {
     final request = QueryViewRequest(viewIds: [docId]);
-    return WorkspaceEventOpenView(request).send();
+    return WorkspaceEventOpenDocument(request).send();
   }
 
   Future<Either<DocumentDelta, FlowyError>> composeDelta({required String data}) {

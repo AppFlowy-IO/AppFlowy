@@ -1,4 +1,4 @@
-use crate::RevisionRecord;
+use crate::{RevisionRecord, REVISION_WRITE_INTERVAL_IN_MILLIS};
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
@@ -113,7 +113,7 @@ impl RevisionMemoryCache {
         let delegate = self.delegate.clone();
 
         *self.defer_save.write().await = Some(tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_millis(600)).await;
+            tokio::time::sleep(Duration::from_millis(REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
             let mut revs_write_guard = pending_write_revs.write().await;
             // It may cause performance issues because we hold the write lock of the
             // rev_order and the lock will be released after the checkpoint has been written

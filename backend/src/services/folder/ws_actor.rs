@@ -1,11 +1,12 @@
 use crate::{
     context::FlowyPersistence,
-    services::web_socket::{entities::Socket, WSClientData, WSUser, WebSocketMessage},
+    services::web_socket::{entities::Socket, revision_data_to_ws_message, WSClientData, WSUser, WebSocketMessage},
     util::serde_ext::parse_from_bytes,
 };
 use actix_rt::task::spawn_blocking;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result};
+
 use flowy_collaboration::{
     protobuf::{
         ClientRevisionWSData as ClientRevisionWSDataPB,
@@ -14,6 +15,7 @@ use flowy_collaboration::{
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use futures::stream::StreamExt;
+use lib_ws::WSChannel;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
@@ -111,15 +113,15 @@ impl RevisionUser for FolderRevisionUser {
     fn receive(&self, resp: RevisionSyncResponse) {
         let result = match resp {
             RevisionSyncResponse::Pull(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
             },
             RevisionSyncResponse::Push(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
             },
             RevisionSyncResponse::Ack(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
             },
         };

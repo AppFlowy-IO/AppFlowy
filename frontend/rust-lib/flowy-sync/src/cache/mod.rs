@@ -16,6 +16,7 @@ use std::{
     },
 };
 use tokio::task::spawn_blocking;
+pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
 pub struct RevisionCache {
     object_id: String,

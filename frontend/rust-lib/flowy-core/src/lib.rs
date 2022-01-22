@@ -2,7 +2,7 @@ pub use flowy_core_data_model::entities;
 
 pub mod event;
 pub mod module;
-mod services;
+pub mod services;
 
 #[macro_use]
 mod macros;

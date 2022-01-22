@@ -1,4 +1,4 @@
-use crate::{context::DocumentUser, core::web_socket::EditorCommandReceiver};
+use crate::{core::web_socket::EditorCommandReceiver, DocumentUser};
 use async_stream::stream;
 use flowy_collaboration::{
     client_document::{history::UndoResult, ClientDocument},

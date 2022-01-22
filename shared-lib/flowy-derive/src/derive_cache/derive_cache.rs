@@ -96,7 +96,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "TrashType"
         | "ViewType"
         | "ErrorCode"
-        | "WSModule"
+        | "WSChannel"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

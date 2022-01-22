@@ -2,7 +2,7 @@ use crate::{
     client_document::{
         default::initial_delta,
         history::{History, UndoResult},
-        view::{View, RECORD_THRESHOLD},
+        view::{ViewExtensions, RECORD_THRESHOLD},
     },
     errors::CollaborateError,
 };
@@ -29,7 +29,7 @@ impl InitialDocumentText for NewlineDoc {
 pub struct ClientDocument {
     delta: RichTextDelta,
     history: History,
-    view: View,
+    view: ViewExtensions,
     last_edit_time: usize,
     notify: Option<mpsc::UnboundedSender<()>>,
 }
@@ -41,7 +41,7 @@ impl ClientDocument {
         ClientDocument {
             delta,
             history: History::new(),
-            view: View::new(),
+            view: ViewExtensions::new(),
             last_edit_time: 0,
             notify: None,
         }

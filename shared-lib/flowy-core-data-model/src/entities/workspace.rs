@@ -116,13 +116,13 @@ pub struct CurrentWorkspaceSetting {
 #[derive(ProtoBuf, Default)]
 pub struct UpdateWorkspaceRequest {
     #[pb(index = 1)]
-    id: String,
+    pub id: String,
 
     #[pb(index = 2, one_of)]
-    name: Option<String>,
+    pub name: Option<String>,
 
     #[pb(index = 3, one_of)]
-    desc: Option<String>,
+    pub desc: Option<String>,
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]

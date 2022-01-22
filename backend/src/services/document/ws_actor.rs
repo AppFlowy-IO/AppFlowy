@@ -7,6 +7,7 @@ use actix_rt::task::spawn_blocking;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 
+use crate::services::web_socket::revision_data_to_ws_message;
 use flowy_collaboration::{
     protobuf::{
         ClientRevisionWSData as ClientRevisionWSDataPB,
@@ -17,6 +18,7 @@ use flowy_collaboration::{
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use futures::stream::StreamExt;
+use lib_ws::WSChannel;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
@@ -135,15 +137,15 @@ impl RevisionUser for DocumentRevisionUser {
     fn receive(&self, resp: RevisionSyncResponse) {
         let result = match resp {
             RevisionSyncResponse::Pull(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Document);
                 self.socket.try_send(msg).map_err(internal_error)
             },
             RevisionSyncResponse::Push(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Document);
                 self.socket.try_send(msg).map_err(internal_error)
             },
             RevisionSyncResponse::Ack(data) => {
-                let msg: WebSocketMessage = data.into();
+                let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Document);
                 self.socket.try_send(msg).map_err(internal_error)
             },
         };

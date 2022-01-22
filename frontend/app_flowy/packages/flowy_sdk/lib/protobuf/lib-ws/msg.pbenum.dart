@@ -9,18 +9,18 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WSModule extends $pb.ProtobufEnum {
-  static const WSModule Doc = WSModule._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
-  static const WSModule Folder = WSModule._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Folder');
+class WSChannel extends $pb.ProtobufEnum {
+  static const WSChannel Document = WSChannel._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Document');
+  static const WSChannel Folder = WSChannel._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Folder');
 
-  static const $core.List<WSModule> values = <WSModule> [
-    Doc,
+  static const $core.List<WSChannel> values = <WSChannel> [
+    Document,
     Folder,
   ];
 
-  static final $core.Map<$core.int, WSModule> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WSModule? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WSChannel> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WSChannel? valueOf($core.int value) => _byValue[value];
 
-  const WSModule._($core.int v, $core.String n) : super(v, n);
+  const WSChannel._($core.int v, $core.String n) : super(v, n);
 }
 

@@ -2,14 +2,14 @@ use crate::ws::connection::{FlowyRawWebSocket, FlowyWebSocket};
 use dashmap::DashMap;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
-use lib_ws::{WSConnectState, WSMessageReceiver, WSModule, WebSocketRawMessage};
+use lib_ws::{WSChannel, WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc::UnboundedReceiver};
 
 pub struct LocalWebSocket {
     user_id: Arc<RwLock<Option<String>>>,
-    receivers: Arc<DashMap<WSModule, Arc<dyn WSMessageReceiver>>>,
+    receivers: Arc<DashMap<WSChannel, Arc<dyn WSMessageReceiver>>>,
     state_sender: broadcast::Sender<WSConnectState>,
     server_ws_receiver: RwLock<Option<UnboundedReceiver<WebSocketRawMessage>>>,
     server_ws_sender: broadcast::Sender<WebSocketRawMessage>,
@@ -40,7 +40,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
         let receivers = self.receivers.clone();
         tokio::spawn(async move {
             while let Some(message) = server_ws_receiver.recv().await {
-                match receivers.get(&message.module) {
+                match receivers.get(&message.channel) {
                     None => tracing::error!("Can't find any handler for message: {:?}", message),
                     Some(receiver) => receiver.receive_message(message.clone()),
                 }
@@ -61,6 +61,7 @@ impl FlowyRawWebSocket for LocalWebSocket {
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
     fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
+        tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());
         self.receivers.insert(receiver.source(), receiver);
         Ok(())
     }

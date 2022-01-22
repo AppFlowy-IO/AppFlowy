@@ -7,13 +7,13 @@ use lib_ot::{
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
 
-pub struct View {
+pub struct ViewExtensions {
     insert_exts: Vec<InsertExtension>,
     format_exts: Vec<FormatExtension>,
     delete_exts: Vec<DeleteExtension>,
 }
 
-impl View {
+impl ViewExtensions {
     pub(crate) fn new() -> Self {
         Self {
             insert_exts: construct_insert_exts(),

@@ -24,7 +24,7 @@ use crate::{
 };
 use flowy_core_data_model::entities::share::{ExportData, ExportParams};
 use flowy_database::kv::KV;
-use flowy_document::context::DocumentContext;
+use flowy_document::FlowyDocumentManager;
 use lib_infra::uuid_string;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -34,7 +34,7 @@ pub(crate) struct ViewController {
     cloud_service: Arc<dyn FolderCouldServiceV1>,
     persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
-    document_ctx: Arc<DocumentContext>,
+    document_manager: Arc<FlowyDocumentManager>,
 }
 
 impl ViewController {
@@ -43,19 +43,19 @@ impl ViewController {
         persistence: Arc<FolderPersistence>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         trash_can: Arc<TrashController>,
-        document_ctx: Arc<DocumentContext>,
+        document_manager: Arc<FlowyDocumentManager>,
     ) -> Self {
         Self {
             user,
             cloud_service,
             persistence,
             trash_controller: trash_can,
-            document_ctx,
+            document_manager,
         }
     }
 
     pub(crate) fn initialize(&self) -> Result<(), FlowyError> {
-        let _ = self.document_ctx.init()?;
+        let _ = self.document_manager.init()?;
         self.listen_trash_can_event();
         Ok(())
     }
@@ -73,8 +73,7 @@ impl ViewController {
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
         let _ = self
-            .document_ctx
-            .controller
+            .document_manager
             .save_document(&params.view_id, repeated_revision)
             .await?;
         let view = self.create_view_on_server(params).await?;
@@ -96,11 +95,7 @@ impl ViewController {
         let delta_data = Bytes::from(view_data);
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
-        let _ = self
-            .document_ctx
-            .controller
-            .save_document(view_id, repeated_revision)
-            .await?;
+        let _ = self.document_manager.save_document(view_id, repeated_revision).await?;
         Ok(())
     }
 
@@ -146,8 +141,8 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn open_view(&self, doc_id: &str) -> Result<DocumentDelta, FlowyError> {
-        let editor = self.document_ctx.controller.open_document(doc_id).await?;
+    pub(crate) async fn open_document(&self, doc_id: &str) -> Result<DocumentDelta, FlowyError> {
+        let editor = self.document_manager.open_document(doc_id).await?;
         KV::set_str(LATEST_VIEW_ID, doc_id.to_owned());
         let document_json = editor.document_json().await?;
         Ok(DocumentDelta {
@@ -158,7 +153,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, doc_id: &str) -> Result<(), FlowyError> {
-        let _ = self.document_ctx.controller.close_document(doc_id)?;
+        let _ = self.document_manager.close_document(doc_id)?;
         Ok(())
     }
 
@@ -169,7 +164,7 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document_ctx.controller.close_document(&params.doc_id)?;
+        let _ = self.document_manager.close_document(&params.doc_id)?;
         Ok(())
     }
 
@@ -180,7 +175,7 @@ impl ViewController {
             .begin_transaction(|transaction| transaction.read_view(doc_id))
             .await?;
 
-        let editor = self.document_ctx.controller.open_document(doc_id).await?;
+        let editor = self.document_manager.open_document(doc_id).await?;
         let document_json = editor.document_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
@@ -198,7 +193,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let editor = self.document_ctx.controller.open_document(&params.doc_id).await?;
+        let editor = self.document_manager.open_document(&params.doc_id).await?;
         let delta_json = editor.document_json().await?;
         Ok(ExportData {
             data: delta_json,
@@ -238,7 +233,7 @@ impl ViewController {
     }
 
     pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let doc = self.document_ctx.controller.receive_local_delta(params).await?;
+        let doc = self.document_manager.receive_local_delta(params).await?;
         Ok(doc)
     }
 
@@ -313,7 +308,7 @@ impl ViewController {
     fn listen_trash_can_event(&self) {
         let mut rx = self.trash_controller.subscribe();
         let persistence = self.persistence.clone();
-        let document = self.document_ctx.clone();
+        let document_manager = self.document_manager.clone();
         let trash_controller = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
@@ -325,17 +320,23 @@ impl ViewController {
                 }));
 
                 if let Some(event) = stream.next().await {
-                    handle_trash_event(persistence.clone(), document.clone(), trash_controller.clone(), event).await
+                    handle_trash_event(
+                        persistence.clone(),
+                        document_manager.clone(),
+                        trash_controller.clone(),
+                        event,
+                    )
+                    .await
                 }
             }
         });
     }
 }
 
-#[tracing::instrument(level = "trace", skip(persistence, context, trash_can))]
+#[tracing::instrument(level = "trace", skip(persistence, document_manager, trash_can))]
 async fn handle_trash_event(
     persistence: Arc<FolderPersistence>,
-    context: Arc<DocumentContext>,
+    document_manager: Arc<FlowyDocumentManager>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -373,7 +374,7 @@ async fn handle_trash_event(
                     for identifier in identifiers.items {
                         let view = transaction.read_view(&identifier.id)?;
                         let _ = transaction.delete_view(&identifier.id)?;
-                        let _ = context.controller.delete(&identifier.id)?;
+                        let _ = document_manager.delete(&identifier.id)?;
                         notify_ids.insert(view.belong_to_id);
                     }
 

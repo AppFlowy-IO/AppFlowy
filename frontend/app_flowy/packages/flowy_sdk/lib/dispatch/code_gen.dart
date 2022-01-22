@@ -268,13 +268,13 @@ class WorkspaceEventCopyLink {
     }
 }
 
-class WorkspaceEventOpenView {
+class WorkspaceEventOpenDocument {
      QueryViewRequest request;
-     WorkspaceEventOpenView(this.request);
+     WorkspaceEventOpenDocument(this.request);
 
     Future<Either<DocumentDelta, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.OpenView.toString()
+          ..event = WorkspaceEvent.OpenDocument.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -350,12 +350,12 @@ class WorkspaceEventDeleteTrash {
     }
 }
 
-class WorkspaceEventRestoreAll {
-    WorkspaceEventRestoreAll();
+class WorkspaceEventRestoreAllTrash {
+    WorkspaceEventRestoreAllTrash();
 
     Future<Either<Unit, FlowyError>> send() {
      final request = FFIRequest.create()
-        ..event = WorkspaceEvent.RestoreAll.toString();
+        ..event = WorkspaceEvent.RestoreAllTrash.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
         (bytes) => left(unit),
@@ -364,12 +364,12 @@ class WorkspaceEventRestoreAll {
     }
 }
 
-class WorkspaceEventDeleteAll {
-    WorkspaceEventDeleteAll();
+class WorkspaceEventDeleteAllTrash {
+    WorkspaceEventDeleteAllTrash();
 
     Future<Either<Unit, FlowyError>> send() {
      final request = FFIRequest.create()
-        ..event = WorkspaceEvent.DeleteAll.toString();
+        ..event = WorkspaceEvent.DeleteAllTrash.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
         (bytes) => left(unit),

@@ -1,5 +1,5 @@
 use crate::{
-    core::{EditorCommand, SYNC_INTERVAL_IN_MILLIS},
+    core::{EditorCommand, DOCUMENT_SYNC_INTERVAL_IN_MILLIS},
     DocumentWSReceiver,
 };
 use async_trait::async_trait;
@@ -46,7 +46,7 @@ pub(crate) async fn make_document_ws_manager(
     });
 
     let sink_provider = Arc::new(DocumentWSSinkDataProviderAdapter(composite_sink_provider));
-    let ping_duration = Duration::from_millis(SYNC_INTERVAL_IN_MILLIS);
+    let ping_duration = Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
         &doc_id,
         web_socket,

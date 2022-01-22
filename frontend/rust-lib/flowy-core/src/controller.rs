@@ -2,13 +2,13 @@ use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::client_document::default::{initial_delta, initial_read_me};
 use flowy_core_data_model::user_default;
-use flowy_document::context::DocumentContext;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
 use flowy_collaboration::{entities::ws_data::ServerRevisionWSData, folder::FolderPad};
+use flowy_document::FlowyDocumentManager;
 use parking_lot::RwLock;
-use std::{collections::HashMap, convert::TryInto, sync::Arc};
+use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 
 use crate::{
@@ -31,6 +31,26 @@ lazy_static! {
     static ref INIT_FOLDER_FLAG: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
 }
 
+const FOLDER_ID: &str = "user_folder";
+const FOLDER_ID_SPLIT: &str = ":";
+#[derive(Clone)]
+pub struct FolderId(String);
+impl FolderId {
+    pub fn new(user_id: &str) -> Self { Self(format!("{}{}{}", user_id, FOLDER_ID_SPLIT, FOLDER_ID)) }
+}
+
+impl std::fmt::Display for FolderId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(FOLDER_ID) }
+}
+
+impl std::fmt::Debug for FolderId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(FOLDER_ID) }
+}
+
+impl AsRef<str> for FolderId {
+    fn as_ref(&self) -> &str { &self.0 }
+}
+
 pub struct FolderManager {
     pub user: Arc<dyn WorkspaceUser>,
     pub(crate) cloud_service: Arc<dyn FolderCouldServiceV1>,
@@ -48,7 +68,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
-        flowy_document: Arc<DocumentContext>,
+        document_manager: Arc<FlowyDocumentManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(token) = user.token() {
@@ -69,7 +89,7 @@ impl FolderManager {
             persistence.clone(),
             cloud_service.clone(),
             trash_controller.clone(),
-            flowy_document,
+            document_manager,
         ));
 
         let app_controller = Arc::new(AppController::new(
@@ -130,11 +150,12 @@ impl FolderManager {
                 return Ok(());
             }
         }
-        let _ = self.persistence.initialize(user_id).await?;
+        let folder_id = FolderId::new(user_id);
+        let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let token = self.user.token()?;
         let pool = self.persistence.db_pool()?;
-        let folder_editor = FolderEditor::new(user_id, &token, pool, self.web_socket.clone()).await?;
+        let folder_editor = FolderEditor::new(user_id, &folder_id, &token, pool, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -177,11 +198,17 @@ impl DefaultFolderBuilder {
             }
         }
         let folder = FolderPad::new(vec![workspace.clone()], vec![])?;
-        let _ = persistence.save_folder(user_id, folder).await?;
+        let folder_id = FolderId::new(user_id);
+        let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
         let repeated_workspace = RepeatedWorkspace { items: vec![workspace] };
         send_dart_notification(token, WorkspaceNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
         Ok(())
     }
+}
+
+#[cfg(feature = "flowy_unit_test")]
+impl FolderManager {
+    pub async fn folder_editor(&self) -> Arc<FolderEditor> { self.folder_editor.read().await.clone().unwrap() }
 }

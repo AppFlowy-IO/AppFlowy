@@ -33,13 +33,13 @@ pub(crate) async fn delete_trash_handler(
 }
 
 #[tracing::instrument(skip(controller), err)]
-pub(crate) async fn restore_all_handler(controller: Unit<Arc<TrashController>>) -> Result<(), FlowyError> {
-    let _ = controller.restore_all().await?;
+pub(crate) async fn restore_all_trash_handler(controller: Unit<Arc<TrashController>>) -> Result<(), FlowyError> {
+    let _ = controller.restore_all_trash().await?;
     Ok(())
 }
 
 #[tracing::instrument(skip(controller), err)]
-pub(crate) async fn delete_all_handler(controller: Unit<Arc<TrashController>>) -> Result<(), FlowyError> {
-    let _ = controller.delete_all().await?;
+pub(crate) async fn delete_all_trash_handler(controller: Unit<Arc<TrashController>>) -> Result<(), FlowyError> {
+    let _ = controller.delete_all_trash().await?;
     Ok(())
 }

@@ -65,7 +65,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub async fn restore_all(&self) -> FlowyResult<()> {
+    pub async fn restore_all_trash(&self) -> FlowyResult<()> {
         let repeated_trash = self
             .persistence
             .begin_transaction(|transaction| {
@@ -86,7 +86,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub async fn delete_all(&self) -> FlowyResult<()> {
+    pub async fn delete_all_trash(&self) -> FlowyResult<()> {
         let repeated_trash = self
             .persistence
             .begin_transaction(|transaction| transaction.read_trash(None))

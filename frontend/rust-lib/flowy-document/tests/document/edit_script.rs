@@ -1,5 +1,5 @@
 use flowy_collaboration::entities::revision::RevisionState;
-use flowy_document::core::{ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
+use flowy_document::core::{ClientDocumentEditor, DOCUMENT_SYNC_INTERVAL_IN_MILLIS};
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
@@ -26,7 +26,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.document_ctx.controller.open_document(&test.view.id).await.unwrap();
+        let editor = sdk.document_manager.open_document(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 
@@ -79,6 +79,6 @@ impl EditorTest {
                 assert_eq!(expected_delta, delta);
             },
         }
-        sleep(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS)).await;
+        sleep(Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS)).await;
     }
 }

@@ -7,7 +7,7 @@ use flowy_core::{
     module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
 };
 use flowy_database::ConnectionPool;
-use flowy_document::context::DocumentContext;
+use flowy_document::FlowyDocumentManager;
 use flowy_net::{
     http_server::core::CoreHttpCloudService,
     local_server::LocalServer,
@@ -15,7 +15,7 @@ use flowy_net::{
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
-use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
+use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, sync::Arc};
 
 pub struct FolderDepsResolver();
@@ -24,7 +24,7 @@ impl FolderDepsResolver {
         local_server: Option<Arc<LocalServer>>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-        flowy_document: &Arc<DocumentContext>,
+        document_manager: &Arc<FlowyDocumentManager>,
         ws_conn: Arc<FlowyWebSocketConnect>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
@@ -39,7 +39,7 @@ impl FolderDepsResolver {
             user,
             cloud_service,
             database,
-            flowy_document.clone(),
+            document_manager.clone(),
             web_socket,
         ));
 
@@ -69,7 +69,7 @@ impl RevisionWebSocket for FolderWebSocketImpl {
     fn send(&self, data: ClientRevisionWSData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
-            module: WSModule::Folder,
+            channel: WSChannel::Folder,
             data: bytes.to_vec(),
         };
         let sender = self.0.web_socket()?;
@@ -82,7 +82,7 @@ impl RevisionWebSocket for FolderWebSocketImpl {
 
 struct FolderWSMessageReceiverImpl(Arc<FolderManager>);
 impl WSMessageReceiver for FolderWSMessageReceiverImpl {
-    fn source(&self) -> WSModule { WSModule::Folder }
+    fn source(&self) -> WSChannel { WSChannel::Folder }
     fn receive_message(&self, msg: WebSocketRawMessage) {
         let handler = self.0.clone();
         tokio::spawn(async move {

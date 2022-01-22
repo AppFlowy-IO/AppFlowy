@@ -53,7 +53,7 @@ pub enum WorkspaceEvent {
     CopyLink          = 206,
 
     #[event(input = "QueryViewRequest", output = "DocumentDelta")]
-    OpenView          = 207,
+    OpenDocument      = 207,
 
     #[event(input = "QueryViewRequest")]
     CloseView         = 208,
@@ -68,10 +68,10 @@ pub enum WorkspaceEvent {
     DeleteTrash       = 302,
 
     #[event()]
-    RestoreAll        = 303,
+    RestoreAllTrash   = 303,
 
     #[event()]
-    DeleteAll         = 304,
+    DeleteAllTrash    = 304,
 
     #[event(input = "DocumentDelta", output = "DocumentDelta")]
     ApplyDocDelta     = 400,

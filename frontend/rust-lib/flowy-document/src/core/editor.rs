@@ -1,7 +1,7 @@
 use crate::{
-    context::DocumentUser,
     core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
+    DocumentUser,
     DocumentWSReceiver,
 };
 use bytes::Bytes;

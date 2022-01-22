@@ -8,7 +8,8 @@ use flowy_error::{FlowyError, FlowyResult};
 use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
 use std::{collections::VecDeque, sync::Arc};
-use tokio::sync::RwLock;
+
+use tokio::sync::{broadcast, RwLock};
 
 pub trait RevisionCloudService: Send + Sync {
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError>;
@@ -25,18 +26,27 @@ pub struct RevisionManager {
     rev_id_counter: RevIdCounter,
     revision_cache: Arc<RevisionCache>,
     revision_sync_seq: Arc<RevisionSyncSequence>,
+
+    #[cfg(feature = "flowy_unit_test")]
+    revision_ack_notifier: broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
     pub fn new(user_id: &str, object_id: &str, revision_cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         let revision_sync_seq = Arc::new(RevisionSyncSequence::new());
+        #[cfg(feature = "flowy_unit_test")]
+        let (revision_ack_notifier, _) = broadcast::channel(1);
+
         Self {
             object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
             revision_cache,
             revision_sync_seq,
+
+            #[cfg(feature = "flowy_unit_test")]
+            revision_ack_notifier,
         }
     }
 
@@ -98,6 +108,9 @@ impl RevisionManager {
     pub async fn ack_revision(&self, rev_id: i64) -> Result<(), FlowyError> {
         if self.revision_sync_seq.ack(&rev_id).await.is_ok() {
             self.revision_cache.ack(rev_id).await;
+
+            #[cfg(feature = "flowy_unit_test")]
+            let _ = self.revision_ack_notifier.send(rev_id);
         }
         Ok(())
     }
@@ -256,4 +269,5 @@ impl RevisionSyncSequence {
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionManager {
     pub fn revision_cache(&self) -> Arc<RevisionCache> { self.revision_cache.clone() }
+    pub fn revision_ack_receiver(&self) -> broadcast::Receiver<i64> { self.revision_ack_notifier.subscribe() }
 }

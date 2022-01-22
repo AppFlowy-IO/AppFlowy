@@ -26,13 +26,13 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent DeleteView = WorkspaceEvent._(204, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteView');
   static const WorkspaceEvent DuplicateView = WorkspaceEvent._(205, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateView');
   static const WorkspaceEvent CopyLink = WorkspaceEvent._(206, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CopyLink');
-  static const WorkspaceEvent OpenView = WorkspaceEvent._(207, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OpenView');
+  static const WorkspaceEvent OpenDocument = WorkspaceEvent._(207, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OpenDocument');
   static const WorkspaceEvent CloseView = WorkspaceEvent._(208, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CloseView');
   static const WorkspaceEvent ReadTrash = WorkspaceEvent._(300, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadTrash');
   static const WorkspaceEvent PutbackTrash = WorkspaceEvent._(301, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PutbackTrash');
   static const WorkspaceEvent DeleteTrash = WorkspaceEvent._(302, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteTrash');
-  static const WorkspaceEvent RestoreAll = WorkspaceEvent._(303, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RestoreAll');
-  static const WorkspaceEvent DeleteAll = WorkspaceEvent._(304, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteAll');
+  static const WorkspaceEvent RestoreAllTrash = WorkspaceEvent._(303, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RestoreAllTrash');
+  static const WorkspaceEvent DeleteAllTrash = WorkspaceEvent._(304, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteAllTrash');
   static const WorkspaceEvent ApplyDocDelta = WorkspaceEvent._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
   static const WorkspaceEvent ExportDocument = WorkspaceEvent._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
 
@@ -53,13 +53,13 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     DeleteView,
     DuplicateView,
     CopyLink,
-    OpenView,
+    OpenDocument,
     CloseView,
     ReadTrash,
     PutbackTrash,
     DeleteTrash,
-    RestoreAll,
-    DeleteAll,
+    RestoreAllTrash,
+    DeleteAllTrash,
     ApplyDocDelta,
     ExportDocument,
   ];

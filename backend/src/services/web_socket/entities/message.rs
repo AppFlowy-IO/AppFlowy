@@ -1,7 +1,7 @@
 use actix::Message;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws_data::{ClientRevisionWSData, ServerRevisionWSData};
-use lib_ws::{WSModule, WebSocketRawMessage};
+use flowy_collaboration::entities::ws_data::ServerRevisionWSData;
+use lib_ws::{WSChannel, WebSocketRawMessage};
 use std::convert::TryInto;
 
 #[derive(Debug, Message, Clone)]
@@ -14,27 +14,12 @@ impl std::ops::Deref for WebSocketMessage {
     fn deref(&self) -> &Self::Target { &self.0 }
 }
 
-impl std::convert::From<ClientRevisionWSData> for WebSocketMessage {
-    fn from(data: ClientRevisionWSData) -> Self {
-        let bytes: Bytes = data.try_into().unwrap();
-        let msg = WebSocketRawMessage {
-            module: WSModule::Doc,
-            data: bytes.to_vec(),
-        };
-
-        let bytes: Bytes = msg.try_into().unwrap();
-        WebSocketMessage(bytes)
-    }
-}
-
-impl std::convert::From<ServerRevisionWSData> for WebSocketMessage {
-    fn from(data: ServerRevisionWSData) -> Self {
-        let bytes: Bytes = data.try_into().unwrap();
-        let msg = WebSocketRawMessage {
-            module: WSModule::Doc,
-            data: bytes.to_vec(),
-        };
-        let bytes: Bytes = msg.try_into().unwrap();
-        WebSocketMessage(bytes)
-    }
+pub fn revision_data_to_ws_message(data: ServerRevisionWSData, channel: WSChannel) -> WebSocketMessage {
+    let bytes: Bytes = data.try_into().unwrap();
+    let msg = WebSocketRawMessage {
+        channel,
+        data: bytes.to_vec(),
+    };
+    let bytes: Bytes = msg.try_into().unwrap();
+    WebSocketMessage(bytes)
 }

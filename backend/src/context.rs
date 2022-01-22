@@ -13,7 +13,7 @@ use crate::services::{
     folder::ws_receiver::make_folder_ws_receiver,
 };
 use flowy_collaboration::server_document::ServerDocumentManager;
-use lib_ws::WSModule;
+use lib_ws::WSChannel;
 use sqlx::PgPool;
 use std::sync::Arc;
 
@@ -37,10 +37,10 @@ impl AppContext {
         let document_manager = Arc::new(ServerDocumentManager::new(document_persistence));
 
         let document_ws_receiver = make_document_ws_receiver(flowy_persistence.clone(), document_manager.clone());
-        ws_receivers.set(WSModule::Doc, document_ws_receiver);
+        ws_receivers.set(WSChannel::Document, document_ws_receiver);
 
         let folder_ws_receiver = make_folder_ws_receiver(flowy_persistence.clone());
-        ws_receivers.set(WSModule::Folder, folder_ws_receiver);
+        ws_receivers.set(WSChannel::Folder, folder_ws_receiver);
 
         AppContext {
             ws_server,

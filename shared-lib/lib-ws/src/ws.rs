@@ -2,7 +2,7 @@
 use crate::{
     connect::{WSConnectionFuture, WSStream},
     errors::WSError,
-    WSModule,
+    WSChannel,
     WebSocketRawMessage,
 };
 use backend_service::errors::ServerError;
@@ -30,10 +30,10 @@ use tokio_tungstenite::tungstenite::{
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
-type Handlers = DashMap<WSModule, Arc<dyn WSMessageReceiver>>;
+type Handlers = DashMap<WSChannel, Arc<dyn WSMessageReceiver>>;
 
 pub trait WSMessageReceiver: Sync + Send + 'static {
-    fn source(&self) -> WSModule;
+    fn source(&self) -> WSChannel;
     fn receive_message(&self, msg: WebSocketRawMessage);
 }
 
@@ -175,7 +175,7 @@ impl WSHandlerFuture {
     fn handle_binary_message(&self, bytes: Vec<u8>) {
         let bytes = Bytes::from(bytes);
         match WebSocketRawMessage::try_from(bytes) {
-            Ok(message) => match self.handlers.get(&message.module) {
+            Ok(message) => match self.handlers.get(&message.channel) {
                 None => log::error!("Can't find any handler for message: {:?}", message),
                 Some(handler) => handler.receive_message(message.clone()),
             },
@@ -215,17 +215,17 @@ impl WSSender {
         Ok(())
     }
 
-    pub fn send_text(&self, source: &WSModule, text: &str) -> Result<(), WSError> {
+    pub fn send_text(&self, source: &WSChannel, text: &str) -> Result<(), WSError> {
         let msg = WebSocketRawMessage {
-            module: source.clone(),
+            channel: source.clone(),
             data: text.as_bytes().to_vec(),
         };
         self.send_msg(msg)
     }
 
-    pub fn send_binary(&self, source: &WSModule, bytes: Vec<u8>) -> Result<(), WSError> {
+    pub fn send_binary(&self, source: &WSChannel, bytes: Vec<u8>) -> Result<(), WSError> {
         let msg = WebSocketRawMessage {
-            module: source.clone(),
+            channel: source.clone(),
             data: bytes,
         };
         self.send_msg(msg)

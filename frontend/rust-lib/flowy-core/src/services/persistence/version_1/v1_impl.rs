@@ -9,7 +9,9 @@ use crate::services::persistence::{
 };
 use flowy_core_data_model::entities::{
     app::App,
-    prelude::{RepeatedTrash, Trash, View, Workspace},
+    trash::{RepeatedTrash, Trash},
+    view::View,
+    workspace::Workspace,
 };
 use flowy_error::FlowyResult;
 use lib_sqlite::DBConnection;

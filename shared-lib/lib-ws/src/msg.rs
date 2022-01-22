@@ -6,27 +6,27 @@ use tokio_tungstenite::tungstenite::Message as TokioMessage;
 #[derive(ProtoBuf, Debug, Clone, Default)]
 pub struct WebSocketRawMessage {
     #[pb(index = 1)]
-    pub module: WSModule,
+    pub channel: WSChannel,
 
     #[pb(index = 2)]
     pub data: Vec<u8>,
 }
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Hash)]
-pub enum WSModule {
-    Doc    = 0,
-    Folder = 1,
+pub enum WSChannel {
+    Document = 0,
+    Folder   = 1,
 }
 
-impl std::default::Default for WSModule {
-    fn default() -> Self { WSModule::Doc }
+impl std::default::Default for WSChannel {
+    fn default() -> Self { WSChannel::Document }
 }
 
-impl ToString for WSModule {
+impl ToString for WSChannel {
     fn to_string(&self) -> String {
         match self {
-            WSModule::Doc => "0".to_string(),
-            WSModule::Folder => "1".to_string(),
+            WSChannel::Document => "0".to_string(),
+            WSChannel::Folder => "1".to_string(),
         }
     }
 }

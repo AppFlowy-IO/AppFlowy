@@ -9,13 +9,13 @@ use std::{
     sync::Arc,
 };
 
-pub type CoreModuleEventBuilder = EventBuilder<FlowyError>;
-impl CoreModuleEventBuilder {
+pub type FolderEventBuilder = EventBuilder<FlowyError>;
+impl FolderEventBuilder {
     pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
     pub fn user_profile(&self) -> &Option<UserProfile> { &self.user_profile }
 }
 
-pub type UserModuleEventBuilder = CoreModuleEventBuilder;
+pub type UserModuleEventBuilder = FolderEventBuilder;
 
 #[derive(Clone)]
 pub struct EventBuilder<E> {

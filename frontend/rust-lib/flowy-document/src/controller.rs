@@ -1,4 +1,4 @@
-use crate::{context::DocumentUser, core::ClientDocumentEditor, errors::FlowyError, DocumentCloudService};
+use crate::{core::ClientDocumentEditor, errors::FlowyError, DocumentCloudService};
 use async_trait::async_trait;
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -14,13 +14,21 @@ use lib_infra::future::FutureResult;
 use lib_ws::WSConnectState;
 use std::{convert::TryInto, sync::Arc};
 
+pub trait DocumentUser: Send + Sync {
+    fn user_dir(&self) -> Result<String, FlowyError>;
+    fn user_id(&self) -> Result<String, FlowyError>;
+    fn token(&self) -> Result<String, FlowyError>;
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
+}
+
+
 #[async_trait]
 pub(crate) trait DocumentWSReceiver: Send + Sync {
     async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError>;
     fn connect_state_changed(&self, state: WSConnectState);
 }
 type WebSocketDataReceivers = Arc<DashMap<String, Arc<dyn DocumentWSReceiver>>>;
-pub struct DocumentController {
+pub struct FlowyDocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
     ws_receivers: WebSocketDataReceivers,
     web_socket: Arc<dyn RevisionWebSocket>,
@@ -28,7 +36,7 @@ pub struct DocumentController {
     user: Arc<dyn DocumentUser>,
 }
 
-impl DocumentController {
+impl FlowyDocumentManager {
     pub fn new(
         cloud_service: Arc<dyn DocumentCloudService>,
         user: Arc<dyn DocumentUser>,
@@ -45,7 +53,7 @@ impl DocumentController {
         }
     }
 
-    pub(crate) fn init(&self) -> FlowyResult<()> {
+    pub fn init(&self) -> FlowyResult<()> {
         let notify = self.web_socket.subscribe_state_changed();
         listen_ws_state_changed(notify, self.ws_receivers.clone());
 
@@ -119,7 +127,7 @@ impl DocumentController {
     }
 }
 
-impl DocumentController {
+impl FlowyDocumentManager {
     async fn get_editor(&self, doc_id: &str) -> FlowyResult<Arc<ClientDocumentEditor>> {
         match self.open_cache.get(doc_id) {
             None => {

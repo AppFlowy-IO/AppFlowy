@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 message WebSocketRawMessage {
-    WSModule module = 1;
+    WSChannel channel = 1;
     bytes data = 2;
 }
-enum WSModule {
-    Doc = 0;
+enum WSChannel {
+    Document = 0;
     Folder = 1;
 }

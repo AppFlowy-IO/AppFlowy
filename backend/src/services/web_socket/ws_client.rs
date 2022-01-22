@@ -11,7 +11,7 @@ use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use lib_ws::{WSModule, WebSocketRawMessage};
+use lib_ws::{WSChannel, WebSocketRawMessage};
 use std::{collections::HashMap, convert::TryFrom, sync::Arc, time::Instant};
 
 pub trait WebSocketReceiver: Send + Sync {
@@ -19,7 +19,7 @@ pub trait WebSocketReceiver: Send + Sync {
 }
 
 pub struct WebSocketReceivers {
-    inner: HashMap<WSModule, Arc<dyn WebSocketReceiver>>,
+    inner: HashMap<WSChannel, Arc<dyn WebSocketReceiver>>,
 }
 
 impl std::default::Default for WebSocketReceivers {
@@ -29,11 +29,11 @@ impl std::default::Default for WebSocketReceivers {
 impl WebSocketReceivers {
     pub fn new() -> Self { WebSocketReceivers::default() }
 
-    pub fn set(&mut self, source: WSModule, receiver: Arc<dyn WebSocketReceiver>) {
+    pub fn set(&mut self, source: WSChannel, receiver: Arc<dyn WebSocketReceiver>) {
         self.inner.insert(source, receiver);
     }
 
-    pub fn get(&self, source: &WSModule) -> Option<Arc<dyn WebSocketReceiver>> { self.inner.get(source).cloned() }
+    pub fn get(&self, source: &WSChannel) -> Option<Arc<dyn WebSocketReceiver>> { self.inner.get(source).cloned() }
 }
 
 #[derive(Debug)]
@@ -86,9 +86,9 @@ impl WSClient {
     fn handle_binary_message(&self, bytes: Bytes, socket: Socket) {
         // TODO: ok to unwrap?
         let message: WebSocketRawMessage = WebSocketRawMessage::try_from(bytes).unwrap();
-        match self.ws_receivers.get(&message.module) {
+        match self.ws_receivers.get(&message.channel) {
             None => {
-                log::error!("Can't find the receiver for {:?}", message.module);
+                log::error!("Can't find the receiver for {:?}", message.channel);
             },
             Some(handler) => {
                 let client_data = WSClientData {

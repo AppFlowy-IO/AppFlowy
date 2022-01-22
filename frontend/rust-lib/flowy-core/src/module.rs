@@ -62,7 +62,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(WorkspaceEvent::UpdateView, update_view_handler)
         .event(WorkspaceEvent::DeleteView, delete_view_handler)
         .event(WorkspaceEvent::DuplicateView, duplicate_view_handler)
-        .event(WorkspaceEvent::OpenView, open_view_handler)
+        .event(WorkspaceEvent::OpenDocument, open_document_handler)
         .event(WorkspaceEvent::CloseView, close_view_handler)
         .event(WorkspaceEvent::ApplyDocDelta, document_delta_handler);
 
@@ -70,8 +70,8 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(WorkspaceEvent::ReadTrash, read_trash_handler)
         .event(WorkspaceEvent::PutbackTrash, putback_trash_handler)
         .event(WorkspaceEvent::DeleteTrash, delete_trash_handler)
-        .event(WorkspaceEvent::RestoreAll, restore_all_handler)
-        .event(WorkspaceEvent::DeleteAll, delete_all_handler);
+        .event(WorkspaceEvent::RestoreAllTrash, restore_all_trash_handler)
+        .event(WorkspaceEvent::DeleteAllTrash, delete_all_trash_handler);
 
     module = module.event(WorkspaceEvent::ExportDocument, export_handler);
 

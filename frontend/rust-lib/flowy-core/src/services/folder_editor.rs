@@ -1,9 +1,10 @@
-use crate::services::{persistence::FOLDER_ID, web_socket::make_folder_ws_manager};
+use crate::services::web_socket::make_folder_ws_manager;
 use flowy_collaboration::{
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
     folder::{FolderChange, FolderPad},
 };
 
+use crate::controller::FolderId;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
     RevisionCache,
@@ -20,6 +21,7 @@ use std::sync::Arc;
 
 pub struct FolderEditor {
     user_id: String,
+    pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
     rev_manager: Arc<RevisionManager>,
     ws_manager: Arc<RevisionWebSocketManager>,
@@ -28,23 +30,33 @@ pub struct FolderEditor {
 impl FolderEditor {
     pub async fn new(
         user_id: &str,
+        folder_id: &FolderId,
         token: &str,
         pool: Arc<ConnectionPool>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> FlowyResult<Self> {
-        let cache = Arc::new(RevisionCache::new(user_id, FOLDER_ID, pool));
-        let mut rev_manager = RevisionManager::new(user_id, FOLDER_ID, cache);
+        let cache = Arc::new(RevisionCache::new(user_id, folder_id.as_ref(), pool));
+        let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), cache);
         let cloud = Arc::new(FolderRevisionCloudServiceImpl {
             token: token.to_string(),
         });
-        let folder_pad = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(cloud).await?));
+        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(cloud).await?));
         let rev_manager = Arc::new(rev_manager);
-        let ws_manager = make_folder_ws_manager(user_id, rev_manager.clone(), web_socket, folder_pad.clone()).await;
+        let ws_manager = make_folder_ws_manager(
+            user_id,
+            folder_id.as_ref(),
+            rev_manager.clone(),
+            web_socket,
+            folder.clone(),
+        )
+        .await;
 
         let user_id = user_id.to_owned();
+        let folder_id = folder_id.to_owned();
         Ok(Self {
             user_id,
-            folder: folder_pad,
+            folder_id,
+            folder,
             rev_manager,
             ws_manager,
         })
@@ -52,7 +64,7 @@ impl FolderEditor {
 
     pub async fn receive_ws_data(&self, data: ServerRevisionWSData) -> FlowyResult<()> {
         let _ = self.ws_manager.ws_passthrough_tx.send(data).await.map_err(|e| {
-            let err_msg = format!("{} passthrough error: {}", FOLDER_ID, e);
+            let err_msg = format!("{} passthrough error: {}", self.folder_id, e);
             FlowyError::internal().context(err_msg)
         })?;
         Ok(())
@@ -96,4 +108,9 @@ impl RevisionCloudService for FolderRevisionCloudServiceImpl {
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
     }
+}
+
+#[cfg(feature = "flowy_unit_test")]
+impl FolderEditor {
+    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
 }
