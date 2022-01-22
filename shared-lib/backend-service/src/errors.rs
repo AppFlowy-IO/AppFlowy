@@ -5,7 +5,7 @@ use serde_repr::*;
 use std::{fmt, fmt::Debug};
 
 pub type Result<T> = std::result::Result<T, ServerError>;
-
+use flowy_collaboration::errors::CollaborateError;
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
 pub struct ServerError {
     pub code: ErrorCode,
@@ -47,6 +47,14 @@ impl ServerError {
     pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
 
     pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::UserUnauthorized }
+
+    pub fn to_collaborate_error(&self) -> CollaborateError {
+        if self.is_record_not_found() {
+            CollaborateError::record_not_found()
+        } else {
+            CollaborateError::internal().context(self.msg.clone())
+        }
+    }
 }
 
 pub fn internal_error<T>(e: T) -> ServerError

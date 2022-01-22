@@ -113,7 +113,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 },
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(2000)).await;
-                    let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
+                    let persistence = Data::new(context.read().server.app_ctx.persistence.document_kv_store());
                     let doc_identifier: DocumentIdPB = DocumentId {
                         doc_id
                     }.try_into().unwrap();

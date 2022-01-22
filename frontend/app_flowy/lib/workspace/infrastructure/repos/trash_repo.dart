@@ -33,11 +33,11 @@ class TrashRepo {
   }
 
   Future<Either<Unit, FlowyError>> restoreAll() {
-    return WorkspaceEventRestoreAll().send();
+    return WorkspaceEventRestoreAllTrash().send();
   }
 
   Future<Either<Unit, FlowyError>> deleteAll() {
-    return WorkspaceEventDeleteAll().send();
+    return WorkspaceEventDeleteAllTrash().send();
   }
 }
 

@@ -1,10 +1,11 @@
 use crate::{
-    context::FlowyPersistence,
+    context::{DocumentRevisionKV, FlowyPersistence},
     services::{
         document::{
-            persistence::{create_document, read_document, revisions_to_key_value_items, DocumentKVPersistence},
+            persistence::{create_document, read_document},
             ws_actor::{DocumentWSActorMessage, DocumentWebSocketActor},
         },
+        kv::revision_kv::revisions_to_key_value_items,
         web_socket::{WSClientData, WebSocketReceiver},
     },
 };
@@ -76,9 +77,9 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
     }
 }
 
-pub struct HttpDocumentCloudPersistence(pub Arc<DocumentKVPersistence>);
+pub struct HttpDocumentCloudPersistence(pub Arc<DocumentRevisionKV>);
 impl Debug for HttpDocumentCloudPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("HttpDocumentCloudPersistence") }
 }
 
 impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
@@ -87,11 +88,11 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
-        let kv_store = self.0.clone();
+        let document_store = self.0.clone();
         Box::pin(async move {
-            let mut pb_doc = read_document(&kv_store, params)
+            let mut pb_doc = read_document(&document_store, params)
                 .await
-                .map_err(server_error_to_collaborate_error)?;
+                .map_err(|e| e.to_collaborate_error())?;
             let doc = (&mut pb_doc)
                 .try_into()
                 .map_err(|e| CollaborateError::internal().context(e))?;
@@ -104,7 +105,7 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<Option<DocumentInfo>, CollaborateError> {
-        let kv_store = self.0.clone();
+        let document_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
             let document_info = make_document_info_from_revisions_pb(&doc_id, repeated_revision.clone())?;
@@ -112,9 +113,9 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
             let mut params = CreateDocParamsPB::new();
             params.set_id(doc_id);
             params.set_revisions(repeated_revision);
-            let _ = create_document(&kv_store, params)
+            let _ = create_document(&document_store, params)
                 .await
-                .map_err(server_error_to_collaborate_error)?;
+                .map_err(|e| e.to_collaborate_error())?;
             Ok(document_info)
         })
     }
@@ -124,28 +125,28 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        let kv_store = self.0.clone();
+        let document_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            let mut repeated_revision = kv_store.get_revisions(&doc_id, rev_ids).await?;
-            Ok(repeated_revision.take_items().into())
+            let mut repeated_revision = document_store.get_revisions(&doc_id, rev_ids).await?;
+            Ok::<Vec<RevisionPB>, ServerError>(repeated_revision.take_items().into())
         };
 
-        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
+        Box::pin(async move { f().await.map_err(|e| e.to_collaborate_error()) })
     }
 
     fn save_document_revisions(
         &self,
         mut repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError> {
-        let kv_store = self.0.clone();
+        let document_store = self.0.clone();
         let f = || async move {
             let revisions = repeated_revision.take_items().into();
-            let _ = kv_store.set_revision(revisions).await?;
-            Ok(())
+            let _ = document_store.set_revision(revisions).await?;
+            Ok::<(), ServerError>(())
         };
 
-        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
+        Box::pin(async move { f().await.map_err(|e| e.to_collaborate_error()) })
     }
 
     fn reset_document(
@@ -153,10 +154,10 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
         doc_id: &str,
         mut repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError> {
-        let kv_store = self.0.clone();
+        let document_store = self.0.clone();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            kv_store
+            document_store
                 .transaction(|mut transaction| {
                     Box::pin(async move {
                         let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
@@ -167,14 +168,6 @@ impl DocumentCloudPersistence for HttpDocumentCloudPersistence {
                 })
                 .await
         };
-        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
-    }
-}
-
-fn server_error_to_collaborate_error(error: ServerError) -> CollaborateError {
-    if error.is_record_not_found() {
-        CollaborateError::record_not_found()
-    } else {
-        CollaborateError::internal().context(error)
+        Box::pin(async move { f().await.map_err(|e| e.to_collaborate_error()) })
     }
 }

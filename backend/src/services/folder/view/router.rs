@@ -37,7 +37,7 @@ pub async fn create_handler(
     user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateViewParamsPB = parse_from_payload(payload).await?;
-    let kv_store = persistence.kv_store();
+    let kv_store = persistence.document_kv_store();
     let pool = persistence.pg_pool();
     let mut transaction = pool
         .begin()
@@ -114,7 +114,7 @@ pub async fn delete_handler(
 ) -> Result<HttpResponse, ServerError> {
     let params: QueryViewRequestPB = parse_from_payload(payload).await?;
     let pool = persistence.pg_pool();
-    let kv_store = persistence.kv_store();
+    let kv_store = persistence.document_kv_store();
     let view_ids = check_view_ids(params.view_ids.to_vec())?;
     let mut transaction = pool
         .begin()

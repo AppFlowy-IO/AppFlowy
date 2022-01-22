@@ -1,13 +1,14 @@
 use crate::{
     entities::logged_user::LoggedUser,
     services::{
-        document::persistence::{create_document, delete_document, DocumentKVPersistence},
+        document::persistence::{create_document, delete_document},
         folder::{trash::read_trash_ids, view::persistence::*},
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};
 
+use crate::context::DocumentRevisionKV;
 use chrono::Utc;
 use flowy_collaboration::{
     client_document::default::initial_delta,
@@ -48,10 +49,10 @@ pub(crate) async fn update_view(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction, kv_store), err)]
+#[tracing::instrument(skip(transaction, document_store), err)]
 pub(crate) async fn delete_view(
     transaction: &mut DBTransaction<'_>,
-    kv_store: &Arc<DocumentKVPersistence>,
+    document_store: &Arc<DocumentRevisionKV>,
     view_ids: Vec<Uuid>,
 ) -> Result<(), ServerError> {
     for view_id in view_ids {
@@ -61,15 +62,15 @@ pub(crate) async fn delete_view(
             .await
             .map_err(map_sqlx_error)?;
 
-        let _ = delete_document(kv_store, view_id).await?;
+        let _ = delete_document(document_store, view_id).await?;
     }
     Ok(())
 }
 
-#[tracing::instrument(name = "create_view", level = "debug", skip(transaction, kv_store), err)]
+#[tracing::instrument(name = "create_view", level = "debug", skip(transaction, document_store), err)]
 pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
-    kv_store: Arc<DocumentKVPersistence>,
+    document_store: Arc<DocumentRevisionKV>,
     params: CreateViewParamsPB,
     user_id: &str,
 ) -> Result<ViewPB, ServerError> {
@@ -98,7 +99,7 @@ pub(crate) async fn create_view(
     let mut create_doc_params = CreateDocParamsPB::new();
     create_doc_params.set_revisions(repeated_revision.try_into().unwrap());
     create_doc_params.set_id(view.id.clone());
-    let _ = create_document(&kv_store, create_doc_params).await?;
+    let _ = create_document(&document_store, create_doc_params).await?;
 
     Ok(view)
 }

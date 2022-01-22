@@ -48,7 +48,7 @@ pub async fn delete_handler(
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
     let pool = persistence.pg_pool();
-    let kv_store = persistence.kv_store();
+    let kv_store = persistence.document_kv_store();
     let params: RepeatedTrashId = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()

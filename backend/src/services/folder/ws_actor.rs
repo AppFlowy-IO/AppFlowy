@@ -12,6 +12,7 @@ use flowy_collaboration::{
         ClientRevisionWSData as ClientRevisionWSDataPB,
         ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
     },
+    server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use futures::stream::StreamExt;
@@ -29,12 +30,14 @@ pub enum FolderWSActorMessage {
 
 pub struct FolderWebSocketActor {
     receiver: Option<mpsc::Receiver<FolderWSActorMessage>>,
+    folder_manager: Arc<ServerFolderManager>,
 }
 
 impl FolderWebSocketActor {
-    pub fn new(receiver: mpsc::Receiver<FolderWSActorMessage>) -> Self {
+    pub fn new(receiver: mpsc::Receiver<FolderWSActorMessage>, folder_manager: Arc<ServerFolderManager>) -> Self {
         Self {
             receiver: Some(receiver),
+            folder_manager,
         }
     }
 
@@ -79,13 +82,21 @@ impl FolderWebSocketActor {
             folder_client_data.ty
         );
 
-        let _user = Arc::new(FolderRevisionUser { user, socket });
+        let user = Arc::new(FolderRevisionUser { user, socket });
         match &folder_client_data.ty {
             ClientRevisionWSDataTypePB::ClientPushRev => {
-                todo!()
+                let _ = self
+                    .folder_manager
+                    .handle_client_revisions(user, folder_client_data)
+                    .await
+                    .map_err(internal_error)?;
             },
             ClientRevisionWSDataTypePB::ClientPing => {
-                todo!()
+                let _ = self
+                    .folder_manager
+                    .handle_client_ping(user, folder_client_data)
+                    .await
+                    .map_err(internal_error)?;
             },
         }
         Ok(())
