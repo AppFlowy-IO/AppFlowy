@@ -90,7 +90,7 @@
     "inlineCode": "Codice in linea",
     "quote": "Cita Blocco"
   },
-  "tooltip": {
+  "tooltip":{
     "lightMode" : "Passa alla modalità Chiara",
     "darkMode" : "Passa alla modalità Scura"
   },
@@ -126,17 +126,6 @@
       "instruction2": "Copia questo codice negli appunti premendo l'icona o selezionando il testo:",
       "instruction3": "Naviga sul seguente link con il tuo browser web e inserisci il codice seguente:",
       "instruction4": "Premi il bottone qui sotto quando hai completato l'iscrizione:"
-    }
-    },
-  "settings": {
-    "title": "Impostazioni",
-    "menu": {
-      "appearance": "Aspetto",
-      "language": "Lingua"
-    },
-    "appearance": {
-      "lightLabel": "Modalità Chiara",
-      "darkLabel": "Modalità Scura"
     }
   }
 }
