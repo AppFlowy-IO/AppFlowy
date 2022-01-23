@@ -116,7 +116,7 @@ pub(crate) async fn read_view(
 
     let mut views = RepeatedViewPB::default();
     views.set_items(
-        read_view_belong_to_id(&table.id.to_string(), &user, transaction)
+        read_view_belong_to_id(&table.id.to_string(), user, transaction)
             .await?
             .into(),
     );

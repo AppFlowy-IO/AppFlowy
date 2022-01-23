@@ -24,7 +24,9 @@ pub struct MapInfo {
 }
 
 impl MapInfo {
-    fn new(key: String, value: String) -> Self { MapInfo { key, value } }
+    fn new(key: String, value: String) -> Self {
+        MapInfo { key, value }
+    }
 }
 
 impl<'a> TyInfo<'a> {
@@ -34,7 +36,7 @@ impl<'a> TyInfo<'a> {
             Some(b_ty) => b_ty.ident,
             None => {
                 panic!()
-            },
+            }
         }
     }
 }
@@ -60,8 +62,8 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Result<Option<TyInfo<'a>>
                 "Vec" => generate_vec_ty_info(ctxt, seg, bracketed),
                 "Option" => generate_option_ty_info(ctxt, ty, seg, bracketed),
                 _ => {
-                    return Err(format!("Unsupported ty {}", seg.ident.to_string()));
-                },
+                    return Err(format!("Unsupported ty {}", seg.ident));
+                }
             }
         } else {
             return Ok(Some(TyInfo {
@@ -103,7 +105,7 @@ pub fn generate_hashmap_ty_info<'a>(
     let types = parse_bracketed(bracketed);
     let key = parse_ty(ctxt, types[0])?.unwrap().ident.to_string();
     let value = parse_ty(ctxt, types[1])?.unwrap().ident.to_string();
-    let bracket_ty_info = Box::new(parse_ty(ctxt, &types[1])?);
+    let bracket_ty_info = Box::new(parse_ty(ctxt, types[1])?);
     Ok(Some(TyInfo {
         ident: &path_segment.ident,
         ty,
@@ -120,7 +122,7 @@ fn generate_option_ty_info<'a>(
 ) -> Result<Option<TyInfo<'a>>, String> {
     assert_eq!(path_segment.ident.to_string(), "Option".to_string());
     let types = parse_bracketed(bracketed);
-    let bracket_ty_info = Box::new(parse_ty(ctxt, &types[0])?);
+    let bracket_ty_info = Box::new(parse_ty(ctxt, types[0])?);
     Ok(Some(TyInfo {
         ident: &path_segment.ident,
         ty,
@@ -138,7 +140,7 @@ fn generate_vec_ty_info<'a>(
         return Ok(None);
     }
     if let syn::GenericArgument::Type(ref bracketed_type) = bracketed.args.first().unwrap() {
-        let bracketed_ty_info = Box::new(parse_ty(ctxt, &bracketed_type)?);
+        let bracketed_ty_info = Box::new(parse_ty(ctxt, bracketed_type)?);
         return Ok(Some(TyInfo {
             ident: &path_segment.ident,
             ty: bracketed_type,

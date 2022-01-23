@@ -73,7 +73,7 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
         true => {
             let color_bytes = params.get_color_style().write_to_bytes()?;
             Some(color_bytes)
-        },
+        }
     };
 
     let desc = match params.has_desc() {

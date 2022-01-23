@@ -14,11 +14,13 @@ use std::convert::TryInto;
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewType {
     Blank = 0,
-    Doc   = 1,
+    Doc = 1,
 }
 
 impl std::default::Default for ViewType {
-    fn default() -> Self { ViewType::Blank }
+    fn default() -> Self {
+        ViewType::Blank
+    }
 }
 
 impl std::convert::From<i32> for ViewType {
@@ -29,7 +31,7 @@ impl std::convert::From<i32> for ViewType {
             _ => {
                 log::error!("Invalid view type: {}", val);
                 ViewType::Blank
-            },
+            }
         }
     }
 }

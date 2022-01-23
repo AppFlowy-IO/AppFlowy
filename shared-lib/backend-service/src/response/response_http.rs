@@ -11,7 +11,9 @@ impl ResponseError for ServerError {
     }
 }
 impl std::convert::Into<HttpResponse> for FlowyResponse {
-    fn into(self) -> HttpResponse { HttpResponse::Ok().json(self) }
+    fn into(self) -> HttpResponse {
+        HttpResponse::Ok().json(self)
+    }
 }
 
 impl std::convert::Into<AnyBody> for FlowyResponse {

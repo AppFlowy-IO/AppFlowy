@@ -37,7 +37,9 @@ impl Claim {
         }
     }
 
-    pub fn user_id(self) -> String { self.user_id }
+    pub fn user_id(self) -> String {
+        self.user_id
+    }
 }
 
 // impl From<Claim> for User {
@@ -48,7 +50,7 @@ impl Claim {
 pub struct Token(pub String);
 impl Token {
     pub fn create_token(user_id: &str) -> Result<Self, ServerError> {
-        let claims = Claim::with_user_id(&user_id);
+        let claims = Claim::with_user_id(user_id);
         encode(
             &Header::new(DEFAULT_ALGORITHM),
             &claims,

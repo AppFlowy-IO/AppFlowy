@@ -19,5 +19,7 @@ impl WorkspaceName {
 }
 
 impl AsRef<str> for WorkspaceName {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

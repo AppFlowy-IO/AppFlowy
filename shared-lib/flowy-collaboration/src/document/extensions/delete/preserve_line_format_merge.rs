@@ -6,7 +6,9 @@ use lib_ot::{
 
 pub struct PreserveLineFormatOnMerge {}
 impl DeleteExt for PreserveLineFormatOnMerge {
-    fn ext_name(&self) -> &str { "PreserveLineFormatOnMerge" }
+    fn ext_name(&self) -> &str {
+        "PreserveLineFormatOnMerge"
+    }
 
     fn apply(&self, delta: &RichTextDelta, interval: Interval) -> Option<RichTextDelta> {
         if interval.is_empty() {
@@ -37,7 +39,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
                         None => {
                             new_delta.retain(op.len(), plain_attributes());
                             continue;
-                        },
+                        }
                         Some(line_break) => {
                             let mut attributes = op.get_attributes();
                             attributes.mark_all_as_removed_except(None);
@@ -49,9 +51,9 @@ impl DeleteExt for PreserveLineFormatOnMerge {
                             new_delta.retain(line_break, plain_attributes());
                             new_delta.retain(1, attributes);
                             break;
-                        },
+                        }
                     }
-                },
+                }
             }
         }
 

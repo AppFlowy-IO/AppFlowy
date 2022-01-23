@@ -32,7 +32,9 @@ where
         Self { cursor }
     }
 
-    pub fn ops(&mut self) -> Vec<Operation<T>> { self.collect::<Vec<_>>() }
+    pub fn ops(&mut self) -> Vec<Operation<T>> {
+        self.collect::<Vec<_>>()
+    }
 
     pub fn next_op_len(&self) -> Option<usize> {
         let interval = self.cursor.next_iv();
@@ -43,9 +45,13 @@ where
         }
     }
 
-    pub fn next_op(&mut self) -> Option<Operation<T>> { self.cursor.next_op() }
+    pub fn next_op(&mut self) -> Option<Operation<T>> {
+        self.cursor.next_op()
+    }
 
-    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation<T>> { self.cursor.next_with_len(Some(len)) }
+    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation<T>> {
+        self.cursor.next_with_len(Some(len))
+    }
 
     // find next op contains NEW_LINE
     pub fn next_op_with_newline(&mut self) -> Option<(Operation<T>, usize)> {
@@ -64,12 +70,14 @@ where
 
     pub fn seek<M: Metric>(&mut self, index: usize) {
         match M::seek(&mut self.cursor, index) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => log::error!("Seek fail: {:?}", e),
         }
     }
 
-    pub fn has_next(&self) -> bool { self.cursor.has_next() }
+    pub fn has_next(&self) -> bool {
+        self.cursor.has_next()
+    }
 
     pub fn is_next_insert(&self) -> bool {
         match self.cursor.next_iter_op() {
@@ -98,7 +106,9 @@ where
     T: Attributes,
 {
     type Item = Operation<T>;
-    fn next(&mut self) -> Option<Self::Item> { self.next_op() }
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_op()
+    }
 }
 
 pub fn is_empty_line_at_index(delta: &Delta<RichTextAttributes>, index: usize) -> bool {
@@ -149,14 +159,18 @@ where
 {
     type Target = DeltaIter<'a, T>;
 
-    fn deref(&self) -> &Self::Target { &self.delta_iter }
+    fn deref(&self) -> &Self::Target {
+        &self.delta_iter
+    }
 }
 
 impl<'a, T> DerefMut for AttributesIter<'a, T>
 where
     T: Attributes,
 {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.delta_iter }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.delta_iter
+    }
 }
 
 impl<'a, T> Iterator for AttributesIter<'a, T>
@@ -171,18 +185,18 @@ where
         let mut attributes = T::default();
 
         match next_op.unwrap() {
-            Operation::<T>::Delete(_n) => {},
+            Operation::<T>::Delete(_n) => {}
             Operation::<T>::Retain(retain) => {
                 tracing::trace!("extend retain attributes with {} ", &retain.attributes);
                 attributes.extend_other(retain.attributes.clone());
 
                 length = retain.n;
-            },
+            }
             Operation::<T>::Insert(insert) => {
                 tracing::trace!("extend insert attributes with {} ", &insert.attributes);
                 attributes.extend_other(insert.attributes.clone());
                 length = insert.utf16_size();
-            },
+            }
         }
 
         Some((length, attributes))
@@ -221,15 +235,23 @@ impl OpNewline {
         OpNewline::NotFound
     }
 
-    pub fn is_start(&self) -> bool { self == &OpNewline::Start || self.is_equal() }
+    pub fn is_start(&self) -> bool {
+        self == &OpNewline::Start || self.is_equal()
+    }
 
-    pub fn is_end(&self) -> bool { self == &OpNewline::End || self.is_equal() }
+    pub fn is_end(&self) -> bool {
+        self == &OpNewline::End || self.is_equal()
+    }
 
-    pub fn is_not_found(&self) -> bool { self == &OpNewline::NotFound }
+    pub fn is_not_found(&self) -> bool {
+        self == &OpNewline::NotFound
+    }
 
     pub fn is_contain(&self) -> bool {
         self.is_start() || self.is_end() || self.is_equal() || self == &OpNewline::Contain
     }
 
-    pub fn is_equal(&self) -> bool { self == &OpNewline::Equal }
+    pub fn is_equal(&self) -> bool {
+        self == &OpNewline::Equal
+    }
 }

@@ -49,7 +49,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
         let mut buffer = Vec::new();
         let mut serializer = serde_json::Serializer::new(&mut buffer);
         let mut map_serializer = serializer.serialize_map(None)?;
-        let message = format_span_context(&span, ty);
+        let message = format_span_context(span, ty);
         self.serialize_flowy_core_fields(&mut map_serializer, &message, span.metadata().level())?;
         if self.with_target {
             map_serializer.serialize_entry("target", &span.metadata().target())?;

@@ -18,8 +18,7 @@ use crate::{
     services::{
         server::Server,
         view::sql::{ViewTable, ViewTableChangeset, ViewTableSql},
-        TrashController,
-        TrashEvent,
+        TrashController, TrashEvent,
     },
 };
 use flowy_core_data_model::entities::share::{ExportData, ExportParams};
@@ -84,7 +83,7 @@ impl ViewController {
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             let belong_to_id = view.belong_to_id.clone();
             let _ = self.save_view(view, conn)?;
-            let _ = notify_views_changed(&belong_to_id, trash_can, &conn)?;
+            let _ = notify_views_changed(&belong_to_id, trash_can, conn)?;
 
             Ok(())
         })?;
@@ -227,11 +226,13 @@ impl ViewController {
                 let conn = self.database.db_connection()?;
                 let view_table = ViewTableSql::read_view(&view_id, &*conn)?;
                 Ok(Some(view_table.into()))
-            },
+            }
         }
     }
 
-    pub(crate) fn set_latest_view(&self, view: &View) { KV::set_str(LATEST_VIEW_ID, view.id.clone()); }
+    pub(crate) fn set_latest_view(&self, view: &View) {
+        KV::set_str(LATEST_VIEW_ID, view.id.clone());
+    }
 }
 
 impl ViewController {
@@ -248,11 +249,11 @@ impl ViewController {
         let server = self.server.clone();
         tokio::spawn(async move {
             match server.update_view(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("Update view failed: {:?}", e);
-                },
+                }
             }
         });
         Ok(())
@@ -275,13 +276,13 @@ impl ViewController {
                                 send_dart_notification(&view.id, WorkspaceNotification::ViewUpdated)
                                     .payload(view.clone())
                                     .send();
-                            },
+                            }
                             Err(e) => log::error!("Save view failed: {:?}", e),
                         }
-                    },
+                    }
                     Err(e) => log::error!("Require db connection failed: {:?}", e),
                 },
-                Ok(None) => {},
+                Ok(None) => {}
                 Err(e) => log::error!("Read view failed: {:?}", e),
             }
         });
@@ -331,7 +332,7 @@ async fn handle_trash_event(
                 Ok::<(), FlowyError>(())
             };
             let _ = ret.send(result()).await;
-        },
+        }
         TrashEvent::Putback(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
@@ -343,7 +344,7 @@ async fn handle_trash_event(
                 Ok::<(), FlowyError>(())
             };
             let _ = ret.send(result()).await;
-        },
+        }
         TrashEvent::Delete(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
@@ -365,7 +366,7 @@ async fn handle_trash_event(
                 Ok::<(), FlowyError>(())
             };
             let _ = ret.send(result()).await;
-        },
+        }
     }
 }
 
@@ -394,7 +395,7 @@ fn notify_views_changed(
 ) -> FlowyResult<()> {
     let repeated_view = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
-    send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
+    send_dart_notification(belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
         .send();
     Ok(())

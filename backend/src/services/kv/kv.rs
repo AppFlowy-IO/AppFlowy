@@ -11,11 +11,7 @@ use lib_infra::future::BoxResultFuture;
 use sql_builder::SqlBuilder as RawSqlBuilder;
 use sqlx::{
     postgres::{PgArguments, PgRow},
-    Arguments,
-    Error,
-    PgPool,
-    Postgres,
-    Row,
+    Arguments, Error, PgPool, Postgres, Row,
 };
 
 const KV_TABLE: &str = "kv_table";
@@ -208,6 +204,7 @@ fn rows_to_key_values(rows: Vec<PgRow>) -> Vec<KeyValue> {
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 struct KVTable {
+    #[allow(dead_code)]
     pub(crate) id: String,
     pub(crate) blob: Vec<u8>,
 }

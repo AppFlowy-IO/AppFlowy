@@ -20,7 +20,9 @@ pub struct FlowySDKTest {
 impl std::ops::Deref for FlowySDKTest {
     type Target = FlowySDK;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl std::default::Default for FlowySDKTest {

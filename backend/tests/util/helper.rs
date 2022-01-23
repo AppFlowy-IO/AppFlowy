@@ -45,9 +45,13 @@ impl TestUserServer {
         let _ = user_sign_out_request(self.user_token(), &url).await.unwrap();
     }
 
-    pub fn user_token(&self) -> &str { self.user_token.as_ref().expect("must call register_user first ") }
+    pub fn user_token(&self) -> &str {
+        self.user_token.as_ref().expect("must call register_user first ")
+    }
 
-    pub fn user_id(&self) -> &str { self.user_id.as_ref().expect("must call register_user first ") }
+    pub fn user_id(&self) -> &str {
+        self.user_id.as_ref().expect("must call register_user first ")
+    }
 
     pub async fn get_user_profile(&self) -> UserProfile {
         let url = format!("{}/api/user", self.http_addr());
@@ -178,7 +182,9 @@ impl TestUserServer {
         response
     }
 
-    pub fn http_addr(&self) -> String { self.inner.client_server_config.base_url() }
+    pub fn http_addr(&self) -> String {
+        self.inner.client_server_config.base_url()
+    }
 
     pub fn ws_addr(&self) -> String {
         format!(
@@ -336,7 +342,9 @@ impl WorkspaceTest {
         Self { server, workspace }
     }
 
-    pub async fn create_app(&self) -> App { create_test_app(&self.server, &self.workspace.id).await }
+    pub async fn create_app(&self) -> App {
+        create_test_app(&self.server, &self.workspace.id).await
+    }
 }
 
 pub struct AppTest {

@@ -15,5 +15,7 @@ impl WorkspaceDesc {
 }
 
 impl AsRef<str> for WorkspaceDesc {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

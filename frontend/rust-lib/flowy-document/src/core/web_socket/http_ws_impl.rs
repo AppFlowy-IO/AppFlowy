@@ -15,8 +15,7 @@ use lib_ws::WSConnectState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::{
     sync::{
-        broadcast,
-        mpsc,
+        broadcast, mpsc,
         mpsc::{UnboundedReceiver, UnboundedSender},
     },
     task::spawn_blocking,
@@ -77,7 +76,9 @@ impl HttpWebSocketManager {
         tokio::spawn(stream.run());
     }
 
-    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state.subscribe() }
+    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> {
+        self.state.subscribe()
+    }
 }
 
 impl DocumentWebSocketManager for Arc<HttpWebSocketManager> {
@@ -87,27 +88,31 @@ impl DocumentWebSocketManager for Arc<HttpWebSocketManager> {
         }
     }
 
-    fn receiver(&self) -> Arc<dyn DocumentWSReceiver> { self.clone() }
+    fn receiver(&self) -> Arc<dyn DocumentWSReceiver> {
+        self.clone()
+    }
 }
 
 impl DocumentWSReceiver for HttpWebSocketManager {
     fn receive_ws_data(&self, doc_data: DocumentServerWSData) {
         match self.ws_msg_tx.send(doc_data) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => tracing::error!("❌ Propagate ws message failed. {}", e),
         }
     }
 
     fn connect_state_changed(&self, state: &WSConnectState) {
         match self.state.send(state.clone()) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => tracing::error!("{}", e),
         }
     }
 }
 
 impl std::ops::Drop for HttpWebSocketManager {
-    fn drop(&mut self) { tracing::debug!("{} HttpWebSocketManager was drop", self.doc_id) }
+    fn drop(&mut self) {
+        tracing::debug!("{} HttpWebSocketManager was drop", self.doc_id)
+    }
 }
 
 pub trait DocumentWSSteamConsumer: Send + Sync {
@@ -168,7 +173,7 @@ impl DocumentWSStream {
         stream
             .for_each(|msg| async {
                 match self.handle_message(msg).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => log::error!("[DocumentStream:{}] error: {}", self.doc_id, e),
                 }
             })
@@ -185,20 +190,20 @@ impl DocumentWSStream {
         match ty {
             DocumentServerWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
-            },
+            }
             DocumentServerWSDataType::ServerPullRev => {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
-            },
+            }
             DocumentServerWSDataType::ServerAck => {
                 let rev_id = RevId::try_from(bytes).unwrap().value;
                 let _ = self.consumer.receive_ack(rev_id.to_string(), ty).await;
-            },
+            }
             DocumentServerWSDataType::UserConnect => {
                 let new_user = NewDocumentUser::try_from(bytes)?;
                 let _ = self.consumer.receive_new_user_connect(new_user).await;
                 // Notify the user that someone has connected to this document
-            },
+            }
         }
         Ok(())
     }
@@ -258,7 +263,7 @@ impl DocumentWSSink {
         stream
             .for_each(|_| async {
                 match self.send_next_revision().await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => log::error!("[DocumentSink]: Send failed, {:?}", e),
                 }
             })
@@ -270,12 +275,12 @@ impl DocumentWSSink {
             None => {
                 tracing::trace!("Finish synchronizing revisions");
                 Ok(())
-            },
+            }
             Some(data) => {
                 tracing::trace!("[DocumentSink]: send: {}:{}-{:?}", data.doc_id, data.id(), data.ty);
                 self.ws_sender.send(data)
                 // let _ = tokio::time::timeout(Duration::from_millis(2000),
-            },
+            }
         }
     }
 }

@@ -7,7 +7,9 @@ pub(crate) enum DocObservable {
 }
 
 impl std::convert::From<DocObservable> for i32 {
-    fn from(o: DocObservable) -> Self { o as i32 }
+    fn from(o: DocObservable) -> Self {
+        o as i32
+    }
 }
 
 #[allow(dead_code)]

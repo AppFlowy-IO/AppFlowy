@@ -2,14 +2,8 @@ use crate::{
     entities::{
         trash::Trash,
         view::{
-            CreateViewParams,
-            CreateViewRequest,
-            QueryViewRequest,
-            RepeatedViewId,
-            UpdateViewParams,
-            UpdateViewRequest,
-            View,
-            ViewId,
+            CreateViewParams, CreateViewRequest, QueryViewRequest, RepeatedViewId, UpdateViewParams, UpdateViewRequest,
+            View, ViewId,
         },
     },
     errors::FlowyError,

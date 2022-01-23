@@ -11,7 +11,9 @@ pub struct WebSocketMessage(pub Bytes);
 impl std::ops::Deref for WebSocketMessage {
     type Target = Bytes;
 
-    fn deref(&self) -> &Self::Target { &self.0 }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl std::convert::From<DocumentClientWSData> for WebSocketMessage {

@@ -72,10 +72,10 @@ pub struct ViewTest {
 
 impl ViewTest {
     pub async fn new(sdk: &FlowySDKTest) -> Self {
-        let workspace = create_workspace(&sdk, "Workspace", "").await;
-        open_workspace(&sdk, &workspace.id).await;
-        let app = create_app(&sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-        let view = create_view(&sdk, &app.id).await;
+        let workspace = create_workspace(sdk, "Workspace", "").await;
+        open_workspace(sdk, &workspace.id).await;
+        let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
+        let view = create_view(sdk, &app.id).await;
         Self {
             sdk: sdk.clone(),
             workspace,
@@ -291,11 +291,17 @@ pub fn root_dir() -> String {
     root_dir
 }
 
-pub fn random_email() -> String { format!("{}@appflowy.io", uuid_string()) }
+pub fn random_email() -> String {
+    format!("{}@appflowy.io", uuid_string())
+}
 
-pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
+pub fn login_email() -> String {
+    "annie2@appflowy.io".to_string()
+}
 
-pub fn login_password() -> String { "HelloWorld!123".to_string() }
+pub fn login_password() -> String {
+    "HelloWorld!123".to_string()
+}
 
 pub struct SignUpContext {
     pub user_profile: UserProfile,
@@ -365,4 +371,6 @@ fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
 }
 
 #[allow(dead_code)]
-fn logout(dispatch: Arc<EventDispatcher>) { let _ = EventDispatcher::sync_send(dispatch, ModuleRequest::new(SignOut)); }
+fn logout(dispatch: Arc<EventDispatcher>) {
+    let _ = EventDispatcher::sync_send(dispatch, ModuleRequest::new(SignOut));
+}

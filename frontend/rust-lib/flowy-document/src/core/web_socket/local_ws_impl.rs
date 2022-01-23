@@ -8,7 +8,9 @@ pub(crate) struct LocalWebSocketManager {}
 impl DocumentWebSocketManager for Arc<LocalWebSocketManager> {
     fn stop(&self) {}
 
-    fn receiver(&self) -> Arc<dyn DocumentWSReceiver> { self.clone() }
+    fn receiver(&self) -> Arc<dyn DocumentWSReceiver> {
+        self.clone()
+    }
 }
 
 impl DocumentWSReceiver for LocalWebSocketManager {

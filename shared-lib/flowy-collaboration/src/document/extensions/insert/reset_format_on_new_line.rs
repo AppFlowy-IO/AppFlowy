@@ -6,7 +6,9 @@ use lib_ot::{
 
 pub struct ResetLineFormatOnNewLine {}
 impl InsertExt for ResetLineFormatOnNewLine {
-    fn ext_name(&self) -> &str { "ResetLineFormatOnNewLine" }
+    fn ext_name(&self) -> &str {
+        "ResetLineFormatOnNewLine"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {

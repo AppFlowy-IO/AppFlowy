@@ -2,18 +2,16 @@ use crate::{document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{DeltaBuilder, DeltaIter, NEW_LINE},
     rich_text::{
-        attributes_except_header,
-        plain_attributes,
-        RichTextAttribute,
-        RichTextAttributeKey,
-        RichTextAttributes,
+        attributes_except_header, plain_attributes, RichTextAttribute, RichTextAttributeKey, RichTextAttributes,
         RichTextDelta,
     },
 };
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {
-    fn ext_name(&self) -> &str { "PreserveBlockFormatOnInsert" }
+    fn ext_name(&self) -> &str {
+        "PreserveBlockFormatOnInsert"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {
@@ -22,7 +20,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
 
         let mut iter = DeltaIter::from_offset(delta, index);
         match iter.next_op_with_newline() {
-            None => {},
+            None => {}
             Some((newline_op, offset)) => {
                 let newline_attributes = newline_op.get_attributes();
                 let block_attributes = attributes_except_header(&newline_op);
@@ -58,7 +56,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                 }
 
                 return Some(new_delta);
-            },
+            }
         }
 
         None

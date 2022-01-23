@@ -6,7 +6,9 @@ use crate::{
 macro_rules! static_response {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> ResponseBuilder { ResponseBuilder::new($status) }
+        pub fn $name() -> ResponseBuilder {
+            ResponseBuilder::new($status)
+        }
     };
 }
 

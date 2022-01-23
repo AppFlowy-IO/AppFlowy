@@ -6,27 +6,31 @@ const OBSERVABLE_CATEGORY: &str = "Workspace";
 // be use directly in flutter
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum WorkspaceNotification {
-    Unknown              = 0,
-    UserCreateWorkspace  = 10,
-    UserDeleteWorkspace  = 11,
-    WorkspaceUpdated     = 12,
+    Unknown = 0,
+    UserCreateWorkspace = 10,
+    UserDeleteWorkspace = 11,
+    WorkspaceUpdated = 12,
     WorkspaceListUpdated = 13,
     WorkspaceAppsChanged = 14,
-    AppUpdated           = 21,
-    AppViewsChanged      = 24,
-    ViewUpdated          = 31,
-    ViewDeleted          = 32,
-    ViewRestored         = 33,
-    UserUnauthorized     = 100,
-    TrashUpdated         = 1000,
+    AppUpdated = 21,
+    AppViewsChanged = 24,
+    ViewUpdated = 31,
+    ViewDeleted = 32,
+    ViewRestored = 33,
+    UserUnauthorized = 100,
+    TrashUpdated = 1000,
 }
 
 impl std::default::Default for WorkspaceNotification {
-    fn default() -> Self { WorkspaceNotification::Unknown }
+    fn default() -> Self {
+        WorkspaceNotification::Unknown
+    }
 }
 
 impl std::convert::From<WorkspaceNotification> for i32 {
-    fn from(notification: WorkspaceNotification) -> Self { notification as i32 }
+    fn from(notification: WorkspaceNotification) -> Self {
+        notification as i32
+    }
 }
 
 #[tracing::instrument(level = "debug")]

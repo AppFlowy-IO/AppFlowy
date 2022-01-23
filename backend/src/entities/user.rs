@@ -7,6 +7,7 @@ pub struct UserTable {
     pub(crate) id: uuid::Uuid,
     pub(crate) email: String,
     pub(crate) name: String,
+    #[allow(dead_code)]
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) password: String,
 }

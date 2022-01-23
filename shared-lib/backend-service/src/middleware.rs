@@ -18,7 +18,9 @@ impl WorkspaceMiddleware {
         }
     }
 
-    pub fn invalid_token_subscribe(&self) -> broadcast::Receiver<String> { self.invalid_token_sender.subscribe() }
+    pub fn invalid_token_subscribe(&self) -> broadcast::Receiver<String> {
+        self.invalid_token_sender.subscribe()
+    }
 }
 
 impl ResponseMiddleware for WorkspaceMiddleware {
@@ -27,9 +29,9 @@ impl ResponseMiddleware for WorkspaceMiddleware {
             if error.is_unauthorized() {
                 log::error!("user is unauthorized");
                 match token {
-                    None => {},
+                    None => {}
                     Some(token) => match self.invalid_token_sender.send(token.clone()) {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => log::error!("{:?}", e),
                     },
                 }

@@ -5,8 +5,8 @@ use std::fmt::Formatter;
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum TrashType {
     Unknown = 0,
-    View    = 1,
-    App     = 2,
+    View = 1,
+    App = 2,
 }
 
 impl std::convert::TryFrom<i32> for TrashType {
@@ -23,7 +23,9 @@ impl std::convert::TryFrom<i32> for TrashType {
 }
 
 impl std::default::Default for TrashType {
-    fn default() -> Self { TrashType::Unknown }
+    fn default() -> Self {
+        TrashType::Unknown
+    }
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
@@ -95,7 +97,9 @@ impl std::convert::From<&Trash> for TrashId {
 }
 
 impl std::fmt::Display for TrashId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{:?}:{}", self.ty, self.id)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{:?}:{}", self.ty, self.id))
+    }
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]

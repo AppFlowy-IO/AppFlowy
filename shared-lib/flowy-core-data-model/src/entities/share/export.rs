@@ -4,13 +4,15 @@ use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum ExportType {
-    Text     = 0,
+    Text = 0,
     Markdown = 1,
-    Link     = 2,
+    Link = 2,
 }
 
 impl std::default::Default for ExportType {
-    fn default() -> Self { ExportType::Text }
+    fn default() -> Self {
+        ExportType::Text
+    }
 }
 
 impl std::convert::From<i32> for ExportType {
@@ -22,7 +24,7 @@ impl std::convert::From<i32> for ExportType {
             _ => {
                 log::error!("Invalid export type: {}", val);
                 ExportType::Text
-            },
+            }
         }
     }
 }

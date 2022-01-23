@@ -8,7 +8,9 @@ use url::Url;
 
 pub struct AutoFormatExt {}
 impl InsertExt for AutoFormatExt {
-    fn ext_name(&self) -> &str { "AutoFormatExt" }
+    fn ext_name(&self) -> &str {
+        "AutoFormatExt"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // enter whitespace to trigger auto format
@@ -18,7 +20,7 @@ impl InsertExt for AutoFormatExt {
         let mut iter = DeltaIter::new(delta);
         if let Some(prev) = iter.next_op_with_len(index) {
             match AutoFormat::parse(prev.get_data()) {
-                None => {},
+                None => {}
                 Some(formatter) => {
                     let mut new_attributes = prev.get_attributes();
 
@@ -45,7 +47,7 @@ impl InsertExt for AutoFormatExt {
                             .insert_with_attributes(text, next_attributes)
                             .build(),
                     );
-                },
+                }
             }
         }
 

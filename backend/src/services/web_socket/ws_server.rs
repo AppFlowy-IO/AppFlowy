@@ -18,9 +18,13 @@ impl std::default::Default for WSServer {
     }
 }
 impl WSServer {
-    pub fn new() -> Self { WSServer::default() }
+    pub fn new() -> Self {
+        WSServer::default()
+    }
 
-    pub fn send(&self, _msg: WebSocketMessage) { unimplemented!() }
+    pub fn send(&self, _msg: WebSocketMessage) {
+        unimplemented!()
+    }
 }
 
 impl Actor for WSServer {
@@ -49,7 +53,9 @@ impl Handler<Disconnect> for WSServer {
 impl Handler<WebSocketMessage> for WSServer {
     type Result = ();
 
-    fn handle(&mut self, _msg: WebSocketMessage, _ctx: &mut Context<Self>) -> Self::Result { unimplemented!() }
+    fn handle(&mut self, _msg: WebSocketMessage, _ctx: &mut Context<Self>) -> Self::Result {
+        unimplemented!()
+    }
 }
 
 impl actix::Supervised for WSServer {

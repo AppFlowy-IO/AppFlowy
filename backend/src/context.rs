@@ -56,7 +56,11 @@ pub struct FlowyPersistence {
 }
 
 impl FlowyPersistence {
-    pub fn pg_pool(&self) -> PgPool { self.pg_pool.clone() }
+    pub fn pg_pool(&self) -> PgPool {
+        self.pg_pool.clone()
+    }
 
-    pub fn kv_store(&self) -> Arc<DocumentKVPersistence> { self.kv_store.clone() }
+    pub fn kv_store(&self) -> Arc<DocumentKVPersistence> {
+        self.kv_store.clone()
+    }
 }

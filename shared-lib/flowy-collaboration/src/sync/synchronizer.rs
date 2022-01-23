@@ -92,11 +92,11 @@ impl RevisionSynchronizer {
                     let msg = DocumentServerWSDataBuilder::build_pull_message(&self.doc_id, range);
                     user.receive(SyncResponse::Pull(msg));
                 }
-            },
+            }
             Ordering::Equal => {
                 // Do nothing
                 log::warn!("Applied revision rev_id is the same as cur_rev_id");
-            },
+            }
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
@@ -106,7 +106,7 @@ impl RevisionSynchronizer {
                 let _ = self
                     .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
                     .await;
-            },
+            }
         }
         Ok(())
     }
@@ -124,7 +124,7 @@ impl RevisionSynchronizer {
         match server_rev_id.cmp(&client_rev_id) {
             Ordering::Less => {
                 tracing::error!("Client should not send ping and the server should pull the revisions from the client")
-            },
+            }
             Ordering::Equal => tracing::trace!("{} is up to date.", doc_id),
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
@@ -136,7 +136,7 @@ impl RevisionSynchronizer {
                 let _ = self
                     .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
                     .await;
-            },
+            }
         }
         Ok(())
     }
@@ -159,7 +159,9 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
-    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+    pub fn doc_json(&self) -> String {
+        self.document.read().to_json()
+    }
 
     fn compose_revision(&self, revision: &RevisionPB) -> Result<(), CollaborateError> {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
@@ -184,12 +186,14 @@ impl RevisionSynchronizer {
             None => log::error!("Failed to acquire write lock of document"),
             Some(mut write_guard) => {
                 let _ = write_guard.compose_delta(delta);
-            },
+            }
         }
         Ok(())
     }
 
-    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
+    pub(crate) fn rev_id(&self) -> i64 {
+        self.rev_id.load(SeqCst)
+    }
 
     async fn is_applied_before(&self, new_revision: &RevisionPB, persistence: &Arc<dyn DocumentPersistence>) -> bool {
         if let Ok(revisions) = persistence.get_revisions(&self.doc_id, vec![new_revision.rev_id]).await {
@@ -213,17 +217,13 @@ impl RevisionSynchronizer {
         let rev_ids: Vec<i64> = (from..=to).collect();
         let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
             Ok(revisions) => {
-                assert_eq!(
-                    revisions.is_empty(),
-                    false,
-                    "revisions should not be empty if the doc exists"
-                );
+                debug_assert!(!revisions.is_empty(), "revisions should not be empty if the doc exists");
                 revisions
-            },
+            }
             Err(e) => {
                 tracing::error!("{}", e);
                 vec![]
-            },
+            }
         };
 
         tracing::debug!("Push revision: {} -> {} to client", from, to);
@@ -231,11 +231,13 @@ impl RevisionSynchronizer {
             Ok(repeated_revision) => {
                 let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, repeated_revision);
                 user.receive(SyncResponse::Push(data));
-            },
+            }
             Err(e) => tracing::error!("{}", e),
         }
     }
 }
 
 #[inline]
-fn next(rev_id: i64) -> i64 { rev_id + 1 }
+fn next(rev_id: i64) -> i64 {
+    rev_id + 1
+}

@@ -14,7 +14,9 @@ impl std::default::Default for UserNotifier {
 }
 
 impl UserNotifier {
-    pub(crate) fn new() -> Self { UserNotifier::default() }
+    pub(crate) fn new() -> Self {
+        UserNotifier::default()
+    }
 
     pub(crate) fn notify_login(&self, token: &str, user_id: &str) {
         let _ = self.user_status_notifier.send(UserStatus::Login {
@@ -36,5 +38,7 @@ impl UserNotifier {
         });
     }
 
-    pub fn subscribe_user_status(&self) -> broadcast::Receiver<UserStatus> { self.user_status_notifier.subscribe() }
+    pub fn subscribe_user_status(&self) -> broadcast::Receiver<UserStatus> {
+        self.user_status_notifier.subscribe()
+    }
 }

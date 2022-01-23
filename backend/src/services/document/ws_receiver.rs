@@ -13,9 +13,7 @@ use flowy_collaboration::{
     entities::doc::DocumentInfo,
     errors::CollaborateError,
     protobuf::{
-        CreateDocParams as CreateDocParamsPB,
-        DocumentId,
-        RepeatedRevision as RepeatedRevisionPB,
+        CreateDocParams as CreateDocParamsPB, DocumentId, RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
     sync::{DocumentPersistence, ServerDocumentManager},
@@ -65,11 +63,11 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
             };
 
             match sender.send(msg).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("{}", e),
             }
             match rx.await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("{:?}", e),
             };
         });
@@ -78,7 +76,9 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
 
 pub struct DocumentPersistenceImpl(pub Arc<FlowyPersistence>);
 impl Debug for DocumentPersistenceImpl {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("DocumentPersistenceImpl")
+    }
 }
 
 impl DocumentPersistence for DocumentPersistenceImpl {

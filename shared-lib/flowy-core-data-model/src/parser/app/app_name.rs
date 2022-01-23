@@ -14,5 +14,7 @@ impl AppName {
 }
 
 impl AsRef<str> for AppName {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

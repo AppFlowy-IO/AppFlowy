@@ -28,15 +28,25 @@ impl std::default::Default for History {
 }
 
 impl History {
-    pub fn new() -> Self { History::default() }
+    pub fn new() -> Self {
+        History::default()
+    }
 
-    pub fn can_undo(&self) -> bool { !self.undoes.is_empty() }
+    pub fn can_undo(&self) -> bool {
+        !self.undoes.is_empty()
+    }
 
-    pub fn can_redo(&self) -> bool { !self.redoes.is_empty() }
+    pub fn can_redo(&self) -> bool {
+        !self.redoes.is_empty()
+    }
 
-    pub fn add_undo(&mut self, delta: RichTextDelta) { self.undoes.push(delta); }
+    pub fn add_undo(&mut self, delta: RichTextDelta) {
+        self.undoes.push(delta);
+    }
 
-    pub fn add_redo(&mut self, delta: RichTextDelta) { self.redoes.push(delta); }
+    pub fn add_redo(&mut self, delta: RichTextDelta) {
+        self.redoes.push(delta);
+    }
 
     pub fn record(&mut self, delta: RichTextDelta) {
         if delta.ops.is_empty() {

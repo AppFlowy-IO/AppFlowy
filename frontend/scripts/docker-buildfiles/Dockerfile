@@ -22,7 +22,7 @@ RUN git clone https://aur.archlinux.org/yay.git \
 RUN yay -S --noconfirm curl base-devel sqlite openssl clang cmake ninja pkg-config gtk3 unzip
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN source $HOME/.cargo/env && rustup toolchain install nightly && rustup default nightly
+RUN source $HOME/.cargo/env && rustup toolchain install stable && rustup default stable
 RUN git clone https://github.com/flutter/flutter.git $HOME/.local/flutter
 RUN flutter channel stable
 RUN flutter config --enable-linux-desktop 

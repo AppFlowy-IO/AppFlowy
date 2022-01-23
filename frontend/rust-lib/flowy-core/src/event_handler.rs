@@ -3,8 +3,7 @@ use crate::{
     errors::FlowyError,
     notify::{send_dart_notification, WorkspaceNotification},
     services::{
-        get_current_workspace,
-        read_local_workspace_apps,
+        get_current_workspace, read_local_workspace_apps,
         workspace::sql::{WorkspaceTable, WorkspaceTableSql},
     },
 };
@@ -86,14 +85,14 @@ fn read_workspaces_on_server(
                 for app in apps {
                     let views = app.belongings.clone().into_inner();
                     match app_ctrl.save_app(app, &*conn) {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => log::error!("create app failed: {:?}", e),
                     }
 
                     tracing::debug!("Save {} views", views.len());
                     for view in views {
                         match view_ctrl.save_view(view, &*conn) {
-                            Ok(_) => {},
+                            Ok(_) => {}
                             Err(e) => log::error!("create view failed: {:?}", e),
                         }
                     }

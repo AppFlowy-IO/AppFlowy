@@ -32,7 +32,7 @@ flutter doctor
 ```shell
 # Download rustup.exe from https://win.rustup.rs/x86_64
 # Call rustup.exe from powershell or cmd
-.\rustup-init.exe --default-toolchain nightly --default-host x86_64-pc-windows-msvc -y
+.\rustup-init.exe --default-toolchain stable --default-host x86_64-pc-windows-msvc -y
 # Note: you probably need to re-open termial to get cargo command be available in PATH var
 ```
 5. Install cargo make

@@ -17,7 +17,9 @@ pub trait Error: fmt::Debug + DynClone + Send + Sync {
 dyn_clone::clone_trait_object!(Error);
 
 impl<T: Error + 'static> From<T> for DispatchError {
-    fn from(err: T) -> DispatchError { DispatchError { inner: Box::new(err) } }
+    fn from(err: T) -> DispatchError {
+        DispatchError { inner: Box::new(err) }
+    }
 }
 
 #[derive(Clone)]
@@ -26,34 +28,50 @@ pub struct DispatchError {
 }
 
 impl DispatchError {
-    pub fn inner_error(&self) -> &dyn Error { self.inner.as_ref() }
+    pub fn inner_error(&self) -> &dyn Error {
+        self.inner.as_ref()
+    }
 }
 
 impl fmt::Display for DispatchError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}", &self.inner) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", &self.inner)
+    }
 }
 
 impl fmt::Debug for DispatchError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}", &self.inner) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", &self.inner)
+    }
 }
 
 impl std::error::Error for DispatchError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> { None }
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
 
-    fn cause(&self) -> Option<&dyn std::error::Error> { None }
+    fn cause(&self) -> Option<&dyn std::error::Error> {
+        None
+    }
 }
 
 impl From<SendError<EventRequest>> for DispatchError {
-    fn from(err: SendError<EventRequest>) -> Self { InternalError::Other(format!("{}", err)).into() }
+    fn from(err: SendError<EventRequest>) -> Self {
+        InternalError::Other(format!("{}", err)).into()
+    }
 }
 
 impl From<String> for DispatchError {
-    fn from(s: String) -> Self { InternalError::Other(s).into() }
+    fn from(s: String) -> Self {
+        InternalError::Other(s).into()
+    }
 }
 
 #[cfg(feature = "use_protobuf")]
 impl From<protobuf::ProtobufError> for DispatchError {
-    fn from(e: protobuf::ProtobufError) -> Self { InternalError::ProtobufError(format!("{:?}", e)).into() }
+    fn from(e: protobuf::ProtobufError) -> Self {
+        InternalError::ProtobufError(format!("{:?}", e)).into()
+    }
 }
 
 impl FromBytes for DispatchError {
@@ -64,7 +82,9 @@ impl FromBytes for DispatchError {
 }
 
 impl From<DispatchError> for EventResponse {
-    fn from(err: DispatchError) -> Self { err.inner_error().as_response() }
+    fn from(err: DispatchError) -> Self {
+        err.inner_error().as_response()
+    }
 }
 
 impl Serialize for DispatchError {
@@ -109,5 +129,7 @@ impl Error for InternalError {
 }
 
 impl std::convert::From<JoinError> for InternalError {
-    fn from(e: JoinError) -> Self { InternalError::JoinError(format!("{}", e)) }
+    fn from(e: JoinError) -> Self {
+        InternalError::JoinError(format!("{}", e))
+    }
 }

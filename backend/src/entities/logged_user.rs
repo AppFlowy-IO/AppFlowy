@@ -15,7 +15,9 @@ pub struct LoggedUser {
 }
 
 impl std::convert::From<Claim> for LoggedUser {
-    fn from(c: Claim) -> Self { Self { user_id: c.user_id() } }
+    fn from(c: Claim) -> Self {
+        Self { user_id: c.user_id() }
+    }
 }
 
 impl LoggedUser {
@@ -61,7 +63,7 @@ impl std::convert::TryFrom<&HeaderValue> for LoggedUser {
             Err(e) => {
                 log::error!("Header to string failed: {:?}", e);
                 Err(ServerError::unauthorized())
-            },
+            }
         }
     }
 }
@@ -76,27 +78,31 @@ pub const EXPIRED_DURATION_DAYS: i64 = 30;
 
 pub struct AuthorizedUsers(DashMap<LoggedUser, AuthStatus>);
 impl std::default::Default for AuthorizedUsers {
-    fn default() -> Self { Self(DashMap::new()) }
+    fn default() -> Self {
+        Self(DashMap::new())
+    }
 }
 impl AuthorizedUsers {
-    pub fn new() -> Self { AuthorizedUsers::default() }
+    pub fn new() -> Self {
+        AuthorizedUsers::default()
+    }
 
     pub fn is_authorized(&self, user: &LoggedUser) -> bool {
         match self.0.get(user) {
             None => {
                 tracing::debug!("user not login yet or server was reboot");
                 false
-            },
+            }
             Some(status) => match *status {
                 AuthStatus::Authorized(last_time) => {
                     let current_time = Utc::now();
                     let days = (current_time - last_time).num_days();
                     days < EXPIRED_DURATION_DAYS
-                },
+                }
                 AuthStatus::NotAuthorized => {
                     tracing::debug!("user logout already");
                     false
-                },
+                }
             },
         }
     }

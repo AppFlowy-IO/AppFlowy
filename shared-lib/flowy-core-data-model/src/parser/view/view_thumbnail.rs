@@ -15,5 +15,7 @@ impl ViewThumbnail {
 }
 
 impl AsRef<str> for ViewThumbnail {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

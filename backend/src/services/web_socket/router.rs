@@ -6,9 +6,7 @@ use actix::Addr;
 use actix_web::{
     get,
     web::{Data, Path, Payload},
-    Error,
-    HttpRequest,
-    HttpResponse,
+    Error, HttpRequest, HttpResponse,
 };
 use actix_web_actors::ws;
 

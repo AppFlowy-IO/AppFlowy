@@ -2,11 +2,9 @@ use crate::{
     context::FlowyPersistence,
     entities::logged_user::LoggedUser,
     services::core::view::{
-        create_view,
-        delete_view,
+        create_view, delete_view,
         persistence::{check_view_id, check_view_ids},
-        read_view,
-        update_view,
+        read_view, update_view,
     },
     util::serde_ext::parse_from_payload,
 };
@@ -22,10 +20,8 @@ use backend_service::{
 use flowy_core_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
     protobuf::{
-        CreateViewParams as CreateViewParamsPB,
-        QueryViewRequest as QueryViewRequestPB,
-        UpdateViewParams as UpdateViewParamsPB,
-        ViewId as ViewIdPB,
+        CreateViewParams as CreateViewParamsPB, QueryViewRequest as QueryViewRequestPB,
+        UpdateViewParams as UpdateViewParamsPB, ViewId as ViewIdPB,
     },
 };
 use sqlx::PgPool;

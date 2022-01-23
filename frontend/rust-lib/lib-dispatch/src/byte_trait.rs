@@ -20,7 +20,7 @@ where
                 // Err(format!("{:?}", e))
 
                 Err(InternalError::ProtobufError(format!("{:?}", e)).into())
-            },
+            }
         }
     }
 }

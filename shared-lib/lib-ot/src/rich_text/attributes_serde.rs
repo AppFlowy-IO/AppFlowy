@@ -4,10 +4,7 @@ use serde::{
     de,
     de::{MapAccess, Visitor},
     ser::SerializeMap,
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::fmt;
 
@@ -77,7 +74,7 @@ where
             | RichTextAttributeKey::Align
             | RichTextAttributeKey::List => {
                 map_serializer.serialize_entry(&key, v)?;
-            },
+            }
         }
     } else {
         map_serializer.serialize_entry(&key, "")?;
@@ -93,7 +90,9 @@ impl<'de> Deserialize<'de> for RichTextAttributes {
         struct AttributesVisitor;
         impl<'de> Visitor<'de> for AttributesVisitor {
             type Value = RichTextAttributes;
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("Expect map") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("Expect map")
+            }
 
             fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
             where

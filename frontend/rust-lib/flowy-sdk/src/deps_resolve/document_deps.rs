@@ -53,11 +53,17 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, FlowyError> { self.user.user_id() }
+    fn user_id(&self) -> Result<String, FlowyError> {
+        self.user.user_id()
+    }
 
-    fn token(&self) -> Result<String, FlowyError> { self.user.token() }
+    fn token(&self) -> Result<String, FlowyError> {
+        self.user.token()
+    }
 
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> { self.user.db_pool() }
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
+        self.user.db_pool()
+    }
 }
 
 struct DocumentWebSocketAdapter {
@@ -76,12 +82,18 @@ impl DocumentWebSocket for DocumentWebSocketAdapter {
         Ok(())
     }
 
-    fn subscribe_state_changed(&self) -> WSStateReceiver { self.ws_conn.subscribe_websocket_state() }
+    fn subscribe_state_changed(&self) -> WSStateReceiver {
+        self.ws_conn.subscribe_websocket_state()
+    }
 }
 
 struct WSMessageReceiverAdaptor(Arc<DocumentWSReceivers>);
 
 impl WSMessageReceiver for WSMessageReceiverAdaptor {
-    fn source(&self) -> WSModule { WSModule::Doc }
-    fn receive_message(&self, msg: WebSocketRawMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
+    fn source(&self) -> WSModule {
+        WSModule::Doc
+    }
+    fn receive_message(&self, msg: WebSocketRawMessage) {
+        self.0.did_receive_data(Bytes::from(msg.data));
+    }
 }

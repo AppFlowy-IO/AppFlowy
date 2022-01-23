@@ -3,9 +3,7 @@ use crate::{
     block_attribute,
     core::{Attributes, OperationTransformable, RichTextOperation},
     errors::OTError,
-    ignore_attribute,
-    inline_attribute,
-    list_attribute,
+    ignore_attribute, inline_attribute, list_attribute,
 };
 use lazy_static::lazy_static;
 use std::{
@@ -30,15 +28,23 @@ impl std::default::Default for RichTextAttributes {
 }
 
 impl fmt::Display for RichTextAttributes {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_fmt(format_args!("{:?}", self.inner)) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.inner))
+    }
 }
 
-pub fn plain_attributes() -> RichTextAttributes { RichTextAttributes::default() }
+pub fn plain_attributes() -> RichTextAttributes {
+    RichTextAttributes::default()
+}
 
 impl RichTextAttributes {
-    pub fn new() -> Self { RichTextAttributes { inner: HashMap::new() } }
+    pub fn new() -> Self {
+        RichTextAttributes { inner: HashMap::new() }
+    }
 
-    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
 
     pub fn add(&mut self, attribute: RichTextAttribute) {
         let RichTextAttribute { key, value, scope: _ } = attribute;
@@ -57,18 +63,20 @@ impl RichTextAttributes {
         match attribute {
             None => {
                 self.inner.iter_mut().for_each(|(_k, v)| v.0 = None);
-            },
+            }
             Some(attribute) => {
                 self.inner.iter_mut().for_each(|(k, v)| {
                     if k != &attribute {
                         v.0 = None;
                     }
                 });
-            },
+            }
         }
     }
 
-    pub fn remove(&mut self, key: RichTextAttributeKey) { self.inner.retain(|k, _| k != &key); }
+    pub fn remove(&mut self, key: RichTextAttributeKey) {
+        self.inner.retain(|k, _| k != &key);
+    }
 
     // pub fn block_attributes_except_header(attributes: &Attributes) -> Attributes
     // {     let mut new_attributes = Attributes::new();
@@ -97,11 +105,17 @@ impl RichTextAttributes {
 }
 
 impl Attributes for RichTextAttributes {
-    fn is_empty(&self) -> bool { self.inner.is_empty() }
+    fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
 
-    fn remove_empty(&mut self) { self.inner.retain(|_, v| v.0.is_some()); }
+    fn remove_empty(&mut self) {
+        self.inner.retain(|_, v| v.0.is_some());
+    }
 
-    fn extend_other(&mut self, other: Self) { self.inner.extend(other.inner); }
+    fn extend_other(&mut self, other: Self) {
+        self.inner.extend(other.inner);
+    }
 }
 
 impl OperationTransformable for RichTextAttributes {
@@ -161,11 +175,15 @@ impl OperationTransformable for RichTextAttributes {
 impl std::ops::Deref for RichTextAttributes {
     type Target = HashMap<RichTextAttributeKey, RichTextAttributeValue>;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl std::ops::DerefMut for RichTextAttributes {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
 }
 
 pub fn attributes_except_header(op: &RichTextOperation) -> RichTextAttributes {
@@ -218,7 +236,7 @@ impl RichTextAttribute {
             Err(e) => {
                 log::error!("Attribute serialize to str failed: {}", e);
                 "".to_owned()
-            },
+            }
         }
     }
 }
@@ -285,7 +303,9 @@ pub enum RichTextAttributeKey {
 pub struct RichTextAttributeValue(pub Option<String>);
 
 impl std::convert::From<&usize> for RichTextAttributeValue {
-    fn from(val: &usize) -> Self { RichTextAttributeValue::from(*val) }
+    fn from(val: &usize) -> Self {
+        RichTextAttributeValue::from(*val)
+    }
 }
 
 impl std::convert::From<usize> for RichTextAttributeValue {
@@ -299,7 +319,9 @@ impl std::convert::From<usize> for RichTextAttributeValue {
 }
 
 impl std::convert::From<&str> for RichTextAttributeValue {
-    fn from(val: &str) -> Self { val.to_owned().into() }
+    fn from(val: &str) -> Self {
+        val.to_owned().into()
+    }
 }
 
 impl std::convert::From<String> for RichTextAttributeValue {
@@ -313,7 +335,9 @@ impl std::convert::From<String> for RichTextAttributeValue {
 }
 
 impl std::convert::From<&bool> for RichTextAttributeValue {
-    fn from(val: &bool) -> Self { RichTextAttributeValue::from(*val) }
+    fn from(val: &bool) -> Self {
+        RichTextAttributeValue::from(*val)
+    }
 }
 
 impl std::convert::From<bool> for RichTextAttributeValue {

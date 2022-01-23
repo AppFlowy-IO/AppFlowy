@@ -22,15 +22,15 @@ impl<'a> ASTContainer<'a> {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataStruct.html
                 let (style, fields) = struct_from_ast(cx, &data.fields);
                 ASTData::Struct(style, fields)
-            },
+            }
             syn::Data::Union(_) => {
                 cx.error_spanned_by(ast, "Does not support derive for unions");
                 return None;
-            },
+            }
             syn::Data::Enum(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataEnum.html
                 ASTData::Enum(enum_from_ast(cx, &ast.ident, &data.variants, &ast.attrs))
-            },
+            }
         };
 
         let ident = ast.ident.clone();
@@ -57,11 +57,11 @@ impl<'a> ASTData<'a> {
             ASTData::Enum(variants) => {
                 let iter = variants.iter().map(|variant| &variant.attrs);
                 Box::new(iter)
-            },
+            }
             ASTData::Struct(_, fields) => {
                 let iter = fields.iter().flat_map(|_| None);
                 Box::new(iter)
-            },
+            }
         }
     }
 
@@ -74,7 +74,7 @@ impl<'a> ASTData<'a> {
                     _ => None,
                 });
                 Box::new(iter)
-            },
+            }
         }
     }
 }
@@ -89,7 +89,9 @@ pub struct ASTEnumVariant<'a> {
 }
 
 impl<'a> ASTEnumVariant<'a> {
-    pub fn name(&self) -> String { self.ident.to_string() }
+    pub fn name(&self) -> String {
+        self.ident.to_string()
+    }
 }
 
 pub enum BracketCategory {
@@ -119,35 +121,35 @@ impl<'a> ASTField<'a> {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
                         bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value)))
-                    },
+                    }
                     PrimitiveTy::Vec => {
                         bracket_category = Some(BracketCategory::Vec);
-                    },
+                    }
                     PrimitiveTy::Opt => {
                         bracket_category = Some(BracketCategory::Opt);
-                    },
+                    }
                     PrimitiveTy::Other => {
                         bracket_category = Some(BracketCategory::Other);
-                    },
+                    }
                 }
 
                 match *inner.bracket_ty_info {
                     Some(bracketed_inner_ty) => {
                         bracket_inner_ty = Some(bracketed_inner_ty.ident.clone());
                         bracket_ty = Some(inner.ident.clone());
-                    },
+                    }
                     None => {
                         bracket_ty = Some(inner.ident.clone());
-                    },
+                    }
                 }
-            },
+            }
             Ok(None) => {
                 cx.error_spanned_by(&field.ty, "fail to get the ty inner type");
-            },
+            }
             Err(e) => {
                 eprintln!("ASTField parser failed: {:?} with error: {}", field, e);
                 panic!()
-            },
+            }
         }
 
         ASTField {
@@ -180,7 +182,9 @@ impl<'a> ASTField<'a> {
         }
     }
 
-    pub fn is_option(&self) -> bool { attr::is_option(&self.ty) }
+    pub fn is_option(&self) -> bool {
+        attr::is_option(self.ty)
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -199,7 +203,7 @@ pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec
         syn::Fields::Named(fields) => (ASTStyle::Struct, fields_from_ast(cx, &fields.named)),
         syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
             (ASTStyle::NewType, fields_from_ast(cx, &fields.unnamed))
-        },
+        }
         syn::Fields::Unnamed(fields) => (ASTStyle::Tuple, fields_from_ast(cx, &fields.unnamed)),
         syn::Fields::Unit => (ASTStyle::Unit, Vec::new()),
     }

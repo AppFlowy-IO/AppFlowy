@@ -59,7 +59,9 @@ impl DocumentRevisionCache {
         Ok(record)
     }
 
-    pub async fn ack(&self, rev_id: i64) { self.memory_cache.ack(&rev_id).await; }
+    pub async fn ack(&self, rev_id: i64) {
+        self.memory_cache.ack(&rev_id).await;
+    }
 
     pub async fn get(&self, rev_id: i64) -> Option<RevisionRecord> {
         match self.memory_cache.get(&rev_id).await {
@@ -69,11 +71,11 @@ impl DocumentRevisionCache {
                         assert_eq!(records.len(), 1);
                     }
                     records.pop()
-                },
+                }
                 Err(e) => {
                     tracing::error!("{}", e);
                     None
-                },
+                }
             },
             Some(revision) => Some(revision),
         }
@@ -141,7 +143,7 @@ impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
                 "checkpoint_result",
                 &format!("{} records were saved", records.len()).as_str(),
             );
-            let _ = self.write_revision_records(records, &conn)?;
+            let _ = self.write_revision_records(records, conn)?;
         }
         Ok(())
     }
@@ -153,7 +155,7 @@ impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
             state: RevisionTableState::Ack,
         };
         match self.update_revision_record(vec![changeset]) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => tracing::error!("{}", e),
         }
     }
@@ -167,5 +169,7 @@ pub struct RevisionRecord {
 }
 
 impl RevisionRecord {
-    pub fn ack(&mut self) { self.state = RevisionState::Ack; }
+    pub fn ack(&mut self) {
+        self.state = RevisionState::Ack;
+    }
 }

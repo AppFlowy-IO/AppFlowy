@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable
           override: true
       - run: rustup component add rustfmt
         working-directory: frontend/rust-lib
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable
           override: true
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
@@ -55,8 +55,8 @@ jobs:
           curl \
             --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
-          rustup toolchain install nightly
-          rustup default nightly
+          rustup toolchain install stable
+          rustup default stable
       - name: Frontend tests
         working-directory: frontend/rust-lib
         run: cargo test

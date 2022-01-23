@@ -8,7 +8,9 @@ pub struct DocServer {
 }
 
 impl DocServer {
-    pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> Self {
+        Self { config }
+    }
 }
 
 impl DocumentServerAPI for DocServer {

@@ -35,7 +35,9 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), FlowyError> { Ok(()) }
+    pub(crate) fn init(&self) -> Result<(), FlowyError> {
+        Ok(())
+    }
 
     pub(crate) async fn create_workspace_from_params(
         &self,
@@ -124,7 +126,7 @@ impl WorkspaceController {
             set_current_workspace(&workspace.id);
             Ok(workspace)
         } else {
-            return Err(FlowyError::workspace_id().context("Opened workspace id should not be empty"));
+            Err(FlowyError::workspace_id().context("Opened workspace id should not be empty"))
         }
     }
 
@@ -191,11 +193,11 @@ impl WorkspaceController {
         let (token, server) = (self.user.token()?, self.server.clone());
         tokio::spawn(async move {
             match server.update_workspace(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("Update workspace failed: {:?}", e);
-                },
+                }
             }
         });
         Ok(())
@@ -209,11 +211,11 @@ impl WorkspaceController {
         let (token, server) = (self.user.token()?, self.server.clone());
         tokio::spawn(async move {
             match server.delete_workspace(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("Delete workspace failed: {:?}", e);
-                },
+                }
             }
         });
         Ok(())
@@ -222,14 +224,16 @@ impl WorkspaceController {
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
-fn set_current_workspace(workspace_id: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned()); }
+fn set_current_workspace(workspace_id: &str) {
+    KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned());
+}
 
 pub fn get_current_workspace() -> Result<String, FlowyError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => {
             Err(FlowyError::record_not_found()
                 .context("Current workspace not found or should call open workspace first"))
-        },
+        }
         Some(workspace_id) => Ok(workspace_id),
     }
 }

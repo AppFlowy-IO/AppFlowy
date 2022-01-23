@@ -6,6 +6,7 @@ pub(crate) const TRASH_TABLE: &str = "trash_table";
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct TrashTable {
     pub(crate) id: uuid::Uuid,
+    #[allow(dead_code)]
     pub(crate) user_id: String,
     pub(crate) ty: i32,
 }

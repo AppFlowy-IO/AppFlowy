@@ -9,7 +9,9 @@ use lib_ot::{
 
 pub struct PreserveInlineFormat {}
 impl InsertExt for PreserveInlineFormat {
-    fn ext_name(&self) -> &str { "PreserveInlineFormat" }
+    fn ext_name(&self) -> &str {
+        "PreserveInlineFormat"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if contain_newline(text) {
@@ -36,10 +38,10 @@ impl InsertExt for PreserveInlineFormat {
         match &next {
             None => attributes = plain_attributes(),
             Some(next) => {
-                if OpNewline::parse(&next).is_equal() {
+                if OpNewline::parse(next).is_equal() {
                     attributes = plain_attributes();
                 }
-            },
+            }
         }
 
         let new_delta = DeltaBuilder::new()
@@ -53,7 +55,9 @@ impl InsertExt for PreserveInlineFormat {
 
 pub struct PreserveLineFormatOnSplit {}
 impl InsertExt for PreserveLineFormatOnSplit {
-    fn ext_name(&self) -> &str { "PreserveLineFormatOnSplit" }
+    fn ext_name(&self) -> &str {
+        "PreserveLineFormatOnSplit"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {
@@ -82,10 +86,10 @@ impl InsertExt for PreserveLineFormatOnSplit {
         }
 
         match iter.next_op_with_newline() {
-            None => {},
+            None => {}
             Some((newline_op, _)) => {
                 new_delta.insert(NEW_LINE, newline_op.get_attributes());
-            },
+            }
         }
 
         Some(new_delta)

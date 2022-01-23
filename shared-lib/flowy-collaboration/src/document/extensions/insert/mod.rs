@@ -16,7 +16,9 @@ mod reset_format_on_new_line;
 
 pub struct InsertEmbedsExt {}
 impl InsertExt for InsertEmbedsExt {
-    fn ext_name(&self) -> &str { "InsertEmbedsExt" }
+    fn ext_name(&self) -> &str {
+        "InsertEmbedsExt"
+    }
 
     fn apply(&self, _delta: &RichTextDelta, _replace_len: usize, _text: &str, _index: usize) -> Option<RichTextDelta> {
         None
@@ -25,7 +27,9 @@ impl InsertExt for InsertEmbedsExt {
 
 pub struct ForceNewlineForInsertsAroundEmbedExt {}
 impl InsertExt for ForceNewlineForInsertsAroundEmbedExt {
-    fn ext_name(&self) -> &str { "ForceNewlineForInsertsAroundEmbedExt" }
+    fn ext_name(&self) -> &str {
+        "ForceNewlineForInsertsAroundEmbedExt"
+    }
 
     fn apply(&self, _delta: &RichTextDelta, _replace_len: usize, _text: &str, _index: usize) -> Option<RichTextDelta> {
         None

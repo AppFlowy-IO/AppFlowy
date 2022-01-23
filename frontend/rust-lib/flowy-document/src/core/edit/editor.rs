@@ -151,9 +151,13 @@ impl ClientDocumentEditor {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub fn stop(&self) { self.ws_manager.stop(); }
+    pub fn stop(&self) {
+        self.ws_manager.stop();
+    }
 
-    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.receiver() }
+    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> {
+        self.ws_manager.receiver()
+    }
 }
 
 fn spawn_edit_queue(
@@ -185,5 +189,7 @@ impl ClientDocumentEditor {
         Ok(delta)
     }
 
-    pub fn rev_manager(&self) -> Arc<DocumentRevisionManager> { self.rev_manager.clone() }
+    pub fn rev_manager(&self) -> Arc<DocumentRevisionManager> {
+        self.rev_manager.clone()
+    }
 }

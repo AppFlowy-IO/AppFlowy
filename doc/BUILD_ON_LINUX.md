@@ -34,8 +34,8 @@ yay -S curl base-devel sqlite openssl clang cmake ninja pkg-config gtk3 unzip
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
-rustup toolchain install nightly
-rustup default nightly
+rustup toolchain install stable
+rustup default stable
 ```
 
 3. Install flutter according to https://docs.flutter.dev/get-started/install/linux

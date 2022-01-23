@@ -17,7 +17,7 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
             } else if field.attrs.is_one_of() {
                 token_stream_for_one_of(ctxt, field)
             } else {
-                token_stream_for_field(ctxt, &field.member, &field.ty, false)
+                token_stream_for_field(ctxt, &field.member, field.ty, false)
             }
         });
 
@@ -47,12 +47,12 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
 fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
-    let ty_info = match parse_ty(ctxt, &field.ty) {
+    let ty_info = match parse_ty(ctxt, field.ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
             panic!();
-        },
+        }
     }?;
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
 
@@ -69,7 +69,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                     o.#member = Some(enum_de_from_pb);
                 }
             })
-        },
+        }
         TypeCategory::Primitive => {
             let get_func = format_ident!("get_{}", ident.to_string());
             Some(quote! {
@@ -77,7 +77,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                     o.#member=Some(pb.#get_func());
                 }
             })
-        },
+        }
         TypeCategory::Str => {
             let take_func = format_ident!("take_{}", ident.to_string());
             Some(quote! {
@@ -85,7 +85,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                     o.#member=Some(pb.#take_func());
                 }
             })
-        },
+        }
         TypeCategory::Array => {
             let take_func = format_ident!("take_{}", ident.to_string());
             Some(quote! {
@@ -93,7 +93,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                     o.#member=Some(pb.#take_func());
                 }
             })
-        },
+        }
         _ => {
             let take_func = format_ident!("take_{}", ident.to_string());
             let ty = bracketed_ty_info.unwrap().ty;
@@ -103,7 +103,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                     o.#member=Some(val);
                 }
             })
-        },
+        }
     }
 }
 
@@ -114,17 +114,17 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
         Err(e) => {
             eprintln!("token_stream_for_field: {:?} with error: {}", member, e);
             panic!()
-        },
+        }
     }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Array => {
             assert_bracket_ty_is_some(ctxt, &ty_info);
-            token_stream_for_vec(ctxt, &member, &ty_info.bracket_ty_info.unwrap())
-        },
+            token_stream_for_vec(ctxt, member, &ty_info.bracket_ty_info.unwrap())
+        }
         TypeCategory::Map => {
             assert_bracket_ty_is_some(ctxt, &ty_info);
-            token_stream_for_map(ctxt, &member, &ty_info.bracket_ty_info.unwrap())
-        },
+            token_stream_for_map(ctxt, member, &ty_info.bracket_ty_info.unwrap())
+        }
         TypeCategory::Protobuf => {
             // if the type wrapped by SingularPtrField, should call take first
             let take = syn::Ident::new("take", Span::call_site());
@@ -137,7 +137,7 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
                     o.#member = struct_de_from_pb;
                 }
             })
-        },
+        }
 
         TypeCategory::Enum => {
             let ty = ty_info.ty;
@@ -146,9 +146,9 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
                  o.#member = enum_de_from_pb;
 
             })
-        },
+        }
         TypeCategory::Str => {
-            let take_ident = syn::Ident::new(&format!("take_{}", ident.to_string()), Span::call_site());
+            let take_ident = syn::Ident::new(&format!("take_{}", ident), Span::call_site());
             if is_option {
                 Some(quote! {
                     if pb.#member.is_empty() {
@@ -162,7 +162,7 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
                     o.#member = pb.#take_ident();
                 })
             }
-        },
+        }
         TypeCategory::Opt => token_stream_for_field(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Primitive | TypeCategory::Bytes => {
             // eprintln!("😄 #{:?}", &field.name().unwrap());
@@ -171,7 +171,7 @@ fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_
             } else {
                 Some(quote! { o.#member = pb.#member.clone(); })
             }
-        },
+        }
     }
 }
 
@@ -190,20 +190,20 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyIn
                 .map(|mut m| #ty::try_from(&mut m).unwrap())
                 .collect();
             })
-        },
+        }
         TypeCategory::Bytes => {
             // Vec<u8>
             Some(quote! {
                 o.#member = pb.#member.clone();
             })
-        },
+        }
         _ => {
             // String
             let take_ident = format_ident!("take_{}", ident.to_string());
             Some(quote! {
                 o.#member = pb.#take_ident().into_vec();
             })
-        },
+        }
     }
 }
 
