@@ -29,28 +29,30 @@ pub enum FolderWSActorMessage {
 }
 
 pub struct FolderWebSocketActor {
-    receiver: Option<mpsc::Receiver<FolderWSActorMessage>>,
+    actor_msg_receiver: Option<mpsc::Receiver<FolderWSActorMessage>>,
     folder_manager: Arc<ServerFolderManager>,
 }
 
 impl FolderWebSocketActor {
     pub fn new(receiver: mpsc::Receiver<FolderWSActorMessage>, folder_manager: Arc<ServerFolderManager>) -> Self {
         Self {
-            receiver: Some(receiver),
+            actor_msg_receiver: Some(receiver),
             folder_manager,
         }
     }
 
     pub async fn run(mut self) {
-        let mut receiver = self
-            .receiver
+        let mut actor_msg_receiver = self
+            .actor_msg_receiver
             .take()
             .expect("FolderWebSocketActor's receiver should only take one time");
         let stream = stream! {
             loop {
-                match receiver.recv().await {
+                match actor_msg_receiver.recv().await {
                     Some(msg) => yield msg,
-                    None => break,
+                    None => {
+                        break
+                    },
                 }
             }
         };
@@ -76,7 +78,7 @@ impl FolderWebSocketActor {
             .map_err(internal_error)??;
 
         tracing::debug!(
-            "[DocumentWebSocketActor]: receive: {}:{}, {:?}",
+            "[FolderWebSocketActor]: receive: {}:{}, {:?}",
             folder_client_data.object_id,
             folder_client_data.data_id,
             folder_client_data.ty

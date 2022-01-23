@@ -3,7 +3,6 @@ use crate::{
     module::{as_module_map, Module, ModuleMap, ModuleRequest},
     response::EventResponse,
     service::{Service, ServiceFactory},
-    util::tokio_default_runtime,
 };
 use derivative::*;
 use futures_core::future::BoxFuture;
@@ -17,11 +16,10 @@ pub struct EventDispatcher {
 }
 
 impl EventDispatcher {
-    pub fn construct<F>(module_factory: F) -> EventDispatcher
+    pub fn construct<F>(runtime: tokio::runtime::Runtime, module_factory: F) -> EventDispatcher
     where
         F: FnOnce() -> Vec<Module>,
     {
-        let runtime = tokio_default_runtime().unwrap();
         let modules = module_factory();
         tracing::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);

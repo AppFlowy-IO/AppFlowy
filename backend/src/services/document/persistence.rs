@@ -11,7 +11,7 @@ use crate::services::kv::revision_kv::RevisionKVPersistence;
 use std::sync::Arc;
 use uuid::Uuid;
 
-#[tracing::instrument(level = "debug", skip(document_store, params), err)]
+#[tracing::instrument(level = "trace", skip(document_store, params), err)]
 pub(crate) async fn create_document(
     document_store: &Arc<RevisionKVPersistence>,
     mut params: CreateDocParams,
@@ -21,7 +21,7 @@ pub(crate) async fn create_document(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(document_store), err)]
+#[tracing::instrument(level = "trace", skip(document_store), err)]
 pub async fn read_document(
     document_store: &Arc<RevisionKVPersistence>,
     params: DocumentId,
@@ -52,7 +52,7 @@ pub async fn reset_document(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(document_store), err)]
+#[tracing::instrument(level = "trace", skip(document_store), err)]
 pub(crate) async fn delete_document(
     document_store: &Arc<RevisionKVPersistence>,
     doc_id: Uuid,

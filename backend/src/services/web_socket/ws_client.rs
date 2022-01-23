@@ -29,8 +29,9 @@ impl std::default::Default for WebSocketReceivers {
 impl WebSocketReceivers {
     pub fn new() -> Self { WebSocketReceivers::default() }
 
-    pub fn set(&mut self, source: WSChannel, receiver: Arc<dyn WebSocketReceiver>) {
-        self.inner.insert(source, receiver);
+    pub fn set(&mut self, channel: WSChannel, receiver: Arc<dyn WebSocketReceiver>) {
+        tracing::trace!("Add {:?} receiver", channel);
+        self.inner.insert(channel, receiver);
     }
 
     pub fn get(&self, source: &WSChannel) -> Option<Arc<dyn WebSocketReceiver>> { self.inner.get(source).cloned() }

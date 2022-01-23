@@ -11,4 +11,4 @@ pub(crate) mod view;
 mod web_socket;
 pub(crate) mod workspace;
 
-pub const FOLDER_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
+pub const FOLDER_SYNC_INTERVAL_IN_MILLIS: u64 = 5000;

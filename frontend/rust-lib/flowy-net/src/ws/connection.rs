@@ -15,8 +15,8 @@ pub trait FlowyRawWebSocket: Send + Sync {
     fn stop_connect(&self) -> FutureResult<(), FlowyError>;
     fn subscribe_connect_state(&self) -> broadcast::Receiver<WSConnectState>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
-    fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError>;
-    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError>;
+    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError>;
+    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError>;
 }
 
 pub trait FlowyWebSocket: Send + Sync {
@@ -97,11 +97,11 @@ impl FlowyWebSocketConnect {
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
 
     pub fn add_ws_message_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
-        let _ = self.inner.add_receiver(receiver)?;
+        let _ = self.inner.add_msg_receiver(receiver)?;
         Ok(())
     }
 
-    pub fn web_socket(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> { self.inner.sender() }
+    pub fn web_socket(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> { self.inner.ws_msg_sender() }
 }
 
 #[tracing::instrument(level = "debug", skip(ws_conn))]

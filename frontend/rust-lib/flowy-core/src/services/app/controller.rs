@@ -112,14 +112,14 @@ impl AppController {
 }
 
 impl AppController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     async fn create_app_on_server(&self, params: CreateAppParams) -> Result<App, FlowyError> {
         let token = self.user.token()?;
         let app = self.cloud_service.create_app(&token, params).await?;
         Ok(app)
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
@@ -135,7 +135,7 @@ impl AppController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();

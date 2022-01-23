@@ -10,13 +10,13 @@ pub fn mk_modules(
     user_session: &Arc<UserSession>,
 ) -> Vec<Module> {
     let user_module = mk_user_module(user_session.clone());
-    let core_module = mk_core_module(folder_manager.clone());
+    let folder_module = mk_folder_module(folder_manager.clone());
     let network_module = mk_network_module(ws_conn.clone());
-    vec![user_module, core_module, network_module]
+    vec![user_module, folder_module, network_module]
 }
 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session) }
 
-fn mk_core_module(core: Arc<FolderManager>) -> Module { flowy_core::module::create(core) }
+fn mk_folder_module(core: Arc<FolderManager>) -> Module { flowy_core::module::create(core) }
 
 fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module { flowy_net::module::create(ws_conn) }

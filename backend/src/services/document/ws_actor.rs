@@ -31,27 +31,27 @@ pub enum DocumentWSActorMessage {
 }
 
 pub struct DocumentWebSocketActor {
-    receiver: Option<mpsc::Receiver<DocumentWSActorMessage>>,
+    actor_msg_receiver: Option<mpsc::Receiver<DocumentWSActorMessage>>,
     doc_manager: Arc<ServerDocumentManager>,
 }
 
 impl DocumentWebSocketActor {
     pub fn new(receiver: mpsc::Receiver<DocumentWSActorMessage>, manager: Arc<ServerDocumentManager>) -> Self {
         Self {
-            receiver: Some(receiver),
+            actor_msg_receiver: Some(receiver),
             doc_manager: manager,
         }
     }
 
     pub async fn run(mut self) {
-        let mut receiver = self
-            .receiver
+        let mut actor_msg_receiver = self
+            .actor_msg_receiver
             .take()
             .expect("DocumentWebSocketActor's receiver should only take one time");
 
         let stream = stream! {
             loop {
-                match receiver.recv().await {
+                match actor_msg_receiver.recv().await {
                     Some(msg) => yield msg,
                     None => break,
                 }
@@ -79,7 +79,7 @@ impl DocumentWebSocketActor {
             .await
             .map_err(internal_error)??;
 
-        tracing::debug!(
+        tracing::trace!(
             "[DocumentWebSocketActor]: receive: {}:{}, {:?}",
             document_client_data.object_id,
             document_client_data.data_id,

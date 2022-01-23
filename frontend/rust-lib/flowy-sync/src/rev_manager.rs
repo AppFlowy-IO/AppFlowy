@@ -5,10 +5,8 @@ use flowy_collaboration::{
     util::{pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
 use std::{collections::VecDeque, sync::Arc};
-
 use tokio::sync::{broadcast, RwLock};
 
 pub trait RevisionCloudService: Send + Sync {
@@ -54,7 +52,7 @@ impl RevisionManager {
     where
         Builder: RevisionObjectBuilder,
     {
-        let revisions = RevisionLoader {
+        let (revisions, rev_id) = RevisionLoader {
             object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
             cloud,
@@ -63,6 +61,7 @@ impl RevisionManager {
         }
         .load()
         .await?;
+        self.rev_id_counter.set(rev_id);
         Builder::build_with_revisions(&self.object_id, revisions)
     }
 
@@ -116,8 +115,6 @@ impl RevisionManager {
     }
 
     pub fn rev_id(&self) -> i64 { self.rev_id_counter.value() }
-
-    pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
     pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
@@ -223,12 +220,14 @@ struct RevisionLoader {
 }
 
 impl RevisionLoader {
-    async fn load(&self) -> Result<Vec<Revision>, FlowyError> {
+    async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
         let records = self.revision_cache.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;
+        let mut rev_id = 0;
         if records.is_empty() {
             let remote_revisions = self.cloud.fetch_object(&self.user_id, &self.object_id).await?;
             for revision in &remote_revisions {
+                rev_id = revision.rev_id;
                 let _ = self
                     .revision_cache
                     .add(revision.clone(), RevisionState::Ack, true)
@@ -236,25 +235,30 @@ impl RevisionLoader {
             }
             revisions = remote_revisions;
         } else {
-            stream::iter(records.clone())
-                .filter(|record| future::ready(record.state == RevisionState::Sync))
-                .for_each(|record| async move {
-                    let f = || async {
-                        // Sync the records if their state is RevisionState::Local.
+            for record in records.clone() {
+                let f = || async {
+                    rev_id = record.revision.rev_id;
+                    if record.state == RevisionState::Sync {
+                        // Sync the records if their state is RevisionState::Sync.
                         let _ = self.revision_sync_seq.add_revision_record(record.clone()).await?;
                         let _ = self.revision_cache.add(record.revision, record.state, false).await?;
-                        Ok::<(), FlowyError>(())
-                    };
-                    match f().await {
-                        Ok(_) => {},
-                        Err(e) => tracing::error!("[RevisionLoader]: {}", e),
                     }
-                })
-                .await;
+                    Ok::<(), FlowyError>(())
+                };
+                match f().await {
+                    Ok(_) => {},
+                    Err(e) => tracing::error!("[RevisionLoader]: {}", e),
+                }
+            }
+
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();
         }
 
-        Ok(revisions)
+        if let Some(revision) = revisions.last() {
+            debug_assert_eq!(rev_id, revision.rev_id);
+        }
+
+        Ok((revisions, rev_id))
     }
 }
 

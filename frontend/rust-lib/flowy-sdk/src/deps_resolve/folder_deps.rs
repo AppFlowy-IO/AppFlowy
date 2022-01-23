@@ -20,7 +20,7 @@ use std::{convert::TryInto, sync::Arc};
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
-    pub fn resolve(
+    pub async fn resolve(
         local_server: Option<Arc<LocalServer>>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
@@ -35,13 +35,8 @@ impl FolderDepsResolver {
             Some(local_server) => local_server,
         };
 
-        let folder_manager = Arc::new(FolderManager::new(
-            user,
-            cloud_service,
-            database,
-            document_manager.clone(),
-            web_socket,
-        ));
+        let folder_manager =
+            Arc::new(FolderManager::new(user, cloud_service, database, document_manager.clone(), web_socket).await);
 
         let receiver = Arc::new(FolderWSMessageReceiverImpl(folder_manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();

@@ -7,7 +7,7 @@ use lazy_static::lazy_static;
 
 use flowy_collaboration::{entities::ws_data::ServerRevisionWSData, folder::FolderPad};
 use flowy_document::FlowyDocumentManager;
-use parking_lot::RwLock;
+
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 
@@ -28,10 +28,10 @@ use crate::{
 };
 
 lazy_static! {
-    static ref INIT_FOLDER_FLAG: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
+    static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
 }
 
-const FOLDER_ID: &str = "user_folder";
+const FOLDER_ID: &str = "folder";
 const FOLDER_ID_SPLIT: &str = ":";
 #[derive(Clone)]
 pub struct FolderId(String);
@@ -64,17 +64,13 @@ pub struct FolderManager {
 }
 
 impl FolderManager {
-    pub fn new(
+    pub async fn new(
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
         document_manager: Arc<FlowyDocumentManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
-        if let Ok(token) = user.token() {
-            INIT_FOLDER_FLAG.write().insert(token, false);
-        }
-
         let folder_editor = Arc::new(TokioRwLock::new(None));
         let persistence = Arc::new(FolderPersistence::new(database.clone(), folder_editor.clone()));
 
@@ -145,7 +141,8 @@ impl FolderManager {
     }
 
     pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
-        if let Some(is_init) = INIT_FOLDER_FLAG.read().get(user_id) {
+        let mut write_guard = INIT_FOLDER_FLAG.write().await;
+        if let Some(is_init) = write_guard.get(user_id) {
             if *is_init {
                 return Ok(());
             }
@@ -160,7 +157,7 @@ impl FolderManager {
 
         let _ = self.app_controller.initialize()?;
         let _ = self.view_controller.initialize()?;
-        INIT_FOLDER_FLAG.write().insert(user_id.to_owned(), true);
+        write_guard.insert(user_id.to_owned(), true);
         Ok(())
     }
 

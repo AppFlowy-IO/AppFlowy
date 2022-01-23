@@ -60,15 +60,14 @@ impl FlowyRawWebSocket for LocalWebSocket {
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
+    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());
         self.receivers.insert(receiver.source(), receiver);
         Ok(())
     }
 
-    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
-        let ws = LocalWebSocketAdaptor(self.server_ws_sender.clone());
-        Ok(Arc::new(ws))
+    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
+        Ok(Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone())))
     }
 }
 

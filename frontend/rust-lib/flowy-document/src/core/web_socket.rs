@@ -48,6 +48,7 @@ pub(crate) async fn make_document_ws_manager(
     let sink_provider = Arc::new(DocumentWSSinkDataProviderAdapter(composite_sink_provider));
     let ping_duration = Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
+        "Document",
         &doc_id,
         web_socket,
         sink_provider,

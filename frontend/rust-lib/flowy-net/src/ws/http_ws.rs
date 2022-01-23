@@ -37,12 +37,12 @@ impl FlowyRawWebSocket for Arc<WSController> {
         })
     }
 
-    fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
+    fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         let _ = self.add_ws_message_receiver(receiver).map_err(internal_error)?;
         Ok(())
     }
 
-    fn sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
+    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
         let sender = self.ws_message_sender().map_err(internal_error)?;
         Ok(sender)
     }

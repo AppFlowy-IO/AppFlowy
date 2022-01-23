@@ -116,7 +116,7 @@ impl WSController {
     }
 
     pub async fn retry(&self, count: usize) -> Result<(), ServerError> {
-        if self.sender_ctrl.read().is_connecting() {
+        if !self.sender_ctrl.read().is_disconnected() {
             return Ok(());
         }
 
@@ -125,7 +125,7 @@ impl WSController {
             .addr
             .read()
             .as_ref()
-            .expect("must call start_connect first")
+            .expect("Retry web socket connection failed, should call start_connect first")
             .clone();
 
         self.connect(addr, strategy).await
@@ -135,7 +135,7 @@ impl WSController {
 
     pub fn ws_message_sender(&self) -> Result<Arc<WSSender>, WSError> {
         match self.sender_ctrl.read().sender() {
-            None => Err(WSError::internal().context("WsSender is not initialized, should call connect first")),
+            None => Err(WSError::internal().context("WebSocket is not initialized, should call connect first")),
             Some(sender) => Ok(sender),
         }
     }
@@ -370,10 +370,10 @@ impl WSSenderController {
 
     fn sender(&self) -> Option<Arc<WSSender>> { self.sender.clone() }
 
+    #[allow(dead_code)]
     fn is_connecting(&self) -> bool { self.state == WSConnectState::Connecting }
 
-    #[allow(dead_code)]
-    fn is_connected(&self) -> bool { self.state == WSConnectState::Connected }
+    fn is_disconnected(&self) -> bool { self.state == WSConnectState::Disconnected }
 }
 
 impl std::default::Default for WSSenderController {

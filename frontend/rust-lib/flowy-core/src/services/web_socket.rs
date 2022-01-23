@@ -37,6 +37,7 @@ pub(crate) async fn make_folder_ws_manager(
     let sink_provider = Arc::new(FolderWSSinkDataProviderAdapter(composite_sink_provider));
     let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);
     Arc::new(RevisionWebSocketManager::new(
+        "Folder",
         folder_id,
         web_socket,
         sink_provider,

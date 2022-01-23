@@ -21,7 +21,6 @@ pub trait DocumentUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
-
 #[async_trait]
 pub(crate) trait DocumentWSReceiver: Send + Sync {
     async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError>;
@@ -67,7 +66,7 @@ impl FlowyDocumentManager {
         self.get_editor(doc_id).await
     }
 
-    #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
+    #[tracing::instrument(level = "trace", skip(self, doc_id), fields(doc_id), err)]
     pub fn close_document<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
@@ -178,7 +177,7 @@ struct DocumentRevisionCloudServiceImpl {
 }
 
 impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
-    #[tracing::instrument(level = "debug", skip(self))]
+    #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, doc_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         let params = DocumentId {
             doc_id: doc_id.to_string(),
@@ -235,7 +234,7 @@ impl OpenDocCache {
     }
 }
 
-#[tracing::instrument(level = "debug", skip(state_receiver, receivers))]
+#[tracing::instrument(level = "trace", skip(state_receiver, receivers))]
 fn listen_ws_state_changed(mut state_receiver: WSStateReceiver, receivers: WebSocketDataReceivers) {
     tokio::spawn(async move {
         while let Ok(state) = state_receiver.recv().await {

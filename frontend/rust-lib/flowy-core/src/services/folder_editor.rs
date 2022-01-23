@@ -104,7 +104,7 @@ struct FolderRevisionCloudServiceImpl {
 }
 
 impl RevisionCloudService for FolderRevisionCloudServiceImpl {
-    #[tracing::instrument(level = "debug", skip(self))]
+    #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
     }

@@ -60,7 +60,7 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
+    #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let view_data = if params.view_data.is_empty() {
             initial_delta_string()

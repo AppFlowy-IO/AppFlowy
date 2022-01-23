@@ -147,7 +147,7 @@ impl ClientDocumentEditor {
         Ok(json)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, data), err)]
+    #[tracing::instrument(level = "trace", skip(self, data), err)]
     pub(crate) async fn compose_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
         let delta = RichTextDelta::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();

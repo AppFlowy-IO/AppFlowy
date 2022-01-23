@@ -27,12 +27,12 @@ impl std::convert::From<WorkspaceNotification> for i32 {
     fn from(notification: WorkspaceNotification) -> Self { notification as i32 }
 }
 
-#[tracing::instrument(level = "debug")]
+#[tracing::instrument(level = "trace")]
 pub(crate) fn send_dart_notification(id: &str, ty: WorkspaceNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
-#[tracing::instrument(level = "debug")]
+#[tracing::instrument(level = "trace")]
 pub(crate) fn send_anonymous_dart_notification(ty: WorkspaceNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new("", ty, OBSERVABLE_CATEGORY)
 }

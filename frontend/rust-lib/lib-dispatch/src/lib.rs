@@ -3,7 +3,7 @@ mod module;
 mod request;
 mod response;
 mod service;
-mod util;
+pub mod util;
 
 mod byte_trait;
 mod data;

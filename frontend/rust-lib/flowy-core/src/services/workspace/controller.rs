@@ -150,14 +150,14 @@ impl WorkspaceController {
 }
 
 impl WorkspaceController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, FlowyError> {
         let token = self.user.token()?;
         let workspace = self.cloud_service.create_workspace(&token, params).await?;
         Ok(workspace)
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), FlowyError> {
         let (token, server) = (self.user.token()?, self.cloud_service.clone());
         tokio::spawn(async move {
@@ -172,7 +172,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), FlowyError> {
         let params = WorkspaceId {
             workspace_id: Some(workspace_id.to_string()),

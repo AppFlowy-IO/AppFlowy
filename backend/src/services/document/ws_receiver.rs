@@ -34,28 +34,31 @@ pub fn make_document_ws_receiver(
     persistence: Arc<FlowyPersistence>,
     document_manager: Arc<ServerDocumentManager>,
 ) -> Arc<DocumentWebSocketReceiver> {
-    let (ws_sender, rx) = tokio::sync::mpsc::channel(1000);
+    let (actor_msg_sender, rx) = tokio::sync::mpsc::channel(1000);
     let actor = DocumentWebSocketActor::new(rx, document_manager);
     tokio::task::spawn(actor.run());
 
-    Arc::new(DocumentWebSocketReceiver::new(persistence, ws_sender))
+    Arc::new(DocumentWebSocketReceiver::new(persistence, actor_msg_sender))
 }
 
 pub struct DocumentWebSocketReceiver {
-    ws_sender: mpsc::Sender<DocumentWSActorMessage>,
+    actor_msg_sender: mpsc::Sender<DocumentWSActorMessage>,
     persistence: Arc<FlowyPersistence>,
 }
 
 impl DocumentWebSocketReceiver {
-    pub fn new(persistence: Arc<FlowyPersistence>, ws_sender: mpsc::Sender<DocumentWSActorMessage>) -> Self {
-        Self { ws_sender, persistence }
+    pub fn new(persistence: Arc<FlowyPersistence>, actor_msg_sender: mpsc::Sender<DocumentWSActorMessage>) -> Self {
+        Self {
+            actor_msg_sender,
+            persistence,
+        }
     }
 }
 
 impl WebSocketReceiver for DocumentWebSocketReceiver {
     fn receive(&self, data: WSClientData) {
         let (ret, rx) = oneshot::channel();
-        let sender = self.ws_sender.clone();
+        let actor_msg_sender = self.actor_msg_sender.clone();
         let persistence = self.persistence.clone();
 
         actix_rt::spawn(async move {
@@ -65,13 +68,13 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
                 ret,
             };
 
-            match sender.send(msg).await {
+            match actor_msg_sender.send(msg).await {
                 Ok(_) => {},
-                Err(e) => log::error!("{}", e),
+                Err(e) => log::error!("[DocumentWebSocketReceiver]: send message to actor failed: {}", e),
             }
             match rx.await {
                 Ok(_) => {},
-                Err(e) => log::error!("{:?}", e),
+                Err(e) => log::error!("[DocumentWebSocketReceiver]: message ret failed {:?}", e),
             };
         });
     }

@@ -23,27 +23,30 @@ pub fn make_folder_ws_receiver(
     persistence: Arc<FlowyPersistence>,
     folder_manager: Arc<ServerFolderManager>,
 ) -> Arc<FolderWebSocketReceiver> {
-    let (ws_sender, rx) = tokio::sync::mpsc::channel(1000);
+    let (actor_msg_sender, rx) = tokio::sync::mpsc::channel(1000);
     let actor = FolderWebSocketActor::new(rx, folder_manager);
     tokio::task::spawn(actor.run());
-    Arc::new(FolderWebSocketReceiver::new(persistence, ws_sender))
+    Arc::new(FolderWebSocketReceiver::new(persistence, actor_msg_sender))
 }
 
 pub struct FolderWebSocketReceiver {
-    ws_sender: mpsc::Sender<FolderWSActorMessage>,
+    actor_msg_sender: mpsc::Sender<FolderWSActorMessage>,
     persistence: Arc<FlowyPersistence>,
 }
 
 impl FolderWebSocketReceiver {
-    pub fn new(persistence: Arc<FlowyPersistence>, ws_sender: mpsc::Sender<FolderWSActorMessage>) -> Self {
-        Self { ws_sender, persistence }
+    pub fn new(persistence: Arc<FlowyPersistence>, actor_msg_sender: mpsc::Sender<FolderWSActorMessage>) -> Self {
+        Self {
+            actor_msg_sender,
+            persistence,
+        }
     }
 }
 
 impl WebSocketReceiver for FolderWebSocketReceiver {
     fn receive(&self, data: WSClientData) {
         let (ret, rx) = oneshot::channel();
-        let sender = self.ws_sender.clone();
+        let actor_msg_sender = self.actor_msg_sender.clone();
         let persistence = self.persistence.clone();
 
         actix_rt::spawn(async move {
@@ -53,13 +56,15 @@ impl WebSocketReceiver for FolderWebSocketReceiver {
                 ret,
             };
 
-            match sender.send(msg).await {
+            match actor_msg_sender.send(msg).await {
                 Ok(_) => {},
-                Err(e) => log::error!("{}", e),
+                Err(e) => {
+                    log::error!("[FolderWebSocketReceiver]: send message to actor failed: {}", e);
+                },
             }
             match rx.await {
                 Ok(_) => {},
-                Err(e) => log::error!("{:?}", e),
+                Err(e) => log::error!("[FolderWebSocketReceiver]: message ret failed {:?}", e),
             };
         });
     }

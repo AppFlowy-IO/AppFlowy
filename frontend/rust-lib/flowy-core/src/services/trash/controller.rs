@@ -205,7 +205,7 @@ impl TrashController {
 }
 
 impl TrashController {
-    #[tracing::instrument(level = "debug", skip(self, trash), err)]
+    #[tracing::instrument(level = "trace", skip(self, trash), err)]
     fn create_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
@@ -220,7 +220,7 @@ impl TrashController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, trash), err)]
+    #[tracing::instrument(level = "trace", skip(self, trash), err)]
     fn delete_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
@@ -234,7 +234,7 @@ impl TrashController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn read_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
@@ -264,7 +264,7 @@ impl TrashController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     async fn delete_all_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();

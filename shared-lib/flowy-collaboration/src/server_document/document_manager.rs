@@ -88,6 +88,7 @@ impl ServerDocumentManager {
 
         let result = match self.get_document_handler(&object_id).await {
             None => {
+                tracing::trace!("Can't find the document. Creating the document {}", object_id);
                 let _ = self.create_document(&object_id, repeated_revision).await.map_err(|e| {
                     CollaborateError::internal().context(format!("Server create document failed: {}", e))
                 })?;

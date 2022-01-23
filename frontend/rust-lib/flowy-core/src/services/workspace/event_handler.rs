@@ -94,7 +94,7 @@ pub async fn read_cur_workspace_handler(
     data_result(setting)
 }
 
-#[tracing::instrument(level = "debug", skip(folder_manager), err)]
+#[tracing::instrument(level = "trace", skip(folder_manager), err)]
 fn read_workspaces_on_server(
     folder_manager: Unit<Arc<FolderManager>>,
     user_id: String,
