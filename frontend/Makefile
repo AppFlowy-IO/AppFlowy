@@ -9,4 +9,4 @@ install_cargo_make:
 
 install_rust:
 	brew bundle
-	rustup-init -y --default-toolchain=nightly
+	rustup-init -y --default-toolchain=stable

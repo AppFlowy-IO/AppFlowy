@@ -6,7 +6,7 @@
 
 [tasks.env_check]
 dependencies = ["echo_env"]
-condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["nightly"] }
+condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["stable"] }
 
 [tasks.flowy-sdk-dev]
 mac_alias = "flowy-sdk-dev-macos"
