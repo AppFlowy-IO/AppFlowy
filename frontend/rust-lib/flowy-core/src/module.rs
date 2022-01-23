@@ -6,15 +6,8 @@ use crate::{
     event::WorkspaceEvent,
     event_handler::*,
     services::{
-        app::event_handler::*,
-        server::construct_workspace_server,
-        trash::event_handler::*,
-        view::event_handler::*,
-        workspace::event_handler::*,
-        AppController,
-        TrashController,
-        ViewController,
-        WorkspaceController,
+        app::event_handler::*, server::construct_workspace_server, trash::event_handler::*, view::event_handler::*,
+        workspace::event_handler::*, AppController, TrashController, ViewController, WorkspaceController,
     },
 };
 use backend_service::configuration::ClientServerConfiguration;

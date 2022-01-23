@@ -57,10 +57,10 @@ impl CoreContext {
 
     pub fn network_state_changed(&self, new_type: NetworkType) {
         match new_type {
-            NetworkType::UnknownNetworkType => {},
-            NetworkType::Wifi => {},
-            NetworkType::Cell => {},
-            NetworkType::Ethernet => {},
+            NetworkType::UnknownNetworkType => {}
+            NetworkType::Wifi => {}
+            NetworkType::Cell => {}
+            NetworkType::Ethernet => {}
         }
     }
 

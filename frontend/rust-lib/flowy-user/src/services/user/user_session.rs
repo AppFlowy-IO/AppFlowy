@@ -8,9 +8,7 @@ use flowy_database::{
     kv::KV,
     query_dsl::*,
     schema::{user_table, user_table::dsl},
-    DBConnection,
-    ExpressionMethods,
-    UserDatabaseConnection,
+    DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
 use flowy_user_data_model::entities::{SignInResponse, SignUpResponse};
 use lib_sqlite::ConnectionPool;
@@ -143,7 +141,9 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn init_user(&self) -> Result<(), FlowyError> { Ok(()) }
+    pub async fn init_user(&self) -> Result<(), FlowyError> {
+        Ok(())
+    }
 
     pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
@@ -171,11 +171,17 @@ impl UserSession {
         Ok(format!("{}/{}", self.config.root_dir, session.user_id))
     }
 
-    pub fn user_id(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.user_id) }
+    pub fn user_id(&self) -> Result<String, FlowyError> {
+        Ok(self.get_session()?.user_id)
+    }
 
-    pub fn user_name(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.name) }
+    pub fn user_name(&self) -> Result<String, FlowyError> {
+        Ok(self.get_session()?.name)
+    }
 
-    pub fn token(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.token) }
+    pub fn token(&self) -> Result<String, FlowyError> {
+        Ok(self.get_session()?.token)
+    }
 }
 
 impl UserSession {
@@ -188,12 +194,12 @@ impl UserSession {
                     dart_notify(&token, UserNotification::UserProfileUpdated)
                         .payload(profile)
                         .send();
-                },
+                }
                 Err(e) => {
                     dart_notify(&token, UserNotification::UserProfileUpdated)
                         .error(e)
                         .send();
-                },
+                }
             }
         });
         Ok(())
@@ -204,11 +210,11 @@ impl UserSession {
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
             match server.update_user(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("update user profile failed: {:?}", e);
-                },
+                }
             }
         })
         .await;
@@ -220,7 +226,7 @@ impl UserSession {
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
             match server.sign_out(&token).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("Sign out failed: {:?}", e),
             }
         })
@@ -250,11 +256,11 @@ impl UserSession {
         let mut session = { (*self.session.read()).clone() };
         if session.is_none() {
             match KV::get_str(&self.config.session_cache_key) {
-                None => {},
+                None => {}
                 Some(s) => {
                     session = Some(Session::from(s));
                     let _ = self.set_session(session.clone())?;
-                },
+                }
             }
         }
 
@@ -284,7 +290,9 @@ pub async fn update_user(
 }
 
 impl UserDatabaseConnection for UserSession {
-    fn get_connection(&self) -> Result<DBConnection, String> { self.db_connection().map_err(|e| format!("{:?}", e)) }
+    fn get_connection(&self) -> Result<DBConnection, String> {
+        self.db_connection().map_err(|e| format!("{:?}", e))
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -319,7 +327,9 @@ impl std::convert::From<SignUpResponse> for Session {
 }
 
 impl Session {
-    pub fn into_part(self) -> (String, String) { (self.user_id, self.token) }
+    pub fn into_part(self) -> (String, String) {
+        (self.user_id, self.token)
+    }
 }
 
 impl std::convert::From<String> for Session {
@@ -329,7 +339,7 @@ impl std::convert::From<String> for Session {
             Err(e) => {
                 log::error!("Deserialize string to Session failed: {:?}", e);
                 Session::default()
-            },
+            }
         }
     }
 }
@@ -340,7 +350,7 @@ impl std::convert::From<Session> for String {
             Err(e) => {
                 log::error!("Serialize session to string failed: {:?}", e);
                 "".to_string()
-            },
+            }
         }
     }
 }

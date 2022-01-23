@@ -97,9 +97,13 @@ impl DocumentRevisionManager {
         Ok(())
     }
 
-    pub fn rev_id(&self) -> i64 { self.rev_id_counter.value() }
+    pub fn rev_id(&self) -> i64 {
+        self.rev_id_counter.value()
+    }
 
-    pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
+    pub fn set_rev_id(&self, rev_id: i64) {
+        self.rev_id_counter.set(rev_id);
+    }
 
     pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
@@ -127,7 +131,9 @@ impl DocumentRevisionManager {
         })
     }
 
-    pub async fn latest_revision(&self) -> Revision { self.cache.latest_revision().await }
+    pub async fn latest_revision(&self) -> Revision {
+        self.cache.latest_revision().await
+    }
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {
         self.cache.get(rev_id).await.map(|record| record.revision)
@@ -150,7 +156,9 @@ impl std::default::Default for RevisionSyncSequence {
 }
 
 impl RevisionSyncSequence {
-    fn new() -> Self { RevisionSyncSequence::default() }
+    fn new() -> Self {
+        RevisionSyncSequence::default()
+    }
 
     async fn add_revision(&self, record: RevisionRecord) -> Result<(), OTError> {
         // The last revision's rev_id must be greater than the new one.
@@ -189,7 +197,9 @@ impl RevisionSyncSequence {
         }
     }
 
-    async fn next_sync_rev_id(&self) -> Option<i64> { self.local_revs.read().await.front().copied() }
+    async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.local_revs.read().await.front().copied()
+    }
 }
 
 struct RevisionLoader {
@@ -223,7 +233,7 @@ impl RevisionLoader {
                 .filter(|record| future::ready(record.state == RevisionState::Local))
                 .for_each(|record| async move {
                     match self.cache.add(record.revision, record.state, false).await {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => tracing::error!("{}", e),
                     }
                 })
@@ -268,12 +278,18 @@ fn correct_delta(delta: &mut RichTextDelta) {
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionSyncSequence {
     #[allow(dead_code)]
-    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> { self.revs_map.clone() }
+    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> {
+        self.revs_map.clone()
+    }
     #[allow(dead_code)]
-    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> { self.local_revs.clone() }
+    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> {
+        self.local_revs.clone()
+    }
 }
 
 #[cfg(feature = "flowy_unit_test")]
 impl DocumentRevisionManager {
-    pub fn revision_cache(&self) -> Arc<DocumentRevisionCache> { self.cache.clone() }
+    pub fn revision_cache(&self) -> Arc<DocumentRevisionCache> {
+        self.cache.clone()
+    }
 }

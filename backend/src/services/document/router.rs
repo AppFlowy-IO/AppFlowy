@@ -10,9 +10,7 @@ use actix_web::{
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_collaboration::{
     protobuf::{
-        CreateDocParams as CreateDocParamsPB,
-        DocumentId as DocumentIdPB,
-        ResetDocumentParams as ResetDocumentParamsPB,
+        CreateDocParams as CreateDocParamsPB, DocumentId as DocumentIdPB, ResetDocumentParams as ResetDocumentParamsPB,
     },
     sync::ServerDocumentManager,
 };

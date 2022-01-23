@@ -3,9 +3,7 @@ use crate::{
     core::{
         edit::ClientDocumentEditor,
         revision::{DocumentRevisionCache, DocumentRevisionManager, RevisionServer},
-        DocumentWSReceivers,
-        DocumentWebSocket,
-        WSStateReceiver,
+        DocumentWSReceivers, DocumentWebSocket, WSStateReceiver,
     },
     errors::FlowyError,
     server::Server,
@@ -101,8 +99,8 @@ impl DocumentController {
         match self.open_cache.get(doc_id) {
             None => {
                 let db_pool = self.user.db_pool()?;
-                self.make_editor(&doc_id, db_pool).await
-            },
+                self.make_editor(doc_id, db_pool).await
+            }
             Some(editor) => Ok(editor),
         }
     }
@@ -123,7 +121,7 @@ impl DocumentController {
         });
         let doc_editor = ClientDocumentEditor::new(doc_id, user, rev_manager, self.ws_sender.clone(), server).await?;
         self.ws_receivers.add(doc_id, doc_editor.ws_handler());
-        self.open_cache.insert(&doc_id, &doc_editor);
+        self.open_cache.insert(doc_id, &doc_editor);
         Ok(doc_editor)
     }
 
@@ -162,7 +160,9 @@ pub struct OpenDocCache {
 }
 
 impl OpenDocCache {
-    fn new() -> Self { Self { inner: DashMap::new() } }
+    fn new() -> Self {
+        Self { inner: DashMap::new() }
+    }
 
     pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocumentEditor>) {
         if self.inner.contains_key(doc_id) {
@@ -171,10 +171,12 @@ impl OpenDocCache {
         self.inner.insert(doc_id.to_string(), doc.clone());
     }
 
-    pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
+    pub(crate) fn contains(&self, doc_id: &str) -> bool {
+        self.inner.get(doc_id).is_some()
+    }
 
     pub(crate) fn get(&self, doc_id: &str) -> Option<Arc<ClientDocumentEditor>> {
-        if !self.contains(&doc_id) {
+        if !self.contains(doc_id) {
             return None;
         }
         let opened_doc = self.inner.get(doc_id).unwrap();

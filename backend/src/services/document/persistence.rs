@@ -7,11 +7,7 @@ use backend_service::errors::{internal_error, ServerError};
 use bytes::Bytes;
 use flowy_collaboration::{
     protobuf::{
-        CreateDocParams,
-        DocumentId,
-        DocumentInfo,
-        RepeatedRevision as RepeatedRevisionPB,
-        ResetDocumentParams,
+        CreateDocParams, DocumentId, DocumentInfo, RepeatedRevision as RepeatedRevisionPB, ResetDocumentParams,
         Revision as RevisionPB,
     },
     sync::ServerDocumentManager,
@@ -71,15 +67,21 @@ pub struct DocumentKVPersistence {
 impl std::ops::Deref for DocumentKVPersistence {
     type Target = Arc<KVStore>;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl std::ops::DerefMut for DocumentKVPersistence {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
 }
 
 impl DocumentKVPersistence {
-    pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
+    pub(crate) fn new(kv_store: Arc<KVStore>) -> Self {
+        DocumentKVPersistence { inner: kv_store }
+    }
 
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
         let items = revisions_to_key_value_items(revisions)?;
@@ -109,7 +111,7 @@ impl DocumentKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_get_start_with(&doc_id).await }))
                     .await?
-            },
+            }
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
@@ -119,7 +121,7 @@ impl DocumentKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_get(keys).await }))
                     .await?
-            },
+            }
         };
 
         Ok(key_value_items_to_revisions(items))
@@ -136,7 +138,7 @@ impl DocumentKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_delete_key_start_with(&doc_id).await }))
                     .await
-            },
+            }
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
@@ -146,7 +148,7 @@ impl DocumentKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_delete(keys).await }))
                     .await
-            },
+            }
         }
     }
 }
@@ -181,7 +183,9 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
 }
 
 #[inline]
-fn make_revision_key(doc_id: &str, rev_id: i64) -> String { format!("{}:{}", doc_id, rev_id) }
+fn make_revision_key(doc_id: &str, rev_id: i64) -> String {
+    format!("{}:{}", doc_id, rev_id)
+}
 
 #[inline]
 fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {

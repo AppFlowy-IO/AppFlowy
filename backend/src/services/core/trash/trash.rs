@@ -117,13 +117,13 @@ async fn delete_trash_associate_targets(
         match TrashType::from_i32(ty) {
             None => log::error!("Parser trash type with value: {} failed", ty),
             Some(ty) => match ty {
-                TrashType::Unknown => {},
+                TrashType::Unknown => {}
                 TrashType::View => {
                     let _ = delete_view(transaction as &mut DBTransaction<'_>, kv_store, vec![id]).await;
-                },
+                }
                 TrashType::App => {
                     let _ = delete_app(transaction as &mut DBTransaction<'_>, id).await;
-                },
+                }
             },
         }
     }
@@ -164,13 +164,13 @@ pub(crate) async fn read_trash(
         match TrashType::from_i32(table.ty) {
             None => log::error!("Parser trash type with value: {} failed", table.ty),
             Some(ty) => match ty {
-                TrashType::Unknown => {},
+                TrashType::Unknown => {}
                 TrashType::View => {
                     trash.push(read_view_table(table.id, transaction).await?.into());
-                },
+                }
                 TrashType::App => {
                     trash.push(read_app_table(table.id, transaction).await?.into());
-                },
+                }
             },
         }
     }

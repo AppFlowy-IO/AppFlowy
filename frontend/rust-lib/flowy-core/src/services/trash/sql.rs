@@ -20,7 +20,7 @@ impl TrashTableSql {
                 _ => {
                     let changeset = TrashTableChangeset::from(trash_table);
                     diesel_update_table!(trash_table, changeset, conn)
-                },
+                }
             }
         }
 
@@ -109,8 +109,8 @@ impl std::convert::From<TrashTable> for TrashTableChangeset {
 #[sql_type = "Integer"]
 pub(crate) enum SqlTrashType {
     Unknown = 0,
-    View    = 1,
-    App     = 2,
+    View = 1,
+    App = 2,
 }
 
 impl std::convert::From<i32> for SqlTrashType {

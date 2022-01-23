@@ -12,7 +12,9 @@ impl TrashIdentify {
 }
 
 impl AsRef<str> for TrashIdentify {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 #[derive(Debug)]

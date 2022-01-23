@@ -11,8 +11,12 @@ use std::{
 
 pub type CoreModuleEventBuilder = EventBuilder<FlowyError>;
 impl CoreModuleEventBuilder {
-    pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
-    pub fn user_profile(&self) -> &Option<UserProfile> { &self.user_profile }
+    pub fn new(sdk: FlowySDKTest) -> Self {
+        EventBuilder::test(TestContext::new(sdk))
+    }
+    pub fn user_profile(&self) -> &Option<UserProfile> {
+        &self.user_profile
+    }
 }
 
 pub type UserModuleEventBuilder = CoreModuleEventBuilder;
@@ -44,10 +48,10 @@ where
             Ok(bytes) => {
                 let module_request = self.get_request();
                 self.context.request = Some(module_request.payload(bytes))
-            },
+            }
             Err(e) => {
                 log::error!("Set payload failed: {:?}", e);
-            },
+            }
         }
         self
     }
@@ -83,7 +87,7 @@ where
             Ok(Ok(data)) => data,
             Ok(Err(e)) => {
                 panic!("parse failed: {:?}", e)
-            },
+            }
             Err(e) => panic!("Internal error: {:?}", e),
         }
     }
@@ -104,7 +108,9 @@ where
         self
     }
 
-    fn dispatch(&self) -> Arc<EventDispatcher> { self.context.sdk.dispatcher() }
+    fn dispatch(&self) -> Arc<EventDispatcher> {
+        self.context.sdk.dispatcher()
+    }
 
     fn get_response(&self) -> EventResponse {
         self.context
@@ -114,7 +120,9 @@ where
             .clone()
     }
 
-    fn get_request(&mut self) -> ModuleRequest { self.context.request.take().expect("must call event first") }
+    fn get_request(&mut self) -> ModuleRequest {
+        self.context.request.take().expect("must call event first")
+    }
 }
 
 #[derive(Clone)]

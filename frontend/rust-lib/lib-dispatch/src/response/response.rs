@@ -10,8 +10,8 @@ use std::{convert::TryFrom, fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 pub enum StatusCode {
-    Ok       = 0,
-    Err      = 1,
+    Ok = 0,
+    Err = 1,
     Internal = 2,
 }
 
@@ -40,11 +40,11 @@ impl EventResponse {
             StatusCode::Ok => {
                 let data = <Data<T>>::try_from(self.payload)?;
                 Ok(Ok(data.into_inner()))
-            },
+            }
             StatusCode::Err | StatusCode::Internal => {
                 let err = <Data<E>>::try_from(self.payload)?;
                 Ok(Err(err.into_inner()))
-            },
+            }
         }
     }
 }
@@ -64,7 +64,9 @@ impl std::fmt::Display for EventResponse {
 
 impl Responder for EventResponse {
     #[inline]
-    fn respond_to(self, _: &EventRequest) -> EventResponse { self }
+    fn respond_to(self, _: &EventRequest) -> EventResponse {
+        self
+    }
 }
 
 pub type DataResult<T, E> = std::result::Result<Data<T>, E>;

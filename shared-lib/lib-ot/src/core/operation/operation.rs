@@ -61,7 +61,9 @@ where
         }
     }
 
-    pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
+    pub fn has_attribute(&self) -> bool {
+        !self.get_attributes().is_empty()
+    }
 
     pub fn len(&self) -> usize {
         match self {
@@ -71,7 +73,9 @@ where
         }
     }
 
-    pub fn is_empty(&self) -> bool { self.len() == 0 }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 
     #[allow(dead_code)]
     pub fn split(&self, index: usize) -> (Option<Operation<T>>, Option<Operation<T>>) {
@@ -82,11 +86,11 @@ where
             Operation::Delete(n) => {
                 left = Some(OpBuilder::<T>::delete(index).build());
                 right = Some(OpBuilder::<T>::delete(*n - index).build());
-            },
+            }
             Operation::Retain(retain) => {
                 left = Some(OpBuilder::<T>::delete(index).build());
                 right = Some(OpBuilder::<T>::delete(retain.n - index).build());
-            },
+            }
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
                 left = Some(
@@ -99,7 +103,7 @@ where
                         .attributes(attributes)
                         .build(),
                 );
-            },
+            }
         }
 
         (left, right)
@@ -118,7 +122,7 @@ where
                     let s = insert.s.sub_str(interval).unwrap_or_else(|| "".to_owned());
                     OpBuilder::insert(&s).attributes(insert.attributes.clone()).build()
                 }
-            },
+            }
         };
 
         match op.is_empty() {
@@ -166,13 +170,13 @@ where
         match self {
             Operation::Delete(n) => {
                 f.write_fmt(format_args!("delete: {}", n))?;
-            },
+            }
             Operation::Retain(r) => {
                 f.write_fmt(format_args!("{}", r))?;
-            },
+            }
             Operation::Insert(i) => {
                 f.write_fmt(format_args!("{}", i))?;
-            },
+            }
         }
         f.write_str("}")?;
         Ok(())
@@ -219,7 +223,9 @@ where
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
+    pub fn is_plain(&self) -> bool {
+        self.attributes.is_empty()
+    }
 }
 
 impl<T> std::convert::From<usize> for Retain<T>
@@ -240,14 +246,18 @@ where
 {
     type Target = usize;
 
-    fn deref(&self) -> &Self::Target { &self.n }
+    fn deref(&self) -> &Self::Target {
+        &self.n
+    }
 }
 
 impl<T> DerefMut for Retain<T>
 where
     T: Attributes,
 {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.n
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -284,7 +294,9 @@ impl<T> Insert<T>
 where
     T: Attributes,
 {
-    pub fn utf16_size(&self) -> usize { self.s.utf16_size() }
+    pub fn utf16_size(&self) -> usize {
+        self.s.utf16_size()
+    }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
         if self.attributes == attributes {
@@ -295,7 +307,9 @@ where
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
+    pub fn is_plain(&self) -> bool {
+        self.attributes.is_empty()
+    }
 }
 
 impl<T> std::convert::From<String> for Insert<T>
@@ -314,7 +328,9 @@ impl<T> std::convert::From<&str> for Insert<T>
 where
     T: Attributes,
 {
-    fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
+    fn from(s: &str) -> Self {
+        Insert::from(s.to_owned())
+    }
 }
 
 impl<T> std::convert::From<FlowyStr> for Insert<T>

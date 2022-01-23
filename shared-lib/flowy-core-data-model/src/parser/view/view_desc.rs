@@ -15,5 +15,7 @@ impl ViewDesc {
 }
 
 impl AsRef<str> for ViewDesc {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

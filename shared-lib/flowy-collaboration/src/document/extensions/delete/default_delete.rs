@@ -6,7 +6,9 @@ use lib_ot::{
 
 pub struct DefaultDelete {}
 impl DeleteExt for DefaultDelete {
-    fn ext_name(&self) -> &str { "DefaultDelete" }
+    fn ext_name(&self) -> &str {
+        "DefaultDelete"
+    }
 
     fn apply(&self, _delta: &RichTextDelta, interval: Interval) -> Option<RichTextDelta> {
         Some(

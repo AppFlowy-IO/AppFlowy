@@ -9,8 +9,7 @@ use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
     protobuf::{
-        DocumentClientWSData as DocumentClientWSDataPB,
-        DocumentClientWSDataType as DocumentClientWSDataTypePB,
+        DocumentClientWSData as DocumentClientWSDataPB, DocumentClientWSDataType as DocumentClientWSDataTypePB,
         Revision as RevisionPB,
     },
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
@@ -66,7 +65,7 @@ impl DocumentWebSocketActor {
                 ret,
             } => {
                 let _ = ret.send(self.handle_client_data(client_data, persistence).await);
-            },
+            }
         }
     }
 
@@ -96,14 +95,14 @@ impl DocumentWebSocketActor {
                     .handle_client_revisions(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
-            },
+            }
             DocumentClientWSDataTypePB::ClientPing => {
                 let _ = self
                     .doc_manager
                     .handle_client_ping(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
-            },
+            }
         }
 
         Ok(())
@@ -135,37 +134,39 @@ impl std::fmt::Debug for ServerDocUser {
 }
 
 impl RevisionUser for ServerDocUser {
-    fn user_id(&self) -> String { self.user.id().to_string() }
+    fn user_id(&self) -> String {
+        self.user.id().to_string()
+    }
 
     fn receive(&self, resp: SyncResponse) {
         let result = match resp {
             SyncResponse::Pull(data) => {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
             SyncResponse::Push(data) => {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
             SyncResponse::Ack(data) => {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
             SyncResponse::NewRevision(mut repeated_revision) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
                     let revisions = repeated_revision.take_items().into();
                     match kv_store.batch_set_revision(revisions).await {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => log::error!("{}", e),
                     }
                 });
                 Ok(())
-            },
+            }
         };
 
         match result {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => log::error!("[ServerDocUser]: {}", e),
         }
     }

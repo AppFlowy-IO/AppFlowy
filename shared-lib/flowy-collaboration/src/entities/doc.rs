@@ -118,7 +118,9 @@ pub struct DocumentId {
 }
 
 impl std::convert::From<String> for DocumentId {
-    fn from(doc_id: String) -> Self { DocumentId { doc_id } }
+    fn from(doc_id: String) -> Self {
+        DocumentId { doc_id }
+    }
 }
 
 impl std::convert::From<&String> for DocumentId {

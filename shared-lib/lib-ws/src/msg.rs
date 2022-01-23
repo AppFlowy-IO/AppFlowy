@@ -18,7 +18,9 @@ pub enum WSModule {
 }
 
 impl std::default::Default for WSModule {
-    fn default() -> Self { WSModule::Doc }
+    fn default() -> Self {
+        WSModule::Doc
+    }
 }
 
 impl ToString for WSModule {
@@ -37,7 +39,7 @@ impl std::convert::From<WebSocketRawMessage> for TokioMessage {
             Err(e) => {
                 log::error!("WsMessage serialize error: {:?}", e);
                 TokioMessage::Binary(vec![])
-            },
+            }
         }
     }
 }

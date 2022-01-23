@@ -7,7 +7,9 @@ use lib_ot::{
 pub struct AutoExitBlock {}
 
 impl InsertExt for AutoExitBlock {
-    fn ext_name(&self) -> &str { "AutoExitBlock" }
+    fn ext_name(&self) -> &str {
+        "AutoExitBlock"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // Auto exit block will be triggered by enter two new lines
@@ -33,13 +35,13 @@ impl InsertExt for AutoExitBlock {
         }
 
         match iter.next_op_with_newline() {
-            None => {},
+            None => {}
             Some((newline_op, _)) => {
                 let newline_attributes = attributes_except_header(&newline_op);
                 if block_attributes == newline_attributes {
                     return None;
                 }
-            },
+            }
         }
 
         attributes.mark_all_as_removed_except(Some(RichTextAttributeKey::Header));

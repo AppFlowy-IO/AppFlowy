@@ -19,5 +19,7 @@ impl ViewName {
 }
 
 impl AsRef<str> for ViewName {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

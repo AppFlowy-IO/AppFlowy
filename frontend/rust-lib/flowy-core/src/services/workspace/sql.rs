@@ -19,7 +19,7 @@ impl WorkspaceTableSql {
             _ => {
                 let changeset = WorkspaceTableChangeset::from_table(table);
                 diesel_update_table!(workspace_table, changeset, conn);
-            },
+            }
         }
         Ok(())
     }

@@ -29,7 +29,9 @@ impl std::default::Default for DocumentWSReceivers {
 }
 
 impl DocumentWSReceivers {
-    pub fn new() -> Self { DocumentWSReceivers::default() }
+    pub fn new() -> Self {
+        DocumentWSReceivers::default()
+    }
 
     pub(crate) fn add(&self, doc_id: &str, receiver: Arc<dyn DocumentWSReceiver>) {
         if self.receivers.contains_key(doc_id) {
@@ -38,23 +40,25 @@ impl DocumentWSReceivers {
         self.receivers.insert(doc_id.to_string(), receiver);
     }
 
-    pub(crate) fn remove(&self, id: &str) { self.receivers.remove(id); }
+    pub(crate) fn remove(&self, id: &str) {
+        self.receivers.remove(id);
+    }
 
     pub fn did_receive_data(&self, data: Bytes) {
         let data: DocumentServerWSData = data.try_into().unwrap();
         match self.receivers.get(&data.doc_id) {
             None => {
                 log::error!("Can't find any source handler for {:?}", data.doc_id);
-            },
+            }
             Some(handler) => {
                 handler.receive_ws_data(data);
-            },
+            }
         }
     }
 
     pub fn ws_connect_state_changed(&self, state: &WSConnectState) {
         self.receivers.iter().for_each(|receiver| {
-            receiver.value().connect_state_changed(&state);
+            receiver.value().connect_state_changed(state);
         });
     }
 }

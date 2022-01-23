@@ -16,7 +16,9 @@ pub struct ViewId {
 }
 
 impl std::convert::From<String> for ViewId {
-    fn from(view_id: String) -> Self { ViewId { view_id } }
+    fn from(view_id: String) -> Self {
+        ViewId { view_id }
+    }
 }
 
 impl std::convert::From<ViewId> for DocumentId {

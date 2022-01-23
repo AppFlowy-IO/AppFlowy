@@ -14,5 +14,7 @@ impl WorkspaceIdentify {
 }
 
 impl AsRef<str> for WorkspaceIdentify {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

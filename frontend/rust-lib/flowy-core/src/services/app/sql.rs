@@ -26,7 +26,7 @@ impl AppTableSql {
             _ => {
                 let changeset = AppTableChangeset::from_table(app_table);
                 diesel_update_table!(app_table, changeset, conn)
-            },
+            }
         }
         Ok(())
     }
@@ -145,7 +145,9 @@ impl std::convert::From<ColorStyle> for ColorStyleCol {
 impl std::convert::TryInto<Vec<u8>> for &ColorStyleCol {
     type Error = String;
 
-    fn try_into(self) -> Result<Vec<u8>, Self::Error> { bincode::serialize(self).map_err(|e| format!("{:?}", e)) }
+    fn try_into(self) -> Result<Vec<u8>, Self::Error> {
+        bincode::serialize(self).map_err(|e| format!("{:?}", e))
+    }
 }
 
 impl std::convert::TryFrom<&[u8]> for ColorStyleCol {

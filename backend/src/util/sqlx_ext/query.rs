@@ -117,7 +117,7 @@ impl SqlBuilder {
 
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
-            },
+            }
             BuilderType::Select => {
                 let mut inner = InnerBuilder::select_from(&self.table);
                 self.fields.into_iter().for_each(|field| {
@@ -130,7 +130,7 @@ impl SqlBuilder {
 
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
-            },
+            }
             BuilderType::Update => {
                 let mut inner = InnerBuilder::update_table(&self.table);
                 let field_len = self.fields.len();
@@ -145,7 +145,7 @@ impl SqlBuilder {
 
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
-            },
+            }
             BuilderType::Delete => {
                 let mut inner = InnerBuilder::delete_from(&self.table);
                 self.filters.into_iter().enumerate().for_each(|(index, filter)| {
@@ -153,7 +153,7 @@ impl SqlBuilder {
                 });
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
-            },
+            }
         }
     }
 }

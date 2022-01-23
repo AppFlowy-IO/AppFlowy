@@ -2,8 +2,7 @@
 use crate::{
     connect::{WSConnectionFuture, WSStream},
     errors::WSError,
-    WSModule,
-    WebSocketRawMessage,
+    WSModule, WebSocketRawMessage,
 };
 use backend_service::errors::ServerError;
 use bytes::Bytes;
@@ -57,7 +56,9 @@ impl std::default::Default for WSController {
 }
 
 impl WSController {
-    pub fn new() -> Self { WSController::default() }
+    pub fn new() -> Self {
+        WSController::default()
+    }
 
     pub fn add_ws_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
         let source = handler.source();
@@ -74,7 +75,9 @@ impl WSController {
         self.connect(addr, strategy).await
     }
 
-    pub async fn stop(&self) { self.sender_ctrl.write().set_state(WSConnectState::Disconnected); }
+    pub async fn stop(&self) {
+        self.sender_ctrl.write().set_state(WSConnectState::Disconnected);
+    }
 
     async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
     where
@@ -104,11 +107,11 @@ impl WSController {
                     sender_ctrl.write().set_state(WSConnectState::Connected);
                     let _ = ret.send(Ok(()));
                     spawn_stream_and_handlers(stream, handlers_fut, sender_ctrl.clone()).await;
-                },
+                }
                 Err(e) => {
                     sender_ctrl.write().set_error(e.clone());
                     let _ = ret.send(Err(ServerError::internal().context(e)));
-                },
+                }
             }
         });
 
@@ -131,7 +134,9 @@ impl WSController {
         self.connect(addr, strategy).await
     }
 
-    pub fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_notify.subscribe() }
+    pub fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> {
+        self.state_notify.subscribe()
+    }
 
     pub fn ws_message_sender(&self) -> Result<Arc<WSSender>, WSError> {
         match self.sender_ctrl.read().sender() {
@@ -165,7 +170,9 @@ pub struct WSHandlerFuture {
 }
 
 impl WSHandlerFuture {
-    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self {
+        Self { msg_rx, handlers }
+    }
 
     fn handler_ws_message(&self, message: Message) {
         if let Message::Binary(bytes) = message {
@@ -182,7 +189,7 @@ impl WSHandlerFuture {
             },
             Err(e) => {
                 log::error!("Deserialize binary ws message failed: {:?}", e);
-            },
+            }
         }
     }
 }
@@ -194,7 +201,7 @@ impl Future for WSHandlerFuture {
             match ready!(self.as_mut().project().msg_rx.poll_next(cx)) {
                 None => {
                     return Poll::Ready(());
-                },
+                }
                 Some(message) => self.handler_ws_message(message),
             }
         }
@@ -317,7 +324,7 @@ impl Future for WSConnectActionFut {
                     handlers_fut,
                     sender,
                 }))
-            },
+            }
             Err(e) => Poll::Ready(Err(e)),
         }
     }
@@ -343,7 +350,9 @@ impl std::fmt::Display for WSConnectState {
 }
 
 impl std::fmt::Debug for WSConnectState {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self))
+    }
 }
 
 struct WSSenderController {
@@ -353,7 +362,9 @@ struct WSSenderController {
 }
 
 impl WSSenderController {
-    fn set_sender(&mut self, sender: WSSender) { self.sender = Some(Arc::new(sender)); }
+    fn set_sender(&mut self, sender: WSSender) {
+        self.sender = Some(Arc::new(sender));
+    }
 
     fn set_state(&mut self, state: WSConnectState) {
         if state != WSConnectState::Connected {
@@ -369,12 +380,18 @@ impl WSSenderController {
         self.set_state(WSConnectState::Disconnected);
     }
 
-    fn sender(&self) -> Option<Arc<WSSender>> { self.sender.clone() }
+    fn sender(&self) -> Option<Arc<WSSender>> {
+        self.sender.clone()
+    }
 
-    fn is_connecting(&self) -> bool { self.state == WSConnectState::Connecting }
+    fn is_connecting(&self) -> bool {
+        self.state == WSConnectState::Connecting
+    }
 
     #[allow(dead_code)]
-    fn is_connected(&self) -> bool { self.state == WSConnectState::Connected }
+    fn is_connected(&self) -> bool {
+        self.state == WSConnectState::Connected
+    }
 }
 
 impl std::default::Default for WSSenderController {

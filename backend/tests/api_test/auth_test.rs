@@ -76,10 +76,10 @@ async fn user_update_password() {
     };
 
     match server.sign_in(sign_in_params).await {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             assert_eq!(e.code, ErrorCode::PasswordNotMatch);
-        },
+        }
     }
 }
 

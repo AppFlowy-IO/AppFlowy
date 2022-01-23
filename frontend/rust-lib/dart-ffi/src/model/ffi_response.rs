@@ -3,13 +3,15 @@ use lib_dispatch::prelude::{EventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {
-    Ok       = 0,
-    Err      = 1,
+    Ok = 0,
+    Err = 1,
     Internal = 2,
 }
 
 impl std::default::Default for FFIStatusCode {
-    fn default() -> FFIStatusCode { FFIStatusCode::Ok }
+    fn default() -> FFIStatusCode {
+        FFIStatusCode::Ok
+    }
 }
 
 #[derive(ProtoBuf, Default)]

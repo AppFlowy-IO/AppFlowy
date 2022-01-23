@@ -10,7 +10,9 @@ use crate::{
 
 pub struct ResolveBlockFormat {}
 impl FormatExt for ResolveBlockFormat {
-    fn ext_name(&self) -> &str { "ResolveBlockFormat" }
+    fn ext_name(&self) -> &str {
+        "ResolveBlockFormat"
+    }
 
     fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Block {
@@ -28,7 +30,7 @@ impl FormatExt for ResolveBlockFormat {
                 Some(_) => {
                     let tmp_delta = line_break(&next_op, attribute, AttributeScope::Block);
                     new_delta.extend(tmp_delta);
-                },
+                }
             }
 
             start += next_op.len();
@@ -43,7 +45,7 @@ impl FormatExt for ResolveBlockFormat {
                     new_delta.retain(line_break, plain_attributes());
                     new_delta.retain(1, attribute.clone().into());
                     break;
-                },
+                }
             }
         }
 

@@ -22,7 +22,7 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 }
 
 pub fn parse_from_bytes<T: Message>(bytes: &[u8]) -> Result<T, ServerError> {
-    let result: ProtobufResult<T> = Message::parse_from_bytes(&bytes);
+    let result: ProtobufResult<T> = Message::parse_from_bytes(bytes);
     match result {
         Ok(data) => Ok(data),
         Err(e) => Err(e.into()),

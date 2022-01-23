@@ -6,14 +6,11 @@ use crate::{
 use actix_identity::Identity;
 use actix_web::{
     web::{Data, Payload},
-    HttpRequest,
-    HttpResponse,
+    HttpRequest, HttpResponse,
 };
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_user_data_model::protobuf::{
-    SignInParams as SignInParamsPB,
-    SignUpParams as SignUpParamsPB,
-    UpdateUserParams as UpdateUserParamsPB,
+    SignInParams as SignInParamsPB, SignUpParams as SignUpParamsPB, UpdateUserParams as UpdateUserParamsPB,
 };
 use sqlx::PgPool;
 

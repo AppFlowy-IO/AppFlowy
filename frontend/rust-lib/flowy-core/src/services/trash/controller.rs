@@ -29,7 +29,9 @@ impl TrashController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), FlowyError> { Ok(()) }
+    pub(crate) fn init(&self) -> Result<(), FlowyError> {
+        Ok(())
+    }
 
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
@@ -112,9 +114,9 @@ impl TrashController {
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
 
         match rx.recv().await {
-            None => {},
+            None => {}
             Some(result) => match result {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("{}", e),
             },
         }
@@ -171,7 +173,9 @@ impl TrashController {
         Ok(())
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
+    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> {
+        self.notify.subscribe()
+    }
 
     pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
         let repeated_trash = TrashTableSql::read_all(&*conn)?;
@@ -198,7 +202,7 @@ impl TrashController {
         // TODO: retry?
         let _ = tokio::spawn(async move {
             match server.create_trash(&token, trash_identifiers).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("Create trash failed: {:?}", e),
             }
         });
@@ -212,7 +216,7 @@ impl TrashController {
         let server = self.server.clone();
         let _ = tokio::spawn(async move {
             match server.delete_trash(&token, trash_identifiers).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("Delete trash failed: {:?}", e),
             }
         });
@@ -239,13 +243,13 @@ impl TrashController {
                             match result {
                                 Ok(repeated_trash) => {
                                     notify_trash_changed(repeated_trash);
-                                },
+                                }
                                 Err(e) => log::error!("Save trash failed: {:?}", e),
                             }
-                        },
+                        }
                         Err(e) => log::error!("Require db connection failed: {:?}", e),
                     }
-                },
+                }
                 Err(e) => log::error!("Read trash failed: {:?}", e),
             }
         });
@@ -295,7 +299,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::Putback(identifiers, sender))
                 }
-            },
+            }
             TrashEvent::Delete(mut identifiers, sender) => {
                 identifiers.items.retain(|item| item.ty == s);
                 if identifiers.items.is_empty() {
@@ -303,7 +307,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::Delete(identifiers, sender))
                 }
-            },
+            }
             TrashEvent::NewTrash(mut identifiers, sender) => {
                 identifiers.items.retain(|item| item.ty == s);
                 if identifiers.items.is_empty() {
@@ -311,7 +315,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::NewTrash(identifiers, sender))
                 }
-            },
+            }
         }
     }
 }

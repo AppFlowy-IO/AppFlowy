@@ -10,13 +10,15 @@ pub type Socket = Recipient<WebSocketMessage>;
 pub struct SessionId(pub String);
 
 impl<T: AsRef<str>> std::convert::From<T> for SessionId {
-    fn from(s: T) -> Self { SessionId(s.as_ref().to_owned()) }
+    fn from(s: T) -> Self {
+        SessionId(s.as_ref().to_owned())
+    }
 }
 
 impl std::fmt::Display for SessionId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let desc = &self.0.to_string();
-        f.write_str(&desc)
+        f.write_str(desc)
     }
 }
 

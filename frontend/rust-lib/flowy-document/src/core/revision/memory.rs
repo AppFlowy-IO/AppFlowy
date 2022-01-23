@@ -29,7 +29,9 @@ impl DocumentRevisionMemoryCache {
         }
     }
 
-    pub(crate) fn contains(&self, rev_id: &i64) -> bool { self.revs_map.contains_key(rev_id) }
+    pub(crate) fn contains(&self, rev_id: &i64) -> bool {
+        self.revs_map.contains_key(rev_id)
+    }
 
     pub(crate) async fn add<'a>(&'a self, record: Cow<'a, RevisionRecord>) {
         let record = match record {
@@ -55,7 +57,7 @@ impl DocumentRevisionMemoryCache {
 
     pub(crate) async fn ack(&self, rev_id: &i64) {
         match self.revs_map.get_mut(rev_id) {
-            None => {},
+            None => {}
             Some(mut record) => record.ack(),
         }
 
@@ -69,7 +71,7 @@ impl DocumentRevisionMemoryCache {
     }
 
     pub(crate) async fn get(&self, rev_id: &i64) -> Option<RevisionRecord> {
-        self.revs_map.get(&rev_id).map(|r| r.value().clone())
+        self.revs_map.get(rev_id).map(|r| r.value().clone())
     }
 
     pub(crate) async fn get_with_range(&self, range: &RevisionRange) -> Result<Vec<RevisionRecord>, FlowyError> {
@@ -123,10 +125,10 @@ impl DocumentRevisionMemoryCache {
             // https://stackoverflow.com/questions/28952411/what-is-the-idiomatic-way-to-pop-the-last-n-elements-in-a-mutable-vec
             let mut save_records: Vec<RevisionRecord> = vec![];
             revs_write_guard.iter().for_each(|rev_id| match rev_map.get(rev_id) {
-                None => {},
+                None => {}
                 Some(value) => {
                     save_records.push(value.value().clone());
-                },
+                }
             });
 
             if delegate.checkpoint_tick(save_records).is_ok() {

@@ -37,7 +37,7 @@ impl UserDB {
             Some(mut write_guard) => {
                 write_guard.insert(user_id.to_owned(), db);
                 Ok(())
-            },
+            }
         }
     }
 
@@ -48,7 +48,7 @@ impl UserDB {
                 set_user_db_init(false, user_id);
                 write_guard.remove(user_id);
                 Ok(())
-            },
+            }
         }
     }
 
@@ -67,7 +67,7 @@ impl UserDB {
                     let _ = self.open_user_db(user_id)?;
                     set_user_db_init(true, user_id);
                 }
-            },
+            }
         }
 
         match DB_MAP.try_read_for(Duration::from_millis(300)) {
@@ -75,7 +75,7 @@ impl UserDB {
             Some(read_guard) => match read_guard.get(user_id) {
                 None => {
                     Err(FlowyError::internal().context("Get connection failed. The database is not initialization"))
-                },
+                }
                 Some(database) => Ok(database.get_pool()),
             },
         }

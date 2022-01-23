@@ -1,9 +1,7 @@
 use actix_service::{Service, Transform};
 use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
-    Error,
-    HttpResponse,
-    ResponseError,
+    Error, HttpResponse, ResponseError,
 };
 
 use crate::{
@@ -34,7 +32,9 @@ where
     type InitError = ();
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
-    fn new_transform(&self, service: S) -> Self::Future { ok(AuthenticationMiddleware { service }) }
+    fn new_transform(&self, service: S) -> Self::Future {
+        ok(AuthenticationMiddleware { service })
+    }
 }
 pub struct AuthenticationMiddleware<S> {
     service: S,
@@ -51,7 +51,9 @@ where
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> { self.service.poll_ready(cx) }
+    fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        self.service.poll_ready(cx)
+    }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let mut authenticate_pass: bool = false;
@@ -77,7 +79,7 @@ where
                                 AUTHORIZED_USERS.store_auth(logged_user, true);
                             }
                         }
-                    },
+                    }
                     Err(e) => log::error!("{:?}", e),
                 }
             } else {

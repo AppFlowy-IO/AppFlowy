@@ -13,16 +13,24 @@ use std::{
 };
 
 #[inline]
-pub fn find_newline(s: &str) -> Option<usize> { s.find(NEW_LINE) }
+pub fn find_newline(s: &str) -> Option<usize> {
+    s.find(NEW_LINE)
+}
 
 #[inline]
-pub fn is_newline(s: &str) -> bool { s == NEW_LINE }
+pub fn is_newline(s: &str) -> bool {
+    s == NEW_LINE
+}
 
 #[inline]
-pub fn is_whitespace(s: &str) -> bool { s == WHITESPACE }
+pub fn is_whitespace(s: &str) -> bool {
+    s == WHITESPACE
+}
 
 #[inline]
-pub fn contain_newline(s: &str) -> bool { s.contains(NEW_LINE) }
+pub fn contain_newline(s: &str) -> bool {
+    s.contains(NEW_LINE)
+}
 
 #[inline]
 pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
@@ -34,14 +42,20 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 pub struct RevIdCounter(pub AtomicI64);
 
 impl RevIdCounter {
-    pub fn new(n: i64) -> Self { Self(AtomicI64::new(n)) }
+    pub fn new(n: i64) -> Self {
+        Self(AtomicI64::new(n))
+    }
     pub fn next(&self) -> i64 {
         let _ = self.0.fetch_add(1, SeqCst);
         self.value()
     }
-    pub fn value(&self) -> i64 { self.0.load(SeqCst) }
+    pub fn value(&self) -> i64 {
+        self.0.load(SeqCst)
+    }
 
-    pub fn set(&self, n: i64) { let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n)); }
+    pub fn set(&self, n: i64) {
+        let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n));
+    }
 }
 
 pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<RichTextDelta> {

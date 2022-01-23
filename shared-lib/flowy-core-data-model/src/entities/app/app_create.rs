@@ -99,7 +99,9 @@ pub struct App {
 }
 
 impl App {
-    pub fn take_belongings(&mut self) -> RepeatedView { std::mem::take(&mut self.belongings) }
+    pub fn take_belongings(&mut self) -> RepeatedView {
+        std::mem::take(&mut self.belongings)
+    }
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]

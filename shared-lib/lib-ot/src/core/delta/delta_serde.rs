@@ -2,10 +2,7 @@ use crate::core::{Attributes, Delta};
 use serde::{
     de::{SeqAccess, Visitor},
     ser::SerializeSeq,
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::{fmt, marker::PhantomData};
 
@@ -41,7 +38,9 @@ where
         {
             type Value = Delta<T>;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("a sequence") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a sequence")
+            }
 
             #[inline]
             fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>

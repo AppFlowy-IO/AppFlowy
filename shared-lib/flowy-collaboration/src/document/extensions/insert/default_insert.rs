@@ -6,7 +6,9 @@ use lib_ot::{
 
 pub struct DefaultInsertAttribute {}
 impl InsertExt for DefaultInsertAttribute {
-    fn ext_name(&self) -> &str { "DefaultInsertAttribute" }
+    fn ext_name(&self) -> &str {
+        "DefaultInsertAttribute"
+    }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         let iter = DeltaIter::new(delta);
@@ -19,12 +21,12 @@ impl InsertExt for DefaultInsertAttribute {
         // {"insert":"456"},{"insert":"\n","attributes":{"header":1}}]
         if text.ends_with(NEW_LINE) {
             match iter.last() {
-                None => {},
+                None => {}
                 Some(op) => {
                     if op.get_attributes().contains_key(&RichTextAttributeKey::Header) {
                         attributes.extend_other(op.get_attributes());
                     }
-                },
+                }
             }
         }
 

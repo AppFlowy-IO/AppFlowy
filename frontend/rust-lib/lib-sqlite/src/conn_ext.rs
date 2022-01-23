@@ -17,5 +17,7 @@ impl ConnectionExtension for SqliteConnection {
         Ok(sql::<ST>(query).get_result(self)?)
     }
 
-    fn exec(&self, query: impl AsRef<str>) -> Result<usize> { Ok(SqliteConnection::execute(self, query.as_ref())?) }
+    fn exec(&self, query: impl AsRef<str>) -> Result<usize> {
+        Ok(SqliteConnection::execute(self, query.as_ref())?)
+    }
 }

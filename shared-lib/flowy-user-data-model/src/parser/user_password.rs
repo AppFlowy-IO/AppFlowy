@@ -31,7 +31,9 @@ impl UserPassword {
 }
 
 impl AsRef<str> for UserPassword {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 lazy_static! {
@@ -57,6 +59,6 @@ pub fn validate_password(password: &str) -> bool {
         Err(e) => {
             log::error!("validate_password fail: {:?}", e);
             false
-        },
+        }
     }
 }

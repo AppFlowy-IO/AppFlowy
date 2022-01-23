@@ -1,7 +1,9 @@
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
 
-pub async fn hello() -> String { "say hello".to_string() }
+pub async fn hello() -> String {
+    "say hello".to_string()
+}
 
 #[tokio::test]
 async fn test() {

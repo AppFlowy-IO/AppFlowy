@@ -55,7 +55,9 @@ impl ModuleDataMap {
         self.map.contains_key(&TypeId::of::<T>())
     }
 
-    pub fn extend(&mut self, other: ModuleDataMap) { self.map.extend(other.map); }
+    pub fn extend(&mut self, other: ModuleDataMap) {
+        self.map.extend(other.map);
+    }
 }
 
 fn downcast_owned<T: 'static + Send + Sync>(boxed: Box<dyn Any + Send + Sync>) -> Option<T> {

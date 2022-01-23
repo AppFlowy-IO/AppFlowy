@@ -10,7 +10,9 @@ pub struct Ready<T> {
 
 impl<T> Ready<T> {
     #[inline]
-    pub fn into_inner(mut self) -> T { self.val.take().unwrap() }
+    pub fn into_inner(mut self) -> T {
+        self.val.take().unwrap()
+    }
 }
 
 impl<T> Unpin for Ready<T> {}
@@ -25,4 +27,6 @@ impl<T> Future for Ready<T> {
     }
 }
 
-pub fn ready<T>(val: T) -> Ready<T> { Ready { val: Some(val) } }
+pub fn ready<T>(val: T) -> Ready<T> {
+    Ready { val: Some(val) }
+}

@@ -9,8 +9,7 @@ use crate::{
     services::{
         app::sql::{AppTable, AppTableChangeset, AppTableSql},
         server::Server,
-        TrashController,
-        TrashEvent,
+        TrashController, TrashEvent,
     },
 };
 use flowy_database::SqliteConnection;
@@ -125,11 +124,11 @@ impl AppController {
         let server = self.server.clone();
         tokio::spawn(async move {
             match server.update_app(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("Update app failed: {:?}", e);
-                },
+                }
             }
         });
         Ok(())
@@ -152,13 +151,13 @@ impl AppController {
                                 send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
                                     .payload(app)
                                     .send();
-                            },
+                            }
                             Err(e) => log::error!("Save app failed: {:?}", e),
                         }
-                    },
+                    }
                     Err(e) => log::error!("Require db connection failed: {:?}", e),
                 },
-                Ok(None) => {},
+                Ok(None) => {}
                 Err(e) => log::error!("Read app failed: {:?}", e),
             }
         });
@@ -202,7 +201,7 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
                 Ok::<(), FlowyError>(())
             };
             let _ = ret.send(result()).await;
-        },
+        }
         TrashEvent::Delete(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
@@ -222,7 +221,7 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
                 Ok::<(), FlowyError>(())
             };
             let _ = ret.send(result()).await;
-        },
+        }
     }
 }
 

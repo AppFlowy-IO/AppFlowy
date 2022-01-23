@@ -144,12 +144,12 @@ impl Service<DispatchContext> for DispatchService {
                         let fut = module.new_service(());
                         let service_fut = fut.await?.call(request);
                         service_fut.await
-                    },
+                    }
                     None => {
                         let msg = format!("Can not find the event handler. {:?}", request);
                         log::error!("{}", msg);
                         Err(InternalError::HandleNotFound(msg).into())
-                    },
+                    }
                 }
             };
 

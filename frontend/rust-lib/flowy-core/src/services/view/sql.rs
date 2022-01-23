@@ -23,7 +23,7 @@ impl ViewTableSql {
             _ => {
                 let changeset = ViewTableChangeset::from_table(view_table);
                 diesel_update_table!(view_table, changeset, conn)
-            },
+            }
         }
         Ok(())
     }
@@ -219,7 +219,9 @@ pub enum ViewTableType {
 }
 
 impl std::default::Default for ViewTableType {
-    fn default() -> Self { ViewTableType::Docs }
+    fn default() -> Self {
+        ViewTableType::Docs
+    }
 }
 
 impl std::convert::From<i32> for ViewTableType {
@@ -229,13 +231,15 @@ impl std::convert::From<i32> for ViewTableType {
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
                 ViewTableType::Docs
-            },
+            }
         }
     }
 }
 
 impl ViewTableType {
-    pub fn value(&self) -> i32 { *self as i32 }
+    pub fn value(&self) -> i32 {
+        *self as i32
+    }
 }
 
 impl_sql_integer_expression!(ViewTableType);

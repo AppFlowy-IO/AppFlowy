@@ -46,20 +46,20 @@ impl EditorTest {
         match script {
             EditorScript::InsertText(s, offset) => {
                 self.editor.insert(offset, s).await.unwrap();
-            },
+            }
             EditorScript::Delete(interval) => {
                 self.editor.delete(interval).await.unwrap();
-            },
+            }
             EditorScript::Replace(interval, s) => {
                 self.editor.replace(interval, s).await.unwrap();
-            },
+            }
             EditorScript::AssertRevisionState(rev_id, state) => {
                 let record = cache.get(rev_id).await.unwrap();
                 assert_eq!(record.state, state);
-            },
+            }
             EditorScript::AssertCurrentRevId(rev_id) => {
                 assert_eq!(self.editor.rev_manager().rev_id(), rev_id);
-            },
+            }
             EditorScript::AssertNextRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
@@ -68,7 +68,7 @@ impl EditorTest {
                 }
                 let next_revision = next_revision.unwrap();
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
-            },
+            }
             EditorScript::AssertJson(expected) => {
                 let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();
                 let delta = self.editor.doc_delta().await.unwrap();
@@ -77,7 +77,7 @@ impl EditorTest {
                     eprintln!("❌ receive: {}", delta.to_json());
                 }
                 assert_eq!(expected_delta, delta);
-            },
+            }
         }
         sleep(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS)).await;
     }

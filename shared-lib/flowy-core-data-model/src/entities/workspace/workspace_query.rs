@@ -10,7 +10,9 @@ pub struct QueryWorkspaceRequest {
 }
 
 impl QueryWorkspaceRequest {
-    pub fn new(workspace_id: Option<String>) -> Self { Self { workspace_id } }
+    pub fn new(workspace_id: Option<String>) -> Self {
+        Self { workspace_id }
+    }
 }
 
 // Read all workspaces if the workspace_id is None
@@ -21,7 +23,9 @@ pub struct WorkspaceId {
 }
 
 impl WorkspaceId {
-    pub fn new(workspace_id: Option<String>) -> Self { Self { workspace_id } }
+    pub fn new(workspace_id: Option<String>) -> Self {
+        Self { workspace_id }
+    }
 }
 
 impl TryInto<WorkspaceId> for QueryWorkspaceRequest {

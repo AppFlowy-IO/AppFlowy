@@ -18,7 +18,9 @@ lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<Arc<FlowySDK>>> = RwLock::new(None);
 }
 
-fn dispatch() -> Arc<EventDispatcher> { FLOWY_SDK.read().as_ref().unwrap().dispatcher() }
+fn dispatch() -> Arc<EventDispatcher> {
+    FLOWY_SDK.read().as_ref().unwrap().dispatcher()
+}
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
@@ -85,13 +87,13 @@ async fn post_to_flutter(response: EventResponse, port: i64) {
     {
         Ok(_success) => {
             log::trace!("[FFI]: Post data to dart success");
-        },
+        }
         Err(e) => {
             if let Some(msg) = e.downcast_ref::<&str>() {
                 log::error!("[FFI]: {:?}", msg);
             } else {
                 log::error!("[FFI]: allo_isolate post panic");
             }
-        },
+        }
     }
 }

@@ -15,8 +15,14 @@ pub fn mk_modules(
     vec![user_module, core_module, network_module]
 }
 
-fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session) }
+fn mk_user_module(user_session: Arc<UserSession>) -> Module {
+    flowy_user::module::create(user_session)
+}
 
-fn mk_core_module(core: Arc<CoreContext>) -> Module { flowy_core::module::create(core) }
+fn mk_core_module(core: Arc<CoreContext>) -> Module {
+    flowy_core::module::create(core)
+}
 
-fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module { flowy_net::module::create(ws_conn) }
+fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module {
+    flowy_net::module::create(ws_conn)
+}

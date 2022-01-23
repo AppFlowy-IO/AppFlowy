@@ -18,12 +18,8 @@ use chrono::Utc;
 use flowy_user_data_model::{
     parser::{UserEmail, UserName, UserPassword},
     protobuf::{
-        SignInParams as SignInParamsPB,
-        SignInResponse as SignInResponsePB,
-        SignUpParams as SignUpParamsPB,
-        SignUpResponse as SignUpResponsePB,
-        UpdateUserParams as UpdateUserParamsPB,
-        UserProfile as UserProfilePB,
+        SignInParams as SignInParamsPB, SignInResponse as SignInResponsePB, SignUpParams as SignUpParamsPB,
+        SignUpResponse as SignUpResponsePB, UpdateUserParams as UpdateUserParamsPB, UserProfile as UserProfilePB,
     },
 };
 use sqlx::{PgPool, Postgres};
@@ -150,7 +146,7 @@ pub(crate) async fn set_user_profile(
             let password = UserPassword::parse(params.get_password().to_owned()).map_err(invalid_params)?;
             let password = hash_password(password.as_ref())?;
             Some(password)
-        },
+        }
     };
 
     let (sql, args) = SqlBuilder::update("user_table")
@@ -200,7 +196,7 @@ async fn check_user_password(
         .await
         .map_err(|err| ServerError::internal().context(err))?;
 
-    match verify_password(&password, &user.password) {
+    match verify_password(password, &user.password) {
         Ok(true) => Ok(user),
         _ => Err(ServerError::password_not_match()),
     }

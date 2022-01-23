@@ -38,27 +38,49 @@ impl ClientServerConfiguration {
         self.port = port;
     }
 
-    pub fn base_url(&self) -> String { format!("{}://{}:{}", self.http_scheme, self.host, self.port) }
+    pub fn base_url(&self) -> String {
+        format!("{}://{}:{}", self.http_scheme, self.host, self.port)
+    }
 
-    pub fn sign_up_url(&self) -> String { format!("{}/api/register", self.base_url()) }
+    pub fn sign_up_url(&self) -> String {
+        format!("{}/api/register", self.base_url())
+    }
 
-    pub fn sign_in_url(&self) -> String { format!("{}/api/auth", self.base_url()) }
+    pub fn sign_in_url(&self) -> String {
+        format!("{}/api/auth", self.base_url())
+    }
 
-    pub fn sign_out_url(&self) -> String { format!("{}/api/auth", self.base_url()) }
+    pub fn sign_out_url(&self) -> String {
+        format!("{}/api/auth", self.base_url())
+    }
 
-    pub fn user_profile_url(&self) -> String { format!("{}/api/user", self.base_url()) }
+    pub fn user_profile_url(&self) -> String {
+        format!("{}/api/user", self.base_url())
+    }
 
-    pub fn workspace_url(&self) -> String { format!("{}/api/workspace", self.base_url()) }
+    pub fn workspace_url(&self) -> String {
+        format!("{}/api/workspace", self.base_url())
+    }
 
-    pub fn app_url(&self) -> String { format!("{}/api/app", self.base_url()) }
+    pub fn app_url(&self) -> String {
+        format!("{}/api/app", self.base_url())
+    }
 
-    pub fn view_url(&self) -> String { format!("{}/api/view", self.base_url()) }
+    pub fn view_url(&self) -> String {
+        format!("{}/api/view", self.base_url())
+    }
 
-    pub fn doc_url(&self) -> String { format!("{}/api/doc", self.base_url()) }
+    pub fn doc_url(&self) -> String {
+        format!("{}/api/doc", self.base_url())
+    }
 
-    pub fn trash_url(&self) -> String { format!("{}/api/trash", self.base_url()) }
+    pub fn trash_url(&self) -> String {
+        format!("{}/api/trash", self.base_url())
+    }
 
-    pub fn ws_addr(&self) -> String { format!("{}://{}:{}/ws", self.ws_scheme, self.host, self.port) }
+    pub fn ws_addr(&self) -> String {
+        format!("{}://{}:{}/ws", self.ws_scheme, self.host, self.port)
+    }
 }
 
 pub enum Environment {

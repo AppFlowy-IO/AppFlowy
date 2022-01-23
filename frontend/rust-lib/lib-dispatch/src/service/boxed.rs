@@ -41,7 +41,9 @@ where
     type Context = Cfg;
     type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, cfg: Cfg) -> Self::Future { self.0.new_service(cfg) }
+    fn new_service(&self, cfg: Cfg) -> Self::Future {
+        self.0.new_service(cfg)
+    }
 }
 
 pub type BoxService<Req, Res, Err> =
@@ -65,7 +67,9 @@ where
     type Error = S::Error;
     type Future = S::Future;
 
-    fn call(&self, request: Req) -> S::Future { (**self).call(request) }
+    fn call(&self, request: Req) -> S::Future {
+        (**self).call(request)
+    }
 }
 
 struct ServiceWrapper<S> {
@@ -73,7 +77,9 @@ struct ServiceWrapper<S> {
 }
 
 impl<S> ServiceWrapper<S> {
-    fn new(inner: S) -> Self { Self { inner } }
+    fn new(inner: S) -> Self {
+        Self { inner }
+    }
 }
 
 impl<S, Req, Res, Err> Service<Req> for ServiceWrapper<S>
@@ -85,7 +91,9 @@ where
     type Error = Err;
     type Future = BoxFuture<'static, Result<Res, Err>>;
 
-    fn call(&self, req: Req) -> Self::Future { Box::pin(self.inner.call(req)) }
+    fn call(&self, req: Req) -> Self::Future {
+        Box::pin(self.inner.call(req))
+    }
 }
 
 struct FactoryWrapper<SF>(SF);

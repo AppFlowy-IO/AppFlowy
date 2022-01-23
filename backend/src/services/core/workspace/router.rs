@@ -1,11 +1,7 @@
 use crate::{
     entities::logged_user::LoggedUser,
     services::core::workspace::{
-        create_workspace,
-        delete_workspace,
-        persistence::check_workspace_id,
-        read_workspaces,
-        update_workspace,
+        create_workspace, delete_workspace, persistence::check_workspace_id, read_workspaces, update_workspace,
     },
     util::serde_ext::parse_from_payload,
 };
@@ -21,8 +17,7 @@ use backend_service::{
 use flowy_core_data_model::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
     protobuf::{
-        CreateWorkspaceParams as CreateWorkspaceParamsPB,
-        UpdateWorkspaceParams as UpdateWorkspaceParamsPB,
+        CreateWorkspaceParams as CreateWorkspaceParamsPB, UpdateWorkspaceParams as UpdateWorkspaceParamsPB,
         WorkspaceId as WorkspaceIdPB,
     },
 };
@@ -110,7 +105,7 @@ pub async fn update_handler(
                 .map_err(invalid_params)?
                 .0;
             Some(name)
-        },
+        }
     };
 
     let desc = match params.has_desc() {
@@ -120,7 +115,7 @@ pub async fn update_handler(
                 .map_err(invalid_params)?
                 .0;
             Some(desc)
-        },
+        }
     };
 
     let mut transaction = pool

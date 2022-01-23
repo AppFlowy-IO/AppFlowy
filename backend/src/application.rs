@@ -8,8 +8,7 @@ use tokio::time::interval;
 use crate::{
     config::{
         env::{domain, secret, use_https},
-        DatabaseSettings,
-        Settings,
+        DatabaseSettings, Settings,
     },
     context::AppContext,
     services::{
@@ -34,9 +33,13 @@ impl Application {
         Ok(Self { port, server })
     }
 
-    pub async fn run_until_stopped(self) -> Result<(), std::io::Error> { self.server.await }
+    pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
+        self.server.await
+    }
 
-    pub fn port(&self) -> u16 { self.port }
+    pub fn port(&self) -> u16 {
+        self.port
+    }
 }
 
 pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io::Error> {
@@ -72,62 +75,63 @@ async fn period_check(_pool: PgPool) {
     }
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(crate::services::web_socket::router::establish_ws_connection) }
+fn ws_scope() -> Scope {
+    web::scope("/ws").service(crate::services::web_socket::router::establish_ws_connection)
+}
 
 fn user_scope() -> Scope {
     // https://developer.mozilla.org/en-US/docs/Web/HTTP
     // TODO: replace GET body with query params
     web::scope("/api")
         // authentication
-        .service(web::resource("/auth")
-            .route(web::post().to(user::sign_in_handler))
-            .route(web::delete().to(user::sign_out_handler))
+        .service(
+            web::resource("/auth")
+                .route(web::post().to(user::sign_in_handler))
+                .route(web::delete().to(user::sign_out_handler)),
         )
-        .service(web::resource("/user")
-            .route(web::patch().to(user::set_user_profile_handler))
-            .route(web::get().to(user::get_user_profile_handler))
+        .service(
+            web::resource("/user")
+                .route(web::patch().to(user::set_user_profile_handler))
+                .route(web::get().to(user::get_user_profile_handler)),
         )
-        .service(web::resource("/register")
-            .route(web::post().to(user::register_handler))
+        .service(web::resource("/register").route(web::post().to(user::register_handler)))
+        .service(
+            web::resource("/workspace")
+                .route(web::post().to(workspace::create_handler))
+                .route(web::delete().to(workspace::delete_handler))
+                .route(web::get().to(workspace::read_handler))
+                .route(web::patch().to(workspace::update_handler)),
         )
-        .service(web::resource("/workspace")
-            .route(web::post().to(workspace::create_handler))
-            .route(web::delete().to(workspace::delete_handler))
-            .route(web::get().to(workspace::read_handler))
-            .route(web::patch().to(workspace::update_handler))
+        .service(web::resource("/workspace_list/{user_id}").route(web::get().to(workspace::workspace_list)))
+        .service(
+            web::resource("/app")
+                .route(web::post().to(app::create_handler))
+                .route(web::get().to(app::read_handler))
+                .route(web::delete().to(app::delete_handler))
+                .route(web::patch().to(app::update_handler)),
         )
-        .service(web::resource("/workspace_list/{user_id}")
-            .route(web::get().to(workspace::workspace_list))
+        .service(
+            web::resource("/view")
+                .route(web::post().to(view::create_handler))
+                .route(web::delete().to(view::delete_handler))
+                .route(web::get().to(view::read_handler))
+                .route(web::patch().to(view::update_handler)),
         )
-        .service(web::resource("/app")
-            .route(web::post().to(app::create_handler))
-            .route(web::get().to(app::read_handler))
-            .route(web::delete().to(app::delete_handler))
-            .route(web::patch().to(app::update_handler))
+        .service(
+            web::resource("/doc")
+                .route(web::post().to(doc::create_document_handler))
+                .route(web::get().to(doc::read_document_handler))
+                .route(web::patch().to(doc::reset_document_handler)),
         )
-        .service(web::resource("/view")
-            .route(web::post().to(view::create_handler))
-            .route(web::delete().to(view::delete_handler))
-            .route(web::get().to(view::read_handler))
-            .route(web::patch().to(view::update_handler))
+        .service(
+            web::resource("/trash")
+                .route(web::post().to(trash::create_handler))
+                .route(web::delete().to(trash::delete_handler))
+                .route(web::get().to(trash::read_handler)),
         )
-        .service(web::resource("/doc")
-            .route(web::post().to(doc::create_document_handler))
-            .route(web::get().to(doc::read_document_handler))
-            .route(web::patch().to(doc::reset_document_handler))
-        )
-        .service(web::resource("/trash")
-            .route(web::post().to(trash::create_handler))
-            .route(web::delete().to(trash::delete_handler))
-            .route(web::get().to(trash::read_handler))
-        )
-        .service(web::resource("/sync")
-            .route(web::post().to(trash::create_handler))
-        )
+        .service(web::resource("/sync").route(web::post().to(trash::create_handler)))
         // password
-        .service(web::resource("/password_change")
-            .route(web::post().to(user::change_password))
-        )
+        .service(web::resource("/password_change").route(web::post().to(user::change_password)))
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {

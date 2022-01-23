@@ -37,7 +37,9 @@ impl std::default::Default for HttpRequestBuilder {
 }
 
 impl HttpRequestBuilder {
-    pub fn new() -> Self { HttpRequestBuilder::default() }
+    pub fn new() -> Self {
+        HttpRequestBuilder::default()
+    }
 
     pub fn middleware<T>(mut self, middleware: Arc<T>) -> Self
     where
@@ -162,7 +164,7 @@ impl HttpRequestBuilder {
             None => {
                 self.response = Some(flowy_response.data);
                 Ok(self)
-            },
+            }
             Some(error) => Err(error),
         }
     }
@@ -204,6 +206,6 @@ fn default_client() -> Client {
         Err(e) => {
             log::error!("Create reqwest client failed: {}", e);
             reqwest::Client::new()
-        },
+        }
     }
 }

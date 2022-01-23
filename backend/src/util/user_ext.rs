@@ -2,7 +2,9 @@ use backend_service::errors::{ErrorCode, ServerError};
 use bcrypt::{hash, verify, DEFAULT_COST};
 
 #[allow(dead_code)]
-pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }
+pub fn uuid() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
 
 pub fn hash_password(plain: &str) -> Result<String, ServerError> {
     let hashing_cost = std::env::var("HASH_COST")

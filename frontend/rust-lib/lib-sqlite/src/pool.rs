@@ -17,7 +17,9 @@ pub struct ConnectionPool {
 impl std::ops::Deref for ConnectionPool {
     type Target = Pool<ConnectionManager>;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl ConnectionPool {
@@ -85,15 +87,23 @@ impl ManageConnection for ConnectionManager {
     type Connection = SqliteConnection;
     type Error = crate::Error;
 
-    fn connect(&self) -> Result<Self::Connection> { Ok(SqliteConnection::establish(&self.db_uri)?) }
+    fn connect(&self) -> Result<Self::Connection> {
+        Ok(SqliteConnection::establish(&self.db_uri)?)
+    }
 
-    fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> { Ok(conn.execute("SELECT 1").map(|_| ())?) }
+    fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> {
+        Ok(conn.execute("SELECT 1").map(|_| ())?)
+    }
 
-    fn has_broken(&self, _conn: &mut Self::Connection) -> bool { false }
+    fn has_broken(&self, _conn: &mut Self::Connection) -> bool {
+        false
+    }
 }
 
 impl ConnectionManager {
-    pub fn new<S: Into<String>>(uri: S) -> Self { ConnectionManager { db_uri: uri.into() } }
+    pub fn new<S: Into<String>>(uri: S) -> Self {
+        ConnectionManager { db_uri: uri.into() }
+    }
 }
 
 #[derive(Debug)]

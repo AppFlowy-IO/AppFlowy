@@ -14,14 +14,14 @@ impl ResponseMiddleware for DocMiddleware {
                 log::error!("document user is unauthorized");
 
                 match token {
-                    None => {},
+                    None => {}
                     Some(_token) => {
                         // let error =
                         // FlowyError::new(ErrorCode::UserUnauthorized, "");
                         // observable(token,
                         // WorkspaceObservable::UserUnauthorized).error(error).
                         // build()
-                    },
+                    }
                 }
             }
         }

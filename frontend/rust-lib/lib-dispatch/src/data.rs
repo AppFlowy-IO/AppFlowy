@@ -11,17 +11,23 @@ use std::ops;
 pub struct Data<T>(pub T);
 
 impl<T> Data<T> {
-    pub fn into_inner(self) -> T { self.0 }
+    pub fn into_inner(self) -> T {
+        self.0
+    }
 }
 
 impl<T> ops::Deref for Data<T> {
     type Target = T;
 
-    fn deref(&self) -> &T { &self.0 }
+    fn deref(&self) -> &T {
+        &self.0
+    }
 }
 
 impl<T> ops::DerefMut for Data<T> {
-    fn deref_mut(&mut self) -> &mut T { &mut self.0 }
+    fn deref_mut(&mut self) -> &mut T {
+        &mut self.0
+    }
 }
 
 impl<T> FromRequest for Data<T>
@@ -60,7 +66,9 @@ where
     T: FromBytes,
 {
     type Error = DispatchError;
-    fn try_from(payload: &Payload) -> Result<Data<T>, Self::Error> { parse_payload(payload) }
+    fn try_from(payload: &Payload) -> Result<Data<T>, Self::Error> {
+        parse_payload(payload)
+    }
 }
 
 impl<T> std::convert::TryFrom<Payload> for Data<T>
@@ -68,7 +76,9 @@ where
     T: FromBytes,
 {
     type Error = DispatchError;
-    fn try_from(payload: Payload) -> Result<Data<T>, Self::Error> { parse_payload(&payload) }
+    fn try_from(payload: Payload) -> Result<Data<T>, Self::Error> {
+        parse_payload(&payload)
+    }
 }
 
 fn parse_payload<T>(payload: &Payload) -> Result<Data<T>, DispatchError>
@@ -80,7 +90,7 @@ where
         Payload::Bytes(bytes) => {
             let data = T::parse_from_bytes(bytes.clone())?;
             Ok(Data(data))
-        },
+        }
     }
 }
 
@@ -98,5 +108,7 @@ where
 }
 
 impl ToBytes for Data<String> {
-    fn into_bytes(self) -> Result<Bytes, DispatchError> { Ok(Bytes::from(self.0)) }
+    fn into_bytes(self) -> Result<Bytes, DispatchError> {
+        Ok(Bytes::from(self.0))
+    }
 }

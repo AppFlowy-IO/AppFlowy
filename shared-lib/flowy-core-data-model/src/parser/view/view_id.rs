@@ -14,5 +14,7 @@ impl ViewIdentify {
 }
 
 impl AsRef<str> for ViewIdentify {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

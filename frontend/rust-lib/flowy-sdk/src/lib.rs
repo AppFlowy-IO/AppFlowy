@@ -122,7 +122,9 @@ impl FlowySDK {
         }
     }
 
-    pub fn dispatcher(&self) -> Arc<EventDispatcher> { self.dispatcher.clone() }
+    pub fn dispatcher(&self) -> Arc<EventDispatcher> {
+        self.dispatcher.clone()
+    }
 }
 
 fn _init(
@@ -161,26 +163,26 @@ async fn _listen_user_status(
                 UserStatus::Login { token, user_id } => {
                     let _ = core.user_did_sign_in(&token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
-                },
+                }
                 UserStatus::Logout { .. } => {
                     core.user_did_logout().await;
                     let _ = ws_conn.stop().await;
-                },
+                }
                 UserStatus::Expired { .. } => {
                     core.user_session_expired().await;
                     let _ = ws_conn.stop().await;
-                },
+                }
                 UserStatus::SignUp { profile, ret } => {
                     let _ = core.user_did_sign_up(&profile.token).await?;
                     let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
-                },
+                }
             }
             Ok::<(), FlowyError>(())
         };
 
         match result().await {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => log::error!("{}", e),
         }
     }
@@ -194,7 +196,7 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>,
 
 fn init_kv(root: &str) {
     match flowy_database::kv::KV::init(root) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => tracing::error!("Init kv store failedL: {}", e),
     }
 }

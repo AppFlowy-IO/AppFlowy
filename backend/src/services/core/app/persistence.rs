@@ -101,7 +101,7 @@ fn default_color_style() -> Vec<u8> {
         Err(e) => {
             log::error!("Serialize color style failed: {:?}", e);
             vec![]
-        },
+        }
     }
 }
 
@@ -121,6 +121,7 @@ pub struct AppTable {
     pub(crate) last_view_id: String,
     pub(crate) modified_time: chrono::DateTime<Utc>,
     pub(crate) create_time: chrono::DateTime<Utc>,
+    #[allow(dead_code)]
     pub(crate) user_id: String,
 }
 impl std::convert::From<AppTable> for AppPB {

@@ -10,7 +10,9 @@ pub struct UserHttpServer {
     config: ClientServerConfiguration,
 }
 impl UserHttpServer {
-    pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> Self {
+        Self { config }
+    }
 }
 
 impl UserServerAPI for UserHttpServer {
@@ -57,7 +59,9 @@ impl UserServerAPI for UserHttpServer {
         })
     }
 
-    fn ws_addr(&self) -> String { self.config.ws_addr() }
+    fn ws_addr(&self) -> String {
+        self.config.ws_addr()
+    }
 }
 
 // use crate::notify::*;

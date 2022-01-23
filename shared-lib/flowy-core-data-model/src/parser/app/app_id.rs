@@ -14,5 +14,7 @@ impl AppIdentify {
 }
 
 impl AsRef<str> for AppIdentify {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

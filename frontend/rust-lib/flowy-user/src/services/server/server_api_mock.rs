@@ -35,7 +35,9 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
@@ -45,5 +47,7 @@ impl UserServerAPI for UserServerMock {
         FutureResult::new(async { Ok(UserProfile::default()) })
     }
 
-    fn ws_addr(&self) -> String { "ws://localhost:8000/ws/".to_owned() }
+    fn ws_addr(&self) -> String {
+        "ws://localhost:8000/ws/".to_owned()
+    }
 }

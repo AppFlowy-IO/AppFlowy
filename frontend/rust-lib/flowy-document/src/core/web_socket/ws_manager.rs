@@ -1,10 +1,6 @@
 use crate::core::{
     web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer, HttpWebSocketManager},
-    DocumentRevisionManager,
-    DocumentWSReceiver,
-    DocumentWebSocket,
-    EditorCommand,
-    TransformDeltas,
+    DocumentRevisionManager, DocumentWSReceiver, DocumentWebSocket, EditorCommand, TransformDeltas,
 };
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -84,10 +80,10 @@ fn listen_document_ws_state(
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
             match state {
-                WSConnectState::Init => {},
-                WSConnectState::Connecting => {},
-                WSConnectState::Connected => {},
-                WSConnectState::Disconnected => {},
+                WSConnectState::Init => {}
+                WSConnectState::Connecting => {}
+                WSConnectState::Connected => {}
+                WSConnectState::Disconnected => {}
             }
         }
     });
@@ -196,7 +192,7 @@ pub(crate) async fn handle_remote_revision(
             });
             let _ = rx.await.map_err(internal_error)??;
             Ok(None)
-        },
+        }
         Some(server_prime) => {
             let (ret, rx) = oneshot::channel();
             let _ = edit_cmd_tx.send(EditorCommand::ComposeRemoteDelta {
@@ -206,7 +202,7 @@ pub(crate) async fn handle_remote_revision(
                 ret,
             });
             Ok(rx.await.map_err(internal_error)??)
-        },
+        }
     }
 }
 
@@ -233,9 +229,13 @@ impl SharedWSSinkDataProvider {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn push_front(&self, data: DocumentClientWSData) { self.shared.write().await.push_front(data); }
+    pub(crate) async fn push_front(&self, data: DocumentClientWSData) {
+        self.shared.write().await.push_front(data);
+    }
 
-    async fn push_back(&self, data: DocumentClientWSData) { self.shared.write().await.push_back(data); }
+    async fn push_back(&self, data: DocumentClientWSData) {
+        self.shared.write().await.push_back(data);
+    }
 
     async fn next(&self) -> FlowyResult<Option<DocumentClientWSData>> {
         let source_ty = self.source_ty.read().await.clone();
@@ -244,11 +244,11 @@ impl SharedWSSinkDataProvider {
                 None => {
                     *self.source_ty.write().await = SourceType::Revision;
                     Ok(None)
-                },
+                }
                 Some(data) => {
                     tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", data.doc_id, data.ty);
                     Ok(Some(data.clone()))
-                },
+                }
             },
             SourceType::Revision => {
                 if !self.shared.read().await.is_empty() {
@@ -260,15 +260,15 @@ impl SharedWSSinkDataProvider {
                     Some(rev) => {
                         let doc_id = rev.doc_id.clone();
                         Ok(Some(DocumentClientWSData::from_revisions(&doc_id, vec![rev])))
-                    },
+                    }
                     None => {
                         //
                         let doc_id = self.rev_manager.doc_id.clone();
                         let latest_rev_id = self.rev_manager.rev_id();
                         Ok(Some(DocumentClientWSData::ping(&doc_id, latest_rev_id)))
-                    },
+                    }
                 }
-            },
+            }
         }
     }
 
@@ -287,22 +287,22 @@ impl SharedWSSinkDataProvider {
                             tracing::error!("The front element's {} is not equal to the {}", expected_id, id);
                             false
                         }
-                    },
+                    }
                 };
                 if should_pop {
                     let _ = self.shared.write().await.pop_front();
                 }
-            },
+            }
             SourceType::Revision => {
                 match id.parse::<i64>() {
                     Ok(rev_id) => {
                         let _ = self.rev_manager.ack_revision(rev_id).await?;
-                    },
+                    }
                     Err(e) => {
                         tracing::error!("Parse rev_id from {} failed. {}", id, e);
-                    },
+                    }
                 };
-            },
+            }
         }
 
         Ok(())

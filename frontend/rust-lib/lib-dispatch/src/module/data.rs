@@ -11,9 +11,13 @@ impl<T> Unit<T>
 where
     T: Send + Sync,
 {
-    pub fn new(data: T) -> Self { Unit(Arc::new(data)) }
+    pub fn new(data: T) -> Self {
+        Unit(Arc::new(data))
+    }
 
-    pub fn get_ref(&self) -> &T { self.0.as_ref() }
+    pub fn get_ref(&self) -> &T {
+        self.0.as_ref()
+    }
 }
 
 impl<T> Deref for Unit<T>
@@ -22,21 +26,27 @@ where
 {
     type Target = Arc<T>;
 
-    fn deref(&self) -> &Arc<T> { &self.0 }
+    fn deref(&self) -> &Arc<T> {
+        &self.0
+    }
 }
 
 impl<T> Clone for Unit<T>
 where
     T: ?Sized + Send + Sync,
 {
-    fn clone(&self) -> Unit<T> { Unit(self.0.clone()) }
+    fn clone(&self) -> Unit<T> {
+        Unit(self.0.clone())
+    }
 }
 
 impl<T> From<Arc<T>> for Unit<T>
 where
     T: ?Sized + Send + Sync,
 {
-    fn from(arc: Arc<T>) -> Self { Unit(arc) }
+    fn from(arc: Arc<T>) -> Self {
+        Unit(arc)
+    }
 }
 
 impl<T> FromRequest for Unit<T>

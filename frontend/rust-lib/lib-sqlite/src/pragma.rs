@@ -1,3 +1,4 @@
+#![allow(clippy::upper_case_acronyms)]
 use crate::errors::{Error, Result};
 use diesel::{
     expression::SqlLiteral,
@@ -52,7 +53,9 @@ pub trait PragmaExtension: ConnectionExtension {
         self.pragma_ret::<Integer, i32, i32>("busy_timeout", timeout_ms, None)
     }
 
-    fn pragma_get_busy_timeout(&self) -> Result<i32> { self.pragma_get::<Integer, i32>("busy_timeout", None) }
+    fn pragma_get_busy_timeout(&self) -> Result<i32> {
+        self.pragma_get::<Integer, i32>("busy_timeout", None)
+    }
 
     fn pragma_set_journal_mode(&self, mode: SQLiteJournalMode, schema: Option<&str>) -> Result<i32> {
         self.pragma_ret::<Integer, i32, SQLiteJournalMode>("journal_mode", mode, schema)
@@ -117,10 +120,10 @@ impl FromStr for SQLiteJournalMode {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SQLiteSynchronous {
-    EXTRA  = 3,
-    FULL   = 2,
+    EXTRA = 3,
+    FULL = 2,
     NORMAL = 1,
-    OFF    = 0,
+    OFF = 0,
 }
 
 impl fmt::Display for SQLiteSynchronous {

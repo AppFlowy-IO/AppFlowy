@@ -29,10 +29,14 @@ pub struct ServiceRequest {
 }
 
 impl ServiceRequest {
-    pub fn new(req: EventRequest, payload: Payload) -> Self { Self { req, payload } }
+    pub fn new(req: EventRequest, payload: Payload) -> Self {
+        Self { req, payload }
+    }
 
     #[inline]
-    pub fn into_parts(self) -> (EventRequest, Payload) { (self.req, self.payload) }
+    pub fn into_parts(self) -> (EventRequest, Payload) {
+        (self.req, self.payload)
+    }
 }
 
 pub struct ServiceResponse {
@@ -41,7 +45,11 @@ pub struct ServiceResponse {
 }
 
 impl ServiceResponse {
-    pub fn new(request: EventRequest, response: EventResponse) -> Self { ServiceResponse { request, response } }
+    pub fn new(request: EventRequest, response: EventResponse) -> Self {
+        ServiceResponse { request, response }
+    }
 
-    pub fn into_parts(self) -> (EventRequest, EventResponse) { (self.request, self.response) }
+    pub fn into_parts(self) -> (EventRequest, EventResponse) {
+        (self.request, self.response)
+    }
 }

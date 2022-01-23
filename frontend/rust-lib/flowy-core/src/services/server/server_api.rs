@@ -17,7 +17,9 @@ pub struct WorkspaceHttpServer {
 }
 
 impl WorkspaceHttpServer {
-    pub fn new(config: ClientServerConfiguration) -> WorkspaceHttpServer { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> WorkspaceHttpServer {
+        Self { config }
+    }
 }
 
 impl WorkspaceServerAPI for WorkspaceHttpServer {

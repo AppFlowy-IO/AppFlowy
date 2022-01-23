@@ -65,11 +65,11 @@ impl ServerDocumentManager {
                     CollaborateError::internal().context(format!("Server crate document failed: {}", e))
                 })?;
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_revisions(user, repeated_revision).await?;
                 Ok(())
-            },
+            }
         };
 
         if result.is_ok() {
@@ -91,11 +91,11 @@ impl ServerDocumentManager {
             None => {
                 tracing::trace!("Document:{} doesn't exist, ignore pinging", doc_id);
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_ping(rev_id, user).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -109,11 +109,11 @@ impl ServerDocumentManager {
             None => {
                 tracing::warn!("Document:{} doesn't exist, ignore document reset", doc_id);
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_document_reset(repeated_revision).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -129,7 +129,7 @@ impl ServerDocumentManager {
                 write_guard.insert(doc_id.to_owned(), handler.clone());
                 drop(write_guard);
                 Some(handler)
-            },
+            }
             Err(_) => None,
         }
     }
@@ -324,7 +324,7 @@ impl DocumentCommandQueue {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
             DocumentCommand::Ping {
                 user,
                 persistence,
@@ -337,7 +337,7 @@ impl DocumentCommandQueue {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
             DocumentCommand::Reset {
                 persistence,
                 repeated_revision,
@@ -349,7 +349,7 @@ impl DocumentCommandQueue {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
         }
     }
 }

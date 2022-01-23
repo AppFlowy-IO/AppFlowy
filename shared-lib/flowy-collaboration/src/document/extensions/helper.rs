@@ -19,14 +19,14 @@ pub(crate) fn line_break(
             AttributeScope::Inline => {
                 new_delta.retain(line_break - start, attribute.clone().into());
                 new_delta.retain(1, plain_attributes());
-            },
+            }
             AttributeScope::Block => {
                 new_delta.retain(line_break - start, plain_attributes());
                 new_delta.retain(1, attribute.clone().into());
-            },
+            }
             _ => {
                 log::error!("Unsupported parser line break for {:?}", scope);
-            },
+            }
         }
 
         start = line_break + 1;

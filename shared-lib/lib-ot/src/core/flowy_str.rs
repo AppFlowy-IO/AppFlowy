@@ -6,9 +6,13 @@ pub struct FlowyStr(pub String);
 
 impl FlowyStr {
     // https://stackoverflow.com/questions/2241348/what-is-unicode-utf-8-utf-16
-    pub fn utf16_size(&self) -> usize { count_utf16_code_units(&self.0) }
+    pub fn utf16_size(&self) -> usize {
+        count_utf16_code_units(&self.0)
+    }
 
-    pub fn utf16_code_unit_iter(&self) -> Utf16CodeUnitIterator { Utf16CodeUnitIterator::new(self) }
+    pub fn utf16_code_unit_iter(&self) -> Utf16CodeUnitIterator {
+        Utf16CodeUnitIterator::new(self)
+    }
 
     pub fn sub_str(&self, interval: Interval) -> Option<String> {
         let mut iter = Utf16CodeUnitIterator::new(self);
@@ -30,29 +34,41 @@ impl FlowyStr {
     }
 
     #[allow(dead_code)]
-    fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator { FlowyUtf16CodePointIterator::new(self, 0) }
+    fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator {
+        FlowyUtf16CodePointIterator::new(self, 0)
+    }
 }
 
 impl std::ops::Deref for FlowyStr {
     type Target = String;
 
-    fn deref(&self) -> &Self::Target { &self.0 }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl std::ops::DerefMut for FlowyStr {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
 impl std::convert::From<String> for FlowyStr {
-    fn from(s: String) -> Self { FlowyStr(s) }
+    fn from(s: String) -> Self {
+        FlowyStr(s)
+    }
 }
 
 impl std::convert::From<&str> for FlowyStr {
-    fn from(s: &str) -> Self { s.to_owned().into() }
+    fn from(s: &str) -> Self {
+        s.to_owned().into()
+    }
 }
 
 impl std::fmt::Display for FlowyStr {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 
 impl std::ops::Add<&str> for FlowyStr {
@@ -65,7 +81,9 @@ impl std::ops::Add<&str> for FlowyStr {
 }
 
 impl std::ops::AddAssign<&str> for FlowyStr {
-    fn add_assign(&mut self, rhs: &str) { self.0 += rhs; }
+    fn add_assign(&mut self, rhs: &str) {
+        self.0 += rhs;
+    }
 }
 
 impl Serialize for FlowyStr {
@@ -87,7 +105,9 @@ impl<'de> Deserialize<'de> for FlowyStr {
         impl<'de> Visitor<'de> for FlowyStrVisitor {
             type Value = FlowyStr;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("a str") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a str")
+            }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
             where
@@ -152,7 +172,9 @@ pub struct FlowyUtf16CodePointIterator<'a> {
 }
 
 impl<'a> FlowyUtf16CodePointIterator<'a> {
-    pub fn new(s: &'a FlowyStr, offset: usize) -> Self { FlowyUtf16CodePointIterator { s, offset } }
+    pub fn new(s: &'a FlowyStr, offset: usize) -> Self {
+        FlowyUtf16CodePointIterator { s, offset }
+    }
 }
 
 use crate::core::Interval;

@@ -70,10 +70,10 @@ impl LocalWebSocket {
                             Ok::<(), FlowyError>(())
                         };
                         match fut().await {
-                            Ok(_) => {},
+                            Ok(_) => {}
                             Err(e) => tracing::error!("[LocalWebSocket] error: {:?}", e),
                         }
-                    },
+                    }
                     Err(e) => tracing::error!("[LocalWebSocket] error: {}", e),
                 }
             }
@@ -102,18 +102,26 @@ impl FlowyRawWebSocket for LocalWebSocket {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn stop_connect(&self) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
-    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> { self.state_sender.subscribe() }
+    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> {
+        self.state_sender.subscribe()
+    }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn add_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         self.receivers.insert(receiver.source(), receiver);
         Ok(())
     }
 
-    fn sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
+    fn sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> {
+        Ok(Arc::new(self.ws_sender.clone()))
+    }
 }
 
 #[derive(Clone)]
@@ -136,5 +144,7 @@ impl FlowyWSSender for LocalWSSender {
 impl std::ops::Deref for LocalWSSender {
     type Target = broadcast::Sender<WebSocketRawMessage>;
 
-    fn deref(&self) -> &Self::Target { &self.0 }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }

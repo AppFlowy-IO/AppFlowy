@@ -6,5 +6,7 @@ pub struct ImageData {
 }
 
 impl ToString for ImageData {
-    fn to_string(&self) -> String { self.image.clone() }
+    fn to_string(&self) -> String {
+        self.image.clone()
+    }
 }

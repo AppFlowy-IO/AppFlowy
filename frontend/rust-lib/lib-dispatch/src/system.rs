@@ -50,10 +50,10 @@ impl FlowySystem {
     #[allow(dead_code)]
     pub fn stop(&self) {
         match self.sys_cmd_tx.send(SystemCommand::Exit(0)) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 log::error!("Stop system error: {}", e);
-            },
+            }
         }
     }
 
@@ -89,7 +89,7 @@ impl Future for SystemController {
                         if let Some(tx) = self.stop_tx.take() {
                             let _ = tx.send(code);
                         }
-                    },
+                    }
                 },
             }
         }
@@ -115,7 +115,7 @@ impl SystemRunner {
                 } else {
                     Ok(())
                 }
-            },
+            }
             Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
         }
     }

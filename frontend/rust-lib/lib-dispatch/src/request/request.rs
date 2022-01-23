@@ -60,7 +60,9 @@ impl FromRequest for () {
     type Error = DispatchError;
     type Future = Ready<Result<(), DispatchError>>;
 
-    fn from_request(_req: &EventRequest, _payload: &mut Payload) -> Self::Future { ready(Ok(())) }
+    fn from_request(_req: &EventRequest, _payload: &mut Payload) -> Self::Future {
+        ready(Ok(()))
+    }
 }
 
 #[doc(hidden)]

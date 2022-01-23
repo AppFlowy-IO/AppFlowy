@@ -7,9 +7,7 @@ use flowy_collaboration::{
     },
     errors::CollaborateError,
     protobuf::{
-        DocumentClientWSData as DocumentClientWSDataPB,
-        RepeatedRevision as RepeatedRevisionPB,
-        Revision as RevisionPB,
+        DocumentClientWSData as DocumentClientWSDataPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB,
     },
     sync::*,
     util::repeated_revision_from_repeated_revision_pb,
@@ -58,10 +56,10 @@ impl LocalDocumentServer {
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await?;
-            },
+            }
             DocumentClientWSDataType::ClientPing => {
                 let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
-            },
+            }
         }
         Ok(())
     }
@@ -72,7 +70,9 @@ struct LocalDocServerPersistence {
 }
 
 impl Debug for LocalDocServerPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalDocServerPersistence") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("LocalDocServerPersistence")
+    }
 }
 
 impl std::default::Default for LocalDocServerPersistence {
@@ -93,7 +93,7 @@ impl DocumentPersistence for LocalDocServerPersistence {
                 Some(val) => {
                     //
                     Ok(val.value().clone())
-                },
+                }
             }
         })
     }
@@ -130,15 +130,17 @@ struct LocalDocumentUser {
 }
 
 impl RevisionUser for LocalDocumentUser {
-    fn user_id(&self) -> String { self.user_id.clone() }
+    fn user_id(&self) -> String {
+        self.user_id.clone()
+    }
 
     fn receive(&self, resp: SyncResponse) {
         let sender = self.ws_sender.clone();
         let send_fn = |sender: UnboundedSender<WebSocketRawMessage>, msg: WebSocketRawMessage| match sender.send(msg) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 tracing::error!("LocalDocumentUser send message failed: {}", e);
-            },
+            }
         };
 
         tokio::spawn(async move {
@@ -150,7 +152,7 @@ impl RevisionUser for LocalDocumentUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
                 SyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
@@ -158,7 +160,7 @@ impl RevisionUser for LocalDocumentUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
                 SyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
@@ -166,10 +168,10 @@ impl RevisionUser for LocalDocumentUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
                 SyncResponse::NewRevision(mut _repeated_revision) => {
                     // unimplemented!()
-                },
+                }
             }
         });
     }

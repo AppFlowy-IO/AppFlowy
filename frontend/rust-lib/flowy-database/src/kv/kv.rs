@@ -57,7 +57,7 @@ impl KV {
         match KV_HOLDER.write() {
             Ok(mut guard) => {
                 guard.cache.remove(key);
-            },
+            }
             Err(e) => log::error!("Require write lock failed: {:?}", e),
         };
 
@@ -94,7 +94,7 @@ fn read_cache(key: &str) -> Option<KeyValue> {
         Err(e) => {
             log::error!("Require read lock failed: {:?}", e);
             None
-        },
+        }
     }
 }
 
@@ -102,7 +102,7 @@ fn update_cache(value: KeyValue) {
     match KV_HOLDER.write() {
         Ok(mut guard) => {
             guard.cache.insert(value.key.clone(), value);
-        },
+        }
         Err(e) => log::error!("Require write lock failed: {:?}", e),
     };
 }
@@ -132,10 +132,10 @@ macro_rules! impl_set_func {
                 let mut item = KeyValue::new(key);
                 item.$set_method = Some(value);
                 match KV::set(item) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => {
                         log::error!("{:?}", e)
-                    },
+                    }
                 };
             }
         }
@@ -168,12 +168,12 @@ fn get_connection() -> Result<DBConnection, String> {
                 .get_connection()
                 .map_err(|e| format!("KVStore error: {:?}", e))?;
             Ok(conn)
-        },
+        }
         Err(e) => {
             let msg = format!("KVStore get connection failed: {:?}", e);
             log::error!("{:?}", msg);
             Err(msg)
-        },
+        }
     }
 }
 

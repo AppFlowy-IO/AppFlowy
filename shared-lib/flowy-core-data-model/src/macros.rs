@@ -4,15 +4,21 @@ macro_rules! impl_def_and_def_mut {
         impl std::ops::Deref for $target {
             type Target = Vec<$item>;
 
-            fn deref(&self) -> &Self::Target { &self.items }
+            fn deref(&self) -> &Self::Target {
+                &self.items
+            }
         }
         impl std::ops::DerefMut for $target {
-            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.items }
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.items
+            }
         }
 
         impl $target {
             #[allow(dead_code)]
-            pub fn into_inner(self) -> Vec<$item> { self.items }
+            pub fn into_inner(self) -> Vec<$item> {
+                self.items
+            }
 
             #[allow(dead_code)]
             pub fn push(&mut self, item: $item) {
@@ -24,7 +30,9 @@ macro_rules! impl_def_and_def_mut {
                 self.items.push(item);
             }
 
-            pub fn first_or_crash(&self) -> &$item { self.items.first().unwrap() }
+            pub fn first_or_crash(&self) -> &$item {
+                self.items.first().unwrap()
+            }
         }
     };
 }
