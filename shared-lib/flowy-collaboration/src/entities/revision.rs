@@ -35,11 +35,17 @@ impl std::convert::From<Vec<u8>> for Revision {
 }
 
 impl Revision {
-    pub fn is_empty(&self) -> bool { self.base_rev_id == self.rev_id }
+    pub fn is_empty(&self) -> bool {
+        self.base_rev_id == self.rev_id
+    }
 
-    pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
+    pub fn pair_rev_id(&self) -> (i64, i64) {
+        (self.base_rev_id, self.rev_id)
+    }
 
-    pub fn is_initial(&self) -> bool { self.rev_id == 0 }
+    pub fn is_initial(&self) -> bool {
+        self.rev_id == 0
+    }
 
     pub fn initial_revision(user_id: &str, object_id: &str, delta_data: Bytes) -> Self {
         let md5 = md5(&delta_data);
@@ -77,7 +83,9 @@ impl Revision {
 }
 
 impl std::convert::From<Revision> for RepeatedRevision {
-    fn from(revision: Revision) -> Self { RepeatedRevision { items: vec![revision] } }
+    fn from(revision: Revision) -> Self {
+        RepeatedRevision { items: vec![revision] }
+    }
 }
 
 impl std::fmt::Debug for Revision {
@@ -88,10 +96,10 @@ impl std::fmt::Debug for Revision {
         match RichTextDelta::from_bytes(&self.delta_data) {
             Ok(delta) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", delta.to_json()))?;
-            },
+            }
             Err(e) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", e))?;
-            },
+            }
         }
         Ok(())
     }
@@ -106,11 +114,15 @@ pub struct RepeatedRevision {
 impl std::ops::Deref for RepeatedRevision {
     type Target = Vec<Revision>;
 
-    fn deref(&self) -> &Self::Target { &self.items }
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
 }
 
 impl std::ops::DerefMut for RepeatedRevision {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.items }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 impl RepeatedRevision {
@@ -119,9 +131,13 @@ impl RepeatedRevision {
         Self { items }
     }
 
-    pub fn empty() -> Self { RepeatedRevision { items: vec![] } }
+    pub fn empty() -> Self {
+        RepeatedRevision { items: vec![] }
+    }
 
-    pub fn into_inner(self) -> Vec<Revision> { self.items }
+    pub fn into_inner(self) -> Vec<Revision> {
+        self.items
+    }
 }
 
 #[derive(Clone, Debug, ProtoBuf, Default)]
@@ -131,19 +147,27 @@ pub struct RevId {
 }
 
 impl AsRef<i64> for RevId {
-    fn as_ref(&self) -> &i64 { &self.value }
+    fn as_ref(&self) -> &i64 {
+        &self.value
+    }
 }
 
 impl std::convert::From<RevId> for i64 {
-    fn from(rev_id: RevId) -> Self { rev_id.value }
+    fn from(rev_id: RevId) -> Self {
+        rev_id.value
+    }
 }
 
 impl std::convert::From<i64> for RevId {
-    fn from(value: i64) -> Self { RevId { value } }
+    fn from(value: i64) -> Self {
+        RevId { value }
+    }
 }
 
 impl std::fmt::Display for RevId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.value)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -168,7 +192,9 @@ impl RevisionRange {
         }
     }
 
-    pub fn is_empty(&self) -> bool { self.end == self.start }
+    pub fn is_empty(&self) -> bool {
+        self.end == self.start
+    }
 
     pub fn iter(&self) -> RangeInclusive<i64> {
         debug_assert!(self.start != self.end);
@@ -185,7 +211,7 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevisionState {
     Sync = 0,
-    Ack  = 1,
+    Ack = 1,
 }
 
 impl RevisionState {
@@ -198,15 +224,19 @@ impl RevisionState {
 }
 
 impl AsRef<RevisionState> for RevisionState {
-    fn as_ref(&self) -> &RevisionState { &self }
+    fn as_ref(&self) -> &RevisionState {
+        self
+    }
 }
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
-    DeprecatedLocal  = 0,
+    DeprecatedLocal = 0,
     DeprecatedRemote = 1,
 }
 
 impl std::default::Default for RevType {
-    fn default() -> Self { RevType::DeprecatedLocal }
+    fn default() -> Self {
+        RevType::DeprecatedLocal
+    }
 }

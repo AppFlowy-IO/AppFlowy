@@ -108,13 +108,13 @@ impl FlowyDocumentManager {
             Ok(data) => match self.ws_receivers.get(&data.object_id) {
                 None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
                 Some(handler) => match handler.receive_ws_data(data).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("{}", e),
                 },
             },
             Err(e) => {
                 tracing::error!("Document ws data parser failed: {:?}", e);
-            },
+            }
         }
     }
 
@@ -130,8 +130,8 @@ impl FlowyDocumentManager {
         match self.open_cache.get(doc_id) {
             None => {
                 let db_pool = self.user.db_pool()?;
-                self.make_editor(&doc_id, db_pool).await
-            },
+                self.make_editor(doc_id, db_pool).await
+            }
             Some(editor) => Ok(editor),
         }
     }
@@ -150,7 +150,7 @@ impl FlowyDocumentManager {
         });
         let doc_editor = ClientDocumentEditor::new(doc_id, user, rev_manager, self.web_socket.clone(), server).await?;
         self.add_ws_receiver(doc_id, doc_editor.ws_handler());
-        self.open_cache.insert(&doc_id, &doc_editor);
+        self.open_cache.insert(doc_id, &doc_editor);
         Ok(doc_editor)
     }
 
@@ -167,7 +167,9 @@ impl FlowyDocumentManager {
         self.ws_receivers.insert(object_id.to_string(), receiver);
     }
 
-    fn remove_ws_receiver(&self, id: &str) { self.ws_receivers.remove(id); }
+    fn remove_ws_receiver(&self, id: &str) {
+        self.ws_receivers.remove(id);
+    }
 }
 
 struct DocumentRevisionCloudServiceImpl {
@@ -194,7 +196,7 @@ impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
                     let revision =
                         Revision::new(&doc.doc_id, doc.base_rev_id, doc.rev_id, delta_data, &user_id, doc_md5);
                     Ok(vec![revision])
-                },
+                }
             }
         })
     }
@@ -205,7 +207,9 @@ pub struct OpenDocCache {
 }
 
 impl OpenDocCache {
-    fn new() -> Self { Self { inner: DashMap::new() } }
+    fn new() -> Self {
+        Self { inner: DashMap::new() }
+    }
 
     pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocumentEditor>) {
         if self.inner.contains_key(doc_id) {
@@ -214,10 +218,12 @@ impl OpenDocCache {
         self.inner.insert(doc_id.to_string(), doc.clone());
     }
 
-    pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
+    pub(crate) fn contains(&self, doc_id: &str) -> bool {
+        self.inner.get(doc_id).is_some()
+    }
 
     pub(crate) fn get(&self, doc_id: &str) -> Option<Arc<ClientDocumentEditor>> {
-        if !self.contains(&doc_id) {
+        if !self.contains(doc_id) {
             return None;
         }
         let opened_doc = self.inner.get(doc_id).unwrap();

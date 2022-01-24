@@ -103,7 +103,7 @@ impl LocalWebSocketRunner {
         stream
             .for_each(|message| async {
                 match self.handle_message(message).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("[LocalWebSocketRunner]: {}", e),
                 }
             })
@@ -117,11 +117,11 @@ impl LocalWebSocketRunner {
             WSChannel::Document => {
                 let _ = self.handle_document_client_data(client_data, "".to_owned()).await?;
                 Ok(())
-            },
+            }
             WSChannel::Folder => {
                 let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -150,13 +150,13 @@ impl LocalWebSocketRunner {
                     .folder_manager
                     .handle_client_revisions(user, document_client_data)
                     .await?;
-            },
+            }
             ClientRevisionWSDataType::ClientPing => {
                 let _ = self
                     .folder_manager
                     .handle_client_ping(user, document_client_data)
                     .await?;
-            },
+            }
         }
         Ok(())
     }
@@ -186,10 +186,10 @@ impl LocalWebSocketRunner {
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await?;
-            },
+            }
             ClientRevisionWSDataType::ClientPing => {
                 let _ = self.doc_manager.handle_client_ping(user, document_client_data).await?;
-            },
+            }
         }
         Ok(())
     }
@@ -203,15 +203,17 @@ struct LocalRevisionUser {
 }
 
 impl RevisionUser for LocalRevisionUser {
-    fn user_id(&self) -> String { self.user_id.clone() }
+    fn user_id(&self) -> String {
+        self.user_id.clone()
+    }
 
     fn receive(&self, resp: RevisionSyncResponse) {
         let sender = self.client_ws_sender.clone();
         let send_fn = |sender: UnboundedSender<WebSocketRawMessage>, msg: WebSocketRawMessage| match sender.send(msg) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 tracing::error!("LocalDocumentUser send message failed: {}", e);
-            },
+            }
         };
         let channel = self.channel.clone();
 
@@ -224,7 +226,7 @@ impl RevisionUser for LocalRevisionUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
                 RevisionSyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
@@ -232,7 +234,7 @@ impl RevisionUser for LocalRevisionUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
                 RevisionSyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
                     let msg = WebSocketRawMessage {
@@ -240,7 +242,7 @@ impl RevisionUser for LocalRevisionUser {
                         data: bytes.to_vec(),
                     };
                     send_fn(sender, msg);
-                },
+                }
             }
         });
     }
@@ -255,12 +257,7 @@ use flowy_core_data_model::entities::{
 use flowy_document::DocumentCloudService;
 use flowy_user::module::UserCloudService;
 use flowy_user_data_model::entities::{
-    SignInParams,
-    SignInResponse,
-    SignUpParams,
-    SignUpResponse,
-    UpdateUserParams,
-    UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
 use lib_infra::{future::FutureResult, timestamp, uuid_string};
 
@@ -394,7 +391,9 @@ impl UserCloudService for LocalServer {
         })
     }
 
-    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
@@ -404,7 +403,9 @@ impl UserCloudService for LocalServer {
         FutureResult::new(async { Ok(UserProfile::default()) })
     }
 
-    fn ws_addr(&self) -> String { "ws://localhost:8000/ws/".to_owned() }
+    fn ws_addr(&self) -> String {
+        "ws://localhost:8000/ws/".to_owned()
+    }
 }
 
 impl DocumentCloudService for LocalServer {

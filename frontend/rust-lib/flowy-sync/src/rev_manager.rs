@@ -7,7 +7,7 @@ use flowy_collaboration::{
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 use std::{collections::VecDeque, sync::Arc};
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::RwLock;
 
 pub trait RevisionCloudService: Send + Sync {
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError>;
@@ -26,7 +26,7 @@ pub struct RevisionManager {
     revision_sync_seq: Arc<RevisionSyncSequence>,
 
     #[cfg(feature = "flowy_unit_test")]
-    revision_ack_notifier: broadcast::Sender<i64>,
+    revision_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
@@ -34,7 +34,7 @@ impl RevisionManager {
         let rev_id_counter = RevIdCounter::new(0);
         let revision_sync_seq = Arc::new(RevisionSyncSequence::new());
         #[cfg(feature = "flowy_unit_test")]
-        let (revision_ack_notifier, _) = broadcast::channel(1);
+        let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
         Self {
             object_id: object_id.to_string(),
@@ -114,7 +114,9 @@ impl RevisionManager {
         Ok(())
     }
 
-    pub fn rev_id(&self) -> i64 { self.rev_id_counter.value() }
+    pub fn rev_id(&self) -> i64 {
+        self.rev_id_counter.value()
+    }
 
     pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
@@ -142,7 +144,9 @@ impl RevisionManager {
         })
     }
 
-    pub async fn latest_revision(&self) -> Revision { self.revision_cache.latest_revision().await }
+    pub async fn latest_revision(&self) -> Revision {
+        self.revision_cache.latest_revision().await
+    }
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {
         self.revision_cache.get(rev_id).await.map(|record| record.revision)
@@ -165,7 +169,9 @@ impl std::default::Default for RevisionSyncSequence {
 }
 
 impl RevisionSyncSequence {
-    fn new() -> Self { RevisionSyncSequence::default() }
+    fn new() -> Self {
+        RevisionSyncSequence::default()
+    }
 
     async fn add_revision_record(&self, record: RevisionRecord) -> FlowyResult<()> {
         if !record.state.is_need_sync() {
@@ -208,7 +214,9 @@ impl RevisionSyncSequence {
         }
     }
 
-    async fn next_sync_rev_id(&self) -> Option<i64> { self.local_revs.read().await.front().copied() }
+    async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.local_revs.read().await.front().copied()
+    }
 }
 
 struct RevisionLoader {
@@ -246,7 +254,7 @@ impl RevisionLoader {
                     Ok::<(), FlowyError>(())
                 };
                 match f().await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("[RevisionLoader]: {}", e),
                 }
             }
@@ -265,13 +273,21 @@ impl RevisionLoader {
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionSyncSequence {
     #[allow(dead_code)]
-    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> { self.revs_map.clone() }
+    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> {
+        self.revs_map.clone()
+    }
     #[allow(dead_code)]
-    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> { self.local_revs.clone() }
+    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> {
+        self.local_revs.clone()
+    }
 }
 
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionManager {
-    pub fn revision_cache(&self) -> Arc<RevisionCache> { self.revision_cache.clone() }
-    pub fn revision_ack_receiver(&self) -> broadcast::Receiver<i64> { self.revision_ack_notifier.subscribe() }
+    pub fn revision_cache(&self) -> Arc<RevisionCache> {
+        self.revision_cache.clone()
+    }
+    pub fn revision_ack_receiver(&self) -> tokio::sync::broadcast::Receiver<i64> {
+        self.revision_ack_notifier.subscribe()
+    }
 }

@@ -1,8 +1,7 @@
 #![allow(clippy::all)]
 use crate::{
     errors::{internal_error, WSError},
-    MsgReceiver,
-    MsgSender,
+    MsgReceiver, MsgSender,
 };
 use futures_core::{future::BoxFuture, ready};
 use futures_util::{FutureExt, StreamExt};
@@ -17,8 +16,7 @@ use tokio::net::TcpStream;
 use tokio_tungstenite::{
     connect_async,
     tungstenite::{handshake::client::Response, Error, Message},
-    MaybeTlsStream,
-    WebSocketStream,
+    MaybeTlsStream, WebSocketStream,
 };
 
 type WsConnectResult = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>;
@@ -71,11 +69,11 @@ impl Future for WSConnectionFuture {
                             .expect("[WebSocket]: WSConnection should be call once "),
                     );
                     Poll::Ready(Ok(WSStream::new(msg_tx, ws_rx, stream)))
-                },
+                }
                 Err(error) => {
                     tracing::debug!("[WebSocket]: ❌ connect failed: {:?}", error);
                     Poll::Ready(Err(error.into()))
-                },
+                }
             };
         }
     }
@@ -102,7 +100,7 @@ impl WSStream {
                         ws_read
                             .for_each(|message| async {
                                 match tx.send(send_message(msg_tx.clone(), message)) {
-                                    Ok(_) => {},
+                                    Ok(_) => {}
                                     Err(e) => log::error!("[WebSocket]: WSStream sender closed unexpectedly: {} ", e),
                                 }
                             })
@@ -116,12 +114,12 @@ impl WSStream {
                                 None => {
                                     return Err(WSError::internal()
                                         .context("[WebSocket]: WSStream receiver closed unexpectedly"));
-                                },
+                                }
                                 Some(result) => {
                                     if result.is_err() {
                                         return result;
                                     }
-                                },
+                                }
                             }
                         }
                     };
@@ -142,7 +140,9 @@ impl WSStream {
 }
 
 impl fmt::Debug for WSStream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.debug_struct("WSStream").finish() }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WSStream").finish()
+    }
 }
 
 impl Future for WSStream {
@@ -159,9 +159,9 @@ impl Future for WSStream {
                     Poll::Pending => {
                         self.inner = Some((ws_read, ws_write));
                         Poll::Pending
-                    },
+                    }
                 }
-            },
+            }
         }
     }
 }

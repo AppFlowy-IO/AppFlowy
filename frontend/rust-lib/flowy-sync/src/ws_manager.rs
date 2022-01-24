@@ -12,8 +12,7 @@ use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, fmt::Formatter, sync::Arc};
 use tokio::{
     sync::{
-        broadcast,
-        mpsc,
+        broadcast, mpsc,
         mpsc::{Receiver, Sender},
         RwLock,
     },
@@ -107,7 +106,9 @@ impl RevisionWebSocketManager {
         tokio::spawn(stream.run());
     }
 
-    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_passthrough_tx.subscribe() }
+    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> {
+        self.state_passthrough_tx.subscribe()
+    }
 
     pub fn stop(&self) {
         if self.stop_sync_tx.send(()).is_ok() {
@@ -117,7 +118,9 @@ impl RevisionWebSocketManager {
 }
 
 impl std::ops::Drop for RevisionWebSocketManager {
-    fn drop(&mut self) { tracing::trace!("{} was dropped", self) }
+    fn drop(&mut self) {
+        tracing::trace!("{} was dropped", self)
+    }
 }
 
 pub struct RevisionWSStream {
@@ -135,7 +138,9 @@ impl std::fmt::Display for RevisionWSStream {
 }
 
 impl std::ops::Drop for RevisionWSStream {
-    fn drop(&mut self) { tracing::trace!("{} was dropped", self) }
+    fn drop(&mut self) {
+        tracing::trace!("{} was dropped", self)
+    }
 }
 
 impl RevisionWSStream {
@@ -185,7 +190,7 @@ impl RevisionWSStream {
         stream
             .for_each(|msg| async {
                 match self.handle_message(msg).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("[{}]:{} error: {}", &self, self.object_id, e),
                 }
             })
@@ -199,19 +204,19 @@ impl RevisionWSStream {
         match ty {
             ServerRevisionWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
-            },
+            }
             ServerRevisionWSDataType::ServerPullRev => {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
-            },
+            }
             ServerRevisionWSDataType::ServerAck => {
                 let rev_id = RevId::try_from(bytes).unwrap().value;
                 let _ = self.consumer.receive_ack(rev_id.to_string(), ty).await;
-            },
+            }
             ServerRevisionWSDataType::UserConnect => {
                 let new_user = NewDocumentUser::try_from(bytes)?;
                 let _ = self.consumer.receive_new_user_connect(new_user).await;
-            },
+            }
         }
         Ok(())
     }
@@ -272,7 +277,7 @@ impl RevisionWSSink {
         stream
             .for_each(|_| async {
                 match self.send_next_revision().await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("[{}] send failed, {:?}", self, e),
                 }
             })
@@ -284,11 +289,11 @@ impl RevisionWSSink {
             None => {
                 tracing::trace!("[{}]: Finish synchronizing revisions", self);
                 Ok(())
-            },
+            }
             Some(data) => {
                 tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
                 self.ws_sender.send(data).await
-            },
+            }
         }
     }
 }
@@ -300,7 +305,9 @@ impl std::fmt::Display for RevisionWSSink {
 }
 
 impl std::ops::Drop for RevisionWSSink {
-    fn drop(&mut self) { tracing::trace!("{} was dropped", self) }
+    fn drop(&mut self) {
+        tracing::trace!("{} was dropped", self)
+    }
 }
 
 async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
@@ -334,7 +341,9 @@ impl CompositeWSSinkDataProvider {
         }
     }
 
-    pub async fn push_data(&self, data: ClientRevisionWSData) { self.container.write().await.push_back(data); }
+    pub async fn push_data(&self, data: ClientRevisionWSData) {
+        self.container.write().await.push_back(data);
+    }
 
     pub async fn next(&self) -> FlowyResult<Option<ClientRevisionWSData>> {
         let source = self.source.read().await.clone();
@@ -343,7 +352,7 @@ impl CompositeWSSinkDataProvider {
                 None => {
                     *self.source.write().await = Source::Revision;
                     Ok(None)
-                },
+                }
                 Some(data) => Ok(Some(data.clone())),
             },
             Source::Revision => {
@@ -359,7 +368,7 @@ impl CompositeWSSinkDataProvider {
                         self.rev_manager.rev_id(),
                     ))),
                 }
-            },
+            }
         };
         data
     }
@@ -378,20 +387,20 @@ impl CompositeWSSinkDataProvider {
                             tracing::error!("The front element's {} is not equal to the {}", expected_id, id);
                             false
                         }
-                    },
+                    }
                 };
                 if should_pop {
                     let _ = self.container.write().await.pop_front();
                 }
                 Ok(())
-            },
+            }
             Source::Revision => {
                 let rev_id = id.parse::<i64>().map_err(|e| {
                     FlowyError::internal().context(format!("Parse {} rev_id from {} failed. {}", self.object_id, id, e))
                 })?;
                 let _ = self.rev_manager.ack_revision(rev_id).await?;
                 Ok::<(), FlowyError>(())
-            },
+            }
         }
     }
 }

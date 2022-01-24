@@ -1,8 +1,7 @@
 use crate::{
     core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
-    DocumentUser,
-    DocumentWSReceiver,
+    DocumentUser, DocumentWSReceiver,
 };
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -12,11 +11,7 @@ use flowy_collaboration::{
 };
 use flowy_error::{internal_error, FlowyResult};
 use flowy_sync::{
-    RevisionCloudService,
-    RevisionManager,
-    RevisionObjectBuilder,
-    RevisionWebSocket,
-    RevisionWebSocketManager,
+    RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket, RevisionWebSocketManager,
 };
 use lib_ot::{
     core::{Interval, Operation},
@@ -160,13 +155,19 @@ impl ClientDocumentEditor {
         Ok(())
     }
 
-    pub fn stop(&self) { self.ws_manager.stop(); }
+    pub fn stop(&self) {
+        self.ws_manager.stop();
+    }
 
-    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> { self.ws_manager.clone() }
+    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> {
+        self.ws_manager.clone()
+    }
 }
 
 impl std::ops::Drop for ClientDocumentEditor {
-    fn drop(&mut self) { tracing::trace!("{} ClientDocumentEditor was dropped", self.doc_id) }
+    fn drop(&mut self) {
+        tracing::trace!("{} ClientDocumentEditor was dropped", self.doc_id)
+    }
 }
 
 // The edit queue will exit after the EditorCommandSender was dropped.
@@ -199,7 +200,9 @@ impl ClientDocumentEditor {
         Ok(delta)
     }
 
-    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
+    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+        self.rev_manager.clone()
+    }
 }
 
 struct DocumentInfoBuilder();

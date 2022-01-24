@@ -9,8 +9,7 @@ use backend_service::errors::{internal_error, Result};
 
 use flowy_collaboration::{
     protobuf::{
-        ClientRevisionWSData as ClientRevisionWSDataPB,
-        ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
+        ClientRevisionWSData as ClientRevisionWSDataPB, ClientRevisionWSDataType as ClientRevisionWSDataTypePB,
     },
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
@@ -67,7 +66,7 @@ impl FolderWebSocketActor {
                 ret,
             } => {
                 let _ = ret.send(self.handle_folder_data(client_data).await);
-            },
+            }
         }
     }
 
@@ -92,14 +91,14 @@ impl FolderWebSocketActor {
                     .handle_client_revisions(user, folder_client_data)
                     .await
                     .map_err(internal_error)?;
-            },
+            }
             ClientRevisionWSDataTypePB::ClientPing => {
                 let _ = self
                     .folder_manager
                     .handle_client_ping(user, folder_client_data)
                     .await
                     .map_err(internal_error)?;
-            },
+            }
         }
         Ok(())
     }
@@ -121,26 +120,28 @@ impl std::fmt::Debug for FolderRevisionUser {
 }
 
 impl RevisionUser for FolderRevisionUser {
-    fn user_id(&self) -> String { self.user.id().to_string() }
+    fn user_id(&self) -> String {
+        self.user.id().to_string()
+    }
 
     fn receive(&self, resp: RevisionSyncResponse) {
         let result = match resp {
             RevisionSyncResponse::Pull(data) => {
                 let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
             RevisionSyncResponse::Push(data) => {
                 let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
             RevisionSyncResponse::Ack(data) => {
                 let msg: WebSocketMessage = revision_data_to_ws_message(data, WSChannel::Folder);
                 self.socket.try_send(msg).map_err(internal_error)
-            },
+            }
         };
 
         match result {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => log::error!("[FolderRevisionUser]: {}", e),
         }
     }

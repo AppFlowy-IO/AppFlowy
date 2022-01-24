@@ -17,13 +17,8 @@ use crate::{
     errors::FlowyResult,
     module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
-        folder_editor::FolderEditor,
-        persistence::FolderPersistence,
-        set_current_workspace,
-        AppController,
-        TrashController,
-        ViewController,
-        WorkspaceController,
+        folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
+        TrashController, ViewController, WorkspaceController,
     },
 };
 
@@ -36,19 +31,27 @@ const FOLDER_ID_SPLIT: &str = ":";
 #[derive(Clone)]
 pub struct FolderId(String);
 impl FolderId {
-    pub fn new(user_id: &str) -> Self { Self(format!("{}{}{}", user_id, FOLDER_ID_SPLIT, FOLDER_ID)) }
+    pub fn new(user_id: &str) -> Self {
+        Self(format!("{}{}{}", user_id, FOLDER_ID_SPLIT, FOLDER_ID))
+    }
 }
 
 impl std::fmt::Display for FolderId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(FOLDER_ID) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(FOLDER_ID)
+    }
 }
 
 impl std::fmt::Debug for FolderId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(FOLDER_ID) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(FOLDER_ID)
+    }
 }
 
 impl AsRef<str> for FolderId {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 pub struct FolderManager {
@@ -128,15 +131,15 @@ impl FolderManager {
         let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
         match result {
             Ok(data) => match self.folder_editor.read().await.clone() {
-                None => {},
+                None => {}
                 Some(editor) => match editor.receive_ws_data(data).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::error!("Folder receive data error: {:?}", e),
                 },
             },
             Err(e) => {
                 tracing::error!("Folder ws data parser failed: {:?}", e);
-            },
+            }
         }
     }
 
@@ -165,7 +168,9 @@ impl FolderManager {
         self.initialize(user_id, token).await
     }
 
-    pub async fn clear(&self) { *self.folder_editor.write().await = None; }
+    pub async fn clear(&self) {
+        *self.folder_editor.write().await = None;
+    }
 }
 
 struct DefaultFolderBuilder();
@@ -187,7 +192,7 @@ impl DefaultFolderBuilder {
                 } else {
                     initial_delta().to_json()
                 };
-                view_controller.set_latest_view(&view);
+                view_controller.set_latest_view(view);
                 let _ = view_controller
                     .create_view_document_content(&view.id, view_data)
                     .await?;
@@ -206,5 +211,7 @@ impl DefaultFolderBuilder {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderManager {
-    pub async fn folder_editor(&self) -> Arc<FolderEditor> { self.folder_editor.read().await.clone().unwrap() }
+    pub async fn folder_editor(&self) -> Arc<FolderEditor> {
+        self.folder_editor.read().await.clone().unwrap()
+    }
 }

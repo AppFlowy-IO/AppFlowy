@@ -8,8 +8,7 @@ use crate::{
     module::{FolderCouldServiceV1, WorkspaceUser},
     services::{
         persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
-        TrashController,
-        TrashEvent,
+        TrashController, TrashEvent,
     },
 };
 
@@ -125,11 +124,11 @@ impl AppController {
         let server = self.cloud_service.clone();
         tokio::spawn(async move {
             match server.update_app(&token, params).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     // TODO: retry?
                     log::error!("Update app failed: {:?}", e);
-                },
+                }
             }
         });
         Ok(())
@@ -151,11 +150,11 @@ impl AppController {
                             send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
                                 .payload(app)
                                 .send();
-                        },
+                        }
                         Err(e) => log::error!("Save app failed: {:?}", e),
                     }
-                },
-                Ok(None) => {},
+                }
+                Ok(None) => {}
                 Err(e) => log::error!("Read app failed: {:?}", e),
             }
         });
@@ -200,7 +199,7 @@ async fn handle_trash_event(
                 })
                 .await;
             let _ = ret.send(result).await;
-        },
+        }
         TrashEvent::Delete(identifiers, ret) => {
             let result = persistence
                 .begin_transaction(|transaction| {
@@ -218,7 +217,7 @@ async fn handle_trash_event(
                 })
                 .await;
             let _ = ret.send(result).await;
-        },
+        }
     }
 }
 

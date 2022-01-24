@@ -10,7 +10,9 @@ use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 
 impl FlowyRawWebSocket for Arc<WSController> {
-    fn initialize(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn initialize(&self) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn start_connect(&self, addr: String, _user_id: String) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
@@ -54,7 +56,7 @@ impl FlowyRawWebSocket for Arc<WSController> {
                 Some(sender) => {
                     let sender = sender as Arc<dyn FlowyWebSocket>;
                     Ok(Some(sender))
-                },
+                }
             }
         })
     }

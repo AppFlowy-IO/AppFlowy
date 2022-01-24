@@ -125,11 +125,11 @@ where
                     let msg = ServerRevisionWSDataBuilder::build_pull_message(&self.object_id, range);
                     user.receive(RevisionSyncResponse::Pull(msg));
                 }
-            },
+            }
             Ordering::Equal => {
                 // Do nothing
                 tracing::warn!("Applied {} revision rev_id is the same as cur_rev_id", self.object_id);
-            },
+            }
             Ordering::Greater => {
                 // The client delta is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
@@ -137,7 +137,7 @@ where
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
                 let _ = self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
-            },
+            }
         }
         Ok(())
     }
@@ -151,7 +151,7 @@ where
         match server_rev_id.cmp(&client_rev_id) {
             Ordering::Less => {
                 tracing::error!("Client should not send ping and the server should pull the revisions from the client")
-            },
+            }
             Ordering::Equal => tracing::trace!("{} is up to date.", object_id),
             Ordering::Greater => {
                 // The client delta is outdated. Transform the client revision delta and then
@@ -161,7 +161,7 @@ where
                 let to_rev_id = server_rev_id;
                 tracing::trace!("Push revisions to user");
                 let _ = self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
-            },
+            }
         }
         Ok(())
     }
@@ -179,7 +179,9 @@ where
         Ok(())
     }
 
-    pub fn object_json(&self) -> String { self.object.read().to_json() }
+    pub fn object_json(&self) -> String {
+        self.object.read().to_json()
+    }
 
     fn compose_revision(&self, revision: &RevisionPB) -> Result<(), CollaborateError> {
         let delta = Delta::<T>::from_bytes(&revision.delta_data)?;
@@ -204,12 +206,14 @@ where
             None => log::error!("Failed to acquire write lock of object"),
             Some(mut write_guard) => {
                 let _ = write_guard.compose(&delta)?;
-            },
+            }
         }
         Ok(())
     }
 
-    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
+    pub(crate) fn rev_id(&self) -> i64 {
+        self.rev_id.load(SeqCst)
+    }
 
     async fn is_applied_before(
         &self,
@@ -245,16 +249,18 @@ where
                     Ok(repeated_revision) => {
                         let data = ServerRevisionWSDataBuilder::build_push_message(&self.object_id, repeated_revision);
                         user.receive(RevisionSyncResponse::Push(data));
-                    },
+                    }
                     Err(e) => tracing::error!("{}", e),
                 }
-            },
+            }
             Err(e) => {
                 tracing::error!("{}", e);
-            },
+            }
         };
     }
 }
 
 #[inline]
-fn next(rev_id: i64) -> i64 { rev_id + 1 }
+fn next(rev_id: i64) -> i64 {
+    rev_id + 1
+}

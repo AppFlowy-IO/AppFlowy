@@ -11,7 +11,9 @@ pub struct ServerDocument {
 
 impl ServerDocument {
     #[allow(dead_code)]
-    pub fn new<C: InitialDocumentText>(doc_id: &str) -> Self { Self::from_delta(doc_id, C::initial_delta()) }
+    pub fn new<C: InitialDocumentText>(doc_id: &str) -> Self {
+        Self::from_delta(doc_id, C::initial_delta())
+    }
 
     pub fn from_delta(doc_id: &str, delta: RichTextDelta) -> Self {
         let doc_id = doc_id.to_owned();
@@ -20,7 +22,9 @@ impl ServerDocument {
 }
 
 impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
-    fn id(&self) -> &str { &self.doc_id }
+    fn id(&self) -> &str {
+        &self.doc_id
+    }
 
     fn compose(&mut self, other: &RichTextDelta) -> Result<(), CollaborateError> {
         // tracing::trace!("{} compose {}", &self.delta.to_json(), other.to_json());
@@ -34,7 +38,11 @@ impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
         Ok(value)
     }
 
-    fn to_json(&self) -> String { self.delta.to_json() }
+    fn to_json(&self) -> String {
+        self.delta.to_json()
+    }
 
-    fn set_delta(&mut self, new_delta: Delta<RichTextAttributes>) { self.delta = new_delta; }
+    fn set_delta(&mut self, new_delta: Delta<RichTextAttributes>) {
+        self.delta = new_delta;
+    }
 }

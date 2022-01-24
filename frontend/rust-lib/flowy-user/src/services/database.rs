@@ -130,11 +130,15 @@ impl UserTable {
 }
 
 impl std::convert::From<SignUpResponse> for UserTable {
-    fn from(resp: SignUpResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
+    fn from(resp: SignUpResponse) -> Self {
+        UserTable::new(resp.user_id, resp.name, resp.email, resp.token)
+    }
 }
 
 impl std::convert::From<SignInResponse> for UserTable {
-    fn from(resp: SignInResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
+    fn from(resp: SignInResponse) -> Self {
+        UserTable::new(resp.user_id, resp.name, resp.email, resp.token)
+    }
 }
 
 impl std::convert::From<UserTable> for UserProfile {

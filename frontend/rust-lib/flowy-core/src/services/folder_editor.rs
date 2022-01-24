@@ -7,11 +7,7 @@ use flowy_collaboration::{
 use crate::controller::FolderId;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    RevisionCache,
-    RevisionCloudService,
-    RevisionManager,
-    RevisionObjectBuilder,
-    RevisionWebSocket,
+    RevisionCache, RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
     RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
@@ -112,5 +108,7 @@ impl RevisionCloudService for FolderRevisionCloudServiceImpl {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderEditor {
-    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
+    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+        self.rev_manager.clone()
+    }
 }

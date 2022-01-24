@@ -341,11 +341,15 @@ where
 #[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
 pub struct PlainTextAttributes();
 impl fmt::Display for PlainTextAttributes {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("PlainTextAttributes") }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("PlainTextAttributes")
+    }
 }
 
 impl Attributes for PlainTextAttributes {
-    fn is_empty(&self) -> bool { true }
+    fn is_empty(&self) -> bool {
+        true
+    }
 
     fn remove_empty(&mut self) {}
 
@@ -353,9 +357,15 @@ impl Attributes for PlainTextAttributes {
 }
 
 impl OperationTransformable for PlainTextAttributes {
-    fn compose(&self, _other: &Self) -> Result<Self, OTError> { Ok(self.clone()) }
+    fn compose(&self, _other: &Self) -> Result<Self, OTError> {
+        Ok(self.clone())
+    }
 
-    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> { Ok((self.clone(), other.clone())) }
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> {
+        Ok((self.clone(), other.clone()))
+    }
 
-    fn invert(&self, _other: &Self) -> Self { self.clone() }
+    fn invert(&self, _other: &Self) -> Self {
+        self.clone()
+    }
 }

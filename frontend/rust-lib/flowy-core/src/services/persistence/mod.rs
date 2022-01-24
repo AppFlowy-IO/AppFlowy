@@ -95,7 +95,9 @@ impl FolderPersistence {
         }
     }
 
-    pub fn db_pool(&self) -> FlowyResult<Arc<ConnectionPool>> { self.database.db_pool() }
+    pub fn db_pool(&self) -> FlowyResult<Arc<ConnectionPool>> {
+        self.database.db_pool()
+    }
 
     pub async fn initialize(&self, user_id: &str, folder_id: &FolderId) -> FlowyResult<()> {
         let migrations = FolderMigration::new(user_id, self.database.clone());

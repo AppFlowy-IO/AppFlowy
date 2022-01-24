@@ -65,10 +65,10 @@ where
         }
 
         match self.handle_revision(repeated_revision).await? {
-            None => {},
+            None => {}
             Some(server_revision) => {
                 self.rev_sink.send(vec![server_revision]).await?;
-            },
+            }
         }
         Ok(())
     }
@@ -115,7 +115,7 @@ where
                 assert_eq!(repeated_revision.last().unwrap().md5, md5);
                 let _ = self.rev_manager.reset_object(repeated_revision).await?;
                 Ok(None)
-            },
+            }
             Some(server_prime) => {
                 let md5 = self.target.compose_delta(client_prime.clone()).await?;
                 for revision in &revisions {
@@ -130,7 +130,7 @@ where
                 );
                 let _ = self.rev_manager.add_remote_revision(&client_revision).await?;
                 Ok(server_revision)
-            },
+            }
         }
     }
 }
@@ -151,7 +151,7 @@ where
         base_rev_id,
         rev_id,
         client_delta.to_bytes(),
-        &user_id,
+        user_id,
         md5.clone(),
     );
 
@@ -163,11 +163,11 @@ where
                 base_rev_id,
                 rev_id,
                 server_delta.to_bytes(),
-                &user_id,
+                user_id,
                 md5,
             );
             (client_revision, Some(server_revision))
-        },
+        }
     }
 }
 

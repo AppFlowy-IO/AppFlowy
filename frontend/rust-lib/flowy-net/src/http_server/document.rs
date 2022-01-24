@@ -15,7 +15,9 @@ pub struct DocumentHttpCloudService {
 }
 
 impl DocumentHttpCloudService {
-    pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> Self {
+        Self { config }
+    }
 }
 
 impl DocumentCloudService for DocumentHttpCloudService {
@@ -73,7 +75,9 @@ pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &s
     Ok(())
 }
 
-fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
+fn request_builder() -> HttpRequestBuilder {
+    HttpRequestBuilder::new().middleware(MIDDLEWARE.clone())
+}
 
 lazy_static! {
     pub(crate) static ref MIDDLEWARE: Arc<DocumentResponseMiddleware> = Arc::new(DocumentResponseMiddleware {});
@@ -87,14 +91,14 @@ impl ResponseMiddleware for DocumentResponseMiddleware {
                 tracing::error!("document user is unauthorized");
 
                 match token {
-                    None => {},
+                    None => {}
                     Some(_token) => {
                         // let error =
                         // FlowyError::new(ErrorCode::UserUnauthorized, "");
                         // observable(token,
                         // WorkspaceObservable::UserUnauthorized).error(error).
                         // build()
-                    },
+                    }
                 }
             }
         }

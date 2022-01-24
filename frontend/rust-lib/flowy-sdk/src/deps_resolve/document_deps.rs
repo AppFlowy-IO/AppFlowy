@@ -4,14 +4,10 @@ use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
-    DocumentCloudService,
-    DocumentUser,
-    FlowyDocumentManager,
+    DocumentCloudService, DocumentUser, FlowyDocumentManager,
 };
 use flowy_net::{
-    http_server::document::DocumentHttpCloudService,
-    local_server::LocalServer,
-    ws::connection::FlowyWebSocketConnect,
+    http_server::document::DocumentHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
@@ -55,11 +51,17 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, FlowyError> { self.0.user_id() }
+    fn user_id(&self) -> Result<String, FlowyError> {
+        self.0.user_id()
+    }
 
-    fn token(&self) -> Result<String, FlowyError> { self.0.token() }
+    fn token(&self) -> Result<String, FlowyError> {
+        self.0.token()
+    }
 
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> { self.0.db_pool() }
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
+        self.0.db_pool()
+    }
 }
 
 struct DocumentWebSocketImpl(Arc<FlowyWebSocketConnect>);
@@ -73,10 +75,10 @@ impl RevisionWebSocket for DocumentWebSocketImpl {
         let ws_conn = self.0.clone();
         Box::pin(async move {
             match ws_conn.web_socket().await? {
-                None => {},
+                None => {}
                 Some(sender) => {
                     sender.send(msg).map_err(internal_error)?;
-                },
+                }
             }
             Ok(())
         })
@@ -90,7 +92,9 @@ impl RevisionWebSocket for DocumentWebSocketImpl {
 
 struct DocumentWSMessageReceiverImpl(Arc<FlowyDocumentManager>);
 impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
-    fn source(&self) -> WSChannel { WSChannel::Document }
+    fn source(&self) -> WSChannel {
+        WSChannel::Document
+    }
     fn receive_message(&self, msg: WebSocketRawMessage) {
         let handler = self.0.clone();
         tokio::spawn(async move {

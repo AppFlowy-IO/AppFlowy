@@ -53,7 +53,7 @@ impl EditorCommandQueue {
         stream
             .for_each(|command| async {
                 match self.handle_command(command).await {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => tracing::debug!("[EditCommandQueue]: {}", e),
                 }
             })
@@ -70,21 +70,21 @@ impl EditorCommandQueue {
                 drop(document);
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::ComposeRemoteDelta { client_delta, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.compose_delta(client_delta.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
-            },
+            }
             EditorCommand::ResetDelta { delta, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.set_delta(delta);
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
-            },
+            }
             EditorCommand::TransformDelta { delta, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
@@ -106,21 +106,21 @@ impl EditorCommandQueue {
                     })
                 };
                 let _ = ret.send(f().await);
-            },
+            }
             EditorCommand::Insert { index, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.insert(index, data)?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::Delete { interval, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.delete(interval)?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::Format {
                 interval,
                 attribute,
@@ -131,42 +131,42 @@ impl EditorCommandQueue {
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::Replace { interval, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.replace(interval, data)?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::CanUndo { ret } => {
                 let _ = ret.send(self.document.read().await.can_undo());
-            },
+            }
             EditorCommand::CanRedo { ret } => {
                 let _ = ret.send(self.document.read().await.can_redo());
-            },
+            }
             EditorCommand::Undo { ret } => {
                 let mut write_guard = self.document.write().await;
                 let UndoResult { delta } = write_guard.undo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::Redo { ret } => {
                 let mut write_guard = self.document.write().await;
                 let UndoResult { delta } = write_guard.redo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
-            },
+            }
             EditorCommand::ReadDocumentAsJson { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
-            },
+            }
             EditorCommand::ReadDocumentAsDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
-            },
+            }
         }
         Ok(())
     }

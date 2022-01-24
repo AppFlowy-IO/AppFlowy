@@ -103,11 +103,11 @@ impl FolderTest {
             FolderScript::ReadAllWorkspaces => {
                 let all_workspace = read_workspace(sdk, None).await;
                 self.all_workspace = all_workspace;
-            },
+            }
             FolderScript::CreateWorkspace { name, desc } => {
                 let workspace = create_workspace(sdk, &name, &desc).await;
                 self.workspace = workspace;
-            },
+            }
             FolderScript::AssertWorkspaceJson(expected_json) => {
                 let workspace = read_workspace(sdk, Some(self.workspace.id.clone()))
                     .await
@@ -115,74 +115,74 @@ impl FolderTest {
                     .unwrap();
                 let json = serde_json::to_string(&workspace).unwrap();
                 assert_eq!(json, expected_json);
-            },
+            }
             FolderScript::AssertWorkspace(workspace) => {
                 assert_eq!(self.workspace, workspace);
-            },
+            }
             FolderScript::ReadWorkspace(workspace_id) => {
                 let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
                 self.workspace = workspace;
-            },
+            }
             FolderScript::CreateApp { name, desc } => {
-                let app = create_app(&sdk, &self.workspace.id, name, desc).await;
+                let app = create_app(sdk, &self.workspace.id, name, desc).await;
                 self.app = app;
-            },
+            }
             FolderScript::AssertAppJson(expected_json) => {
                 let json = serde_json::to_string(&self.app).unwrap();
                 assert_eq!(json, expected_json);
-            },
+            }
             FolderScript::AssertApp(app) => {
                 assert_eq!(self.app, app);
-            },
+            }
             FolderScript::ReadApp(app_id) => {
-                let app = read_app(&sdk, &app_id).await;
+                let app = read_app(sdk, &app_id).await;
                 self.app = app;
-            },
+            }
             FolderScript::UpdateApp { name, desc } => {
-                update_app(&sdk, &self.app.id, name, desc).await;
-            },
+                update_app(sdk, &self.app.id, name, desc).await;
+            }
             FolderScript::DeleteApp => {
-                delete_app(&sdk, &self.app.id).await;
-            },
+                delete_app(sdk, &self.app.id).await;
+            }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(&sdk, &self.app.id, name, desc, ViewType::Doc).await;
+                let view = create_view(sdk, &self.app.id, name, desc, ViewType::Doc).await;
                 self.view = view;
-            },
+            }
             FolderScript::AssertView(view) => {
                 assert_eq!(self.view, view);
-            },
+            }
             FolderScript::ReadView(view_id) => {
-                let view = read_view(&sdk, vec![view_id]).await;
+                let view = read_view(sdk, vec![view_id]).await;
                 self.view = view;
-            },
+            }
             FolderScript::UpdateView { name, desc } => {
-                update_view(&sdk, &self.view.id, name, desc).await;
-            },
+                update_view(sdk, &self.view.id, name, desc).await;
+            }
             FolderScript::DeleteView => {
-                delete_view(&sdk, vec![self.view.id.clone()]).await;
-            },
+                delete_view(sdk, vec![self.view.id.clone()]).await;
+            }
             FolderScript::DeleteViews(view_ids) => {
-                delete_view(&sdk, view_ids).await;
-            },
+                delete_view(sdk, view_ids).await;
+            }
             FolderScript::RestoreAppFromTrash => {
-                restore_app_from_trash(&sdk, &self.app.id).await;
-            },
+                restore_app_from_trash(sdk, &self.app.id).await;
+            }
             FolderScript::RestoreViewFromTrash => {
-                restore_view_from_trash(&sdk, &self.view.id).await;
-            },
+                restore_view_from_trash(sdk, &self.view.id).await;
+            }
             FolderScript::ReadTrash => {
-                let trash = read_trash(&sdk).await;
+                let trash = read_trash(sdk).await;
                 self.trash = trash.into_inner();
-            },
+            }
             FolderScript::DeleteAllTrash => {
-                delete_all_trash(&sdk).await;
+                delete_all_trash(sdk).await;
                 self.trash = vec![];
-            },
+            }
             FolderScript::OpenDocument => {
-                let document_info = open_document(&sdk, &self.view.id).await;
+                let document_info = open_document(sdk, &self.view.id).await;
                 self.document_info = Some(document_info);
-            },
+            }
             FolderScript::AssertRevisionState { rev_id, state } => {
                 let record = cache.get(rev_id).await.unwrap();
                 assert_eq!(record.state, state);
@@ -191,21 +191,21 @@ impl FolderTest {
                     // Make sure everything is written.
                     sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
                 }
-            },
+            }
             FolderScript::AssertCurrentRevId(rev_id) => {
                 assert_eq!(rev_manager.rev_id(), rev_id);
-            },
+            }
             FolderScript::AssertNextSyncRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
-                    assert_eq!(next_revision.is_none(), true, "Next revision should be None");
+                    assert!(next_revision.is_none(), "Next revision should be None");
                     return;
                 }
                 let next_revision = next_revision.unwrap();
                 let mut receiver = rev_manager.revision_ack_receiver();
                 let _ = receiver.recv().await;
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
-            },
+            }
         }
     }
 }

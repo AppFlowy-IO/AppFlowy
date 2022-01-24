@@ -17,7 +17,7 @@ impl WorkspaceTableSql {
         workspace: Workspace,
         conn: &SqliteConnection,
     ) -> Result<(), FlowyError> {
-        let table = WorkspaceTable::new(workspace, &user_id);
+        let table = WorkspaceTable::new(workspace, user_id);
         match diesel_record_count!(workspace_table, &table.id, conn) {
             0 => diesel_insert_table!(workspace_table, &table, conn),
             _ => {

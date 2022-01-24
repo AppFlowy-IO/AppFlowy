@@ -216,7 +216,7 @@ mod tests {
         assert_eq!(KV::get_str("2"), None);
 
         KV::set_bool("1", true);
-        assert_eq!(KV::get_bool("1").unwrap(), true);
+        assert!(KV::get_bool("1").unwrap());
 
         assert_eq!(KV::get_bool("2"), None);
     }

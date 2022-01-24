@@ -57,13 +57,13 @@ impl WebSocketReceiver for FolderWebSocketReceiver {
             };
 
             match actor_msg_sender.send(msg).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => {
                     log::error!("[FolderWebSocketReceiver]: send message to actor failed: {}", e);
-                },
+                }
             }
             match rx.await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("[FolderWebSocketReceiver]: message ret failed {:?}", e),
             };
         });
@@ -72,7 +72,9 @@ impl WebSocketReceiver for FolderWebSocketReceiver {
 
 pub struct HttpFolderCloudPersistence(pub Arc<FolderRevisionKV>);
 impl Debug for HttpFolderCloudPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("HttpFolderCloudPersistence") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("HttpFolderCloudPersistence")
+    }
 }
 
 impl FolderCloudPersistence for HttpFolderCloudPersistence {

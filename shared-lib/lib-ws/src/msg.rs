@@ -15,11 +15,13 @@ pub struct WebSocketRawMessage {
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum WSChannel {
     Document = 0,
-    Folder   = 1,
+    Folder = 1,
 }
 
 impl std::default::Default for WSChannel {
-    fn default() -> Self { WSChannel::Document }
+    fn default() -> Self {
+        WSChannel::Document
+    }
 }
 
 impl ToString for WSChannel {
@@ -39,7 +41,7 @@ impl std::convert::From<WebSocketRawMessage> for TokioMessage {
             Err(e) => {
                 log::error!("WsMessage serialize error: {:?}", e);
                 TokioMessage::Binary(vec![])
-            },
+            }
         }
     }
 }

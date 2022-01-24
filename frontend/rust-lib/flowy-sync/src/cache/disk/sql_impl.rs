@@ -6,8 +6,7 @@ use flowy_collaboration::{
     util::md5,
 };
 use flowy_database::{
-    impl_sql_integer_expression,
-    insert_or_ignore_into,
+    impl_sql_integer_expression, insert_or_ignore_into,
     prelude::*,
     schema::{rev_table, rev_table::dsl},
     ConnectionPool,
@@ -201,11 +200,13 @@ pub(crate) struct RevisionTable {
 #[sql_type = "Integer"]
 pub enum RevisionTableState {
     Sync = 0,
-    Ack  = 1,
+    Ack = 1,
 }
 
 impl std::default::Default for RevisionTableState {
-    fn default() -> Self { RevisionTableState::Sync }
+    fn default() -> Self {
+        RevisionTableState::Sync
+    }
 }
 
 impl std::convert::From<i32> for RevisionTableState {
@@ -216,13 +217,15 @@ impl std::convert::From<i32> for RevisionTableState {
             o => {
                 tracing::error!("Unsupported rev state {}, fallback to RevState::Local", o);
                 RevisionTableState::Sync
-            },
+            }
         }
     }
 }
 
 impl RevisionTableState {
-    pub fn value(&self) -> i32 { *self as i32 }
+    pub fn value(&self) -> i32 {
+        *self as i32
+    }
 }
 impl_sql_integer_expression!(RevisionTableState);
 
@@ -251,7 +254,7 @@ pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevisionTable)
         table.base_rev_id,
         table.rev_id,
         Bytes::from(table.data),
-        &user_id,
+        user_id,
         md5,
     );
     RevisionRecord {
@@ -265,12 +268,14 @@ pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevisionTable)
 #[repr(i32)]
 #[sql_type = "Integer"]
 pub enum RevTableType {
-    Local  = 0,
+    Local = 0,
     Remote = 1,
 }
 
 impl std::default::Default for RevTableType {
-    fn default() -> Self { RevTableType::Local }
+    fn default() -> Self {
+        RevTableType::Local
+    }
 }
 
 impl std::convert::From<i32> for RevTableType {
@@ -281,12 +286,14 @@ impl std::convert::From<i32> for RevTableType {
             o => {
                 tracing::error!("Unsupported rev type {}, fallback to RevTableType::Local", o);
                 RevTableType::Local
-            },
+            }
         }
     }
 }
 impl RevTableType {
-    pub fn value(&self) -> i32 { *self as i32 }
+    pub fn value(&self) -> i32 {
+        *self as i32
+    }
 }
 impl_sql_integer_expression!(RevTableType);
 

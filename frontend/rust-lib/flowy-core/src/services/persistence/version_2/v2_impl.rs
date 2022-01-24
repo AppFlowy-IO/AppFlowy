@@ -70,7 +70,7 @@ impl FolderPersistenceTransaction for FolderEditor {
         match workspaces.first() {
             None => {
                 Err(FlowyError::record_not_found().context(format!("can't find workspace with id {}", workspace_id)))
-            },
+            }
             Some(workspace) => Ok(workspace.apps.clone().take_items()),
         }
     }
@@ -154,33 +154,59 @@ where
         (**self).update_workspace(changeset)
     }
 
-    fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> { (**self).delete_workspace(workspace_id) }
+    fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+        (**self).delete_workspace(workspace_id)
+    }
 
-    fn create_app(&self, app: App) -> FlowyResult<()> { (**self).create_app(app) }
+    fn create_app(&self, app: App) -> FlowyResult<()> {
+        (**self).create_app(app)
+    }
 
-    fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()> { (**self).update_app(changeset) }
+    fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()> {
+        (**self).update_app(changeset)
+    }
 
-    fn read_app(&self, app_id: &str) -> FlowyResult<App> { (**self).read_app(app_id) }
+    fn read_app(&self, app_id: &str) -> FlowyResult<App> {
+        (**self).read_app(app_id)
+    }
 
     fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
         (**self).read_workspace_apps(workspace_id)
     }
 
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App> { (**self).delete_app(app_id) }
+    fn delete_app(&self, app_id: &str) -> FlowyResult<App> {
+        (**self).delete_app(app_id)
+    }
 
-    fn create_view(&self, view: View) -> FlowyResult<()> { (**self).create_view(view) }
+    fn create_view(&self, view: View) -> FlowyResult<()> {
+        (**self).create_view(view)
+    }
 
-    fn read_view(&self, view_id: &str) -> FlowyResult<View> { (**self).read_view(view_id) }
+    fn read_view(&self, view_id: &str) -> FlowyResult<View> {
+        (**self).read_view(view_id)
+    }
 
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> { (**self).read_views(belong_to_id) }
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> {
+        (**self).read_views(belong_to_id)
+    }
 
-    fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()> { (**self).update_view(changeset) }
+    fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()> {
+        (**self).update_view(changeset)
+    }
 
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()> { (**self).delete_view(view_id) }
+    fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
+        (**self).delete_view(view_id)
+    }
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> { (**self).create_trash(trashes) }
+    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
+        (**self).create_trash(trashes)
+    }
 
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> { (**self).read_trash(trash_id) }
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+        (**self).read_trash(trash_id)
+    }
 
-    fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> { (**self).delete_trash(trash_ids) }
+    fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> {
+        (**self).delete_trash(trash_ids)
+    }
 }

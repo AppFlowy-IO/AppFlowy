@@ -14,9 +14,7 @@ use flowy_collaboration::{
     entities::document_info::DocumentInfo,
     errors::CollaborateError,
     protobuf::{
-        CreateDocParams as CreateDocParamsPB,
-        DocumentId,
-        RepeatedRevision as RepeatedRevisionPB,
+        CreateDocParams as CreateDocParamsPB, DocumentId, RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
     server_document::{DocumentCloudPersistence, ServerDocumentManager},
@@ -69,11 +67,11 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
             };
 
             match actor_msg_sender.send(msg).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("[DocumentWebSocketReceiver]: send message to actor failed: {}", e),
             }
             match rx.await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log::error!("[DocumentWebSocketReceiver]: message ret failed {:?}", e),
             };
         });
@@ -82,7 +80,9 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
 
 pub struct HttpDocumentCloudPersistence(pub Arc<DocumentRevisionKV>);
 impl Debug for HttpDocumentCloudPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("HttpDocumentCloudPersistence") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("HttpDocumentCloudPersistence")
+    }
 }
 
 impl DocumentCloudPersistence for HttpDocumentCloudPersistence {

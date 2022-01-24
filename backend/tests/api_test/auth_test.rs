@@ -88,7 +88,7 @@ async fn user_update_name() {
     let server = TestUserServer::new().await;
 
     let name = "tom".to_string();
-    let params = UpdateUserParams::new(&server.user_id()).name(&name);
+    let params = UpdateUserParams::new(server.user_id()).name(&name);
     server.update_user_profile(params).await.unwrap();
 
     let user = server.get_user_profile().await;

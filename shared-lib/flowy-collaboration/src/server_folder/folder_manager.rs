@@ -97,11 +97,11 @@ impl ServerFolderManager {
                     .await
                     .map_err(|e| CollaborateError::internal().context(format!("Server create folder failed: {}", e)))?;
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_revisions(user, repeated_revision).await?;
                 Ok(())
-            },
+            }
         };
 
         if result.is_ok() {
@@ -124,11 +124,11 @@ impl ServerFolderManager {
             None => {
                 tracing::trace!("Folder:{} doesn't exist, ignore client ping", folder_id);
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_ping(rev_id, user).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -149,7 +149,7 @@ impl ServerFolderManager {
                 write_guard.insert(folder_id, handler.clone());
                 drop(write_guard);
                 Some(handler)
-            },
+            }
             Err(_) => None,
         }
     }
@@ -181,8 +181,8 @@ impl ServerFolderManager {
                     .await
                     .insert(folder_id.to_owned(), handler.clone());
                 Ok(handler)
-            },
-            None => Err(CollaborateError::internal().context(format!(""))),
+            }
+            None => Err(CollaborateError::internal().context(String::new())),
         }
     }
 }
@@ -316,11 +316,11 @@ impl FolderCommandRunner {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
             FolderCommand::Ping { user, rev_id, ret } => {
                 let result = self.synchronizer.pong(user, rev_id).await.map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
         }
     }
 }

@@ -9,9 +9,7 @@ use flowy_core::{
 use flowy_database::ConnectionPool;
 use flowy_document::FlowyDocumentManager;
 use flowy_net::{
-    http_server::core::CoreHttpCloudService,
-    local_server::LocalServer,
-    ws::connection::FlowyWebSocketConnect,
+    http_server::core::CoreHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
@@ -50,7 +48,7 @@ impl FolderDepsResolver {
 
         if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
             match folder_manager.initialize(&user_id, &token).await {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => tracing::error!("Initialize folder manager failed: {}", e),
             }
         }
@@ -71,9 +69,13 @@ impl WorkspaceDatabase for WorkspaceDatabaseImpl {
 
 struct WorkspaceUserImpl(Arc<UserSession>);
 impl WorkspaceUser for WorkspaceUserImpl {
-    fn user_id(&self) -> Result<String, FlowyError> { self.0.user_id().map_err(|e| FlowyError::internal().context(e)) }
+    fn user_id(&self) -> Result<String, FlowyError> {
+        self.0.user_id().map_err(|e| FlowyError::internal().context(e))
+    }
 
-    fn token(&self) -> Result<String, FlowyError> { self.0.token().map_err(|e| FlowyError::internal().context(e)) }
+    fn token(&self) -> Result<String, FlowyError> {
+        self.0.token().map_err(|e| FlowyError::internal().context(e))
+    }
 }
 
 struct FolderWebSocketImpl(Arc<FlowyWebSocketConnect>);
@@ -88,10 +90,10 @@ impl RevisionWebSocket for FolderWebSocketImpl {
         let ws_conn = self.0.clone();
         Box::pin(async move {
             match ws_conn.web_socket().await? {
-                None => {},
+                None => {}
                 Some(sender) => {
                     sender.send(msg).map_err(internal_error)?;
-                },
+                }
             }
             Ok(())
         })
@@ -105,7 +107,9 @@ impl RevisionWebSocket for FolderWebSocketImpl {
 
 struct FolderWSMessageReceiverImpl(Arc<FolderManager>);
 impl WSMessageReceiver for FolderWSMessageReceiverImpl {
-    fn source(&self) -> WSChannel { WSChannel::Folder }
+    fn source(&self) -> WSChannel {
+        WSChannel::Folder
+    }
     fn receive_message(&self, msg: WebSocketRawMessage) {
         let handler = self.0.clone();
         tokio::spawn(async move {

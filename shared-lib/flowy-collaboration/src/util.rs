@@ -6,9 +6,7 @@ use crate::{
     },
     errors::{CollaborateError, CollaborateResult},
     protobuf::{
-        DocumentInfo as DocumentInfoPB,
-        FolderInfo as FolderInfoPB,
-        RepeatedRevision as RepeatedRevisionPB,
+        DocumentInfo as DocumentInfoPB, FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
 };
@@ -159,7 +157,7 @@ pub fn make_folder_from_revisions_pb(
                 .try_into()
                 .map_err(|e| CollaborateError::internal().context(e))?;
             Ok(Some(folder_info))
-        },
+        }
     }
 }
 
@@ -207,7 +205,7 @@ pub fn make_document_info_from_revisions_pb(
                 CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
             })?;
             Ok(Some(document_info))
-        },
+        }
     }
 }
 

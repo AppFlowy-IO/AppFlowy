@@ -1,9 +1,9 @@
 use flowy_collaboration::client_document::{ClientDocument, PlainDoc};
+use lib_ot::rich_text::RichTextOperation;
 use lib_ot::{
     core::*,
     rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributeValue, RichTextDelta},
 };
-use lib_ot::rich_text::RichTextOperation;
 
 #[test]
 fn operation_insert_serialize_test() {

@@ -93,11 +93,11 @@ impl ServerDocumentManager {
                     CollaborateError::internal().context(format!("Server create document failed: {}", e))
                 })?;
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_revisions(user, repeated_revision).await?;
                 Ok(())
-            },
+            }
         };
 
         if result.is_ok() {
@@ -119,11 +119,11 @@ impl ServerDocumentManager {
             None => {
                 tracing::trace!("Document:{} doesn't exist, ignore client ping", doc_id);
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_ping(rev_id, user).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -137,11 +137,11 @@ impl ServerDocumentManager {
             None => {
                 tracing::warn!("Document:{} doesn't exist, ignore document reset", doc_id);
                 Ok(())
-            },
+            }
             Some(handler) => {
                 let _ = handler.apply_document_reset(repeated_revision).await?;
                 Ok(())
-            },
+            }
         }
     }
 
@@ -157,7 +157,7 @@ impl ServerDocumentManager {
                 write_guard.insert(doc_id.to_owned(), handler.clone());
                 drop(write_guard);
                 Some(handler)
-            },
+            }
             Err(_) => None,
         }
     }
@@ -177,7 +177,7 @@ impl ServerDocumentManager {
                     .await
                     .insert(doc_id.to_owned(), handler.clone());
                 Ok(handler)
-            },
+            }
         }
     }
 
@@ -341,15 +341,15 @@ impl DocumentCommandRunner {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
             DocumentCommand::Ping { user, rev_id, ret } => {
                 let result = self.synchronizer.pong(user, rev_id).await.map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
             DocumentCommand::Reset { repeated_revision, ret } => {
                 let result = self.synchronizer.reset(repeated_revision).await.map_err(internal_error);
                 let _ = ret.send(result);
-            },
+            }
         }
     }
 }

@@ -3,8 +3,7 @@ use crate::{
     entities::logged_user::LoggedUser,
     services::web_socket::{
         entities::{Connect, Disconnect, Socket},
-        WSServer,
-        WebSocketMessage,
+        WSServer, WebSocketMessage,
     },
 };
 use actix::*;
@@ -18,23 +17,24 @@ pub trait WebSocketReceiver: Send + Sync {
     fn receive(&self, data: WSClientData);
 }
 
+#[derive(Default)]
 pub struct WebSocketReceivers {
     inner: HashMap<WSChannel, Arc<dyn WebSocketReceiver>>,
 }
 
-impl std::default::Default for WebSocketReceivers {
-    fn default() -> Self { Self { inner: HashMap::new() } }
-}
-
 impl WebSocketReceivers {
-    pub fn new() -> Self { WebSocketReceivers::default() }
+    pub fn new() -> Self {
+        WebSocketReceivers::default()
+    }
 
     pub fn set(&mut self, channel: WSChannel, receiver: Arc<dyn WebSocketReceiver>) {
         tracing::trace!("Add {:?} receiver", channel);
         self.inner.insert(channel, receiver);
     }
 
-    pub fn get(&self, source: &WSChannel) -> Option<Arc<dyn WebSocketReceiver>> { self.inner.get(source).cloned() }
+    pub fn get(&self, source: &WSChannel) -> Option<Arc<dyn WebSocketReceiver>> {
+        self.inner.get(source).cloned()
+    }
 }
 
 #[derive(Debug)]
@@ -43,9 +43,13 @@ pub struct WSUser {
 }
 
 impl WSUser {
-    pub fn new(inner: LoggedUser) -> Self { Self { inner } }
+    pub fn new(inner: LoggedUser) -> Self {
+        Self { inner }
+    }
 
-    pub fn id(&self) -> &str { &self.inner.user_id }
+    pub fn id(&self) -> &str {
+        &self.inner.user_id
+    }
 }
 
 pub struct WSClientData {
@@ -90,7 +94,7 @@ impl WSClient {
         match self.ws_receivers.get(&message.channel) {
             None => {
                 log::error!("Can't find the receiver for {:?}", message.channel);
-            },
+            }
             Some(handler) => {
                 let client_data = WSClientData {
                     user: self.user.clone(),
@@ -98,7 +102,7 @@ impl WSClient {
                     data: Bytes::from(message.data),
                 };
                 handler.receive(client_data);
-            },
+            }
         }
     }
 }
@@ -109,28 +113,28 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
             Ok(ws::Message::Ping(msg)) => {
                 self.hb = Instant::now();
                 ctx.pong(&msg);
-            },
+            }
             Ok(ws::Message::Pong(_msg)) => {
                 // tracing::debug!("Receive {} pong {:?}", &self.session_id, &msg);
                 self.hb = Instant::now();
-            },
+            }
             Ok(ws::Message::Binary(bytes)) => {
                 let socket = ctx.address().recipient();
                 self.handle_binary_message(bytes, socket);
-            },
+            }
             Ok(Text(_)) => {
                 log::warn!("Receive unexpected text message");
-            },
+            }
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);
                 ctx.stop();
-            },
-            Ok(ws::Message::Continuation(_)) => {},
-            Ok(ws::Message::Nop) => {},
+            }
+            Ok(ws::Message::Continuation(_)) => {}
+            Ok(ws::Message::Nop) => {}
             Err(e) => {
                 log::error!("[{}]: WebSocketStream protocol error {:?}", self.user.id(), e);
                 ctx.stop();
-            },
+            }
         }
     }
 }
@@ -138,7 +142,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
 impl Handler<WebSocketMessage> for WSClient {
     type Result = ();
 
-    fn handle(&mut self, msg: WebSocketMessage, ctx: &mut Self::Context) { ctx.binary(msg.0); }
+    fn handle(&mut self, msg: WebSocketMessage, ctx: &mut Self::Context) {
+        ctx.binary(msg.0);
+    }
 }
 
 impl Actor for WSClient {

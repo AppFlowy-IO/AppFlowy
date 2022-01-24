@@ -14,12 +14,7 @@ use flowy_database::{
     DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
 use flowy_user_data_model::entities::{
-    SignInParams,
-    SignInResponse,
-    SignUpParams,
-    SignUpResponse,
-    UpdateUserParams,
-    UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;

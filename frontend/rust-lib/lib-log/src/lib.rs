@@ -84,13 +84,6 @@ impl Builder {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[derive(Debug)]
-    struct Position {
-        x: f32,
-        y: f32,
-    }
-
     // run  cargo test --features="use_bunyan" or  cargo test
     #[test]
     fn test_log() {

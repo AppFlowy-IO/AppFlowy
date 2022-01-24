@@ -2,12 +2,7 @@ use backend_service::{configuration::*, errors::ServerError, request::HttpReques
 use flowy_error::FlowyError;
 use flowy_user::module::UserCloudService;
 use flowy_user_data_model::entities::{
-    SignInParams,
-    SignInResponse,
-    SignUpParams,
-    SignUpResponse,
-    UpdateUserParams,
-    UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
 use lib_infra::future::FutureResult;
 
@@ -15,7 +10,9 @@ pub struct UserHttpCloudService {
     config: ClientServerConfiguration,
 }
 impl UserHttpCloudService {
-    pub fn new(config: &ClientServerConfiguration) -> Self { Self { config: config.clone() } }
+    pub fn new(config: &ClientServerConfiguration) -> Self {
+        Self { config: config.clone() }
+    }
 }
 
 impl UserCloudService for UserHttpCloudService {
@@ -62,7 +59,9 @@ impl UserCloudService for UserHttpCloudService {
         })
     }
 
-    fn ws_addr(&self) -> String { self.config.ws_addr() }
+    fn ws_addr(&self) -> String {
+        self.config.ws_addr()
+    }
 }
 
 pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, ServerError> {
@@ -111,4 +110,6 @@ pub async fn update_user_profile_request(token: &str, params: UpdateUserParams, 
     Ok(())
 }
 
-fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new() }
+fn request_builder() -> HttpRequestBuilder {
+    HttpRequestBuilder::new()
+}

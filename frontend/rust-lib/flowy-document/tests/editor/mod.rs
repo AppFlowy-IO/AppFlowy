@@ -171,7 +171,7 @@ impl TestBuilder {
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]
                     .delta()
-                    .transform(&self.documents[*delta_b_i].delta())
+                    .transform(self.documents[*delta_b_i].delta())
                     .unwrap();
                 tracing::trace!("a:{:?},b:{:?}", a_prime, b_prime);
 
@@ -184,7 +184,7 @@ impl TestBuilder {
             TestOp::TransformPrime(a_doc_index, b_doc_index) => {
                 let (prime_left, prime_right) = self.documents[*a_doc_index]
                     .delta()
-                    .transform(&self.documents[*b_doc_index].delta())
+                    .transform(self.documents[*b_doc_index].delta())
                     .unwrap();
 
                 self.primes.insert(*a_doc_index, Some(prime_left));
@@ -198,7 +198,7 @@ impl TestBuilder {
                 tracing::debug!("b: {}", delta_b.to_json());
 
                 let (_, b_prime) = delta_a.transform(delta_b).unwrap();
-                let undo = b_prime.invert(&delta_a);
+                let undo = b_prime.invert(delta_a);
 
                 let new_delta = delta_a.compose(&b_prime).unwrap();
                 tracing::debug!("new delta: {}", new_delta.to_json());

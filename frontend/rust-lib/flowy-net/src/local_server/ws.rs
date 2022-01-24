@@ -55,14 +55,18 @@ impl FlowyRawWebSocket for LocalWebSocket {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn stop_connect(&self) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn subscribe_connect_state(&self) -> BoxFuture<Receiver<WSConnectState>> {
         let subscribe = self.state_sender.subscribe();
         Box::pin(async move { subscribe })
     }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         tracing::trace!("Local web socket add ws receiver: {:?}", receiver.source());

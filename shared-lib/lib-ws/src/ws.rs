@@ -2,8 +2,7 @@
 use crate::{
     connect::{WSConnectionFuture, WSStream},
     errors::WSError,
-    WSChannel,
-    WebSocketRawMessage,
+    WSChannel, WebSocketRawMessage,
 };
 use backend_service::errors::ServerError;
 use bytes::Bytes;
@@ -44,7 +43,9 @@ pub struct WSController {
 }
 
 impl std::fmt::Display for WSController {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("WebSocket") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("WebSocket")
+    }
 }
 
 impl std::default::Default for WSController {
@@ -59,7 +60,9 @@ impl std::default::Default for WSController {
 }
 
 impl WSController {
-    pub fn new() -> Self { WSController::default() }
+    pub fn new() -> Self {
+        WSController::default()
+    }
 
     pub fn add_ws_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
         let source = handler.source();
@@ -124,14 +127,14 @@ impl WSController {
 
                     let _ = ret.send(Ok(()));
                     spawn_stream_and_handlers(stream, handlers_fut).await;
-                },
+                }
                 Err(e) => {
                     cloned_conn_state
                         .write()
                         .await
                         .update_state(WSConnectState::Disconnected);
                     let _ = ret.send(Err(ServerError::internal().context(e)));
-                },
+                }
             }
         });
         rx.await?
@@ -166,7 +169,7 @@ impl WSController {
                 WSConnectState::Disconnected => {
                     let msg = "WebSocket is disconnected";
                     Err(WSError::internal().context(msg))
-                },
+                }
                 _ => Ok(None),
             },
             Some(sender) => Ok(Some(sender)),
@@ -193,7 +196,9 @@ pub struct WSHandlerFuture {
 }
 
 impl WSHandlerFuture {
-    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self {
+        Self { msg_rx, handlers }
+    }
 
     fn handler_ws_message(&self, message: Message) {
         if let Message::Binary(bytes) = message {
@@ -210,7 +215,7 @@ impl WSHandlerFuture {
             },
             Err(e) => {
                 log::error!("Deserialize binary ws message failed: {:?}", e);
-            },
+            }
         }
     }
 }
@@ -222,7 +227,7 @@ impl Future for WSHandlerFuture {
             match ready!(self.as_mut().project().msg_rx.poll_next(cx)) {
                 None => {
                     return Poll::Ready(());
-                },
+                }
                 Some(message) => self.handler_ws_message(message),
             }
         }
@@ -340,7 +345,7 @@ impl Future for WSConnectActionFut {
                     handlers_fut,
                     sender,
                 }))
-            },
+            }
             Err(e) => Poll::Ready(Err(e)),
         }
     }
@@ -355,11 +360,17 @@ pub enum WSConnectState {
 }
 
 impl WSConnectState {
-    fn is_connected(&self) -> bool { self == &WSConnectState::Connected }
+    fn is_connected(&self) -> bool {
+        self == &WSConnectState::Connected
+    }
 
-    fn is_connecting(&self) -> bool { self == &WSConnectState::Connecting }
+    fn is_connecting(&self) -> bool {
+        self == &WSConnectState::Connecting
+    }
 
-    fn is_disconnected(&self) -> bool { self == &WSConnectState::Disconnected || self == &WSConnectState::Init }
+    fn is_disconnected(&self) -> bool {
+        self == &WSConnectState::Disconnected || self == &WSConnectState::Init
+    }
 }
 
 impl std::fmt::Display for WSConnectState {
@@ -374,7 +385,9 @@ impl std::fmt::Display for WSConnectState {
 }
 
 impl std::fmt::Debug for WSConnectState {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self))
+    }
 }
 
 struct WSConnectStateNotifier {

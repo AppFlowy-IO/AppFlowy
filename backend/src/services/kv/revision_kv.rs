@@ -16,15 +16,21 @@ pub struct RevisionKVPersistence {
 impl std::ops::Deref for RevisionKVPersistence {
     type Target = Arc<KVStore>;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl std::ops::DerefMut for RevisionKVPersistence {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
 }
 
 impl RevisionKVPersistence {
-    pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { RevisionKVPersistence { inner: kv_store } }
+    pub(crate) fn new(kv_store: Arc<KVStore>) -> Self {
+        RevisionKVPersistence { inner: kv_store }
+    }
 
     pub(crate) async fn set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
         let items = revisions_to_key_value_items(revisions)?;
@@ -45,7 +51,7 @@ impl RevisionKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_get_start_with(&object_id).await }))
                     .await?
-            },
+            }
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
@@ -55,7 +61,7 @@ impl RevisionKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_get(keys).await }))
                     .await?
-            },
+            }
         };
 
         Ok(key_value_items_to_revisions(items))
@@ -72,7 +78,7 @@ impl RevisionKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_delete_key_start_with(&object_id).await }))
                     .await
-            },
+            }
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
@@ -82,7 +88,7 @@ impl RevisionKVPersistence {
                 self.inner
                     .transaction(|mut t| Box::pin(async move { t.batch_delete(keys).await }))
                     .await
-            },
+            }
         }
     }
 }
@@ -117,4 +123,6 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
 }
 
 #[inline]
-fn make_revision_key(object_id: &str, rev_id: i64) -> String { format!("{}:{}", object_id, rev_id) }
+fn make_revision_key(object_id: &str, rev_id: i64) -> String {
+    format!("{}:{}", object_id, rev_id)
+}

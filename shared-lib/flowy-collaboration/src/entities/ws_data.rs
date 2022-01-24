@@ -9,7 +9,7 @@ use std::convert::{TryFrom, TryInto};
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum ClientRevisionWSDataType {
     ClientPushRev = 0,
-    ClientPing    = 1,
+    ClientPing = 1,
 }
 
 impl ClientRevisionWSDataType {
@@ -22,7 +22,9 @@ impl ClientRevisionWSDataType {
 }
 
 impl std::default::Default for ClientRevisionWSDataType {
-    fn default() -> Self { ClientRevisionWSDataType::ClientPushRev }
+    fn default() -> Self {
+        ClientRevisionWSDataType::ClientPushRev
+    }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -64,19 +66,23 @@ impl ClientRevisionWSData {
         }
     }
 
-    pub fn id(&self) -> String { self.data_id.clone() }
+    pub fn id(&self) -> String {
+        self.data_id.clone()
+    }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum ServerRevisionWSDataType {
-    ServerAck     = 0,
+    ServerAck = 0,
     ServerPushRev = 1,
     ServerPullRev = 2,
-    UserConnect   = 3,
+    UserConnect = 3,
 }
 
 impl std::default::Default for ServerRevisionWSDataType {
-    fn default() -> Self { ServerRevisionWSDataType::ServerPushRev }
+    fn default() -> Self {
+        ServerRevisionWSDataType::ServerPushRev
+    }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

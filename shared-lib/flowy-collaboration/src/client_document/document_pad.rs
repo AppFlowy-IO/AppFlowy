@@ -18,12 +18,16 @@ pub trait InitialDocumentText {
 
 pub struct PlainDoc();
 impl InitialDocumentText for PlainDoc {
-    fn initial_delta() -> RichTextDelta { RichTextDelta::new() }
+    fn initial_delta() -> RichTextDelta {
+        RichTextDelta::new()
+    }
 }
 
 pub struct NewlineDoc();
 impl InitialDocumentText for NewlineDoc {
-    fn initial_delta() -> RichTextDelta { initial_delta() }
+    fn initial_delta() -> RichTextDelta {
+        initial_delta()
+    }
 }
 
 pub struct ClientDocument {
@@ -35,7 +39,9 @@ pub struct ClientDocument {
 }
 
 impl ClientDocument {
-    pub fn new<C: InitialDocumentText>() -> Self { Self::from_delta(C::initial_delta()) }
+    pub fn new<C: InitialDocumentText>() -> Self {
+        Self::from_delta(C::initial_delta())
+    }
 
     pub fn from_delta(delta: RichTextDelta) -> Self {
         ClientDocument {
@@ -52,30 +58,40 @@ impl ClientDocument {
         Ok(Self::from_delta(delta))
     }
 
-    pub fn to_json(&self) -> String { self.delta.to_json() }
+    pub fn to_json(&self) -> String {
+        self.delta.to_json()
+    }
 
-    pub fn to_bytes(&self) -> Vec<u8> { self.delta.clone().to_bytes().to_vec() }
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.delta.clone().to_bytes().to_vec()
+    }
 
-    pub fn to_plain_string(&self) -> String { self.delta.apply("").unwrap() }
+    pub fn to_plain_string(&self) -> String {
+        self.delta.apply("").unwrap()
+    }
 
-    pub fn delta(&self) -> &RichTextDelta { &self.delta }
+    pub fn delta(&self) -> &RichTextDelta {
+        &self.delta
+    }
 
     pub fn md5(&self) -> String {
         let bytes = self.to_bytes();
         format!("{:x}", md5::compute(bytes))
     }
 
-    pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) { self.notify = Some(notify); }
+    pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) {
+        self.notify = Some(notify);
+    }
 
     pub fn set_delta(&mut self, data: RichTextDelta) {
         tracing::trace!("document: {}", data.to_json());
         self.delta = data;
 
         match &self.notify {
-            None => {},
+            None => {}
             Some(notify) => {
                 let _ = notify.send(());
-            },
+            }
         }
     }
 
@@ -116,7 +132,7 @@ impl ClientDocument {
 
     pub fn delete(&mut self, interval: Interval) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        debug_assert_eq!(interval.is_empty(), false);
+        debug_assert!(!interval.is_empty());
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
             let _ = self.compose_delta(delete.clone())?;
@@ -153,9 +169,13 @@ impl ClientDocument {
         Ok(delta)
     }
 
-    pub fn can_undo(&self) -> bool { self.history.can_undo() }
+    pub fn can_undo(&self) -> bool {
+        self.history.can_undo()
+    }
 
-    pub fn can_redo(&self) -> bool { self.history.can_redo() }
+    pub fn can_redo(&self) -> bool {
+        self.history.can_redo()
+    }
 
     pub fn undo(&mut self) -> Result<UndoResult, CollaborateError> {
         match self.history.undo() {
@@ -165,7 +185,7 @@ impl ClientDocument {
                 self.set_delta(new_delta);
                 self.history.add_redo(inverted_delta);
                 Ok(UndoResult { delta: undo_delta })
-            },
+            }
         }
     }
 
@@ -177,7 +197,7 @@ impl ClientDocument {
                 self.set_delta(new_delta);
                 self.history.add_undo(inverted_delta);
                 Ok(UndoResult { delta: redo_delta })
-            },
+            }
         }
     }
 

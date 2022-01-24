@@ -23,7 +23,9 @@ pub struct CoreHttpCloudService {
 }
 
 impl CoreHttpCloudService {
-    pub fn new(config: ClientServerConfiguration) -> CoreHttpCloudService { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> CoreHttpCloudService {
+        Self { config }
+    }
 }
 
 impl FolderCouldServiceV2 for CoreHttpCloudService {}
@@ -167,7 +169,9 @@ impl FolderCouldServiceV1 for CoreHttpCloudService {
     }
 }
 
-fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
+fn request_builder() -> HttpRequestBuilder {
+    HttpRequestBuilder::new().middleware(MIDDLEWARE.clone())
+}
 
 pub async fn create_workspace_request(
     token: &str,
@@ -352,7 +356,9 @@ impl CoreResponseMiddleware {
     }
 
     #[allow(dead_code)]
-    fn invalid_token_subscribe(&self) -> broadcast::Receiver<String> { self.invalid_token_sender.subscribe() }
+    fn invalid_token_subscribe(&self) -> broadcast::Receiver<String> {
+        self.invalid_token_sender.subscribe()
+    }
 }
 
 impl ResponseMiddleware for CoreResponseMiddleware {
@@ -361,9 +367,9 @@ impl ResponseMiddleware for CoreResponseMiddleware {
             if error.is_unauthorized() {
                 tracing::error!("user is unauthorized");
                 match token {
-                    None => {},
+                    None => {}
                     Some(token) => match self.invalid_token_sender.send(token.clone()) {
-                        Ok(_) => {},
+                        Ok(_) => {}
                         Err(e) => tracing::error!("{:?}", e),
                     },
                 }

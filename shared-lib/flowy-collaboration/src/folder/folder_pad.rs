@@ -54,9 +54,13 @@ impl FolderPad {
         FolderPadBuilder::new().build_with_revisions(revisions)
     }
 
-    pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> { FolderPadBuilder::new().build_with_delta(delta) }
+    pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> {
+        FolderPadBuilder::new().build_with_delta(delta)
+    }
 
-    pub fn delta(&self) -> &FolderDelta { &self.root }
+    pub fn delta(&self) -> &FolderDelta {
+        &self.root
+    }
 
     pub fn reset_folder(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
         let folder = FolderPad::from_delta(delta)?;
@@ -72,7 +76,9 @@ impl FolderPad {
         self.reset_folder(composed_delta)
     }
 
-    pub fn is_empty(&self) -> bool { self.workspaces.is_empty() && self.trash.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.workspaces.is_empty() && self.trash.is_empty()
+    }
 
     pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
         let workspace = Arc::new(workspace);
@@ -114,7 +120,7 @@ impl FolderPad {
                     .map(|workspace| workspace.as_ref().clone())
                     .collect::<Vec<Workspace>>();
                 Ok(workspaces)
-            },
+            }
             Some(workspace_id) => {
                 if let Some(workspace) = self.workspaces.iter().find(|workspace| workspace.id == workspace_id) {
                     Ok(vec![workspace.as_ref().clone()])
@@ -122,7 +128,7 @@ impl FolderPad {
                     Err(CollaborateError::record_not_found()
                         .context(format!("Can't find workspace with id {}", workspace_id)))
                 }
-            },
+            }
         }
     }
 
@@ -276,7 +282,9 @@ impl FolderPad {
         }
     }
 
-    pub fn md5(&self) -> String { md5(&self.root.to_bytes()) }
+    pub fn md5(&self) -> String {
+        md5(&self.root.to_bytes())
+    }
 }
 
 impl FolderPad {
@@ -293,7 +301,7 @@ impl FolderPad {
                 let delta = cal_diff(old, new);
                 self.root = self.root.compose(&delta)?;
                 Ok(Some(FolderChange { delta, md5: self.md5() }))
-            },
+            }
         }
     }
 
@@ -324,7 +332,7 @@ impl FolderPad {
                 let delta = cal_diff(old, new);
                 self.root = self.root.compose(&delta)?;
                 Ok(Some(FolderChange { delta, md5: self.md5() }))
-            },
+            }
         }
     }
 
@@ -340,7 +348,7 @@ impl FolderPad {
             None => {
                 tracing::warn!("[RootFolder]: Can't find any app with id: {}", app_id);
                 return Ok(None);
-            },
+            }
             Some(workspace) => workspace.id.clone(),
         };
 
@@ -359,7 +367,7 @@ impl FolderPad {
                 None => {
                     tracing::warn!("[RootFolder]: Can't find any view with id: {}", view_id);
                     Ok(None)
-                },
+                }
                 Some(view) => f(view),
             }
         })
@@ -378,13 +386,13 @@ fn cal_diff(old: String, new: String) -> Delta<PlainTextAttributes> {
         match chunk {
             Chunk::Equal(s) => {
                 delta_builder = delta_builder.retain(FlowyStr::from(*s).utf16_size());
-            },
+            }
             Chunk::Delete(s) => {
                 delta_builder = delta_builder.delete(FlowyStr::from(*s).utf16_size());
-            },
+            }
             Chunk::Insert(s) => {
                 delta_builder = delta_builder.insert(*s);
-            },
+            }
         }
     }
     delta_builder.build()

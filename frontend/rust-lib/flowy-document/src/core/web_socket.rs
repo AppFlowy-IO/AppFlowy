@@ -63,10 +63,10 @@ fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broad
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
             match state {
-                WSConnectState::Init => {},
-                WSConnectState::Connecting => {},
-                WSConnectState::Connected => {},
-                WSConnectState::Disconnected => {},
+                WSConnectState::Init => {}
+                WSConnectState::Connecting => {}
+                WSConnectState::Connected => {}
+                WSConnectState::Disconnected => {}
             }
         }
     });
@@ -176,7 +176,7 @@ impl DocumentWSReceiver for RevisionWebSocketManager {
 
     fn connect_state_changed(&self, state: WSConnectState) {
         match self.state_passthrough_tx.send(state) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => tracing::error!("{}", e),
         }
     }

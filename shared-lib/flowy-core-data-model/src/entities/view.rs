@@ -65,11 +65,13 @@ impl std::convert::From<View> for Trash {
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum ViewType {
     Blank = 0,
-    Doc   = 1,
+    Doc = 1,
 }
 
 impl std::default::Default for ViewType {
-    fn default() -> Self { ViewType::Blank }
+    fn default() -> Self {
+        ViewType::Blank
+    }
 }
 
 impl std::convert::From<i32> for ViewType {
@@ -80,7 +82,7 @@ impl std::convert::From<i32> for ViewType {
             _ => {
                 log::error!("Invalid view type: {}", val);
                 ViewType::Blank
-            },
+            }
         }
     }
 }
@@ -188,7 +190,9 @@ pub struct ViewId {
 }
 
 impl std::convert::From<String> for ViewId {
-    fn from(view_id: String) -> Self { ViewId { view_id } }
+    fn from(view_id: String) -> Self {
+        ViewId { view_id }
+    }
 }
 
 impl TryInto<ViewId> for QueryViewRequest {

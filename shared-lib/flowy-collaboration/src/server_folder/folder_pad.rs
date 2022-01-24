@@ -16,7 +16,9 @@ impl ServerFolder {
 }
 
 impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
-    fn id(&self) -> &str { &self.folder_id }
+    fn id(&self) -> &str {
+        &self.folder_id
+    }
 
     fn compose(&mut self, other: &Delta<PlainTextAttributes>) -> Result<(), CollaborateError> {
         let new_delta = self.delta.compose(other)?;
@@ -32,7 +34,11 @@ impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
         Ok(value)
     }
 
-    fn to_json(&self) -> String { self.delta.to_json() }
+    fn to_json(&self) -> String {
+        self.delta.to_json()
+    }
 
-    fn set_delta(&mut self, new_delta: Delta<PlainTextAttributes>) { self.delta = new_delta; }
+    fn set_delta(&mut self, new_delta: Delta<PlainTextAttributes>) {
+        self.delta = new_delta;
+    }
 }

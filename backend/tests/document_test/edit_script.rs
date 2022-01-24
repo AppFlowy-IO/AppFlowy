@@ -55,6 +55,7 @@ struct ScriptContext {
     client_editor: Option<Arc<ClientDocumentEditor>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
+    #[allow(dead_code)]
     ws_conn: Arc<FlowyWebSocketConnect>,
     server: TestServer,
     doc_id: String,

@@ -34,7 +34,9 @@ pub(crate) struct LocalDocumentCloudPersistence {
 }
 
 impl Debug for LocalDocumentCloudPersistence {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("LocalRevisionCloudPersistence") }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("LocalRevisionCloudPersistence")
+    }
 }
 
 impl std::default::Default for LocalDocumentCloudPersistence {
@@ -166,10 +168,8 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
     }
 }
 
+#[derive(Default)]
 struct MemoryDocumentCloudStorage {}
-impl std::default::Default for MemoryDocumentCloudStorage {
-    fn default() -> Self { Self {} }
-}
 impl RevisionCloudStorage for MemoryDocumentCloudStorage {
     fn set_revisions(&self, _repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
         Box::pin(async move { Ok(()) })

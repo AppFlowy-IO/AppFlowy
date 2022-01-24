@@ -116,14 +116,14 @@ fn read_workspaces_on_server(
                     for app in apps {
                         let views = app.belongings.clone().into_inner();
                         match transaction.create_app(app) {
-                            Ok(_) => {},
+                            Ok(_) => {}
                             Err(e) => log::error!("create app failed: {:?}", e),
                         }
 
                         tracing::debug!("Save {} views", views.len());
                         for view in views {
                             match transaction.create_view(view) {
-                                Ok(_) => {},
+                                Ok(_) => {}
                                 Err(e) => log::error!("create view failed: {:?}", e),
                             }
                         }
