@@ -9,7 +9,7 @@ use flowy_collaboration::entities::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_sync::{RevisionCache, RevisionCloudService, RevisionManager, RevisionWebSocket, WSStateReceiver};
+use flowy_sync::{RevisionCache, RevisionCloudService, RevisionManager, RevisionWebSocket};
 use lib_infra::future::FutureResult;
 use lib_ws::WSConnectState;
 use std::{convert::TryInto, sync::Arc};
@@ -53,8 +53,7 @@ impl FlowyDocumentManager {
     }
 
     pub fn init(&self) -> FlowyResult<()> {
-        let notify = self.web_socket.subscribe_state_changed();
-        listen_ws_state_changed(notify, self.ws_receivers.clone());
+        listen_ws_state_changed(self.web_socket.clone(), self.ws_receivers.clone());
 
         Ok(())
     }
@@ -234,10 +233,11 @@ impl OpenDocCache {
     }
 }
 
-#[tracing::instrument(level = "trace", skip(state_receiver, receivers))]
-fn listen_ws_state_changed(mut state_receiver: WSStateReceiver, receivers: WebSocketDataReceivers) {
+#[tracing::instrument(level = "trace", skip(web_socket, receivers))]
+fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, receivers: WebSocketDataReceivers) {
     tokio::spawn(async move {
-        while let Ok(state) = state_receiver.recv().await {
+        let mut notify = web_socket.subscribe_state_changed().await;
+        while let Ok(state) = notify.recv().await {
             for receiver in receivers.iter() {
                 receiver.value().connect_state_changed(state.clone());
             }

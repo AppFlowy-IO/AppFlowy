@@ -1,6 +1,7 @@
 use crate::ws::connection::{FlowyRawWebSocket, FlowyWebSocket};
 use dashmap::DashMap;
 use flowy_error::FlowyError;
+use futures_util::future::BoxFuture;
 use lib_infra::future::FutureResult;
 use lib_ws::{WSChannel, WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 use parking_lot::RwLock;
@@ -56,7 +57,10 @@ impl FlowyRawWebSocket for LocalWebSocket {
 
     fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> { self.state_sender.subscribe() }
+    fn subscribe_connect_state(&self) -> BoxFuture<Receiver<WSConnectState>> {
+        let subscribe = self.state_sender.subscribe();
+        Box::pin(async move { subscribe })
+    }
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
@@ -66,8 +70,9 @@ impl FlowyRawWebSocket for LocalWebSocket {
         Ok(())
     }
 
-    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
-        Ok(Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone())))
+    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, FlowyError> {
+        let ws: Arc<dyn FlowyWebSocket> = Arc::new(LocalWebSocketAdaptor(self.server_ws_sender.clone()));
+        FutureResult::new(async move { Ok(Some(ws)) })
     }
 }
 

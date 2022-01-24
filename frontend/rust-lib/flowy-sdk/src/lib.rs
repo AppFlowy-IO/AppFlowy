@@ -22,7 +22,7 @@ use std::{
         Arc,
     },
 };
-use tokio::{runtime::Runtime, sync::broadcast};
+use tokio::sync::broadcast;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -97,32 +97,37 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
-        let ws_addr = config.server_config.ws_addr();
-        let (local_server, ws_conn) = if cfg!(feature = "http_server") {
-            let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
-            (None, ws_conn)
-        } else {
-            let context = flowy_net::local_server::build_server(&config.server_config);
-            let local_ws = Arc::new(context.local_ws);
-            let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
-            (Some(Arc::new(context.local_server)), ws_conn)
-        };
+        let (local_server, ws_conn) = mk_local_server(&config.server_config);
+        let (user_session, document_manager, folder_manager, local_server) = runtime.block_on(async {
+            let user_session = mk_user_session(&config, &local_server, &config.server_config);
+            let document_manager = DocumentDepsResolver::resolve(
+                local_server.clone(),
+                ws_conn.clone(),
+                user_session.clone(),
+                &config.server_config,
+            );
 
-        let user_session = mk_user_session(&config, &local_server, &config.server_config);
-        let document_manager = mk_document(&local_server, &ws_conn, &user_session, &config.server_config);
-        let folder_manager = mk_folder_manager(
-            &runtime,
-            &local_server,
-            &user_session,
-            &document_manager,
-            &config.server_config,
-            &ws_conn,
-        );
+            let folder_manager = FolderDepsResolver::resolve(
+                local_server.clone(),
+                user_session.clone(),
+                &config.server_config,
+                &document_manager,
+                ws_conn.clone(),
+            )
+            .await;
+
+            if let Some(local_server) = local_server.as_ref() {
+                local_server.run();
+            }
+            ws_conn.init().await;
+            (user_session, document_manager, folder_manager, local_server)
+        });
 
         let dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
             mk_modules(&ws_conn, &folder_manager, &user_session)
         }));
-        _init(&local_server, &dispatcher, &ws_conn, &user_session, &folder_manager);
+
+        _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager);
 
         Self {
             config,
@@ -138,8 +143,7 @@ impl FlowySDK {
     pub fn dispatcher(&self) -> Arc<EventDispatcher> { self.dispatcher.clone() }
 }
 
-fn _init(
-    local_server: &Option<Arc<LocalServer>>,
+fn _start_listening(
     dispatch: &EventDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
@@ -149,17 +153,11 @@ fn _init(
     let subscribe_network_type = ws_conn.subscribe_network_ty();
     let folder_manager = folder_manager.clone();
     let cloned_folder_manager = folder_manager.clone();
-    let user_session = user_session.clone();
     let ws_conn = ws_conn.clone();
-    let local_server = local_server.clone();
+    let user_session = user_session.clone();
 
     dispatch.spawn(async move {
-        if let Some(local_server) = local_server.as_ref() {
-            local_server.run();
-        }
-
         user_session.init();
-        ws_conn.init().await;
         listen_on_websocket(ws_conn.clone());
         _listen_user_status(ws_conn.clone(), subscribe_user_status, folder_manager.clone()).await;
     });
@@ -167,6 +165,21 @@ fn _init(
     dispatch.spawn(async move {
         _listen_network_status(subscribe_network_type, cloned_folder_manager).await;
     });
+}
+
+fn mk_local_server(
+    server_config: &ClientServerConfiguration,
+) -> (Option<Arc<LocalServer>>, Arc<FlowyWebSocketConnect>) {
+    let ws_addr = server_config.ws_addr();
+    if cfg!(feature = "http_server") {
+        let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
+        (None, ws_conn)
+    } else {
+        let context = flowy_net::local_server::build_server(server_config);
+        let local_ws = Arc::new(context.local_ws);
+        let ws_conn = Arc::new(FlowyWebSocketConnect::from_local(ws_addr, local_ws));
+        (Some(Arc::new(context.local_server)), ws_conn)
+    }
 }
 
 async fn _listen_user_status(
@@ -179,7 +192,7 @@ async fn _listen_user_status(
             match status {
                 UserStatus::Login { token, user_id } => {
                     tracing::trace!("User did login");
-                    let _ = folder_manager.initialize(&user_id).await?;
+                    let _ = folder_manager.initialize(&user_id, &token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 },
                 UserStatus::Logout { .. } => {
@@ -243,38 +256,4 @@ fn mk_user_session(
     let user_config = UserSessionConfig::new(&config.root, &session_cache_key);
     let cloud_service = UserDepsResolver::resolve(local_server, server_config);
     Arc::new(UserSession::new(user_config, cloud_service))
-}
-
-fn mk_folder_manager(
-    runtime: &Runtime,
-    local_server: &Option<Arc<LocalServer>>,
-    user_session: &Arc<UserSession>,
-    document_manager: &Arc<FlowyDocumentManager>,
-    server_config: &ClientServerConfiguration,
-    ws_conn: &Arc<FlowyWebSocketConnect>,
-) -> Arc<FolderManager> {
-    runtime.block_on(async {
-        FolderDepsResolver::resolve(
-            local_server.clone(),
-            user_session.clone(),
-            server_config,
-            document_manager,
-            ws_conn.clone(),
-        )
-        .await
-    })
-}
-
-pub fn mk_document(
-    local_server: &Option<Arc<LocalServer>>,
-    ws_conn: &Arc<FlowyWebSocketConnect>,
-    user_session: &Arc<UserSession>,
-    server_config: &ClientServerConfiguration,
-) -> Arc<FlowyDocumentManager> {
-    DocumentDepsResolver::resolve(
-        local_server.clone(),
-        ws_conn.clone(),
-        user_session.clone(),
-        server_config,
-    )
 }

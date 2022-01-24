@@ -88,7 +88,7 @@ impl UserSession {
 
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
-        if self.is_login(&params.email) {
+        if self.is_user_login(&params.email) {
             self.user_profile().await
         } else {
             let resp = self.cloud_service.sign_in(params).await?;
@@ -103,7 +103,7 @@ impl UserSession {
 
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
-        if self.is_login(&params.email) {
+        if self.is_user_login(&params.email) {
             self.user_profile().await
         } else {
             let resp = self.cloud_service.sign_up(params).await?;
@@ -263,7 +263,7 @@ impl UserSession {
         }
     }
 
-    fn is_login(&self, email: &str) -> bool {
+    fn is_user_login(&self, email: &str) -> bool {
         match self.get_session() {
             Ok(session) => session.email == email,
             Err(_) => false,

@@ -5,6 +5,7 @@ use lib_infra::future::FutureResult;
 pub use lib_ws::{WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 use lib_ws::{WSController, WSSender};
 
+use futures_util::future::BoxFuture;
 use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 
@@ -27,7 +28,10 @@ impl FlowyRawWebSocket for Arc<WSController> {
         })
     }
 
-    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> { self.subscribe_state() }
+    fn subscribe_connect_state(&self) -> BoxFuture<Receiver<WSConnectState>> {
+        let cloned_ws = self.clone();
+        Box::pin(async move { cloned_ws.subscribe_state().await })
+    }
 
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
@@ -42,9 +46,17 @@ impl FlowyRawWebSocket for Arc<WSController> {
         Ok(())
     }
 
-    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> {
-        let sender = self.ws_message_sender().map_err(internal_error)?;
-        Ok(sender)
+    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, FlowyError> {
+        let cloned_self = self.clone();
+        FutureResult::new(async move {
+            match cloned_self.ws_message_sender().await.map_err(internal_error)? {
+                None => Ok(None),
+                Some(sender) => {
+                    let sender = sender as Arc<dyn FlowyWebSocket>;
+                    Ok(Some(sender))
+                },
+            }
+        })
     }
 }
 

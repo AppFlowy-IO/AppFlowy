@@ -6,7 +6,7 @@ use flowy_collaboration::entities::{
     ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSData, ServerRevisionWSDataType},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use futures_util::stream::StreamExt;
+use futures_util::{future::BoxFuture, stream::StreamExt};
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, fmt::Formatter, sync::Arc};
@@ -36,8 +36,8 @@ pub trait RevisionWSSinkDataProvider: Send + Sync {
 
 pub type WSStateReceiver = tokio::sync::broadcast::Receiver<WSConnectState>;
 pub trait RevisionWebSocket: Send + Sync + 'static {
-    fn send(&self, data: ClientRevisionWSData) -> Result<(), FlowyError>;
-    fn subscribe_state_changed(&self) -> WSStateReceiver;
+    fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError>;
+    fn subscribe_state_changed(&self) -> BoxFuture<WSStateReceiver>;
 }
 
 pub struct RevisionWebSocketManager {
@@ -287,7 +287,7 @@ impl RevisionWSSink {
             },
             Some(data) => {
                 tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
-                self.ws_sender.send(data)
+                self.ws_sender.send(data).await
             },
         }
     }

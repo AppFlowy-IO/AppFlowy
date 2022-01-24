@@ -15,6 +15,8 @@ use flowy_net::{
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
+use futures_core::future::BoxFuture;
+use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, sync::Arc};
 
@@ -35,8 +37,23 @@ impl FolderDepsResolver {
             Some(local_server) => local_server,
         };
 
-        let folder_manager =
-            Arc::new(FolderManager::new(user, cloud_service, database, document_manager.clone(), web_socket).await);
+        let folder_manager = Arc::new(
+            FolderManager::new(
+                user.clone(),
+                cloud_service,
+                database,
+                document_manager.clone(),
+                web_socket,
+            )
+            .await,
+        );
+
+        if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
+            match folder_manager.initialize(&user_id, &token).await {
+                Ok(_) => {},
+                Err(e) => tracing::error!("Initialize folder manager failed: {}", e),
+            }
+        }
 
         let receiver = Arc::new(FolderWSMessageReceiverImpl(folder_manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
@@ -61,18 +78,29 @@ impl WorkspaceUser for WorkspaceUserImpl {
 
 struct FolderWebSocketImpl(Arc<FlowyWebSocketConnect>);
 impl RevisionWebSocket for FolderWebSocketImpl {
-    fn send(&self, data: ClientRevisionWSData) -> Result<(), FlowyError> {
+    fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
             channel: WSChannel::Folder,
             data: bytes.to_vec(),
         };
-        let sender = self.0.web_socket()?;
-        sender.send(msg).map_err(internal_error)?;
-        Ok(())
+
+        let ws_conn = self.0.clone();
+        Box::pin(async move {
+            match ws_conn.web_socket().await? {
+                None => {},
+                Some(sender) => {
+                    sender.send(msg).map_err(internal_error)?;
+                },
+            }
+            Ok(())
+        })
     }
 
-    fn subscribe_state_changed(&self) -> WSStateReceiver { self.0.subscribe_websocket_state() }
+    fn subscribe_state_changed(&self) -> BoxFuture<WSStateReceiver> {
+        let ws_conn = self.0.clone();
+        Box::pin(async move { ws_conn.subscribe_websocket_state().await })
+    }
 }
 
 struct FolderWSMessageReceiverImpl(Arc<FolderManager>);

@@ -140,7 +140,7 @@ impl FolderManager {
         }
     }
 
-    pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
+    pub async fn initialize(&self, user_id: &str, token: &str) -> FlowyResult<()> {
         let mut write_guard = INIT_FOLDER_FLAG.write().await;
         if let Some(is_init) = write_guard.get(user_id) {
             if *is_init {
@@ -150,9 +150,8 @@ impl FolderManager {
         let folder_id = FolderId::new(user_id);
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
-        let token = self.user.token()?;
         let pool = self.persistence.db_pool()?;
-        let folder_editor = FolderEditor::new(user_id, &folder_id, &token, pool, self.web_socket.clone()).await?;
+        let folder_editor = FolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -163,7 +162,7 @@ impl FolderManager {
 
     pub async fn initialize_with_new_user(&self, user_id: &str, token: &str) -> FlowyResult<()> {
         DefaultFolderBuilder::build(token, user_id, self.persistence.clone(), self.view_controller.clone()).await?;
-        self.initialize(user_id).await
+        self.initialize(user_id, token).await
     }
 
     pub async fn clear(&self) { *self.folder_editor.write().await = None; }

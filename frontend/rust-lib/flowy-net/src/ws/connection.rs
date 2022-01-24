@@ -4,6 +4,7 @@ pub use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 pub use lib_ws::{WSConnectState, WSMessageReceiver, WebSocketRawMessage};
 
+use futures_util::future::BoxFuture;
 use lib_ws::WSController;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -13,10 +14,10 @@ pub trait FlowyRawWebSocket: Send + Sync {
     fn initialize(&self) -> FutureResult<(), FlowyError>;
     fn start_connect(&self, addr: String, user_id: String) -> FutureResult<(), FlowyError>;
     fn stop_connect(&self) -> FutureResult<(), FlowyError>;
-    fn subscribe_connect_state(&self) -> broadcast::Receiver<WSConnectState>;
+    fn subscribe_connect_state(&self) -> BoxFuture<broadcast::Receiver<WSConnectState>>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
     fn add_msg_receiver(&self, receiver: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError>;
-    fn ws_msg_sender(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError>;
+    fn ws_msg_sender(&self) -> FutureResult<Option<Arc<dyn FlowyWebSocket>>, FlowyError>;
 }
 
 pub trait FlowyWebSocket: Send + Sync {
@@ -90,8 +91,8 @@ impl FlowyWebSocketConnect {
         }
     }
 
-    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WSConnectState> {
-        self.inner.subscribe_connect_state()
+    pub async fn subscribe_websocket_state(&self) -> broadcast::Receiver<WSConnectState> {
+        self.inner.subscribe_connect_state().await
     }
 
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
@@ -101,14 +102,16 @@ impl FlowyWebSocketConnect {
         Ok(())
     }
 
-    pub fn web_socket(&self) -> Result<Arc<dyn FlowyWebSocket>, FlowyError> { self.inner.ws_msg_sender() }
+    pub async fn web_socket(&self) -> Result<Option<Arc<dyn FlowyWebSocket>>, FlowyError> {
+        self.inner.ws_msg_sender().await
+    }
 }
 
 #[tracing::instrument(level = "debug", skip(ws_conn))]
 pub fn listen_on_websocket(ws_conn: Arc<FlowyWebSocketConnect>) {
     let raw_web_socket = ws_conn.inner.clone();
-    let mut notify = ws_conn.inner.subscribe_connect_state();
     let _ = tokio::spawn(async move {
+        let mut notify = ws_conn.inner.subscribe_connect_state().await;
         loop {
             match notify.recv().await {
                 Ok(state) => {
