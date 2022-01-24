@@ -67,6 +67,7 @@ impl RevisionCache {
         Ok(record)
     }
 
+    #[allow(dead_code)]
     pub async fn ack(&self, rev_id: i64) {
         self.memory_cache.ack(&rev_id).await;
     }
