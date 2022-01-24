@@ -2,7 +2,7 @@ pub use flowy_core_data_model::entities;
 
 pub mod event;
 pub mod module;
-mod services;
+pub mod services;
 
 #[macro_use]
 mod macros;
@@ -10,9 +10,8 @@ mod macros;
 #[macro_use]
 extern crate flowy_database;
 
-pub mod context;
-pub mod event_handler;
-mod notify;
+pub mod controller;
+mod dart_notification;
 pub mod protobuf;
 mod util;
 

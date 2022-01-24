@@ -1,10 +1,10 @@
 #![allow(clippy::all)]
 
-use crate::util::helper::{ViewTest, *};
+use crate::util::helper::{BackendViewTest, *};
 use flowy_collaboration::{
-    document::{Document, PlainDoc},
+    client_document::{ClientDocument, PlainDoc},
     entities::{
-        doc::{CreateDocParams, DocumentId},
+        document_info::{CreateDocParams, DocumentId},
         revision::{md5, RepeatedRevision, Revision},
     },
 };
@@ -17,13 +17,13 @@ use flowy_core_data_model::entities::{
 
 #[actix_rt::test]
 async fn workspace_create() {
-    let test = WorkspaceTest::new().await;
+    let test = BackendWorkspaceTest::new().await;
     tracing::info!("{:?}", test.workspace);
 }
 
 #[actix_rt::test]
 async fn workspace_read() {
-    let test = WorkspaceTest::new().await;
+    let test = BackendWorkspaceTest::new().await;
     let read_params = WorkspaceId::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
     tracing::info!("{:?}", repeated_workspace);
@@ -31,7 +31,7 @@ async fn workspace_read() {
 
 #[actix_rt::test]
 async fn workspace_read_with_belongs() {
-    let test = WorkspaceTest::new().await;
+    let test = BackendWorkspaceTest::new().await;
 
     let _ = test.create_app().await;
     let _ = test.create_app().await;
@@ -45,7 +45,7 @@ async fn workspace_read_with_belongs() {
 
 #[actix_rt::test]
 async fn workspace_update() {
-    let test = WorkspaceTest::new().await;
+    let test = BackendWorkspaceTest::new().await;
     let new_name = "rename workspace name";
     let new_desc = "rename workspace description";
 
@@ -65,7 +65,7 @@ async fn workspace_update() {
 
 #[actix_rt::test]
 async fn workspace_delete() {
-    let test = WorkspaceTest::new().await;
+    let test = BackendWorkspaceTest::new().await;
     let delete_params = WorkspaceId {
         workspace_id: Some(test.workspace.id.clone()),
     };
@@ -78,20 +78,20 @@ async fn workspace_delete() {
 
 #[actix_rt::test]
 async fn app_create() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
     tracing::info!("{:?}", test.app);
 }
 
 #[actix_rt::test]
 async fn app_read() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
     let read_params = AppId::new(&test.app.id);
     assert_eq!(test.server.read_app(read_params).await.is_some(), true);
 }
 
 #[actix_rt::test]
 async fn app_read_with_belongs() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
 
     let _ = create_test_view(&test.server, &test.app.id).await;
     let _ = create_test_view(&test.server, &test.app.id).await;
@@ -103,7 +103,7 @@ async fn app_read_with_belongs() {
 
 #[actix_rt::test]
 async fn app_read_with_belongs_in_trash() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
 
     let _ = create_test_view(&test.server, &test.app.id).await;
     let view = create_test_view(&test.server, &test.app.id).await;
@@ -117,7 +117,7 @@ async fn app_read_with_belongs_in_trash() {
 
 #[actix_rt::test]
 async fn app_update() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
 
     let new_name = "flowy";
 
@@ -131,7 +131,7 @@ async fn app_update() {
 
 #[actix_rt::test]
 async fn app_delete() {
-    let test = AppTest::new().await;
+    let test = BackendAppTest::new().await;
 
     let delete_params = AppId {
         app_id: test.app.id.clone(),
@@ -143,13 +143,13 @@ async fn app_delete() {
 
 #[actix_rt::test]
 async fn view_create() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     tracing::info!("{:?}", test.view);
 }
 
 #[actix_rt::test]
 async fn view_update() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     let new_name = "name view name";
 
     // update
@@ -164,7 +164,7 @@ async fn view_update() {
 
 #[actix_rt::test]
 async fn view_delete() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
 
     let trash_ids = test
@@ -185,7 +185,7 @@ async fn view_delete() {
 
 #[actix_rt::test]
 async fn trash_delete() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
 
     let identifier = TrashId {
@@ -199,7 +199,7 @@ async fn trash_delete() {
 
 #[actix_rt::test]
 async fn trash_delete_all() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
 
     test.server.delete_view_trash(RepeatedTrashId::all()).await;
@@ -226,7 +226,7 @@ async fn workspace_list_read() {
 
 #[actix_rt::test]
 async fn doc_read() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     let params = DocumentId {
         doc_id: test.view.id.clone(),
     };
@@ -240,7 +240,7 @@ async fn doc_create() {
     let server = TestUserServer::new().await;
     let doc_id = uuid::Uuid::new_v4().to_string();
     let user_id = "a".to_owned();
-    let mut document = Document::new::<PlainDoc>();
+    let mut document = ClientDocument::new::<PlainDoc>();
     let mut offset = 0;
     for i in 0..1000 {
         let content = i.to_string();
@@ -268,7 +268,7 @@ async fn doc_create() {
 
 #[actix_rt::test]
 async fn doc_delete() {
-    let test = ViewTest::new().await;
+    let test = BackendViewTest::new().await;
     let delete_params = RepeatedViewId {
         items: vec![test.view.id.clone()],
     };

@@ -5,7 +5,7 @@ message Revision {
     int64 rev_id = 2;
     bytes delta_data = 3;
     string md5 = 4;
-    string doc_id = 5;
+    string object_id = 5;
     RevType ty = 6;
     string user_id = 7;
 }
@@ -16,12 +16,12 @@ message RevId {
     int64 value = 1;
 }
 message RevisionRange {
-    string doc_id = 1;
+    string object_id = 1;
     int64 start = 2;
     int64 end = 3;
 }
 enum RevisionState {
-    Local = 0;
+    Sync = 0;
     Ack = 1;
 }
 enum RevType {

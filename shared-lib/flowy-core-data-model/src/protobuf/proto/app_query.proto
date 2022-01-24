@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-message QueryAppRequest {
-    repeated string app_ids = 1;
-}
-message AppId {
-    string app_id = 1;
-}

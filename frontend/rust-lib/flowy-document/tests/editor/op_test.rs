@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use flowy_collaboration::document::{NewlineDoc, PlainDoc};
+use flowy_collaboration::client_document::{NewlineDoc, PlainDoc};
 use lib_ot::{
     core::*,
     rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributes, RichTextDelta},

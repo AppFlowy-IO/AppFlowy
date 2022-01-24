@@ -1,6 +1,7 @@
 use crate::helper::*;
 use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
-use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
+use flowy_user::{errors::ErrorCode, event::UserEvent::*};
+use flowy_user_data_model::entities::{SignInRequest, SignUpRequest, UserProfile};
 
 #[tokio::test]
 async fn sign_up_with_invalid_email() {

@@ -1,11 +1,14 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 // Auto-generated, do not edit
 
-mod ws;
-pub use ws::*;
+mod folder_info;
+pub use folder_info::*;
+
+mod ws_data;
+pub use ws_data::*;
 
 mod revision;
 pub use revision::*;
 
-mod doc;
-pub use doc::*;
+mod document_info;
+pub use document_info::*;

@@ -1,3 +1,2 @@
-
-proto_crates = ["src/notify"]
+proto_crates = []
 event_files = []

@@ -1,7 +1,8 @@
 #![allow(clippy::all)]
 use crate::{
     errors::{internal_error, WSError},
-    MsgReceiver, MsgSender,
+    MsgReceiver,
+    MsgSender,
 };
 use futures_core::{future::BoxFuture, ready};
 use futures_util::{FutureExt, StreamExt};
@@ -16,7 +17,8 @@ use tokio::net::TcpStream;
 use tokio_tungstenite::{
     connect_async,
     tungstenite::{handshake::client::Response, Error, Message},
-    MaybeTlsStream, WebSocketStream,
+    MaybeTlsStream,
+    WebSocketStream,
 };
 
 type WsConnectResult = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>;
@@ -59,17 +61,21 @@ impl Future for WSConnectionFuture {
         loop {
             return match ready!(self.as_mut().project().fut.poll(cx)) {
                 Ok((stream, _)) => {
-                    tracing::debug!("🐴 ws connect success");
+                    tracing::debug!("[WebSocket]: connect success");
                     let (msg_tx, ws_rx) = (
-                        self.msg_tx.take().expect("WsConnection should be call once "),
-                        self.ws_rx.take().expect("WsConnection should be call once "),
+                        self.msg_tx
+                            .take()
+                            .expect("[WebSocket]: WSConnection should be call once "),
+                        self.ws_rx
+                            .take()
+                            .expect("[WebSocket]: WSConnection should be call once "),
                     );
                     Poll::Ready(Ok(WSStream::new(msg_tx, ws_rx, stream)))
-                }
+                },
                 Err(error) => {
-                    tracing::debug!("🐴 ws connect failed: {:?}", error);
+                    tracing::debug!("[WebSocket]: ❌ connect failed: {:?}", error);
                     Poll::Ready(Err(error.into()))
-                }
+                },
             };
         }
     }
@@ -96,8 +102,8 @@ impl WSStream {
                         ws_read
                             .for_each(|message| async {
                                 match tx.send(send_message(msg_tx.clone(), message)) {
-                                    Ok(_) => {}
-                                    Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
+                                    Ok(_) => {},
+                                    Err(e) => log::error!("[WebSocket]: WSStream sender closed unexpectedly: {} ", e),
                                 }
                             })
                             .await;
@@ -108,13 +114,14 @@ impl WSStream {
                         loop {
                             match rx.recv().await {
                                 None => {
-                                    return Err(WSError::internal().context("WsStream rx closed unexpectedly"));
-                                }
+                                    return Err(WSError::internal()
+                                        .context("[WebSocket]: WSStream receiver closed unexpectedly"));
+                                },
                                 Some(result) => {
                                     if result.is_err() {
                                         return result;
                                     }
-                                }
+                                },
                             }
                         }
                     };
@@ -135,9 +142,7 @@ impl WSStream {
 }
 
 impl fmt::Debug for WSStream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("WSStream").finish()
-    }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.debug_struct("WSStream").finish() }
 }
 
 impl Future for WSStream {
@@ -154,9 +159,9 @@ impl Future for WSStream {
                     Poll::Pending => {
                         self.inner = Some((ws_read, ws_write));
                         Poll::Pending
-                    }
+                    },
                 }
-            }
+            },
         }
     }
 }

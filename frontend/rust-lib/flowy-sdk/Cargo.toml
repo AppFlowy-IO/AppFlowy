@@ -13,6 +13,7 @@ flowy-net = { path = "../flowy-net" }
 flowy-core = { path = "../flowy-core", default-features = false }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
+flowy-sync = { path = "../flowy-sync" }
 
 tracing = { version = "0.1" }
 log = "0.4.14"

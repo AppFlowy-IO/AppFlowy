@@ -12,7 +12,7 @@ use flowy_collaboration::{
     protobuf::{
         CreateDocParams as CreateDocParamsPB, DocumentId as DocumentIdPB, ResetDocumentParams as ResetDocumentParamsPB,
     },
-    sync::ServerDocumentManager,
+    server_document::ServerDocumentManager,
 };
 use std::sync::Arc;
 
@@ -21,7 +21,7 @@ pub async fn create_document_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateDocParamsPB = parse_from_payload(payload).await?;
-    let kv_store = persistence.kv_store();
+    let kv_store = persistence.document_kv_store();
     let _ = create_document(&kv_store, params).await?;
     Ok(FlowyResponse::success().into())
 }
@@ -32,7 +32,7 @@ pub async fn read_document_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: DocumentIdPB = parse_from_payload(payload).await?;
-    let kv_store = persistence.kv_store();
+    let kv_store = persistence.document_kv_store();
     let doc = read_document(&kv_store, params).await?;
     let response = FlowyResponse::success().pb(doc)?;
     Ok(response.into())

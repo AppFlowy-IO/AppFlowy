@@ -13,7 +13,9 @@ use std::{
     str::FromStr,
 };
 
-// TODO: optimize the memory usage with Arc_mut or Cow
+pub type PlainDelta = Delta<PlainTextAttributes>;
+
+// TODO: optimize the memory usage with Arc::make_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
     pub ops: Vec<Operation<T>>,
@@ -454,8 +456,8 @@ fn invert_from_other<T: Attributes>(
     tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
-        Operation::Delete(n) => {
-            tracing::trace!("invert delete: {} by add {}", n, other_op);
+        Operation::Delete(_n) => {
+            // tracing::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         }
         Operation::Retain(_retain) => {

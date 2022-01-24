@@ -1112,6 +1112,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 
 [[package]]
+name = "dissimilar"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31ad93652f40969dead8d4bf897a41e9462095152eb21c56e5830537e41179dd"
+
+[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1227,6 +1233,8 @@ dependencies = [
  "bytes",
  "chrono",
  "dashmap",
+ "dissimilar",
+ "flowy-core-data-model",
  "flowy-derive",
  "futures",
  "lib-infra",
@@ -1236,6 +1244,7 @@ dependencies = [
  "parking_lot",
  "protobuf",
  "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "tokio",
@@ -1247,7 +1256,6 @@ dependencies = [
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
- "backend-service",
  "bincode",
  "bytes",
  "chrono",
@@ -1263,7 +1271,7 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
- "flowy-net",
+ "flowy-sync",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1290,10 +1298,11 @@ dependencies = [
  "chrono",
  "derive_more",
  "error-code",
- "flowy-collaboration",
  "flowy-derive",
  "log",
  "protobuf",
+ "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "unicode-segmentation",
@@ -1327,7 +1336,7 @@ name = "flowy-document"
 version = "0.1.0"
 dependencies = [
  "async-stream",
- "backend-service",
+ "async-trait",
  "bytecount",
  "byteorder",
  "bytes",
@@ -1341,10 +1350,9 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-sync",
  "futures",
- "futures-core",
  "futures-util",
- "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
@@ -1386,11 +1394,20 @@ name = "flowy-net"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-stream",
+ "backend-service",
  "bytes",
  "dashmap",
  "flowy-collaboration",
+ "flowy-core",
+ "flowy-core-data-model",
  "flowy-derive",
+ "flowy-document",
  "flowy-error",
+ "flowy-user",
+ "flowy-user-data-model",
+ "futures-util",
+ "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ws",
@@ -1414,6 +1431,7 @@ dependencies = [
  "flowy-database",
  "flowy-document",
  "flowy-net",
+ "flowy-sync",
  "flowy-user",
  "futures-core",
  "lib-dispatch",
@@ -1422,6 +1440,32 @@ dependencies = [
  "lib-ws",
  "log",
  "parking_lot",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-sync"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "diesel",
+ "diesel_derives",
+ "flowy-collaboration",
+ "flowy-database",
+ "flowy-error",
+ "futures-util",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
  "tokio",
  "tracing",
 ]
@@ -1455,7 +1499,6 @@ dependencies = [
 name = "flowy-user"
 version = "0.1.0"
 dependencies = [
- "backend-service",
  "bytes",
  "dart-notify",
  "dashmap",
@@ -1465,7 +1508,6 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
- "flowy-net",
  "flowy-user-data-model",
  "futures-core",
  "lazy_static",

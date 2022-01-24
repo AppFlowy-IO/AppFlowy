@@ -5,7 +5,7 @@ use serde_repr::*;
 use std::{fmt, fmt::Debug};
 
 pub type Result<T> = std::result::Result<T, ServerError>;
-
+use flowy_collaboration::errors::CollaborateError;
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
 pub struct ServerError {
     pub code: ErrorCode,
@@ -37,21 +37,23 @@ impl ServerError {
     static_error!(connect_refused, ErrorCode::ConnectRefused);
     static_error!(record_not_found, ErrorCode::RecordNotFound);
 
-    pub fn new(msg: String, code: ErrorCode) -> Self {
-        Self { code, msg }
-    }
+    pub fn new(msg: String, code: ErrorCode) -> Self { Self { code, msg } }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);
         self
     }
 
-    pub fn is_record_not_found(&self) -> bool {
-        self.code == ErrorCode::RecordNotFound
-    }
+    pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
 
-    pub fn is_unauthorized(&self) -> bool {
-        self.code == ErrorCode::UserUnauthorized
+    pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::UserUnauthorized }
+
+    pub fn to_collaborate_error(&self) -> CollaborateError {
+        if self.is_record_not_found() {
+            CollaborateError::record_not_found()
+        } else {
+            CollaborateError::internal().context(self.msg.clone())
+        }
     }
 }
 
@@ -62,9 +64,7 @@ where
     ServerError::internal().context(e)
 }
 
-pub fn invalid_params<T: Debug>(e: T) -> ServerError {
-    ServerError::params_invalid().context(e)
-}
+pub fn invalid_params<T: Debug>(e: T) -> ServerError { ServerError::params_invalid().context(e) }
 
 impl std::fmt::Display for ServerError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -86,45 +86,45 @@ impl std::convert::From<&ServerError> for FlowyResponse {
 #[repr(u16)]
 pub enum ErrorCode {
     #[display(fmt = "Unauthorized")]
-    UserUnauthorized = 1,
+    UserUnauthorized   = 1,
     #[display(fmt = "Payload too large")]
-    PayloadOverflow = 2,
+    PayloadOverflow    = 2,
     #[display(fmt = "Payload deserialize failed")]
-    PayloadSerdeFail = 3,
+    PayloadSerdeFail   = 3,
     #[display(fmt = "Unexpected empty payload")]
     PayloadUnexpectedNone = 4,
     #[display(fmt = "Params is invalid")]
-    ParamsInvalid = 5,
+    ParamsInvalid      = 5,
 
     #[display(fmt = "Protobuf serde error")]
-    ProtobufError = 10,
+    ProtobufError      = 10,
     #[display(fmt = "Json serde Error")]
-    SerdeError = 11,
+    SerdeError         = 11,
 
     #[display(fmt = "Email address already exists")]
     EmailAlreadyExists = 50,
 
     #[display(fmt = "Username and password do not match")]
-    PasswordNotMatch = 51,
+    PasswordNotMatch   = 51,
 
     #[display(fmt = "Connect refused")]
-    ConnectRefused = 100,
+    ConnectRefused     = 100,
 
     #[display(fmt = "Connection timeout")]
-    ConnectTimeout = 101,
+    ConnectTimeout     = 101,
     #[display(fmt = "Connection closed")]
-    ConnectClose = 102,
+    ConnectClose       = 102,
     #[display(fmt = "Connection canceled")]
-    ConnectCancel = 103,
+    ConnectCancel      = 103,
 
     #[display(fmt = "Sql error")]
-    SqlError = 200,
+    SqlError           = 200,
     #[display(fmt = "Record not found")]
-    RecordNotFound = 201,
+    RecordNotFound     = 201,
 
     #[display(fmt = "Http request error")]
-    HttpError = 300,
+    HttpError          = 300,
 
     #[display(fmt = "Internal error")]
-    InternalError = 1000,
+    InternalError      = 1000,
 }

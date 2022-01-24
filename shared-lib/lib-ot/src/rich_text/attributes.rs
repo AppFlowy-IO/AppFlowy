@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
     block_attribute,
-    core::{Attributes, OperationTransformable, RichTextOperation},
+    core::{Attributes, Operation, OperationTransformable},
     errors::OTError,
     ignore_attribute, inline_attribute, list_attribute,
 };
@@ -13,6 +13,13 @@ use std::{
     iter::FromIterator,
 };
 use strum_macros::Display;
+
+pub type RichTextOperation = Operation<RichTextAttributes>;
+impl RichTextOperation {
+    pub fn contain_attribute(&self, attribute: &RichTextAttribute) -> bool {
+        self.get_attributes().contains_key(&attribute.key)
+    }
+}
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct RichTextAttributes {

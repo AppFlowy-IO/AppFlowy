@@ -1,8 +1,8 @@
 use crate::{
     core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
-    rich_text::{RichTextAttribute, RichTextAttributes},
+    errors::OTError,
 };
-use serde::__private::Formatter;
+use serde::{Deserialize, Serialize, __private::Formatter};
 use std::{
     cmp::min,
     fmt,
@@ -17,13 +17,6 @@ pub trait Attributes: fmt::Display + Eq + PartialEq + Default + Clone + Debug + 
     fn remove_empty(&mut self);
 
     fn extend_other(&mut self, other: Self);
-}
-
-pub type RichTextOperation = Operation<RichTextAttributes>;
-impl RichTextOperation {
-    pub fn contain_attribute(&self, attribute: &RichTextAttribute) -> bool {
-        self.get_attributes().contains_key(&attribute.key)
-    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -209,12 +202,12 @@ where
     T: Attributes,
 {
     pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<Operation<T>> {
-        tracing::trace!(
-            "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
-            n,
-            self.attributes,
-            attributes
-        );
+        // tracing::trace!(
+        //     "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
+        //     n,
+        //     self.attributes,
+        //     attributes
+        // );
         if self.attributes == attributes {
             self.n += n;
             None
@@ -343,4 +336,26 @@ where
             attributes: T::default(),
         }
     }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
+pub struct PlainTextAttributes();
+impl fmt::Display for PlainTextAttributes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("PlainTextAttributes") }
+}
+
+impl Attributes for PlainTextAttributes {
+    fn is_empty(&self) -> bool { true }
+
+    fn remove_empty(&mut self) {}
+
+    fn extend_other(&mut self, _other: Self) {}
+}
+
+impl OperationTransformable for PlainTextAttributes {
+    fn compose(&self, _other: &Self) -> Result<Self, OTError> { Ok(self.clone()) }
+
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> { Ok((self.clone(), other.clone())) }
+
+    fn invert(&self, _other: &Self) -> Self { self.clone() }
 }

@@ -1,57 +1,56 @@
 use crate::{
+    dart_notification::{send_anonymous_dart_notification, WorkspaceNotification},
     entities::trash::{RepeatedTrash, RepeatedTrashId, Trash, TrashId, TrashType},
     errors::{FlowyError, FlowyResult},
-    module::{WorkspaceDatabase, WorkspaceUser},
-    notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    services::{server::Server, trash::sql::TrashTableSql},
+    module::{FolderCouldServiceV1, WorkspaceUser},
+    services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
-use crossbeam_utils::thread;
-use flowy_database::SqliteConnection;
+
 use std::{fmt::Formatter, sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 
 pub struct TrashController {
-    pub database: Arc<dyn WorkspaceDatabase>,
+    persistence: Arc<FolderPersistence>,
     notify: broadcast::Sender<TrashEvent>,
-    server: Server,
+    cloud_service: Arc<dyn FolderCouldServiceV1>,
     user: Arc<dyn WorkspaceUser>,
 }
 
 impl TrashController {
-    pub fn new(database: Arc<dyn WorkspaceDatabase>, server: Server, user: Arc<dyn WorkspaceUser>) -> Self {
+    pub fn new(
+        persistence: Arc<FolderPersistence>,
+        cloud_service: Arc<dyn FolderCouldServiceV1>,
+        user: Arc<dyn WorkspaceUser>,
+    ) -> Self {
         let (tx, _) = broadcast::channel(10);
-
         Self {
-            database,
+            persistence,
             notify: tx,
-            server,
+            cloud_service,
             user,
         }
-    }
-
-    pub(crate) fn init(&self) -> Result<(), FlowyError> {
-        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
-        let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
-        let _ = thread::scope(|_s| {
-            let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, FlowyError, _>(|| {
-                let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
-                notify_trash_changed(TrashTableSql::read_all(&conn)?);
-                Ok(())
-            })?;
+        let trash = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let mut repeated_trash = transaction.read_trash(Some(trash_id.to_owned()))?;
+                let _ = transaction.delete_trash(Some(vec![trash_id.to_owned()]))?;
+                notify_trash_changed(transaction.read_trash(None)?);
 
-            Ok::<(), FlowyError>(())
-        })
-        .unwrap()?;
+                if repeated_trash.is_empty() {
+                    return Err(FlowyError::internal().context("Try to put back trash is not exists"));
+                }
+                Ok(repeated_trash.pop().unwrap())
+            })
+            .await?;
 
         let identifier = TrashId {
-            id: trash_table.id,
-            ty: trash_table.ty.into(),
+            id: trash.id,
+            ty: trash.ty,
         };
 
         let _ = self.delete_trash_on_server(RepeatedTrashId {
@@ -66,16 +65,15 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub async fn restore_all(&self) -> FlowyResult<()> {
-        let repeated_trash = thread::scope(|_s| {
-            let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, FlowyError, _>(|| {
-                let repeated_trash = TrashTableSql::read_all(&*conn)?;
-                let _ = TrashTableSql::delete_all(&*conn)?;
-                Ok(repeated_trash)
+    pub async fn restore_all_trash(&self) -> FlowyResult<()> {
+        let repeated_trash = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let trash = transaction.read_trash(None);
+                let _ = transaction.delete_trash(None);
+                trash
             })
-        })
-        .unwrap()?;
+            .await?;
 
         let identifiers: RepeatedTrashId = repeated_trash.items.clone().into();
         let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
@@ -88,8 +86,11 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub async fn delete_all(&self) -> FlowyResult<()> {
-        let repeated_trash = TrashTableSql::read_all(&*(self.database.db_connection()?))?;
+    pub async fn delete_all_trash(&self) -> FlowyResult<()> {
+        let repeated_trash = self
+            .persistence
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
         let trash_identifiers: RepeatedTrashId = repeated_trash.items.clone().into();
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
 
@@ -101,7 +102,11 @@ impl TrashController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn delete(&self, trash_identifiers: RepeatedTrashId) -> FlowyResult<()> {
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
-        notify_trash_changed(TrashTableSql::read_all(&*(self.database.db_connection()?))?);
+        let repeated_trash = self
+            .persistence
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
+        notify_trash_changed(repeated_trash);
         let _ = self.delete_trash_on_server(trash_identifiers)?;
 
         Ok(())
@@ -114,20 +119,24 @@ impl TrashController {
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
 
         match rx.recv().await {
-            None => {}
+            None => {},
             Some(result) => match result {
-                Ok(_) => {}
+                Ok(_) => {},
                 Err(e) => log::error!("{}", e),
             },
         }
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let ids = trash_identifiers
+                    .items
+                    .into_iter()
+                    .map(|item| item.id)
+                    .collect::<Vec<_>>();
+                transaction.delete_trash(Some(ids))
+            })
+            .await?;
 
-        let conn = self.database.db_connection()?;
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            for trash_identifier in &trash_identifiers.items {
-                let _ = TrashTableSql::delete_trash(&trash_identifier.id, &conn)?;
-            }
-            Ok(())
-        })?;
         Ok(())
     }
 
@@ -154,37 +163,39 @@ impl TrashController {
             )
             .as_str(),
         );
-        let _ = thread::scope(|_s| {
-            let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, FlowyError, _>(|| {
-                let _ = TrashTableSql::create_trash(repeated_trash.clone(), &*conn)?;
+
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.create_trash(repeated_trash.clone())?;
                 let _ = self.create_trash_on_server(repeated_trash);
-
-                notify_trash_changed(TrashTableSql::read_all(&conn)?);
+                notify_trash_changed(transaction.read_trash(None)?);
                 Ok(())
-            })?;
-            Ok::<(), FlowyError>(())
-        })
-        .unwrap()?;
-
+            })
+            .await?;
         let _ = self.notify.send(TrashEvent::NewTrash(identifiers.into(), tx));
         let _ = rx.recv().await.unwrap()?;
 
         Ok(())
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> {
-        self.notify.subscribe()
-    }
+    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
 
-    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
-        let repeated_trash = TrashTableSql::read_all(&*conn)?;
+    pub async fn read_trash(&self) -> Result<RepeatedTrash, FlowyError> {
+        let repeated_trash = self
+            .persistence
+            .begin_transaction(|transaction| transaction.read_trash(None))
+            .await?;
         let _ = self.read_trash_on_server()?;
         Ok(repeated_trash)
     }
 
-    pub fn read_trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, FlowyError> {
-        let ids = TrashTableSql::read_all(&*conn)?
+    pub fn read_trash_ids<'a>(
+        &self,
+        transaction: &'a (dyn FolderPersistenceTransaction + 'a),
+    ) -> Result<Vec<String>, FlowyError> {
+        let ids = transaction
+            .read_trash(None)?
             .into_inner()
             .into_iter()
             .map(|item| item.id)
@@ -194,72 +205,69 @@ impl TrashController {
 }
 
 impl TrashController {
-    #[tracing::instrument(level = "debug", skip(self, trash), err)]
+    #[tracing::instrument(level = "trace", skip(self, trash), err)]
     fn create_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         // TODO: retry?
         let _ = tokio::spawn(async move {
             match server.create_trash(&token, trash_identifiers).await {
-                Ok(_) => {}
+                Ok(_) => {},
                 Err(e) => log::error!("Create trash failed: {:?}", e),
             }
         });
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, trash), err)]
+    #[tracing::instrument(level = "trace", skip(self, trash), err)]
     fn delete_trash_on_server<T: Into<RepeatedTrashId>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         let _ = tokio::spawn(async move {
             match server.delete_trash(&token, trash_identifiers).await {
-                Ok(_) => {}
+                Ok(_) => {},
                 Err(e) => log::error!("Delete trash failed: {:?}", e),
             }
         });
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     fn read_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
-        let server = self.server.clone();
-        let pool = self.database.db_pool()?;
+        let server = self.cloud_service.clone();
+        let persistence = self.persistence.clone();
 
         tokio::spawn(async move {
             match server.read_trash(&token).await {
                 Ok(repeated_trash) => {
                     tracing::debug!("Remote trash count: {}", repeated_trash.items.len());
-                    match pool.get() {
-                        Ok(conn) => {
-                            let result = conn.immediate_transaction::<_, FlowyError, _>(|| {
-                                let _ = TrashTableSql::create_trash(repeated_trash.items.clone(), &*conn)?;
-                                TrashTableSql::read_all(&conn)
-                            });
+                    let result = persistence
+                        .begin_transaction(|transaction| {
+                            let _ = transaction.create_trash(repeated_trash.items.clone())?;
+                            transaction.read_trash(None)
+                        })
+                        .await;
 
-                            match result {
-                                Ok(repeated_trash) => {
-                                    notify_trash_changed(repeated_trash);
-                                }
-                                Err(e) => log::error!("Save trash failed: {:?}", e),
-                            }
-                        }
-                        Err(e) => log::error!("Require db connection failed: {:?}", e),
+                    match result {
+                        Ok(repeated_trash) => {
+                            notify_trash_changed(repeated_trash);
+                        },
+                        Err(e) => log::error!("Save trash failed: {:?}", e),
                     }
-                }
+                },
                 Err(e) => log::error!("Read trash failed: {:?}", e),
             }
         });
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     async fn delete_all_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
-        let server = self.server.clone();
+        let server = self.cloud_service.clone();
         server.delete_trash(&token, RepeatedTrashId::all()).await
     }
 }
@@ -299,7 +307,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::Putback(identifiers, sender))
                 }
-            }
+            },
             TrashEvent::Delete(mut identifiers, sender) => {
                 identifiers.items.retain(|item| item.ty == s);
                 if identifiers.items.is_empty() {
@@ -307,7 +315,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::Delete(identifiers, sender))
                 }
-            }
+            },
             TrashEvent::NewTrash(mut identifiers, sender) => {
                 identifiers.items.retain(|item| item.ty == s);
                 if identifiers.items.is_empty() {
@@ -315,7 +323,7 @@ impl TrashEvent {
                 } else {
                     Some(TrashEvent::NewTrash(identifiers, sender))
                 }
-            }
+            },
         }
     }
 }

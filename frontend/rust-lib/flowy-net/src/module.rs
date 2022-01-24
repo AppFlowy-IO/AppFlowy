@@ -1,4 +1,4 @@
-use crate::{event::NetworkEvent, handlers::*, services::ws_conn::FlowyWebSocketConnect};
+use crate::{event::NetworkEvent, handlers::*, ws::connection::FlowyWebSocketConnect};
 use lib_dispatch::prelude::*;
 use std::sync::Arc;
 

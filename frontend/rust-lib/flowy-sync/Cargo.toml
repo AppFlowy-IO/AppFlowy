@@ -1,0 +1,32 @@
+[package]
+name = "flowy-sync"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-ws = { path = "../../../shared-lib/lib-ws" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-database = { path = "../flowy-database" }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "backend", "serde", "db"] }
+diesel = {version = "1.4.8", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+protobuf = {version = "2.18.0"}
+tracing = { version = "0.1", features = ["log"] }
+tokio = {version = "1", features = ["sync"]}
+bytes = { version = "1.1" }
+strum = "0.21"
+strum_macros = "0.21"
+dashmap = "4.0"
+parking_lot = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+futures-util = "0.3.15"
+async-stream = "0.3.2"
+
+
+[features]
+flowy_unit_test = ["lib-ot/flowy_unit_test"]

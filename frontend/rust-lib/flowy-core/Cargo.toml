@@ -10,16 +10,15 @@ flowy-core-data-model = { path = "../../../shared-lib/flowy-core-data-model" }
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database" }
 flowy-error = { path = "../flowy-error", features = ["db", "backend"]}
-flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-sqlite = { path = "../lib-sqlite" }
+flowy-sync = { path = "../flowy-sync" }
 
 parking_lot = "0.11"
 protobuf = {version = "2.18.0"}
@@ -45,9 +44,12 @@ crossbeam-utils = "0.8"
 chrono = "0.4"
 
 [dev-dependencies]
-flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"
+serde_json = "1.0"
+flowy-core = { path = "../flowy-core", features = ["flowy_unit_test"]}
+flowy-test = { path = "../flowy-test" }
 
 [features]
 default = []
 http_server = []
+flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-sync/flowy_unit_test"]

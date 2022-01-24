@@ -1,5 +1,6 @@
 #![allow(clippy::module_inception)]
 mod kv;
+pub mod revision_kv;
 
 use async_trait::async_trait;
 use bytes::Bytes;

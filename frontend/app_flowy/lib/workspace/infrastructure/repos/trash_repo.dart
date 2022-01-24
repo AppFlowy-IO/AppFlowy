@@ -5,9 +5,9 @@ import 'package:app_flowy/workspace/infrastructure/repos/helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class TrashRepo {
@@ -33,11 +33,11 @@ class TrashRepo {
   }
 
   Future<Either<Unit, FlowyError>> restoreAll() {
-    return WorkspaceEventRestoreAll().send();
+    return WorkspaceEventRestoreAllTrash().send();
   }
 
   Future<Either<Unit, FlowyError>> deleteAll() {
-    return WorkspaceEventDeleteAll().send();
+    return WorkspaceEventDeleteAllTrash().send();
   }
 }
 

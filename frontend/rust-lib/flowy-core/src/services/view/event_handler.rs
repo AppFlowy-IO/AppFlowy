@@ -9,7 +9,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_collaboration::entities::doc::DocumentDelta;
+use flowy_collaboration::entities::document_info::DocumentDelta;
 use flowy_core_data_model::entities::share::{ExportData, ExportParams, ExportRequest};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -29,6 +29,8 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<View, FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
     let mut view = controller.read_view(params.clone()).await?;
+    // For the moment, app and view can contains lots of views. Reading the view
+    // belongings using the view_id.
     view.belongings = controller.read_views_belong_to(&params.view_id).await?;
 
     data_result(view)
@@ -64,21 +66,22 @@ pub(crate) async fn delete_view_handler(
     }
 
     let trash = view_controller
-        .read_view_tables(params.items)?
+        .read_local_views(params.items)
+        .await?
         .into_iter()
-        .map(|view_table| view_table.into())
+        .map(|view| view.into())
         .collect::<Vec<Trash>>();
 
     let _ = trash_controller.add(trash).await?;
     Ok(())
 }
 
-pub(crate) async fn open_view_handler(
+pub(crate) async fn open_document_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let doc = controller.open_view(params.into()).await?;
+    let doc = controller.open_document(&params.view_id).await?;
     data_result(doc)
 }
 
@@ -87,7 +90,7 @@ pub(crate) async fn close_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let _ = controller.close_view(params.into()).await?;
+    let _ = controller.close_view(&params.view_id).await?;
     Ok(())
 }
 
@@ -97,7 +100,7 @@ pub(crate) async fn duplicate_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let params: ViewId = data.into_inner().try_into()?;
-    let _ = controller.duplicate_view(params.into()).await?;
+    let _ = controller.duplicate_view(&params.view_id).await?;
     Ok(())
 }
 

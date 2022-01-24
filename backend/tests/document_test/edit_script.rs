@@ -2,22 +2,22 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use std::convert::TryInto;
 use actix_web::web::Data;
-use flowy_document::core::edit::ClientDocumentEditor;
+use flowy_document::core::ClientDocumentEditor;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
-use flowy_user::services::user::UserSession;
+use flowy_user::services::UserSession;
 use futures_util::{stream, stream::StreamExt};
 use std::sync::Arc;
 use bytes::Bytes;
 use tokio::time::{sleep, Duration};
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams as ResetDocumentParamsPB};
+use flowy_collaboration::{entities::document_info::DocumentId, protobuf::ResetDocumentParams as ResetDocumentParamsPB};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use backend::services::document::persistence::{read_document, reset_document};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::protobuf::{RepeatedRevision as RepeatedRevisionPB, DocumentId as DocumentIdPB};
-use flowy_collaboration::sync::ServerDocumentManager;
-use flowy_net::services::ws_conn::FlowyWebSocketConnect;
+use flowy_collaboration::server_document::ServerDocumentManager;
+use flowy_net::ws::connection::FlowyWebSocketConnect;
 use lib_ot::core::Interval;
 
 pub struct DocumentTest {
@@ -63,14 +63,14 @@ struct ScriptContext {
 impl ScriptContext {
     async fn new(client_sdk: FlowySDKTest, server: TestServer) -> Self {
         let user_session = client_sdk.user_session.clone();
-        let ws_manager = client_sdk.ws_conn.clone();
+        let ws_conn = client_sdk.ws_conn.clone();
         let doc_id = create_doc(&client_sdk).await;
 
         Self {
             client_editor: None,
             client_sdk,
             client_user_session: user_session,
-            ws_conn: ws_manager,
+            ws_conn,
             server,
             doc_id,
         }
@@ -78,7 +78,7 @@ impl ScriptContext {
 
     async fn open_doc(&mut self) {
         let doc_id = self.doc_id.clone();
-        let edit_context = self.client_sdk.document_ctx.controller.open_document(doc_id).await.unwrap();
+        let edit_context = self.client_sdk.document_manager.open_document(doc_id).await.unwrap();
         self.client_editor = Some(edit_context);
     }
 
@@ -113,7 +113,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 },
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(2000)).await;
-                    let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
+                    let persistence = Data::new(context.read().server.app_ctx.persistence.document_kv_store());
                     let doc_identifier: DocumentIdPB = DocumentId {
                         doc_id
                     }.try_into().unwrap();

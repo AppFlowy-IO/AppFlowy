@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 abstract class ITrash {
