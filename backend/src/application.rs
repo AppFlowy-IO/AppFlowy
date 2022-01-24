@@ -135,8 +135,9 @@ fn user_scope() -> Scope {
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {
+    let level = std::env::var("RUST_LOG").unwrap_or("info".to_owned());
     let _ = crate::services::log::Builder::new("flowy-server")
-        .env_filter("Trace")
+        .env_filter(&level)
         .build();
     let pg_pool = get_connection_pool(&configuration.database)
         .await
