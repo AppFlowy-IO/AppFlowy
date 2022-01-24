@@ -105,12 +105,13 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn ack_revision(&self, rev_id: i64) -> Result<(), FlowyError> {
-        if self.revision_sync_seq.ack(&rev_id).await.is_ok() {
-            self.revision_cache.ack(rev_id).await;
-
-            #[cfg(feature = "flowy_unit_test")]
-            let _ = self.revision_ack_notifier.send(rev_id);
-        }
+        // For the moment, we comment out the following code in order to cause sync bugs.
+        // if self.revision_sync_seq.ack(&rev_id).await.is_ok() {
+        //     self.revision_cache.ack(rev_id).await;
+        //
+        //     #[cfg(feature = "flowy_unit_test")]
+        //     let _ = self.revision_ack_notifier.send(rev_id);
+        // }
         Ok(())
     }
 

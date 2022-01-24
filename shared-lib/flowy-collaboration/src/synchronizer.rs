@@ -128,7 +128,7 @@ where
             }
             Ordering::Equal => {
                 // Do nothing
-                tracing::warn!("Applied {} revision rev_id is the same as cur_rev_id", self.object_id);
+                tracing::trace!("Applied {} revision rev_id is the same as cur_rev_id", self.object_id);
             }
             Ordering::Greater => {
                 // The client delta is outdated. Transform the client revision delta and then
