@@ -1,7 +1,7 @@
 use crate::services::web_socket::make_folder_ws_manager;
 use flowy_collaboration::{
+    client_folder::{FolderChange, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
-    folder::{FolderChange, FolderPad},
 };
 
 use crate::controller::FolderId;

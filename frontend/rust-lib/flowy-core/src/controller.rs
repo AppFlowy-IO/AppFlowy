@@ -5,7 +5,7 @@ use flowy_core_data_model::user_default;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
-use flowy_collaboration::{entities::ws_data::ServerRevisionWSData, folder::FolderPad};
+use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use flowy_document::FlowyDocumentManager;
 
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};

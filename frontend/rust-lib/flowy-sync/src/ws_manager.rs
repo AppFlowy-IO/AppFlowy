@@ -200,17 +200,19 @@ impl RevisionWSStream {
     async fn handle_message(&self, msg: ServerRevisionWSData) -> FlowyResult<()> {
         let ServerRevisionWSData { object_id, ty, data } = msg;
         let bytes = Bytes::from(data);
-        tracing::trace!("[{}]: new message: {}:{:?}", self, object_id, ty);
         match ty {
             ServerRevisionWSDataType::ServerPushRev => {
+                tracing::trace!("[{}]: new push revision: {}:{:?}", self, object_id, ty);
                 let _ = self.consumer.receive_push_revision(bytes).await?;
             }
             ServerRevisionWSDataType::ServerPullRev => {
                 let range = RevisionRange::try_from(bytes)?;
+                tracing::trace!("[{}]: new pull: {}:{}-{:?}", self, object_id, range, ty);
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
             }
             ServerRevisionWSDataType::ServerAck => {
                 let rev_id = RevId::try_from(bytes).unwrap().value;
+                tracing::trace!("[{}]: new ack: {}:{}-{:?}", self, object_id, rev_id, ty);
                 let _ = self.consumer.receive_ack(rev_id.to_string(), ty).await;
             }
             ServerRevisionWSDataType::UserConnect => {

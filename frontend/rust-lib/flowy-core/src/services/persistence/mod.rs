@@ -3,8 +3,8 @@ pub mod version_1;
 mod version_2;
 
 use flowy_collaboration::{
+    client_folder::FolderPad,
     entities::revision::{Revision, RevisionState},
-    folder::FolderPad,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;

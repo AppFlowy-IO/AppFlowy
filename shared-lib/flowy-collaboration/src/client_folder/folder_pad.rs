@@ -1,10 +1,10 @@
 use crate::{
+    client_folder::builder::FolderPadBuilder,
     entities::{
         folder_info::FolderDelta,
         revision::{md5, Revision},
     },
     errors::{CollaborateError, CollaborateResult},
-    folder::builder::FolderPadBuilder,
 };
 use dissimilar::*;
 use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
@@ -401,7 +401,7 @@ fn cal_diff(old: String, new: String) -> Delta<PlainTextAttributes> {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::{entities::folder_info::FolderDelta, folder::folder_pad::FolderPad};
+    use crate::{client_folder::folder_pad::FolderPad, entities::folder_info::FolderDelta};
     use chrono::Utc;
     use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
     use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};

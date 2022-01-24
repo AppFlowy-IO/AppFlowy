@@ -135,7 +135,7 @@ fn user_scope() -> Scope {
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {
-    let level = std::env::var("RUST_LOG").unwrap_or("info".to_owned());
+    let level = std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned());
     let _ = crate::services::log::Builder::new("flowy-server")
         .env_filter(&level)
         .build();

@@ -2,7 +2,7 @@ use crate::{
     module::WorkspaceDatabase,
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
-use flowy_collaboration::{entities::revision::md5, folder::FolderPad};
+use flowy_collaboration::{client_folder::FolderPad, entities::revision::md5};
 use flowy_core_data_model::entities::{
     app::{App, RepeatedApp},
     view::{RepeatedView, View},

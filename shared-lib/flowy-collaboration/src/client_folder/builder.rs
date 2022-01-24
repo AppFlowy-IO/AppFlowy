@@ -1,7 +1,7 @@
 use crate::{
+    client_folder::{default_folder_delta, FolderPad},
     entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
-    folder::{default_folder_delta, FolderPad},
 };
 use flowy_core_data_model::entities::{trash::Trash, workspace::Workspace};
 use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};

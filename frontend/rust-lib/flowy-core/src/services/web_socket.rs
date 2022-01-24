@@ -1,11 +1,11 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_collaboration::{
+    client_folder::FolderPad,
     entities::{
         revision::RevisionRange,
         ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
     },
-    folder::FolderPad,
 };
 use flowy_error::FlowyError;
 use flowy_sync::*;

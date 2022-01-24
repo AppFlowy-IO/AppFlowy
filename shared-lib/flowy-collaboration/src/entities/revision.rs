@@ -182,6 +182,12 @@ pub struct RevisionRange {
     pub end: i64,
 }
 
+impl std::fmt::Display for RevisionRange {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("[{},{}]", self.start, self.end))
+    }
+}
+
 impl RevisionRange {
     pub fn len(&self) -> i64 {
         debug_assert!(self.end >= self.start);
