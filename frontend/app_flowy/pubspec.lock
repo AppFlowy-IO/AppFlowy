@@ -425,7 +425,7 @@ packages:
       name: flutter_colorpicker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "0.6.1"
   flutter_inappwebview:
     dependency: transitive
     description:
@@ -477,11 +477,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1ce8188c47d3983268067b39a3e8cc8aef898864"
-      resolved-ref: "1ce8188c47d3983268067b39a3e8cc8aef898864"
+      ref: dbc309f5e382963fa0122409a0aaf8e1417d51c1
+      resolved-ref: dbc309f5e382963fa0122409a0aaf8e1417d51c1
       url: "https://github.com/appflowy/flutter-quill.git"
     source: git
-    version: "3.1.0"
+    version: "2.0.13"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -1271,4 +1271,4 @@ packages:
     version: "8.0.0"
 sdks:
   dart: ">=2.15.0-116.0.dev <3.0.0"
-  flutter: ">=2.5.3"
+  flutter: ">=2.5.0"

@@ -59,9 +59,10 @@ DefaultStyles customStyles(BuildContext context) {
       small: const TextStyle(fontSize: 12, color: Colors.black45),
       underline: const TextStyle(decoration: TextDecoration.underline),
       strikeThrough: const TextStyle(decoration: TextDecoration.lineThrough),
-      inlineCode: InlineCodeStyle(
-        style: baseStyle,
-        backgroundColor: Colors.blue.shade900.withOpacity(0.9),
+      inlineCode: TextStyle(
+        color: Colors.blue.shade900.withOpacity(0.9),
+        fontFamily: fontFamily,
+        fontSize: 13,
       ),
       link: TextStyle(
         color: themeData.colorScheme.secondary,
