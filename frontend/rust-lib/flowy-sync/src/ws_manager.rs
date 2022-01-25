@@ -287,15 +287,19 @@ impl RevisionWSSink {
     }
 
     async fn send_next_revision(&self) -> FlowyResult<()> {
-        match self.provider.next().await? {
-            None => {
-                tracing::trace!("[{}]: Finish synchronizing revisions", self);
-                Ok(())
+        if cfg!(feature = "flowy_unit_test") {
+            match self.provider.next().await? {
+                None => {
+                    tracing::trace!("[{}]: Finish synchronizing revisions", self);
+                    Ok(())
+                }
+                Some(data) => {
+                    tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
+                    self.ws_sender.send(data).await
+                }
             }
-            Some(data) => {
-                tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
-                self.ws_sender.send(data).await
-            }
+        } else {
+            Ok(())
         }
     }
 }

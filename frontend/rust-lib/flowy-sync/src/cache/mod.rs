@@ -45,12 +45,7 @@ impl RevisionCache {
         }
     }
 
-    pub async fn add(
-        &self,
-        revision: Revision,
-        state: RevisionState,
-        write_to_disk: bool,
-    ) -> FlowyResult<RevisionRecord> {
+    pub async fn add(&self, revision: Revision, state: RevisionState, write_to_disk: bool) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate revision: {} {:?}", revision.rev_id, state)));
         }
@@ -62,12 +57,11 @@ impl RevisionCache {
             write_to_disk,
         };
 
-        self.memory_cache.add(Cow::Borrowed(&record)).await;
+        self.memory_cache.add(Cow::Owned(record)).await;
         self.set_latest_rev_id(rev_id);
-        Ok(record)
+        Ok(())
     }
 
-    #[allow(dead_code)]
     pub async fn ack(&self, rev_id: i64) {
         self.memory_cache.ack(&rev_id).await;
     }
@@ -79,10 +73,9 @@ impl RevisionCache {
                 .read_revision_records(&self.object_id, Some(vec![rev_id]))
             {
                 Ok(mut records) => {
-                    if !records.is_empty() {
-                        assert_eq!(records.len(), 1);
-                    }
-                    records.pop()
+                    let record = records.pop()?;
+                    assert!(records.is_empty());
+                    Some(record)
                 }
                 Err(e) => {
                     tracing::error!("{}", e);
@@ -95,11 +88,6 @@ impl RevisionCache {
 
     pub fn batch_get(&self, doc_id: &str) -> FlowyResult<Vec<RevisionRecord>> {
         self.disk_cache.read_revision_records(doc_id, None)
-    }
-
-    pub async fn latest_revision(&self) -> Revision {
-        let rev_id = self.latest_rev_id.load(SeqCst);
-        self.get(rev_id).await.unwrap().revision
     }
 
     pub async fn revisions_in_range(&self, range: RevisionRange) -> FlowyResult<Vec<Revision>> {
