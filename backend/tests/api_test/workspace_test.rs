@@ -242,7 +242,7 @@ async fn doc_create() {
     let user_id = "a".to_owned();
     let mut document = ClientDocument::new::<PlainDoc>();
     let mut offset = 0;
-    for i in 0..1000 {
+    for i in 0..5 {
         let content = i.to_string();
         let delta = document.insert(offset, content.clone()).unwrap();
         offset += content.len();

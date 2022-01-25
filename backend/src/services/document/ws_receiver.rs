@@ -68,11 +68,11 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
 
             match actor_msg_sender.send(msg).await {
                 Ok(_) => {}
-                Err(e) => log::error!("[DocumentWebSocketReceiver]: send message to actor failed: {}", e),
+                Err(e) => tracing::error!("[DocumentWebSocketReceiver]: send message to actor failed: {}", e),
             }
             match rx.await {
                 Ok(_) => {}
-                Err(e) => log::error!("[DocumentWebSocketReceiver]: message ret failed {:?}", e),
+                Err(e) => tracing::error!("[DocumentWebSocketReceiver]: message ret failed {:?}", e),
             };
         });
     }
