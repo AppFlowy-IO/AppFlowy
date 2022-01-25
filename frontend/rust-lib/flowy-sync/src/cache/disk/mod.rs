@@ -22,6 +22,7 @@ pub trait RevisionDiskCache: Sync + Send {
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<RevisionRecord>, Self::Error>;
 
+    // Read the revision which rev_id >= range.start && rev_id <= range.end
     fn read_revision_records_with_range(
         &self,
         object_id: &str,

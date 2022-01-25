@@ -72,6 +72,10 @@ where
 {
     let mut delta = Delta::<T>::new();
     for revision in revisions {
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+
         let revision_delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)

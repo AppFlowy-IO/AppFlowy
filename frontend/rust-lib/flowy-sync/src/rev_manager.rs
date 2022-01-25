@@ -6,6 +6,7 @@ use flowy_collaboration::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
+use lib_ot::core::Attributes;
 use std::{collections::VecDeque, sync::Arc};
 use tokio::sync::RwLock;
 
@@ -18,12 +19,15 @@ pub trait RevisionObjectBuilder: Send + Sync {
     fn build_with_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output>;
 }
 
+pub trait RevisionCompact: Send + Sync {
+    fn compact_revisions(user_id: &str, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Revision>;
+}
+
 pub struct RevisionManager {
     pub object_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
-    revision_cache: Arc<RevisionCache>,
-    sync_seq: Arc<RevisionSyncSequence>,
+    cache: Arc<RwLock<RevisionCacheCompact>>,
 
     #[cfg(feature = "flowy_unit_test")]
     revision_ack_notifier: tokio::sync::broadcast::Sender<i64>,
@@ -32,7 +36,7 @@ pub struct RevisionManager {
 impl RevisionManager {
     pub fn new(user_id: &str, object_id: &str, revision_cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
-        let sync_seq = Arc::new(RevisionSyncSequence::new());
+        let cache = Arc::new(RwLock::new(RevisionCacheCompact::new(object_id, revision_cache)));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -40,38 +44,34 @@ impl RevisionManager {
             object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
-            revision_cache,
-            sync_seq,
+            cache,
 
             #[cfg(feature = "flowy_unit_test")]
             revision_ack_notifier,
         }
     }
 
-    pub async fn load<Builder>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<Builder::Output>
+    pub async fn load<B, C>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<B::Output>
     where
-        Builder: RevisionObjectBuilder,
+        B: RevisionObjectBuilder,
+        C: RevisionCompact,
     {
         let (revisions, rev_id) = RevisionLoader {
             object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
             cloud,
-            revision_cache: self.revision_cache.clone(),
-            revision_sync_seq: self.sync_seq.clone(),
+            cache: self.cache.clone(),
         }
-        .load()
+        .load::<C>()
         .await?;
         self.rev_id_counter.set(rev_id);
-        Builder::build_with_revisions(&self.object_id, revisions)
+        B::build_with_revisions(&self.object_id, revisions)
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self
-            .revision_cache
-            .reset_with_revisions(&self.object_id, revisions.into_inner())
-            .await?;
+        let _ = self.cache.write().await.reset(revisions.into_inner()).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -81,33 +81,26 @@ impl RevisionManager {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        let _ = self
-            .revision_cache
-            .add(revision.clone(), RevisionState::Ack, true)
-            .await?;
+        self.cache.read().await.add_ack_revision(revision).await?;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
+    pub async fn add_local_revision<C>(&self, revision: &Revision) -> Result<(), FlowyError>
+    where
+        C: RevisionCompact,
+    {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-
-        self.sync_seq.add_record(revision.rev_id).await?;
-        self.revision_cache
-            .add(revision.clone(), RevisionState::Sync, true)
-            .await?;
-
+        self.cache.write().await.add_sync_revision::<C>(revision, true).await?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn ack_revision(&self, rev_id: i64) -> Result<(), FlowyError> {
-        if self.sync_seq.ack(&rev_id).await.is_ok() {
-            self.revision_cache.ack(rev_id).await;
-
+        if self.cache.write().await.ack_revision(rev_id).await.is_ok() {
             #[cfg(feature = "flowy_unit_test")]
             let _ = self.revision_ack_notifier.send(rev_id);
         }
@@ -125,54 +118,119 @@ impl RevisionManager {
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
-        debug_assert!(range.object_id == self.object_id);
-        let revisions = self.revision_cache.revisions_in_range(range.clone()).await?;
+        let revisions = self.cache.read().await.revisions_in_range(range.clone()).await?;
         Ok(revisions)
     }
 
-    pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> {
-        let sync_seq = self.sync_seq.clone();
-        let revision_cache = self.revision_cache.clone();
-        FutureResult::new(async move {
-            match sync_seq.next_rev_id().await {
-                None => Ok(None),
-                Some(rev_id) => Ok(revision_cache.get(rev_id).await.map(|record| record.revision)),
-            }
-        })
+    pub async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
+        Ok(self.cache.read().await.next_sync_revision().await?)
     }
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {
-        self.revision_cache.get(rev_id).await.map(|record| record.revision)
+        self.cache.read().await.get(rev_id).await.map(|record| record.revision)
     }
 }
 
-struct RevisionSyncSequence(Arc<RwLock<VecDeque<i64>>>);
-impl std::default::Default for RevisionSyncSequence {
-    fn default() -> Self {
-        RevisionSyncSequence(Arc::new(RwLock::new(VecDeque::new())))
+#[cfg(feature = "flowy_unit_test")]
+impl RevisionManager {
+    pub async fn revision_cache(&self) -> Arc<RevisionCache> {
+        self.cache.read().await.inner.clone()
+    }
+    pub fn revision_ack_receiver(&self) -> tokio::sync::broadcast::Receiver<i64> {
+        self.revision_ack_notifier.subscribe()
     }
 }
 
+struct RevisionCacheCompact {
+    object_id: String,
+    inner: Arc<RevisionCache>,
+    sync_seq: RevisionSyncSequence,
+}
+
+impl RevisionCacheCompact {
+    fn new(object_id: &str, inner: Arc<RevisionCache>) -> Self {
+        let sync_seq = RevisionSyncSequence::new();
+        let object_id = object_id.to_owned();
+        Self {
+            object_id,
+            inner,
+            sync_seq,
+        }
+    }
+
+    async fn add_ack_revision(&self, revision: &Revision) -> FlowyResult<()> {
+        self.inner.add(revision.clone(), RevisionState::Ack, true).await
+    }
+
+    async fn add_sync_revision<C>(&mut self, revision: &Revision, write_to_disk: bool) -> FlowyResult<()>
+    where
+        C: RevisionCompact,
+    {
+        // match self.sync_seq.remaining_rev_ids() {
+        //     None => {}
+        //     Some(range) => {
+        //         let revisions = self.inner.revisions_in_range(range).await?;
+        //         let compact_revision = C::compact_revisions("", "", revisions)?;
+        //     }
+        // }
+
+        self.inner
+            .add(revision.clone(), RevisionState::Sync, write_to_disk)
+            .await?;
+        self.sync_seq.add_record(revision.rev_id)?;
+        Ok(())
+    }
+
+    async fn ack_revision(&mut self, rev_id: i64) -> FlowyResult<()> {
+        if self.sync_seq.ack(&rev_id).is_ok() {
+            self.inner.ack(rev_id).await;
+        }
+        Ok(())
+    }
+
+    async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
+        match self.sync_seq.next_rev_id() {
+            None => Ok(None),
+            Some(rev_id) => Ok(self.inner.get(rev_id).await.map(|record| record.revision)),
+        }
+    }
+
+    async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
+        self.inner.reset_with_revisions(&self.object_id, revisions).await?;
+        Ok(())
+    }
+}
+
+impl std::ops::Deref for RevisionCacheCompact {
+    type Target = Arc<RevisionCache>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+#[derive(Default)]
+struct RevisionSyncSequence(VecDeque<i64>);
 impl RevisionSyncSequence {
     fn new() -> Self {
         RevisionSyncSequence::default()
     }
 
-    async fn add_record(&self, new_rev_id: i64) -> FlowyResult<()> {
+    fn add_record(&mut self, new_rev_id: i64) -> FlowyResult<()> {
         // The last revision's rev_id must be greater than the new one.
-        if let Some(rev_id) = self.0.read().await.back() {
+        if let Some(rev_id) = self.0.back() {
             if *rev_id >= new_rev_id {
                 return Err(
                     FlowyError::internal().context(format!("The new revision's id must be greater than {}", rev_id))
                 );
             }
         }
-        self.0.write().await.push_back(new_rev_id);
+        self.0.push_back(new_rev_id);
         Ok(())
     }
 
-    async fn ack(&self, rev_id: &i64) -> FlowyResult<()> {
-        let cur_rev_id = self.0.read().await.front().cloned();
+    fn ack(&mut self, rev_id: &i64) -> FlowyResult<()> {
+        let cur_rev_id = self.0.front().cloned();
         if let Some(pop_rev_id) = cur_rev_id {
             if &pop_rev_id != rev_id {
                 let desc = format!(
@@ -181,13 +239,25 @@ impl RevisionSyncSequence {
                 );
                 return Err(FlowyError::internal().context(desc));
             }
-            let _ = self.0.write().await.pop_front();
+            let _ = self.0.pop_front();
         }
         Ok(())
     }
 
-    async fn next_rev_id(&self) -> Option<i64> {
-        self.0.read().await.front().cloned()
+    fn next_rev_id(&self) -> Option<i64> {
+        self.0.front().cloned()
+    }
+
+    fn remaining_rev_ids(&self) -> Option<RevisionRange> {
+        if self.next_rev_id().is_some() {
+            let mut seq = self.0.clone();
+            let mut drained = seq.drain(1..).collect::<VecDeque<_>>();
+            let start = drained.pop_front()?;
+            let end = drained.pop_back().unwrap_or_else(|| start);
+            Some(RevisionRange { start, end })
+        } else {
+            None
+        }
     }
 }
 
@@ -195,42 +265,37 @@ struct RevisionLoader {
     object_id: String,
     user_id: String,
     cloud: Arc<dyn RevisionCloudService>,
-    revision_cache: Arc<RevisionCache>,
-    revision_sync_seq: Arc<RevisionSyncSequence>,
+    cache: Arc<RwLock<RevisionCacheCompact>>,
 }
 
 impl RevisionLoader {
-    async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.revision_cache.batch_get(&self.object_id)?;
+    async fn load<C>(&self) -> Result<(Vec<Revision>, i64), FlowyError>
+    where
+        C: RevisionCompact,
+    {
+        let records = self.cache.read().await.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;
         let mut rev_id = 0;
         if records.is_empty() {
             let remote_revisions = self.cloud.fetch_object(&self.user_id, &self.object_id).await?;
             for revision in &remote_revisions {
                 rev_id = revision.rev_id;
-                let _ = self
-                    .revision_cache
-                    .add(revision.clone(), RevisionState::Ack, true)
-                    .await?;
+                let _ = self.cache.read().await.add_ack_revision(revision).await?;
             }
             revisions = remote_revisions;
         } else {
-            for record in records.clone() {
-                let f = || async {
-                    rev_id = record.revision.rev_id;
-                    if record.state == RevisionState::Sync {
-                        // Sync the records if their state is RevisionState::Sync.
-                        let _ = self.revision_sync_seq.add_record(record.revision.rev_id).await?;
-                        let _ = self.revision_cache.add(record.revision, record.state, false).await?;
-                    }
-                    Ok::<(), FlowyError>(())
-                };
-                match f().await {
-                    Ok(_) => {}
-                    Err(e) => tracing::error!("[RevisionLoader]: {}", e),
+            for record in &records {
+                rev_id = record.revision.rev_id;
+                if record.state == RevisionState::Sync {
+                    // Sync the records if their state is RevisionState::Sync.
+                    let _ = self
+                        .cache
+                        .write()
+                        .await
+                        .add_sync_revision::<C>(&record.revision, false)
+                        .await?;
                 }
             }
-
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();
         }
 
@@ -239,15 +304,5 @@ impl RevisionLoader {
         }
 
         Ok((revisions, rev_id))
-    }
-}
-
-#[cfg(feature = "flowy_unit_test")]
-impl RevisionManager {
-    pub fn revision_cache(&self) -> Arc<RevisionCache> {
-        self.revision_cache.clone()
-    }
-    pub fn revision_ack_receiver(&self) -> tokio::sync::broadcast::Receiver<i64> {
-        self.revision_ack_notifier.subscribe()
     }
 }

@@ -97,7 +97,7 @@ impl FolderTest {
         let sdk = &self.sdk;
         let folder_editor: Arc<FolderEditor> = sdk.folder_manager.folder_editor().await;
         let rev_manager = folder_editor.rev_manager();
-        let cache = rev_manager.revision_cache();
+        let cache = rev_manager.revision_cache().await;
 
         match script {
             FolderScript::ReadAllWorkspaces => {

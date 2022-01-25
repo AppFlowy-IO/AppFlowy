@@ -173,12 +173,9 @@ impl std::fmt::Display for RevId {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RevisionRange {
     #[pb(index = 1)]
-    pub object_id: String,
-
-    #[pb(index = 2)]
     pub start: i64,
 
-    #[pb(index = 3)]
+    #[pb(index = 2)]
     pub end: i64,
 }
 

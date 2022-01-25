@@ -38,7 +38,7 @@ impl EditorTest {
 
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
-        let cache = rev_manager.revision_cache();
+        let cache = rev_manager.revision_cache().await;
         let _user_id = self.sdk.user_session.user_id().unwrap();
         // let ws_manager = self.sdk.ws_conn.clone();
         // let token = self.sdk.user_session.token().unwrap();

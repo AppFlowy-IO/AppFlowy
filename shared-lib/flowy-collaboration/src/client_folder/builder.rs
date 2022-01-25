@@ -1,10 +1,12 @@
+use crate::entities::folder_info::FolderDelta;
+use crate::util::make_delta_from_revisions;
 use crate::{
     client_folder::{default_folder_delta, FolderPad},
     entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
 };
 use flowy_core_data_model::entities::{trash::Trash, workspace::Workspace};
-use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};
+use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder, PlainTextAttributes};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -45,15 +47,7 @@ impl FolderPadBuilder {
     }
 
     pub(crate) fn build_with_revisions(self, revisions: Vec<Revision>) -> CollaborateResult<FolderPad> {
-        let mut folder_delta = PlainDelta::new();
-        for revision in revisions {
-            if revision.delta_data.is_empty() {
-                tracing::warn!("revision delta_data is empty");
-            }
-
-            let delta = PlainDelta::from_bytes(revision.delta_data)?;
-            folder_delta = folder_delta.compose(&delta)?;
-        }
+        let folder_delta: FolderDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         self.build_with_delta(folder_delta)
     }
 

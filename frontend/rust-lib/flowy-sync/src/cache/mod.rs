@@ -5,6 +5,7 @@ use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache, RevisionTableState, SQLitePersistence},
     memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
 };
+use crate::RevisionCompact;
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -16,6 +17,7 @@ use std::{
     },
 };
 use tokio::task::spawn_blocking;
+
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
 pub struct RevisionCache {
@@ -90,13 +92,14 @@ impl RevisionCache {
         self.disk_cache.read_revision_records(doc_id, None)
     }
 
+    // Read the revision which rev_id >= range.start && rev_id <= range.end
     pub async fn revisions_in_range(&self, range: RevisionRange) -> FlowyResult<Vec<Revision>> {
         let mut records = self.memory_cache.get_with_range(&range).await?;
         let range_len = range.len() as usize;
         if records.len() != range_len {
             let disk_cache = self.disk_cache.clone();
-            let doc_id = self.object_id.clone();
-            records = spawn_blocking(move || disk_cache.read_revision_records_with_range(&doc_id, &range))
+            let object_id = self.object_id.clone();
+            records = spawn_blocking(move || disk_cache.read_revision_records_with_range(&object_id, &range))
                 .await
                 .map_err(internal_error)??;
 
@@ -110,8 +113,8 @@ impl RevisionCache {
             .collect::<Vec<Revision>>())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, doc_id, revisions))]
-    pub async fn reset_with_revisions(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
+    #[tracing::instrument(level = "debug", skip(self, revisions))]
+    pub async fn reset_with_revisions(&self, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
         let revision_records = revisions
             .to_vec()
             .into_iter()
@@ -123,7 +126,7 @@ impl RevisionCache {
             .collect::<Vec<_>>();
 
         let _ = self.memory_cache.reset_with_revisions(&revision_records).await?;
-        let _ = self.disk_cache.reset_object(doc_id, revision_records)?;
+        let _ = self.disk_cache.reset_object(object_id, revision_records)?;
         Ok(())
     }
 
