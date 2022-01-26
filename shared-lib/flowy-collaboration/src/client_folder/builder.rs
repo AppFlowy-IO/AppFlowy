@@ -6,7 +6,7 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use flowy_core_data_model::entities::{trash::Trash, workspace::Workspace};
-use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder, PlainTextAttributes};
+use lib_ot::core::{PlainAttributes, PlainDelta, PlainDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -47,7 +47,7 @@ impl FolderPadBuilder {
     }
 
     pub(crate) fn build_with_revisions(self, revisions: Vec<Revision>) -> CollaborateResult<FolderPad> {
-        let folder_delta: FolderDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
+        let folder_delta: FolderDelta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
         self.build_with_delta(folder_delta)
     }
 

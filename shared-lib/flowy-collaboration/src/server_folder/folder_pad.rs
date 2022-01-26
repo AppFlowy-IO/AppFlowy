@@ -1,5 +1,5 @@
 use crate::{entities::folder_info::FolderDelta, errors::CollaborateError, synchronizer::RevisionSyncObject};
-use lib_ot::core::{Delta, OperationTransformable, PlainTextAttributes};
+use lib_ot::core::{Delta, OperationTransformable, PlainAttributes};
 
 pub struct ServerFolder {
     folder_id: String,
@@ -15,12 +15,12 @@ impl ServerFolder {
     }
 }
 
-impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
+impl RevisionSyncObject<PlainAttributes> for ServerFolder {
     fn id(&self) -> &str {
         &self.folder_id
     }
 
-    fn compose(&mut self, other: &Delta<PlainTextAttributes>) -> Result<(), CollaborateError> {
+    fn compose(&mut self, other: &Delta<PlainAttributes>) -> Result<(), CollaborateError> {
         let new_delta = self.delta.compose(other)?;
         self.delta = new_delta;
         Ok(())
@@ -28,8 +28,8 @@ impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
 
     fn transform(
         &self,
-        other: &Delta<PlainTextAttributes>,
-    ) -> Result<(Delta<PlainTextAttributes>, Delta<PlainTextAttributes>), CollaborateError> {
+        other: &Delta<PlainAttributes>,
+    ) -> Result<(Delta<PlainAttributes>, Delta<PlainAttributes>), CollaborateError> {
         let value = self.delta.transform(other)?;
         Ok(value)
     }
@@ -38,7 +38,7 @@ impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
         self.delta.to_json()
     }
 
-    fn set_delta(&mut self, new_delta: Delta<PlainTextAttributes>) {
+    fn set_delta(&mut self, new_delta: Delta<PlainAttributes>) {
         self.delta = new_delta;
     }
 }

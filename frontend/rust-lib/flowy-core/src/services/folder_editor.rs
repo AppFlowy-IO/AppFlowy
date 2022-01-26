@@ -12,7 +12,7 @@ use flowy_sync::{
     RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
-use lib_ot::core::PlainTextAttributes;
+use lib_ot::core::PlainAttributes;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -91,6 +91,12 @@ impl FolderEditor {
         })?;
         Ok(())
     }
+
+    #[allow(dead_code)]
+    pub fn folder_json(&self) -> FlowyResult<String> {
+        let json = self.folder.read().to_json()?;
+        Ok(json)
+    }
 }
 
 struct FolderPadBuilder();
@@ -125,22 +131,22 @@ impl FolderEditor {
 
 struct FolderRevisionCompact();
 impl RevisionCompact for FolderRevisionCompact {
-    fn compact_revisions(user_id: &str, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Revision> {
-        match revisions.last() {
-            None => Err(FlowyError::internal().context("compact revisions is empty")),
-            Some(last_revision) => {
-                let (base_rev_id, rev_id) = last_revision.pair_rev_id();
-                let md5 = last_revision.md5.clone();
-                let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
-                Ok(Revision::new(
-                    object_id,
-                    base_rev_id,
-                    rev_id,
-                    delta.to_bytes(),
-                    user_id,
-                    md5,
-                ))
-            }
+    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
+        if revisions.is_empty() {
+            return Err(FlowyError::internal().context("Can't compact the empty folder's revisions"));
         }
+
+        if revisions.len() == 1 {
+            return Ok(revisions.pop().unwrap());
+        }
+
+        let first_revision = revisions.first().unwrap();
+        let last_revision = revisions.last().unwrap();
+
+        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let md5 = last_revision.md5.clone();
+        let delta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
+        let delta_data = delta.to_bytes();
+        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }
 }

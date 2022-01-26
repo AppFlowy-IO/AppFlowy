@@ -40,19 +40,12 @@ impl RevisionMemoryCache {
         };
 
         let rev_id = record.revision.rev_id;
-        if self.revs_map.contains_key(&rev_id) {
-            return;
-        }
-
-        if let Some(rev_id) = self.pending_write_revs.read().await.last() {
-            if *rev_id >= record.revision.rev_id {
-                tracing::error!("Duplicated revision added to memory_cache");
-                return;
-            }
-        }
         self.revs_map.insert(rev_id, record);
-        self.pending_write_revs.write().await.push(rev_id);
-        self.make_checkpoint().await;
+
+        if !self.pending_write_revs.read().await.contains(&rev_id) {
+            self.pending_write_revs.write().await.push(rev_id);
+            self.make_checkpoint().await;
+        }
     }
 
     pub(crate) async fn ack(&self, rev_id: &i64) {
@@ -61,17 +54,27 @@ impl RevisionMemoryCache {
             Some(mut record) => record.ack(),
         }
 
-        if !self.pending_write_revs.read().await.contains(rev_id) {
+        if self.pending_write_revs.read().await.contains(rev_id) {
+            self.make_checkpoint().await;
+        } else {
             // The revision must be saved on disk if the pending_write_revs
             // doesn't contains the rev_id.
             self.delegate.receive_ack(&self.object_id, *rev_id);
-        } else {
-            self.make_checkpoint().await;
         }
     }
 
     pub(crate) async fn get(&self, rev_id: &i64) -> Option<RevisionRecord> {
         self.revs_map.get(rev_id).map(|r| r.value().clone())
+    }
+
+    pub(crate) fn remove(&self, rev_id: &i64) {
+        let _ = self.revs_map.remove(rev_id);
+    }
+
+    pub(crate) fn remove_with_range(&self, range: &RevisionRange) {
+        for rev_id in range.iter() {
+            self.remove(&rev_id);
+        }
     }
 
     pub(crate) async fn get_with_range(&self, range: &RevisionRange) -> Result<Vec<RevisionRecord>, FlowyError> {
@@ -82,7 +85,7 @@ impl RevisionMemoryCache {
         Ok(revs)
     }
 
-    pub(crate) async fn reset_with_revisions(&self, revision_records: &[RevisionRecord]) -> FlowyResult<()> {
+    pub(crate) async fn reset_with_revisions(&self, revision_records: Vec<RevisionRecord>) {
         self.revs_map.clear();
         if let Some(handler) = self.defer_save.write().await.take() {
             handler.abort();
@@ -91,13 +94,12 @@ impl RevisionMemoryCache {
         let mut write_guard = self.pending_write_revs.write().await;
         write_guard.clear();
         for record in revision_records {
-            self.revs_map.insert(record.revision.rev_id, record.clone());
             write_guard.push(record.revision.rev_id);
+            self.revs_map.insert(record.revision.rev_id, record);
         }
         drop(write_guard);
 
         self.make_checkpoint().await;
-        Ok(())
     }
 
     async fn make_checkpoint(&self) {

@@ -10,7 +10,7 @@ use flowy_collaboration::{
 use flowy_error::FlowyError;
 use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{Delta, OperationTransformable, PlainDelta, PlainTextAttributes};
+use lib_ot::core::{Delta, OperationTransformable, PlainAttributes, PlainDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
@@ -23,7 +23,7 @@ pub(crate) async fn make_folder_ws_manager(
 ) -> Arc<RevisionWebSocketManager> {
     let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(folder_id, rev_manager.clone()));
     let resolve_target = Arc::new(FolderRevisionResolveTarget { folder_pad });
-    let resolver = RevisionConflictResolver::<PlainTextAttributes>::new(
+    let resolver = RevisionConflictResolver::<PlainAttributes>::new(
         user_id,
         resolve_target,
         Arc::new(composite_sink_provider.clone()),
@@ -58,8 +58,8 @@ struct FolderRevisionResolveTarget {
     folder_pad: Arc<RwLock<FolderPad>>,
 }
 
-impl ResolverTarget<PlainTextAttributes> for FolderRevisionResolveTarget {
-    fn compose_delta(&self, delta: Delta<PlainTextAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
+    fn compose_delta(&self, delta: Delta<PlainAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_delta(delta)?;
@@ -69,8 +69,8 @@ impl ResolverTarget<PlainTextAttributes> for FolderRevisionResolveTarget {
 
     fn transform_delta(
         &self,
-        delta: Delta<PlainTextAttributes>,
-    ) -> BoxResultFuture<TransformDeltas<PlainTextAttributes>, FlowyError> {
+        delta: Delta<PlainAttributes>,
+    ) -> BoxResultFuture<TransformDeltas<PlainAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();
@@ -92,7 +92,7 @@ impl ResolverTarget<PlainTextAttributes> for FolderRevisionResolveTarget {
         })
     }
 
-    fn reset_delta(&self, delta: Delta<PlainTextAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: Delta<PlainAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(delta)?;
@@ -102,7 +102,7 @@ impl ResolverTarget<PlainTextAttributes> for FolderRevisionResolveTarget {
 }
 
 struct FolderWSStreamConsumerAdapter {
-    resolver: Arc<RevisionConflictResolver<PlainTextAttributes>>,
+    resolver: Arc<RevisionConflictResolver<PlainAttributes>>,
 }
 
 impl RevisionWSSteamConsumer for FolderWSStreamConsumerAdapter {

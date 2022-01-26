@@ -1,12 +1,11 @@
 use crate::RevisionCache;
-
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
     util::{pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::core::Attributes;
+
 use std::{collections::VecDeque, sync::Arc};
 use tokio::sync::RwLock;
 
@@ -36,7 +35,11 @@ pub struct RevisionManager {
 impl RevisionManager {
     pub fn new(user_id: &str, object_id: &str, revision_cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
-        let cache = Arc::new(RwLock::new(RevisionCacheCompact::new(object_id, revision_cache)));
+        let cache = Arc::new(RwLock::new(RevisionCacheCompact::new(
+            object_id,
+            user_id,
+            revision_cache,
+        )));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -71,7 +74,9 @@ impl RevisionManager {
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self.cache.write().await.reset(revisions.into_inner()).await?;
+
+        let write_guard = self.cache.write().await;
+        let _ = write_guard.reset(revisions.into_inner()).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -81,7 +86,9 @@ impl RevisionManager {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        self.cache.read().await.add_ack_revision(revision).await?;
+
+        let write_guard = self.cache.write().await;
+        let _ = write_guard.add_ack_revision(revision).await?;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
@@ -94,7 +101,10 @@ impl RevisionManager {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        self.cache.write().await.add_sync_revision::<C>(revision, true).await?;
+        let mut write_guard = self.cache.write().await;
+        let rev_id = write_guard.write_sync_revision::<C>(revision).await?;
+
+        self.rev_id_counter.set(rev_id);
         Ok(())
     }
 
@@ -118,7 +128,7 @@ impl RevisionManager {
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
-        let revisions = self.cache.read().await.revisions_in_range(range.clone()).await?;
+        let revisions = self.cache.read().await.revisions_in_range(&range).await?;
         Ok(revisions)
     }
 
@@ -143,16 +153,19 @@ impl RevisionManager {
 
 struct RevisionCacheCompact {
     object_id: String,
+    user_id: String,
     inner: Arc<RevisionCache>,
     sync_seq: RevisionSyncSequence,
 }
 
 impl RevisionCacheCompact {
-    fn new(object_id: &str, inner: Arc<RevisionCache>) -> Self {
+    fn new(object_id: &str, user_id: &str, inner: Arc<RevisionCache>) -> Self {
         let sync_seq = RevisionSyncSequence::new();
         let object_id = object_id.to_owned();
+        let user_id = user_id.to_owned();
         Self {
             object_id,
+            user_id,
             inner,
             sync_seq,
         }
@@ -162,23 +175,49 @@ impl RevisionCacheCompact {
         self.inner.add(revision.clone(), RevisionState::Ack, true).await
     }
 
-    async fn add_sync_revision<C>(&mut self, revision: &Revision, write_to_disk: bool) -> FlowyResult<()>
+    async fn add_sync_revision(&mut self, revision: &Revision) -> FlowyResult<()> {
+        self.inner.add(revision.clone(), RevisionState::Sync, false).await?;
+        self.sync_seq.add(revision.rev_id)?;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "trace", skip(self, revision), fields(rev_id, compact_range), err)]
+    async fn write_sync_revision<C>(&mut self, revision: &Revision) -> FlowyResult<i64>
     where
         C: RevisionCompact,
     {
-        // match self.sync_seq.remaining_rev_ids() {
-        //     None => {}
-        //     Some(range) => {
-        //         let revisions = self.inner.revisions_in_range(range).await?;
-        //         let compact_revision = C::compact_revisions("", "", revisions)?;
-        //     }
-        // }
+        match self.sync_seq.compact() {
+            None => {
+                tracing::Span::current().record("rev_id", &revision.rev_id);
+                self.inner.add(revision.clone(), RevisionState::Sync, true).await?;
+                self.sync_seq.add(revision.rev_id)?;
+                Ok(revision.rev_id)
+            }
+            Some((range, mut compact_seq)) => {
+                tracing::Span::current().record("compact_range", &format!("{}", range).as_str());
+                let mut revisions = self.inner.revisions_in_range(&range).await?;
+                if range.to_rev_ids().len() != revisions.len() {
+                    debug_assert_eq!(range.to_rev_ids().len(), revisions.len());
+                }
 
-        self.inner
-            .add(revision.clone(), RevisionState::Sync, write_to_disk)
-            .await?;
-        self.sync_seq.add_record(revision.rev_id)?;
-        Ok(())
+                // append the new revision
+                revisions.push(revision.clone());
+
+                // compact multiple revisions into one
+                let compact_revision = C::compact_revisions(&self.user_id, &self.object_id, revisions)?;
+                let rev_id = compact_revision.rev_id;
+                tracing::Span::current().record("rev_id", &rev_id);
+
+                // insert new revision
+                compact_seq.push_back(rev_id);
+
+                // replace the revisions in range with compact revision
+                self.inner.compact(&range, compact_revision).await?;
+                debug_assert_eq!(self.sync_seq.len(), compact_seq.len());
+                self.sync_seq.reset(compact_seq);
+                Ok(rev_id)
+            }
+        }
     }
 
     async fn ack_revision(&mut self, rev_id: i64) -> FlowyResult<()> {
@@ -189,9 +228,13 @@ impl RevisionCacheCompact {
     }
 
     async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
-        match self.sync_seq.next_rev_id() {
-            None => Ok(None),
-            Some(rev_id) => Ok(self.inner.get(rev_id).await.map(|record| record.revision)),
+        if cfg!(feature = "flowy_unit_test") {
+            match self.sync_seq.next_rev_id() {
+                None => Ok(None),
+                Some(rev_id) => Ok(self.inner.get(rev_id).await.map(|record| record.revision)),
+            }
+        } else {
+            Ok(None)
         }
     }
 
@@ -216,7 +259,7 @@ impl RevisionSyncSequence {
         RevisionSyncSequence::default()
     }
 
-    fn add_record(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+    fn add(&mut self, new_rev_id: i64) -> FlowyResult<()> {
         // The last revision's rev_id must be greater than the new one.
         if let Some(rev_id) = self.0.back() {
             if *rev_id >= new_rev_id {
@@ -248,16 +291,24 @@ impl RevisionSyncSequence {
         self.0.front().cloned()
     }
 
-    fn remaining_rev_ids(&self) -> Option<RevisionRange> {
-        if self.next_rev_id().is_some() {
-            let mut seq = self.0.clone();
-            let mut drained = seq.drain(1..).collect::<VecDeque<_>>();
-            let start = drained.pop_front()?;
-            let end = drained.pop_back().unwrap_or_else(|| start);
-            Some(RevisionRange { start, end })
-        } else {
-            None
-        }
+    fn reset(&mut self, new_seq: VecDeque<i64>) {
+        self.0 = new_seq;
+    }
+
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    // Compact the rev_ids into one except the current synchronizing rev_id.
+    fn compact(&self) -> Option<(RevisionRange, VecDeque<i64>)> {
+        self.next_rev_id()?;
+
+        let mut new_seq = self.0.clone();
+        let mut drained = new_seq.drain(1..).collect::<VecDeque<_>>();
+
+        let start = drained.pop_front()?;
+        let end = drained.pop_back().unwrap_or(start);
+        Some((RevisionRange { start, end }, new_seq))
     }
 }
 
@@ -288,12 +339,7 @@ impl RevisionLoader {
                 rev_id = record.revision.rev_id;
                 if record.state == RevisionState::Sync {
                     // Sync the records if their state is RevisionState::Sync.
-                    let _ = self
-                        .cache
-                        .write()
-                        .await
-                        .add_sync_revision::<C>(&record.revision, false)
-                        .await?;
+                    let _ = self.cache.write().await.add_sync_revision(&record.revision).await?;
                 }
             }
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();

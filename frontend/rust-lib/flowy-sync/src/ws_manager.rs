@@ -287,20 +287,23 @@ impl RevisionWSSink {
     }
 
     async fn send_next_revision(&self) -> FlowyResult<()> {
-        if cfg!(feature = "flowy_unit_test") {
-            match self.provider.next().await? {
-                None => {
-                    tracing::trace!("[{}]: Finish synchronizing revisions", self);
-                    Ok(())
-                }
-                Some(data) => {
-                    tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
-                    self.ws_sender.send(data).await
-                }
+        match self.provider.next().await? {
+            None => {
+                tracing::trace!("[{}]: Finish synchronizing revisions", self);
+                Ok(())
             }
-        } else {
-            Ok(())
+            Some(data) => {
+                tracing::trace!("[{}]: send {}:{}-{:?}", self, data.object_id, data.id(), data.ty);
+                self.ws_sender.send(data).await
+            }
         }
+    }
+}
+
+async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
+    let mut interval = interval(duration);
+    while sender.send(()).await.is_ok() {
+        interval.tick().await;
     }
 }
 
@@ -313,13 +316,6 @@ impl std::fmt::Display for RevisionWSSink {
 impl std::ops::Drop for RevisionWSSink {
     fn drop(&mut self) {
         tracing::trace!("{} was dropped", self)
-    }
-}
-
-async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
-    let mut interval = interval(duration);
-    while sender.send(()).await.is_ok() {
-        interval.tick().await;
     }
 }
 

@@ -200,8 +200,12 @@ impl RevisionRange {
     }
 
     pub fn iter(&self) -> RangeInclusive<i64> {
-        debug_assert!(self.start != self.end);
+        // debug_assert!(self.start != self.end);
         RangeInclusive::new(self.start, self.end)
+    }
+
+    pub fn to_rev_ids(&self) -> Vec<i64> {
+        self.iter().collect::<Vec<_>>()
     }
 }
 

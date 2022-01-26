@@ -194,23 +194,23 @@ impl EditorCommandQueue {
 
 pub(crate) struct DocumentRevisionCompact();
 impl RevisionCompact for DocumentRevisionCompact {
-    fn compact_revisions(user_id: &str, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Revision> {
-        match revisions.last() {
-            None => Err(FlowyError::internal().context("compact revisions is empty")),
-            Some(last_revision) => {
-                let (base_rev_id, rev_id) = last_revision.pair_rev_id();
-                let md5 = last_revision.md5.clone();
-                let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
-                Ok(Revision::new(
-                    object_id,
-                    base_rev_id,
-                    rev_id,
-                    delta.to_bytes(),
-                    user_id,
-                    md5,
-                ))
-            }
+    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
+        if revisions.is_empty() {
+            return Err(FlowyError::internal().context("Can't compact the empty document's revisions"));
         }
+
+        if revisions.len() == 1 {
+            return Ok(revisions.pop().unwrap());
+        }
+
+        let first_revision = revisions.first().unwrap();
+        let last_revision = revisions.last().unwrap();
+
+        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let md5 = last_revision.md5.clone();
+        let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
+        let delta_data = delta.to_bytes();
+        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }
 }
 

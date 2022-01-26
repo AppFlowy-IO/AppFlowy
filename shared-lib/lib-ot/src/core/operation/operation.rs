@@ -339,14 +339,14 @@ where
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
-pub struct PlainTextAttributes();
-impl fmt::Display for PlainTextAttributes {
+pub struct PlainAttributes();
+impl fmt::Display for PlainAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("PlainTextAttributes")
+        f.write_str("PlainAttributes")
     }
 }
 
-impl Attributes for PlainTextAttributes {
+impl Attributes for PlainAttributes {
     fn is_empty(&self) -> bool {
         true
     }
@@ -356,7 +356,7 @@ impl Attributes for PlainTextAttributes {
     fn extend_other(&mut self, _other: Self) {}
 }
 
-impl OperationTransformable for PlainTextAttributes {
+impl OperationTransformable for PlainAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {
         Ok(self.clone())
     }

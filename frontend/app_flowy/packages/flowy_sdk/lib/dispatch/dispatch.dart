@@ -3,7 +3,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 // ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
-import 'package:flowy_sdk/protobuf/dart-ffi/ffi_request.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/document_info.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';

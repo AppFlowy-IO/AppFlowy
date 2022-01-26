@@ -13,7 +13,7 @@ use std::{
     str::FromStr,
 };
 
-pub type PlainDelta = Delta<PlainTextAttributes>;
+pub type PlainDelta = Delta<PlainAttributes>;
 
 // TODO: optimize the memory usage with Arc::make_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]

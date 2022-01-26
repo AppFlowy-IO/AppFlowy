@@ -5,10 +5,11 @@ use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache, RevisionTableState, SQLitePersistence},
     memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
 };
-use crate::RevisionCompact;
+
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+
 use std::{
     borrow::Cow,
     sync::{
@@ -26,14 +27,6 @@ pub struct RevisionCache {
     memory_cache: Arc<RevisionMemoryCache>,
     latest_rev_id: AtomicI64,
 }
-
-pub fn mk_revision_disk_cache(
-    user_id: &str,
-    pool: Arc<ConnectionPool>,
-) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
-    Arc::new(SQLitePersistence::new(user_id, pool))
-}
-
 impl RevisionCache {
     pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
@@ -51,7 +44,6 @@ impl RevisionCache {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate revision: {} {:?}", revision.rev_id, state)));
         }
-        let state = state.as_ref().clone();
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
@@ -59,6 +51,24 @@ impl RevisionCache {
             write_to_disk,
         };
 
+        self.memory_cache.add(Cow::Owned(record)).await;
+        self.set_latest_rev_id(rev_id);
+        Ok(())
+    }
+
+    pub async fn compact(&self, range: &RevisionRange, new_revision: Revision) -> FlowyResult<()> {
+        self.memory_cache.remove_with_range(range);
+        let rev_id = new_revision.rev_id;
+        let record = RevisionRecord {
+            revision: new_revision,
+            state: RevisionState::Sync,
+            write_to_disk: true,
+        };
+
+        let rev_ids = range.to_rev_ids();
+        let _ = self
+            .disk_cache
+            .delete_and_insert_records(&self.object_id, Some(rev_ids), vec![record.clone()])?;
         self.memory_cache.add(Cow::Owned(record)).await;
         self.set_latest_rev_id(rev_id);
         Ok(())
@@ -93,7 +103,8 @@ impl RevisionCache {
     }
 
     // Read the revision which rev_id >= range.start && rev_id <= range.end
-    pub async fn revisions_in_range(&self, range: RevisionRange) -> FlowyResult<Vec<Revision>> {
+    pub async fn revisions_in_range(&self, range: &RevisionRange) -> FlowyResult<Vec<Revision>> {
+        let range = range.clone();
         let mut records = self.memory_cache.get_with_range(&range).await?;
         let range_len = range.len() as usize;
         if records.len() != range_len {
@@ -104,6 +115,11 @@ impl RevisionCache {
                 .map_err(internal_error)??;
 
             if records.len() != range_len {
+                // #[cfg(debug_assertions)]
+                // records.iter().for_each(|record| {
+                //     let delta = PlainDelta::from_bytes(&record.revision.delta_data).unwrap();
+                //     tracing::trace!("{}", delta.to_string());
+                // });
                 tracing::error!("Revisions len is not equal to range required");
             }
         }
@@ -113,9 +129,9 @@ impl RevisionCache {
             .collect::<Vec<Revision>>())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, revisions))]
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_with_revisions(&self, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
-        let revision_records = revisions
+        let records = revisions
             .to_vec()
             .into_iter()
             .map(|revision| RevisionRecord {
@@ -125,8 +141,11 @@ impl RevisionCache {
             })
             .collect::<Vec<_>>();
 
-        let _ = self.memory_cache.reset_with_revisions(&revision_records).await?;
-        let _ = self.disk_cache.reset_object(object_id, revision_records)?;
+        let _ = self
+            .disk_cache
+            .delete_and_insert_records(object_id, None, records.clone())?;
+        let _ = self.memory_cache.reset_with_revisions(records).await;
+
         Ok(())
     }
 
@@ -134,6 +153,13 @@ impl RevisionCache {
     fn set_latest_rev_id(&self, rev_id: i64) {
         let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
     }
+}
+
+pub fn mk_revision_disk_cache(
+    user_id: &str,
+    pool: Arc<ConnectionPool>,
+) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+    Arc::new(SQLitePersistence::new(user_id, pool))
 }
 
 impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
@@ -146,7 +172,7 @@ impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
                 "checkpoint_result",
                 &format!("{} records were saved", records.len()).as_str(),
             );
-            let _ = self.write_revision_records(records, conn)?;
+            let _ = self.create_revision_records(records, conn)?;
         }
         Ok(())
     }
@@ -164,7 +190,7 @@ impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RevisionRecord {
     pub revision: Revision,
     pub state: RevisionState,

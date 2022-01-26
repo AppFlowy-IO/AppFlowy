@@ -9,7 +9,7 @@ use std::fmt::Debug;
 
 pub trait RevisionDiskCache: Sync + Send {
     type Error: Debug;
-    fn write_revision_records(
+    fn create_revision_records(
         &self,
         revision_records: Vec<RevisionRecord>,
         conn: &SqliteConnection,
@@ -39,5 +39,12 @@ pub trait RevisionDiskCache: Sync + Send {
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error>;
 
-    fn reset_object(&self, object_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error>;
+    // Delete and insert will be executed in the same transaction.
+    // It deletes all the records if the deleted_rev_ids is None and then insert the new records
+    fn delete_and_insert_records(
+        &self,
+        object_id: &str,
+        deleted_rev_ids: Option<Vec<i64>>,
+        inserted_records: Vec<RevisionRecord>,
+    ) -> Result<(), Self::Error>;
 }
