@@ -74,6 +74,12 @@ impl FolderManager {
         document_manager: Arc<FlowyDocumentManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
+        if let Ok(user_id) = user.user_id() {
+            // Reset the flag if the folder manager gets initialized, otherwise,
+            // the folder_editor will not be initialized after flutter hot reload.
+            INIT_FOLDER_FLAG.write().await.insert(user_id.to_owned(), false);
+        }
+
         let folder_editor = Arc::new(TokioRwLock::new(None));
         let persistence = Arc::new(FolderPersistence::new(database.clone(), folder_editor.clone()));
 
