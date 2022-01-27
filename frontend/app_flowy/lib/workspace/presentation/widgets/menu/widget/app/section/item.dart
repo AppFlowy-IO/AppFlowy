@@ -43,7 +43,7 @@ class ViewSectionItem extends StatelessWidget {
           return InkWell(
             onTap: () => onSelected(context.read<ViewBloc>().state.view),
             child: FlowyHover(
-              config: HoverDisplayConfig(hoverColor: theme.bg3),
+              config: HoverDisplayConfig(hoverColor: theme.bg2),
               builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
               isOnSelected: () => state.isEditing || isSelected,
             ),

@@ -86,7 +86,7 @@ DefaultStyles customStyles(BuildContext context) {
           const Tuple2(6, 2),
           BoxDecoration(
             border: Border(
-              left: BorderSide(width: 4, color: theme.main1),
+              left: BorderSide(width: 4, color: theme.shader5),
             ),
           )),
       code: DefaultTextBlockStyle(
