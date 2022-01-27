@@ -42,8 +42,10 @@ impl RevisionMemoryCache {
         let rev_id = record.revision.rev_id;
         self.revs_map.insert(rev_id, record);
 
-        if !self.pending_write_revs.read().await.contains(&rev_id) {
-            self.pending_write_revs.write().await.push(rev_id);
+        let mut write_guard = self.pending_write_revs.write().await;
+        if !write_guard.contains(&rev_id) {
+            write_guard.push(rev_id);
+            drop(write_guard);
             self.make_checkpoint().await;
         }
     }

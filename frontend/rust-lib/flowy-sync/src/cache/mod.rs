@@ -42,7 +42,8 @@ impl RevisionCache {
 
     pub async fn add(&self, revision: Revision, state: RevisionState, write_to_disk: bool) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(FlowyError::internal().context(format!("Duplicate revision: {} {:?}", revision.rev_id, state)));
+            tracing::warn!("Duplicate revision: {}:{}-{:?}", self.object_id, revision.rev_id, state);
+            return Ok(());
         }
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
@@ -58,19 +59,12 @@ impl RevisionCache {
 
     pub async fn compact(&self, range: &RevisionRange, new_revision: Revision) -> FlowyResult<()> {
         self.memory_cache.remove_with_range(range);
-        let rev_id = new_revision.rev_id;
-        let record = RevisionRecord {
-            revision: new_revision,
-            state: RevisionState::Sync,
-            write_to_disk: true,
-        };
-
         let rev_ids = range.to_rev_ids();
         let _ = self
             .disk_cache
-            .delete_and_insert_records(&self.object_id, Some(rev_ids), vec![record.clone()])?;
-        self.memory_cache.add(Cow::Owned(record)).await;
-        self.set_latest_rev_id(rev_id);
+            .delete_revision_records(&self.object_id, Some(rev_ids))?;
+
+        self.add(new_revision, RevisionState::Sync, true).await?;
         Ok(())
     }
 
@@ -120,7 +114,7 @@ impl RevisionCache {
                 //     let delta = PlainDelta::from_bytes(&record.revision.delta_data).unwrap();
                 //     tracing::trace!("{}", delta.to_string());
                 // });
-                tracing::error!("Revisions len is not equal to range required");
+                tracing::error!("Expect revision len {},but receive {}", range_len, records.len());
             }
         }
         Ok(records

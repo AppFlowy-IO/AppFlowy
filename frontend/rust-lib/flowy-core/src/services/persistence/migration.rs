@@ -62,6 +62,7 @@ impl FolderMigration {
         })?;
 
         if workspaces.is_empty() {
+            KV::set_bool(&key, true);
             return Ok(None);
         }
 

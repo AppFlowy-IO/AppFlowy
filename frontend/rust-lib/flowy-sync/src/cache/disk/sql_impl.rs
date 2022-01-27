@@ -62,12 +62,8 @@ impl RevisionDiskCache for SQLitePersistence {
         Ok(())
     }
 
-    fn delete_revision_records(
-        &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-        conn: &SqliteConnection,
-    ) -> Result<(), Self::Error> {
+    fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
+        let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = RevisionTableSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
@@ -80,7 +76,7 @@ impl RevisionDiskCache for SQLitePersistence {
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.delete_revision_records(object_id, deleted_rev_ids, &*conn)?;
+            let _ = RevisionTableSql::delete(object_id, deleted_rev_ids, &*conn)?;
             let _ = self.create_revision_records(inserted_records, &*conn)?;
             Ok(())
         })
@@ -105,6 +101,11 @@ impl RevisionTableSql {
         let records = revision_records
             .into_iter()
             .map(|record| {
+                tracing::trace!(
+                    "[RevisionTable] create revision: {}:{:?}",
+                    record.revision.object_id,
+                    record.revision.rev_id
+                );
                 let rev_state: RevisionTableState = record.state.into();
                 (
                     dsl::doc_id.eq(record.revision.object_id),
@@ -178,9 +179,11 @@ impl RevisionTableSql {
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<(), FlowyError> {
-        let filter = dsl::rev_table.filter(dsl::doc_id.eq(object_id));
-        let mut sql = diesel::delete(filter).into_boxed();
+        let mut sql = diesel::delete(dsl::rev_table).into_boxed();
+        sql = sql.filter(dsl::doc_id.eq(object_id));
+
         if let Some(rev_ids) = rev_ids {
+            tracing::trace!("[RevisionTable] Delete revision: {}:{:?}", object_id, rev_ids);
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
 

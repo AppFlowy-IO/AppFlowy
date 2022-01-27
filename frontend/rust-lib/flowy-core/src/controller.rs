@@ -143,6 +143,7 @@ impl FolderManager {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub async fn initialize(&self, user_id: &str, token: &str) -> FlowyResult<()> {
         let mut write_guard = INIT_FOLDER_FLAG.write().await;
         if let Some(is_init) = write_guard.get(user_id) {
@@ -150,6 +151,7 @@ impl FolderManager {
                 return Ok(());
             }
         }
+        tracing::debug!("Initialize folder editor");
         let folder_id = FolderId::new(user_id);
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 

@@ -32,12 +32,7 @@ pub trait RevisionDiskCache: Sync + Send {
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()>;
 
     // Delete all the records if the rev_ids is None
-    fn delete_revision_records(
-        &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-        conn: &SqliteConnection,
-    ) -> Result<(), Self::Error>;
+    fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error>;
 
     // Delete and insert will be executed in the same transaction.
     // It deletes all the records if the deleted_rev_ids is None and then insert the new records
