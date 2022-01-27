@@ -4,7 +4,7 @@ import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,7 +44,7 @@ class SplashScreen extends StatelessWidget {
 
   void _handleAuthenticated(BuildContext context, Authenticated result) {
     final userProfile = result.userProfile;
-    WorkspaceEventReadCurWorkspace().send().then(
+    FolderEventReadCurWorkspace().send().then(
       (result) {
         return result.fold(
           (workspaceSetting) => getIt<ISplashRoute>().pushHomeScreen(context, userProfile, workspaceSetting),

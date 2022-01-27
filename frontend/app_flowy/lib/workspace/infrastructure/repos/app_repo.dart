@@ -5,10 +5,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'helper.dart';
 
@@ -21,7 +21,7 @@ class AppRepository {
   Future<Either<App, FlowyError>> getAppDesc() {
     final request = QueryAppRequest.create()..appIds.add(appId);
 
-    return WorkspaceEventReadApp(request).send();
+    return FolderEventReadApp(request).send();
   }
 
   Future<Either<View, FlowyError>> createView(String name, String desc, ViewType viewType) {
@@ -31,13 +31,13 @@ class AppRepository {
       ..desc = desc
       ..viewType = viewType;
 
-    return WorkspaceEventCreateView(request).send();
+    return FolderEventCreateView(request).send();
   }
 
   Future<Either<List<View>, FlowyError>> getViews() {
     final request = QueryAppRequest.create()..appIds.add(appId);
 
-    return WorkspaceEventReadApp(request).send().then((result) {
+    return FolderEventReadApp(request).send().then((result) {
       return result.fold(
         (app) => left(app.belongings.items),
         (error) => right(error),
@@ -47,7 +47,7 @@ class AppRepository {
 
   Future<Either<Unit, FlowyError>> delete() {
     final request = QueryAppRequest.create()..appIds.add(appId);
-    return WorkspaceEventDeleteApp(request).send();
+    return FolderEventDeleteApp(request).send();
   }
 
   Future<Either<Unit, FlowyError>> updateApp({String? name}) {
@@ -56,7 +56,7 @@ class AppRepository {
     if (name != null) {
       request.name = name;
     }
-    return WorkspaceEventUpdateApp(request).send();
+    return FolderEventUpdateApp(request).send();
   }
 }
 
@@ -64,7 +64,7 @@ class AppListenerRepository {
   StreamSubscription<SubscribeObject>? _subscription;
   AppViewsChangeCallback? _viewsChanged;
   AppUpdatedCallback? _update;
-  late WorkspaceNotificationParser _parser;
+  late FolderNotificationParser _parser;
   String appId;
 
   AppListenerRepository({
@@ -74,13 +74,13 @@ class AppListenerRepository {
   void startListening({AppViewsChangeCallback? viewsChanged, AppUpdatedCallback? update}) {
     _viewsChanged = viewsChanged;
     _update = update;
-    _parser = WorkspaceNotificationParser(id: appId, callback: _bservableCallback);
+    _parser = FolderNotificationParser(id: appId, callback: _bservableCallback);
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
+  void _bservableCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case WorkspaceNotification.AppViewsChanged:
+      case FolderNotification.AppViewsChanged:
         if (_viewsChanged != null) {
           result.fold(
             (payload) {
@@ -91,7 +91,7 @@ class AppListenerRepository {
           );
         }
         break;
-      case WorkspaceNotification.AppUpdated:
+      case FolderNotification.AppUpdated:
         if (_update != null) {
           result.fold(
             (payload) {

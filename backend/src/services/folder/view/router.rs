@@ -17,7 +17,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
     protobuf::{
         CreateViewParams as CreateViewParamsPB, QueryViewRequest as QueryViewRequestPB,

@@ -4,15 +4,15 @@ use backend_service::{
     request::{HttpRequestBuilder, ResponseMiddleware},
     response::FlowyResponse,
 };
-use flowy_core_data_model::entities::{
+use flowy_error::FlowyError;
+use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
     view::{CreateViewParams, RepeatedViewId, UpdateViewParams, View, ViewId},
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
-use flowy_error::FlowyError;
 
-use flowy_core::module::{FolderCouldServiceV1, FolderCouldServiceV2};
+use flowy_folder::module::{FolderCouldServiceV1, FolderCouldServiceV2};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

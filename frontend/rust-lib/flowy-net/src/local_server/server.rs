@@ -13,8 +13,8 @@ use flowy_collaboration::{
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
-use flowy_core::module::{FolderCouldServiceV1, FolderCouldServiceV2};
 use flowy_error::{internal_error, FlowyError};
+use flowy_folder::module::{FolderCouldServiceV1, FolderCouldServiceV2};
 use futures_util::stream::StreamExt;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use parking_lot::RwLock;
@@ -248,13 +248,13 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_core_data_model::entities::{
+use flowy_document::DocumentCloudService;
+use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
     view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
-use flowy_document::DocumentCloudService;
 use flowy_user::module::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,

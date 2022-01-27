@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "flowy-user-data-model",
-  "flowy-core-data-model",
+  "flowy-folder-data-model",
   "flowy-collaboration",
   "lib-ot",
   "lib-ws",

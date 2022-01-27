@@ -5,7 +5,7 @@ use crate::{
     entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
 };
-use flowy_core_data_model::entities::{trash::Trash, workspace::Workspace};
+use flowy_folder_data_model::entities::{trash::Trash, workspace::Workspace};
 use lib_ot::core::{PlainAttributes, PlainDelta, PlainDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

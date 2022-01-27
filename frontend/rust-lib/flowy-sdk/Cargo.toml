@@ -10,7 +10,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
-flowy-core = { path = "../flowy-core", default-features = false }
+flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
 flowy-sync = { path = "../flowy-sync" }
@@ -38,5 +38,5 @@ tokio = { version = "1", features = ["full"]}
 futures-util = "0.3.15"
 
 [features]
-http_server = ["flowy-user/http_server", "flowy-core/http_server", "flowy-document/http_server"]
+http_server = ["flowy-user/http_server", "flowy-folder/http_server", "flowy-document/http_server"]
 use_bunyan = ["lib-log/use_bunyan"]

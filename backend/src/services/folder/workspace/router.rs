@@ -14,7 +14,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
     protobuf::{
         CreateWorkspaceParams as CreateWorkspaceParamsPB, UpdateWorkspaceParams as UpdateWorkspaceParamsPB,

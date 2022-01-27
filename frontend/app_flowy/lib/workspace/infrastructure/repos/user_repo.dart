@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
@@ -30,7 +30,7 @@ class UserRepo {
   Future<Either<List<Workspace>, FlowyError>> getWorkspaces() {
     final request = QueryWorkspaceRequest.create();
 
-    return WorkspaceEventReadWorkspaces(request).send().then((result) {
+    return FolderEventReadWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) => left(workspaces.items),
         (error) => right(error),
@@ -40,7 +40,7 @@ class UserRepo {
 
   Future<Either<Workspace, FlowyError>> openWorkspace(String workspaceId) {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
-    return WorkspaceEventOpenWorkspace(request).send().then((result) {
+    return FolderEventOpenWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => left(workspace),
         (error) => right(error),
@@ -52,7 +52,7 @@ class UserRepo {
     final request = CreateWorkspaceRequest.create()
       ..name = name
       ..desc = desc;
-    return WorkspaceEventCreateWorkspace(request).send().then((result) {
+    return FolderEventCreateWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => left(workspace),
         (error) => right(error),

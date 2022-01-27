@@ -8,7 +8,7 @@ use flowy_collaboration::{
         revision::{md5, RepeatedRevision, Revision},
     },
 };
-use flowy_core_data_model::entities::{
+use flowy_folder_data_model::entities::{
     app::{AppId, UpdateAppParams},
     trash::{RepeatedTrashId, TrashId, TrashType},
     view::{RepeatedViewId, UpdateViewParams, ViewId},

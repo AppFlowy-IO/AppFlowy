@@ -15,7 +15,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::app::{AppDesc, AppName},
     protobuf::{AppId as AppIdPB, CreateAppParams as CreateAppParamsPB, UpdateAppParams as UpdateAppParamsPB},
 };

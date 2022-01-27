@@ -29,7 +29,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
         }
     }
 
-    fn serialize_flowy_core_fields(
+    fn serialize_flowy_folder_fields(
         &self,
         map_serializer: &mut impl SerializeMap<Error = serde_json::Error>,
         message: &str,
@@ -50,7 +50,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
         let mut serializer = serde_json::Serializer::new(&mut buffer);
         let mut map_serializer = serializer.serialize_map(None)?;
         let message = format_span_context(span, ty);
-        self.serialize_flowy_core_fields(&mut map_serializer, &message, span.metadata().level())?;
+        self.serialize_flowy_folder_fields(&mut map_serializer, &message, span.metadata().level())?;
         if self.with_target {
             map_serializer.serialize_entry("target", &span.metadata().target())?;
         }
@@ -153,7 +153,7 @@ where
             let mut map_serializer = serializer.serialize_map(None)?;
 
             let message = format_event_message(&current_span, event, &event_visitor);
-            self.serialize_flowy_core_fields(&mut map_serializer, &message, event.metadata().level())?;
+            self.serialize_flowy_folder_fields(&mut map_serializer, &message, event.metadata().level())?;
             // Additional metadata useful for debugging
             // They should be nested under `src` (see https://github.com/trentm/node-bunyan#src )
             // but `tracing` does not support nested values yet

@@ -1,4 +1,4 @@
-use flowy_core::controller::FolderManager;
+use flowy_folder::controller::FolderManager;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::Module;
@@ -20,7 +20,7 @@ fn mk_user_module(user_session: Arc<UserSession>) -> Module {
 }
 
 fn mk_folder_module(core: Arc<FolderManager>) -> Module {
-    flowy_core::module::create(core)
+    flowy_folder::module::create(core)
 }
 
 fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module {

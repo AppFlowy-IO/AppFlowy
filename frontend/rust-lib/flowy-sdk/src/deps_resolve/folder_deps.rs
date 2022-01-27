@@ -1,13 +1,13 @@
 use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
-use flowy_core::{
+use flowy_database::ConnectionPool;
+use flowy_document::FlowyDocumentManager;
+use flowy_folder::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},
     module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
 };
-use flowy_database::ConnectionPool;
-use flowy_document::FlowyDocumentManager;
 use flowy_net::{
     http_server::core::CoreHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };

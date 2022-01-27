@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';

@@ -15,7 +15,7 @@ use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision},
     protobuf::CreateDocParams as CreateDocParamsPB,
 };
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::{
         app::AppIdentify,
         view::{ViewDesc, ViewName, ViewThumbnail},

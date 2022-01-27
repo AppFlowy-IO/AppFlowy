@@ -9,7 +9,7 @@ edition = "2018"
 lib-ot = { path = "../lib-ot" }
 lib-infra = { path = "../lib-infra" }
 flowy-derive = { path = "../flowy-derive" }
-flowy-core-data-model = { path = "../flowy-core-data-model" }
+flowy-folder-data-model = { path = "../flowy-folder-data-model" }
 protobuf = {version = "2.18.0"}
 bytes = "1.0"
 log = "0.4.14"

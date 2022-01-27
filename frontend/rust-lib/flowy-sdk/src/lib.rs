@@ -2,7 +2,7 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::*;
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_core::{controller::FolderManager, errors::FlowyError};
+use flowy_folder::{controller::FolderManager, errors::FlowyError};
 use flowy_net::{
     entities::NetworkType,
     local_server::LocalServer,
@@ -64,7 +64,7 @@ fn crate_log_filter(level: String) -> String {
     let level = std::env::var("RUST_LOG").unwrap_or(level);
     let mut filters = vec![];
     filters.push(format!("flowy_sdk={}", level));
-    filters.push(format!("flowy_core={}", level));
+    filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
     filters.push(format!("flowy_collaboration={}", level));

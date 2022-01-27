@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 
 extension ToHomeStackContext on View {
   HomeStackContext stackContext() {

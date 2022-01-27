@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_view.dart';
@@ -21,7 +21,7 @@ class ViewRepository {
 
   Future<Either<View, FlowyError>> readView() {
     final request = QueryViewRequest(viewIds: [view.id]);
-    return WorkspaceEventReadView(request).send();
+    return FolderEventReadView(request).send();
   }
 
   Future<Either<View, FlowyError>> updateView({String? name, String? desc}) {
@@ -35,17 +35,17 @@ class ViewRepository {
       request.desc = desc;
     }
 
-    return WorkspaceEventUpdateView(request).send();
+    return FolderEventUpdateView(request).send();
   }
 
   Future<Either<Unit, FlowyError>> delete() {
     final request = QueryViewRequest.create()..viewIds.add(view.id);
-    return WorkspaceEventDeleteView(request).send();
+    return FolderEventDeleteView(request).send();
   }
 
   Future<Either<Unit, FlowyError>> duplicate() {
     final request = QueryViewRequest.create()..viewIds.add(view.id);
-    return WorkspaceEventDuplicateView(request).send();
+    return FolderEventDuplicateView(request).send();
   }
 }
 
@@ -54,7 +54,7 @@ class ViewListenerRepository {
   PublishNotifier<UpdateNotifierValue> updatedNotifier = PublishNotifier<UpdateNotifierValue>();
   PublishNotifier<DeleteNotifierValue> deletedNotifier = PublishNotifier<DeleteNotifierValue>();
   PublishNotifier<RestoreNotifierValue> restoredNotifier = PublishNotifier<RestoreNotifierValue>();
-  late WorkspaceNotificationParser _parser;
+  late FolderNotificationParser _parser;
   View view;
 
   ViewListenerRepository({
@@ -62,7 +62,7 @@ class ViewListenerRepository {
   });
 
   void start() {
-    _parser = WorkspaceNotificationParser(
+    _parser = FolderNotificationParser(
       id: view.id,
       callback: (ty, result) {
         _handleObservableType(ty, result);
@@ -72,21 +72,21 @@ class ViewListenerRepository {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case WorkspaceNotification.ViewUpdated:
+      case FolderNotification.ViewUpdated:
         result.fold(
           (payload) => updatedNotifier.value = left(View.fromBuffer(payload)),
           (error) => updatedNotifier.value = right(error),
         );
         break;
-      case WorkspaceNotification.ViewDeleted:
+      case FolderNotification.ViewDeleted:
         result.fold(
           (payload) => deletedNotifier.value = left(View.fromBuffer(payload)),
           (error) => deletedNotifier.value = right(error),
         );
         break;
-      case WorkspaceNotification.ViewRestored:
+      case FolderNotification.ViewRestored:
         result.fold(
           (payload) => restoredNotifier.value = left(View.fromBuffer(payload)),
           (error) => restoredNotifier.value = right(error),

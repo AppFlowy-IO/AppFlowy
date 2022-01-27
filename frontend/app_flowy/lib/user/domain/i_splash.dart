@@ -1,5 +1,5 @@
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flutter/widgets.dart';
 
 import 'auth_state.dart';

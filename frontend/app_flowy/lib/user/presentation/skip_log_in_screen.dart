@@ -9,7 +9,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,7 +100,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final result = await widget.authManager.signUp(LocaleKeys.defaultUsername.tr(), password, userEmail);
     result.fold(
       (user) {
-        WorkspaceEventReadCurWorkspace().send().then((result) {
+        FolderEventReadCurWorkspace().send().then((result) {
           _openCurrentWorkspace(context, user, result);
         });
       },

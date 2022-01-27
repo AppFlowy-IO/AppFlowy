@@ -24,7 +24,7 @@ class AuthRepository {
 
     // return UserEventSignUp(request).send().then((result) {
     //   return result.fold((userProfile) async {
-    //     return await WorkspaceEventCreateDefaultWorkspace().send().then((result) {
+    //     return await FolderEventCreateDefaultWorkspace().send().then((result) {
     //       return result.fold((workspaceIdentifier) {
     //         return left(Tuple2(userProfile, workspaceIdentifier.workspaceId));
     //       }, (error) {

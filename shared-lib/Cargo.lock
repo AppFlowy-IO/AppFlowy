@@ -271,7 +271,7 @@ dependencies = [
  "config",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-data-model",
+ "flowy-folder-data-model",
  "flowy-user-data-model",
  "hyper",
  "lazy_static",
@@ -638,8 +638,8 @@ dependencies = [
  "chrono",
  "dashmap",
  "dissimilar",
- "flowy-core-data-model",
  "flowy-derive",
+ "flowy-folder-data-model",
  "futures",
  "lib-infra",
  "lib-ot",
@@ -657,7 +657,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-core-data-model"
+name = "flowy-derive"
+version = "0.1.0"
+dependencies = [
+ "flowy-ast",
+ "log",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "tokio",
+ "trybuild",
+]
+
+[[package]]
+name = "flowy-folder-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -673,19 +686,6 @@ dependencies = [
  "strum_macros",
  "unicode-segmentation",
  "uuid",
-]
-
-[[package]]
-name = "flowy-derive"
-version = "0.1.0"
-dependencies = [
- "flowy-ast",
- "log",
- "proc-macro2",
- "quote",
- "syn",
- "tokio",
- "trybuild",
 ]
 
 [[package]]

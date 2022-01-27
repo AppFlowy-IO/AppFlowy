@@ -7,10 +7,10 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -31,12 +31,12 @@ class WorkspaceRepo {
       ..name = appName
       ..workspaceId = workspaceId
       ..desc = desc;
-    return WorkspaceEventCreateApp(request).send();
+    return FolderEventCreateApp(request).send();
   }
 
   Future<Either<Workspace, FlowyError>> getWorkspace() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
-    return WorkspaceEventReadWorkspaces(request).send().then((result) {
+    return FolderEventReadWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) {
           assert(workspaces.items.length == 1);
@@ -54,7 +54,7 @@ class WorkspaceRepo {
 
   Future<Either<List<App>, FlowyError>> getApps() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
-    return WorkspaceEventReadWorkspaceApps(request).send().then((result) {
+    return FolderEventReadWorkspaceApps(request).send().then((result) {
       return result.fold(
         (apps) => left(apps.items),
         (error) => right(error),
@@ -67,7 +67,7 @@ class WorkspaceListenerRepo {
   StreamSubscription<SubscribeObject>? _subscription;
   WorkspaceAppsChangedCallback? _appsChanged;
   WorkspaceUpdatedCallback? _update;
-  late WorkspaceNotificationParser _parser;
+  late FolderNotificationParser _parser;
   final UserProfile user;
   final String workspaceId;
 
@@ -83,7 +83,7 @@ class WorkspaceListenerRepo {
     _appsChanged = appsChanged;
     _update = update;
 
-    _parser = WorkspaceNotificationParser(
+    _parser = FolderNotificationParser(
       id: workspaceId,
       callback: (ty, result) {
         _handleObservableType(ty, result);
@@ -93,9 +93,9 @@ class WorkspaceListenerRepo {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case WorkspaceNotification.WorkspaceUpdated:
+      case FolderNotification.WorkspaceUpdated:
         if (_update != null) {
           result.fold(
             (payload) {
@@ -106,7 +106,7 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case WorkspaceNotification.WorkspaceAppsChanged:
+      case FolderNotification.WorkspaceAppsChanged:
         if (_appsChanged != null) {
           result.fold(
             (payload) => _appsChanged!(

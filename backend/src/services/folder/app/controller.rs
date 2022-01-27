@@ -7,7 +7,7 @@ use crate::{
 };
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::Utc;
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::{
         app::{AppDesc, AppName},
         workspace::WorkspaceIdentify,

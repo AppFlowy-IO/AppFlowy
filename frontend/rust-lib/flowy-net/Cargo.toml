@@ -11,9 +11,9 @@ flowy-error = { path = "../flowy-error", features = ["collaboration"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
 backend-service = { path = "../../../shared-lib/backend-service" }
-flowy-core-data-model = { path = "../../../shared-lib/flowy-core-data-model" }
+flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model" }
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
-flowy-core = { path = "../flowy-core" }
+flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-document = { path = "../flowy-document" }
 lazy_static = "1.4.0"

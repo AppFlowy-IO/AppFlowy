@@ -1,7 +1,7 @@
 use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::app::AppIdentify,
     protobuf::{App as AppPB, ColorStyle as ColorStylePB, RepeatedView as RepeatedViewPB},
 };

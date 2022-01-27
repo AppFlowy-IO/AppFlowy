@@ -6,11 +6,11 @@ import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/errors.pb.dart';
 // import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
 import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 export 'package:app_flowy/workspace/domain/i_user.dart';
 export 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
@@ -64,7 +64,7 @@ class IUserListenerImpl extends IUserListener {
   @override
   final workspaceUpdatedNotifier = PublishNotifier<WorkspaceUpdatedNotifierValue>();
 
-  late WorkspaceNotificationParser _workspaceParser;
+  late FolderNotificationParser _workspaceParser;
   late UserNotificationParser _userParser;
   late UserProfile _user;
   IUserListenerImpl({
@@ -75,7 +75,7 @@ class IUserListenerImpl extends IUserListener {
 
   @override
   void start() {
-    _workspaceParser = WorkspaceNotificationParser(id: _user.token, callback: _notificationCallback);
+    _workspaceParser = FolderNotificationParser(id: _user.token, callback: _notificationCallback);
     _userParser = UserNotificationParser(id: _user.token, callback: _userNotificationCallback);
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);
@@ -88,17 +88,17 @@ class IUserListenerImpl extends IUserListener {
     await _subscription?.cancel();
   }
 
-  void _notificationCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
+  void _notificationCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case WorkspaceNotification.UserCreateWorkspace:
-      case WorkspaceNotification.UserDeleteWorkspace:
-      case WorkspaceNotification.WorkspaceListUpdated:
+      case FolderNotification.UserCreateWorkspace:
+      case FolderNotification.UserDeleteWorkspace:
+      case FolderNotification.WorkspaceListUpdated:
         result.fold(
           (payload) => workspaceUpdatedNotifier.value = left(RepeatedWorkspace.fromBuffer(payload).items),
           (error) => workspaceUpdatedNotifier.value = right(error),
         );
         break;
-      case WorkspaceNotification.UserUnauthorized:
+      case FolderNotification.UserUnauthorized:
         result.fold(
           (_) {},
           (error) => authDidChangedNotifier.value = right(FlowyError.create()..code = ErrorCode.UserUnauthorized.value),

@@ -5,20 +5,20 @@ import 'package:app_flowy/workspace/infrastructure/repos/helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class TrashRepo {
   Future<Either<RepeatedTrash, FlowyError>> readTrash() {
-    return WorkspaceEventReadTrash().send();
+    return FolderEventReadTrash().send();
   }
 
   Future<Either<Unit, FlowyError>> putback(String trashId) {
     final id = TrashId.create()..id = trashId;
 
-    return WorkspaceEventPutbackTrash(id).send();
+    return FolderEventPutbackTrash(id).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
@@ -29,32 +29,32 @@ class TrashRepo {
     });
 
     final ids = RepeatedTrashId(items: items);
-    return WorkspaceEventDeleteTrash(ids).send();
+    return FolderEventDeleteTrash(ids).send();
   }
 
   Future<Either<Unit, FlowyError>> restoreAll() {
-    return WorkspaceEventRestoreAllTrash().send();
+    return FolderEventRestoreAllTrash().send();
   }
 
   Future<Either<Unit, FlowyError>> deleteAll() {
-    return WorkspaceEventDeleteAllTrash().send();
+    return FolderEventDeleteAllTrash().send();
   }
 }
 
 class TrashListenerRepo {
   StreamSubscription<SubscribeObject>? _subscription;
   TrashUpdatedCallback? _trashUpdated;
-  late WorkspaceNotificationParser _parser;
+  late FolderNotificationParser _parser;
 
   void startListening({TrashUpdatedCallback? trashUpdated}) {
     _trashUpdated = trashUpdated;
-    _parser = WorkspaceNotificationParser(callback: _bservableCallback);
+    _parser = FolderNotificationParser(callback: _bservableCallback);
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
+  void _bservableCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case WorkspaceNotification.TrashUpdated:
+      case FolderNotification.TrashUpdated:
         if (_trashUpdated != null) {
           result.fold(
             (payload) {

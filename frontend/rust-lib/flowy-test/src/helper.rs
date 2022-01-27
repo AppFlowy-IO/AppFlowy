@@ -1,12 +1,12 @@
 use crate::prelude::*;
 
-use flowy_core::{
+use flowy_folder::{
     entities::{
         app::*,
         view::*,
         workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     },
-    event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace, *},
+    event::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
 };
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},

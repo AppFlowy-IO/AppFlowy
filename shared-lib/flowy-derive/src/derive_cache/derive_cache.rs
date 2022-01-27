@@ -45,6 +45,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocumentDelta"
         | "NewDocUser"
         | "DocumentId"
+        | "WSError"
+        | "WebSocketRawMessage"
         | "Workspace"
         | "RepeatedWorkspace"
         | "CreateWorkspaceRequest"
@@ -78,12 +80,10 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "RepeatedViewId"
         | "UpdateViewRequest"
         | "UpdateViewParams"
-        | "WSError"
-        | "WebSocketRawMessage"
         => TypeCategory::Protobuf,
-        "WorkspaceEvent"
-        | "WorkspaceNotification"
-        | "FFIStatusCode"
+        "FFIStatusCode"
+        | "FolderEvent"
+        | "FolderNotification"
         | "NetworkEvent"
         | "NetworkType"
         | "UserEvent"
@@ -92,11 +92,11 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ServerRevisionWSDataType"
         | "RevisionState"
         | "RevType"
+        | "ErrorCode"
+        | "WSChannel"
         | "ExportType"
         | "TrashType"
         | "ViewType"
-        | "ErrorCode"
-        | "WSChannel"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

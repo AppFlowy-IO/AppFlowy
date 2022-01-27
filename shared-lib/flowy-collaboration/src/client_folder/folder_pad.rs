@@ -7,7 +7,7 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::*;
-use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
+use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
 use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainAttributes, PlainDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -403,7 +403,7 @@ mod tests {
     #![allow(clippy::all)]
     use crate::{client_folder::folder_pad::FolderPad, entities::folder_info::FolderDelta};
     use chrono::Utc;
-    use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
+    use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
     use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};
 
     #[test]

@@ -10,7 +10,7 @@ use crate::{
 };
 use ::protobuf::ProtobufEnum;
 use backend_service::errors::ServerError;
-use flowy_core_data_model::protobuf::{RepeatedTrash, Trash, TrashType};
+use flowy_folder_data_model::protobuf::{RepeatedTrash, Trash, TrashType};
 use sqlx::{postgres::PgArguments, Postgres, Row};
 use std::sync::Arc;
 use uuid::Uuid;

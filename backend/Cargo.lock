@@ -468,8 +468,8 @@ dependencies = [
  "dashmap",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-data-model",
  "flowy-document",
+ "flowy-folder-data-model",
  "flowy-net",
  "flowy-sdk",
  "flowy-test",
@@ -520,7 +520,7 @@ dependencies = [
  "config",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-data-model",
+ "flowy-folder-data-model",
  "flowy-user-data-model",
  "hyper",
  "lazy_static",
@@ -1234,8 +1234,8 @@ dependencies = [
  "chrono",
  "dashmap",
  "dissimilar",
- "flowy-core-data-model",
  "flowy-derive",
+ "flowy-folder-data-model",
  "futures",
  "lib-infra",
  "lib-ot",
@@ -1250,63 +1250,6 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
-]
-
-[[package]]
-name = "flowy-core"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "bytes",
- "chrono",
- "crossbeam",
- "crossbeam-utils",
- "dart-notify",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-collaboration",
- "flowy-core-data-model",
- "flowy-database",
- "flowy-derive",
- "flowy-document",
- "flowy-error",
- "flowy-sync",
- "futures",
- "futures-core",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-sqlite",
- "log",
- "parking_lot",
- "pin-project 1.0.8",
- "protobuf",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "flowy-core-data-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "error-code",
- "flowy-derive",
- "log",
- "protobuf",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]
@@ -1390,6 +1333,63 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-folder"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "bytes",
+ "chrono",
+ "crossbeam",
+ "crossbeam-utils",
+ "dart-notify",
+ "derive_more",
+ "diesel",
+ "diesel_derives",
+ "flowy-collaboration",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-document",
+ "flowy-error",
+ "flowy-folder-data-model",
+ "flowy-sync",
+ "futures",
+ "futures-core",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-sqlite",
+ "log",
+ "parking_lot",
+ "pin-project 1.0.8",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-folder-data-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "derive_more",
+ "error-code",
+ "flowy-derive",
+ "log",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "unicode-segmentation",
+ "uuid",
+]
+
+[[package]]
 name = "flowy-net"
 version = "0.1.0"
 dependencies = [
@@ -1399,11 +1399,11 @@ dependencies = [
  "bytes",
  "dashmap",
  "flowy-collaboration",
- "flowy-core",
- "flowy-core-data-model",
  "flowy-derive",
  "flowy-document",
  "flowy-error",
+ "flowy-folder",
+ "flowy-folder-data-model",
  "flowy-user",
  "flowy-user-data-model",
  "futures-util",
@@ -1427,9 +1427,9 @@ dependencies = [
  "bytes",
  "color-eyre",
  "flowy-collaboration",
- "flowy-core",
  "flowy-database",
  "flowy-document",
+ "flowy-folder",
  "flowy-net",
  "flowy-sync",
  "flowy-user",
@@ -1479,7 +1479,7 @@ dependencies = [
  "bytes",
  "claim",
  "flowy-collaboration",
- "flowy-core",
+ "flowy-folder",
  "flowy-net",
  "flowy-sdk",
  "flowy-user",

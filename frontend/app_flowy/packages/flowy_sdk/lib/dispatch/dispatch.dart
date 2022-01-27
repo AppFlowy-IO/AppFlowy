@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/event.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/event.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 
 // ignore: unused_import

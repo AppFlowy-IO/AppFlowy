@@ -9,7 +9,7 @@ use crate::{
 };
 use anyhow::Context;
 use backend_service::errors::{invalid_params, ServerError};
-use flowy_core_data_model::{
+use flowy_folder_data_model::{
     parser::workspace::WorkspaceIdentify,
     protobuf::{RepeatedApp as RepeatedAppPB, RepeatedWorkspace as RepeatedWorkspacePB, Workspace as WorkspacePB},
 };

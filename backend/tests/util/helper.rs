@@ -11,7 +11,7 @@ use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::document_info::{CreateDocParams, DocumentId, DocumentInfo},
 };
-use flowy_core_data_model::entities::{app::*, trash::*, view::*, workspace::*};
+use flowy_folder_data_model::entities::{app::*, trash::*, view::*, workspace::*};
 use flowy_net::http_server::{
     core::*,
     document::{create_document_request, read_document_request},

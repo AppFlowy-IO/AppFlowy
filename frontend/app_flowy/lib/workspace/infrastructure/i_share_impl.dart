@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_share.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 

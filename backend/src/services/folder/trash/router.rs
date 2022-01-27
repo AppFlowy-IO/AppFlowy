@@ -14,7 +14,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_data_model::{parser::trash::TrashIdentify, protobuf::RepeatedTrashId};
+use flowy_folder_data_model::{parser::trash::TrashIdentify, protobuf::RepeatedTrashId};
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
