@@ -68,7 +68,7 @@ DefaultStyles customStyles(BuildContext context) {
         color: themeData.colorScheme.secondary,
         decoration: TextDecoration.underline,
       ),
-      color: (theme.isDark ? theme.shader1 : theme.shader7),
+      color: theme.textColor,
       placeHolder: DefaultTextBlockStyle(
           defaultTextStyle.style.copyWith(
             fontSize: 20,
