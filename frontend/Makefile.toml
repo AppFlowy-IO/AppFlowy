@@ -14,7 +14,7 @@ RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
