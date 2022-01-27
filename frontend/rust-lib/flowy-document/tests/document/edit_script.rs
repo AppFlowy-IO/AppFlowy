@@ -11,7 +11,7 @@ pub enum EditorScript {
     Replace(Interval, &'static str),
 
     AssertRevisionState(i64, RevisionState),
-    AssertNextRevId(Option<i64>),
+    AssertNextSyncRevId(Option<i64>),
     AssertCurrentRevId(i64),
     AssertJson(&'static str),
 }
@@ -38,7 +38,7 @@ impl EditorTest {
 
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
-        let cache = rev_manager.revision_cache();
+        let cache = rev_manager.revision_cache().await;
         let _user_id = self.sdk.user_session.user_id().unwrap();
         // let ws_manager = self.sdk.ws_conn.clone();
         // let token = self.sdk.user_session.token().unwrap();
@@ -60,13 +60,15 @@ impl EditorTest {
             EditorScript::AssertCurrentRevId(rev_id) => {
                 assert_eq!(self.editor.rev_manager().rev_id(), rev_id);
             }
-            EditorScript::AssertNextRevId(rev_id) => {
+            EditorScript::AssertNextSyncRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
                     assert!(next_revision.is_none(), "Next revision should be None");
                     return;
                 }
                 let next_revision = next_revision.unwrap();
+                let mut receiver = rev_manager.revision_ack_receiver();
+                let _ = receiver.recv().await;
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
             }
             EditorScript::AssertJson(expected) => {

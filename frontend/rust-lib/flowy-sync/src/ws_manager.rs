@@ -300,6 +300,13 @@ impl RevisionWSSink {
     }
 }
 
+async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
+    let mut interval = interval(duration);
+    while sender.send(()).await.is_ok() {
+        interval.tick().await;
+    }
+}
+
 impl std::fmt::Display for RevisionWSSink {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!("{}RevisionWSSink", self.object_name))
@@ -309,13 +316,6 @@ impl std::fmt::Display for RevisionWSSink {
 impl std::ops::Drop for RevisionWSSink {
     fn drop(&mut self) {
         tracing::trace!("{} was dropped", self)
-    }
-}
-
-async fn tick(sender: mpsc::Sender<()>, duration: Duration) {
-    let mut interval = interval(duration);
-    while sender.send(()).await.is_ok() {
-        interval.tick().await;
     }
 }
 

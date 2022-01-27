@@ -118,7 +118,6 @@ where
                 } else {
                     // The server delta is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
-                        object_id: self.object_id.clone(),
                         start: server_rev_id,
                         end: first_revision.rev_id,
                     };

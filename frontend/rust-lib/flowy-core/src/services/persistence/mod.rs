@@ -122,6 +122,6 @@ impl FolderPersistence {
 
         let conn = pool.get()?;
         let disk_cache = mk_revision_disk_cache(user_id, pool);
-        disk_cache.write_revision_records(vec![record], &conn)
+        disk_cache.create_revision_records(vec![record], &conn)
     }
 }

@@ -173,12 +173,9 @@ impl std::fmt::Display for RevId {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RevisionRange {
     #[pb(index = 1)]
-    pub object_id: String,
-
-    #[pb(index = 2)]
     pub start: i64,
 
-    #[pb(index = 3)]
+    #[pb(index = 2)]
     pub end: i64,
 }
 
@@ -203,8 +200,12 @@ impl RevisionRange {
     }
 
     pub fn iter(&self) -> RangeInclusive<i64> {
-        debug_assert!(self.start != self.end);
+        // debug_assert!(self.start != self.end);
         RangeInclusive::new(self.start, self.end)
+    }
+
+    pub fn to_rev_ids(&self) -> Vec<i64> {
+        self.iter().collect::<Vec<_>>()
     }
 }
 

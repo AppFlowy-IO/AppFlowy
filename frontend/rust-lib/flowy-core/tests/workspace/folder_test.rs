@@ -64,8 +64,8 @@ async fn workspace_read() {
 async fn workspace_create_with_apps() {
     let mut test = FolderTest::new().await;
     test.run_scripts(vec![CreateApp {
-        name: "App",
-        desc: "App description",
+        name: "App".to_string(),
+        desc: "App description".to_string(),
     }])
     .await;
 
@@ -147,12 +147,12 @@ async fn app_create_with_view() {
     let mut app = test.app.clone();
     test.run_scripts(vec![
         CreateView {
-            name: "View A",
-            desc: "View A description",
+            name: "View A".to_owned(),
+            desc: "View A description".to_owned(),
         },
         CreateView {
-            name: "View B",
-            desc: "View B description",
+            name: "View B".to_owned(),
+            desc: "View B description".to_owned(),
         },
         ReadApp(app.id),
     ])
@@ -219,12 +219,12 @@ async fn view_delete_all() {
     let app = test.app.clone();
     test.run_scripts(vec![
         CreateView {
-            name: "View A",
-            desc: "View A description",
+            name: "View A".to_owned(),
+            desc: "View A description".to_owned(),
         },
         CreateView {
-            name: "View B",
-            desc: "View B description",
+            name: "View B".to_owned(),
+            desc: "View B description".to_owned(),
         },
         ReadApp(app.id.clone()),
     ])
@@ -250,8 +250,8 @@ async fn view_delete_all_permanent() {
     let app = test.app.clone();
     test.run_scripts(vec![
         CreateView {
-            name: "View A",
-            desc: "View A description",
+            name: "View A".to_owned(),
+            desc: "View A description".to_owned(),
         },
         ReadApp(app.id.clone()),
     ])
@@ -299,23 +299,14 @@ async fn folder_sync_revision_seq() {
             rev_id: 2,
             state: RevisionState::Sync,
         },
-        AssertRevisionState {
-            rev_id: 3,
-            state: RevisionState::Sync,
-        },
         AssertNextSyncRevId(Some(1)),
         AssertNextSyncRevId(Some(2)),
-        AssertNextSyncRevId(Some(3)),
         AssertRevisionState {
             rev_id: 1,
             state: RevisionState::Ack,
         },
         AssertRevisionState {
             rev_id: 2,
-            state: RevisionState::Ack,
-        },
-        AssertRevisionState {
-            rev_id: 3,
             state: RevisionState::Ack,
         },
     ])
@@ -325,35 +316,50 @@ async fn folder_sync_revision_seq() {
 #[tokio::test]
 async fn folder_sync_revision_with_new_app() {
     let mut test = FolderTest::new().await;
+    let app_name = "AppFlowy contributors".to_owned();
+    let app_desc = "Welcome to be a AppFlowy contributor".to_owned();
+
     test.run_scripts(vec![
         AssertNextSyncRevId(Some(1)),
         AssertNextSyncRevId(Some(2)),
-        AssertNextSyncRevId(Some(3)),
         CreateApp {
-            name: "New App",
-            desc: "",
+            name: app_name.clone(),
+            desc: app_desc.clone(),
         },
-        AssertCurrentRevId(4),
-        AssertNextSyncRevId(Some(4)),
+        AssertCurrentRevId(3),
+        AssertNextSyncRevId(Some(3)),
         AssertNextSyncRevId(None),
     ])
     .await;
+
+    let app = test.app.clone();
+    assert_eq!(app.name, app_name);
+    assert_eq!(app.desc, app_desc);
+    test.run_scripts(vec![ReadApp(app.id.clone()), AssertApp(app)]).await;
 }
 
 #[tokio::test]
 async fn folder_sync_revision_with_new_view() {
     let mut test = FolderTest::new().await;
+    let view_name = "AppFlowy features".to_owned();
+    let view_desc = "😁".to_owned();
+
     test.run_scripts(vec![
         AssertNextSyncRevId(Some(1)),
         AssertNextSyncRevId(Some(2)),
-        AssertNextSyncRevId(Some(3)),
         CreateView {
-            name: "New App",
-            desc: "",
+            name: view_name.clone(),
+            desc: view_desc.clone(),
         },
-        AssertCurrentRevId(4),
-        AssertNextSyncRevId(Some(4)),
+        AssertCurrentRevId(3),
+        AssertNextSyncRevId(Some(3)),
         AssertNextSyncRevId(None),
     ])
     .await;
+
+    let view = test.view.clone();
+    assert_eq!(view.name, view_name);
+    assert_eq!(view.desc, view_desc);
+    test.run_scripts(vec![ReadView(view.id.clone()), AssertView(view)])
+        .await;
 }

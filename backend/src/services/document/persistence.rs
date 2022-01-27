@@ -35,7 +35,7 @@ pub async fn read_document(
     }
 }
 
-#[tracing::instrument(level = "debug", skip(document_manager, params), fields(delta), err)]
+#[tracing::instrument(level = "debug", skip(document_manager, params), err)]
 pub async fn reset_document(
     document_manager: &Arc<ServerDocumentManager>,
     mut params: ResetDocumentParams,

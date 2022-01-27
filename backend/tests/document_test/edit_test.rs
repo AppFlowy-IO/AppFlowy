@@ -24,7 +24,7 @@ async fn delta_sync_while_editing() {
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientInsertText(3, "123"),
         DocScript::AssertClient(r#"[{"insert":"abc123\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc123\n"}]"#, 2),
+        DocScript::AssertServer(r#"[{"insert":"abc123\n"}]"#, 1),
     ])
     .await;
 }
@@ -50,11 +50,11 @@ async fn delta_sync_while_editing_with_attribute() {
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientFormatText(Interval::new(0, 3), RichTextAttribute::Bold(true)),
         DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#, 2),
+        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#, 1),
         DocScript::ClientInsertText(3, "efg"),
         DocScript::ClientFormatText(Interval::new(3, 5), RichTextAttribute::Italic(true)),
         DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#, 4),
+        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#, 3),
     ])
     .await;
 }

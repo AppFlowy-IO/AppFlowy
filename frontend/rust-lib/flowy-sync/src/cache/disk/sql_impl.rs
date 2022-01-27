@@ -22,7 +22,7 @@ pub struct SQLitePersistence {
 impl RevisionDiskCache for SQLitePersistence {
     type Error = FlowyError;
 
-    fn write_revision_records(
+    fn create_revision_records(
         &self,
         revision_records: Vec<RevisionRecord>,
         conn: &SqliteConnection,
@@ -72,11 +72,16 @@ impl RevisionDiskCache for SQLitePersistence {
         Ok(())
     }
 
-    fn reset_object(&self, object_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+    fn delete_and_insert_records(
+        &self,
+        object_id: &str,
+        deleted_rev_ids: Option<Vec<i64>>,
+        inserted_records: Vec<RevisionRecord>,
+    ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.delete_revision_records(object_id, None, &*conn)?;
-            let _ = self.write_revision_records(revision_records, &*conn)?;
+            let _ = self.delete_revision_records(object_id, deleted_rev_ids, &*conn)?;
+            let _ = self.create_revision_records(inserted_records, &*conn)?;
             Ok(())
         })
     }
@@ -96,6 +101,7 @@ pub struct RevisionTableSql {}
 impl RevisionTableSql {
     pub(crate) fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
+
         let records = revision_records
             .into_iter()
             .map(|record| {
@@ -172,7 +178,8 @@ impl RevisionTableSql {
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<(), FlowyError> {
-        let mut sql = dsl::rev_table.filter(dsl::doc_id.eq(object_id)).into_boxed();
+        let filter = dsl::rev_table.filter(dsl::doc_id.eq(object_id));
+        let mut sql = diesel::delete(filter).into_boxed();
         if let Some(rev_ids) = rev_ids {
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }

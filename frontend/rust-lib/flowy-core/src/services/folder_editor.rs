@@ -5,12 +5,14 @@ use flowy_collaboration::{
 };
 
 use crate::controller::FolderId;
+use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    RevisionCache, RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
+    RevisionCache, RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
     RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
+use lib_ot::core::PlainAttributes;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -36,7 +38,11 @@ impl FolderEditor {
         let cloud = Arc::new(FolderRevisionCloudServiceImpl {
             token: token.to_string(),
         });
-        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(cloud).await?));
+        let folder = Arc::new(RwLock::new(
+            rev_manager
+                .load::<FolderPadBuilder, FolderRevisionCompact>(cloud)
+                .await?,
+        ));
         let rev_manager = Arc::new(rev_manager);
         let ws_manager = make_folder_ws_manager(
             user_id,
@@ -78,8 +84,18 @@ impl FolderEditor {
             &self.user_id,
             md5,
         );
-        let _ = futures::executor::block_on(async { self.rev_manager.add_local_revision(&revision).await })?;
+        let _ = futures::executor::block_on(async {
+            self.rev_manager
+                .add_local_revision::<FolderRevisionCompact>(&revision)
+                .await
+        })?;
         Ok(())
+    }
+
+    #[allow(dead_code)]
+    pub fn folder_json(&self) -> FlowyResult<String> {
+        let json = self.folder.read().to_json()?;
+        Ok(json)
     }
 }
 
@@ -110,5 +126,27 @@ impl RevisionCloudService for FolderRevisionCloudServiceImpl {
 impl FolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
+    }
+}
+
+struct FolderRevisionCompact();
+impl RevisionCompact for FolderRevisionCompact {
+    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
+        if revisions.is_empty() {
+            return Err(FlowyError::internal().context("Can't compact the empty folder's revisions"));
+        }
+
+        if revisions.len() == 1 {
+            return Ok(revisions.pop().unwrap());
+        }
+
+        let first_revision = revisions.first().unwrap();
+        let last_revision = revisions.last().unwrap();
+
+        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let md5 = last_revision.md5.clone();
+        let delta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
+        let delta_data = delta.to_bytes();
+        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }
 }

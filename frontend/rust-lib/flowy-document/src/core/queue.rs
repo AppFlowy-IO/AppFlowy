@@ -1,12 +1,13 @@
 use crate::{core::web_socket::EditorCommandReceiver, DocumentUser};
 use async_stream::stream;
+use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
-use flowy_error::FlowyError;
-use flowy_sync::{DeltaMD5, RevisionManager, TransformDeltas};
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, TransformDeltas};
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -183,8 +184,33 @@ impl EditorCommandQueue {
             &user_id,
             md5,
         );
-        let _ = self.rev_manager.add_local_revision(&revision).await?;
+        let _ = self
+            .rev_manager
+            .add_local_revision::<DocumentRevisionCompact>(&revision)
+            .await?;
         Ok(rev_id.into())
+    }
+}
+
+pub(crate) struct DocumentRevisionCompact();
+impl RevisionCompact for DocumentRevisionCompact {
+    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
+        if revisions.is_empty() {
+            return Err(FlowyError::internal().context("Can't compact the empty document's revisions"));
+        }
+
+        if revisions.len() == 1 {
+            return Ok(revisions.pop().unwrap());
+        }
+
+        let first_revision = revisions.first().unwrap();
+        let last_revision = revisions.last().unwrap();
+
+        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let md5 = last_revision.md5.clone();
+        let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
+        let delta_data = delta.to_bytes();
+        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }
 }
 

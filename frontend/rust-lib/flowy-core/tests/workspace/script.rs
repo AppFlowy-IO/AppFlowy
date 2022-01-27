@@ -21,7 +21,7 @@ pub enum FolderScript {
     ReadWorkspace(Option<String>),
 
     // App
-    CreateApp { name: &'static str, desc: &'static str },
+    CreateApp { name: String, desc: String },
     AssertAppJson(String),
     AssertApp(App),
     ReadApp(String),
@@ -29,7 +29,7 @@ pub enum FolderScript {
     DeleteApp,
 
     // View
-    CreateView { name: &'static str, desc: &'static str },
+    CreateView { name: String, desc: String },
     AssertView(View),
     ReadView(String),
     UpdateView { name: Option<String>, desc: Option<String> },
@@ -97,7 +97,7 @@ impl FolderTest {
         let sdk = &self.sdk;
         let folder_editor: Arc<FolderEditor> = sdk.folder_manager.folder_editor().await;
         let rev_manager = folder_editor.rev_manager();
-        let cache = rev_manager.revision_cache();
+        let cache = rev_manager.revision_cache().await;
 
         match script {
             FolderScript::ReadAllWorkspaces => {
@@ -124,7 +124,7 @@ impl FolderTest {
                 self.workspace = workspace;
             }
             FolderScript::CreateApp { name, desc } => {
-                let app = create_app(sdk, &self.workspace.id, name, desc).await;
+                let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
                 self.app = app;
             }
             FolderScript::AssertAppJson(expected_json) => {
@@ -146,7 +146,7 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, name, desc, ViewType::Doc).await;
+                let view = create_view(sdk, &self.app.id, &name, &desc, ViewType::Doc).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
@@ -193,7 +193,7 @@ impl FolderTest {
                 }
             }
             FolderScript::AssertCurrentRevId(rev_id) => {
-                assert_eq!(rev_manager.rev_id(), rev_id);
+                assert_eq!(rev_manager.rev_id(), rev_id, "Current rev_id is not match");
             }
             FolderScript::AssertNextSyncRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
@@ -201,7 +201,8 @@ impl FolderTest {
                     assert!(next_revision.is_none(), "Next revision should be None");
                     return;
                 }
-                let next_revision = next_revision.unwrap();
+                let next_revision = next_revision
+                    .unwrap_or_else(|| panic!("Expected Next revision is {}, but receive None", rev_id.unwrap()));
                 let mut receiver = rev_manager.revision_ack_receiver();
                 let _ = receiver.recv().await;
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());

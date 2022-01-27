@@ -1,3 +1,4 @@
+use crate::core::DocumentRevisionCompact;
 use crate::{
     core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
@@ -36,7 +37,9 @@ impl ClientDocumentEditor {
         web_socket: Arc<dyn RevisionWebSocket>,
         server: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<DocumentInfoBuilder>(server).await?;
+        let document_info = rev_manager
+            .load::<DocumentInfoBuilder, DocumentRevisionCompact>(server)
+            .await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();

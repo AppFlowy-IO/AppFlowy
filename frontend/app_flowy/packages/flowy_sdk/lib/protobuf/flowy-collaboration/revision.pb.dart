@@ -235,22 +235,17 @@ class RevId extends $pb.GeneratedMessage {
 
 class RevisionRange extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevisionRange', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId')
-    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'start')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'end')
+    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'start')
+    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'end')
     ..hasRequiredFields = false
   ;
 
   RevisionRange._() : super();
   factory RevisionRange({
-    $core.String? objectId,
     $fixnum.Int64? start,
     $fixnum.Int64? end,
   }) {
     final _result = create();
-    if (objectId != null) {
-      _result.objectId = objectId;
-    }
     if (start != null) {
       _result.start = start;
     }
@@ -281,30 +276,21 @@ class RevisionRange extends $pb.GeneratedMessage {
   static RevisionRange? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get objectId => $_getSZ(0);
+  $fixnum.Int64 get start => $_getI64(0);
   @$pb.TagNumber(1)
-  set objectId($core.String v) { $_setString(0, v); }
+  set start($fixnum.Int64 v) { $_setInt64(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasObjectId() => $_has(0);
+  $core.bool hasStart() => $_has(0);
   @$pb.TagNumber(1)
-  void clearObjectId() => clearField(1);
+  void clearStart() => clearField(1);
 
   @$pb.TagNumber(2)
-  $fixnum.Int64 get start => $_getI64(1);
+  $fixnum.Int64 get end => $_getI64(1);
   @$pb.TagNumber(2)
-  set start($fixnum.Int64 v) { $_setInt64(1, v); }
+  set end($fixnum.Int64 v) { $_setInt64(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasStart() => $_has(1);
+  $core.bool hasEnd() => $_has(1);
   @$pb.TagNumber(2)
-  void clearStart() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $fixnum.Int64 get end => $_getI64(2);
-  @$pb.TagNumber(3)
-  set end($fixnum.Int64 v) { $_setInt64(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasEnd() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearEnd() => clearField(3);
+  void clearEnd() => clearField(2);
 }
 

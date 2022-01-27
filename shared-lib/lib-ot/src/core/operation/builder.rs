@@ -1,10 +1,10 @@
 use crate::{
-    core::{Attributes, Operation, PlainTextAttributes},
+    core::{Attributes, Operation, PlainAttributes},
     rich_text::RichTextAttributes,
 };
 
 pub type RichTextOpBuilder = OpBuilder<RichTextAttributes>;
-pub type PlainTextOpBuilder = OpBuilder<PlainTextAttributes>;
+pub type PlainTextOpBuilder = OpBuilder<PlainAttributes>;
 
 pub struct OpBuilder<T: Attributes> {
     ty: Operation<T>,

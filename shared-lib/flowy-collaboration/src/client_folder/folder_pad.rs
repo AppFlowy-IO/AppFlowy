@@ -8,7 +8,7 @@ use crate::{
 };
 use dissimilar::*;
 use flowy_core_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainDeltaBuilder, PlainTextAttributes};
+use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainAttributes, PlainDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -285,6 +285,11 @@ impl FolderPad {
     pub fn md5(&self) -> String {
         md5(&self.root.to_bytes())
     }
+
+    pub fn to_json(&self) -> CollaborateResult<String> {
+        serde_json::to_string(self)
+            .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
+    }
 }
 
 impl FolderPad {
@@ -372,14 +377,9 @@ impl FolderPad {
             }
         })
     }
-
-    fn to_json(&self) -> CollaborateResult<String> {
-        serde_json::to_string(self)
-            .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
-    }
 }
 
-fn cal_diff(old: String, new: String) -> Delta<PlainTextAttributes> {
+fn cal_diff(old: String, new: String) -> Delta<PlainAttributes> {
     let chunks = dissimilar::diff(&old, &new);
     let mut delta_builder = PlainDeltaBuilder::new();
     for chunk in &chunks {

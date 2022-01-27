@@ -16,9 +16,8 @@ message RevId {
     int64 value = 1;
 }
 message RevisionRange {
-    string object_id = 1;
-    int64 start = 2;
-    int64 end = 3;
+    int64 start = 1;
+    int64 end = 2;
 }
 enum RevisionState {
     Sync = 0;
