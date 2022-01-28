@@ -129,7 +129,7 @@ class AppTheme {
           ..shader7 = _black
           ..bg1 = _black
           ..bg2 = _black
-          ..bg3 = _grey
+          ..bg3 = const Color(0xff4f4f4f)
           ..bg4 = const Color(0xff2c144b)
           ..tint1 = const Color(0xffc3adff)
           ..tint2 = const Color(0xffffadf9)
