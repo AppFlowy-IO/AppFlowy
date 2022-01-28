@@ -109,5 +109,7 @@ class AppListenerRepository {
 
   Future<void> close() async {
     await _subscription?.cancel();
+    _viewsChanged = null;
+    _update = null;
   }
 }

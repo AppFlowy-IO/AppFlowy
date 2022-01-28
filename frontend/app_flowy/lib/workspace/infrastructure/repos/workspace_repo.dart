@@ -123,5 +123,7 @@ class WorkspaceListenerRepo {
 
   Future<void> close() async {
     await _subscription?.cancel();
+    _appsChanged = null;
+    _update = null;
   }
 }

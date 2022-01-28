@@ -43,10 +43,10 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   }
 
   @override
-  Widget get leftBarItem => DocLeftBarItem(view: _view);
+  Widget get leftBarItem => DocumentLeftBarItem(view: _view);
 
   @override
-  Widget? get rightBarItem => DocShareButton(view: _view);
+  Widget? get rightBarItem => DococumentShareButton(view: _view);
 
   @override
   String get identifier => _view.id;
@@ -79,16 +79,16 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   }
 }
 
-class DocLeftBarItem extends StatefulWidget {
+class DocumentLeftBarItem extends StatefulWidget {
   final View view;
 
-  DocLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
+  DocumentLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
 
   @override
-  State<DocLeftBarItem> createState() => _DocLeftBarItemState();
+  State<DocumentLeftBarItem> createState() => _DocumentLeftBarItemState();
 }
 
-class _DocLeftBarItemState extends State<DocLeftBarItem> {
+class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   late ViewRepository repo;
@@ -147,9 +147,9 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
   }
 }
 
-class DocShareButton extends StatelessWidget {
+class DococumentShareButton extends StatelessWidget {
   final View view;
-  DocShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
+  DococumentShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {
@@ -189,13 +189,11 @@ class DocShareButton extends StatelessWidget {
   void _handleExportData(ExportData exportData) {
     switch (exportData.exportType) {
       case ExportType.Link:
-        // TODO: Handle this case.
         break;
       case ExportType.Markdown:
         FlutterClipboard.copy(exportData.data).then((value) => Log.info('copied to clipboard'));
         break;
       case ExportType.Text:
-        // TODO: Handle this case.
         break;
     }
   }

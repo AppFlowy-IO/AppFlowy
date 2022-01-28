@@ -41,8 +41,6 @@ enum OverlapBehaviour {
   stretch,
 }
 
-// TODO: junlin - support route pop handler
-/// [Unsupported] The behavior of overlay when user tapping system back button
 enum OnBackBehavior {
   /// Won't handle the back action
   none,
