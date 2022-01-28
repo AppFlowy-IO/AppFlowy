@@ -1,15 +1,21 @@
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppearanceSettings setting;
   AppTheme _theme;
+  AppLanguage _language;
 
-  AppearanceSettingModel(this.setting) : _theme = AppTheme.fromName(name: setting.theme);
+  AppearanceSettingModel(this.setting)
+      : _theme = AppTheme.fromName(name: setting.theme),
+        _language = AppLanguage.fromName(name: setting.language);
+
   AppTheme get theme => _theme;
+  AppLanguage get language => _language;
 
   Future<void> save() async {
     await UserSettingReppsitory().setAppearanceSettings(setting);
@@ -31,9 +37,12 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void setLanguage(String language) {
-    if (setting.language != language) {
-      setting.language = language;
+  void setLanguage(Language language) {
+    String langaugeString = stringFromLanguageName(language);
+
+    if (setting.language != langaugeString) {
+      _language = AppLanguage.fromLanguage(language: language);
+      setting.language = langaugeString;
       notifyListeners();
       save();
     }
