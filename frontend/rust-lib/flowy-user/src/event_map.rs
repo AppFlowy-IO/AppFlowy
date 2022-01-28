@@ -17,7 +17,7 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::SignOut, sign_out)
         .event(UserEvent::UpdateUser, update_user_handler)
         .event(UserEvent::CheckUser, check_user_handler)
-        .event(UserEvent::UpdateAppearanceSetting, update_appearance_setting)
+        .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
         .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
 }
 
@@ -58,7 +58,7 @@ pub enum UserEvent {
     CheckUser = 6,
 
     #[event(input = "AppearanceSettings")]
-    UpdateAppearanceSetting = 7,
+    SetAppearanceSetting = 7,
 
     #[event(output = "AppearanceSettings")]
     GetAppearanceSetting = 8,

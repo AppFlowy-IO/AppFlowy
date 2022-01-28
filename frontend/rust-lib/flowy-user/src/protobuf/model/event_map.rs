@@ -32,7 +32,7 @@ pub enum UserEvent {
     UpdateUser = 4,
     GetUserProfile = 5,
     CheckUser = 6,
-    UpdateAppearanceSetting = 7,
+    SetAppearanceSetting = 7,
     GetAppearanceSetting = 8,
 }
 
@@ -50,7 +50,7 @@ impl ::protobuf::ProtobufEnum for UserEvent {
             4 => ::std::option::Option::Some(UserEvent::UpdateUser),
             5 => ::std::option::Option::Some(UserEvent::GetUserProfile),
             6 => ::std::option::Option::Some(UserEvent::CheckUser),
-            7 => ::std::option::Option::Some(UserEvent::UpdateAppearanceSetting),
+            7 => ::std::option::Option::Some(UserEvent::SetAppearanceSetting),
             8 => ::std::option::Option::Some(UserEvent::GetAppearanceSetting),
             _ => ::std::option::Option::None
         }
@@ -65,7 +65,7 @@ impl ::protobuf::ProtobufEnum for UserEvent {
             UserEvent::UpdateUser,
             UserEvent::GetUserProfile,
             UserEvent::CheckUser,
-            UserEvent::UpdateAppearanceSetting,
+            UserEvent::SetAppearanceSetting,
             UserEvent::GetAppearanceSetting,
         ];
         values
@@ -95,10 +95,10 @@ impl ::protobuf::reflect::ProtobufValue for UserEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xa8\x01\n\tUserEvent\x12\x0c\n\x08InitUser\x10\0\
+    \n\x0fevent_map.proto*\xa5\x01\n\tUserEvent\x12\x0c\n\x08InitUser\x10\0\
     \x12\n\n\x06SignIn\x10\x01\x12\n\n\x06SignUp\x10\x02\x12\x0b\n\x07SignOu\
     t\x10\x03\x12\x0e\n\nUpdateUser\x10\x04\x12\x12\n\x0eGetUserProfile\x10\
-    \x05\x12\r\n\tCheckUser\x10\x06\x12\x1b\n\x17UpdateAppearanceSetting\x10\
+    \x05\x12\r\n\tCheckUser\x10\x06\x12\x18\n\x14SetAppearanceSetting\x10\
     \x07\x12\x18\n\x14GetAppearanceSetting\x10\x08J\x9b\x03\n\x06\x12\x04\0\
     \0\x0c\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\
     \x0c\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x0e\n\x0b\n\x04\x05\0\x02\0\
@@ -116,8 +116,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x04\x12\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x08\x15\x16\n\x0b\n\x04\
     \x05\0\x02\x06\x12\x03\t\x04\x12\n\x0c\n\x05\x05\0\x02\x06\x01\x12\x03\t\
     \x04\r\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\t\x10\x11\n\x0b\n\x04\x05\0\
-    \x02\x07\x12\x03\n\x04\x20\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\n\x04\
-    \x1b\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\n\x1e\x1f\n\x0b\n\x04\x05\0\
+    \x02\x07\x12\x03\n\x04\x1d\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\n\x04\
+    \x18\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\n\x1b\x1c\n\x0b\n\x04\x05\0\
     \x02\x08\x12\x03\x0b\x04\x1d\n\x0c\n\x05\x05\0\x02\x08\x01\x12\x03\x0b\
     \x04\x18\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0b\x1b\x1cb\x06proto3\
 ";

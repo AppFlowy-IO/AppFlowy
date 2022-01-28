@@ -1,5 +1,5 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ class SettingsAppearanceView extends StatelessWidget {
               Switch(
                 value: theme.isDark,
                 onChanged: (val) {
-                  context.read<ThemeModel>().swapTheme();
+                  context.read<AppearanceSettingModel>().swapTheme();
                 },
               ),
               Text(
