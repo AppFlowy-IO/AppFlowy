@@ -32,6 +32,10 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   }
 
   void setLanguage(String language) {
-    // TODO: save the language settings
+    if (setting.language != language) {
+      setting.language = language;
+      notifyListeners();
+      save();
+    }
   }
 }
