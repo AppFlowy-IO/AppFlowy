@@ -12,7 +12,7 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
 
   AppearanceSettingModel(this.setting)
       : _theme = AppTheme.fromName(name: setting.theme),
-        _language = AppLanguage.fromName(name: setting.language);
+        _language = languageFromString(setting.language);
 
   AppTheme get theme => _theme;
   AppLanguage get language => _language;
@@ -37,12 +37,13 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void setLanguage(Language language) {
-    String langaugeString = stringFromLanguageName(language);
+  void setLanguage(AppLanguage language) {
+    String languageString = stringFromLanguageName(language);
 
-    if (setting.language != langaugeString) {
-      _language = AppLanguage.fromLanguage(language: language);
-      setting.language = langaugeString;
+    if (setting.language != languageString) {
+      _language = language;
+      print('language changed to $languageString');
+      setting.language = languageString;
       notifyListeners();
       save();
     }
