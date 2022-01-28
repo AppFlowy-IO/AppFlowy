@@ -80,6 +80,7 @@ impl FolderPad {
         self.workspaces.is_empty() && self.trash.is_empty()
     }
 
+    #[tracing::instrument(level = "trace", skip(self, workspace), fields(workspace_name=%workspace.name), err)]
     pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
         let workspace = Arc::new(workspace);
         if self.workspaces.contains(&workspace) {
@@ -132,6 +133,7 @@ impl FolderPad {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub fn delete_workspace(&mut self, workspace_id: &str) -> CollaborateResult<Option<FolderChange>> {
         self.modify_workspaces(|workspaces| {
             workspaces.retain(|w| w.id != workspace_id);
@@ -139,6 +141,7 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), fields(app_name=%app.name), err)]
     pub fn create_app(&mut self, app: App) -> CollaborateResult<Option<FolderChange>> {
         let workspace_id = app.workspace_id.clone();
         self.with_workspace(&workspace_id, move |workspace| {
@@ -178,6 +181,7 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub fn delete_app(&mut self, app_id: &str) -> CollaborateResult<Option<FolderChange>> {
         let app = self.read_app(app_id)?;
         self.with_workspace(&app.workspace_id, |workspace| {
@@ -186,6 +190,7 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), fields(view_name=%view.name), err)]
     pub fn create_view(&mut self, view: View) -> CollaborateResult<Option<FolderChange>> {
         let app_id = view.belong_to_id.clone();
         self.with_app(&app_id, move |app| {
@@ -242,6 +247,7 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChange>> {
         let view = self.read_view(view_id)?;
         self.with_app(&view.belong_to_id, |app| {

@@ -29,7 +29,7 @@ impl FolderMigration {
 
     pub fn run_v1_migration(&self) -> FlowyResult<Option<FolderPad>> {
         let key = md5(format!("{}{}", self.user_id, V1_MIGRATION));
-        if KV::get_bool(&key).unwrap_or(false) {
+        if KV::get_bool(&key) {
             return Ok(None);
         }
         tracing::trace!("Run folder version 1 migrations");

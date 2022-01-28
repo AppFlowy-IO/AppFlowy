@@ -4,5 +4,5 @@
 mod dart_notification;
 pub use dart_notification::*;
 
-mod event;
-pub use event::*;
+mod event_map;
+pub use event_map::*;

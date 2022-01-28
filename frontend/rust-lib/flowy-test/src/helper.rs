@@ -1,5 +1,4 @@
 use crate::prelude::*;
-
 use flowy_folder::{
     entities::{
         app::*,
@@ -11,7 +10,7 @@ use flowy_folder::{
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
     errors::FlowyError,
-    event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
+    event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
 use lib_infra::uuid_string;

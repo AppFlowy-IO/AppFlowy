@@ -1,5 +1,9 @@
 use crate::{errors::FlowyError, services::UserSession};
-use flowy_user_data_model::entities::*;
+use flowy_database::kv::KV;
+use flowy_user_data_model::entities::{
+    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_LANGUAGE,
+    APPEARANCE_DEFAULT_THEME,
+};
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
@@ -35,4 +39,33 @@ pub async fn update_user_handler(
     let params: UpdateUserParams = data.into_inner().try_into()?;
     session.update_user(params).await?;
     Ok(())
+}
+
+const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
+
+#[tracing::instrument(skip(data), err)]
+pub async fn update_appearance_setting(data: Data<AppearanceSettings>) -> Result<(), FlowyError> {
+    let mut setting = data.into_inner();
+    if setting.theme.is_empty() {
+        setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
+    }
+
+    if setting.language.is_empty() {
+        setting.theme = APPEARANCE_DEFAULT_LANGUAGE.to_string();
+    }
+
+    let s = serde_json::to_string(&setting)?;
+    KV::set_str(APPEARANCE_SETTING_CACHE_KEY, s);
+    Ok(())
+}
+
+#[tracing::instrument(err)]
+pub async fn get_appearance_setting() -> DataResult<AppearanceSettings, FlowyError> {
+    match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
+        None => data_result(AppearanceSettings::default()),
+        Some(s) => {
+            let setting: AppearanceSettings = serde_json::from_str(&s)?;
+            data_result(setting)
+        }
+    }
 }

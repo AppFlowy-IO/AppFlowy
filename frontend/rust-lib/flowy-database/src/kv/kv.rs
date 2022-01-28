@@ -5,6 +5,36 @@ use lazy_static::lazy_static;
 use lib_sqlite::{DBConnection, Database, PoolConfig};
 use std::{collections::HashMap, path::Path, sync::RwLock};
 
+macro_rules! impl_get_func {
+    (
+        $func_name:ident,
+        $get_method:ident=>$target:ident
+    ) => {
+        #[allow(dead_code)]
+        pub fn $func_name(k: &str) -> Option<$target> {
+            match KV::get(k) {
+                Ok(item) => item.$get_method,
+                Err(_) => None,
+            }
+        }
+    };
+}
+
+macro_rules! impl_set_func {
+    ($func_name:ident,$set_method:ident,$key_type:ident) => {
+        #[allow(dead_code)]
+        pub fn $func_name(key: &str, value: $key_type) {
+            let mut item = KeyValue::new(key);
+            item.$set_method = Some(value);
+            match KV::set(item) {
+                Ok(_) => {}
+                Err(e) => {
+                    log::error!("{:?}", e)
+                }
+            };
+        }
+    };
+}
 const DB_NAME: &str = "kv.db";
 lazy_static! {
     static ref KV_HOLDER: RwLock<KV> = RwLock::new(KV::new());
@@ -86,6 +116,27 @@ impl KV {
 
         Ok(())
     }
+
+    pub fn get_bool(key: &str) -> bool {
+        match KV::get(key) {
+            Ok(item) => item.bool_value.unwrap_or(false),
+            Err(_) => false,
+        }
+    }
+
+    impl_set_func!(set_str, str_value, String);
+
+    impl_set_func!(set_bool, bool_value, bool);
+
+    impl_set_func!(set_int, int_value, i64);
+
+    impl_set_func!(set_float, float_value, f64);
+
+    impl_get_func!(get_str,str_value=>String);
+
+    impl_get_func!(get_int,int_value=>i64);
+
+    impl_get_func!(get_float,float_value=>f64);
 }
 
 fn read_cache(key: &str) -> Option<KeyValue> {
@@ -106,57 +157,6 @@ fn update_cache(value: KeyValue) {
         Err(e) => log::error!("Require write lock failed: {:?}", e),
     };
 }
-
-macro_rules! impl_get_func {
-    (
-        $func_name:ident,
-        $get_method:ident=>$target:ident
-    ) => {
-        impl KV {
-            #[allow(dead_code)]
-            pub fn $func_name(k: &str) -> Option<$target> {
-                match KV::get(k) {
-                    Ok(item) => item.$get_method,
-                    Err(_) => None,
-                }
-            }
-        }
-    };
-}
-
-macro_rules! impl_set_func {
-    ($func_name:ident,$set_method:ident,$key_type:ident) => {
-        impl KV {
-            #[allow(dead_code)]
-            pub fn $func_name(key: &str, value: $key_type) {
-                let mut item = KeyValue::new(key);
-                item.$set_method = Some(value);
-                match KV::set(item) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        log::error!("{:?}", e)
-                    }
-                };
-            }
-        }
-    };
-}
-
-impl_set_func!(set_str, str_value, String);
-
-impl_set_func!(set_bool, bool_value, bool);
-
-impl_set_func!(set_int, int_value, i64);
-
-impl_set_func!(set_float, float_value, f64);
-
-impl_get_func!(get_str,str_value=>String);
-
-impl_get_func!(get_int,int_value=>i64);
-
-impl_get_func!(get_float,float_value=>f64);
-
-impl_get_func!(get_bool,bool_value=>bool);
 
 fn get_connection() -> Result<DBConnection, String> {
     match KV_HOLDER.read() {
@@ -216,8 +216,8 @@ mod tests {
         assert_eq!(KV::get_str("2"), None);
 
         KV::set_bool("1", true);
-        assert!(KV::get_bool("1").unwrap());
+        assert!(KV::get_bool("1"));
 
-        assert_eq!(KV::get_bool("2"), None);
+        assert!(!KV::get_bool("2"));
     }
 }

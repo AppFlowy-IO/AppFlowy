@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message UserPreferences {
+    string user_id = 1;
+    AppearanceSettings appearance_setting = 2;
+}
+message AppearanceSettings {
+    string theme = 1;
+    string language = 2;
+}

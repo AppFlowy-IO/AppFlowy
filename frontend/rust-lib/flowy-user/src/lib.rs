@@ -1,7 +1,6 @@
 mod dart_notification;
-pub mod event;
+pub mod event_map;
 mod handlers;
-pub mod module;
 pub mod protobuf;
 pub mod services;
 // mod sql_tables;
