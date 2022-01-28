@@ -44,7 +44,7 @@ pub async fn update_user_handler(
 const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
 
 #[tracing::instrument(skip(data), err)]
-pub async fn update_appearance_setting(data: Data<AppearanceSettings>) -> Result<(), FlowyError> {
+pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<(), FlowyError> {
     let mut setting = data.into_inner();
     if setting.theme.is_empty() {
         setting.theme = APPEARANCE_DEFAULT_THEME.to_string();

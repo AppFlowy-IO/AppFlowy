@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
+import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,9 +16,14 @@ class AppWidgetTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
   @override
-  Future<void> initialize(LaunchContext context) {
+  Future<void> initialize(LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create();
-    final app = ApplicationWidget(child: widget);
+    final setting = await UserSettingReppsitory().getAppearanceSettings();
+    final settingModel = AppearanceSettingModel(setting);
+    final app = ApplicationWidget(
+      child: widget,
+      settingModel: settingModel,
+    );
     BlocOverrides.runZoned(
       () {
         runApp(
@@ -37,36 +43,40 @@ class AppWidgetTask extends LaunchTask {
 
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
+  final AppearanceSettingModel settingModel;
+
   const ApplicationWidget({
     Key? key,
     required this.child,
+    required this.settingModel,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-      create: (context) => ThemeModel(),
-      builder: (context, _) {
-        const ratio = 1.73;
-        const minWidth = 800.0;
-        setWindowMinSize(const Size(minWidth, minWidth / ratio));
+  Widget build(BuildContext context) => ChangeNotifierProvider.value(
+        value: settingModel,
+        builder: (context, _) {
+          const ratio = 1.73;
+          const minWidth = 800.0;
+          setWindowMinSize(const Size(minWidth, minWidth / ratio));
+          AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
+            (value) => value.theme,
+          );
 
-        ThemeType themeType = context.select<ThemeModel, ThemeType>((value) => value.theme);
-        AppTheme theme = AppTheme.fromType(themeType);
-
-        return Provider.value(
-          value: theme,
-          child: MaterialApp(
-            builder: overlayManagerBuilder(),
-            debugShowCheckedModeBanner: false,
-            theme: theme.themeData,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            navigatorKey: AppGlobals.rootNavKey,
-            home: child,
-          ),
-        );
-      });
+          return Provider.value(
+            value: theme,
+            child: MaterialApp(
+              builder: overlayManagerBuilder(),
+              debugShowCheckedModeBanner: false,
+              theme: theme.themeData,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              navigatorKey: AppGlobals.rootNavKey,
+              home: child,
+            ),
+          );
+        },
+      );
 }
 
 class AppGlobals {

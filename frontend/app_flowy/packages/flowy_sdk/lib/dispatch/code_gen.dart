@@ -536,13 +536,13 @@ class UserEventCheckUser {
     }
 }
 
-class UserEventUpdateAppearanceSetting {
+class UserEventSetAppearanceSetting {
      AppearanceSettings request;
-     UserEventUpdateAppearanceSetting(this.request);
+     UserEventSetAppearanceSetting(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = UserEvent.UpdateAppearanceSetting.toString()
+          ..event = UserEvent.SetAppearanceSetting.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

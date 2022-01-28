@@ -6,14 +6,30 @@ enum ThemeType {
   dark,
 }
 
+ThemeType themeTypeFromString(String name) {
+  ThemeType themeType = ThemeType.light;
+  if (name == "dark") {
+    themeType = ThemeType.dark;
+  }
+  return themeType;
+}
+
+String themeTypeToString(ThemeType ty) {
+  switch (ty) {
+    case ThemeType.light:
+      return "light";
+    case ThemeType.dark:
+      return "dark";
+  }
+}
+
 //Color Pallettes
 const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xFFFFFFFF);
 
 class AppTheme {
-  static ThemeType defaultTheme = ThemeType.light;
-
+  ThemeType ty;
   bool isDark;
   late Color surface; //
   late Color hover;
@@ -53,13 +69,17 @@ class AppTheme {
   late Color shadowColor;
 
   /// Default constructor
-  AppTheme({this.isDark = false});
+  AppTheme({required this.ty, this.isDark = false});
+
+  factory AppTheme.fromName({required String name}) {
+    return AppTheme.fromType(themeTypeFromString(name));
+  }
 
   /// fromType factory constructor
-  factory AppTheme.fromType(ThemeType t) {
-    switch (t) {
+  factory AppTheme.fromType(ThemeType themeType) {
+    switch (themeType) {
       case ThemeType.light:
-        return AppTheme(isDark: false)
+        return AppTheme(ty: themeType, isDark: false)
           ..surface = Colors.white
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
@@ -93,7 +113,7 @@ class AppTheme {
           ..shadowColor = _black;
 
       case ThemeType.dark:
-        return AppTheme(isDark: true)
+        return AppTheme(ty: themeType, isDark: true)
           ..surface = const Color(0xff292929)
           ..hover = const Color(0xff1f1f1f)
           ..selector = const Color(0xff333333)

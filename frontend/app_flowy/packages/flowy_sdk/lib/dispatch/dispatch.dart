@@ -26,6 +26,7 @@ import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
+import '../protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'error.dart';
 
 part 'code_gen.dart';

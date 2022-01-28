@@ -7,6 +7,15 @@ import 'dart:ffi';
 import 'ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
 
+enum ExceptionType {
+  AppearanceSettingsIsEmpty,
+}
+
+class FlowySDKException implements Exception {
+  ExceptionType type;
+  FlowySDKException(this.type);
+}
+
 class FlowySDK {
   static const MethodChannel _channel = MethodChannel('flowy_sdk');
   static Future<String> get platformVersion async {
