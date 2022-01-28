@@ -107,12 +107,12 @@ fn read_workspaces_on_server(
         let workspaces = server.read_workspace(&token, params).await?;
         let _ = persistence
             .begin_transaction(|transaction| {
-                tracing::debug!("Save {} workspace", workspaces.len());
+                tracing::trace!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
                     let m_workspace = workspace.clone();
                     let apps = m_workspace.apps.clone().into_inner();
                     let _ = transaction.create_workspace(&user_id, m_workspace)?;
-                    tracing::debug!("Save {} apps", apps.len());
+                    tracing::trace!("Save {} apps", apps.len());
                     for app in apps {
                         let views = app.belongings.clone().into_inner();
                         match transaction.create_app(app) {
@@ -120,7 +120,7 @@ fn read_workspaces_on_server(
                             Err(e) => log::error!("create app failed: {:?}", e),
                         }
 
-                        tracing::debug!("Save {} views", views.len());
+                        tracing::trace!("Save {} views", views.len());
                         for view in views {
                             match transaction.create_view(view) {
                                 Ok(_) => {}

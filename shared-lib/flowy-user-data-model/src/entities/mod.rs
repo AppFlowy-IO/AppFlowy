@@ -1,9 +1,7 @@
 pub use auth::*;
 pub use user_profile::*;
+pub use user_setting::*;
 
 pub mod auth;
 mod user_profile;
-
-pub mod prelude {
-    pub use crate::entities::{auth::*, user_profile::*};
-}
+mod user_setting;

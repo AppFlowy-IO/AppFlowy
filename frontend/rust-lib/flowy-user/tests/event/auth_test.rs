@@ -1,6 +1,6 @@
 use crate::helper::*;
 use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
-use flowy_user::{errors::ErrorCode, event::UserEvent::*};
+use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
 use flowy_user_data_model::entities::{SignInRequest, SignUpRequest, UserProfile};
 
 #[tokio::test]

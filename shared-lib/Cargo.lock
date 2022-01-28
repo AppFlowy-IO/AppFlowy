@@ -705,6 +705,7 @@ dependencies = [
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
+ "serde",
  "serial_test",
  "unicode-segmentation",
  "validator",

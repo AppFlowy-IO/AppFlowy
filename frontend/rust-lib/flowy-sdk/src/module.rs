@@ -16,7 +16,7 @@ pub fn mk_modules(
 }
 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module {
-    flowy_user::module::create(user_session)
+    flowy_user::event_map::create(user_session)
 }
 
 fn mk_folder_module(core: Arc<FolderManager>) -> Module {

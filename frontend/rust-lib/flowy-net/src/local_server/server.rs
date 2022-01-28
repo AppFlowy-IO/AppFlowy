@@ -255,7 +255,7 @@ use flowy_folder_data_model::entities::{
     view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
-use flowy_user::module::UserCloudService;
+use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };

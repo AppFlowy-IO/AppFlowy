@@ -1,6 +1,6 @@
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_net::{http_server::user::UserHttpCloudService, local_server::LocalServer};
-use flowy_user::module::UserCloudService;
+use flowy_user::event_map::UserCloudService;
 
 use std::sync::Arc;
 

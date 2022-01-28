@@ -31,6 +31,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UserProfile"
         | "UpdateUserRequest"
         | "UpdateUserParams"
+        | "UserPreferences"
+        | "AppearanceSettings"
         | "ClientRevisionWSData"
         | "ServerRevisionWSData"
         | "NewDocumentUser"

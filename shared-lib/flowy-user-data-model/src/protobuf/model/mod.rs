@@ -9,3 +9,6 @@ pub use user_profile::*;
 
 mod auth;
 pub use auth::*;
+
+mod user_setting;
+pub use user_setting::*;

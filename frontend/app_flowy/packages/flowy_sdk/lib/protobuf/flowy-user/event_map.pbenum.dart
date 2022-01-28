@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: event.proto
+//  source: event_map.proto
 //
 // @dart = 2.12
 // ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
@@ -17,6 +17,8 @@ class UserEvent extends $pb.ProtobufEnum {
   static const UserEvent UpdateUser = UserEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateUser');
   static const UserEvent GetUserProfile = UserEvent._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetUserProfile');
   static const UserEvent CheckUser = UserEvent._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CheckUser');
+  static const UserEvent UpdateAppearanceSetting = UserEvent._(7, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateAppearanceSetting');
+  static const UserEvent GetAppearanceSetting = UserEvent._(8, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetAppearanceSetting');
 
   static const $core.List<UserEvent> values = <UserEvent> [
     InitUser,
@@ -26,6 +28,8 @@ class UserEvent extends $pb.ProtobufEnum {
     UpdateUser,
     GetUserProfile,
     CheckUser,
+    UpdateAppearanceSetting,
+    GetAppearanceSetting,
   ];
 
   static final $core.Map<$core.int, UserEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

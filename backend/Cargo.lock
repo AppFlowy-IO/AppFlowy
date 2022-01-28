@@ -1542,6 +1542,7 @@ dependencies = [
  "lazy_static",
  "log",
  "protobuf",
+ "serde",
  "unicode-segmentation",
  "validator",
 ]
