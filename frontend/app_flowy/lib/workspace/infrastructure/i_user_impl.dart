@@ -86,6 +86,9 @@ class IUserListenerImpl extends IUserListener {
   @override
   Future<void> stop() async {
     await _subscription?.cancel();
+    profileUpdatedNotifier.dispose();
+    authDidChangedNotifier.dispose();
+    workspaceUpdatedNotifier.dispose();
   }
 
   void _notificationCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {

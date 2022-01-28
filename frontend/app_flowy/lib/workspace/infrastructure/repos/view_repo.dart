@@ -99,5 +99,8 @@ class ViewListenerRepository {
 
   Future<void> close() async {
     await _subscription?.cancel();
+    updatedNotifier.dispose();
+    deletedNotifier.dispose();
+    restoredNotifier.dispose();
   }
 }

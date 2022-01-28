@@ -31,7 +31,7 @@ class AppWidgetTask extends LaunchTask {
               supportedLocales: const [Locale('en'), Locale('zh', 'CN'), Locale('it', 'IT'), Locale('fr', 'CA')],
               path: 'assets/translations',
               fallbackLocale: const Locale('en'),
-              child: app),              
+              child: app),
         );
       },
       blocObserver: ApplicationBlocObserver(),
@@ -56,7 +56,7 @@ class ApplicationWidget extends StatelessWidget {
         value: settingModel,
         builder: (context, _) {
           const ratio = 1.73;
-          const minWidth = 800.0;
+          const minWidth = 1000.0;
           setWindowMinSize(const Size(minWidth, minWidth / ratio));
           AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
             (value) => value.theme,

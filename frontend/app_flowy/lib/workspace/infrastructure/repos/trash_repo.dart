@@ -72,5 +72,6 @@ class TrashListenerRepo {
 
   Future<void> close() async {
     await _subscription?.cancel();
+    _trashUpdated = null;
   }
 }
