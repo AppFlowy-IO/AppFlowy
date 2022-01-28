@@ -32,7 +32,10 @@
   "workspace": {
     "create": "Crea spazio di lavoro",
     "hint": "spazio di lavoro",
-    "notFoundError": "Spazio di lavoro non trovato"
+    "notFoundError": "Spazio di lavoro non trovato",
+    "tooltips": {
+      "openSettings": "Apri Impostazioni"
+    }
   },
   "shareAction": {
     "buttonText": "Condividi",

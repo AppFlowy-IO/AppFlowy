@@ -7,6 +7,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -63,7 +65,7 @@ class MenuUser extends StatelessWidget {
 
   Widget _renderSettingsButton(BuildContext context) {
     return Tooltip(
-      message: 'Open Settings',
+      message: LocaleKeys.workspace_tooltips_openSettings.tr(),
       child: IconButton(
         onPressed: () {
           showDialog(

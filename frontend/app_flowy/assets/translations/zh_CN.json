@@ -32,7 +32,10 @@
   "workspace": {
     "create": "新建空间",
     "hint": "空间",
-    "notFoundError": "未知的空间"
+    "notFoundError": "未知的空间",
+    "tooltips": {
+      "openSettings": "打开设置"
+    }
   },
   "shareAction": {
     "buttonText": "分享",
