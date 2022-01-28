@@ -1,62 +1,47 @@
 import 'package:flutter/material.dart';
 
-enum Language {
+enum AppLanguage {
   english,
   chinese,
   italian,
   french,
 }
 
-String stringFromLanguageName(Language language) {
+String stringFromLanguageName(AppLanguage language) {
   switch (language) {
-    case Language.english:
+    case AppLanguage.english:
       return "en";
-    case Language.chinese:
+    case AppLanguage.chinese:
       return "ch";
-    case Language.italian:
+    case AppLanguage.italian:
       return "it";
-    case Language.french:
+    case AppLanguage.french:
       return "fr";
   }
 }
 
-Language languageFromString(String name) {
-  Language language = Language.english;
+AppLanguage languageFromString(String name) {
+  AppLanguage language = AppLanguage.english;
   if (name == "ch") {
-    language = Language.chinese;
+    language = AppLanguage.chinese;
   } else if (name == "it") {
-    language = Language.italian;
+    language = AppLanguage.italian;
   } else if (name == "fr") {
-    language = Language.french;
+    language = AppLanguage.french;
   }
 
   return language;
 }
 
-Locale localeFromLanguageName(Language language) {
+Locale localeFromLanguageName(AppLanguage language) {
   switch (language) {
-    case Language.english:
+    case AppLanguage.english:
       return const Locale('en');
-    case Language.chinese:
+    case AppLanguage.chinese:
       return const Locale('zh', 'CN');
-    case Language.italian:
+    case AppLanguage.italian:
       return const Locale('it', 'IT');
-    case Language.french:
+    case AppLanguage.french:
       return const Locale('fr', 'CA');
-  }
-}
-
-class AppLanguage {
-  Locale locale;
-
-  //Default Constructor
-  AppLanguage({required this.locale});
-
-  factory AppLanguage.fromLanguage({required Language language}) {
-    return AppLanguage(locale: localeFromLanguageName(language));
-  }
-
-  factory AppLanguage.fromName({required String name}) {
-    return AppLanguage.fromLanguage(language: languageFromString(name));
   }
 }
