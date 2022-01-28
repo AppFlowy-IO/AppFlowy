@@ -1,0 +1,142 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Moi",
+  "welcomeText": "Bienvenu à @:appName",
+  "githubStarText": "Favorier sur GitHub",
+  "subscribeNewsletterText": "Abonnez-vous à notre courriel",
+  "letsGoButtonText": "Allons-y",
+  "title": "Titre",
+  "signUp": {
+    "buttonText": "S'abonner",
+    "title": "S'abonner à @:appName",
+    "getStartedText": "Commencer",
+    "emptyPasswordError": "Mot de passe ne doit pas être vide",
+    "repeatPasswordEmptyError": "Mot de passe ne doit pas être vide",
+    "unmatchedPasswordError": "Les mots de pass ne concordent pas",
+    "alreadyHaveAnAccount": "Avez-vous déjà un compte?",
+    "emailHint": "courriel",
+    "passwordHint": "Mot de passe",
+    "repeatPasswordHint": "Resaisir le mot de passe"
+  },
+  "signIn": {
+    "loginTitle": "Se connecter à @:appName",
+    "loginButtonText": "Connexion",
+    "buttonText": "Connexion",
+    "forgotPassword": "Mot de passe oublié?",
+    "emailHint": "courriel",
+    "passwordHint": "Mot de passe",
+    "dontHaveAnAccount": "Vous n'avez pas de compte?",
+    "repeatPasswordEmptyError": "Mot de passe ne doit pas être vide",
+    "unmatchedPasswordError": "Les mots de passe ne concordent pas"
+  },
+  "workspace": {
+    "create": "Créer une espace de travail",
+    "hint": "espace de travail",
+    "notFoundError": "Espace de travail non trouvé"
+  },
+  "shareAction": {
+    "buttonText": "Partager",
+    "workInProgress": "À venir",
+    "markdown": "Markdown",
+    "copyLink": "Copier le liens"
+  },
+  "disclosureAction": {
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "duplicate": "Dupliquer"
+  },
+  "blankPageTitle": "Page vide",
+  "newPageText": "Nouvelle page",
+  "trash": {
+    "text": "Poubelle",
+    "restoreAll": "Tout récupérer",
+    "deleteAll": "Tout supprimer",
+    "pageHeader": {
+      "fileName": "Nom de fichier",
+      "lastModified": "Dernière modification",
+      "created": "Crée"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Cette page est dans la poubelle",
+    "restore": "Récupérer la page",
+    "deletePermanent": "Supprimer en permanence"
+  },
+  "dialogCreatePageNameHint": "Nom de la page",
+  "questionBubble": {
+    "whatsNew": "Quoi de neuf?",
+    "help": "Aide & Support Technique",
+    "debug": {
+      "name": "Info du système",
+      "success": "Info copié!",
+      "fail": "Incapable de copié l'info"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Ajouter une page",
+    "defaultNewPageName": "Sans titre",
+    "renameDialog": "Renommer"
+  },
+  "toolbar": {
+    "undo": "Annuler",
+    "redo": "Refaire",
+    "bold": "Gras",
+    "italic": "Italique",
+    "underline": "Souligné",
+    "strike": "Barré",
+    "numList": "Liste numérotée",
+    "bulletList": "Liste à puces",
+    "checkList": "Liste de contrôle",
+    "inlineCode": "Code en ligne",
+    "quote": "Citation"
+  },
+  "tooltip": {
+    "lightMode": "Aller en mode claire",
+    "darkMode": "Aller en mode foncé"
+  },
+  "contactsPage": {
+    "title": "Contacts",
+    "whatsHappening": "Quoi de neuf?",
+    "addContact": "Ajouter Contact",
+    "editContact": "Éditer Contact"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Annuler",
+    "signIn": "Connecter",
+    "signOut": "Déconnecter",
+    "complete": "Complêt",
+    "save": "Sauvegarder"
+  },
+  "label": {
+    "welcome": "Bienvenu!",
+    "firstName": "Prénom",
+    "middleName": "Nom",
+    "lastName": "Nom de famille",
+    "stepX": "Étape {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Incapable de connecter à votre compte.",
+      "failedMsg": "SVP vous assurrez d'avoir complèté le processus d'enregistrement dans votre fureteur."
+    },
+    "google": {
+      "title": "S'identifier avec Google",
+      "instruction1": "Pour importer vos contacts Google, vous devez autoriser cette application à l'aide de votre navigateur Web.",
+      "instruction2": "Copiez ce code dans votre presse-papiers en cliquant sur l'icône ou en sélectionnant le texte :",
+      "instruction3": "Accédez au lien suivant dans votre navigateur Web et saisissez le code ci-dessus :",
+      "instruction4": "Appuyez sur le bouton ci-dessous lorsque vous avez terminé votre inscription :"
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "menu": {
+      "appearance": "Apparence",
+      "language": "Langue"
+    },
+    "appearance": {
+      "lightLabel": "Mode claire",
+      "darkLabel": "Mode foncé"
+    }
+  }
+}
