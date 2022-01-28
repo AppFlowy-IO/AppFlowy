@@ -62,6 +62,7 @@ class AppTheme {
   late Color tint9;
   late Color textColor;
   late Color iconColor;
+  late Color disableIconColor;
 
   late Color main1;
   late Color main2;
@@ -110,7 +111,8 @@ class AppTheme {
           ..main2 = const Color(0xff00b7ea)
           ..textColor = _black
           ..iconColor = _black
-          ..shadowColor = _black;
+          ..shadowColor = _black
+          ..disableIconColor = const Color(0xffbdbdbd);
 
       case ThemeType.dark:
         return AppTheme(ty: themeType, isDark: true)
@@ -144,7 +146,8 @@ class AppTheme {
           ..main2 = const Color(0xff009cc7)
           ..textColor = _white
           ..iconColor = _white
-          ..shadowColor = _white;
+          ..shadowColor = _white
+          ..disableIconColor = const Color(0xff333333);
     }
   }
 
