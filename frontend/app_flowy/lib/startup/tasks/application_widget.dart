@@ -2,6 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +62,9 @@ class ApplicationWidget extends StatelessWidget {
           AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
             (value) => value.theme,
           );
+          AppLanguage language = context.select<AppearanceSettingModel, AppLanguage>(
+            (value) => value.language,
+          );
 
           return Provider.value(
             value: theme,
@@ -70,7 +74,7 @@ class ApplicationWidget extends StatelessWidget {
               theme: theme.themeData,
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
-              locale: context.locale,
+              locale: localeFromLanguageName(language),
               navigatorKey: AppGlobals.rootNavKey,
               home: child,
             ),
