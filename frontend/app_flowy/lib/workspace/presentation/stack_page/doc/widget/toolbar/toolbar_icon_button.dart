@@ -1,7 +1,7 @@
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:provider/provider.dart';
 
 const double defaultIconSize = 18;
@@ -29,9 +29,7 @@ class ToolbarIconButton extends StatelessWidget {
       iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       onPressed: onPressed,
       width: width,
-      icon: isToggled == true
-          ? svg(iconName, color: Colors.white)
-          : svg(iconName),
+      icon: isToggled == true ? svg(iconName, color: Colors.white) : svg(iconName),
       fillColor: isToggled == true ? theme.main1 : theme.shader6,
       hoverColor: isToggled == true ? theme.main1 : theme.shader5,
       tooltipText: tooltipText,
