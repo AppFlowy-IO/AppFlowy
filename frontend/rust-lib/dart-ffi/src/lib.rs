@@ -9,18 +9,10 @@ use crate::{
     model::{FFIRequest, FFIResponse},
 };
 use flowy_sdk::*;
-use lazy_static::lazy_static;
 use lib_dispatch::prelude::*;
-use parking_lot::RwLock;
-use std::{ffi::CStr, os::raw::c_char, sync::Arc};
+use std::{ffi::CStr, os::raw::c_char};
 
-lazy_static! {
-    static ref FLOWY_SDK: RwLock<Option<Arc<FlowySDK>>> = RwLock::new(None);
-}
-
-fn dispatch() -> Arc<EventDispatcher> {
-    FLOWY_SDK.read().as_ref().unwrap().dispatcher()
-}
+const FLOWY_SDK: once_cell::sync::OnceCell<FlowySDK> = once_cell::sync::OnceCell::new();
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
@@ -29,7 +21,9 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
     let server_config = get_client_server_configuration().unwrap();
     let config = FlowySDKConfig::new(path, server_config, "appflowy").log_filter("debug");
-    *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
+    FLOWY_SDK.get_or_init(|| {
+        FlowySDK::new(config)
+    });
 
     0
 }
@@ -44,7 +38,15 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let _ = EventDispatcher::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
+    let dispatcher = match FLOWY_SDK.get() {
+        None => {
+            log::error!("sdk not init yet.");
+
+            return;
+        },
+        Some(e) => e.dispatcher.clone()
+    };
+    let _ = EventDispatcher::async_send_with_callback(dispatcher, request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
@@ -54,7 +56,16 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-    let _response = EventDispatcher::sync_send(dispatch(), request);
+
+    let dispatcher = match FLOWY_SDK.get() {
+        None => {
+            log::error!("sdk not init yet.");
+
+            return forget_rust(vec![]);
+        },
+        Some(e) => e.dispatcher.clone()
+    };
+    let _response = EventDispatcher::sync_send(dispatcher, request);
 
     // FFIResponse {  }
     let response_bytes = vec![];
