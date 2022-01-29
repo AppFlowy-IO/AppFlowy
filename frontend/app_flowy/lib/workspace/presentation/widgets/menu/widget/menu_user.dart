@@ -1,7 +1,9 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
@@ -64,6 +66,7 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderSettingsButton(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
@@ -75,7 +78,10 @@ class MenuUser extends StatelessWidget {
             },
           );
         },
-        icon: const Icon(Icons.settings),
+        icon: SizedBox.square(
+          dimension: 20,
+          child: svg("home/settings", color: theme.iconColor),
+        ),
       ),
     );
   }
