@@ -88,7 +88,9 @@
     "bulletList": "Lista a punti",
     "checkList": "Lista Controllo",
     "inlineCode": "Codice in linea",
-    "quote": "Cita Blocco"
+    "quote": "Cita Blocco",
+    "header": "intestazione",
+    "highlight": "Evidenziare"
   },
   "tooltip": {
     "lightMode": "Passa alla modalità Chiara",
@@ -132,7 +134,8 @@
     "title": "Impostazioni",
     "menu": {
       "appearance": "Aspetto",
-      "language": "Lingua"
+      "language": "Lingua",
+      "open": "aprire le impostazioni"
     },
     "appearance": {
       "lightLabel": "Modalità Chiara",

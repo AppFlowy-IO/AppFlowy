@@ -12,12 +12,7 @@ class SettingsLanguageView extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SizedBox(
-            height: 15,
-          ),
-          LanguageSelectorDropdown()
-        ],
+        children: const [LanguageSelectorDropdown()],
       ),
     );
   }
@@ -42,6 +37,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
           context.read<AppearanceSettingModel>().setLanguage(context, val!);
         });
       },
+      autofocus: true,
       items: AppLanguage.values.map((language) {
         return DropdownMenuItem<AppLanguage>(
           value: language,

@@ -16,9 +16,6 @@ class SettingsAppearanceView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: 15,
-          ),
           Row(
             children: [
               Text(
