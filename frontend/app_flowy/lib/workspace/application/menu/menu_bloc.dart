@@ -49,13 +49,13 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   Future<void> _performActionOnCreateApp(CreateApp event, Emitter<MenuState> emit) async {
     final result = await workspaceManager.createApp(name: event.name, desc: event.desc);
-    emit(result.fold(
-      (app) => state.copyWith(apps: some([app])),
+    result.fold(
+      (app) => {},
       (error) {
         Log.error(error);
-        return state.copyWith(successOrFailure: right(error));
+        emit(state.copyWith(successOrFailure: right(error)));
       },
-    ));
+    );
   }
 
   // ignore: unused_element

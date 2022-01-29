@@ -41,13 +41,13 @@ class _MenuAppState extends State<MenuApp> {
       ],
       child: BlocSelector<AppBloc, AppState, AppDataNotifier>(
         selector: (state) {
-          final menuState = Provider.of<MenuSharedState>(context, listen: false);
+          final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
           if (state.latestCreatedView != null) {
-            menuState.forcedOpenView.value = state.latestCreatedView!;
+            menuSharedState.forcedOpenView.value = state.latestCreatedView!;
           }
 
           notifier.views = state.views;
-          notifier.selectedView = menuState.selectedView.value;
+          notifier.selectedView = menuSharedState.selectedView.value;
           return notifier;
         },
         builder: (context, notifier) => ChangeNotifierProvider.value(

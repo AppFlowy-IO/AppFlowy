@@ -49,7 +49,7 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   Widget get leftBarItem => DocumentLeftBarItem(view: _view);
 
   @override
-  Widget? get rightBarItem => DococumentShareButton(view: _view);
+  Widget? get rightBarItem => DocumentShareButton(view: _view);
 
   @override
   String get identifier => _view.id;
@@ -150,9 +150,9 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   }
 }
 
-class DococumentShareButton extends StatelessWidget {
+class DocumentShareButton extends StatelessWidget {
   final View view;
-  DococumentShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
+  DocumentShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {
@@ -178,14 +178,21 @@ class DococumentShareButton extends StatelessWidget {
               value: Provider.of<AppearanceSettingModel>(context, listen: true),
               child: Selector<AppearanceSettingModel, AppLanguage>(
                 selector: (ctx, notifier) => notifier.language,
-                builder: (ctx, _, child) => RoundedTextButton(
-                  title: LocaleKeys.shareAction_buttonText.tr(),
-                  height: 30,
-                  width: buttonWidth,
-                  fontSize: 12,
-                  borderRadius: Corners.s6Border,
-                  color: Colors.lightBlue,
-                  onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+                builder: (ctx, _, child) => ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 30,
+                    minWidth: buttonWidth,
+                    maxWidth: 100,
+                  ),
+                  child: RoundedTextButton(
+                    title: LocaleKeys.shareAction_buttonText.tr(),
+                    // height: 30,
+                    // width: buttonWidth,
+                    fontSize: 12,
+                    borderRadius: Corners.s6Border,
+                    color: Colors.lightBlue,
+                    onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+                  ),
                 ),
               ),
             );
