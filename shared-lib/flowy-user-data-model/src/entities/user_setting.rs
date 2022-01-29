@@ -19,7 +19,7 @@ pub struct AppearanceSettings {
     pub language: String,
 }
 
-pub const APPEARANCE_DEFAULT_THEME: &str = "dark";
+pub const APPEARANCE_DEFAULT_THEME: &str = "light";
 pub const APPEARANCE_DEFAULT_LANGUAGE: &str = "en";
 
 impl std::default::Default for AppearanceSettings {
