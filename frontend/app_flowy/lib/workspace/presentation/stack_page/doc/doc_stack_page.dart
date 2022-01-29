@@ -179,15 +179,13 @@ class DocumentShareButton extends StatelessWidget {
               child: Selector<AppearanceSettingModel, AppLanguage>(
                 selector: (ctx, notifier) => notifier.language,
                 builder: (ctx, _, child) => ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 30,
-                    minWidth: buttonWidth,
-                    maxWidth: 100,
+                  constraints: BoxConstraints.expand(
+                    height: 30,
+                    // minWidth: buttonWidth,
+                    width: 100,
                   ),
                   child: RoundedTextButton(
                     title: LocaleKeys.shareAction_buttonText.tr(),
-                    // height: 30,
-                    // width: buttonWidth,
                     fontSize: 12,
                     borderRadius: Corners.s6Border,
                     color: Colors.lightBlue,
