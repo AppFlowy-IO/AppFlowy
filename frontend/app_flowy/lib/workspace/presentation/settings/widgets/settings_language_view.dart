@@ -39,7 +39,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
       value: context.read<AppearanceSettingModel>().language,
       onChanged: (val) {
         setState(() {
-          context.read<AppearanceSettingModel>().setLanguage(val!);
+          context.read<AppearanceSettingModel>().setLanguage(context, val!);
         });
       },
       items: AppLanguage.values.map((language) {

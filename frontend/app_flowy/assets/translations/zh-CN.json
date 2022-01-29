@@ -93,9 +93,9 @@
     "inlineCode": "内联代码",
     "quote": "块引用"
   },
-  "tooltip":{
-    "lightMode" : "切换到灯光模式",
-    "darkMode" : "切换到暗模式"
+  "tooltip": {
+    "lightMode": "切换到灯光模式",
+    "darkMode": "切换到暗模式"
   },
   "contactsPage": {
     "title": "联系人",
@@ -129,6 +129,17 @@
       "instruction2": "单击图标或选择文本复制到剪贴板：",
       "instruction3": "进入下面的链接，然后输入上面的代码：",
       "instruction4": "完成注册后，点击下面的按钮："
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "menu": {
+      "appearance": "外观",
+      "language": "语言"
+    },
+    "appearance": {
+      "lightLabel": "日间模式",
+      "darkLabel": "夜间模式"
     }
   }
 }
