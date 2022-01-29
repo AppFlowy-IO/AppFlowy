@@ -26,7 +26,7 @@ class FlowyHistoryButton extends StatelessWidget {
         icon: icon,
         iconSize: iconSize,
         controller: controller,
-        undo: true,
+        undo: undo,
       ),
     );
   }
