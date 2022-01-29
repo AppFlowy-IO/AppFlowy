@@ -4,6 +4,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppearanceSettings setting;
@@ -37,12 +38,12 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void setLanguage(AppLanguage language) {
+  void setLanguage(BuildContext context, AppLanguage language) {
     String languageString = stringFromLanguageName(language);
 
     if (setting.language != languageString) {
+      context.setLocale(localeFromLanguageName(language));
       _language = language;
-      print('language changed to $languageString');
       setting.language = languageString;
       notifyListeners();
       save();

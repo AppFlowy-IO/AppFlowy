@@ -66,18 +66,23 @@ class ApplicationWidget extends StatelessWidget {
             (value) => value.language,
           );
 
-          return Provider.value(
-            value: theme,
-            child: MaterialApp(
-              builder: overlayManagerBuilder(),
-              debugShowCheckedModeBanner: false,
-              theme: theme.themeData,
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: localeFromLanguageName(language),
-              navigatorKey: AppGlobals.rootNavKey,
-              home: child,
-            ),
+          return MultiProvider(
+            providers: [
+              Provider.value(value: theme),
+              Provider.value(value: language),
+            ],
+            builder: (context, _) {
+              return MaterialApp(
+                builder: overlayManagerBuilder(),
+                debugShowCheckedModeBanner: false,
+                theme: theme.themeData,
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: localeFromLanguageName(language),
+                navigatorKey: AppGlobals.rootNavKey,
+                home: child,
+              );
+            },
           );
         },
       );
