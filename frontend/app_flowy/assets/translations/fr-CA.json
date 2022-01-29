@@ -88,7 +88,9 @@
     "bulletList": "Liste à puces",
     "checkList": "Liste de contrôle",
     "inlineCode": "Code en ligne",
-    "quote": "Citation"
+    "quote": "Citation",
+    "header": "en-tête",
+    "highlight": "Surligner"
   },
   "tooltip": {
     "lightMode": "Aller en mode claire",
@@ -132,7 +134,8 @@
     "title": "Réglages",
     "menu": {
       "appearance": "Apparence",
-      "language": "Langue"
+      "language": "Langue",
+      "open": "ouvrir les paramètres"
     },
     "appearance": {
       "lightLabel": "Mode claire",
