@@ -77,7 +77,9 @@ class HomeMenu extends StatelessWidget {
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
-            listener: (context, state) => _collapsedNotifier.value = state.isCollapse,
+            listener: (context, state) {
+              _collapsedNotifier.value = state.isCollapse;
+            },
           )
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
