@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -7,6 +8,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -20,6 +22,7 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
 import 'doc_page.dart';
 
@@ -171,14 +174,20 @@ class DococumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            return RoundedTextButton(
-              title: 'shareAction.buttonText'.tr(),
-              height: 30,
-              width: buttonWidth,
-              fontSize: 12,
-              borderRadius: Corners.s6Border,
-              color: Colors.lightBlue,
-              onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+            return ChangeNotifierProvider.value(
+              value: Provider.of<AppearanceSettingModel>(context, listen: true),
+              child: Selector<AppearanceSettingModel, AppLanguage>(
+                selector: (ctx, notifier) => notifier.language,
+                builder: (ctx, _, child) => RoundedTextButton(
+                  title: LocaleKeys.shareAction_buttonText.tr(),
+                  height: 30,
+                  width: buttonWidth,
+                  fontSize: 12,
+                  borderRadius: Corners.s6Border,
+                  color: Colors.lightBlue,
+                  onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+                ),
+              ),
             );
           },
         ),

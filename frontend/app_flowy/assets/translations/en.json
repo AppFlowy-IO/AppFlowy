@@ -91,7 +91,9 @@
     "bulletList": "Bulleted List",
     "checkList": "Check List",
     "inlineCode": "Inline Code",
-    "quote": "Quote Block"
+    "quote": "Quote Block",
+    "header": "Header",
+    "highlight": "Highlight"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -135,7 +137,8 @@
     "title": "Settings",
     "menu": {
       "appearance": "Appearance",
-      "language": "Language"
+      "language": "Language",
+      "open": "Open Settings"
     },
     "appearance": {
       "lightLabel": "Light Mode",

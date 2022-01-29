@@ -91,7 +91,9 @@
     "bulletList": "无序列表",
     "checkList": "任务列表",
     "inlineCode": "内联代码",
-    "quote": "块引用"
+    "quote": "块引用",
+    "header": "标题",
+    "highlight": "高亮"
   },
   "tooltip": {
     "lightMode": "切换到灯光模式",
@@ -135,7 +137,8 @@
     "title": "设置",
     "menu": {
       "appearance": "外观",
-      "language": "语言"
+      "language": "语言",
+      "open": "打开设置"
     },
     "appearance": {
       "lightLabel": "日间模式",
