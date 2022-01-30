@@ -20,7 +20,7 @@ You are in charge of your data and customizations.
 <p align="center">
     <a href="http://www.appflowy.io"><b>Website</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
-    <a href="https://twitter.com/appflowy"><b>Twitter</b></a> •
+    <a href="https://twitter.com/appflowy"><b>Twitter</b></a> 
 </p>  
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/welcome.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
