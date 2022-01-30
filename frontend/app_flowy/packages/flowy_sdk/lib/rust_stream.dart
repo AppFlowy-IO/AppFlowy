@@ -30,8 +30,8 @@ class RustStreamReceiver {
     return shared;
   }
 
-  static listen(void Function(SubscribeObject subject) callback) {
-    RustStreamReceiver.shared.observable.stream.listen(callback);
+  static StreamSubscription<SubscribeObject> listen(void Function(SubscribeObject subject) callback) {
+    return RustStreamReceiver.shared.observable.stream.listen(callback);
   }
 
   void streamCallback(Uint8List bytes) {
