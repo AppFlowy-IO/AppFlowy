@@ -15,7 +15,7 @@ use crate::{
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
     errors::{FlowyError, FlowyResult},
-    module::{FolderCouldServiceV1, WorkspaceUser},
+    event_map::{FolderCouldServiceV1, WorkspaceUser},
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, ViewChangeset},
         TrashController, TrashEvent,

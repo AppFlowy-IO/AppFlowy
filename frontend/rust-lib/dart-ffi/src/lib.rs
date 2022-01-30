@@ -18,7 +18,7 @@ lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<Arc<FlowySDK>>> = RwLock::new(None);
 }
 
-fn dispatch() -> Arc<EventDispatcher> {
+fn get_dispatcher() -> Arc<EventDispatcher> {
     FLOWY_SDK.read().as_ref().unwrap().dispatcher()
 }
 
@@ -44,7 +44,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let _ = EventDispatcher::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
+    let _ = EventDispatcher::async_send_with_callback(get_dispatcher(), request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
@@ -54,7 +54,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-    let _response = EventDispatcher::sync_send(dispatch(), request);
+    let _response = EventDispatcher::sync_send(get_dispatcher(), request);
 
     // FFIResponse {  }
     let response_bytes = vec![];

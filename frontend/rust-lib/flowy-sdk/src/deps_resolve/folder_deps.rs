@@ -6,7 +6,7 @@ use flowy_document::FlowyDocumentManager;
 use flowy_folder::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},
-    module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
+    event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
 };
 use flowy_net::{
     http_server::core::CoreHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,

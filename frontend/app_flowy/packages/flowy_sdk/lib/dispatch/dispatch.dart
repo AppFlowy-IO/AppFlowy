@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event_map.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/event.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/event_map.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';

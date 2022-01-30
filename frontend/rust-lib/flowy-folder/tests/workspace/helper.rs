@@ -1,5 +1,5 @@
 use flowy_collaboration::entities::document_info::DocumentInfo;
-use flowy_folder::event::FolderEvent::*;
+use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppRequest, QueryAppRequest, UpdateAppRequest},
     trash::{RepeatedTrash, TrashId, TrashType},

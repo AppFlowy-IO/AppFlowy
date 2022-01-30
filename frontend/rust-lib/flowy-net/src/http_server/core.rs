@@ -12,7 +12,7 @@ use flowy_folder_data_model::entities::{
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
 
-use flowy_folder::module::{FolderCouldServiceV1, FolderCouldServiceV2};
+use flowy_folder::event_map::FolderCouldServiceV1;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -27,8 +27,6 @@ impl CoreHttpCloudService {
         Self { config }
     }
 }
-
-impl FolderCouldServiceV2 for CoreHttpCloudService {}
 
 impl FolderCouldServiceV1 for CoreHttpCloudService {
     fn init(&self) {}

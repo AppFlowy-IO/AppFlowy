@@ -20,7 +20,7 @@ fn mk_user_module(user_session: Arc<UserSession>) -> Module {
 }
 
 fn mk_folder_module(core: Arc<FolderManager>) -> Module {
-    flowy_folder::module::create(core)
+    flowy_folder::event_map::create(core)
 }
 
 fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module {

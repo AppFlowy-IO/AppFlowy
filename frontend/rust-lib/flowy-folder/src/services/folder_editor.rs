@@ -112,7 +112,6 @@ impl RevisionObjectBuilder for FolderPadBuilder {
 struct FolderRevisionCloudServiceImpl {
     #[allow(dead_code)]
     token: String,
-    // server: Arc<dyn FolderCouldServiceV2>,
 }
 
 impl RevisionCloudService for FolderRevisionCloudServiceImpl {

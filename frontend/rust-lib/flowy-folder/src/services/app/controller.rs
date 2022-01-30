@@ -5,7 +5,7 @@ use crate::{
         trash::TrashType,
     },
     errors::*,
-    module::{FolderCouldServiceV1, WorkspaceUser},
+    event_map::{FolderCouldServiceV1, WorkspaceUser},
     services::{
         persistence::{AppChangeset, FolderPersistence, FolderPersistenceTransaction},
         TrashController, TrashEvent,

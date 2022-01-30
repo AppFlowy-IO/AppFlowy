@@ -12,7 +12,7 @@ pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::
 
 use crate::{
     controller::FolderId,
-    module::WorkspaceDatabase,
+    event_map::WorkspaceDatabase,
     services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_error::{FlowyError, FlowyResult};

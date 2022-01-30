@@ -5,7 +5,7 @@ use flowy_folder::{
         view::*,
         workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     },
-    event::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
+    event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
 };
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},

@@ -84,7 +84,7 @@ async fn workspace_create_with_invalid_name() {
         };
         assert_eq!(
             FolderEventBuilder::new(sdk)
-                .event(flowy_folder::event::FolderEvent::CreateWorkspace)
+                .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
                 .request(request)
                 .async_send()
                 .await

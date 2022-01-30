@@ -15,7 +15,7 @@ use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspace,
     errors::FlowyResult,
-    module::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
+    event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
         folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,

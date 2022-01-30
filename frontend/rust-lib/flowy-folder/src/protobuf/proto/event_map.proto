@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 enum FolderEvent {
     CreateWorkspace = 0;
     ReadCurWorkspace = 1;

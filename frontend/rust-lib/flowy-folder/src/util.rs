@@ -1,5 +1,5 @@
 #![allow(clippy::type_complexity)]
-use crate::module::{FolderCouldServiceV1, WorkspaceUser};
+use crate::event_map::{FolderCouldServiceV1, WorkspaceUser};
 use lib_infra::retry::Action;
 use pin_project::pin_project;
 use std::{

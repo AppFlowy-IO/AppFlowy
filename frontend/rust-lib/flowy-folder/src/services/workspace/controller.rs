@@ -1,7 +1,7 @@
 use crate::{
     dart_notification::*,
     errors::*,
-    module::{FolderCouldServiceV1, WorkspaceUser},
+    event_map::{FolderCouldServiceV1, WorkspaceUser},
     services::{
         persistence::{FolderPersistence, FolderPersistenceTransaction, WorkspaceChangeset},
         read_local_workspace_apps, TrashController,

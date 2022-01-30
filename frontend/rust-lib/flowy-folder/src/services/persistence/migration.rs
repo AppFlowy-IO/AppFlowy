@@ -1,5 +1,5 @@
 use crate::{
-    module::WorkspaceDatabase,
+    event_map::WorkspaceDatabase,
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
 use flowy_collaboration::{client_folder::FolderPad, entities::revision::md5};

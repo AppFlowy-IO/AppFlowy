@@ -14,7 +14,7 @@ use flowy_collaboration::{
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
 use flowy_error::{internal_error, FlowyError};
-use flowy_folder::module::{FolderCouldServiceV1, FolderCouldServiceV2};
+use flowy_folder::event_map::FolderCouldServiceV1;
 use futures_util::stream::StreamExt;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use parking_lot::RwLock;
@@ -260,8 +260,6 @@ use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
 use lib_infra::{future::FutureResult, timestamp, uuid_string};
-
-impl FolderCouldServiceV2 for LocalServer {}
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
