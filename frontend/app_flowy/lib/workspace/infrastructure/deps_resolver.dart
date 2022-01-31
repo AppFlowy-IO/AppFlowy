@@ -11,7 +11,6 @@ import 'package:app_flowy/workspace/domain/i_share.dart';
 import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/infrastructure/i_app_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/i_doc_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/i_trash_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
@@ -38,11 +37,6 @@ class HomeDepsResolver {
         listener: getIt<IUserListener>(param1: user),
       ),
     );
-
-    //App
-    getIt.registerFactoryParam<IApp, String, void>((appId, _) => IAppImpl(repo: AppRepository(appId: appId)));
-    getIt.registerFactoryParam<IAppListenr, String, void>(
-        (appId, _) => IAppListenerhImpl(repo: AppListenerRepository(appId: appId)));
 
     //workspace
     getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
@@ -81,8 +75,8 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<AppBloc, App, void>(
       (app, _) => AppBloc(
         app: app,
-        appManager: getIt<IApp>(param1: app.id),
-        listener: getIt<IAppListenr>(param1: app.id),
+        repo: AppRepository(appId: app.id),
+        listener: AppListenerRepository(appId: app.id),
       ),
     );
 

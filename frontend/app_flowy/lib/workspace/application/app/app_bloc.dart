@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/domain/i_app.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
@@ -10,18 +10,18 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final IApp appManager;
-  final IAppListenr listener;
-  AppBloc({required App app, required this.appManager, required this.listener}) : super(AppState.initial(app)) {
+  final AppRepository repo;
+  final AppListenerRepository listener;
+  AppBloc({required App app, required this.repo, required this.listener}) : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
-        listener.start(
-          viewsChangeCallback: _handleViewsChanged,
-          updatedCallback: (app) => add(AppEvent.appDidUpdate(app)),
+        listener.startListening(
+          viewsChanged: _handleViewsChanged,
+          appUpdated: (app) => add(AppEvent.appDidUpdate(app)),
         );
         await _fetchViews(emit);
       }, createView: (CreateView value) async {
-        final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
+        final viewOrFailed = await repo.createView(name: value.name, desc: value.desc, viewType: value.viewType);
         viewOrFailed.fold(
           (view) => emit(state.copyWith(
             latestCreatedView: view,
@@ -35,13 +35,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }, didReceiveViews: (e) async {
         await handleDidReceiveViews(e.views, emit);
       }, delete: (e) async {
-        final result = await appManager.delete();
+        final result = await repo.delete();
         result.fold(
           (unit) => emit(state.copyWith(successOrFailure: left(unit))),
           (error) => emit(state.copyWith(successOrFailure: right(error))),
         );
       }, rename: (e) async {
-        final result = await appManager.rename(e.newName);
+        final result = await repo.updateApp(name: e.newName);
         result.fold(
           (l) => emit(state.copyWith(successOrFailure: left(unit))),
           (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -54,7 +54,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   Future<void> close() async {
-    await listener.stop();
+    await listener.close();
     return super.close();
   }
 
@@ -81,7 +81,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _fetchViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appManager.getViews();
+    final viewsOrFailed = await repo.getViews();
     viewsOrFailed.fold(
       (apps) => emit(state.copyWith(views: apps)),
       (error) {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -24,7 +23,11 @@ class AppRepository {
     return FolderEventReadApp(request).send();
   }
 
-  Future<Either<View, FlowyError>> createView(String name, String desc, ViewType viewType) {
+  Future<Either<View, FlowyError>> createView({
+    required String name,
+    required String desc,
+    required ViewType viewType,
+  }) {
     final request = CreateViewRequest.create()
       ..belongToId = appId
       ..name = name
@@ -60,10 +63,13 @@ class AppRepository {
   }
 }
 
+typedef AppDidUpdateCallback = void Function(App app);
+typedef ViewsDidChangeCallback = void Function(Either<List<View>, FlowyError> viewsOrFailed);
+
 class AppListenerRepository {
   StreamSubscription<SubscribeObject>? _subscription;
-  AppViewsChangeCallback? _viewsChanged;
-  AppUpdatedCallback? _update;
+  ViewsDidChangeCallback? _viewsChanged;
+  AppDidUpdateCallback? _updated;
   late FolderNotificationParser _parser;
   String appId;
 
@@ -71,9 +77,9 @@ class AppListenerRepository {
     required this.appId,
   });
 
-  void startListening({AppViewsChangeCallback? viewsChanged, AppUpdatedCallback? update}) {
+  void startListening({ViewsDidChangeCallback? viewsChanged, AppDidUpdateCallback? appUpdated}) {
     _viewsChanged = viewsChanged;
-    _update = update;
+    _updated = appUpdated;
     _parser = FolderNotificationParser(id: appId, callback: _bservableCallback);
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
@@ -92,11 +98,11 @@ class AppListenerRepository {
         }
         break;
       case FolderNotification.AppUpdated:
-        if (_update != null) {
+        if (_updated != null) {
           result.fold(
             (payload) {
               final app = App.fromBuffer(payload);
-              _update!(app);
+              _updated!(app);
             },
             (error) => Log.error(error),
           );
@@ -110,6 +116,6 @@ class AppListenerRepository {
   Future<void> close() async {
     await _subscription?.cancel();
     _viewsChanged = null;
-    _update = null;
+    _updated = null;
   }
 }
