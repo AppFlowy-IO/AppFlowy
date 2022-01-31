@@ -1,6 +1,10 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/domain/i_splash.dart';
+import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:app_flowy/user/presentation/sign_in_screen.dart';
 import 'package:app_flowy/user/presentation/sign_up_screen.dart';
+import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
+import 'package:app_flowy/user/presentation/welcome_screen.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
@@ -9,13 +13,12 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthRouter {
-  @override
   void pushForgetPasswordScreen(BuildContext context) {
     // TODO: implement showForgetPasswordScreen
   }
 
   void pushWelcomeScreen(BuildContext context, UserProfile userProfile) {
-    getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
+    getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
   }
 
   void pushSignUpScreen(BuildContext context) {
@@ -30,6 +33,47 @@ class AuthRouter {
     Navigator.push(
       context,
       PageRoutes.fade(() => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
+    );
+  }
+}
+
+class SplashRoute {
+  Future<void> pushWelcomeScreen(BuildContext context, UserProfile user) async {
+    final repo = UserRepo(user: user);
+    final screen = WelcomeScreen(repo: repo);
+    final workspaceId = await Navigator.of(context).push(
+      PageRoutes.fade(
+        () => screen,
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
+    );
+
+    pushHomeScreen(context, repo.user, workspaceId);
+  }
+
+  void pushHomeScreen(BuildContext context, UserProfile userProfile, CurrentWorkspaceSetting workspaceSetting) {
+    Navigator.push(
+      context,
+      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
+    );
+  }
+
+  void pushSignInScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+    );
+  }
+
+  void pushSkipLoginScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRoutes.fade(
+          () => SkipLogInScreen(
+                router: getIt<AuthRouter>(),
+                authRepo: getIt<AuthRepository>(),
+              ),
+          RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }

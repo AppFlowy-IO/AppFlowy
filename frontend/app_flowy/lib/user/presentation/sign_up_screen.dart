@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
-import 'package:app_flowy/user/domain/i_auth.dart';
+import 'package:app_flowy/user/infrastructure/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -17,7 +17,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SignUpScreen extends StatelessWidget {
-  final IAuthRouter router;
+  final AuthRouter router;
   const SignUpScreen({Key? key, required this.router}) : super(key: key);
 
   @override

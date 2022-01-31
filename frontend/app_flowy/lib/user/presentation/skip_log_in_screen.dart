@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/infrastructure/i_auth_impl.dart';
+import 'package:app_flowy/user/infrastructure/router.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
