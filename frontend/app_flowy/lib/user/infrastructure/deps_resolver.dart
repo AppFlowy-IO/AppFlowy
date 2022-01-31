@@ -5,9 +5,6 @@ import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:app_flowy/user/infrastructure/router.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
-import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:app_flowy/workspace/infrastructure/i_user_impl.dart';
 import 'package:get_it/get_it.dart';
 
 import 'network_monitor.dart';
@@ -27,11 +24,6 @@ class UserDepsResolver {
     getIt.registerFactory<HomeBloc>(() => HomeBloc());
     getIt.registerFactory<EditPannelBloc>(() => EditPannelBloc());
     getIt.registerFactory<SplashBloc>(() => SplashBloc());
-
-    getIt.registerFactoryParam<HomeListenBloc, UserProfile, void>((user, _) => HomeListenBloc(
-          getIt<IUserListener>(param1: user),
-        ));
-
     getIt.registerLazySingleton<NetworkMonitor>(() => NetworkMonitor());
   }
 }

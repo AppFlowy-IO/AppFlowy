@@ -12,4 +12,16 @@ class ShareRepo {
 
     return FolderEventExportDocument(request).send();
   }
+
+  Future<Either<ExportData, FlowyError>> exportText(String docId) {
+    return export(docId, ExportType.Text);
+  }
+
+  Future<Either<ExportData, FlowyError>> exportMarkdown(String docId) {
+    return export(docId, ExportType.Markdown);
+  }
+
+  Future<Either<ExportData, FlowyError>> exportURL(String docId) {
+    return export(docId, ExportType.Link);
+  }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -41,7 +40,9 @@ class TrashRepo {
   }
 }
 
-class TrashListenerRepo {
+typedef TrashUpdatedCallback = void Function(Either<List<Trash>, FlowyError> trashOrFailed);
+
+class TrashListener {
   StreamSubscription<SubscribeObject>? _subscription;
   TrashUpdatedCallback? _trashUpdated;
   late FolderNotificationParser _parser;

@@ -11,7 +11,7 @@ part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   final AppRepository repo;
-  final AppListenerRepository listener;
+  final AppListener listener;
   AppBloc({required App app, required this.repo, required this.listener}) : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {

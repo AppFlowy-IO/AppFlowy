@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/domain/i_share.dart';
 import 'package:app_flowy/workspace/infrastructure/markdown/delta_markdown.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/share_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/share.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -9,13 +9,13 @@ import 'package:dartz/dartz.dart';
 part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
-  IShare shareManager;
+  ShareRepo repo;
   View view;
-  DocShareBloc({required this.view, required this.shareManager}) : super(const DocShareState.initial()) {
+  DocShareBloc({required this.view, required this.repo}) : super(const DocShareState.initial()) {
     on<DocShareEvent>((event, emit) async {
       await event.map(
         shareMarkdown: (ShareMarkdown value) async {
-          await shareManager.exportMarkdown(view.id).then((result) {
+          await repo.exportMarkdown(view.id).then((result) {
             result.fold(
               (value) => emit(DocShareState.finish(left(_convertDeltaToMarkdown(value)))),
               (error) => emit(DocShareState.finish(right(error))),

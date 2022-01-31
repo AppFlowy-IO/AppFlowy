@@ -66,14 +66,14 @@ class AppRepository {
 typedef AppDidUpdateCallback = void Function(App app);
 typedef ViewsDidChangeCallback = void Function(Either<List<View>, FlowyError> viewsOrFailed);
 
-class AppListenerRepository {
+class AppListener {
   StreamSubscription<SubscribeObject>? _subscription;
   ViewsDidChangeCallback? _viewsChanged;
   AppDidUpdateCallback? _updated;
   late FolderNotificationParser _parser;
   String appId;
 
-  AppListenerRepository({
+  AppListener({
     required this.appId,
   });
 

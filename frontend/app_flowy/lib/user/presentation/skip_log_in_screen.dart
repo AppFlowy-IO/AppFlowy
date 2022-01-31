@@ -1,7 +1,7 @@
 import 'package:app_flowy/user/infrastructure/router.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
-import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
@@ -12,6 +12,7 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -33,7 +34,7 @@ class SkipLogInScreen extends StatefulWidget {
 }
 
 class _SkipLogInScreenState extends State<SkipLogInScreen> {
-  IUserListener? userListener;
+  UserListener? userListener;
 
   @override
   Widget build(BuildContext context) {

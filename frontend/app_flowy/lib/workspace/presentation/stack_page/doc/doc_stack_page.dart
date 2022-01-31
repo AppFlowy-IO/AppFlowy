@@ -1,7 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
-import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
@@ -28,11 +27,11 @@ import 'doc_page.dart';
 
 class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   View _view;
-  late IViewListener _listener;
+  late ViewListener _listener;
   final ValueNotifier<int> _isUpdated = ValueNotifier<int>(0);
 
   DocStackContext({required View view, Key? key}) : _view = view {
-    _listener = getIt<IViewListener>(param1: view);
+    _listener = getIt<ViewListener>(param1: view);
     _listener.updatedNotifier.addPublishListener((result) {
       result.fold(
         (newView) {
@@ -78,7 +77,7 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
 
   @override
   void dispose() {
-    _listener.stop();
+    _listener.close();
   }
 }
 

@@ -7,8 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
-
-import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:flowy_infra/notifier.dart';
 
 import 'helper.dart';
@@ -49,7 +47,11 @@ class ViewRepository {
   }
 }
 
-class ViewListenerRepository {
+typedef DeleteNotifierValue = Either<View, FlowyError>;
+typedef UpdateNotifierValue = Either<View, FlowyError>;
+typedef RestoreNotifierValue = Either<View, FlowyError>;
+
+class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
   PublishNotifier<UpdateNotifierValue> updatedNotifier = PublishNotifier<UpdateNotifierValue>();
   PublishNotifier<DeleteNotifierValue> deletedNotifier = PublishNotifier<DeleteNotifierValue>();
@@ -57,7 +59,7 @@ class ViewListenerRepository {
   late FolderNotificationParser _parser;
   View view;
 
-  ViewListenerRepository({
+  ViewListener({
     required this.view,
   });
 

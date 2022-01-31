@@ -1,7 +1,8 @@
-import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -9,10 +10,10 @@ import 'package:dartz/dartz.dart';
 part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
-  final IUser userManager;
-  final IUserListener listener;
+  final UserRepo repo;
+  final UserListener listener;
 
-  MenuUserBloc(this.userManager, this.listener) : super(MenuUserState.initial(userManager.user)) {
+  MenuUserBloc(this.repo, this.listener) : super(MenuUserState.initial(repo.user)) {
     on<MenuUserEvent>((event, emit) async {
       await event.map(
         initial: (_) async {
@@ -33,7 +34,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   Future<void> _initUser() async {
-    final result = await userManager.initUser();
+    final result = await repo.initUser();
     result.fold((l) => null, (error) => Log.error(error));
   }
 
