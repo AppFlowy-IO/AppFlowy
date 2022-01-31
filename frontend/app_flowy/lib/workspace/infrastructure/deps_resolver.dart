@@ -14,7 +14,6 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/i_app_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/i_doc_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/i_trash_impl.dart';
-import 'package:app_flowy/workspace/infrastructure/i_workspace_impl.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
@@ -46,10 +45,8 @@ class HomeDepsResolver {
         (appId, _) => IAppListenerhImpl(repo: AppListenerRepository(appId: appId)));
 
     //workspace
-    getIt.registerFactoryParam<IWorkspace, UserProfile, String>(
-        (user, workspaceId) => IWorkspaceImpl(repo: WorkspaceRepo(user: user, workspaceId: workspaceId)));
-    getIt.registerFactoryParam<IWorkspaceListener, UserProfile, String>((user, workspaceId) =>
-        IWorkspaceListenerImpl(repo: WorkspaceListenerRepo(user: user, workspaceId: workspaceId)));
+    getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+        (user, workspaceId) => WorkspaceListener(repo: WorkspaceListenerRepo(user: user, workspaceId: workspaceId)));
 
     // View
     getIt.registerFactoryParam<IView, View, void>((view, _) => IViewImpl(repo: ViewRepository(view: view)));
@@ -72,8 +69,8 @@ class HomeDepsResolver {
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
       (user, workspaceId) => MenuBloc(
-        workspaceManager: getIt<IWorkspace>(param1: user, param2: workspaceId),
-        listener: getIt<IWorkspaceListener>(param1: user, param2: workspaceId),
+        repo: WorkspaceRepo(user: user, workspaceId: workspaceId),
+        listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
       ),
     );
 

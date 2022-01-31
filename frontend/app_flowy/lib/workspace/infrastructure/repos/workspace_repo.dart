@@ -12,9 +12,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
-
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/domain/i_workspace.dart';
 
 import 'helper.dart';
 
@@ -26,9 +24,9 @@ class WorkspaceRepo {
     required this.workspaceId,
   });
 
-  Future<Either<App, FlowyError>> createApp(String appName, String desc) {
+  Future<Either<App, FlowyError>> createApp(String name, String desc) {
     final request = CreateAppRequest.create()
-      ..name = appName
+      ..name = name
       ..workspaceId = workspaceId
       ..desc = desc;
     return FolderEventCreateApp(request).send();
@@ -125,5 +123,24 @@ class WorkspaceListenerRepo {
     await _subscription?.cancel();
     // _appsChanged = null;
     // _update = null;
+  }
+}
+
+typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, FlowyError> appsOrFail);
+
+typedef WorkspaceUpdatedCallback = void Function(String name, String desc);
+
+class WorkspaceListener {
+  WorkspaceListenerRepo repo;
+  WorkspaceListener({
+    required this.repo,
+  });
+
+  void start({WorkspaceAppsChangedCallback? addAppCallback, WorkspaceUpdatedCallback? updatedCallback}) {
+    repo.startListening(appsChanged: addAppCallback, update: updatedCallback);
+  }
+
+  Future<void> stop() async {
+    await repo.close();
   }
 }
