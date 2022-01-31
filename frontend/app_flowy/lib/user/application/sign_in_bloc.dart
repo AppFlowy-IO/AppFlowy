@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/domain/i_auth.dart';
+import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile, ErrorCode;
@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final IAuth authManager;
-  SignInBloc(this.authManager) : super(SignInState.initial()) {
+  final AuthRepository authRepo;
+  SignInBloc(this.authRepo) : super(SignInState.initial()) {
     on<SignInEvent>((event, emit) async {
       await event.map(
         signedInWithUserEmailAndPassword: (e) async {
@@ -31,7 +31,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   Future<void> _performActionOnSignIn(SignInState state, Emitter<SignInState> emit) async {
     emit(state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none()));
 
-    final result = await authManager.signIn(state.email, state.password);
+    final result = await authRepo.signIn(
+      email: state.email,
+      password: state.password,
+    );
     emit(result.fold(
       (userProfile) => state.copyWith(isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),

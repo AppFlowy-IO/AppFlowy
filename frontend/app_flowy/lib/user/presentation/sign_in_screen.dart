@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
-import 'package:app_flowy/user/domain/i_auth.dart';
+import 'package:app_flowy/user/infrastructure/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -18,7 +18,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
-  final IAuthRouter router;
+  final AuthRouter router;
   const SignInScreen({Key? key, required this.router}) : super(key: key);
 
   @override
@@ -48,7 +48,7 @@ class SignInScreen extends StatelessWidget {
 }
 
 class SignInForm extends StatelessWidget {
-  final IAuthRouter router;
+  final AuthRouter router;
   const SignInForm({
     Key? key,
     required this.router,
@@ -88,7 +88,7 @@ class SignUpPrompt extends StatelessWidget {
     required this.router,
   }) : super(key: key);
 
-  final IAuthRouter router;
+  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +138,7 @@ class ForgetPasswordButton extends StatelessWidget {
     required this.router,
   }) : super(key: key);
 
-  final IAuthRouter router;
+  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {

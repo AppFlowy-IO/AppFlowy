@@ -1,7 +1,8 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/domain/auth_state.dart';
-import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
+import 'package:app_flowy/user/infrastructure/router.dart';
+import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:app_flowy/user/presentation/sign_in_screen.dart';
 import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
 import 'package:app_flowy/user/presentation/welcome_screen.dart';
@@ -59,7 +60,7 @@ class SplashRoute implements ISplashRoute {
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 
@@ -69,8 +70,8 @@ class SplashRoute implements ISplashRoute {
       context,
       PageRoutes.fade(
           () => SkipLogInScreen(
-                router: getIt<IAuthRouter>(),
-                authManager: getIt<IAuth>(),
+                router: getIt<AuthRouter>(),
+                authRepo: getIt<AuthRepository>(),
               ),
           RouteDurations.slow.inMilliseconds * .001),
     );

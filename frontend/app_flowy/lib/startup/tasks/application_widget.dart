@@ -57,7 +57,7 @@ class ApplicationWidget extends StatelessWidget {
         value: settingModel,
         builder: (context, _) {
           const ratio = 1.73;
-          const minWidth = 1000.0;
+          const minWidth = 600.0;
           setWindowMinSize(const Size(minWidth, minWidth / ratio));
           AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
             (value) => value.theme,

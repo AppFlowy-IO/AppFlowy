@@ -179,7 +179,7 @@ class DocumentShareButton extends StatelessWidget {
               child: Selector<AppearanceSettingModel, AppLanguage>(
                 selector: (ctx, notifier) => notifier.language,
                 builder: (ctx, _, child) => ConstrainedBox(
-                  constraints: BoxConstraints.expand(
+                  constraints: const BoxConstraints.expand(
                     height: 30,
                     // minWidth: buttonWidth,
                     width: 100,

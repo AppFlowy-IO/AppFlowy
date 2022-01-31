@@ -40,7 +40,6 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     let dispatcher = match FLOWY_SDK.get() {
         None => {
             log::error!("sdk not init yet.");
-
             return;
         }
         Some(e) => e.dispatcher.clone(),
@@ -59,7 +58,6 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let dispatcher = match FLOWY_SDK.get() {
         None => {
             log::error!("sdk not init yet.");
-
             return forget_rust(Vec::default());
         }
         Some(e) => e.dispatcher.clone(),
