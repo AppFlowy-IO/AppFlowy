@@ -39,7 +39,7 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   }
 
   void setLanguage(BuildContext context, AppLanguage language) {
-    String languageString = stringFromLanguageName(language);
+    String languageString = stringFromLanguage(language);
 
     if (setting.language != languageString) {
       context.setLocale(localeFromLanguageName(language));
@@ -48,5 +48,10 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
       notifyListeners();
       save();
     }
+  }
+
+  void updateWithBuildContext(BuildContext context) {
+    final language = languageFromLocale(context.deviceLocale);
+    setLanguage(context, language);
   }
 }

@@ -7,7 +7,7 @@ enum AppLanguage {
   french,
 }
 
-String stringFromLanguageName(AppLanguage language) {
+String stringFromLanguage(AppLanguage language) {
   switch (language) {
     case AppLanguage.english:
       return "en";
@@ -43,5 +43,18 @@ Locale localeFromLanguageName(AppLanguage language) {
       return const Locale('it', 'IT');
     case AppLanguage.french:
       return const Locale('fr', 'CA');
+  }
+}
+
+AppLanguage languageFromLocale(Locale locale) {
+  switch (locale.languageCode) {
+    case "zh":
+      return AppLanguage.chinese;
+    case "it":
+      return AppLanguage.italian;
+    case "fr":
+      return AppLanguage.french;
+    default:
+      return AppLanguage.english;
   }
 }
