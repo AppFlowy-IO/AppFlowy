@@ -20,6 +20,19 @@ String stringFromLanguage(AppLanguage language) {
   }
 }
 
+string fullStringFromLanguage(AppLanguage language) {
+  switch (language) {
+    case AppLanguage.english:
+      return "english";
+    case AppLanguage.chinese:
+      return "汉语";
+    case AppLanguage.italian:
+      return "italiano";
+    case AppLanguage.french:
+      return "français";
+  }
+}
+
 AppLanguage languageFromString(String name) {
   AppLanguage language = AppLanguage.english;
   if (name == "ch") {
@@ -27,6 +40,19 @@ AppLanguage languageFromString(String name) {
   } else if (name == "it") {
     language = AppLanguage.italian;
   } else if (name == "fr") {
+    language = AppLanguage.french;
+  }
+
+  return language;
+}
+
+AppLanguage languageFromFullString(String name) {
+  AppLanguage language = AppLanguage.english;
+  if (name == "汉语") {
+    language = AppLanguage.chinese;
+  } else if (name == "italiano") {
+    language = AppLanguage.italian;
+  } else if (name == "français") {
     language = AppLanguage.french;
   }
 
