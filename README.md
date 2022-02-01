@@ -18,7 +18,7 @@ You are in charge of your data and customizations.
 </p>
 
 <p align="center">
-    <a href="http://www.appflowy.io"><b>Website</b></a> •
+    • <a href="http://www.appflowy.io"><b>Website</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a> 
 </p>  
