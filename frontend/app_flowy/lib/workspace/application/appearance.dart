@@ -5,11 +5,13 @@ import 'package:flowy_infra/language.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:async/async.dart';
 
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppearanceSettings setting;
   AppTheme _theme;
   AppLanguage _language;
+  CancelableOperation? _saveOperation;
 
   AppearanceSettingModel(this.setting)
       : _theme = AppTheme.fromName(name: setting.theme),
@@ -19,7 +21,12 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppLanguage get language => _language;
 
   Future<void> save() async {
-    await UserSettingReppsitory().setAppearanceSettings(setting);
+    _saveOperation?.cancel;
+    _saveOperation = CancelableOperation.fromFuture(
+      Future.delayed(const Duration(seconds: 1), () async {
+        await UserSettingReppsitory().setAppearanceSettings(setting);
+      }),
+    );
   }
 
   @override
@@ -50,8 +57,13 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void updateWithBuildContext(BuildContext context) {
-    final language = languageFromLocale(context.deviceLocale);
-    setLanguage(context, language);
+  void readLocaleWhenAppLaunch(BuildContext context) {
+    if (setting.resetAsDefault) {
+      setting.resetAsDefault = false;
+      save();
+
+      final language = languageFromLocale(context.deviceLocale);
+      setLanguage(context, language);
+    }
   }
 }

@@ -244,6 +244,7 @@ pub struct AppearanceSettings {
     // message fields
     pub theme: ::std::string::String,
     pub language: ::std::string::String,
+    pub reset_as_default: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -311,6 +312,21 @@ impl AppearanceSettings {
     pub fn take_language(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.language, ::std::string::String::new())
     }
+
+    // bool reset_as_default = 3;
+
+
+    pub fn get_reset_as_default(&self) -> bool {
+        self.reset_as_default
+    }
+    pub fn clear_reset_as_default(&mut self) {
+        self.reset_as_default = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_reset_as_default(&mut self, v: bool) {
+        self.reset_as_default = v;
+    }
 }
 
 impl ::protobuf::Message for AppearanceSettings {
@@ -327,6 +343,13 @@ impl ::protobuf::Message for AppearanceSettings {
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.language)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.reset_as_default = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -346,6 +369,9 @@ impl ::protobuf::Message for AppearanceSettings {
         if !self.language.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.language);
         }
+        if self.reset_as_default != false {
+            my_size += 2;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -357,6 +383,9 @@ impl ::protobuf::Message for AppearanceSettings {
         }
         if !self.language.is_empty() {
             os.write_string(2, &self.language)?;
+        }
+        if self.reset_as_default != false {
+            os.write_bool(3, self.reset_as_default)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -406,6 +435,11 @@ impl ::protobuf::Message for AppearanceSettings {
                 |m: &AppearanceSettings| { &m.language },
                 |m: &mut AppearanceSettings| { &mut m.language },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "reset_as_default",
+                |m: &AppearanceSettings| { &m.reset_as_default },
+                |m: &mut AppearanceSettings| { &mut m.reset_as_default },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<AppearanceSettings>(
                 "AppearanceSettings",
                 fields,
@@ -424,6 +458,7 @@ impl ::protobuf::Clear for AppearanceSettings {
     fn clear(&mut self) {
         self.theme.clear();
         self.language.clear();
+        self.reset_as_default = false;
         self.unknown_fields.clear();
     }
 }
@@ -443,23 +478,27 @@ impl ::protobuf::reflect::ProtobufValue for AppearanceSettings {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x12user_setting.proto\"n\n\x0fUserPreferences\x12\x17\n\x07user_id\
     \x18\x01\x20\x01(\tR\x06userId\x12B\n\x12appearance_setting\x18\x02\x20\
-    \x01(\x0b2\x13.AppearanceSettingsR\x11appearanceSetting\"F\n\x12Appearan\
+    \x01(\x0b2\x13.AppearanceSettingsR\x11appearanceSetting\"p\n\x12Appearan\
     ceSettings\x12\x14\n\x05theme\x18\x01\x20\x01(\tR\x05theme\x12\x1a\n\x08\
-    language\x18\x02\x20\x01(\tR\x08languageJ\x9e\x02\n\x06\x12\x04\0\0\t\
-    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\
-    \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\
-    \x03\x03\x04\x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\
-    \x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\
-    \x03\x03\x15\x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04.\n\x0c\n\x05\
-    \x04\0\x02\x01\x06\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x01\x12\
-    \x03\x04\x17)\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04,-\n\n\n\x02\x04\
-    \x01\x12\x04\x06\0\t\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x1a\n\x0b\
-    \n\x04\x04\x01\x02\0\x12\x03\x07\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\
-    \x12\x03\x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x10\n\
-    \x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x07\x13\x14\n\x0b\n\x04\x04\x01\x02\
-    \x01\x12\x03\x08\x04\x18\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\
-    \n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x13\n\x0c\n\x05\x04\
-    \x01\x02\x01\x03\x12\x03\x08\x16\x17b\x06proto3\
+    language\x18\x02\x20\x01(\tR\x08language\x12(\n\x10reset_as_default\x18\
+    \x03\x20\x01(\x08R\x0eresetAsDefaultJ\xd5\x02\n\x06\x12\x04\0\0\n\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\
+    \n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
+    \x04\x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\
+    \x02\0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\
+    \x15\x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04.\n\x0c\n\x05\x04\0\
+    \x02\x01\x06\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\
+    \x04\x17)\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04,-\n\n\n\x02\x04\x01\
+    \x12\x04\x06\0\n\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x1a\n\x0b\n\
+    \x04\x04\x01\x02\0\x12\x03\x07\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
+    \x03\x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x10\n\x0c\n\
+    \x05\x04\x01\x02\0\x03\x12\x03\x07\x13\x14\n\x0b\n\x04\x04\x01\x02\x01\
+    \x12\x03\x08\x04\x18\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\
+    \x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x13\n\x0c\n\x05\x04\x01\
+    \x02\x01\x03\x12\x03\x08\x16\x17\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\
+    \x04\x1e\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\x08\n\x0c\n\x05\
+    \x04\x01\x02\x02\x01\x12\x03\t\t\x19\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\
+    \x03\t\x1c\x1db\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

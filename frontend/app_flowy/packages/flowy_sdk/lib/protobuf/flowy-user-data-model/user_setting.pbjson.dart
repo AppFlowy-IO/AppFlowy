@@ -25,8 +25,9 @@ const AppearanceSettings$json = const {
   '2': const [
     const {'1': 'theme', '3': 1, '4': 1, '5': 9, '10': 'theme'},
     const {'1': 'language', '3': 2, '4': 1, '5': 9, '10': 'language'},
+    const {'1': 'reset_as_default', '3': 3, '4': 1, '5': 8, '10': 'resetAsDefault'},
   ],
 };
 
 /// Descriptor for `AppearanceSettings`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appearanceSettingsDescriptor = $convert.base64Decode('ChJBcHBlYXJhbmNlU2V0dGluZ3MSFAoFdGhlbWUYASABKAlSBXRoZW1lEhoKCGxhbmd1YWdlGAIgASgJUghsYW5ndWFnZQ==');
+final $typed_data.Uint8List appearanceSettingsDescriptor = $convert.base64Decode('ChJBcHBlYXJhbmNlU2V0dGluZ3MSFAoFdGhlbWUYASABKAlSBXRoZW1lEhoKCGxhbmd1YWdlGAIgASgJUghsYW5ndWFnZRIoChByZXNldF9hc19kZWZhdWx0GAMgASgIUg5yZXNldEFzRGVmYXVsdA==');

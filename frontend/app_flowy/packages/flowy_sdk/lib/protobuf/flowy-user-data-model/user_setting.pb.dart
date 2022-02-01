@@ -76,6 +76,7 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppearanceSettings', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'theme')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'language')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'resetAsDefault')
     ..hasRequiredFields = false
   ;
 
@@ -83,6 +84,7 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   factory AppearanceSettings({
     $core.String? theme,
     $core.String? language,
+    $core.bool? resetAsDefault,
   }) {
     final _result = create();
     if (theme != null) {
@@ -90,6 +92,9 @@ class AppearanceSettings extends $pb.GeneratedMessage {
     }
     if (language != null) {
       _result.language = language;
+    }
+    if (resetAsDefault != null) {
+      _result.resetAsDefault = resetAsDefault;
     }
     return _result;
   }
@@ -131,5 +136,14 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   $core.bool hasLanguage() => $_has(1);
   @$pb.TagNumber(2)
   void clearLanguage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get resetAsDefault => $_getBF(2);
+  @$pb.TagNumber(3)
+  set resetAsDefault($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasResetAsDefault() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearResetAsDefault() => clearField(3);
 }
 

@@ -7,4 +7,5 @@ message UserPreferences {
 message AppearanceSettings {
     string theme = 1;
     string language = 2;
+    bool reset_as_default = 3;
 }
