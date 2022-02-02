@@ -20,7 +20,7 @@ String stringFromLanguage(AppLanguage language) {
   }
 }
 
-string fullStringFromLanguage(AppLanguage language) {
+String fullStringFromLanguage(AppLanguage language) {
   switch (language) {
     case AppLanguage.english:
       return "english";
