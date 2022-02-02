@@ -31,16 +31,16 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<AppLanguage>(
-      value: fullStringFromLanguage(context.read<AppearanceSettingModel>().language),
+      value: context.read<AppearanceSettingModel>().language,
       onChanged: (val) {
         setState(() {
-          context.read<AppearanceSettingModel>().setLanguage(context, languageFromFullString(val!));
+          context.read<AppearanceSettingModel>().setLanguage(context, val!);
         });
       },
       autofocus: true,
       items: AppLanguage.values.map((language) {
         return DropdownMenuItem<AppLanguage>(
-          value: fullStringFromLanguage(language),
+          value: language,
           child: Text(describeEnum(language)),
         );
       }).toList(),
