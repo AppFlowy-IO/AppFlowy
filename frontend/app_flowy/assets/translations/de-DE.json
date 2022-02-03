@@ -2,14 +2,14 @@
     "appName": "AppFlowy",
     "defaultUsername": "Ich",
     "welcomeText": "Willkommen bei @:appName",
-    "githubStarText": "Star on GitHub",
+    "githubStarText": "GitHub Star vergeben",
     "subscribeNewsletterText": "Abonniere den Newsletter",
-    "letsGoButtonText": "Lass Uns Anfangen",
+    "letsGoButtonText": "Los geht's",
     "title": "Titel",
     "signUp": {
       "buttonText": "Registrieren",
       "title": "Registriere dich bei @:appName",
-      "getStartedText": "Los geht's",
+      "getStartedText": "Erste Schritte",
       "emptyPasswordError": "Passwort darf nicht leer sein",
       "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
       "unmatchedPasswordError": "Passwörter stimmen nicht überein",
@@ -19,7 +19,7 @@
       "repeatPasswordHint": "Wiederhole Passwort"
     },
     "signIn": {
-      "loginTitle": "Login to @:appName",
+      "loginTitle": "Bei @:appName einloggen",
       "loginButtonText": "Anmelden",
       "buttonText": "Anmelden",
       "forgotPassword": "Passwort vergessen?",
@@ -127,7 +127,7 @@
         "instruction1": "Um Ihre Google-Kontakte zu importieren, müssen Sie diese Anwendung über Ihren Webbrowser autorisieren.",
         "instruction2": "Kopieren Sie diesen Code in Ihre Zwischenablage, indem Sie auf das Symbol klicken oder den Text auswählen:",
         "instruction3": "Rufen Sie den folgenden Link in Ihrem Webbrowser auf, und geben Sie den obigen Code ein:",
-        "instruction4": "Drücken Sie auf die Knopf unten, wenn Sie die Anmeldung abgeschlossen haben:"
+        "instruction4": "Klicken Sie unten auf die Schaltfläche, wenn Sie die Anmeldung abgeschlossen haben:"
       }
     },
     "settings": {
