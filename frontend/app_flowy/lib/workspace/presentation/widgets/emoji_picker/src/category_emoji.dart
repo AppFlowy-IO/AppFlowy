@@ -11,4 +11,9 @@ class CategoryEmoji {
 
   /// List of emoji of this category
   List<Emoji> emoji;
+
+  @override
+  String toString() {
+    return 'Name: $category, Emoji: $emoji';
+  }
 }

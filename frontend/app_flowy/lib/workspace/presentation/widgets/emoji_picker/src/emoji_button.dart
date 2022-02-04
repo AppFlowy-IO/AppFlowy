@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 import 'package:app_flowy/workspace/presentation/stack_page/doc/widget/toolbar/toolbar_icon_button.dart';
 import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
-
-final toggleEmojiPicker = LogicalKeySet(
-  LogicalKeyboardKey.meta,
-  LogicalKeyboardKey.shift,
-  LogicalKeyboardKey.question,
-);
-
-class IncrementIntent extends Intent {}
 
 class FlowyEmojiStyleButton extends StatefulWidget {
   // final Attribute attribute;
@@ -52,19 +43,13 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
     // debugPrint(MediaQuery.of(context).size.width.toString());
     // debugPrint(MediaQuery.of(context).size.height.toString());
 
-    //TODO @gaganyadav80: FIXIT: Keyboard shortcut not working.
-    return FocusableActionDetector(
-      autofocus: true,
-      shortcuts: {toggleEmojiPicker: IncrementIntent()},
-      actions: {IncrementIntent: CallbackAction(onInvoke: (intent) => _toggleAttribute())},
-      child: ToolbarIconButton(
-        key: emojiButtonKey,
-        onPressed: _toggleAttribute,
-        width: widget.iconSize * kIconButtonFactor,
-        isToggled: _isToggled,
-        iconName: widget.normalIcon,
-        tooltipText: widget.tooltipText,
-      ),
+    return ToolbarIconButton(
+      key: emojiButtonKey,
+      onPressed: _toggleAttribute,
+      width: widget.iconSize * kIconButtonFactor,
+      isToggled: _isToggled,
+      iconName: widget.normalIcon,
+      tooltipText: widget.tooltipText,
     );
   }
 
@@ -113,7 +98,8 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
       setState(() => _isToggled = true);
     }
 
-    //? @gaganyadav80: INFO: throws error when using TextField with FlowyOverlay.
+    //TODO @gaganyadav80: INFO: throws error when using TextField with FlowyOverlay.
+
     // FlowyOverlay.of(context).insertWithRect(
     //   widget: BuildEmojiPickerView(controller: widget.controller),
     //   identifier: 'overlay_emoji_picker',
