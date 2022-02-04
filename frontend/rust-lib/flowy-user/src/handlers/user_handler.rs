@@ -1,8 +1,7 @@
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
 use flowy_user_data_model::entities::{
-    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_LANGUAGE,
-    APPEARANCE_DEFAULT_THEME,
+    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_THEME,
 };
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
@@ -48,10 +47,6 @@ pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<()
     let mut setting = data.into_inner();
     if setting.theme.is_empty() {
         setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
-    }
-
-    if setting.language.is_empty() {
-        setting.theme = APPEARANCE_DEFAULT_LANGUAGE.to_string();
     }
 
     let s = serde_json::to_string(&setting)?;
