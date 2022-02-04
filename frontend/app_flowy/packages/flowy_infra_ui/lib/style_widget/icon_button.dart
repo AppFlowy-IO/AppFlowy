@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FlowyIconButton extends StatelessWidget {
   final double width;
@@ -30,16 +32,6 @@ class FlowyIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child = icon;
-
-    // if (onPressed == null) {
-    //   child = ColorFiltered(
-    //     colorFilter: ColorFilter.mode(
-    //       Colors.grey,
-    //       BlendMode.saturation,
-    //     ),
-    //     child: child,
-    //   );
-    // }
     final size = Size(width, height ?? width);
 
     assert(size.width > iconPadding.horizontal);
