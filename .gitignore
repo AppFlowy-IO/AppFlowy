@@ -18,3 +18,7 @@ Cargo.lock
 package-lock.json
 yarn.lock
 node_modules
+
+# Protobuf auto generated files
+protobuf/
+protobuf/model/

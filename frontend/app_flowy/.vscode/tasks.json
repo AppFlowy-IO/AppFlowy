@@ -70,6 +70,19 @@
 			"options": {
 				"cwd": "${workspaceFolder}/../"
 			},
+		},
+		{
+			"label": "Generate Protobuf Files",
+			"type": "shell",
+			"command": "cargo",
+			"args": [
+				"make",
+				"pb"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/../"
+			},
 		}
 	]
 }

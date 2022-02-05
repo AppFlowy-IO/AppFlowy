@@ -48,9 +48,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Protobug auto generated files
-/protobuf/**
-
 /packages/flowy_protobuf
 /packages/flutter-quill
 
