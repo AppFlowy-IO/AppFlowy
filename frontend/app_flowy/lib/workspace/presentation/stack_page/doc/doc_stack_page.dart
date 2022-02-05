@@ -175,8 +175,8 @@ class DocumentShareButton extends StatelessWidget {
           builder: (context, state) {
             return ChangeNotifierProvider.value(
               value: Provider.of<AppearanceSettingModel>(context, listen: true),
-              child: Selector<AppearanceSettingModel, AppLanguage>(
-                selector: (ctx, notifier) => notifier.language,
+              child: Selector<AppearanceSettingModel, Locale>(
+                selector: (ctx, notifier) => notifier.locale,
                 builder: (ctx, _, child) => ConstrainedBox(
                   constraints: const BoxConstraints.expand(
                     height: 30,

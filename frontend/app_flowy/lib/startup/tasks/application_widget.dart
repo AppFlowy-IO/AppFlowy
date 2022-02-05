@@ -63,14 +63,14 @@ class ApplicationWidget extends StatelessWidget {
           AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
             (value) => value.theme,
           );
-          AppLanguage language = context.select<AppearanceSettingModel, AppLanguage>(
-            (value) => value.language,
+          Locale locale = context.select<AppearanceSettingModel, Locale>(
+            (value) => value.locale,
           );
 
           return MultiProvider(
             providers: [
               Provider.value(value: theme),
-              Provider.value(value: language),
+              Provider.value(value: locale),
             ],
             builder: (context, _) {
               return MaterialApp(
@@ -79,7 +79,7 @@ class ApplicationWidget extends StatelessWidget {
                 theme: theme.themeData,
                 localizationsDelegates: context.localizationDelegates,
                 supportedLocales: context.supportedLocales,
-                locale: localeFromLanguageName(language),
+                locale: locale,
                 navigatorKey: AppGlobals.rootNavKey,
                 home: child,
               );
