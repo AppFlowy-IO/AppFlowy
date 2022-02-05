@@ -1,8 +1,3 @@
-# [tasks.install-commitlint]
-# mac_alias = "install-commitlint-macos"
-# windows_alias = "install-commitlint-windows"
-# linux_alias = "install-commitlint-linux"
-
 [tasks.install-commitlint.mac]
 script = [
     """
