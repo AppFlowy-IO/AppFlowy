@@ -7,7 +7,6 @@ import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -175,8 +174,8 @@ class DocumentShareButton extends StatelessWidget {
           builder: (context, state) {
             return ChangeNotifierProvider.value(
               value: Provider.of<AppearanceSettingModel>(context, listen: true),
-              child: Selector<AppearanceSettingModel, AppLanguage>(
-                selector: (ctx, notifier) => notifier.language,
+              child: Selector<AppearanceSettingModel, Locale>(
+                selector: (ctx, notifier) => notifier.locale,
                 builder: (ctx, _, child) => ConstrainedBox(
                   constraints: const BoxConstraints.expand(
                     height: 30,

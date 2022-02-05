@@ -1,7 +1,7 @@
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra/language.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,15 +10,15 @@ import 'package:async/async.dart';
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppearanceSettings setting;
   AppTheme _theme;
-  AppLanguage _language;
+  Locale _locale;
   CancelableOperation? _saveOperation;
 
   AppearanceSettingModel(this.setting)
       : _theme = AppTheme.fromName(name: setting.theme),
-        _language = languageFromString(setting.language);
+        _locale = Locale(setting.locale.languageCode, setting.locale.countryCode);
 
   AppTheme get theme => _theme;
-  AppLanguage get language => _language;
+  Locale get locale => _locale;
 
   Future<void> save() async {
     _saveOperation?.cancel;
@@ -45,13 +45,18 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  void setLanguage(BuildContext context, AppLanguage language) {
-    String languageString = stringFromLanguage(language);
+  void setLocale(BuildContext context, Locale newLocale) {
+    if (_locale != newLocale) {
+      if (!context.supportedLocales.contains(newLocale)) {
+        Log.error("Unsupported locale: $newLocale");
+        newLocale = const Locale('en');
+        Log.debug("Fallback to locale: $newLocale");
+      }
 
-    if (setting.language != languageString) {
-      context.setLocale(localeFromLanguageName(language));
-      _language = language;
-      setting.language = languageString;
+      context.setLocale(newLocale);
+      _locale = newLocale;
+      setting.locale.languageCode = _locale.languageCode;
+      setting.locale.countryCode = _locale.countryCode ?? "";
       notifyListeners();
       save();
     }
@@ -62,8 +67,7 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
       setting.resetAsDefault = false;
       save();
 
-      final language = languageFromLocale(context.deviceLocale);
-      setLanguage(context, language);
+      setLocale(context, context.deviceLocale);
     }
   }
 }

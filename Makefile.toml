@@ -1,0 +1,32 @@
+[tasks.install-commitlint]
+mac_alias = "install-commitlint-macos"
+windows_alias = "install-commitlint-windows"
+linux_alias = "install-commitlint-linux"
+
+[tasks.install-commitlint-macos]
+script = [
+    """
+    brew install npm
+	yarn install
+	yarn husky install
+    """,
+]
+script_runner = "@shell"
+
+[tasks.install-commitlint-windows]
+script = [
+    """
+    echo "WIP"
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.install-commitlint-linux]
+script = [
+    """
+    sudo apt install nodejs
+	yarn install
+	yarn husky install
+    """,
+]
+script_runner = "@duckscript"

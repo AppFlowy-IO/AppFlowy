@@ -35,4 +35,4 @@ cargo install --force cargo-make && \
 cargo install --force duckscript_cli && \
 cargo make flowy_dev && \
 cargo make -p production-linux-x86 appflowy-linux
-CMD ["appflowy/frontend/app_flowy/product/0.0.2/linux/Release/AppFlowy/app_flowy"]
+CMD ["appflowy/frontend/app_flowy/product/0.0.3/linux/Release/AppFlowy/app_flowy"]

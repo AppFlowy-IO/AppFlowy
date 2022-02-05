@@ -6,6 +6,10 @@ message UserPreferences {
 }
 message AppearanceSettings {
     string theme = 1;
-    string language = 2;
+    LocaleSettings locale = 2;
     bool reset_as_default = 3;
+}
+message LocaleSettings {
+    string language_code = 1;
+    string country_code = 2;
 }

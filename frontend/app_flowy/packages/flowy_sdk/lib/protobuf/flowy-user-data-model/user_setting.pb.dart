@@ -75,7 +75,7 @@ class UserPreferences extends $pb.GeneratedMessage {
 class AppearanceSettings extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppearanceSettings', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'theme')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'language')
+    ..aOM<LocaleSettings>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'locale', subBuilder: LocaleSettings.create)
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'resetAsDefault')
     ..hasRequiredFields = false
   ;
@@ -83,15 +83,15 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   AppearanceSettings._() : super();
   factory AppearanceSettings({
     $core.String? theme,
-    $core.String? language,
+    LocaleSettings? locale,
     $core.bool? resetAsDefault,
   }) {
     final _result = create();
     if (theme != null) {
       _result.theme = theme;
     }
-    if (language != null) {
-      _result.language = language;
+    if (locale != null) {
+      _result.locale = locale;
     }
     if (resetAsDefault != null) {
       _result.resetAsDefault = resetAsDefault;
@@ -129,13 +129,15 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   void clearTheme() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get language => $_getSZ(1);
+  LocaleSettings get locale => $_getN(1);
   @$pb.TagNumber(2)
-  set language($core.String v) { $_setString(1, v); }
+  set locale(LocaleSettings v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasLanguage() => $_has(1);
+  $core.bool hasLocale() => $_has(1);
   @$pb.TagNumber(2)
-  void clearLanguage() => clearField(2);
+  void clearLocale() => clearField(2);
+  @$pb.TagNumber(2)
+  LocaleSettings ensureLocale() => $_ensure(1);
 
   @$pb.TagNumber(3)
   $core.bool get resetAsDefault => $_getBF(2);
@@ -145,5 +147,66 @@ class AppearanceSettings extends $pb.GeneratedMessage {
   $core.bool hasResetAsDefault() => $_has(2);
   @$pb.TagNumber(3)
   void clearResetAsDefault() => clearField(3);
+}
+
+class LocaleSettings extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LocaleSettings', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'languageCode')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'countryCode')
+    ..hasRequiredFields = false
+  ;
+
+  LocaleSettings._() : super();
+  factory LocaleSettings({
+    $core.String? languageCode,
+    $core.String? countryCode,
+  }) {
+    final _result = create();
+    if (languageCode != null) {
+      _result.languageCode = languageCode;
+    }
+    if (countryCode != null) {
+      _result.countryCode = countryCode;
+    }
+    return _result;
+  }
+  factory LocaleSettings.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LocaleSettings.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LocaleSettings clone() => LocaleSettings()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LocaleSettings copyWith(void Function(LocaleSettings) updates) => super.copyWith((message) => updates(message as LocaleSettings)) as LocaleSettings; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static LocaleSettings create() => LocaleSettings._();
+  LocaleSettings createEmptyInstance() => create();
+  static $pb.PbList<LocaleSettings> createRepeated() => $pb.PbList<LocaleSettings>();
+  @$core.pragma('dart2js:noInline')
+  static LocaleSettings getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LocaleSettings>(create);
+  static LocaleSettings? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get languageCode => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set languageCode($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasLanguageCode() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearLanguageCode() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get countryCode => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set countryCode($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasCountryCode() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCountryCode() => clearField(2);
 }
 

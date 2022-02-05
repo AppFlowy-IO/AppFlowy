@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -7,6 +8,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'styles.dart';
 import 'widget/banner.dart';
@@ -119,8 +121,11 @@ class _DocPageState extends State<DocPage> {
   }
 
   Widget _renderToolbar(quill.QuillController controller) {
-    return EditorToolbar.basic(
-      controller: controller,
+    return ChangeNotifierProvider.value(
+      value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      child: EditorToolbar.basic(
+        controller: controller,
+      ),
     );
   }
 
