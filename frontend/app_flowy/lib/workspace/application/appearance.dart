@@ -47,10 +47,10 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
 
   void setLocale(BuildContext context, Locale newLocale) {
     if (_locale != newLocale) {
-      if (context.supportedLocales.contains(newLocale)) {
+      if (!context.supportedLocales.contains(newLocale)) {
         Log.error("Unsupported locale: $newLocale");
         newLocale = const Locale('en');
-        Log.debug("Fall back to locale: $newLocale");
+        Log.debug("Fallback to locale: $newLocale");
       }
 
       context.setLocale(newLocale);
