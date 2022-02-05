@@ -16,6 +16,7 @@ pub struct AppearanceSettings {
     pub theme: String,
 
     #[pb(index = 2)]
+    #[serde(default)]
     pub locale: LocaleSettings,
 
     #[pb(index = 3)]
