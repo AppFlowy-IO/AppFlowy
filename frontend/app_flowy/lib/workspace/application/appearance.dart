@@ -1,7 +1,6 @@
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra/language.dart' as Language;
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';

@@ -2,7 +2,6 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +28,16 @@ class AppWidgetTask extends LaunchTask {
       () {
         runApp(
           EasyLocalization(
-              supportedLocales: const [Locale('en'), Locale('zh', 'CN'), Locale('it', 'IT'), Locale('fr', 'CA'), Locale('ru', 'RU')],
-              path: 'assets/translations',
-              fallbackLocale: const Locale('en'),
-              child: app),
+            supportedLocales: const [
+              Locale('en'),
+              Locale('zh', 'CN'),
+              Locale('it', 'IT'),
+              Locale('fr', 'CA'),
+            ],
+            path: 'assets/translations',
+            fallbackLocale: const Locale('en'),
+            child: app,
+          ),
         );
       },
       blocObserver: ApplicationBlocObserver(),
