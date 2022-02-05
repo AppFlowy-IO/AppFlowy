@@ -59,7 +59,13 @@ pub async fn get_appearance_setting() -> DataResult<AppearanceSettings, FlowyErr
     match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
         None => data_result(AppearanceSettings::default()),
         Some(s) => {
-            let setting: AppearanceSettings = serde_json::from_str(&s)?;
+            let setting = match serde_json::from_str(&s) {
+                Ok(setting) => setting,
+                Err(e) => {
+                    tracing::error!("Deserialize AppearanceSettings failed: {:?}, fallback to default", e);
+                    AppearanceSettings::default()
+                }
+            };
             data_result(setting)
         }
     }

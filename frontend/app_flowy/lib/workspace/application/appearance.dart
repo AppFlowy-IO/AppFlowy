@@ -1,6 +1,7 @@
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -46,6 +47,12 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
 
   void setLocale(BuildContext context, Locale newLocale) {
     if (_locale != newLocale) {
+      if (context.supportedLocales.contains(newLocale)) {
+        Log.error("Unsupported locale: $newLocale");
+        newLocale = const Locale('en');
+        Log.debug("Fall back to locale: $newLocale");
+      }
+
       context.setLocale(newLocale);
       _locale = newLocale;
       setting.locale.languageCode = _locale.languageCode;
