@@ -1,9 +1,7 @@
 import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class FlowyIconButton extends StatelessWidget {
   final double width;
