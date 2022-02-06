@@ -79,7 +79,11 @@ jobs:
       - name: Run cargo test
         working-directory: backend/
         run: cargo test
-        
+
+      - name: Generate protobuf files
+        working-directory: front/
+        run: cargo pb
+
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
@@ -93,8 +97,8 @@ jobs:
         working-directory: backend/
       - run: cargo fmt --all -- --check
         working-directory: backend/
-        
-        
+
+
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
@@ -129,11 +133,11 @@ jobs:
             ~/.cargo/bin/sqlx
           key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
 
-      - name: Install sqlx-cli 
+      - name: Install sqlx-cli
         uses: actions-rs/cargo@v1
         if: steps.cache-sqlx.outputs.cache-hit == false
         with:
-          command: install 
+          command: install
           args: >
             sqlx-cli
             --force
@@ -147,10 +151,12 @@ jobs:
         run: |
           sudo apt-get install libpq-dev -y
           SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
-          
+
+      - name: Generate protobuf files
+        working-directory: front/
+        run: cargo pb
+
       - run: rustup component add clippy
         working-directory: backend/
       - run: cargo clippy -- -D warnings
         working-directory: backend/
-
-
