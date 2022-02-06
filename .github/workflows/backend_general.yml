@@ -71,6 +71,10 @@ jobs:
           sudo apt-get install libpq-dev -y
           SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
 
+      - name: Generate protobuf files
+        working-directory: front/
+        run: cargo pb
+
       - name: Check sqlx-data.json is up-to-date
         working-directory: backend/
         run: |
@@ -79,10 +83,6 @@ jobs:
       - name: Run cargo test
         working-directory: backend/
         run: cargo test
-
-      - name: Generate protobuf files
-        working-directory: front/
-        run: cargo pb
 
   fmt:
     name: Rustfmt
@@ -95,6 +95,11 @@ jobs:
           override: true
       - run: rustup component add rustfmt
         working-directory: backend/
+
+      - name: Generate protobuf files
+        working-directory: front/
+        run: cargo pb
+
       - run: cargo fmt --all -- --check
         working-directory: backend/
 
@@ -153,7 +158,7 @@ jobs:
           SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
 
       - name: Generate protobuf files
-        working-directory: front/
+        working-directory: frontend/
         run: cargo pb
 
       - run: rustup component add clippy
