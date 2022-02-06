@@ -73,7 +73,7 @@ jobs:
 
       - name: Generate protobuf files
         working-directory: frontend/
-        run: cargo pb
+        run: cargo make pb
 
       - name: Check sqlx-data.json is up-to-date
         working-directory: backend/
@@ -98,7 +98,7 @@ jobs:
 
       - name: Generate protobuf files
         working-directory: frontend/
-        run: cargo pb
+        run: cargo make pb
 
       - run: cargo fmt --all -- --check
         working-directory: backend/
@@ -159,7 +159,7 @@ jobs:
 
       - name: Generate protobuf files
         working-directory: frontend/
-        run: cargo pb
+        run: cargo make pb
 
       - run: rustup component add clippy
         working-directory: backend/
