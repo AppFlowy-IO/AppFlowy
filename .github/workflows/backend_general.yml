@@ -71,6 +71,12 @@ jobs:
           sudo apt-get install libpq-dev -y
           SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
 
+      - name: Install Cargo Make
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+
       - name: Generate protobuf files
         working-directory: frontend/
         run: cargo make pb
@@ -95,6 +101,12 @@ jobs:
           override: true
       - run: rustup component add rustfmt
         working-directory: backend/
+
+      - name: Install Cargo Make
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
 
       - name: Generate protobuf files
         working-directory: frontend/
@@ -150,6 +162,12 @@ jobs:
             --features=${{ env.SQLX_FEATURES }}
             --no-default-features
             --locked
+
+      - name: Install Cargo Make
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
 
       - name: Migrate database
         working-directory: backend/
