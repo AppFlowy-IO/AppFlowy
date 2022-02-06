@@ -2,6 +2,27 @@
 [tasks.pb]
 dependencies = ["check_protoc_cmd", "gen_pb_file"]
 
+[tasks.pb_clean.linux]
+script = [
+    """
+    find . -type d -name protobuf -exec rm -rf {} \\;
+    """
+]
+
+[tasks.pb_clean.mac]
+script = [
+    """
+    find . -type d -name protobuf -exec rm -rf {} \\;
+    """
+]
+
+[tasks.pb_clean.windows]
+script = [
+    """
+    for /d /r %i in (protobuf) do rmdir /s "%i"
+    """
+]
+
 [tasks.check_protoc_cmd]
 script = [
     """

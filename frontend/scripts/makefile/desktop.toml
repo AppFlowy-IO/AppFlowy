@@ -9,26 +9,11 @@ dependencies = ["echo_env"]
 condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["stable"] }
 
 [tasks.flowy-sdk-dev]
-mac_alias = "flowy-sdk-dev-macos"
-windows_alias = "flowy-sdk-dev-windows"
-linux_alias = "flowy-sdk-dev-linux"
-
-[tasks.flowy-sdk-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type", "pb", "sdk-build", "post-desktop", "restore-crate-type"] }
 
-[tasks.flowy-sdk-dev-windows]
-category = "Build"
-dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
-[tasks.flowy-sdk-dev-linux]
-category = "Build"
-dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
-
-#
 [tasks.sdk-build]
 private = true
 script = [
@@ -57,7 +42,7 @@ script_runner = "@duckscript"
 description = "Build flowy sdk in release mode"
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-release-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","pb", "sdk-release-build", "post-desktop", "restore-crate-type"] }
 
 #
 [tasks.sdk-release-build]
