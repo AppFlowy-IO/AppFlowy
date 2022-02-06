@@ -72,7 +72,7 @@ jobs:
           SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
 
       - name: Generate protobuf files
-        working-directory: front/
+        working-directory: frontend/
         run: cargo pb
 
       - name: Check sqlx-data.json is up-to-date
@@ -97,7 +97,7 @@ jobs:
         working-directory: backend/
 
       - name: Generate protobuf files
-        working-directory: front/
+        working-directory: frontend/
         run: cargo pb
 
       - run: cargo fmt --all -- --check
