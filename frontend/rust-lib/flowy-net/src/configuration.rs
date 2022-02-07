@@ -1,7 +1,6 @@
 use config::FileFormat;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use std::convert::{TryFrom, TryInto};
-pub const HOST: &str = "localhost:8000";
 pub const HEADER_TOKEN: &str = "token";
 
 #[derive(serde::Deserialize, Clone, Debug)]
@@ -89,6 +88,7 @@ pub enum Environment {
 }
 
 impl Environment {
+    #[allow(dead_code)]
     pub fn as_str(&self) -> &'static str {
         match self {
             Environment::Local => "local",

@@ -1,6 +1,6 @@
 use crate::FlowyError;
-use backend_service::errors::{ErrorCode as ServerErrorCode, ServerError};
 use error_code::ErrorCode;
+use http_flowy::errors::{ErrorCode as ServerErrorCode, ServerError};
 
 impl std::convert::From<ServerError> for FlowyError {
     fn from(error: ServerError) -> Self {

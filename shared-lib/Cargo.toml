@@ -6,7 +6,6 @@ members = [
   "lib-ot",
   "lib-ws",
   "lib-infra",
-  "backend-service",
   "flowy-derive",
   "flowy-ast",
   "error-code",
