@@ -830,7 +830,7 @@ dependencies = [
  "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
- "http-response",
+ "http-flowy",
  "lib-dispatch",
  "lib-ot",
  "lib-sqlite",
@@ -918,7 +918,7 @@ dependencies = [
  "flowy-user",
  "flowy-user-data-model",
  "futures-util",
- "http-response",
+ "http-flowy",
  "hyper",
  "lazy_static",
  "lib-dispatch",
@@ -1317,9 +1317,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-response"
+name = "http-flowy"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server#0f3b0623506b3bc5855473eeb823e21ead2316a8"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server#3012acce300024dda8819d8507c9105af84cd909"
 dependencies = [
  "anyhow",
  "bytes",

@@ -1,7 +1,7 @@
 use crate::configuration::HEADER_TOKEN;
 use bytes::Bytes;
-use http_response::errors::ServerError;
-use http_response::response::FlowyResponse;
+use http_flowy::errors::ServerError;
+use http_flowy::response::FlowyResponse;
 use hyper::http;
 use protobuf::ProtobufError;
 use reqwest::{header::HeaderMap, Client, Method, Response};

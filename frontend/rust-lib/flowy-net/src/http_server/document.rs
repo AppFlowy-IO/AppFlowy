@@ -5,7 +5,7 @@ use crate::{
 use flowy_collaboration::entities::document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
-use http_response::response::FlowyResponse;
+use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

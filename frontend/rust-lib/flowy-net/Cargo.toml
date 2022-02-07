@@ -29,7 +29,7 @@ tracing = { version = "0.1", features = ["log"] }
 dashmap = {version = "4.0"}
 async-stream = "0.3.2"
 futures-util = "0.3.15"
-http-response = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"]}
+http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"] }
 serde-aux = "1.0.1"
 reqwest = "0.11"
 hyper = "0.14"

@@ -11,8 +11,8 @@ use flowy_folder_data_model::entities::{
 };
 
 use flowy_folder::event_map::FolderCouldServiceV1;
-use http_response::errors::ServerError;
-use http_response::response::FlowyResponse;
+use http_flowy::errors::ServerError;
+use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

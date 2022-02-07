@@ -4,7 +4,7 @@ use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
-use http_response::errors::ServerError;
+use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
 
 pub struct UserHttpCloudService {

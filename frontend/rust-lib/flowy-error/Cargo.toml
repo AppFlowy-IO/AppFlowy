@@ -16,7 +16,7 @@ bytes = "1.0"
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 serde_json = {version = "1.0", optional = true}
-http-response = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", optional = true}
+http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", optional = true}
 flowy-database = { path = "../flowy-database", optional = true}
 r2d2 = { version = "0.8", optional = true}
 lib-sqlite = { path = "../lib-sqlite", optional = true }
@@ -25,5 +25,5 @@ lib-sqlite = { path = "../lib-sqlite", optional = true }
 collaboration = ["flowy-collaboration"]
 ot = ["lib-ot"]
 serde = ["serde_json"]
-http_server = ["http-response"]
+http_server = ["http-flowy"]
 db = ["flowy-database", "lib-sqlite", "r2d2"]
