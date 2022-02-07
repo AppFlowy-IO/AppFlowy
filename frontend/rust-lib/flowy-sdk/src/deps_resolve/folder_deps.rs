@@ -9,7 +9,7 @@ use flowy_folder::{
 };
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
-    http_server::core::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
+    http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;

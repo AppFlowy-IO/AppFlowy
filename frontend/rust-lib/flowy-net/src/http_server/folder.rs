@@ -1,8 +1,6 @@
-use backend_service::{
+use crate::{
     configuration::{ClientServerConfiguration, HEADER_TOKEN},
-    errors::ServerError,
     request::{HttpRequestBuilder, ResponseMiddleware},
-    response::FlowyResponse,
 };
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::{
@@ -13,6 +11,8 @@ use flowy_folder_data_model::entities::{
 };
 
 use flowy_folder::event_map::FolderCouldServiceV1;
+use http_response::errors::ServerError;
+use http_response::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -338,17 +338,17 @@ pub async fn read_trash_request(token: &str, url: &str) -> Result<RepeatedTrash,
 }
 
 lazy_static! {
-    static ref MIDDLEWARE: Arc<CoreResponseMiddleware> = Arc::new(CoreResponseMiddleware::new());
+    static ref MIDDLEWARE: Arc<FolderResponseMiddleware> = Arc::new(FolderResponseMiddleware::new());
 }
 
-pub struct CoreResponseMiddleware {
+pub struct FolderResponseMiddleware {
     invalid_token_sender: broadcast::Sender<String>,
 }
 
-impl CoreResponseMiddleware {
+impl FolderResponseMiddleware {
     fn new() -> Self {
         let (sender, _) = broadcast::channel(10);
-        CoreResponseMiddleware {
+        FolderResponseMiddleware {
             invalid_token_sender: sender,
         }
     }
@@ -359,7 +359,7 @@ impl CoreResponseMiddleware {
     }
 }
 
-impl ResponseMiddleware for CoreResponseMiddleware {
+impl ResponseMiddleware for FolderResponseMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {

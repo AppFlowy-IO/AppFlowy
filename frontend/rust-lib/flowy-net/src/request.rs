@@ -1,5 +1,7 @@
-use crate::{configuration::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
+use crate::configuration::HEADER_TOKEN;
 use bytes::Bytes;
+use http_response::errors::ServerError;
+use http_response::response::FlowyResponse;
 use hyper::http;
 use protobuf::ProtobufError;
 use reqwest::{header::HeaderMap, Client, Method, Response};
@@ -141,7 +143,7 @@ impl HttpRequestBuilder {
         let method = self.method.clone();
         let headers = self.headers.clone();
 
-        // reqwest client is not 'Sync' by channel is.
+        // reqwest client is not 'Sync' but channel is.
         tokio::spawn(async move {
             let client = default_client();
             let mut builder = client.request(method.clone(), url).headers(headers);
@@ -153,7 +155,10 @@ impl HttpRequestBuilder {
             let _ = tx.send(response);
         });
 
-        let response = rx.await??;
+        let response = rx.await.map_err(|e| {
+            let mag = format!("Receive http response channel error: {}", e);
+            ServerError::internal().context(mag)
+        })??;
         tracing::trace!("Http Response: {:?}", response);
         let flowy_response = flowy_response_from(response).await?;
         let token = self.token();
