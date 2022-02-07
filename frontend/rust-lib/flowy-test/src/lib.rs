@@ -2,7 +2,7 @@ pub mod event_builder;
 pub mod helper;
 
 use crate::helper::*;
-use backend_service::configuration::{get_client_server_configuration, ClientServerConfiguration};
+use flowy_net::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 use lib_infra::uuid_string;

@@ -7,7 +7,6 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-backend-service = { path = "../backend-service" }
 lib-infra = { path = "../lib-infra" }
 
 tokio-tungstenite = "0.15"

@@ -1,9 +1,10 @@
-use backend_service::{configuration::*, errors::ServerError, request::HttpRequestBuilder};
+use crate::{configuration::*, request::HttpRequestBuilder};
 use flowy_error::FlowyError;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
+use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
 
 pub struct UserHttpCloudService {

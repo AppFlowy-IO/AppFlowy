@@ -115,12 +115,6 @@ script = [
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
-
-    echo "-------- Flutter --------"
-    flutter doctor
-
-    echo "-------- Rust --------"
-    rustup show
     '''
 ]
 script_runner = "@shell"
