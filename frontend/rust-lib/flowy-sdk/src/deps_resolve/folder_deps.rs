@@ -1,4 +1,3 @@
-use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
@@ -8,8 +7,9 @@ use flowy_folder::{
     errors::{internal_error, FlowyError},
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
 };
+use flowy_net::ClientServerConfiguration;
 use flowy_net::{
-    http_server::core::CoreHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
+    http_server::core::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_sync::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
@@ -31,7 +31,7 @@ impl FolderDepsResolver {
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
         let web_socket = Arc::new(FolderWebSocketImpl(ws_conn.clone()));
         let cloud_service: Arc<dyn FolderCouldServiceV1> = match local_server {
-            None => Arc::new(CoreHttpCloudService::new(server_config.clone())),
+            None => Arc::new(FolderHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
         };
 

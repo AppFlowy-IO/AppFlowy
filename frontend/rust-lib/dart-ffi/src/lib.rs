@@ -8,7 +8,9 @@ use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
     model::{FFIRequest, FFIResponse},
 };
+use flowy_sdk::get_client_server_configuration;
 use flowy_sdk::*;
+use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 use once_cell::sync::OnceCell;
 use std::{ffi::CStr, os::raw::c_char};
@@ -79,9 +81,6 @@ pub extern "C" fn set_stream_port(port: i64) -> i32 {
 #[inline(never)]
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
-
-use backend_service::configuration::get_client_server_configuration;
-use lib_dispatch::prelude::ToBytes;
 
 #[inline(always)]
 async fn post_to_flutter(response: EventResponse, port: i64) {

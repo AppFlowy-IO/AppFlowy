@@ -1,8 +1,11 @@
 mod deps_resolve;
 pub mod module;
+pub use flowy_net::get_client_server_configuration;
+
 use crate::deps_resolve::*;
-use backend_service::configuration::ClientServerConfiguration;
+use flowy_document::FlowyDocumentManager;
 use flowy_folder::{controller::FolderManager, errors::FlowyError};
+use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     entities::NetworkType,
     local_server::LocalServer,
@@ -10,8 +13,6 @@ use flowy_net::{
 };
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
-
-use flowy_document::FlowyDocumentManager;
 use lib_dispatch::util::tokio_default_runtime;
 use module::mk_modules;
 pub use module::*;

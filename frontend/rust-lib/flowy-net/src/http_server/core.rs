@@ -18,17 +18,17 @@ use lib_infra::future::FutureResult;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
-pub struct CoreHttpCloudService {
+pub struct FolderHttpCloudService {
     config: ClientServerConfiguration,
 }
 
-impl CoreHttpCloudService {
-    pub fn new(config: ClientServerConfiguration) -> CoreHttpCloudService {
+impl FolderHttpCloudService {
+    pub fn new(config: ClientServerConfiguration) -> FolderHttpCloudService {
         Self { config }
     }
 }
 
-impl FolderCouldServiceV1 for CoreHttpCloudService {
+impl FolderCouldServiceV1 for FolderHttpCloudService {
     fn init(&self) {}
 
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {

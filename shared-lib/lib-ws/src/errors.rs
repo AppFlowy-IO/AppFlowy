@@ -2,6 +2,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use futures_channel::mpsc::TrySendError;
 use std::fmt::Debug;
 use strum_macros::Display;
+use tokio::sync::oneshot::error::RecvError;
 use tokio_tungstenite::tungstenite::{http::StatusCode, Message};
 use url::ParseError;
 
@@ -79,6 +80,12 @@ impl std::convert::From<protobuf::ProtobufError> for WSError {
 
 impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WSError {
     fn from(error: TrySendError<Message>) -> Self {
+        WSError::internal().context(error)
+    }
+}
+
+impl std::convert::From<RecvError> for WSError {
+    fn from(error: RecvError) -> Self {
         WSError::internal().context(error)
     }
 }

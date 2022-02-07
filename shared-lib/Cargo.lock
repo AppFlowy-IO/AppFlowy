@@ -1118,7 +1118,6 @@ dependencies = [
 name = "lib-ws"
 version = "0.1.0"
 dependencies = [
- "backend-service",
  "bytes",
  "dashmap",
  "env_logger 0.8.4",

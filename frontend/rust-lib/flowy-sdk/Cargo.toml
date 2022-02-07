@@ -26,7 +26,6 @@ parking_lot = "0.11"
 
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [dev-dependencies]
