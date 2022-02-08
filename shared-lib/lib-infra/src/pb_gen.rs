@@ -21,8 +21,8 @@ pub fn gen(name: &str, root: &str) {
         }
     }
 
-    #[cfg(feature = "dart")]
-    gen_pb_for_dart(name, root, &paths, &file_names);
+    // #[cfg(feature = "dart")]
+    // gen_pb_for_dart(name, root, &paths, &file_names);
 
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
