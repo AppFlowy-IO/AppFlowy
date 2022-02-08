@@ -1,7 +1,10 @@
+#![allow(clippy::all)]
 #![allow(unused_imports)]
 #![allow(unused_attributes)]
+#![allow(dead_code)]
 use std::fs::File;
 use std::io::Write;
+use std::process::Command;
 use walkdir::WalkDir;
 
 pub fn gen(name: &str, root: &str) {
@@ -19,6 +22,7 @@ pub fn gen(name: &str, root: &str) {
             file_names.push(file_name);
         }
     }
+    println!("cargo:rerun-if-changed=build.rs");
 
     #[cfg(feature = "dart")]
     gen_pb_for_dart(name, root, &paths, &file_names);
@@ -32,7 +36,6 @@ pub fn gen(name: &str, root: &str) {
 }
 
 #[cfg(feature = "dart")]
-#[allow(dead_code)]
 fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>) {
     let output = format!(
         "{}/{}/{}",
@@ -43,6 +46,10 @@ fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec
     if !std::path::Path::new(&output).exists() {
         std::fs::create_dir_all(&output).unwrap();
     }
+    check_pb_compiler();
+
+    check_pb_dart_plugin();
+
     paths.iter().for_each(|path| {
         if cmd_lib::run_cmd! {
             protoc --dart_out=${output} --proto_path=${root} ${path}
@@ -76,4 +83,32 @@ fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec
             panic!("Failed to open file: {}", err);
         }
     }
+}
+
+fn check_pb_compiler() {
+    assert!(run_command("command -v protoc"), "protoc was not installed correctly");
+}
+
+fn check_pb_dart_plugin() {
+    assert!(
+        run_command("command -v protoc-gen-dart"),
+        "protoc-gen-dart was not installed correctly"
+    );
+}
+
+fn run_command(cmd: &str) -> bool {
+    let output = if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .arg("/C")
+            .arg(cmd)
+            .status()
+            .expect("failed to execute process")
+    } else {
+        Command::new("sh")
+            .arg("-c")
+            .arg(cmd)
+            .status()
+            .expect("failed to execute process")
+    };
+    output.success()
 }
