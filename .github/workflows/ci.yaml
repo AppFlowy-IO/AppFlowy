@@ -33,6 +33,7 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Build
         working-directory: frontend
         run: cargo make --profile production-mac-x86 appflowy
@@ -73,8 +74,8 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
-          sudo apt-get install protobuf-compiler
           cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Build
         working-directory: frontend
         run: cargo make --profile production-linux-x86 appflowy

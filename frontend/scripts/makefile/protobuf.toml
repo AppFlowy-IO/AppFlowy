@@ -25,7 +25,6 @@ brew install protobuf
 
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
-export PATH="$PATH":"$HOME/.pub-cache/bin"
 """
 script_runner = "@shell"
 
@@ -35,7 +34,6 @@ sudo apt-get install protobuf-compiler
 
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
-export PATH="$PATH":"$HOME/.pub-cache/bin"
 """
 script_runner = "@shell"
 
