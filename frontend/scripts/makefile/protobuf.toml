@@ -2,16 +2,14 @@
 [tasks.pb]
 dependencies = ["check_protoc_cmd", "gen_pb_file"]
 
-[tasks.install-pb-tool-if-need]
+[tasks.install_protobuf]
 condition_script = [
     """
-    if [ ! "$(command -v dart)" ]; then
-        echo Please make sure flutter/dart is properly installed and in PATH env var
-        exit 1
+    if [ ! "$(command -v protoc)" ]; then
+        exit 0
     fi
 
     if [ ! "$(command -v protoc-gen-dart)" ]; then
-        # not install
         exit 0
     fi
 
@@ -19,19 +17,27 @@ condition_script = [
     exit 1
     """,
 ]
-run_task = { name = ["install_protobuf"] }
+run_task = { name = ["install_protobuf_compiler"] }
 
-[tasks.install_protobuf]
+[tasks.install_protobuf_compiler]
 script = """
+brew install protobuf
+
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
-export PATH="$HOME/.pub-cache/bin:$PATH"
-
-cargo install --version 2.22.1 protobuf-codegen
 """
 script_runner = "@shell"
 
-[tasks.install_protobuf.windows]
+[tasks.install_protobuf_compiler.linux]
+script = """
+sudo apt-get install protobuf-compiler
+
+echo "Install protoc_plugin (Dart)"
+dart pub global activate protoc_plugin
+"""
+script_runner = "@shell"
+
+[tasks.install_protobuf_compiler.windows]
 script = """
 ret = which dart
 if is_empty ${ret}

@@ -5,7 +5,7 @@
 # cargo make --profile production-windows-x86 flowy-sdk-dev
 
 [tasks.env_check]
-dependencies = ["echo_env", "install-pb-tool-if-need"]
+dependencies = ["echo_env", "install_protobuf"]
 condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["stable"] }
 
 [tasks.flowy-sdk-dev]

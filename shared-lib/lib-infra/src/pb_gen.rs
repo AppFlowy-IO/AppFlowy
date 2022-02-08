@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::Write;
 use walkdir::WalkDir;
 
-#[allow(dead_code)]
 pub fn gen(name: &str, root: &str) {
     let mut paths = vec![];
     let mut file_names = vec![];
@@ -21,8 +20,8 @@ pub fn gen(name: &str, root: &str) {
         }
     }
 
-    // #[cfg(feature = "dart")]
-    // gen_pb_for_dart(name, root, &paths, &file_names);
+    #[cfg(feature = "dart")]
+    gen_pb_for_dart(name, root, &paths, &file_names);
 
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
@@ -50,7 +49,7 @@ fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec
         }
         .is_err()
         {
-            panic!("Run flutter protoc fail")
+            panic!("Generate pb file failed with: {}", path)
         };
     });
 
