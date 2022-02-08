@@ -31,6 +31,7 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
+          brew install protobuf
           cargo make flowy_dev
       - name: Build
         working-directory: frontend
@@ -71,6 +72,7 @@ jobs:
         run: |
           cargo install --force cargo-make
           cargo install --force duckscript_cli
+          sudo apt-get install protobuf-compiler
           cargo make flowy_dev
       - name: Build
         working-directory: frontend
