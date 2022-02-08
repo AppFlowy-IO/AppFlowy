@@ -26,6 +26,7 @@ jobs:
           flutter channel stable
           flutter config --enable-macos-desktop
           flutter doctor
+          dart pub global activate protoc_plugin
       - name: Deps
         working-directory: frontend
         run: |
@@ -66,6 +67,7 @@ jobs:
           flutter channel stable
           flutter config --enable-linux-desktop
           flutter doctor
+          dart pub global activate protoc_plugin
       - name: Deps
         working-directory: frontend
         run: |
