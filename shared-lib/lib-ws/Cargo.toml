@@ -28,8 +28,11 @@ parking_lot = "0.11"
 dashmap = "4.0"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["gen_pb"] }
+lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}
 env_logger = "0.8.2"
+
+[features]
+dart = ["lib-infra/dart"]

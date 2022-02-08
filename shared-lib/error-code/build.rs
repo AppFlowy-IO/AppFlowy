@@ -1,5 +1,5 @@
-use lib_infra::pb;
+use lib_infra::pb_gen;
 
 fn main() {
-    pb::gen("error-code", "./src/protobuf/proto");
+    pb_gen::gen("error-code", "./src/protobuf/proto");
 }

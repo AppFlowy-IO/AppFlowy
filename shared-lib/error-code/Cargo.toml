@@ -11,4 +11,7 @@ protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["gen_pb"] }
+lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
+
+[features]
+dart = ["lib-infra/dart"]

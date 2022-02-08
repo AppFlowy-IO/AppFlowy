@@ -1,5 +1,5 @@
-use lib_infra::pb;
+use lib_infra::pb_gen;
 
 fn main() {
-    pb::gen("lib-ws", "./src/protobuf/proto");
+    pb_gen::gen("lib-ws", "./src/protobuf/proto");
 }

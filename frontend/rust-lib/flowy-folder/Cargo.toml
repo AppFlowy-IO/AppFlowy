@@ -53,6 +53,7 @@ flowy-test = { path = "../flowy-test" }
 default = []
 http_server = []
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-sync/flowy_unit_test"]
+dart = ["lib-infra/dart", "flowy-folder/dart", "flowy-folder/dart",]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["gen_pb"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen"] }

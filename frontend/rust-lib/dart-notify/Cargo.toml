@@ -16,7 +16,7 @@ flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 lib-dispatch = {path = "../lib-dispatch" }
 
 [features]
-dart = []
+dart = ["lib-infra/dart"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["gen_pb"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen"] }
