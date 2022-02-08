@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-error-code = { path = "../../../shared-lib/error-code" }
+error-code = { path = "../../../shared-lib/error-code"}
 lib-dispatch = { path = "../lib-dispatch" }
 protobuf = {version = "2.20.0"}
 bytes = "1.0"
@@ -27,3 +27,7 @@ ot = ["lib-ot"]
 serde = ["serde_json"]
 http_server = ["http-flowy"]
 db = ["flowy-database", "lib-sqlite", "r2d2"]
+dart = ["error-code/dart", "lib-infra/dart"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen"] }

@@ -118,7 +118,7 @@ impl std::convert::From<AppTable> for Trash {
             name: table.name,
             modified_time: table.modified_time,
             create_time: table.create_time,
-            ty: TrashType::App,
+            ty: TrashType::TrashApp,
         }
     }
 }

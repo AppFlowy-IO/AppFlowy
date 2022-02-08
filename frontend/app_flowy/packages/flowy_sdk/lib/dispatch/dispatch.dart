@@ -23,7 +23,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 
 // ignore: unused_import
-import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import 'error.dart';

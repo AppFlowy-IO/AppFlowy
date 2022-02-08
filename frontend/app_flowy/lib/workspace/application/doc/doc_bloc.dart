@@ -39,7 +39,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.View)]);
+          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },

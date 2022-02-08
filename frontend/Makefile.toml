@@ -21,6 +21,7 @@ PRODUCT_NAME = "AppFlowy"
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
 APP_ENVIRONMENT = "local"
+FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk/lib/protobuf"
 
 [env.development-mac]
 RUST_LOG = "trace"
@@ -150,3 +151,14 @@ script = [
       """,
 ]
 script_runner = "@duckscript"
+
+
+[tasks.test-build]
+condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }
+script = [
+    """
+      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/dart-ffi
+      cargo build -vv
+      """,
+]
+script_runner = "@shell"

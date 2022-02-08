@@ -315,7 +315,7 @@ impl ViewController {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
                     match result {
-                        Ok(event) => event.select(TrashType::View),
+                        Ok(event) => event.select(TrashType::TrashView),
                         Err(_e) => None,
                     }
                 }));

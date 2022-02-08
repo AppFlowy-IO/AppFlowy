@@ -39,3 +39,4 @@ futures-util = "0.3.15"
 [features]
 http_server = ["flowy-user/http_server", "flowy-folder/http_server", "flowy-document/http_server"]
 use_bunyan = ["lib-log/use_bunyan"]
+dart = ["flowy-user/dart", "flowy-net/dart", "flowy-folder/dart", "flowy-collaboration/dart"]

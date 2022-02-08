@@ -27,3 +27,9 @@ parking_lot = "0.11"
 dashmap = "4.0"
 futures = "0.3.15"
 async-stream = "0.3.2"
+
+[build-dependencies]
+lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
+
+[features]
+dart = ["lib-infra/dart"]

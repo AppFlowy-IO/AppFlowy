@@ -20,6 +20,6 @@ message TrashId {
 }
 enum TrashType {
     Unknown = 0;
-    View = 1;
-    App = 2;
+    TrashView = 1;
+    TrashApp = 2;
 }

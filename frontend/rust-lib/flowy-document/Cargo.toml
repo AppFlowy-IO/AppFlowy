@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
@@ -51,7 +51,6 @@ flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
-
 
 [features]
 http_server = []

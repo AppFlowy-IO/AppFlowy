@@ -1,7 +1,5 @@
 pub mod controller;
 pub mod core;
-// mod notify;
-pub mod protobuf;
 pub use controller::*;
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};

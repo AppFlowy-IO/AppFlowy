@@ -129,8 +129,8 @@ impl std::convert::From<SqlTrashType> for TrashType {
     fn from(ty: SqlTrashType) -> Self {
         match ty {
             SqlTrashType::Unknown => TrashType::Unknown,
-            SqlTrashType::View => TrashType::View,
-            SqlTrashType::App => TrashType::App,
+            SqlTrashType::View => TrashType::TrashView,
+            SqlTrashType::App => TrashType::TrashApp,
         }
     }
 }
@@ -139,8 +139,8 @@ impl std::convert::From<TrashType> for SqlTrashType {
     fn from(ty: TrashType) -> Self {
         match ty {
             TrashType::Unknown => SqlTrashType::Unknown,
-            TrashType::View => SqlTrashType::View,
-            TrashType::App => SqlTrashType::App,
+            TrashType::TrashView => SqlTrashType::View,
+            TrashType::TrashApp => SqlTrashType::App,
         }
     }
 }

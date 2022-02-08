@@ -57,7 +57,7 @@ impl std::convert::From<View> for Trash {
             name: view.name,
             modified_time: view.modified_time,
             create_time: view.create_time,
-            ty: TrashType::View,
+            ty: TrashType::TrashView,
         }
     }
 }

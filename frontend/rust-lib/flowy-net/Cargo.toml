@@ -10,7 +10,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
-flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model" }
+flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
@@ -40,3 +40,14 @@ serde_json = "1.0"
 
 [features]
 http_server = []
+dart = [
+    "lib-infra/dart",
+    "flowy-user/dart",
+    "flowy-collaboration/dart",
+    "flowy-error/dart",
+    "flowy-user-data-model/dart",
+    "flowy-folder-data-model/dart"
+]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen"] }
