@@ -25,6 +25,7 @@ run_task = { name = ["install_protobuf"] }
 script = """
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
+export PATH="$HOME/.pub-cache/bin:$PATH"
 """
 script_runner = "@shell"
 
