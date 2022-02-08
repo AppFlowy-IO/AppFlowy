@@ -27,3 +27,6 @@ ot = ["lib-ot"]
 serde = ["serde_json"]
 http_server = ["http-flowy"]
 db = ["flowy-database", "lib-sqlite", "r2d2"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["gen_pb"] }

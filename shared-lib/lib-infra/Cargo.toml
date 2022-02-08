@@ -15,3 +15,10 @@ futures-core = { version = "0.3", default-features = false }
 tokio = { version = "1.0", features = ["time", "rt"] }
 rand = "0.8.3"
 
+cmd_lib = { version = "1", optional = true }
+cargo_toml = { version = "0.11", optional = true }
+protoc-rust = { version = "2", optional = true }
+walkdir = { version = "2", optional = true }
+
+[features]
+gen_pb = ["cmd_lib","cargo_toml", "protoc-rust", "walkdir"]

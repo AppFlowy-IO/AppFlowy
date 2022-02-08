@@ -9,3 +9,6 @@ edition = "2018"
 flowy-derive = { path = "../flowy-derive" }
 protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
+
+[build-dependencies]
+lib-infra = { path = "../lib-infra", features = ["gen_pb"] }

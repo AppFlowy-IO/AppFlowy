@@ -36,7 +36,7 @@ impl std::convert::From<App> for Trash {
             name: app.name,
             modified_time: app.modified_time,
             create_time: app.create_time,
-            ty: TrashType::App,
+            ty: TrashType::TrashApp,
         }
     }
 }
@@ -44,8 +44,8 @@ impl std::convert::From<App> for Trash {
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum TrashType {
     Unknown = 0,
-    View = 1,
-    App = 2,
+    TrashView = 1,
+    TrashApp = 2,
 }
 
 impl std::convert::TryFrom<i32> for TrashType {
@@ -54,8 +54,8 @@ impl std::convert::TryFrom<i32> for TrashType {
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             0 => Ok(TrashType::Unknown),
-            1 => Ok(TrashType::View),
-            2 => Ok(TrashType::App),
+            1 => Ok(TrashType::TrashView),
+            2 => Ok(TrashType::TrashApp),
             _ => Err(format!("Invalid trash type: {}", value)),
         }
     }

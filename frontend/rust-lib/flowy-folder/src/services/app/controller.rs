@@ -169,7 +169,7 @@ impl AppController {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
                     match result {
-                        Ok(event) => event.select(TrashType::App),
+                        Ok(event) => event.select(TrashType::TrashApp),
                         Err(_e) => None,
                     }
                 }));

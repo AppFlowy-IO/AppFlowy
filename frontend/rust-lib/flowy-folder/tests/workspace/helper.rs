@@ -180,7 +180,7 @@ pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {
 pub async fn restore_app_from_trash(sdk: &FlowySDKTest, app_id: &str) {
     let id = TrashId {
         id: app_id.to_owned(),
-        ty: TrashType::App,
+        ty: TrashType::TrashApp,
     };
     FolderEventBuilder::new(sdk.clone())
         .event(PutbackTrash)
@@ -192,7 +192,7 @@ pub async fn restore_app_from_trash(sdk: &FlowySDKTest, app_id: &str) {
 pub async fn restore_view_from_trash(sdk: &FlowySDKTest, view_id: &str) {
     let id = TrashId {
         id: view_id.to_owned(),
-        ty: TrashType::View,
+        ty: TrashType::TrashView,
     };
     FolderEventBuilder::new(sdk.clone())
         .event(PutbackTrash)

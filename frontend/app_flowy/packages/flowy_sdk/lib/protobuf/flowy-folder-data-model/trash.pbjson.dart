@@ -13,13 +13,13 @@ const TrashType$json = const {
   '1': 'TrashType',
   '2': const [
     const {'1': 'Unknown', '2': 0},
-    const {'1': 'View', '2': 1},
-    const {'1': 'App', '2': 2},
+    const {'1': 'TrashView', '2': 1},
+    const {'1': 'TrashApp', '2': 2},
   ],
 };
 
 /// Descriptor for `TrashType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List trashTypeDescriptor = $convert.base64Decode('CglUcmFzaFR5cGUSCwoHVW5rbm93bhAAEggKBFZpZXcQARIHCgNBcHAQAg==');
+final $typed_data.Uint8List trashTypeDescriptor = $convert.base64Decode('CglUcmFzaFR5cGUSCwoHVW5rbm93bhAAEg0KCVRyYXNoVmlldxABEgwKCFRyYXNoQXBwEAI=');
 @$core.Deprecated('Use trashDescriptor instead')
 const Trash$json = const {
   '1': 'Trash',

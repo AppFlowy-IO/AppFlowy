@@ -33,3 +33,6 @@ flutter = ["dart-notify/dart"]
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["gen_pb"] }

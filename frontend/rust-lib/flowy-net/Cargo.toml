@@ -40,3 +40,6 @@ serde_json = "1.0"
 
 [features]
 http_server = []
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["gen_pb"] }
