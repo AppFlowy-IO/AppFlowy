@@ -37,8 +37,8 @@ jobs:
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
         working-directory: frontend
       - name: RustLib tests
-        run: cargo test
+        run: cargo test --no-default-features
         working-directory: frontend/rust-lib
       - name: Sharedlib tests
-        run: cargo test
+        run: cargo test --no-default-features
         working-directory: shared-lib

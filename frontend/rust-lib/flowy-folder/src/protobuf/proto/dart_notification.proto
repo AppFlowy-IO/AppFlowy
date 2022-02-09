@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 enum FolderNotification {
     Unknown = 0;
     UserCreateWorkspace = 10;
