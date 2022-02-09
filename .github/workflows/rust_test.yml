@@ -32,9 +32,7 @@ jobs:
         run: cargo install --force cargo-make
         working-directory: frontend
       - name: Install protobuf tool
-        run:
-          cargo make flowy_dev
-          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
+        run: brew install protobuf
         working-directory: frontend
       - name: RustLib tests
         run: cargo test --no-default-features

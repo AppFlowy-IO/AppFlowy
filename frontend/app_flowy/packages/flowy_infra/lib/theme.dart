@@ -161,9 +161,7 @@ class AppTheme {
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,
-          primaryVariant: main2,
           secondary: main2,
-          secondaryVariant: main2,
           background: surface,
           surface: surface,
           onBackground: surface,

@@ -44,12 +44,7 @@ jobs:
       - name: Install cargo-make
         run: cargo install --force cargo-make
         working-directory: frontend
-      - name: Install protobuf tool
-        run:
-          cargo make flowy_dev
-          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
-        working-directory: frontend
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
-      - run: cargo clippy
+      - run: cargo clippy --no-default-features
         working-directory: frontend/rust-lib
