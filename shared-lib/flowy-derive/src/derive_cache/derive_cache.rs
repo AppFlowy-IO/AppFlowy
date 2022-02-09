@@ -1,4 +1,11 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+use lazy_static::lazy_static;
+use dashmap::DashMap;
+
+lazy_static! {
+    static ref map: DashMap<String,String> = DashMap::new();
+}
+
 pub enum TypeCategory {
     Array,
     Map,
@@ -11,6 +18,13 @@ pub enum TypeCategory {
 }
 // auto generate, do not edit
 pub fn category_from_str(type_str: &str) -> TypeCategory {
+    let root_absolute_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+    if !map.contains_key(&root_absolute_path) {
+        println!("😁{}", root_absolute_path);
+        map.insert(root_absolute_path, "123".to_string());
+        
+    }
+    
     match type_str {
         "Vec" => TypeCategory::Array,
         "HashMap" => TypeCategory::Map,

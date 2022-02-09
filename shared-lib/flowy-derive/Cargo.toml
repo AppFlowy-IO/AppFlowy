@@ -18,6 +18,9 @@ syn = { version = "1.0.60", features = ["extra-traits", "visit"] }
 quote = "1.0"
 proc-macro2 = "1.0"
 flowy-ast = { path = "../flowy-ast" }
+lazy_static = {version = "1.4.0"}
+dashmap = "4.0"
+lib-infra = { path = "../lib-infra"}
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

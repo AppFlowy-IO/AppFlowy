@@ -1,69 +1,44 @@
-#![allow(clippy::all)]
 #![allow(unused_imports)]
 #![allow(unused_attributes)]
 #![allow(dead_code)]
-use crate::proto_gen;
-use crate::proto_gen::proto_info::ProtobufCrate;
-use crate::proto_gen::util::suffix_relative_to_path;
-use crate::proto_gen::ProtoGenerator;
+
+#[cfg(feature = "proto_gen")]
+use crate::proto_gen::*;
 use log::info;
 use std::fs::File;
 use std::io::Write;
 use std::process::Command;
 use walkdir::WalkDir;
 
-fn gen_protos(root: &str) -> Vec<ProtobufCrate> {
-    let crate_context = ProtoGenerator::gen(root);
-    let proto_crates = crate_context
-        .iter()
-        .map(|info| info.protobuf_crate.clone())
-        .collect::<Vec<_>>();
-    crate_context
-        .into_iter()
-        .map(|info| info.files)
-        .flatten()
-        .for_each(|file| {
-            println!("cargo:rerun-if-changed={}", file.file_path);
-        });
-    proto_crates
-}
-
 pub fn gen_files(name: &str, root: &str) {
-    let root_absolute_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
-    for protobuf_crate in gen_protos(&root_absolute_path) {
-        let mut paths = vec![];
-        let mut file_names = vec![];
+    #[cfg(feature = "proto_gen")]
+    let _ = gen_protos();
 
-        let proto_relative_path = suffix_relative_to_path(&protobuf_crate.proto_output_dir(), &root_absolute_path);
+    let mut paths = vec![];
+    let mut file_names = vec![];
 
-        for (path, file_name) in WalkDir::new(proto_relative_path)
-            .into_iter()
-            .filter_map(|e| e.ok())
-            .map(|e| {
-                let path = e.path().to_str().unwrap().to_string();
-                let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-                (path, file_name)
-            })
-        {
-            if path.ends_with(".proto") {
-                // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-                println!("cargo:rerun-if-changed={}", path);
-                paths.push(path);
-                file_names.push(file_name);
-            }
+    for (path, file_name) in WalkDir::new(root).into_iter().filter_map(|e| e.ok()).map(|e| {
+        let path = e.path().to_str().unwrap().to_string();
+        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
+        (path, file_name)
+    }) {
+        if path.ends_with(".proto") {
+            // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
+            println!("cargo:rerun-if-changed={}", path);
+            paths.push(path);
+            file_names.push(file_name);
         }
-        println!("cargo:rerun-if-changed=build.rs");
-
-        #[cfg(feature = "dart")]
-        gen_pb_for_dart(name, root, &paths, &file_names);
-
-        protoc_rust::Codegen::new()
-            .out_dir("./src/protobuf/model")
-            .inputs(&paths)
-            .include(root)
-            .run()
-            .expect("Running protoc failed.");
     }
+    println!("cargo:rerun-if-changed=build.rs");
+    #[cfg(feature = "dart")]
+    gen_pb_for_dart(name, root, &paths, &file_names);
+
+    protoc_rust::Codegen::new()
+        .out_dir("./src/protobuf/model")
+        .inputs(&paths)
+        .include(root)
+        .run()
+        .expect("Running protoc failed.");
 }
 
 #[cfg(feature = "dart")]
@@ -142,4 +117,24 @@ fn run_command(cmd: &str) -> bool {
             .expect("failed to execute process")
     };
     output.success()
+}
+
+#[cfg(feature = "proto_gen")]
+fn gen_protos() -> Vec<ProtobufCrate> {
+    let root = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+    let crate_context = ProtoGenerator::gen(&root);
+    let proto_crates = crate_context
+        .iter()
+        .map(|info| info.protobuf_crate.clone())
+        .collect::<Vec<_>>();
+
+    crate_context
+        .into_iter()
+        .map(|info| info.files)
+        .flatten()
+        .for_each(|file| {
+            println!("cargo:rerun-if-changed={}", file.file_path);
+        });
+
+    proto_crates
 }

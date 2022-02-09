@@ -1,6 +1,6 @@
-use crate::proto_gen::proto_info::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};
 use crate::proto_gen::template::{EnumTemplate, StructTemplate};
 use crate::proto_gen::util::*;
+use crate::proto_gen::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};
 use fancy_regex::Regex;
 use flowy_ast::*;
 use lazy_static::lazy_static;

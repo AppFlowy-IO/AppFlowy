@@ -2,6 +2,8 @@ use crate::proto_gen::ast::parse_crate_protobuf;
 use crate::proto_gen::proto_info::ProtobufCrateContext;
 use crate::proto_gen::template::write_derive_meta;
 use crate::proto_gen::util::*;
+use crate::proto_gen::ProtoFile;
+use std::fs::File;
 use std::{fs::OpenOptions, io::Write};
 
 pub(crate) struct ProtoGenerator();
@@ -14,6 +16,25 @@ impl ProtoGenerator {
             let _ = crate_info.protobuf_crate.create_output_dir();
             let _ = crate_info.protobuf_crate.proto_output_dir();
             crate_info.create_crate_mod_file();
+        }
+
+        let cache = ProtoCache::from_crate_contexts(&crate_contexts);
+        let cache_str = serde_json::to_string(&cache).unwrap();
+        let protobuf_dart = format!("{}/.proto_cache", root);
+        match std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(false)
+            .truncate(true)
+            .open(&protobuf_dart)
+        {
+            Ok(ref mut file) => {
+                file.write_all(cache_str.as_bytes()).unwrap();
+                File::flush(file).unwrap();
+            }
+            Err(err) => {
+                panic!("Failed to open file: {}", err);
+            }
         }
 
         crate_contexts
@@ -59,5 +80,25 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
                 panic!("Failed to open file: {}", err);
             }
         }
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct ProtoCache {
+    pub structs: Vec<String>,
+    pub enums: Vec<String>,
+}
+
+impl ProtoCache {
+    fn from_crate_contexts(crate_contexts: &[ProtobufCrateContext]) -> Self {
+        let proto_files = crate_contexts
+            .iter()
+            .map(|ref crate_info| &crate_info.files)
+            .flatten()
+            .collect::<Vec<&ProtoFile>>();
+
+        let structs: Vec<String> = proto_files.iter().map(|info| info.structs.clone()).flatten().collect();
+        let enums: Vec<String> = proto_files.iter().map(|info| info.enums.clone()).flatten().collect();
+        Self { structs, enums }
     }
 }

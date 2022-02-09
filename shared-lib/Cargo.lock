@@ -443,7 +443,10 @@ dependencies = [
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
+ "dashmap",
  "flowy-ast",
+ "lazy_static",
+ "lib-infra",
  "log",
  "proc-macro2",
  "quote",
@@ -802,6 +805,7 @@ dependencies = [
  "protoc-rust",
  "rand 0.8.4",
  "serde",
+ "serde_json",
  "similar",
  "syn",
  "tera",
