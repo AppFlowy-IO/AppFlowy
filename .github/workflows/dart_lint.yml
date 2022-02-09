@@ -24,12 +24,11 @@ jobs:
         uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
-          channel: "dev"
+          channel: "stable"
       - name: Generate language files
         working-directory: frontend/app_flowy
         run:
           flutter pub get
-          flutter pub add easy_localization
           flutter pub run easy_localization:generate -S assets/translations/
           flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
       - name: flutter analyze

@@ -1,4 +1,4 @@
-name: RustLint
+name: RustUnitTest
 
 on:
   push:
@@ -23,14 +23,14 @@ jobs:
           rustup toolchain install stable
           rustup default stable
       - name: Install protobuf tool
-      - run:
+        run:
           cargo install --force cargo-make
           cargo make flowy_dev
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
         working-directory: frontend
       - name: Frontend tests
+        run: cargo test
         working-directory: frontend/rust-lib
-        run: cargo test
       - name: Shared-lib tests
-        working-directory: shared-lib
         run: cargo test
+        working-directory: shared-lib

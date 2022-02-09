@@ -35,7 +35,7 @@ jobs:
           toolchain: stable
           override: true
       - name: Install protobuf tool
-      - run:
+        run:
           cargo install --force cargo-make
           cargo make flowy_dev
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
