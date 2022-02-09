@@ -2,7 +2,10 @@ pub mod future;
 pub mod retry;
 
 #[cfg(feature = "pb_gen")]
-pub mod pb_gen;
+pub mod pb;
+
+#[cfg(feature = "proto_gen")]
+pub mod proto_gen;
 
 #[allow(dead_code)]
 pub fn uuid_string() -> String {

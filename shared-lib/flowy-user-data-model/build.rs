@@ -1,5 +1,5 @@
-use lib_infra::pb_gen;
+use lib_infra::pb;
 
 fn main() {
-    pb_gen::gen("flowy-user-data-model", "./src/protobuf/proto");
+    pb::gen_files("flowy-user-data-model", "./src/protobuf/proto");
 }
