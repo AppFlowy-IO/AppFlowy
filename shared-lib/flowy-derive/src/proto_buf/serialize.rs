@@ -1,8 +1,5 @@
 #![allow(clippy::while_let_on_iterator)]
-use crate::{
-    derive_cache::TypeCategory,
-    proto_buf::util::{get_member_ident, ident_category},
-};
+use crate::proto_buf::util::{get_member_ident, ident_category, TypeCategory};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 

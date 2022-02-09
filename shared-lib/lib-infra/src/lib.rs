@@ -5,7 +5,7 @@ pub mod retry;
 pub mod pb;
 
 #[cfg(feature = "proto_gen")]
-mod proto_gen;
+pub mod proto_gen;
 
 #[allow(dead_code)]
 pub fn uuid_string() -> String {

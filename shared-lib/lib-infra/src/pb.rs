@@ -10,9 +10,9 @@ use std::io::Write;
 use std::process::Command;
 use walkdir::WalkDir;
 
-pub fn gen_files(name: &str, root: &str) {
+pub fn gen_files(crate_name: &str, root: &str) {
     #[cfg(feature = "proto_gen")]
-    let _ = gen_protos();
+    let _ = gen_protos(crate_name);
 
     let mut paths = vec![];
     let mut file_names = vec![];
@@ -31,7 +31,7 @@ pub fn gen_files(name: &str, root: &str) {
     }
     println!("cargo:rerun-if-changed=build.rs");
     #[cfg(feature = "dart")]
-    gen_pb_for_dart(name, root, &paths, &file_names);
+    gen_pb_for_dart(crate_name, root, &paths, &file_names);
 
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
@@ -120,9 +120,10 @@ fn run_command(cmd: &str) -> bool {
 }
 
 #[cfg(feature = "proto_gen")]
-fn gen_protos() -> Vec<ProtobufCrate> {
+fn gen_protos(crate_name: &str) -> Vec<ProtobufCrate> {
+    let cache_path = env!("CARGO_MANIFEST_DIR");
     let root = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
-    let crate_context = ProtoGenerator::gen(&root);
+    let crate_context = ProtoGenerator::gen(crate_name, &root, cache_path);
     let proto_crates = crate_context
         .iter()
         .map(|info| info.protobuf_crate.clone())

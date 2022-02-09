@@ -26,7 +26,7 @@ impl EnumTemplate {
 
     pub fn render(&mut self) -> Option<String> {
         self.context.insert("items", &self.items);
-        let tera = get_tera("proto_gen/template/proto_file");
+        let tera = get_tera("proto_file");
         match tera.render("enum.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

@@ -4,12 +4,13 @@ use crate::proto_gen::template::write_derive_meta;
 use crate::proto_gen::util::*;
 use crate::proto_gen::ProtoFile;
 use std::fs::File;
+use std::path::Path;
 use std::{fs::OpenOptions, io::Write};
 
 pub(crate) struct ProtoGenerator();
 impl ProtoGenerator {
-    pub(crate) fn gen(root: &str) -> Vec<ProtobufCrateContext> {
-        let crate_contexts = parse_crate_protobuf(vec![root.to_owned()]);
+    pub(crate) fn gen(crate_name: &str, crate_path: &str, cache_path: &str) -> Vec<ProtobufCrateContext> {
+        let crate_contexts = parse_crate_protobuf(vec![crate_path.to_owned()]);
         write_proto_files(&crate_contexts);
         write_rust_crate_mod_file(&crate_contexts);
         for crate_info in &crate_contexts {
@@ -20,20 +21,25 @@ impl ProtoGenerator {
 
         let cache = ProtoCache::from_crate_contexts(&crate_contexts);
         let cache_str = serde_json::to_string(&cache).unwrap();
-        let protobuf_dart = format!("{}/.proto_cache", root);
+        let cache_dir = format!("{}/.cache/{}", cache_path, crate_name);
+        if !Path::new(&cache_dir).exists() {
+            std::fs::create_dir_all(&cache_dir).unwrap();
+        }
+
+        let protobuf_cache_path = format!("{}/proto_cache", cache_dir);
         match std::fs::OpenOptions::new()
             .create(true)
             .write(true)
             .append(false)
             .truncate(true)
-            .open(&protobuf_dart)
+            .open(&protobuf_cache_path)
         {
             Ok(ref mut file) => {
                 file.write_all(cache_str.as_bytes()).unwrap();
                 File::flush(file).unwrap();
             }
             Err(err) => {
-                panic!("Failed to open file: {}", err);
+                panic!("Failed to open file: {}", protobuf_cache_path);
             }
         }
 
@@ -83,7 +89,7 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct ProtoCache {
     pub structs: Vec<String>,
     pub enums: Vec<String>,

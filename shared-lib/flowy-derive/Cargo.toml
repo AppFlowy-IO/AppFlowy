@@ -20,7 +20,9 @@ proc-macro2 = "1.0"
 flowy-ast = { path = "../flowy-ast" }
 lazy_static = {version = "1.4.0"}
 dashmap = "4.0"
-lib-infra = { path = "../lib-infra"}
+lib-infra = { path = "../lib-infra", features = ["proto_gen"]}
+serde_json = "1.0"
+walkdir = "2.3.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

@@ -8,7 +8,7 @@ use std::io::Read;
 use tera::Tera;
 
 pub fn get_tera(directory: &str) -> Tera {
-    let mut root = format!("{}/../shared-lib/lib-infra/src/", env!("CARGO_MAKE_WORKING_DIRECTORY"));
+    let mut root = format!("{}/../", file!());
     root.push_str(directory);
 
     let root_absolute_path = std::fs::canonicalize(root).unwrap().as_path().display().to_string();

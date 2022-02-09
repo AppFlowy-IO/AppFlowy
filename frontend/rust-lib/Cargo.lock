@@ -906,7 +906,9 @@ dependencies = [
  "lib-infra",
  "proc-macro2",
  "quote",
+ "serde_json",
  "syn",
+ "walkdir",
 ]
 
 [[package]]
