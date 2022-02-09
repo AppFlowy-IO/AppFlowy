@@ -1,7 +1,4 @@
 
-[tasks.pb]
-dependencies = ["check_protoc_cmd", "gen_pb_file"]
-
 [tasks.install_protobuf]
 condition_script = [
     """
@@ -86,7 +83,6 @@ script = [
     """,
 ]
 script_runner = "@shell"
-
 
 
 [tasks.gen_pb_file.windows]

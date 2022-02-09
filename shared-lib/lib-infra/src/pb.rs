@@ -1,15 +1,22 @@
-#![allow(clippy::all)]
 #![allow(unused_imports)]
 #![allow(unused_attributes)]
 #![allow(dead_code)]
+
+#[cfg(feature = "proto_gen")]
+use crate::proto_gen::*;
+use log::info;
 use std::fs::File;
 use std::io::Write;
 use std::process::Command;
 use walkdir::WalkDir;
 
-pub fn gen(name: &str, root: &str) {
+pub fn gen_files(crate_name: &str, root: &str) {
+    #[cfg(feature = "proto_gen")]
+    let _ = gen_protos(crate_name);
+
     let mut paths = vec![];
     let mut file_names = vec![];
+
     for (path, file_name) in WalkDir::new(root).into_iter().filter_map(|e| e.ok()).map(|e| {
         let path = e.path().to_str().unwrap().to_string();
         let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
@@ -23,9 +30,8 @@ pub fn gen(name: &str, root: &str) {
         }
     }
     println!("cargo:rerun-if-changed=build.rs");
-
     #[cfg(feature = "dart")]
-    gen_pb_for_dart(name, root, &paths, &file_names);
+    gen_pb_for_dart(crate_name, root, &paths, &file_names);
 
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
@@ -37,12 +43,19 @@ pub fn gen(name: &str, root: &str) {
 
 #[cfg(feature = "dart")]
 fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>) {
-    let output = format!(
-        "{}/{}/{}",
-        env!("CARGO_MAKE_WORKING_DIRECTORY"),
-        env!("FLUTTER_FLOWY_SDK_PATH"),
-        name
-    );
+    if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
+        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
+    }
+
+    if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
+        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
+    }
+
+    let workspace_dir = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap();
+    let flutter_sdk_path = std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap();
+    let output = format!("{}/{}/{}", workspace_dir, flutter_sdk_path, name);
     if !std::path::Path::new(&output).exists() {
         std::fs::create_dir_all(&output).unwrap();
     }
@@ -111,4 +124,25 @@ fn run_command(cmd: &str) -> bool {
             .expect("failed to execute process")
     };
     output.success()
+}
+
+#[cfg(feature = "proto_gen")]
+fn gen_protos(crate_name: &str) -> Vec<ProtobufCrate> {
+    let cache_path = env!("CARGO_MANIFEST_DIR");
+    let root = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+    let crate_context = ProtoGenerator::gen(crate_name, &root, cache_path);
+    let proto_crates = crate_context
+        .iter()
+        .map(|info| info.protobuf_crate.clone())
+        .collect::<Vec<_>>();
+
+    crate_context
+        .into_iter()
+        .map(|info| info.files)
+        .flatten()
+        .for_each(|file| {
+            println!("cargo:rerun-if-changed={}", file.file_path);
+        });
+
+    proto_crates
 }

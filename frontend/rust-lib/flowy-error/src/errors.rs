@@ -1,6 +1,6 @@
 use bytes::Bytes;
-use error_code::ErrorCode;
 use flowy_derive::ProtoBuf;
+use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 

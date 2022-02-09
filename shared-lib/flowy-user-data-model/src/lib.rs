@@ -3,5 +3,5 @@ pub mod parser;
 pub mod protobuf;
 
 pub mod errors {
-    pub use error_code::ErrorCode;
+    pub use flowy_error_code::ErrorCode;
 }

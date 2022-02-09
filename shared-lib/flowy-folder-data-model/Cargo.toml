@@ -16,7 +16,7 @@ derive_more = {version = "0.99", features = ["display"]}
 log = "0.4.14"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 chrono = { version = "0.4" }
-error-code = { path = "../error-code"}
+flowy-error-code = { path = "../flowy-error-code"}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
@@ -27,4 +27,4 @@ lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
 default = []
 backend = []
 frontend = []
-dart = ["lib-infra/dart", "error-code/dart"]
+dart = ["lib-infra/dart", "flowy-error-code/dart"]

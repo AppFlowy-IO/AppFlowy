@@ -24,7 +24,7 @@ class EditPannel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.primaryVariant,
+      color: Theme.of(context).colorScheme.secondary,
       child: BlocProvider(
         create: (context) => getIt<EditPannelBloc>(),
         child: BlocBuilder<EditPannelBloc, EditPannelState>(

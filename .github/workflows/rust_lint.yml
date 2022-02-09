@@ -1,4 +1,4 @@
-name: Frontend_Rust
+name: RustLint
 
 on:
   push:
@@ -11,6 +11,7 @@ on:
     paths:
       - 'frontend/rust-lib'
       - 'shared-lib'
+
 
 env:
   CARGO_TERM_COLOR: always
@@ -40,26 +41,10 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+        working-directory: frontend
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
-      - run: cargo clippy
+      - run: cargo clippy --no-default-features
         working-directory: frontend/rust-lib
-
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Rust
-        run: |
-          curl \
-            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup toolchain install stable
-          rustup default stable
-      - name: Frontend tests
-        working-directory: frontend/rust-lib
-        run: cargo test
-      - name: Shared-lib tests
-        working-directory: shared-lib
-        run: cargo test
