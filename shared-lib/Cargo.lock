@@ -349,16 +349,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-derive",
- "lib-infra",
- "protobuf",
-]
-
-[[package]]
 name = "faccess"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -458,14 +448,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-error-code"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "flowy-derive",
+ "lib-infra",
+ "protobuf",
+]
+
+[[package]]
 name = "flowy-folder-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
  "derive_more",
- "error-code",
  "flowy-derive",
+ "flowy-error-code",
  "lib-infra",
  "log",
  "protobuf",
@@ -484,10 +484,10 @@ dependencies = [
  "bytes",
  "claim",
  "derive_more",
- "error-code",
  "fake",
  "fancy-regex",
  "flowy-derive",
+ "flowy-error-code",
  "futures",
  "lazy_static",
  "lib-infra",

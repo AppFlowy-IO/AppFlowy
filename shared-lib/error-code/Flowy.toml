@@ -1,3 +1,0 @@
-
-proto_crates = ["src/error_code.rs"]
-event_files = []

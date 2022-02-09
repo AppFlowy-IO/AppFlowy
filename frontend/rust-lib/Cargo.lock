@@ -774,16 +774,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-code"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "flowy-derive",
- "lib-infra",
- "protobuf",
-]
-
-[[package]]
 name = "eyre"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -961,10 +951,10 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "error-code",
  "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
+ "flowy-error-code",
  "http-flowy",
  "lib-dispatch",
  "lib-infra",
@@ -973,6 +963,16 @@ dependencies = [
  "protobuf",
  "r2d2",
  "serde_json",
+]
+
+[[package]]
+name = "flowy-error-code"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "flowy-derive",
+ "lib-infra",
+ "protobuf",
 ]
 
 [[package]]
@@ -1024,8 +1024,8 @@ dependencies = [
  "bytes",
  "chrono",
  "derive_more",
- "error-code",
  "flowy-derive",
+ "flowy-error-code",
  "lib-infra",
  "log",
  "protobuf",
@@ -1203,9 +1203,9 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "derive_more",
- "error-code",
  "fancy-regex",
  "flowy-derive",
+ "flowy-error-code",
  "lazy_static",
  "lib-infra",
  "log",

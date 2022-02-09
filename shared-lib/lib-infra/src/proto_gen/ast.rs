@@ -1,3 +1,7 @@
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::proto_gen::template::{EnumTemplate, StructTemplate};
 use crate::proto_gen::util::*;
 use crate::proto_gen::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};

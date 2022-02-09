@@ -1,6 +1,9 @@
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::proto_gen::ast::parse_crate_protobuf;
 use crate::proto_gen::proto_info::ProtobufCrateContext;
-
 use crate::proto_gen::util::*;
 use crate::proto_gen::ProtoFile;
 use std::fs::File;

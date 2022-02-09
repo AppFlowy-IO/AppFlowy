@@ -8,7 +8,7 @@ members = [
   "lib-infra",
   "flowy-derive",
   "flowy-ast",
-  "error-code",
+  "flowy-error-code",
 ]
 
 [profile.dev]

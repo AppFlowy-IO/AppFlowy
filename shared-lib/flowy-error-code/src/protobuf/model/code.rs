@@ -17,7 +17,7 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `error_code.proto`
+//! Generated file from `code.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -158,20 +158,20 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10error_code.proto*\xc4\x05\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\
-    \x12\x14\n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\
-    \x03\x12\x18\n\x14WorkspaceNameInvalid\x10d\x12\x16\n\x12WorkspaceIdInva\
-    lid\x10e\x12\x18\n\x14AppColorStyleInvalid\x10f\x12\x18\n\x14WorkspaceDe\
-    scTooLong\x10g\x12\x18\n\x14WorkspaceNameTooLong\x10h\x12\x10\n\x0cAppId\
-    Invalid\x10n\x12\x12\n\x0eAppNameInvalid\x10o\x12\x13\n\x0fViewNameInval\
-    id\x10x\x12\x18\n\x14ViewThumbnailInvalid\x10y\x12\x11\n\rViewIdInvalid\
-    \x10z\x12\x13\n\x0fViewDescTooLong\x10{\x12\x13\n\x0fViewDataInvalid\x10\
-    |\x12\x13\n\x0fViewNameTooLong\x10}\x12\x11\n\x0cConnectError\x10\xc8\
-    \x01\x12\x11\n\x0cEmailIsEmpty\x10\xac\x02\x12\x17\n\x12EmailFormatInval\
-    id\x10\xad\x02\x12\x17\n\x12EmailAlreadyExists\x10\xae\x02\x12\x14\n\x0f\
-    PasswordIsEmpty\x10\xaf\x02\x12\x14\n\x0fPasswordTooLong\x10\xb0\x02\x12\
-    %\n\x20PasswordContainsForbidCharacters\x10\xb1\x02\x12\x1a\n\x15Passwor\
-    dFormatInvalid\x10\xb2\x02\x12\x15\n\x10PasswordNotMatch\x10\xb3\x02\x12\
+    \n\ncode.proto*\xc4\x05\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
+    \n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\x03\x12\
+    \x18\n\x14WorkspaceNameInvalid\x10d\x12\x16\n\x12WorkspaceIdInvalid\x10e\
+    \x12\x18\n\x14AppColorStyleInvalid\x10f\x12\x18\n\x14WorkspaceDescTooLon\
+    g\x10g\x12\x18\n\x14WorkspaceNameTooLong\x10h\x12\x10\n\x0cAppIdInvalid\
+    \x10n\x12\x12\n\x0eAppNameInvalid\x10o\x12\x13\n\x0fViewNameInvalid\x10x\
+    \x12\x18\n\x14ViewThumbnailInvalid\x10y\x12\x11\n\rViewIdInvalid\x10z\
+    \x12\x13\n\x0fViewDescTooLong\x10{\x12\x13\n\x0fViewDataInvalid\x10|\x12\
+    \x13\n\x0fViewNameTooLong\x10}\x12\x11\n\x0cConnectError\x10\xc8\x01\x12\
+    \x11\n\x0cEmailIsEmpty\x10\xac\x02\x12\x17\n\x12EmailFormatInvalid\x10\
+    \xad\x02\x12\x17\n\x12EmailAlreadyExists\x10\xae\x02\x12\x14\n\x0fPasswo\
+    rdIsEmpty\x10\xaf\x02\x12\x14\n\x0fPasswordTooLong\x10\xb0\x02\x12%\n\
+    \x20PasswordContainsForbidCharacters\x10\xb1\x02\x12\x1a\n\x15PasswordFo\
+    rmatInvalid\x10\xb2\x02\x12\x15\n\x10PasswordNotMatch\x10\xb3\x02\x12\
     \x14\n\x0fUserNameTooLong\x10\xb4\x02\x12'\n\"UserNameContainForbiddenCh\
     aracters\x10\xb5\x02\x12\x14\n\x0fUserNameIsEmpty\x10\xb6\x02\x12\x12\n\
     \rUserIdInvalid\x10\xb7\x02\x12\x11\n\x0cUserNotExist\x10\xb8\x02b\x06pr\

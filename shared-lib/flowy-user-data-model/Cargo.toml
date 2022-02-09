@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
-error-code = { path = "../error-code" }
+flowy-error-code = { path = "../flowy-error-code" }
 protobuf = {version = "2.18.0"}
 bytes = "1.0"
 unicode-segmentation = "1.8"
@@ -30,4 +30,4 @@ futures = "0.3.15"
 serial_test = "0.5.1"
 
 [features]
-dart = ["lib-infra/dart", "error-code/dart"]
+dart = ["lib-infra/dart", "flowy-error-code/dart"]
