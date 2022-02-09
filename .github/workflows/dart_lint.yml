@@ -3,14 +3,13 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Frontend_Dart
+name: DartLint
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-    
 
 
 env:
@@ -26,10 +25,11 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "dev"
-      - name: flutter pub get
+      - name: Generate language files
         working-directory: frontend/app_flowy
         run:
           flutter pub get
+          flutter pub add easy_localization
           flutter pub run easy_localization:generate -S assets/translations/
           flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
       - name: flutter analyze
