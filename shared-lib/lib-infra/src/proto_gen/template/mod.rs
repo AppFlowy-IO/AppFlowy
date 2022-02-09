@@ -8,13 +8,13 @@ use std::io::Read;
 use tera::Tera;
 
 pub fn get_tera(directory: &str) -> Tera {
-    let mut root = format!("{}/../", file!());
+    let mut root = format!("{}/src/proto_gen/template/", env!("CARGO_MANIFEST_DIR"));
     root.push_str(directory);
 
-    let root_absolute_path = match std::fs::canonicalize(root) {
+    let root_absolute_path = match std::fs::canonicalize(&root) {
         Ok(p) => p.as_path().display().to_string(),
         Err(e) => {
-            panic!("canonicalize {} failed {:?}", root, e);
+            panic!("❌ Canonicalize file path {} failed {:?}", root, e);
         }
     };
 

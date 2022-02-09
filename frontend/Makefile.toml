@@ -158,7 +158,7 @@ script_runner = "@duckscript"
 condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }
 script = [
     """
-      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-folder
+      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/../shared-lib/error-code
       cargo build -vv
       """,
 ]
