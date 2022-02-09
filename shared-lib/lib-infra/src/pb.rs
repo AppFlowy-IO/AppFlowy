@@ -43,12 +43,19 @@ pub fn gen_files(crate_name: &str, root: &str) {
 
 #[cfg(feature = "dart")]
 fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>) {
-    let output = format!(
-        "{}/{}/{}",
-        env!("CARGO_MAKE_WORKING_DIRECTORY"),
-        env!("FLUTTER_FLOWY_SDK_PATH"),
-        name
-    );
+    if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
+        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
+    }
+
+    if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
+        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
+    }
+
+    let workspace_dir = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap();
+    let flutter_sdk_path = std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap();
+    let output = format!("{}/{}/{}", workspace_dir, flutter_sdk_path, name);
     if !std::path::Path::new(&output).exists() {
         std::fs::create_dir_all(&output).unwrap();
     }

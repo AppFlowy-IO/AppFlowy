@@ -11,7 +11,13 @@ pub fn get_tera(directory: &str) -> Tera {
     let mut root = format!("{}/../", file!());
     root.push_str(directory);
 
-    let root_absolute_path = std::fs::canonicalize(root).unwrap().as_path().display().to_string();
+    let root_absolute_path = match std::fs::canonicalize(root) {
+        Ok(p) => p.as_path().display().to_string(),
+        Err(e) => {
+            panic!("canonicalize {} failed {:?}", root, e);
+        }
+    };
+
     let mut template_path = format!("{}/**/*.tera", root_absolute_path);
     if cfg!(windows) {
         // remove "\\?\" prefix on windows
@@ -27,6 +33,7 @@ pub fn get_tera(directory: &str) -> Tera {
     }
 }
 
+#[allow(dead_code)]
 pub fn read_file(path: &str) -> Option<String> {
     let mut file = File::open(path).unwrap_or_else(|_| panic!("Unable to open file at {}", path));
     let mut content = String::new();

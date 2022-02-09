@@ -109,7 +109,7 @@ pub fn parse_crate_info_from_path(roots: Vec<String>) -> Vec<ProtobufCrate> {
             .into_iter()
             .filter_entry(|e| !is_hidden(e))
             .filter_map(|e| e.ok())
-            .filter(|e| is_crate_dir(e))
+            .filter(is_crate_dir)
             .flat_map(|e| parse_crate_config_from(&e))
             .map(ProtobufCrate::from_config)
             .collect::<Vec<ProtobufCrate>>();

@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod ast;
 mod flowy_toml;
 mod proto_gen;

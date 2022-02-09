@@ -1,8 +1,5 @@
-use crate::proto_gen::proto_info::{ProtoFile, ProtobufCrateContext};
-use crate::proto_gen::template::{get_tera, read_file};
+use crate::proto_gen::template::get_tera;
 use itertools::Itertools;
-use std::fs::OpenOptions;
-use std::io::Write;
 use tera::Context;
 
 pub struct ProtobufDeriveMeta {
@@ -33,47 +30,6 @@ impl ProtobufDeriveMeta {
                 log::error!("{:?}", e);
                 None
             }
-        }
-    }
-}
-
-pub fn write_derive_meta(crate_infos: &[ProtobufCrateContext], derive_meta_dir: &str) {
-    let file_proto_infos = crate_infos
-        .iter()
-        .map(|ref crate_info| &crate_info.files)
-        .flatten()
-        .collect::<Vec<&ProtoFile>>();
-
-    let structs: Vec<String> = file_proto_infos
-        .iter()
-        .map(|info| info.structs.clone())
-        .flatten()
-        .collect();
-    let enums: Vec<String> = file_proto_infos
-        .iter()
-        .map(|info| info.enums.clone())
-        .flatten()
-        .collect();
-
-    let mut derive_template = ProtobufDeriveMeta::new(structs, enums);
-    let new_content = derive_template.render().unwrap();
-    let old_content = read_file(derive_meta_dir).unwrap();
-    if new_content == old_content {
-        return;
-    }
-    // println!("{}", diff_lines(&old_content, &new_content));
-    match OpenOptions::new()
-        .create(true)
-        .write(true)
-        .append(false)
-        .truncate(true)
-        .open(derive_meta_dir)
-    {
-        Ok(ref mut file) => {
-            file.write_all(new_content.as_bytes()).unwrap();
-        }
-        Err(err) => {
-            panic!("Failed to open log file: {}", err);
         }
     }
 }

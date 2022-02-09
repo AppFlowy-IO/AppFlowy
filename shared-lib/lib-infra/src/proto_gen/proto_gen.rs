@@ -1,6 +1,6 @@
 use crate::proto_gen::ast::parse_crate_protobuf;
 use crate::proto_gen::proto_info::ProtobufCrateContext;
-use crate::proto_gen::template::write_derive_meta;
+
 use crate::proto_gen::util::*;
 use crate::proto_gen::ProtoFile;
 use std::fs::File;
@@ -38,7 +38,7 @@ impl ProtoGenerator {
                 file.write_all(cache_str.as_bytes()).unwrap();
                 File::flush(file).unwrap();
             }
-            Err(err) => {
+            Err(_err) => {
                 panic!("Failed to open file: {}", protobuf_cache_path);
             }
         }
@@ -99,7 +99,7 @@ impl ProtoCache {
     fn from_crate_contexts(crate_contexts: &[ProtobufCrateContext]) -> Self {
         let proto_files = crate_contexts
             .iter()
-            .map(|ref crate_info| &crate_info.files)
+            .map(|crate_info| &crate_info.files)
             .flatten()
             .collect::<Vec<&ProtoFile>>();
 
