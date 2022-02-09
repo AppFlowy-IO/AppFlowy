@@ -3,8 +3,15 @@ name: RustLint
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
+
 
 env:
   CARGO_TERM_COLOR: always
@@ -34,9 +41,11 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+        working-directory: frontend
       - name: Install protobuf tool
         run:
-          cargo install --force cargo-make
           cargo make flowy_dev
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
         working-directory: frontend
