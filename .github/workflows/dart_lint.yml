@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: DartLint
+name: Flutter lint
 
 on:
   push:
