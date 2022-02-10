@@ -139,7 +139,8 @@
     },
     "appearance": {
       "lightLabel": "Light Mode",
-      "darkLabel": "Dark Mode"
+      "darkLabel": "Dark Mode",
+      "test": "webhook test"
     }
   }
 }

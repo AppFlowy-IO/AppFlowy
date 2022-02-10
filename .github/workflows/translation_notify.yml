@@ -1,6 +1,10 @@
-name: Strings update
+name: Translation Notify
 on:
   push:
+    branches: [ main ]
+    paths:
+      - "frontend/app_flowy/assets/translations/en.json"
+  pull_request:
     branches: [ main ]
     paths:
       - "frontend/app_flowy/assets/translations/en.json"
@@ -8,7 +12,7 @@ jobs:
   Discord-Notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: Ilshidur/action-discord@master
+      - uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
