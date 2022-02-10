@@ -1,0 +1,15 @@
+name: Strings update
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "frontend/app_flowy/assets/translations/en.json"
+jobs:
+  Discord-Notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: '@appflowytranslators English UI strings has been updated.'
