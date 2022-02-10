@@ -1,4 +1,4 @@
-name: Lint Commit Messages
+name: Commit messages lint
 on: [pull_request, push]
 
 jobs:
