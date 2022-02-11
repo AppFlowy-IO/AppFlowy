@@ -1,12 +1,10 @@
-.PHONY: flowy_dev install_cargo_make
+.PHONY: flowy_dev_install
 
-flowy_dev: install_cargo_make
-	cargo make flowy_dev
-
-install_cargo_make:
-	cargo install --force cargo-make
-	brew bundle
-
-install_rust:
+flowy_dev_install:
 	brew bundle
 	rustup-init -y --default-toolchain=stable
+	cargo install --force cargo-make
+	cargo install --force duckscript_cli
+	cargo make flowy_dev
+
+
