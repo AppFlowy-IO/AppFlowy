@@ -10,9 +10,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Env install
-        working-directory: frontend
-        run: make install_rust
+      - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
       - name: Checkout Flutter
         uses: actions/checkout@v2
         with:
