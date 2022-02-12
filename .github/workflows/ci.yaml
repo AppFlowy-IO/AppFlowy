@@ -11,8 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
+        with:
+          toolchain: stable
       - name: Checkout Flutter
         uses: actions/checkout@v2
         with:
