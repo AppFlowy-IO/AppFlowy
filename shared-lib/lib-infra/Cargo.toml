@@ -30,7 +30,7 @@ tera = { version = "1.5.0", optional = true}
 itertools = { version = "0.10", optional = true }
 phf = { version = "0.8.0", features = ["macros"], optional = true }
 console = {version = "0.14.0", optional = true}
-
+protoc-bin-vendored = { version = "3.0", optional = true }
 toml = {version = "0.5.8", optional = true}
 
 [features]
@@ -47,5 +47,5 @@ proto_gen = [
     "console",
     "toml"
 ]
-pb_gen = ["cmd_lib", "protoc-rust", "walkdir"]
+pb_gen = ["cmd_lib", "protoc-rust", "walkdir", "protoc-bin-vendored",]
 dart = ["proto_gen"]

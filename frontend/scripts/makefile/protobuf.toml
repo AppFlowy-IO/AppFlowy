@@ -2,11 +2,8 @@
 [tasks.install_protobuf]
 condition_script = [
     """
-    if [ ! "$(command -v protoc)" ]; then
-        exit 0
-    fi
-
-    if [ ! "$(command -v protoc-gen-dart)" ]; then
+    if ! command -v protoc-gen-dart
+    then
         exit 0
     fi
 
@@ -18,8 +15,6 @@ run_task = { name = ["install_protobuf_compiler"] }
 
 [tasks.install_protobuf_compiler]
 script = """
-brew install protobuf
-
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
 """
@@ -27,8 +22,6 @@ script_runner = "@shell"
 
 [tasks.install_protobuf_compiler.linux]
 script = """
-sudo apt-get install protobuf-compiler
-
 echo "Install protoc_plugin (Dart)"
 dart pub global activate protoc_plugin
 """
