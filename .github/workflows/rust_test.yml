@@ -31,9 +31,6 @@ jobs:
       - name: Install cargo-make
         run: cargo install --force cargo-make
         working-directory: frontend
-      - name: Install protobuf tool
-        run: brew install protobuf
-        working-directory: frontend
       - name: RustLib tests
         run: cargo test --no-default-features
         working-directory: frontend/rust-lib

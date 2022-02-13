@@ -7,6 +7,7 @@ use crate::proto_gen::*;
 use log::info;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 use walkdir::WalkDir;
 
@@ -30,11 +31,14 @@ pub fn gen_files(crate_name: &str, root: &str) {
         }
     }
     println!("cargo:rerun-if-changed=build.rs");
+
+    let protoc_path = protoc_bin_vendored::protoc_bin_path().unwrap();
     #[cfg(feature = "dart")]
-    gen_pb_for_dart(crate_name, root, &paths, &file_names);
+    gen_pb_for_dart(crate_name, root, &paths, &file_names, &protoc_path);
 
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
+        .protoc_path(protoc_path)
         .inputs(&paths)
         .include(root)
         .run()
@@ -42,7 +46,7 @@ pub fn gen_files(crate_name: &str, root: &str) {
 }
 
 #[cfg(feature = "dart")]
-fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>) {
+fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>, proto_path: &PathBuf) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
         log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
         return;
@@ -59,17 +63,15 @@ fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec
     if !std::path::Path::new(&output).exists() {
         std::fs::create_dir_all(&output).unwrap();
     }
-    check_pb_compiler();
-
     check_pb_dart_plugin();
-
+    let proto_path = proto_path.to_str().unwrap().to_owned();
     paths.iter().for_each(|path| {
         if cmd_lib::run_cmd! {
-            protoc --dart_out=${output} --proto_path=${root} ${path}
+            ${proto_path} --dart_out=${output} --proto_path=${root} ${path}
         }
         .is_err()
         {
-            panic!("Generate pb file failed with: {}", path)
+            panic!("Generate dart pb file failed with: {}", path)
         };
     });
 

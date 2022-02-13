@@ -1725,6 +1725,7 @@ dependencies = [
  "log",
  "phf 0.8.0",
  "pin-project",
+ "protoc-bin-vendored",
  "protoc-rust",
  "rand 0.8.4",
  "serde",
@@ -2415,6 +2416,56 @@ dependencies = [
  "log",
  "which",
 ]
+
+[[package]]
+name = "protoc-bin-vendored"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "005ca8623e5633e298ad1f917d8be0a44bcf406bf3cde3b80e63003e49a3f27d"
+dependencies = [
+ "protoc-bin-vendored-linux-aarch_64",
+ "protoc-bin-vendored-linux-ppcle_64",
+ "protoc-bin-vendored-linux-x86_32",
+ "protoc-bin-vendored-linux-x86_64",
+ "protoc-bin-vendored-macos-x86_64",
+ "protoc-bin-vendored-win32",
+]
+
+[[package]]
+name = "protoc-bin-vendored-linux-aarch_64"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fb9fc9cce84c8694b6ea01cc6296617b288b703719b725b8c9c65f7c5874435"
+
+[[package]]
+name = "protoc-bin-vendored-linux-ppcle_64"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02d2a07dcf7173a04d49974930ccbfb7fd4d74df30ecfc8762cf2f895a094516"
+
+[[package]]
+name = "protoc-bin-vendored-linux-x86_32"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d54fef0b04fcacba64d1d80eed74a20356d96847da8497a59b0a0a436c9165b0"
+
+[[package]]
+name = "protoc-bin-vendored-linux-x86_64"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8782f2ce7d43a9a5c74ea4936f001e9e8442205c244f7a3d4286bd4c37bc924"
+
+[[package]]
+name = "protoc-bin-vendored-macos-x86_64"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5de656c7ee83f08e0ae5b81792ccfdc1d04e7876b1d9a38e6876a9e09e02537"
+
+[[package]]
+name = "protoc-bin-vendored-win32"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9653c3ed92974e34c5a6e0a510864dab979760481714c172e0a34e437cb98804"
 
 [[package]]
 name = "protoc-rust"
