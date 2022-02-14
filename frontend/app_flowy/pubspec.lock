@@ -43,6 +43,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.2"
+  boardview:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: fcf5e67e6f23da4cc4c22430aa685b6552a82cd9
+      url: "git://github.com/hieugao/boardview.git"
+    source: git
+    version: "0.2.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -688,13 +697,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.11"
-  material_color_utilities:
-    dependency: transitive
-    description:
-      name: material_color_utilities
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.3"
   meta:
     dependency: transitive
     description:
@@ -1084,7 +1086,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.8"
+    version: "0.4.3"
   textstyle_extensions:
     dependency: transitive
     description:
@@ -1218,6 +1220,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
+  vs_scrollbar:
+    dependency: transitive
+    description:
+      name: vs_scrollbar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   watcher:
     dependency: transitive
     description:

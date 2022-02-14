@@ -45,6 +45,10 @@ dependencies:
       ref: dbc309f5e382963fa0122409a0aaf8e1417d51c1
 
   #  third party packages
+  boardview:
+    git:
+      url: git://github.com/hieugao/boardview.git
+      ref: master
   intl: ^0.17.0
   time: "^2.0.0"
   equatable: "^2.0.3"
@@ -95,7 +99,7 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
   # Automatic code generation for l10n and i18n
-  generate: true
+  generate: false
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
