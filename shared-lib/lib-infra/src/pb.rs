@@ -11,18 +11,23 @@ use std::path::PathBuf;
 use std::process::Command;
 use walkdir::WalkDir;
 
-pub fn gen_files(crate_name: &str, root: &str) {
+pub fn gen_files(crate_name: &str, proto_file_dir: &str) {
+    // 1. generate the proto files to proto_file_dir
     #[cfg(feature = "proto_gen")]
     let _ = gen_protos(crate_name);
 
     let mut paths = vec![];
     let mut file_names = vec![];
 
-    for (path, file_name) in WalkDir::new(root).into_iter().filter_map(|e| e.ok()).map(|e| {
-        let path = e.path().to_str().unwrap().to_string();
-        let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-        (path, file_name)
-    }) {
+    for (path, file_name) in WalkDir::new(proto_file_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .map(|e| {
+            let path = e.path().to_str().unwrap().to_string();
+            let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
+            (path, file_name)
+        })
+    {
         if path.ends_with(".proto") {
             // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
             println!("cargo:rerun-if-changed={}", path);
@@ -31,22 +36,34 @@ pub fn gen_files(crate_name: &str, root: &str) {
         }
     }
     println!("cargo:rerun-if-changed=build.rs");
+    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
 
-    let protoc_path = protoc_bin_vendored::protoc_bin_path().unwrap();
+    // 2. generate the protobuf files(Dart)
     #[cfg(feature = "dart")]
-    gen_pb_for_dart(crate_name, root, &paths, &file_names, &protoc_path);
+    generate_dart_protobuf_files(crate_name, proto_file_dir, &paths, &file_names, &protoc_bin_path);
 
+    // 3. generate the protobuf files(Rust)
+    generate_rust_protobuf_files(&protoc_bin_path, &paths, proto_file_dir);
+}
+
+fn generate_rust_protobuf_files(protoc_bin_path: &PathBuf, input_paths: &Vec<String>, proto_file_dir: &str) {
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
-        .protoc_path(protoc_path)
-        .inputs(&paths)
-        .include(root)
+        .protoc_path(protoc_bin_path)
+        .inputs(input_paths)
+        .include(proto_file_dir)
         .run()
         .expect("Running protoc failed.");
 }
 
 #[cfg(feature = "dart")]
-fn gen_pb_for_dart(name: &str, root: &str, paths: &Vec<String>, file_names: &Vec<String>, proto_path: &PathBuf) {
+fn generate_dart_protobuf_files(
+    name: &str,
+    root: &str,
+    paths: &Vec<String>,
+    file_names: &Vec<String>,
+    proto_path: &PathBuf,
+) {
     if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
         log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
         return;
