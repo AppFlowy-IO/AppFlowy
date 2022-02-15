@@ -1,0 +1,75 @@
+{
+	"version": "2.0.0",
+	// https://code.visualstudio.com/docs/editor/tasks
+	// https://gist.github.com/deadalusai/9e13e36d61ec7fb72148
+	// ${workspaceRoot}: the root folder of the team
+	// ${file}: the current opened file
+	// ${fileBasename}: the current opened file's basename
+	// ${fileDirname}: the current opened file's dirname
+	// ${fileExtname}: the current opened file's extension
+	// ${cwd}: the current working directory of the spawned process
+	"tasks": [
+		{
+			"label": "build_flowy_sdk",
+			"type": "shell",
+			"command": "sh ./scripts/build_sdk.sh",
+			"windows": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Windows",
+					},
+					"shell": {
+						"executable": "cmd.exe",
+						"args": [
+							"/d",
+							"/c",
+							".\\scripts\\build_sdk.cmd"
+						]
+					}
+				}
+			},
+			"linux": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Linux-x86",
+					}
+				},
+			},
+			"osx": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "macOS",
+					}
+				},
+			},
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			// "problemMatcher": [
+			//     "$rustc"
+			// ],
+		},
+		{
+			"label": "Generate Language Files",
+			"type": "shell",
+			"command": "sh ./scripts/generate_language_files.sh",
+			"windows": {
+				"options": {
+					"shell": {
+						"executable": "cmd.exe",
+						"args": [
+							"/d",
+							"/c",
+							".\\scripts\\generate_language_files.cmd"
+						]
+					}
+				}
+			},
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+		}
+	]
+}
