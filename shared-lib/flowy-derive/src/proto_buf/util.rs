@@ -1,7 +1,7 @@
 use dashmap::{DashMap, DashSet};
 use flowy_ast::{Ctxt, TyInfo};
 use lazy_static::lazy_static;
-use lib_infra::proto_gen::ProtoCache;
+use lib_infra::code_gen::protobuf_file::ProtoCache;
 use std::fs::File;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};

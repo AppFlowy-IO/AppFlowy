@@ -15,9 +15,9 @@ impl FlowyConfig {
 }
 
 pub struct CrateConfig {
-    pub(crate) crate_path: String,
-    pub(crate) folder_name: String,
-    pub(crate) flowy_config: FlowyConfig,
+    pub crate_path: String,
+    pub folder_name: String,
+    pub flowy_config: FlowyConfig,
 }
 
 impl CrateConfig {

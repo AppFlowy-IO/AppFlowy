@@ -1,9 +1,15 @@
 #![allow(unused_imports)]
 #![allow(unused_attributes)]
 #![allow(dead_code)]
+mod ast;
+mod proto_gen;
+mod proto_info;
+mod template;
+
+pub use proto_gen::*;
+pub use proto_info::*;
 
 #[cfg(feature = "proto_gen")]
-use crate::proto_gen::*;
 use log::info;
 use std::fs::File;
 use std::io::Write;
@@ -11,7 +17,7 @@ use std::path::PathBuf;
 use std::process::Command;
 use walkdir::WalkDir;
 
-pub fn gen_files(crate_name: &str, proto_file_dir: &str) {
+pub fn gen(crate_name: &str, proto_file_dir: &str) {
     // 1. generate the proto files to proto_file_dir
     #[cfg(feature = "proto_gen")]
     let _ = gen_protos(crate_name);

@@ -1,5 +1,5 @@
-use lib_infra::pb;
+use lib_infra::code_gen;
 
 fn main() {
-    pb::gen_files(env!("CARGO_PKG_NAME"), "./src/protobuf/proto");
+    code_gen::protobuf_file::gen(env!("CARGO_PKG_NAME"), "./src/protobuf/proto");
 }
