@@ -152,3 +152,7 @@ pub fn get_tera(directory: &str) -> Tera {
         }
     }
 }
+
+pub fn cache_dir() -> String {
+    format!("{}/.cache", env!("CARGO_MANIFEST_DIR"))
+}

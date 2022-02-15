@@ -40,5 +40,12 @@
             "preLaunchTask": "Generate Language Files",
             "cwd": "${workspaceRoot}"
         },
+        {
+            "name": "Clean",
+            "request": "launch",
+            "type": "dart",
+            "preLaunchTask": "Clean",
+            "cwd": "${workspaceRoot}"
+        }
     ]
 }

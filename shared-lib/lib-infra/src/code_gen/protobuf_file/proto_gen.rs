@@ -12,7 +12,7 @@ use std::{fs::OpenOptions, io::Write};
 
 pub struct ProtoGenerator();
 impl ProtoGenerator {
-    pub fn gen(crate_name: &str, crate_path: &str, cache_path: &str) -> Vec<ProtobufCrateContext> {
+    pub fn gen(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrateContext> {
         let crate_contexts = parse_crate_protobuf(vec![crate_path.to_owned()]);
         write_proto_files(&crate_contexts);
         write_rust_crate_mod_file(&crate_contexts);
@@ -24,7 +24,7 @@ impl ProtoGenerator {
 
         let cache = ProtoCache::from_crate_contexts(&crate_contexts);
         let cache_str = serde_json::to_string(&cache).unwrap();
-        let cache_dir = format!("{}/.cache/{}", cache_path, crate_name);
+        let cache_dir = format!("{}/{}", cache_dir(), crate_name);
         if !Path::new(&cache_dir).exists() {
             std::fs::create_dir_all(&cache_dir).unwrap();
         }

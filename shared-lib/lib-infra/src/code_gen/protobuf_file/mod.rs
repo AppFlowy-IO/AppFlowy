@@ -153,9 +153,8 @@ fn run_command(cmd: &str) -> bool {
 
 #[cfg(feature = "proto_gen")]
 fn gen_protos(crate_name: &str) -> Vec<ProtobufCrate> {
-    let cache_path = env!("CARGO_MANIFEST_DIR");
-    let root = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
-    let crate_context = ProtoGenerator::gen(crate_name, &root, cache_path);
+    let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+    let crate_context = ProtoGenerator::gen(crate_name, &crate_path);
     let proto_crates = crate_context
         .iter()
         .map(|info| info.protobuf_crate.clone())
