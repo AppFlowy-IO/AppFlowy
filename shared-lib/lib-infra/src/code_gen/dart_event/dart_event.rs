@@ -9,6 +9,16 @@ use syn::Item;
 use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
+    if std::env::var("CARGO_MAKE_WORKING_DIRECTORY").is_err() {
+        log::warn!("CARGO_MAKE_WORKING_DIRECTORY was not set, skip generate dart pb");
+        return;
+    }
+
+    if std::env::var("FLUTTER_FLOWY_SDK_PATH").is_err() {
+        log::warn!("FLUTTER_FLOWY_SDK_PATH was not set, skip generate dart pb");
+        return;
+    }
+
     let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
     let event_crates = parse_dart_event_files(vec![crate_path]);
     let event_ast = event_crates.iter().map(parse_event_crate).flatten().collect::<Vec<_>>();
@@ -25,8 +35,8 @@ pub fn gen(crate_name: &str) {
 
     let dart_event_folder = format!(
         "{}/{}/lib/dispatch/dart_event/{}",
-        env!("CARGO_MAKE_WORKING_DIRECTORY"),
-        env!("FLUTTER_FLOWY_SDK_PATH"),
+        std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap(),
+        std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap(),
         crate_name
     );
 
