@@ -42,18 +42,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       
+      - name: Setup environment - Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Setup environment - Rust and Cargo
+      - name: Pre build
         working-directory: frontend
         run: |
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo apt-get update
           sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-          make install_rust
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
@@ -76,31 +80,35 @@ jobs:
           asset_name: ${{ env.LINUX_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-  build-macos:
+  build-macos-x86_64:
     runs-on: macos-latest
     needs: create-release
     env: 
       MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
-      MACOS_ZIP_NAME: Appflowy-macos-x86.zip
+      MACOS_X86_ZIP_NAME: Appflowy-macos-x86_64.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Setup environment - Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Setup environment - Rust and Cargo
+      - name: Pre build
         working-directory: frontend
         run: |
-          make install_rust
           source $HOME/.cargo/env
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
       
-      - name: Build macOS app
+      - name: Build macOS app for x86_64
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
@@ -108,15 +116,14 @@ jobs:
       
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
-        run: zip -qr ${{ env.MACOS_ZIP_NAME }} AppFlowy.app
+        run: zip -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
       
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_ZIP_NAME }}
-          asset_name: ${{ env.MACOS_ZIP_NAME }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
+          asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
           asset_content_type: application/octet-stream
