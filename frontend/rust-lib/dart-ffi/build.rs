@@ -11,6 +11,7 @@ fn main() {
 fn copy_dart_event_files() {
     let workspace_dir = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap();
     let flutter_sdk_path = std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap();
-    let output_file = format!("{}/{}/lib/dispatch/code_gen.dart", workspace_dir, flutter_sdk_path);
+    let output_file = format!("{}/{}/lib/dispatch/dart_event.dart", workspace_dir, flutter_sdk_path);
+    println!("cargo:rerun-if-changed={}", output_file);
     dart_event::write_dart_event_file(&output_file);
 }
