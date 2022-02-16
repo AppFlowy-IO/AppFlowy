@@ -1,5 +1,5 @@
-use lib_infra::pb;
+use lib_infra::code_gen;
 
 fn main() {
-    pb::gen_files("flowy-error", "./src/protobuf/proto");
+    code_gen::protobuf_file::gen("flowy-error", "./src/protobuf/proto");
 }

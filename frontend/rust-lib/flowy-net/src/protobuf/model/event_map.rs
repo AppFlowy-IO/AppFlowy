@@ -17,7 +17,7 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `event.proto`
+//! Generated file from `event_map.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -71,8 +71,8 @@ impl ::protobuf::reflect::ProtobufValue for NetworkEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*%\n\x0cNetworkEvent\x12\x15\n\x11UpdateNetworkType\x10\
-    \0b\x06proto3\
+    \n\x0fevent_map.proto*%\n\x0cNetworkEvent\x12\x15\n\x11UpdateNetworkType\
+    \x10\0b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

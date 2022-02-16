@@ -1,7 +1,6 @@
+use crate::code_gen::util::get_tera;
 use flowy_ast::*;
 use phf::phf_map;
-
-use crate::proto_gen::template::get_tera;
 use tera::Context;
 
 // Protobuf data type : https://developers.google.com/protocol-buffers/docs/proto3
@@ -95,7 +94,7 @@ impl StructTemplate {
 
     pub fn render(&mut self) -> Option<String> {
         self.context.insert("fields", &self.fields);
-        let tera = get_tera("proto_file");
+        let tera = get_tera("protobuf_file/template/proto_file");
         match tera.render("struct.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

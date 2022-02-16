@@ -1,11 +1,11 @@
 use console::Style;
-
 use similar::{ChangeTag, TextDiff};
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Write},
     path::Path,
 };
+use tera::Tera;
 use walkdir::WalkDir;
 
 pub fn read_file(path: &str) -> Option<String> {
@@ -100,7 +100,7 @@ pub fn create_dir_if_not_exist(dir: &str) {
 }
 
 #[allow(dead_code)]
-pub(crate) fn walk_dir<F1, F2>(dir: &str, filter: F2, mut path_and_name: F1)
+pub fn walk_dir<F1, F2>(dir: &str, filter: F2, mut path_and_name: F1)
 where
     F1: FnMut(String, String),
     F2: Fn(&walkdir::DirEntry) -> bool,
@@ -125,4 +125,34 @@ pub fn suffix_relative_to_path(path: &str, base: &str) -> String {
     let base = Path::new(base);
     let path = Path::new(path);
     path.strip_prefix(base).unwrap().to_str().unwrap().to_owned()
+}
+
+pub fn get_tera(directory: &str) -> Tera {
+    let mut root = format!("{}/src/code_gen/", env!("CARGO_MANIFEST_DIR"));
+    root.push_str(directory);
+
+    let root_absolute_path = match std::fs::canonicalize(&root) {
+        Ok(p) => p.as_path().display().to_string(),
+        Err(e) => {
+            panic!("❌ Canonicalize file path {} failed {:?}", root, e);
+        }
+    };
+
+    let mut template_path = format!("{}/**/*.tera", root_absolute_path);
+    if cfg!(windows) {
+        // remove "\\?\" prefix on windows
+        template_path = format!("{}/**/*.tera", &root_absolute_path[4..]);
+    }
+
+    match Tera::new(template_path.as_ref()) {
+        Ok(t) => t,
+        Err(e) => {
+            log::error!("Parsing error(s): {}", e);
+            ::std::process::exit(1);
+        }
+    }
+}
+
+pub fn cache_dir() -> String {
+    format!("{}/.cache", env!("CARGO_MANIFEST_DIR"))
 }

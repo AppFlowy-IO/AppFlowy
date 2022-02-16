@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use crate::proto_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
-use crate::proto_gen::util::*;
+use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
+use crate::code_gen::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;
 use walkdir::WalkDir;

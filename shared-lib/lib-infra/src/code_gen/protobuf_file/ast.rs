@@ -2,9 +2,9 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-use crate::proto_gen::template::{EnumTemplate, StructTemplate};
-use crate::proto_gen::util::*;
-use crate::proto_gen::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};
+use crate::code_gen::protobuf_file::template::{EnumTemplate, StructTemplate};
+use crate::code_gen::protobuf_file::{parse_crate_info_from_path, ProtoFile, ProtobufCrateContext};
+use crate::code_gen::util::*;
 use fancy_regex::Regex;
 use flowy_ast::*;
 use lazy_static::lazy_static;
@@ -12,8 +12,8 @@ use std::{fs::File, io::Read, path::Path};
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn parse_crate_protobuf(roots: Vec<String>) -> Vec<ProtobufCrateContext> {
-    let crate_infos = parse_crate_info_from_path(roots);
+pub fn parse_crate_protobuf(crate_paths: Vec<String>) -> Vec<ProtobufCrateContext> {
+    let crate_infos = parse_crate_info_from_path(crate_paths);
     crate_infos
         .into_iter()
         .map(|crate_info| {

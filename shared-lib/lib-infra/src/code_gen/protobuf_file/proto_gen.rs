@@ -2,17 +2,18 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-use crate::proto_gen::ast::parse_crate_protobuf;
-use crate::proto_gen::proto_info::ProtobufCrateContext;
-use crate::proto_gen::util::*;
-use crate::proto_gen::ProtoFile;
+use crate::code_gen::protobuf_file::ast::parse_crate_protobuf;
+use crate::code_gen::protobuf_file::proto_info::ProtobufCrateContext;
+use crate::code_gen::protobuf_file::ProtoFile;
+use crate::code_gen::util::*;
+use crate::code_gen::ProtoCache;
 use std::fs::File;
 use std::path::Path;
 use std::{fs::OpenOptions, io::Write};
 
-pub(crate) struct ProtoGenerator();
+pub struct ProtoGenerator();
 impl ProtoGenerator {
-    pub(crate) fn gen(crate_name: &str, crate_path: &str, cache_path: &str) -> Vec<ProtobufCrateContext> {
+    pub fn gen(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrateContext> {
         let crate_contexts = parse_crate_protobuf(vec![crate_path.to_owned()]);
         write_proto_files(&crate_contexts);
         write_rust_crate_mod_file(&crate_contexts);
@@ -24,7 +25,7 @@ impl ProtoGenerator {
 
         let cache = ProtoCache::from_crate_contexts(&crate_contexts);
         let cache_str = serde_json::to_string(&cache).unwrap();
-        let cache_dir = format!("{}/.cache/{}", cache_path, crate_name);
+        let cache_dir = format!("{}/{}", cache_dir(), crate_name);
         if !Path::new(&cache_dir).exists() {
             std::fs::create_dir_all(&cache_dir).unwrap();
         }
@@ -90,12 +91,6 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
             }
         }
     }
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct ProtoCache {
-    pub structs: Vec<String>,
-    pub enums: Vec<String>,
 }
 
 impl ProtoCache {

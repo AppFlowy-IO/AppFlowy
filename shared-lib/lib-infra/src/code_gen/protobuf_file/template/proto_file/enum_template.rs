@@ -1,5 +1,5 @@
-use crate::proto_gen::ast::FlowyEnum;
-use crate::proto_gen::template::get_tera;
+use crate::code_gen::protobuf_file::ast::FlowyEnum;
+use crate::code_gen::util::get_tera;
 use tera::Context;
 
 pub struct EnumTemplate {
@@ -26,7 +26,7 @@ impl EnumTemplate {
 
     pub fn render(&mut self) -> Option<String> {
         self.context.insert("items", &self.items);
-        let tera = get_tera("proto_file");
+        let tera = get_tera("protobuf_file/template/proto_file");
         match tera.render("enum.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

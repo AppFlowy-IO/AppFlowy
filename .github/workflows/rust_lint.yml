@@ -41,9 +41,6 @@ jobs:
         with:
           toolchain: stable
           override: true
-      - name: Install cargo-make
-        run: cargo install --force cargo-make
-        working-directory: frontend
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
       - run: cargo clippy --no-default-features

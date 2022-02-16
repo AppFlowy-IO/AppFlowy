@@ -1,7 +1,7 @@
 use dashmap::{DashMap, DashSet};
 use flowy_ast::{Ctxt, TyInfo};
 use lazy_static::lazy_static;
-use lib_infra::proto_gen::ProtoCache;
+use lib_infra::code_gen::ProtoCache;
 use std::fs::File;
 use std::io::Read;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -54,6 +54,7 @@ pub fn category_from_str(type_str: String) -> TypeCategory {
         for path in WalkDir::new(cache_dir)
             .into_iter()
             .filter_map(|e| e.ok())
+            .filter(|e| e.path().file_stem().unwrap().to_str().unwrap() == "proto_cache")
             .map(|e| e.path().to_str().unwrap().to_string())
         {
             match read_file(&path) {

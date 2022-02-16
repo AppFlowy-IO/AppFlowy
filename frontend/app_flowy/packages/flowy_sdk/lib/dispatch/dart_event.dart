@@ -1,6 +1,5 @@
 
-
-/// Auto gen code from rust ast, do not edit
+/// Auto generate. Do not edit
 part of 'dispatch.dart';
 class FolderEventCreateWorkspace {
      CreateWorkspaceRequest request;

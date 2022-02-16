@@ -107,7 +107,7 @@ script = [
     flutter_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
 
     rust_source=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
-    output=${flutter_lib}/flowy_sdk/lib/dispatch/code_gen.dart
+    output=${flutter_lib}/flowy_sdk/lib/dispatch/dart_event.dart
 
     cargo run \
      --manifest-path ${flowy_tool} dart-event \
@@ -124,7 +124,7 @@ script = [
     flutter_lib=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
 
     rust_source=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
-    output=set ${flutter_lib}/flowy_sdk/lib/dispatch/code_gen.dart
+    output=set ${flutter_lib}/flowy_sdk/lib/dispatch/dart_event.dart
 
     exec cmd.exe /c cargo run \
      --manifest-path ${flowy_tool} dart-event \

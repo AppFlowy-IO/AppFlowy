@@ -1,4 +1,4 @@
-use crate::proto_gen::template::get_tera;
+use crate::code_gen::util::get_tera;
 use itertools::Itertools;
 use tera::Context;
 
@@ -23,7 +23,7 @@ impl ProtobufDeriveMeta {
         self.context.insert("names", &self.structs);
         self.context.insert("enums", &self.enums);
 
-        let tera = get_tera("derive_meta");
+        let tera = get_tera("protobuf_file/template/derive_meta");
         match tera.render("derive_meta.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

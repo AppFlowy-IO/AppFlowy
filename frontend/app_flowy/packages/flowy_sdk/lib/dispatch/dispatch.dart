@@ -27,7 +27,7 @@ import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import 'error.dart';
 
-part 'code_gen.dart';
+part 'dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,
