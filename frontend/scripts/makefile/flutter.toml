@@ -156,24 +156,6 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[tasks.freeze_setup]
-script = [
-  """
-  flutter clean
-  flutter pub get
-  flutter pub run build_runner build --delete-conflicting-outputs
-  """,
-]
-script_runner = "@shell"
-
-[tasks.freeze_watch]
-script = [
-  """
-  flutter pub run build_runner watch
-  """,
-]
-script_runner = "@shell"
-
 [tasks.generate_language_files]
 script_runner = "@shell"
 script = [
@@ -198,3 +180,28 @@ script = [
   exec cmd.exe /c flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
   """
 ]
+
+[tasks.generate_freezed_files]
+script_runner = "@shell"
+script = [
+  """
+  cd app_flowy
+  flutter clean
+  sed -i '/generate: true/s/true/false/g' pubspec.yaml
+  flutter pub get
+  flutter packages pub run build_runner build --delete-conflicting-outputs
+  """
+]
+
+# TODO: Add support for Windows.
+# [tasks.generate_freezed_files.windows]
+# script_runner = "@duckscript"
+# script = [
+#   """
+#   cd ./app_flowy/
+#   exec cmd.exe /c flutter clean
+#   exec cmd.exe /c flutter pub get
+#   exec cmd.exe /c flutter pub run easy_localization:generate -S assets/translations/
+#   exec cmd.exe /c flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
+#   """
+# ]
