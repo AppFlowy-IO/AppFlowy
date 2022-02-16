@@ -43,7 +43,7 @@ pub fn gen(crate_name: &str) {
 }
 
 const DART_IMPORTED: &str = r#"
-/// Auto gen code from rust ast, do not edit
+/// Auto generate. Do not edit
 part of 'dispatch.dart';
 "#;
 

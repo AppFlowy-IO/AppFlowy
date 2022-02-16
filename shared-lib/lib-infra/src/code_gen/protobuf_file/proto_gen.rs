@@ -6,6 +6,7 @@ use crate::code_gen::protobuf_file::ast::parse_crate_protobuf;
 use crate::code_gen::protobuf_file::proto_info::ProtobufCrateContext;
 use crate::code_gen::protobuf_file::ProtoFile;
 use crate::code_gen::util::*;
+use crate::code_gen::ProtoCache;
 use std::fs::File;
 use std::path::Path;
 use std::{fs::OpenOptions, io::Write};
@@ -90,12 +91,6 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
             }
         }
     }
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct ProtoCache {
-    pub structs: Vec<String>,
-    pub enums: Vec<String>,
 }
 
 impl ProtoCache {

@@ -78,4 +78,4 @@ build/
 **/*.lib
 **/*.dll
 **/*.so
-lib/**/dart_event.dart
+# lib/**/dart_event.dart

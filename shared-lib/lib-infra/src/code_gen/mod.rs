@@ -9,3 +9,9 @@ mod flowy_toml;
 
 #[cfg(any(feature = "pb_gen", feature = "dart_event"))]
 pub mod util;
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ProtoCache {
+    pub structs: Vec<String>,
+    pub enums: Vec<String>,
+}
