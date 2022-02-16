@@ -1,6 +1,6 @@
 use super::event_template::*;
 use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
-use crate::code_gen::util::{cache_dir, is_crate_dir, is_hidden, read_file, save_content_to_file_with_diff_prompt};
+use crate::code_gen::util::{cache_dir, is_crate_dir, is_hidden, read_file};
 use flowy_ast::{event_ast::*, *};
 use std::fs::File;
 use std::io::Write;
@@ -8,7 +8,8 @@ use syn::Item;
 use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str) {
-    let event_crates = parse_dart_event_files(vec![".".to_owned()]);
+    let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+    let event_crates = parse_dart_event_files(vec![crate_path]);
     let event_ast = event_crates.iter().map(parse_event_crate).flatten().collect::<Vec<_>>();
 
     let event_render_ctx = ast_to_event_render_ctx(event_ast.as_ref());
@@ -23,6 +24,7 @@ pub fn gen(crate_name: &str) {
 
     let cache_dir = format!("{}/{}", cache_dir(), crate_name);
     let dart_event_file_path = format!("{}/dart_event.dart", cache_dir);
+
     match std::fs::OpenOptions::new()
         .create(true)
         .write(true)
@@ -34,16 +36,50 @@ pub fn gen(crate_name: &str) {
             file.write_all(render_result.as_bytes()).unwrap();
             File::flush(file).unwrap();
         }
-        Err(_err) => {
-            panic!("Failed to open file: {}", dart_event_file_path);
+        Err(err) => {
+            panic!("Failed to open file: {}, {:?}", dart_event_file_path, err);
         }
     }
 }
 
+const DART_IMPORTED: &str = r#"
+/// Auto gen code from rust ast, do not edit
+part of 'dispatch.dart';
+"#;
+
+pub fn write_dart_event_file(file_path: &str) {
+    let cache_dir = cache_dir();
+    let mut content = DART_IMPORTED.to_owned();
+    for path in WalkDir::new(cache_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().file_stem().unwrap().to_str().unwrap() == "dart_event")
+        .map(|e| e.path().to_str().unwrap().to_string())
+    {
+        let file_content = read_file(path.as_ref()).unwrap();
+        content.push_str(&file_content);
+    }
+
+    match std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(false)
+        .truncate(true)
+        .open(&file_path)
+    {
+        Ok(ref mut file) => {
+            file.write_all(content.as_bytes()).unwrap();
+            File::flush(file).unwrap();
+        }
+        Err(err) => {
+            panic!("Failed to write dart event file: {}", err);
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct DartEventCrate {
     crate_path: String,
-    #[allow(dead_code)]
-    crate_name: String,
     event_files: Vec<String>,
 }
 
@@ -51,7 +87,6 @@ impl DartEventCrate {
     pub fn from_config(config: &CrateConfig) -> Self {
         DartEventCrate {
             crate_path: config.crate_path.clone(),
-            crate_name: config.folder_name.clone(),
             event_files: config.flowy_config.event_files.clone(),
         }
     }
@@ -117,10 +152,6 @@ pub fn ast_to_event_render_ctx(ast: &[EventASTContext]) -> Vec<EventRenderContex
                 .event_output
                 .as_ref()
                 .map(|event_output| event_output.get_ident().unwrap().to_string());
-            // eprintln!(
-            //     "😁 {:?} / {:?}",
-            //     event_ast.event_input, event_ast.event_output
-            // );
 
             EventRenderContext {
                 input_deserializer,

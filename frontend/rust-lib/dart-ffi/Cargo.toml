@@ -29,8 +29,8 @@ dart-notify = {path = "../dart-notify" }
 flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 
 [features]
-default = ["flowy-sdk/dart"]
-flutter = ["dart-notify/dart"]
+default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
+flutter = []
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]

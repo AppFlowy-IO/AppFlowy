@@ -5,11 +5,6 @@ pub struct EventTemplate {
     tera_context: Context,
 }
 
-pub const DART_IMPORTED: &str = r#"
-/// Auto gen code from rust ast, do not edit
-part of 'dispatch.dart';
-"#;
-
 pub struct EventRenderContext {
     pub input_deserializer: Option<String>,
     pub output_deserializer: Option<String>,
@@ -27,9 +22,6 @@ impl EventTemplate {
     }
 
     pub fn render(&mut self, ctx: EventRenderContext, index: usize) -> Option<String> {
-        if index == 0 {
-            self.tera_context.insert("imported_dart_files", DART_IMPORTED)
-        }
         self.tera_context.insert("index", &index);
         let dart_class_name = format!("{}{}", ctx.event_ty, ctx.event);
         let event = format!("{}.{}", ctx.event_ty, ctx.event);

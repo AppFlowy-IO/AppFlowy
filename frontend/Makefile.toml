@@ -21,7 +21,7 @@ PRODUCT_NAME = "AppFlowy"
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
 APP_ENVIRONMENT = "local"
-FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk/lib/protobuf"
+FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
 PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 
 [env.development-mac]
@@ -158,8 +158,8 @@ script_runner = "@duckscript"
 condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }
 script = [
     """
-      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/../shared-lib/error-code
-      cargo build -vv
+      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-net
+      cargo build -vv --features=dart
       """,
 ]
 script_runner = "@shell"

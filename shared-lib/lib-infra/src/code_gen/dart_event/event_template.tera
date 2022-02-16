@@ -1,7 +1,3 @@
-{%- if index == 0 %}
-{{ imported_dart_files }}
-{%- endif -%}
-
 class {{ event_class }} {
 {%- if has_input  %}
      {{ input_deserializer }} request;

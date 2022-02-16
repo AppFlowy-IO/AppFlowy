@@ -8,4 +8,4 @@ pub mod dart_event;
 mod flowy_toml;
 
 #[cfg(any(feature = "pb_gen", feature = "dart_event"))]
-mod util;
+pub mod util;
