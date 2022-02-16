@@ -5,16 +5,16 @@ linux_alias = "appflowy-linux"
 
 [tasks.appflowy-macos]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product", "create-release-archive"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product", "create-release-archive"] }
 script_runner = "@shell"
 
 [tasks.appflowy-dev]
@@ -24,16 +24,16 @@ linux_alias = "appflowy-linux-dev"
 
 [tasks.appflowy-macos-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["generate_language_files", "generate_freezed_files", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.copy-to-product]
