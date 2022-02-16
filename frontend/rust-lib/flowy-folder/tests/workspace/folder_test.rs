@@ -7,9 +7,16 @@ use flowy_test::{event_builder::*, FlowySDKTest};
 async fn workspace_read_all() {
     let mut test = FolderTest::new().await;
     test.run_scripts(vec![ReadAllWorkspaces]).await;
-    // The first workspace will be the default workspace
-    // The second workspace will be created by FolderTest
-    assert_eq!(test.all_workspace.len(), 2);
+
+    if test.all_workspace.len() != 2 {
+        // The first workspace will be the default workspace
+        // The second workspace will be created by FolderTest
+
+        for workspace in test.all_workspace {
+            eprintln!("❌ {:?}", workspace.name);
+        }
+        assert_eq!(test.all_workspace.len(), 2);
+    }
 
     let new_name = "My new workspace".to_owned();
     test.run_scripts(vec![
