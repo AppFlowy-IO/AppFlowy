@@ -27,7 +27,9 @@ import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import 'error.dart';
 
-part 'dart_event.dart';
+part 'dart_event/flowy-folder/dart_event.dart';
+part 'dart_event/flowy-net/dart_event.dart';
+part 'dart_event/flowy-user/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,

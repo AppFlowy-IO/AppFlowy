@@ -4,6 +4,7 @@ use crate::code_gen::util::{cache_dir, is_crate_dir, is_hidden, read_file};
 use flowy_ast::{event_ast::*, *};
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 use syn::Item;
 use walkdir::WalkDir;
 
@@ -13,7 +14,7 @@ pub fn gen(crate_name: &str) {
     let event_ast = event_crates.iter().map(parse_event_crate).flatten().collect::<Vec<_>>();
 
     let event_render_ctx = ast_to_event_render_ctx(event_ast.as_ref());
-    let mut render_result = String::new();
+    let mut render_result = DART_IMPORTED.to_owned();
     for (index, render_ctx) in event_render_ctx.into_iter().enumerate() {
         let mut event_template = EventTemplate::new();
 
@@ -22,8 +23,19 @@ pub fn gen(crate_name: &str) {
         }
     }
 
-    let cache_dir = format!("{}/{}", cache_dir(), crate_name);
-    let dart_event_file_path = format!("{}/dart_event.dart", cache_dir);
+    let dart_event_folder = format!(
+        "{}/{}/lib/dispatch/dart_event/{}",
+        env!("CARGO_MAKE_WORKING_DIRECTORY"),
+        env!("FLUTTER_FLOWY_SDK_PATH"),
+        crate_name
+    );
+
+    if !Path::new(&dart_event_folder).exists() {
+        std::fs::create_dir_all(&dart_event_folder).unwrap();
+    }
+
+    let dart_event_file_path = format!("{}/dart_event.dart", dart_event_folder);
+    println!("cargo:rerun-if-changed={}", dart_event_file_path);
 
     match std::fs::OpenOptions::new()
         .create(true)
@@ -44,7 +56,7 @@ pub fn gen(crate_name: &str) {
 
 const DART_IMPORTED: &str = r#"
 /// Auto generate. Do not edit
-part of 'dispatch.dart';
+part of '../../dispatch.dart';
 "#;
 
 pub fn write_dart_event_file(file_path: &str) {
