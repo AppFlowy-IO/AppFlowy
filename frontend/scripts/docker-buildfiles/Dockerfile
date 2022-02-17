@@ -1,4 +1,4 @@
-FROM archlinux/archlinux:base-devel
+FROM archlinux/archlinux:base-devel as builder
 
 RUN pacman -Syy
 
@@ -36,4 +36,25 @@ cargo install --force cargo-make && \
 cargo install --force duckscript_cli && \
 cargo make flowy_dev && \
 cargo make -p production-linux-x86 appflowy-linux
-CMD ["appflowy/frontend/app_flowy/product/0.0.3/linux/Release/AppFlowy/app_flowy"]
+
+CMD ["/home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/app_flowy"]
+
+#################
+FROM archlinux/archlinux:base-devel
+
+RUN pacman -Syy
+RUN pacman -Syu --needed --noconfirm xdg-user-dirs
+RUN xdg-user-dirs-update
+
+ARG user=makepkg
+RUN useradd --system --create-home $user \
+  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
+USER $user
+WORKDIR /home/$user
+
+COPY --from=builder /usr/sbin/yay /usr/sbin/yay
+RUN yay -S --noconfirm gtk3
+
+COPY --from=builder /home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle ./AppFlowy
+
+CMD ["/home/makepkg/AppFlowy/app_flowy"]
