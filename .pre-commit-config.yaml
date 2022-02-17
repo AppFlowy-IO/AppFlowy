@@ -1,0 +1,9 @@
+default_stages: [commit]
+fail_fast: true
+
+repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v8.0.0
+    hooks:
+        - id: commitlint
+          stages: [commit-msg]
