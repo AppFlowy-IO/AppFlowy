@@ -44,14 +44,7 @@ pub fn gen(crate_name: &str, proto_file_dir: &str) {
     let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
 
     // 2. generate the protobuf files(Dart)
-    #[cfg(feature = "dart")]
-    generate_dart_protobuf_files(
-        crate_name,
-        proto_file_dir,
-        &proto_file_paths,
-        &file_names,
-        &protoc_bin_path,
-    );
+    
 
     // 3. generate the protobuf files(Rust)
     generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
@@ -128,37 +121,27 @@ fn generate_dart_protobuf_files(
     }
 }
 
-fn check_pb_compiler() {
-    assert!(run_command("command -v protoc"), "protoc was not installed correctly");
-}
-
 fn check_pb_dart_plugin() {
     if cfg!(target_os = "windows") {
-        if !run_command("command -v protoc-gen-dart") {
-            panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
-        }
+        //Command::new("cmd")
+        //    .arg("/C")
+        //    .arg(cmd)
+        //    .status()
+        //    .expect("failed to execute process");
+        //panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
+        
     } else {
-        if !run_command("command -v protoc-gen-dart") {
+        let is_success = Command::new("sh")
+            .arg("-c")
+            .arg("command -v protoc-gen-dart")
+            .status()
+            .expect("failed to execute process")
+            .success();
+
+        if !is_success {
             panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly. \n✅ You can fix that by adding \"{}\" to your shell's config file.(.bashrc, .bash, etc.)", "dart pub global activate protoc_plugin"))
         }
-    };
-}
-
-fn run_command(cmd: &str) -> bool {
-    let output = if cfg!(target_os = "windows") {
-        Command::new("cmd")
-            .arg("/C")
-            .arg(cmd)
-            .status()
-            .expect("failed to execute process")
-    } else {
-        Command::new("sh")
-            .arg("-c")
-            .arg(cmd)
-            .status()
-            .expect("failed to execute process")
-    };
-    output.success()
+    }
 }
 
 #[cfg(feature = "proto_gen")]

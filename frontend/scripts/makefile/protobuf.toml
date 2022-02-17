@@ -1,5 +1,10 @@
 
 [tasks.install_protobuf]
+mac_alias = "install-protobuf"
+windows_alias = "install-protobuf-windows"
+linux_alias = "install-protobuf"
+
+[tasks.install-protobuf]
 condition_script = [
     """
     if ! command -v protoc-gen-dart
@@ -13,21 +18,8 @@ condition_script = [
 ]
 run_task = { name = ["install_protobuf_compiler"] }
 
-[tasks.install_protobuf_compiler]
-script = """
-echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin
-"""
-script_runner = "@shell"
 
-[tasks.install_protobuf_compiler.linux]
-script = """
-echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin
-"""
-script_runner = "@shell"
-
-[tasks.install_protobuf_compiler.windows]
+[tasks.install-protobuf-windows]
 script = """
 ret = which dart
 if is_empty ${ret}
@@ -43,6 +35,22 @@ if is_empty ${ret}
 end
 """
 script_runner = "@duckscript"
+
+
+[tasks.install_protobuf_compiler]
+script = """
+echo "Install protoc_plugin (Dart)"
+dart pub global activate protoc_plugin
+"""
+script_runner = "@shell"
+
+[tasks.install_protobuf_compiler.linux]
+script = """
+echo "Install protoc_plugin (Dart)"
+dart pub global activate protoc_plugin
+"""
+script_runner = "@shell"
+
 
 [tasks.check_protoc_cmd]
 script = [
