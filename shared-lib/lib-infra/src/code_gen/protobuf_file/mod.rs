@@ -6,11 +6,10 @@ mod proto_gen;
 mod proto_info;
 mod template;
 
+use crate::code_gen::util::path_string_with_component;
+use log::info;
 pub use proto_gen::*;
 pub use proto_info::*;
-
-#[cfg(feature = "proto_gen")]
-use log::info;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -85,10 +84,14 @@ fn generate_dart_protobuf_files(
         return;
     }
 
-    let workspace_dir = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap();
-    let flutter_sdk_path = std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap();
-    let output = format!("{}/{}/lib/protobuf/{}", workspace_dir, flutter_sdk_path, name);
-    if !std::path::Path::new(&output).exists() {
+    let mut output = PathBuf::new();
+    output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
+    output.push(std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap());
+    output.push("lib");
+    output.push("protobuf");
+    output.push(name);
+
+    if !output.as_path().exists() {
         std::fs::create_dir_all(&output).unwrap();
     }
     check_pb_dart_plugin();
@@ -103,7 +106,8 @@ fn generate_dart_protobuf_files(
         };
     });
 
-    let protobuf_dart = format!("{}/protobuf.dart", output);
+    let protobuf_dart = path_string_with_component(&output, vec!["protobuf.dart"]);
+
     match std::fs::OpenOptions::new()
         .create(true)
         .write(true)
@@ -128,37 +132,26 @@ fn generate_dart_protobuf_files(
     }
 }
 
-fn check_pb_compiler() {
-    assert!(run_command("command -v protoc"), "protoc was not installed correctly");
-}
-
 fn check_pb_dart_plugin() {
     if cfg!(target_os = "windows") {
-        if !run_command("command -v protoc-gen-dart") {
-            panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
-        }
+        //Command::new("cmd")
+        //    .arg("/C")
+        //    .arg(cmd)
+        //    .status()
+        //    .expect("failed to execute process");
+        //panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
     } else {
-        if !run_command("command -v protoc-gen-dart") {
+        let is_success = Command::new("sh")
+            .arg("-c")
+            .arg("command -v protoc-gen-dart")
+            .status()
+            .expect("failed to execute process")
+            .success();
+
+        if !is_success {
             panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly. \n✅ You can fix that by adding \"{}\" to your shell's config file.(.bashrc, .bash, etc.)", "dart pub global activate protoc_plugin"))
         }
-    };
-}
-
-fn run_command(cmd: &str) -> bool {
-    let output = if cfg!(target_os = "windows") {
-        Command::new("cmd")
-            .arg("/C")
-            .arg(cmd)
-            .status()
-            .expect("failed to execute process")
-    } else {
-        Command::new("sh")
-            .arg("-c")
-            .arg(cmd)
-            .status()
-            .expect("failed to execute process")
-    };
-    output.success()
+    }
 }
 
 #[cfg(feature = "proto_gen")]

@@ -19,7 +19,7 @@ fancy-regex = "0.5.0"
 lazy_static = "1.4"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
+lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
 
 [dev-dependencies]
 quickcheck = "0.9.2"

@@ -47,6 +47,6 @@ proto_gen = [
     "console",
     "toml"
 ]
-pb_gen = ["cmd_lib", "protoc-rust", "walkdir", "protoc-bin-vendored",]
+protobuf_file_gen = ["cmd_lib", "protoc-rust", "walkdir", "protoc-bin-vendored",]
 dart_event = ["walkdir", "flowy-ast", "tera", "syn"]
 dart = ["proto_gen", "dart_event"]

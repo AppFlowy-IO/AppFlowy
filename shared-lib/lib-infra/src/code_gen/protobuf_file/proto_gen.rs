@@ -23,14 +23,16 @@ impl ProtoGenerator {
             crate_info.create_crate_mod_file();
         }
 
-        let cache = ProtoCache::from_crate_contexts(&crate_contexts);
-        let cache_str = serde_json::to_string(&cache).unwrap();
-        let cache_dir = format!("{}/{}", cache_dir(), crate_name);
-        if !Path::new(&cache_dir).exists() {
-            std::fs::create_dir_all(&cache_dir).unwrap();
+        let proto_cache = ProtoCache::from_crate_contexts(&crate_contexts);
+        let proto_cache_str = serde_json::to_string(&proto_cache).unwrap();
+
+        let crate_cache_dir = path_buf_with_component(&cache_dir(), vec![crate_name]);
+        if !crate_cache_dir.as_path().exists() {
+            std::fs::create_dir_all(&crate_cache_dir).unwrap();
         }
 
-        let protobuf_cache_path = format!("{}/proto_cache", cache_dir);
+        let protobuf_cache_path = path_string_with_component(&crate_cache_dir, vec!["proto_cache"]);
+
         match std::fs::OpenOptions::new()
             .create(true)
             .write(true)
@@ -39,7 +41,7 @@ impl ProtoGenerator {
             .open(&protobuf_cache_path)
         {
             Ok(ref mut file) => {
-                file.write_all(cache_str.as_bytes()).unwrap();
+                file.write_all(proto_cache_str.as_bytes()).unwrap();
                 File::flush(file).unwrap();
             }
             Err(_err) => {
@@ -55,7 +57,8 @@ fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
     for context in crate_contexts {
         let dir = context.protobuf_crate.proto_output_dir();
         context.files.iter().for_each(|info| {
-            let proto_file_path = format!("{}/{}.proto", dir, &info.file_name);
+            let proto_file = format!("{}.proto", &info.file_name);
+            let proto_file_path = path_string_with_component(&dir, vec![&proto_file]);
             save_content_to_file_with_diff_prompt(&info.generated_content, proto_file_path.as_ref());
         });
     }
@@ -77,7 +80,7 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
                 mod_file_content.push_str("#![cfg_attr(rustfmt, rustfmt::skip)]\n");
                 mod_file_content.push_str("// Auto-generated, do not edit\n");
                 walk_dir(
-                    context.protobuf_crate.proto_output_dir().as_ref(),
+                    context.protobuf_crate.proto_output_dir(),
                     |e| !e.file_type().is_dir(),
                     |_, name| {
                         let c = format!("\nmod {};\npub use {}::*;\n", &name, &name);

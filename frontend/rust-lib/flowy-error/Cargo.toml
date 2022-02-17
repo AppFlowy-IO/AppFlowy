@@ -30,4 +30,4 @@ db = ["flowy-database", "lib-sqlite", "r2d2"]
 dart = ["flowy-error-code/dart", "lib-infra/dart"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen"] }

@@ -70,6 +70,27 @@
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
+		},
+		{
+			"label": "Clean",
+			"type": "shell",
+			"command": "sh ./scripts/clean.sh",
+			"windows": {
+				"options": {
+					"shell": {
+						"executable": "cmd.exe",
+						"args": [
+							"/d",
+							"/c",
+							".\\scripts\\clean.cmd"
+						]
+					}
+				}
+			},
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
 		}
 	]
 }

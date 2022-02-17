@@ -72,7 +72,7 @@
 			},
 		},
 		{
-			"label": "Clean FlowySDK",
+			"label": "Clean",
 			"type": "shell",
 			"command": "sh ./scripts/clean.sh",
 			"windows": {
@@ -87,7 +87,10 @@
 					}
 				}
 			},
-			"group": "build",
+			"group": {
+				"kind": "build",
+				"isDefault": true,
+			},
 			"options": {
 				"cwd": "${workspaceFolder}/../"
 			},

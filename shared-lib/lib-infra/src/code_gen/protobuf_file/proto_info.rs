@@ -3,6 +3,8 @@ use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::code_gen::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::PathBuf;
+use std::str::FromStr;
 use walkdir::WalkDir;
 
 #[derive(Debug)]
@@ -22,7 +24,7 @@ impl ProtobufCrateContext {
     pub fn create_crate_mod_file(&self) {
         // mod model;
         // pub use model::*;
-        let mod_file_path = format!("{}/mod.rs", self.protobuf_crate.protobuf_crate_name());
+        let mod_file_path = path_string_with_component(&self.protobuf_crate.protobuf_crate_name(), vec!["mod.rs"]);
         let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
         content.push_str("// Auto-generated, do not edit\n");
         content.push_str("mod model;\npub use model::*;");
@@ -58,8 +60,8 @@ impl ProtobufCrateContext {
 #[derive(Clone, Debug)]
 pub struct ProtobufCrate {
     pub folder_name: String,
-    pub proto_paths: Vec<String>,
-    pub crate_path: String,
+    pub proto_paths: Vec<PathBuf>,
+    pub crate_path: PathBuf,
 }
 
 impl ProtobufCrate {
@@ -72,24 +74,26 @@ impl ProtobufCrate {
         }
     }
 
-    fn protobuf_crate_name(&self) -> String {
-        format!("{}/src/protobuf", self.crate_path)
+    fn protobuf_crate_name(&self) -> PathBuf {
+        path_buf_with_component(&self.crate_path, vec!["src", "protobuf"])
     }
 
-    pub fn proto_output_dir(&self) -> String {
-        let dir = format!("{}/proto", self.protobuf_crate_name());
-        create_dir_if_not_exist(dir.as_ref());
+    pub fn proto_output_dir(&self) -> PathBuf {
+        let path = self.protobuf_crate_name();
+        let dir = path_buf_with_component(&path, vec!["proto"]);
+        create_dir_if_not_exist(&dir);
         dir
     }
 
-    pub fn create_output_dir(&self) -> String {
-        let dir = format!("{}/model", self.protobuf_crate_name());
-        create_dir_if_not_exist(dir.as_ref());
+    pub fn create_output_dir(&self) -> PathBuf {
+        let path = self.protobuf_crate_name();
+        let dir = path_buf_with_component(&path, vec!["model"]);
+        create_dir_if_not_exist(&dir);
         dir
     }
 
     pub fn proto_model_mod_file(&self) -> String {
-        format!("{}/mod.rs", self.create_output_dir())
+        path_string_with_component(&self.create_output_dir(), vec!["mod.rs"])
     }
 }
 
@@ -116,27 +120,4 @@ pub fn parse_crate_info_from_path(roots: Vec<String>) -> Vec<ProtobufCrate> {
         protobuf_crates.extend(crates);
     });
     protobuf_crates
-}
-
-pub struct FlutterProtobufInfo {
-    package_path: String,
-}
-impl FlutterProtobufInfo {
-    pub fn new(root: &str) -> Self {
-        FlutterProtobufInfo {
-            package_path: root.to_owned(),
-        }
-    }
-
-    pub fn model_dir(&self) -> String {
-        let model_dir = format!("{}/protobuf", self.package_path);
-        create_dir_if_not_exist(model_dir.as_ref());
-        model_dir
-    }
-
-    #[allow(dead_code)]
-    pub fn mod_file_path(&self) -> String {
-        let mod_file_path = format!("{}/protobuf.dart", self.package_path);
-        mod_file_path
-    }
 }
