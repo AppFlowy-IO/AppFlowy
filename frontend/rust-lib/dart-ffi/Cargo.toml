@@ -7,8 +7,8 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default cdylib
-crate-type = ["cdylib"]
+# default staticlib
+crate-type = ["staticlib"]
 
 
 [dependencies]
@@ -36,4 +36,4 @@ http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_protobuf= ["protobuf"]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["pb_gen", "dart"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "dart"] }

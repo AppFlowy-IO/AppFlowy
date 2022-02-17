@@ -6,11 +6,10 @@ mod proto_gen;
 mod proto_info;
 mod template;
 
+use crate::code_gen::util::path_string_with_component;
+use log::info;
 pub use proto_gen::*;
 pub use proto_info::*;
-
-#[cfg(feature = "proto_gen")]
-use log::info;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -44,7 +43,14 @@ pub fn gen(crate_name: &str, proto_file_dir: &str) {
     let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
 
     // 2. generate the protobuf files(Dart)
-    
+    #[cfg(feature = "dart")]
+    generate_dart_protobuf_files(
+        crate_name,
+        proto_file_dir,
+        &proto_file_paths,
+        &file_names,
+        &protoc_bin_path,
+    );
 
     // 3. generate the protobuf files(Rust)
     generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
@@ -78,10 +84,14 @@ fn generate_dart_protobuf_files(
         return;
     }
 
-    let workspace_dir = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap();
-    let flutter_sdk_path = std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap();
-    let output = format!("{}/{}/lib/protobuf/{}", workspace_dir, flutter_sdk_path, name);
-    if !std::path::Path::new(&output).exists() {
+    let mut output = PathBuf::new();
+    output.push(std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap());
+    output.push(std::env::var("FLUTTER_FLOWY_SDK_PATH").unwrap());
+    output.push("lib");
+    output.push("protobuf");
+    output.push(name);
+
+    if !output.as_path().exists() {
         std::fs::create_dir_all(&output).unwrap();
     }
     check_pb_dart_plugin();
@@ -96,7 +106,8 @@ fn generate_dart_protobuf_files(
         };
     });
 
-    let protobuf_dart = format!("{}/protobuf.dart", output);
+    let protobuf_dart = path_string_with_component(&output, vec!["protobuf.dart"]);
+
     match std::fs::OpenOptions::new()
         .create(true)
         .write(true)
@@ -129,7 +140,6 @@ fn check_pb_dart_plugin() {
         //    .status()
         //    .expect("failed to execute process");
         //panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
-        
     } else {
         let is_success = Command::new("sh")
             .arg("-c")

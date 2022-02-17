@@ -1,9 +1,10 @@
 use console::Style;
 use similar::{ChangeTag, TextDiff};
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Write},
-    path::Path,
 };
 use tera::Tera;
 use walkdir::WalkDir;
@@ -93,14 +94,26 @@ pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
     entry.file_name().to_str().map(|s| s.starts_with('.')).unwrap_or(false)
 }
 
-pub fn create_dir_if_not_exist(dir: &str) {
-    if !std::path::Path::new(&dir).exists() {
-        std::fs::create_dir_all(&dir).unwrap();
+pub fn create_dir_if_not_exist(dir: &PathBuf) {
+    if !dir.as_path().exists() {
+        std::fs::create_dir_all(dir).unwrap();
     }
 }
 
+pub fn path_string_with_component(path: &PathBuf, components: Vec<&str>) -> String {
+    path_buf_with_component(path, components).to_str().unwrap().to_string()
+}
+
+pub fn path_buf_with_component(path: &PathBuf, components: Vec<&str>) -> PathBuf {
+    let mut path_buf = path.clone();
+    for component in components {
+        path_buf.push(component);
+    }
+    path_buf
+}
+
 #[allow(dead_code)]
-pub fn walk_dir<F1, F2>(dir: &str, filter: F2, mut path_and_name: F1)
+pub fn walk_dir<P: AsRef<Path>, F1, F2>(dir: P, filter: F2, mut path_and_name: F1)
 where
     F1: FnMut(String, String),
     F2: Fn(&walkdir::DirEntry) -> bool,
@@ -153,6 +166,8 @@ pub fn get_tera(directory: &str) -> Tera {
     }
 }
 
-pub fn cache_dir() -> String {
-    format!("{}/.cache", env!("CARGO_MANIFEST_DIR"))
+pub fn cache_dir() -> PathBuf {
+    let mut path_buf = PathBuf::from_str(env!("CARGO_MANIFEST_DIR")).unwrap();
+    path_buf.push(".cache");
+    path_buf
 }
