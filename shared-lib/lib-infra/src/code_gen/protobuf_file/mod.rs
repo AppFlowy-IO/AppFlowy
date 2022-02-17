@@ -133,10 +133,15 @@ fn check_pb_compiler() {
 }
 
 fn check_pb_dart_plugin() {
-    assert!(
-        run_command("command -v protoc-gen-dart"),
-        "protoc-gen-dart was not installed correctly"
-    );
+    if cfg!(target_os = "windows") {
+        if !run_command("command -v protoc-gen-dart") {
+            panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
+        }
+    } else {
+        if !run_command("command -v protoc-gen-dart") {
+            panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly. \n✅ You can fix that by adding \"{}\" to your shell's config file.(.bashrc, .bash, etc.)", "dart pub global activate protoc_plugin"))
+        }
+    };
 }
 
 fn run_command(cmd: &str) -> bool {
