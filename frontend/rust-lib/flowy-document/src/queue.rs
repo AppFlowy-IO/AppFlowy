@@ -1,4 +1,5 @@
-use crate::{core::web_socket::EditorCommandReceiver, DocumentUser};
+use crate::web_socket::EditorCommandReceiver;
+use crate::DocumentUser;
 use async_stream::stream;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{

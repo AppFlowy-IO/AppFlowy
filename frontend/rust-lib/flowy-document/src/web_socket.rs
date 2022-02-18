@@ -1,7 +1,4 @@
-use crate::{
-    core::{EditorCommand, DOCUMENT_SYNC_INTERVAL_IN_MILLIS},
-    DocumentWSReceiver,
-};
+use crate::{queue::EditorCommand, DocumentWSReceiver, DOCUMENT_SYNC_INTERVAL_IN_MILLIS};
 use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -31,7 +28,7 @@ pub(crate) async fn make_document_ws_manager(
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
     rev_manager: Arc<RevisionManager>,
-    web_socket: Arc<dyn RevisionWebSocket>,
+    rev_web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(&doc_id, rev_manager.clone()));
     let resolve_target = Arc::new(DocumentRevisionResolveTarget { edit_cmd_tx });
@@ -50,7 +47,7 @@ pub(crate) async fn make_document_ws_manager(
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
         "Document",
         &doc_id,
-        web_socket,
+        rev_web_socket,
         sink_provider,
         ws_stream_consumer,
         ping_duration,

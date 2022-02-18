@@ -94,18 +94,18 @@ pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
     entry.file_name().to_str().map(|s| s.starts_with('.')).unwrap_or(false)
 }
 
-pub fn create_dir_if_not_exist(dir: &PathBuf) {
-    if !dir.as_path().exists() {
+pub fn create_dir_if_not_exist(dir: &Path) {
+    if !dir.exists() {
         std::fs::create_dir_all(dir).unwrap();
     }
 }
 
-pub fn path_string_with_component(path: &PathBuf, components: Vec<&str>) -> String {
+pub fn path_string_with_component(path: &Path, components: Vec<&str>) -> String {
     path_buf_with_component(path, components).to_str().unwrap().to_string()
 }
 
-pub fn path_buf_with_component(path: &PathBuf, components: Vec<&str>) -> PathBuf {
-    let mut path_buf = path.clone();
+pub fn path_buf_with_component(path: &Path, components: Vec<&str>) -> PathBuf {
+    let mut path_buf = path.to_path_buf();
     for component in components {
         path_buf.push(component);
     }

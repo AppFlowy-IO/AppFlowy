@@ -1,7 +1,8 @@
-use crate::core::DocumentRevisionCompact;
+use crate::queue::DocumentRevisionCompact;
+use crate::web_socket::{make_document_ws_manager, EditorCommandSender};
 use crate::{
-    core::{make_document_ws_manager, EditorCommand, EditorCommandQueue, EditorCommandSender},
     errors::FlowyError,
+    queue::{EditorCommand, EditorCommandQueue},
     DocumentUser, DocumentWSReceiver,
 };
 use bytes::Bytes;
@@ -34,11 +35,11 @@ impl ClientDocumentEditor {
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
         mut rev_manager: RevisionManager,
-        web_socket: Arc<dyn RevisionWebSocket>,
-        server: Arc<dyn RevisionCloudService>,
+        rev_web_socket: Arc<dyn RevisionWebSocket>,
+        cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document_info = rev_manager
-            .load::<DocumentInfoBuilder, DocumentRevisionCompact>(server)
+            .load::<DocumentInfoBuilder, DocumentRevisionCompact>(cloud_service)
             .await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
@@ -51,7 +52,7 @@ impl ClientDocumentEditor {
             user_id.clone(),
             edit_cmd_tx.clone(),
             rev_manager.clone(),
-            web_socket,
+            rev_web_socket,
         )
         .await;
         let editor = Arc::new(Self {

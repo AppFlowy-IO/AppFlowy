@@ -12,7 +12,7 @@ pub use proto_gen::*;
 pub use proto_info::*;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
@@ -56,7 +56,7 @@ pub fn gen(crate_name: &str, proto_file_dir: &str) {
     generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
 }
 
-fn generate_rust_protobuf_files(protoc_bin_path: &PathBuf, proto_file_paths: &Vec<String>, proto_file_dir: &str) {
+fn generate_rust_protobuf_files(protoc_bin_path: &Path, proto_file_paths: &[String], proto_file_dir: &str) {
     protoc_rust::Codegen::new()
         .out_dir("./src/protobuf/model")
         .protoc_path(protoc_bin_path)

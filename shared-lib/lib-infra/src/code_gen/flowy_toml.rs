@@ -28,7 +28,7 @@ impl CrateConfig {
             .flowy_config
             .proto_crates
             .iter()
-            .map(|name| path_buf_with_component(&self.crate_path, vec![&name]))
+            .map(|name| path_buf_with_component(&self.crate_path, vec![name]))
             .collect::<Vec<PathBuf>>();
         proto_paths
     }

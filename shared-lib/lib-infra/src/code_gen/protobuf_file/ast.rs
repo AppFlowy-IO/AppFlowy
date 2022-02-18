@@ -31,7 +31,7 @@ pub fn parse_crate_protobuf(crate_paths: Vec<String>) -> Vec<ProtobufCrateContex
         .collect::<Vec<ProtobufCrateContext>>()
 }
 
-fn parse_files_protobuf(proto_crate_path: &PathBuf, proto_output_dir: &PathBuf) -> Vec<ProtoFile> {
+fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec<ProtoFile> {
     let mut gen_proto_vec: Vec<ProtoFile> = vec![];
     // file_stem https://doc.rust-lang.org/std/path/struct.Path.html#method.file_stem
     for (path, file_name) in WalkDir::new(proto_crate_path)
@@ -54,7 +54,7 @@ fn parse_files_protobuf(proto_crate_path: &PathBuf, proto_output_dir: &PathBuf) 
             .unwrap_or_else(|_| panic!("Unable to parse file at {}", path));
         let structs = get_ast_structs(&ast);
         let proto_file = format!("{}.proto", &file_name);
-        let proto_file_path = path_string_with_component(&proto_output_dir, vec![&proto_file]);
+        let proto_file_path = path_string_with_component(proto_output_dir, vec![&proto_file]);
         let mut proto_file_content = parse_or_init_proto_file(proto_file_path.as_ref());
 
         structs.iter().for_each(|s| {

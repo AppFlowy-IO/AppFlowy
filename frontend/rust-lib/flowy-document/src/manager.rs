@@ -1,4 +1,4 @@
-use crate::{core::ClientDocumentEditor, errors::FlowyError, DocumentCloudService};
+use crate::{editor::ClientDocumentEditor, errors::FlowyError, DocumentCloudService};
 use async_trait::async_trait;
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -29,31 +29,31 @@ pub(crate) trait DocumentWSReceiver: Send + Sync {
 type WebSocketDataReceivers = Arc<DashMap<String, Arc<dyn DocumentWSReceiver>>>;
 pub struct FlowyDocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
-    ws_receivers: WebSocketDataReceivers,
-    web_socket: Arc<dyn RevisionWebSocket>,
-    open_cache: Arc<OpenDocCache>,
-    user: Arc<dyn DocumentUser>,
+    ws_data_receivers: WebSocketDataReceivers,
+    rev_web_socket: Arc<dyn RevisionWebSocket>,
+    document_handlers: Arc<DocumentEditorHandlers>,
+    document_user: Arc<dyn DocumentUser>,
 }
 
 impl FlowyDocumentManager {
     pub fn new(
         cloud_service: Arc<dyn DocumentCloudService>,
-        user: Arc<dyn DocumentUser>,
-        web_socket: Arc<dyn RevisionWebSocket>,
+        document_user: Arc<dyn DocumentUser>,
+        rev_web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
-        let ws_receivers = Arc::new(DashMap::new());
-        let open_cache = Arc::new(OpenDocCache::new());
+        let ws_data_receivers = Arc::new(DashMap::new());
+        let document_handlers = Arc::new(DocumentEditorHandlers::new());
         Self {
             cloud_service,
-            ws_receivers,
-            web_socket,
-            open_cache,
-            user,
+            ws_data_receivers,
+            rev_web_socket,
+            document_handlers,
+            document_user,
         }
     }
 
     pub fn init(&self) -> FlowyResult<()> {
-        listen_ws_state_changed(self.web_socket.clone(), self.ws_receivers.clone());
+        listen_ws_state_changed(self.rev_web_socket.clone(), self.ws_data_receivers.clone());
 
         Ok(())
     }
@@ -69,8 +69,8 @@ impl FlowyDocumentManager {
     pub fn close_document<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
-        self.open_cache.remove(doc_id);
-        self.remove_ws_receiver(doc_id);
+        self.document_handlers.remove(doc_id);
+        self.ws_data_receivers.remove(doc_id);
         Ok(())
     }
 
@@ -78,8 +78,8 @@ impl FlowyDocumentManager {
     pub fn delete<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
-        self.open_cache.remove(doc_id);
-        self.remove_ws_receiver(doc_id);
+        self.document_handlers.remove(doc_id);
+        self.ws_data_receivers.remove(doc_id);
         Ok(())
     }
 
@@ -94,18 +94,18 @@ impl FlowyDocumentManager {
         })
     }
 
-    pub async fn save_document<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn receive_revisions<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
-        let db_pool = self.user.db_pool()?;
+        let db_pool = self.document_user.db_pool()?;
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
 
-    pub async fn did_receive_ws_data(&self, data: Bytes) {
+    pub async fn receive_ws_data(&self, data: Bytes) {
         let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
         match result {
-            Ok(data) => match self.ws_receivers.get(&data.object_id) {
+            Ok(data) => match self.ws_data_receivers.get(&data.object_id) {
                 None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
                 Some(handler) => match handler.receive_ws_data(data).await {
                     Ok(_) => {}
@@ -117,19 +117,13 @@ impl FlowyDocumentManager {
             }
         }
     }
-
-    pub async fn ws_connect_state_changed(&self, state: &WSConnectState) {
-        for receiver in self.ws_receivers.iter() {
-            receiver.value().connect_state_changed(state.clone());
-        }
-    }
 }
 
 impl FlowyDocumentManager {
     async fn get_editor(&self, doc_id: &str) -> FlowyResult<Arc<ClientDocumentEditor>> {
-        match self.open_cache.get(doc_id) {
+        match self.document_handlers.get(doc_id) {
             None => {
-                let db_pool = self.user.db_pool()?;
+                let db_pool = self.document_user.db_pool()?;
                 self.make_editor(doc_id, db_pool).await
             }
             Some(editor) => Ok(editor),
@@ -141,34 +135,25 @@ impl FlowyDocumentManager {
         doc_id: &str,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
-        let user = self.user.clone();
-        let token = self.user.token()?;
+        let user = self.document_user.clone();
+        let token = self.document_user.token()?;
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
-        let server = Arc::new(DocumentRevisionCloudServiceImpl {
+        let cloud_service = Arc::new(DocumentRevisionCloudServiceImpl {
             token,
             server: self.cloud_service.clone(),
         });
-        let doc_editor = ClientDocumentEditor::new(doc_id, user, rev_manager, self.web_socket.clone(), server).await?;
-        self.add_ws_receiver(doc_id, doc_editor.ws_handler());
-        self.open_cache.insert(doc_id, &doc_editor);
+        let doc_editor =
+            ClientDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+        self.ws_data_receivers
+            .insert(doc_id.to_string(), doc_editor.ws_handler());
+        self.document_handlers.insert(doc_id, &doc_editor);
         Ok(doc_editor)
     }
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
-        let user_id = self.user.user_id()?;
+        let user_id = self.document_user.user_id()?;
         let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, cache))
-    }
-
-    fn add_ws_receiver(&self, object_id: &str, receiver: Arc<dyn DocumentWSReceiver>) {
-        if self.ws_receivers.contains_key(object_id) {
-            log::error!("Duplicate handler registered for {:?}", object_id);
-        }
-        self.ws_receivers.insert(object_id.to_string(), receiver);
-    }
-
-    fn remove_ws_receiver(&self, id: &str) {
-        self.ws_receivers.remove(id);
     }
 }
 
@@ -202,11 +187,11 @@ impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     }
 }
 
-pub struct OpenDocCache {
+pub struct DocumentEditorHandlers {
     inner: DashMap<String, Arc<ClientDocumentEditor>>,
 }
 
-impl OpenDocCache {
+impl DocumentEditorHandlers {
     fn new() -> Self {
         Self { inner: DashMap::new() }
     }

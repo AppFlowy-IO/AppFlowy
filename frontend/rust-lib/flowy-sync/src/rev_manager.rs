@@ -26,20 +26,16 @@ pub struct RevisionManager {
     pub object_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
-    cache: Arc<RwLock<RevisionCacheCompact>>,
+    rev_compressor: Arc<RwLock<RevisionCompressor>>,
 
     #[cfg(feature = "flowy_unit_test")]
-    revision_ack_notifier: tokio::sync::broadcast::Sender<i64>,
+    rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
     pub fn new(user_id: &str, object_id: &str, revision_cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
-        let cache = Arc::new(RwLock::new(RevisionCacheCompact::new(
-            object_id,
-            user_id,
-            revision_cache,
-        )));
+        let rev_compressor = Arc::new(RwLock::new(RevisionCompressor::new(object_id, user_id, revision_cache)));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -47,10 +43,10 @@ impl RevisionManager {
             object_id: object_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
-            cache,
+            rev_compressor,
 
             #[cfg(feature = "flowy_unit_test")]
-            revision_ack_notifier,
+            rev_ack_notifier: revision_ack_notifier,
         }
     }
 
@@ -63,7 +59,7 @@ impl RevisionManager {
             object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
             cloud,
-            cache: self.cache.clone(),
+            rev_compressor: self.rev_compressor.clone(),
         }
         .load::<C>()
         .await?;
@@ -75,7 +71,7 @@ impl RevisionManager {
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
 
-        let write_guard = self.cache.write().await;
+        let write_guard = self.rev_compressor.write().await;
         let _ = write_guard.reset(revisions.into_inner()).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
@@ -87,7 +83,7 @@ impl RevisionManager {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
 
-        let write_guard = self.cache.write().await;
+        let write_guard = self.rev_compressor.write().await;
         let _ = write_guard.add_ack_revision(revision).await?;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
@@ -101,7 +97,7 @@ impl RevisionManager {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        let mut write_guard = self.cache.write().await;
+        let mut write_guard = self.rev_compressor.write().await;
         let rev_id = write_guard.write_sync_revision::<C>(revision).await?;
 
         self.rev_id_counter.set(rev_id);
@@ -110,9 +106,9 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn ack_revision(&self, rev_id: i64) -> Result<(), FlowyError> {
-        if self.cache.write().await.ack_revision(rev_id).await.is_ok() {
+        if self.rev_compressor.write().await.ack_revision(rev_id).await.is_ok() {
             #[cfg(feature = "flowy_unit_test")]
-            let _ = self.revision_ack_notifier.send(rev_id);
+            let _ = self.rev_ack_notifier.send(rev_id);
         }
         Ok(())
     }
@@ -128,37 +124,42 @@ impl RevisionManager {
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
-        let revisions = self.cache.read().await.revisions_in_range(&range).await?;
+        let revisions = self.rev_compressor.read().await.revisions_in_range(&range).await?;
         Ok(revisions)
     }
 
     pub async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
-        Ok(self.cache.read().await.next_sync_revision().await?)
+        Ok(self.rev_compressor.read().await.next_sync_revision().await?)
     }
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {
-        self.cache.read().await.get(rev_id).await.map(|record| record.revision)
+        self.rev_compressor
+            .read()
+            .await
+            .get(rev_id)
+            .await
+            .map(|record| record.revision)
     }
 }
 
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionManager {
     pub async fn revision_cache(&self) -> Arc<RevisionCache> {
-        self.cache.read().await.inner.clone()
+        self.rev_compressor.read().await.inner.clone()
     }
-    pub fn revision_ack_receiver(&self) -> tokio::sync::broadcast::Receiver<i64> {
-        self.revision_ack_notifier.subscribe()
+    pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
+        self.rev_ack_notifier.subscribe()
     }
 }
 
-struct RevisionCacheCompact {
+struct RevisionCompressor {
     object_id: String,
     user_id: String,
     inner: Arc<RevisionCache>,
     sync_seq: RevisionSyncSequence,
 }
 
-impl RevisionCacheCompact {
+impl RevisionCompressor {
     fn new(object_id: &str, user_id: &str, inner: Arc<RevisionCache>) -> Self {
         let sync_seq = RevisionSyncSequence::new();
         let object_id = object_id.to_owned();
@@ -251,7 +252,7 @@ impl RevisionCacheCompact {
     }
 }
 
-impl std::ops::Deref for RevisionCacheCompact {
+impl std::ops::Deref for RevisionCompressor {
     type Target = Arc<RevisionCache>;
 
     fn deref(&self) -> &Self::Target {
@@ -323,7 +324,7 @@ struct RevisionLoader {
     object_id: String,
     user_id: String,
     cloud: Arc<dyn RevisionCloudService>,
-    cache: Arc<RwLock<RevisionCacheCompact>>,
+    rev_compressor: Arc<RwLock<RevisionCompressor>>,
 }
 
 impl RevisionLoader {
@@ -331,14 +332,14 @@ impl RevisionLoader {
     where
         C: RevisionCompact,
     {
-        let records = self.cache.read().await.batch_get(&self.object_id)?;
+        let records = self.rev_compressor.read().await.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;
         let mut rev_id = 0;
         if records.is_empty() {
             let remote_revisions = self.cloud.fetch_object(&self.user_id, &self.object_id).await?;
             for revision in &remote_revisions {
                 rev_id = revision.rev_id;
-                let _ = self.cache.read().await.add_ack_revision(revision).await?;
+                let _ = self.rev_compressor.read().await.add_ack_revision(revision).await?;
             }
             revisions = remote_revisions;
         } else {
@@ -346,7 +347,12 @@ impl RevisionLoader {
                 rev_id = record.revision.rev_id;
                 if record.state == RevisionState::Sync {
                     // Sync the records if their state is RevisionState::Sync.
-                    let _ = self.cache.write().await.add_sync_revision(&record.revision).await?;
+                    let _ = self
+                        .rev_compressor
+                        .write()
+                        .await
+                        .add_sync_revision(&record.revision)
+                        .await?;
                 }
             }
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();
