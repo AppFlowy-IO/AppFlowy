@@ -7,9 +7,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
-import 'package:app_flowy/startup/launcher.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 
 class AppWidgetTask extends LaunchTask {
   @override

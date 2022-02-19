@@ -1,6 +1,4 @@
-import 'package:app_flowy/startup/launcher.dart';
 import 'package:app_flowy/user/infrastructure/network_monitor.dart';
-
 import '../startup.dart';
 
 class InitPlatformService extends LaunchTask {

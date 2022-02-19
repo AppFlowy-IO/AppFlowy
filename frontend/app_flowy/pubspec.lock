@@ -393,13 +393,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  flowy_log:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_log"
-      relative: true
-    source: path
-    version: "0.0.1"
   flowy_sdk:
     dependency: "direct main"
     description:

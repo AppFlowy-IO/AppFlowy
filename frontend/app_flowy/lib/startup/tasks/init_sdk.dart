@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:app_flowy/startup/launcher.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
