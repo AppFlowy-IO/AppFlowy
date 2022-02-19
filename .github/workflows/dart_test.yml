@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-
 env:
   CARGO_TERM_COLOR: always
 
@@ -41,7 +40,7 @@ jobs:
         run: |
           flutter config --enable-linux-desktop
           cargo make --profile development-linux-x86 flowy-sdk-dev
-      - name: Bloc Test
+      - name: Run bloc tests
         working-directory: frontend/app_flowy
         run: |
           flutter test

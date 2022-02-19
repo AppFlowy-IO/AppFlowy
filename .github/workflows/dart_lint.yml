@@ -8,9 +8,12 @@ name: Flutter lint
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'frontend/app_flowy'
   pull_request:
     branches: [ main ]
-
+    paths:
+      - 'frontend/app_flowy'
 
 env:
   CARGO_TERM_COLOR: always
@@ -25,10 +28,10 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - name: Flutter pub get
+      - name: Deps Flutter
         run: flutter pub get
         working-directory: frontend/app_flowy
-      - name: Generate language files
+      - name: Code Generate
         working-directory: frontend/app_flowy
         run:
           flutter pub run easy_localization:generate --source-dir ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
