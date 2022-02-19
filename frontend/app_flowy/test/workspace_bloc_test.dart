@@ -20,10 +20,9 @@ void main() {
       act: (bloc) {
         bloc.add(const WelcomeEvent.initial());
       },
-      wait: const Duration(seconds: 2),
+      wait: const Duration(seconds: 3),
       verify: (bloc) {
         assert(bloc.state.isLoading == false);
-        assert((bloc.state.workspaces.length) == 1);
       },
     );
   });

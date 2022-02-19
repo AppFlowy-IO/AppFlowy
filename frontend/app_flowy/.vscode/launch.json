@@ -12,6 +12,7 @@
             "preLaunchTask": "build_flowy_sdk",
             "env":{
                 "RUST_LOG":"info",
+                "INTEGRATION_ENV":"develop",
             },
             "cwd": "${workspaceRoot}"
         },
@@ -23,6 +24,7 @@
             "preLaunchTask": "build_flowy_sdk",
             "env":{
                 "RUST_LOG":"trace",
+                "INTEGRATION_ENV":"develop",
             },
             "cwd": "${workspaceRoot}"
         },

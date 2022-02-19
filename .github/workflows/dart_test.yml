@@ -1,0 +1,38 @@
+name: Unit test(Flutter)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: Flutter pub get
+        run: flutter pub get
+        working-directory: frontend/app_flowy
+      - name: Generate language files
+        working-directory: frontend/app_flowy
+        run:
+          flutter pub run easy_localization:generate --source-dir ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
+      - name: Build FlowySDK
+        working-directory: frontend
+        run: |
+          flutter config --enable-linux-desktop
+          cargo make --profile development-linux-x86 flowy-sdk-dev
+      - name: Bloc Test
+        working-directory: frontend/app_flowy
+        run: |
+          flutter test
+

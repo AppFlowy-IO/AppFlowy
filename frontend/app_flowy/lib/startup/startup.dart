@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_flowy/startup/tasks/prelude.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,10 +25,6 @@ import 'package:flowy_sdk/flowy_sdk.dart';
 //
 //                                                 3.build MeterialApp
 final getIt = GetIt.instance;
-enum IntegrationEnv {
-  dev,
-  pro,
-}
 
 abstract class EntryPoint {
   Widget create();
@@ -35,7 +33,7 @@ abstract class EntryPoint {
 class System {
   static Future<void> run(EntryPoint f) async {
     // Specify the env
-    const env = IntegrationEnv.dev;
+    final env = integrationEnv();
 
     // Config the deps graph
     getIt.registerFactory<EntryPoint>(() => f);
@@ -44,8 +42,11 @@ class System {
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask());
-    getIt<AppLauncher>().addTask(ApplicationWidgetTask());
-    getIt<AppLauncher>().addTask(InitPlatformService());
+
+    if (!env.isTest()) {
+      getIt<AppLauncher>().addTask(ApplicationWidgetTask());
+      getIt<AppLauncher>().addTask(InitPlatformService());
+    }
 
     // execute the tasks
     getIt<AppLauncher>().launch();
@@ -100,4 +101,28 @@ class AppLauncher {
       await task.initialize(context);
     }
   }
+}
+
+enum IntegrationEnv {
+  develop,
+  release,
+  test,
+}
+
+extension IntegrationEnvExt on IntegrationEnv {
+  bool isTest() {
+    return this == IntegrationEnv.test;
+  }
+}
+
+IntegrationEnv integrationEnv() {
+  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    return IntegrationEnv.test;
+  }
+  final value = String.fromEnvironment('INTEGRATION_ENV');
+  if (value == 'release') {
+    return IntegrationEnv.release;
+  }
+
+  return IntegrationEnv.develop;
 }
