@@ -14,6 +14,7 @@ RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
+LIB_NAME = "dart_ffi"
 VERSION = "0.0.3"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
@@ -31,6 +32,8 @@ RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
+CRATE_TYPE = "cdylib"
+SDK_EXT = "dylib"
 
 [env.production-mac-aarch64]
 BUILD_FLAG = "release"
@@ -39,6 +42,7 @@ RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
+CRATE_TYPE = "staticlib"
 
 [env.production-mac-x86]
 BUILD_FLAG = "release"
@@ -152,7 +156,6 @@ script = [
       """,
 ]
 script_runner = "@duckscript"
-
 
 [tasks.test-build]
 condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }

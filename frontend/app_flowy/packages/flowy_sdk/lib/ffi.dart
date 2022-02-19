@@ -12,12 +12,22 @@ final DynamicLibrary _dl = _open();
 /// Reference to the Dynamic Library, it should be only used for low-level access
 final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
-  if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
-  if (Platform.isMacOS) return DynamicLibrary.executable();
-  if (Platform.isIOS) return DynamicLibrary.executable();
-  if (Platform.isWindows) return DynamicLibrary.open('dart_ffi.dll');
-  if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
-  throw UnsupportedError('This platform is not supported.');
+  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    final prefix = "${Directory.systemTemp.path}/appflowy";
+    if (Platform.isLinux) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
+    if (Platform.isAndroid) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
+    if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
+    if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
+    if (Platform.isWindows) return DynamicLibrary.open('${prefix}/dart_ffi.dll');
+    throw UnsupportedError('This platform is not supported.');
+  } else {
+    if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
+    if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
+    if (Platform.isMacOS) return DynamicLibrary.executable();
+    if (Platform.isIOS) return DynamicLibrary.executable();
+    if (Platform.isWindows) return DynamicLibrary.open('dart_ffi.dll');
+    throw UnsupportedError('This platform is not supported.');
+  }
 }
 
 /// C function `async_event`.

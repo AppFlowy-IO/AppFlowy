@@ -16,17 +16,17 @@ linux_alias = "flowy-sdk-dev-linux"
 [tasks.flowy-sdk-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type", "copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-dev-windows]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type", "copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-dev-linux]
 category = "Build"
 dependencies = ["env_check"]
-run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type", "copy-to-sys-tmpdir"] }
 
 #
 [tasks.sdk-build]
@@ -82,16 +82,17 @@ private = true
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK(macOS) build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}
+    lib = set lib${LIB_NAME}.${SDK_EXT}
 
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
 
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/Classes/binding.h
+    ${dart_ffi_dir}/Classes/binding.h
   """,
 ]
 script_runner = "@duckscript"
-
 
 [tasks.post-desktop-windows]
 private = true
@@ -99,10 +100,11 @@ script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK(windows) build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/windows/flutter/dart_ffi
+    lib = set ${LIB_NAME}.${SDK_EXT}
 
     # copy dll
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${dart_ffi_dir}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
 
     # copy binding.h
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
@@ -117,10 +119,11 @@ script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK(linux) build success"
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/flutter/dart_ffi
+    lib = set lib${LIB_NAME}.${SDK_EXT}
 
     # copy dll
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${dart_ffi_dir}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
 
     # copy binding.h
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
@@ -129,29 +132,28 @@ script = [
 ]
 script_runner = "@duckscript"
 
-#
 [tasks.copy-to-sys-tmpdir]
 private = true
-condition = { profiles = [ "development-mac" ], platforms = ["mac"] }
 script = [
   """
-  # post the dylib target_path that use for flutter unit test
-  target_path = set ${TMPDIR}/appflowy/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
-    rm ${target_path}
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} ${target_path}
+    # Copy the flowy_sdk lib to system temp directory for flutter unit test.
+    lib = set lib${LIB_NAME}.${SDK_EXT}
+    dest = set ${TMPDIR}/appflowy/${lib}
+    echo ${dest}
+    rm ${dest}
+
+
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dest}
   """,
 ]
 script_runner = "@duckscript"
 
-[tasks.check_protoc_cmd]
+[tasks.copy-to-sys-tmpdir.windows]
+private = true
 script = [
   """
-  ret = which protoc
-  if is_empty ${ret}
-      echo Please make sure <protoc_installation_folder>/bin/ is in PATH env var
-      echo See BUILD_ON_{LINUX|WINDOWS}.md for how to get protoc
-      exit -1
-  end
+    # Doesn't work on windows
   """,
 ]
 script_runner = "@duckscript"
