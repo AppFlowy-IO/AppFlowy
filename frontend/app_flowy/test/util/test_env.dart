@@ -1,17 +1,16 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class FlowyTest {
   static Future<FlowyTest> setup() async {
-    WidgetsFlutterBinding.ensureInitialized();
+    TestWidgetsFlutterBinding.ensureInitialized();
     // await EasyLocalization.ensureInitialized();
 
-    System.run(FlowyTestApp());
+    await System.run(FlowyTestApp());
     return FlowyTest();
   }
 

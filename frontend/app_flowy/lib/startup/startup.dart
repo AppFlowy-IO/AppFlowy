@@ -33,7 +33,7 @@ abstract class EntryPoint {
 }
 
 class System {
-  static void run(EntryPoint f) {
+  static Future<void> run(EntryPoint f) async {
     // Specify the env
     const env = IntegrationEnv.dev;
 
@@ -94,7 +94,7 @@ class AppLauncher {
     tasks.add(task);
   }
 
-  void launch() async {
+  Future<void> launch() async {
     final context = LaunchContext(getIt, env);
     for (var task in tasks) {
       await task.initialize(context);
