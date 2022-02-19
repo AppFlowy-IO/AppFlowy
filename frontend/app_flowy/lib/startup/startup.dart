@@ -44,7 +44,7 @@ class System {
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask());
-    getIt<AppLauncher>().addTask(AppWidgetTask());
+    getIt<AppLauncher>().addTask(ApplicationWidgetTask());
     getIt<AppLauncher>().addTask(InitPlatformService());
 
     // execute the tasks

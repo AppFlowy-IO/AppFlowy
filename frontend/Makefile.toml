@@ -19,8 +19,8 @@ VERSION = "0.0.3"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
-CRATE_TYPE = "staticlib"
-SDK_EXT = "a"
+CRATE_TYPE = "cdylib"
+SDK_EXT = "dylib"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
 PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
@@ -32,8 +32,6 @@ RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
-CRATE_TYPE = "cdylib"
-SDK_EXT = "dylib"
 
 [env.production-mac-aarch64]
 BUILD_FLAG = "release"
@@ -42,7 +40,6 @@ RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
-CRATE_TYPE = "staticlib"
 
 [env.production-mac-x86]
 BUILD_FLAG = "release"
@@ -128,7 +125,6 @@ script_runner = "@shell"
 [env.production-ios]
 BUILD_FLAG = "release"
 TARGET_OS = "ios"
-CRATE_TYPE = "staticlib"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
