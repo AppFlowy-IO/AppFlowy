@@ -73,7 +73,7 @@ impl ViewController {
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
         let _ = self
             .document_manager
-            .receive_revisions(&params.view_id, repeated_revision)
+            .reset_with_revisions(&params.view_id, repeated_revision)
             .await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
@@ -96,7 +96,7 @@ impl ViewController {
         let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
         let _ = self
             .document_manager
-            .receive_revisions(view_id, repeated_revision)
+            .reset_with_revisions(view_id, repeated_revision)
             .await?;
         Ok(())
     }

@@ -10,42 +10,135 @@ use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionS
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 
-use std::{
-    borrow::Cow,
-    sync::{
-        atomic::{AtomicI64, Ordering::SeqCst},
-        Arc,
-    },
-};
+use crate::RevisionCompact;
+use std::collections::VecDeque;
+use std::{borrow::Cow, sync::Arc};
+use tokio::sync::RwLock;
 use tokio::task::spawn_blocking;
 
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
 pub struct RevisionCache {
+    user_id: String,
     object_id: String,
     disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
-    latest_rev_id: AtomicI64,
+    sync_seq: RwLock<SyncSequence>,
 }
 impl RevisionCache {
     pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
         let memory_cache = Arc::new(RevisionMemoryCache::new(object_id, Arc::new(disk_cache.clone())));
         let object_id = object_id.to_owned();
+        let user_id = user_id.to_owned();
+        let sync_seq = RwLock::new(SyncSequence::new());
         Self {
+            user_id,
             object_id,
             disk_cache,
             memory_cache,
-            latest_rev_id: AtomicI64::new(0),
+            sync_seq,
         }
     }
 
-    pub async fn add(&self, revision: Revision, state: RevisionState, write_to_disk: bool) -> FlowyResult<()> {
+    /// Save the revision that comes from remote to disk.
+    #[tracing::instrument(level = "trace", skip(self, revision), fields(rev_id, object_id=%self.object_id), err)]
+    pub(crate) async fn add_ack_revision(&self, revision: &Revision) -> FlowyResult<()> {
+        tracing::Span::current().record("rev_id", &revision.rev_id);
+        self.add(revision.clone(), RevisionState::Ack, true).await
+    }
+
+    /// Append the revision that already existed in the local DB state to sync sequence
+    #[tracing::instrument(level = "trace", skip(self), fields(rev_id, object_id=%self.object_id), err)]
+    pub(crate) async fn sync_revision(&self, revision: &Revision) -> FlowyResult<()> {
+        tracing::Span::current().record("rev_id", &revision.rev_id);
+        self.add(revision.clone(), RevisionState::Sync, false).await?;
+        self.sync_seq.write().await.add(revision.rev_id)?;
+        Ok(())
+    }
+
+    /// Save the revision to disk and append it to the end of the sync sequence.
+    #[tracing::instrument(level = "trace", skip(self, revision), fields(rev_id, compact_range, object_id=%self.object_id), err)]
+    pub(crate) async fn add_sync_revision<C>(&self, revision: &Revision) -> FlowyResult<i64>
+    where
+        C: RevisionCompact,
+    {
+        let result = self.sync_seq.read().await.compact();
+        match result {
+            None => {
+                tracing::Span::current().record("rev_id", &revision.rev_id);
+                self.add(revision.clone(), RevisionState::Sync, true).await?;
+                self.sync_seq.write().await.add(revision.rev_id)?;
+                Ok(revision.rev_id)
+            }
+            Some((range, mut compact_seq)) => {
+                tracing::Span::current().record("compact_range", &format!("{}", range).as_str());
+                let mut revisions = self.revisions_in_range(&range).await?;
+                if range.to_rev_ids().len() != revisions.len() {
+                    debug_assert_eq!(range.to_rev_ids().len(), revisions.len());
+                }
+
+                // append the new revision
+                revisions.push(revision.clone());
+
+                // compact multiple revisions into one
+                let compact_revision = C::compact_revisions(&self.user_id, &self.object_id, revisions)?;
+                let rev_id = compact_revision.rev_id;
+                tracing::Span::current().record("rev_id", &rev_id);
+
+                // insert new revision
+                compact_seq.push_back(rev_id);
+
+                // replace the revisions in range with compact revision
+                self.compact(&range, compact_revision).await?;
+                debug_assert_eq!(self.sync_seq.read().await.len(), compact_seq.len());
+                self.sync_seq.write().await.reset(compact_seq);
+                Ok(rev_id)
+            }
+        }
+    }
+
+    /// Remove the revision with rev_id from the sync sequence.
+    pub(crate) async fn ack_revision(&self, rev_id: i64) -> FlowyResult<()> {
+        if self.sync_seq.write().await.ack(&rev_id).is_ok() {
+            self.memory_cache.ack(&rev_id).await;
+        }
+        Ok(())
+    }
+
+    pub(crate) async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
+        match self.sync_seq.read().await.next_rev_id() {
+            None => Ok(None),
+            Some(rev_id) => Ok(self.get(rev_id).await.map(|record| record.revision)),
+        }
+    }
+
+    /// The cache gets reset while it conflicts with the remote revisions.
+    #[tracing::instrument(level = "trace", skip(self, revisions), err)]
+    pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
+        let records = revisions
+            .to_vec()
+            .into_iter()
+            .map(|revision| RevisionRecord {
+                revision,
+                state: RevisionState::Sync,
+                write_to_disk: false,
+            })
+            .collect::<Vec<_>>();
+
+        let _ = self
+            .disk_cache
+            .delete_and_insert_records(&self.object_id, None, records.clone())?;
+        let _ = self.memory_cache.reset_with_revisions(records).await;
+        self.sync_seq.write().await.clear();
+        Ok(())
+    }
+
+    async fn add(&self, revision: Revision, state: RevisionState, write_to_disk: bool) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
             tracing::warn!("Duplicate revision: {}:{}-{:?}", self.object_id, revision.rev_id, state);
             return Ok(());
         }
-        let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
             state,
@@ -53,11 +146,10 @@ impl RevisionCache {
         };
 
         self.memory_cache.add(Cow::Owned(record)).await;
-        self.set_latest_rev_id(rev_id);
         Ok(())
     }
 
-    pub async fn compact(&self, range: &RevisionRange, new_revision: Revision) -> FlowyResult<()> {
+    async fn compact(&self, range: &RevisionRange, new_revision: Revision) -> FlowyResult<()> {
         self.memory_cache.remove_with_range(range);
         let rev_ids = range.to_rev_ids();
         let _ = self
@@ -66,10 +158,6 @@ impl RevisionCache {
 
         self.add(new_revision, RevisionState::Sync, true).await?;
         Ok(())
-    }
-
-    pub async fn ack(&self, rev_id: i64) {
-        self.memory_cache.ack(&rev_id).await;
     }
 
     pub async fn get(&self, rev_id: i64) -> Option<RevisionRecord> {
@@ -122,31 +210,6 @@ impl RevisionCache {
             .map(|record| record.revision)
             .collect::<Vec<Revision>>())
     }
-
-    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
-    pub async fn reset_with_revisions(&self, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
-        let records = revisions
-            .to_vec()
-            .into_iter()
-            .map(|revision| RevisionRecord {
-                revision,
-                state: RevisionState::Sync,
-                write_to_disk: false,
-            })
-            .collect::<Vec<_>>();
-
-        let _ = self
-            .disk_cache
-            .delete_and_insert_records(object_id, None, records.clone())?;
-        let _ = self.memory_cache.reset_with_revisions(records).await;
-
-        Ok(())
-    }
-
-    #[inline]
-    fn set_latest_rev_id(&self, rev_id: i64) {
-        let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
-    }
 }
 
 pub fn mk_revision_disk_cache(
@@ -194,5 +257,69 @@ pub struct RevisionRecord {
 impl RevisionRecord {
     pub fn ack(&mut self) {
         self.state = RevisionState::Ack;
+    }
+}
+
+#[derive(Default)]
+struct SyncSequence(VecDeque<i64>);
+impl SyncSequence {
+    fn new() -> Self {
+        SyncSequence::default()
+    }
+
+    fn add(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+        // The last revision's rev_id must be greater than the new one.
+        if let Some(rev_id) = self.0.back() {
+            if *rev_id >= new_rev_id {
+                return Err(
+                    FlowyError::internal().context(format!("The new revision's id must be greater than {}", rev_id))
+                );
+            }
+        }
+        self.0.push_back(new_rev_id);
+        Ok(())
+    }
+
+    fn ack(&mut self, rev_id: &i64) -> FlowyResult<()> {
+        let cur_rev_id = self.0.front().cloned();
+        if let Some(pop_rev_id) = cur_rev_id {
+            if &pop_rev_id != rev_id {
+                let desc = format!(
+                    "The ack rev_id:{} is not equal to the current rev_id:{}",
+                    rev_id, pop_rev_id
+                );
+                return Err(FlowyError::internal().context(desc));
+            }
+            let _ = self.0.pop_front();
+        }
+        Ok(())
+    }
+
+    fn next_rev_id(&self) -> Option<i64> {
+        self.0.front().cloned()
+    }
+
+    fn reset(&mut self, new_seq: VecDeque<i64>) {
+        self.0 = new_seq;
+    }
+
+    fn clear(&mut self) {
+        self.0.clear();
+    }
+
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    // Compact the rev_ids into one except the current synchronizing rev_id.
+    fn compact(&self) -> Option<(RevisionRange, VecDeque<i64>)> {
+        self.next_rev_id()?;
+
+        let mut new_seq = self.0.clone();
+        let mut drained = new_seq.drain(1..).collect::<VecDeque<_>>();
+
+        let start = drained.pop_front()?;
+        let end = drained.pop_back().unwrap_or(start);
+        Some((RevisionRange { start, end }, new_seq))
     }
 }

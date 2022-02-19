@@ -213,7 +213,7 @@ struct DocumentInfoBuilder();
 impl RevisionObjectBuilder for DocumentInfoBuilder {
     type Output = DocumentInfo;
 
-    fn build_with_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_delta_from_revisions(revisions)?;
         correct_delta(&mut delta);

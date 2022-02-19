@@ -103,7 +103,7 @@ struct FolderPadBuilder();
 impl RevisionObjectBuilder for FolderPadBuilder {
     type Output = FolderPad;
 
-    fn build_with_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = FolderPad::from_revisions(revisions)?;
         Ok(pad)
     }

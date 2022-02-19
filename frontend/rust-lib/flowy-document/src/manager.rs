@@ -94,7 +94,7 @@ impl FlowyDocumentManager {
         })
     }
 
-    pub async fn receive_revisions<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn reset_with_revisions<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.document_user.db_pool()?;
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
