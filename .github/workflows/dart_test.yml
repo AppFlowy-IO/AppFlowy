@@ -19,12 +19,20 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - name: Flutter pub get
-        run: flutter pub get
-        working-directory: frontend/app_flowy
-      - name: Generate language files
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Deps Rust
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
+      - name: Deps Flutter
         working-directory: frontend/app_flowy
         run:
+          flutter pub get
           flutter pub run easy_localization:generate --source-dir ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
       - name: Build FlowySDK
         working-directory: frontend

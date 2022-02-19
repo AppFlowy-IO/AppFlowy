@@ -119,7 +119,7 @@ IntegrationEnv integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     return IntegrationEnv.test;
   }
-  final value = String.fromEnvironment('INTEGRATION_ENV');
+  const value = String.fromEnvironment('INTEGRATION_ENV');
   if (value == 'release') {
     return IntegrationEnv.release;
   }
