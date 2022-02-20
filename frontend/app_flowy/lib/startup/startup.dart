@@ -30,15 +30,11 @@ abstract class EntryPoint {
   Widget create();
 }
 
-class System {
+class FlowySystem {
   static Future<void> run(EntryPoint f) async {
     // Specify the env
     final env = integrationEnv();
-
-    // Config the deps graph
-    getIt.registerFactory<EntryPoint>(() => f);
-
-    resolveDependencies(env);
+    initGetIt(getIt, env, f);
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask());
@@ -53,12 +49,12 @@ class System {
   }
 }
 
-void resolveDependencies(IntegrationEnv env) => initGetIt(getIt, env);
-
 Future<void> initGetIt(
   GetIt getIt,
   IntegrationEnv env,
+  EntryPoint f,
 ) async {
+  getIt.registerFactory<EntryPoint>(() => f);
   getIt.registerLazySingleton<FlowySDK>(() => const FlowySDK());
   getIt.registerLazySingleton<AppLauncher>(() => AppLauncher(env, getIt));
 

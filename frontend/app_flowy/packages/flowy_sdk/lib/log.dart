@@ -9,8 +9,7 @@ class Log {
     _logger = Logger(
       printer: PrettyPrinter(
           methodCount: 2, // number of method calls to be displayed
-          errorMethodCount:
-              8, // number of method calls if stacktrace is provided
+          errorMethodCount: 8, // number of method calls if stacktrace is provided
           lineLength: 120, // width of the output
           colors: true, // Colorful log messages
           printEmojis: true, // Print an emoji for each log message
@@ -25,6 +24,10 @@ class Log {
 
   static void debug(dynamic msg) {
     Log.shared._logger.d(msg);
+  }
+
+  static void warn(dynamic msg) {
+    Log.shared._logger.w(msg);
   }
 
   static void trace(dynamic msg) {
