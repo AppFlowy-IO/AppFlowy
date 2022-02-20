@@ -52,7 +52,7 @@ class FlowyRunner {
 
 Future<void> initGetIt(
   GetIt getIt,
-  IntegrationEnv env,
+  IntegrationMode env,
   EntryPoint f,
 ) async {
   getIt.registerFactory<EntryPoint>(() => f);
@@ -65,7 +65,7 @@ Future<void> initGetIt(
 
 class LaunchContext {
   GetIt getIt;
-  IntegrationEnv env;
+  IntegrationMode env;
   LaunchContext(this.getIt, this.env);
 }
 
@@ -83,7 +83,7 @@ abstract class LaunchTask {
 
 class AppLauncher {
   List<LaunchTask> tasks;
-  IntegrationEnv env;
+  IntegrationMode env;
   GetIt getIt;
 
   AppLauncher(this.env, this.getIt) : tasks = List.from([]);
@@ -100,26 +100,26 @@ class AppLauncher {
   }
 }
 
-enum IntegrationEnv {
+enum IntegrationMode {
   develop,
   release,
   test,
 }
 
-extension IntegrationEnvExt on IntegrationEnv {
+extension IntegrationEnvExt on IntegrationMode {
   bool isTest() {
-    return this == IntegrationEnv.test;
+    return this == IntegrationMode.test;
   }
 }
 
-IntegrationEnv integrationEnv() {
+IntegrationMode integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
-    return IntegrationEnv.test;
+    return IntegrationMode.test;
   }
 
   if (kReleaseMode) {
-    return IntegrationEnv.release;
+    return IntegrationMode.release;
   }
 
-  return IntegrationEnv.develop;
+  return IntegrationMode.develop;
 }
