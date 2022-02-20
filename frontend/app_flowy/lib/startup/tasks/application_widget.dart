@@ -31,6 +31,7 @@ class AppWidgetTask extends LaunchTask {
             supportedLocales: const [
               // In alphabetical order
               Locale('en'),
+              Locale('en', 'UK'),
               Locale('es', 'VE'),
               Locale('fr'),
               Locale('fr', 'CA'),
