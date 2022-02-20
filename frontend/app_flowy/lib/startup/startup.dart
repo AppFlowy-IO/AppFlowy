@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:app_flowy/startup/tasks/prelude.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app_flowy/workspace/infrastructure/deps_resolver.dart';
@@ -115,8 +116,8 @@ IntegrationEnv integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     return IntegrationEnv.test;
   }
-  const value = String.fromEnvironment('INTEGRATION_ENV');
-  if (value == 'release') {
+
+  if (kReleaseMode) {
     return IntegrationEnv.release;
   }
 

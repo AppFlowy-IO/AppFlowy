@@ -11,8 +11,7 @@
             "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
             "env":{
-                "RUST_LOG":"info",
-                "INTEGRATION_ENV":"develop",
+                "RUST_LOG":"debug"
             },
             "cwd": "${workspaceRoot}"
         },
@@ -23,8 +22,7 @@
             "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
             "env":{
-                "RUST_LOG":"trace",
-                "INTEGRATION_ENV":"develop",
+                "RUST_LOG":"trace"
             },
             "cwd": "${workspaceRoot}"
         },

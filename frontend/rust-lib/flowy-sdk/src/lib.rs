@@ -38,7 +38,6 @@ pub struct FlowySDKConfig {
 impl fmt::Debug for FlowySDKConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("FlowySDKConfig")
-            .field("name", &self.name)
             .field("root", &self.root)
             .field("server_config", &self.server_config)
             .finish()
