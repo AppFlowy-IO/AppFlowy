@@ -24,6 +24,6 @@ class UserDepsResolver {
     getIt.registerFactory<HomeBloc>(() => HomeBloc());
     getIt.registerFactory<EditPannelBloc>(() => EditPannelBloc());
     getIt.registerFactory<SplashBloc>(() => SplashBloc());
-    getIt.registerLazySingleton<NetworkMonitor>(() => NetworkMonitor());
+    getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
   }
 }

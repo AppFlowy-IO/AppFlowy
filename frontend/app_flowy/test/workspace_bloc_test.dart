@@ -15,7 +15,7 @@ void main() {
 
   group('WelcomeBloc', () {
     blocTest<WelcomeBloc, WelcomeState>(
-      "create workspace",
+      "welcome screen init",
       build: () => getIt<WelcomeBloc>(param1: userInfo),
       act: (bloc) {
         bloc.add(const WelcomeEvent.initial());

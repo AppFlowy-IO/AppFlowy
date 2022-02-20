@@ -10,7 +10,7 @@ import 'package:window_size/window_size.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flowy_sdk/log.dart';
 
-class ApplicationWidgetTask extends LaunchTask {
+class InitAppWidgetTask extends LaunchTask {
   @override
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 

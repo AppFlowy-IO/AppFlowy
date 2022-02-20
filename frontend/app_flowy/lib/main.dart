@@ -14,5 +14,5 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  await FlowySystem.run(FlowyApp());
+  await FlowyRunner.run(FlowyApp());
 }

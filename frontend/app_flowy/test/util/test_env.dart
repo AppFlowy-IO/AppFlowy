@@ -10,7 +10,7 @@ class FlowyTest {
     TestWidgetsFlutterBinding.ensureInitialized();
     // await EasyLocalization.ensureInitialized();
 
-    await FlowySystem.run(FlowyTestApp());
+    await FlowyRunner.run(FlowyTestApp());
     return FlowyTest();
   }
 

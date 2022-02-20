@@ -31,7 +31,7 @@ abstract class EntryPoint {
   Widget create();
 }
 
-class FlowySystem {
+class FlowyRunner {
   static Future<void> run(EntryPoint f) async {
     // Specify the env
     final env = integrationEnv();
@@ -41,8 +41,8 @@ class FlowySystem {
     getIt<AppLauncher>().addTask(InitRustSDKTask());
 
     if (!env.isTest()) {
-      getIt<AppLauncher>().addTask(ApplicationWidgetTask());
-      getIt<AppLauncher>().addTask(InitPlatformService());
+      getIt<AppLauncher>().addTask(InitAppWidgetTask());
+      getIt<AppLauncher>().addTask(InitPlatformServiceTask());
     }
 
     // execute the tasks
