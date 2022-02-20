@@ -3,14 +3,14 @@ name: Unit test(Rust)
 on:
   push:
     branches: [ main ]
-#    paths:
-#      - 'frontend/rust-lib'
-#      - 'shared-lib'
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
   pull_request:
     branches: [ main ]
-#    paths:
-#      - 'frontend/rust-lib'
-#      - 'shared-lib'
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
 
 env:
   CARGO_TERM_COLOR: always
@@ -31,9 +31,9 @@ jobs:
       - name: Install cargo-make
         run: cargo install --force cargo-make
         working-directory: frontend
-      - name: RustLib tests
+      - name: Run rust-lib tests
         run: cargo test --no-default-features
         working-directory: frontend/rust-lib
-      - name: Sharedlib tests
+      - name: Run shared-lib tests
         run: cargo test --no-default-features
         working-directory: shared-lib

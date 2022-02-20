@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';

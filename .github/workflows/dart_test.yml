@@ -1,26 +1,16 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Flutter lint
+name: Unit test(Flutter)
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/app_flowy'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'frontend/app_flowy'
 
 env:
   CARGO_TERM_COLOR: always
 
-jobs:  
-  flutter-analyze:
-    name: flutter analyze
+jobs:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,6 +18,16 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Deps Rust
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Deps Flutter
         run: flutter pub get
         working-directory: frontend/app_flowy
@@ -35,7 +35,13 @@ jobs:
         working-directory: frontend/app_flowy
         run:
           flutter pub run easy_localization:generate --source-dir ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
-      - name: flutter analyze
+      - name: Build FlowySDK
+        working-directory: frontend
+        run: |
+          flutter config --enable-linux-desktop
+          cargo make --profile development-linux-x86 flowy-sdk-dev
+      - name: Run bloc tests
         working-directory: frontend/app_flowy
-        run: flutter analyze
+        run: |
+          flutter test
 

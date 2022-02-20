@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';

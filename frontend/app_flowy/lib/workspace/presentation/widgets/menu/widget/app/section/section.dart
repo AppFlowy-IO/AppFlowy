@@ -34,7 +34,6 @@ class ViewSection extends StatelessWidget {
 
   Widget _renderSectionItems(BuildContext context, List<View> views) {
     List<Widget> viewWidgets = [];
-
     if (views.isNotEmpty) {
       viewWidgets = views
           .map(

@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
