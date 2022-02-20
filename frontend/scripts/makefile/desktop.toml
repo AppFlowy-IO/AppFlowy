@@ -138,13 +138,12 @@ script = [
   """
     # Copy the flowy_sdk lib to system temp directory for flutter unit test.
     lib = set lib${LIB_NAME}.${SDK_EXT}
-    dest = set ${TMPDIR}/appflowy/${lib}
-    echo ${dest}
+    dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/.appflowy_dev/${lib}
     rm ${dest}
-
-
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
     ${dest}
+
+    echo copy ${lib} to ${dest}
   """,
 ]
 script_runner = "@duckscript"

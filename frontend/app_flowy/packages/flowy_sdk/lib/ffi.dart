@@ -13,7 +13,7 @@ final DynamicLibrary _dl = _open();
 final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
-    final prefix = "${Directory.systemTemp.path}/appflowy";
+    final prefix = "${Directory.current.path}/.appflowy_dev";
     if (Platform.isLinux) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');

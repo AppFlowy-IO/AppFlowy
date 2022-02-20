@@ -27,6 +27,6 @@ class InitRustSDKTask extends LaunchTask {
   }
 
   Directory testDir() {
-    return Directory("${Directory.systemTemp.path}/appflowy");
+    return Directory("${Directory.current.path}/.appflowy_dev");
   }
 }
