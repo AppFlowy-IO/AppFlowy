@@ -14,7 +14,7 @@ derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error", features = ["db", "backend"] }
+flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 lib-sqlite = { path = "../lib-sqlite" }
 
 tracing = { version = "0.1", features = ["log"] }
@@ -45,3 +45,7 @@ serial_test = "0.5.1"
 
 [features]
 http_server = []
+dart = ["lib-infra/dart"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen"] }

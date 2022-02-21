@@ -1,4 +1,4 @@
-use backend_service::configuration::ClientServerConfiguration;
+use crate::configuration::ClientServerConfiguration;
 use tokio::sync::{broadcast, mpsc};
 
 mod persistence;

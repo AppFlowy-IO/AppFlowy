@@ -1,3 +1,8 @@
+#![allow(clippy::all)]
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::proto::proto_info::{CrateProtoInfo, ProtoFile};
 use crate::util::{get_tera, read_file};
 use itertools::Itertools;

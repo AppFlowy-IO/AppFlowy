@@ -174,7 +174,7 @@ impl std::convert::From<ViewTable> for Trash {
             name: table.name,
             modified_time: table.modified_time,
             create_time: table.create_time,
-            ty: TrashType::View,
+            ty: TrashType::TrashView,
         }
     }
 }

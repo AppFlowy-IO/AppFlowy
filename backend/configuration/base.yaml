@@ -1,9 +1,0 @@
-application:
-  port: 8000
-  host: 0.0.0.0
-database:
-  host: "localhost"
-  port: 5433
-  username: "postgres"
-  password: "password"
-  database_name: "flowy"

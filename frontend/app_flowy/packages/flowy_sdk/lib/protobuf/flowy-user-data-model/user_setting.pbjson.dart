@@ -24,10 +24,21 @@ const AppearanceSettings$json = const {
   '1': 'AppearanceSettings',
   '2': const [
     const {'1': 'theme', '3': 1, '4': 1, '5': 9, '10': 'theme'},
-    const {'1': 'language', '3': 2, '4': 1, '5': 9, '10': 'language'},
+    const {'1': 'locale', '3': 2, '4': 1, '5': 11, '6': '.LocaleSettings', '10': 'locale'},
     const {'1': 'reset_as_default', '3': 3, '4': 1, '5': 8, '10': 'resetAsDefault'},
   ],
 };
 
 /// Descriptor for `AppearanceSettings`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appearanceSettingsDescriptor = $convert.base64Decode('ChJBcHBlYXJhbmNlU2V0dGluZ3MSFAoFdGhlbWUYASABKAlSBXRoZW1lEhoKCGxhbmd1YWdlGAIgASgJUghsYW5ndWFnZRIoChByZXNldF9hc19kZWZhdWx0GAMgASgIUg5yZXNldEFzRGVmYXVsdA==');
+final $typed_data.Uint8List appearanceSettingsDescriptor = $convert.base64Decode('ChJBcHBlYXJhbmNlU2V0dGluZ3MSFAoFdGhlbWUYASABKAlSBXRoZW1lEicKBmxvY2FsZRgCIAEoCzIPLkxvY2FsZVNldHRpbmdzUgZsb2NhbGUSKAoQcmVzZXRfYXNfZGVmYXVsdBgDIAEoCFIOcmVzZXRBc0RlZmF1bHQ=');
+@$core.Deprecated('Use localeSettingsDescriptor instead')
+const LocaleSettings$json = const {
+  '1': 'LocaleSettings',
+  '2': const [
+    const {'1': 'language_code', '3': 1, '4': 1, '5': 9, '10': 'languageCode'},
+    const {'1': 'country_code', '3': 2, '4': 1, '5': 9, '10': 'countryCode'},
+  ],
+};
+
+/// Descriptor for `LocaleSettings`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List localeSettingsDescriptor = $convert.base64Decode('Cg5Mb2NhbGVTZXR0aW5ncxIjCg1sYW5ndWFnZV9jb2RlGAEgASgJUgxsYW5ndWFnZUNvZGUSIQoMY291bnRyeV9jb2RlGAIgASgJUgtjb3VudHJ5Q29kZQ==');

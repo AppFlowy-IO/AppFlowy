@@ -1,4 +1,3 @@
-use backend_service::configuration::ClientServerConfiguration;
 use bytes::Bytes;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
@@ -6,6 +5,7 @@ use flowy_document::{
     errors::{internal_error, FlowyError},
     DocumentCloudService, DocumentUser, FlowyDocumentManager,
 };
+use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::document::DocumentHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
@@ -98,7 +98,7 @@ impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
     fn receive_message(&self, msg: WebSocketRawMessage) {
         let handler = self.0.clone();
         tokio::spawn(async move {
-            handler.did_receive_ws_data(Bytes::from(msg.data)).await;
+            handler.receive_ws_data(Bytes::from(msg.data)).await;
         });
     }
 }

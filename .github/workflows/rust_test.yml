@@ -1,0 +1,39 @@
+name: Unit test(Rust)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Rust
+        run: |
+          curl \
+            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup toolchain install stable
+          rustup default stable
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+        working-directory: frontend
+      - name: Run rust-lib tests
+        run: cargo test --no-default-features
+        working-directory: frontend/rust-lib
+      - name: Run shared-lib tests
+        run: cargo test --no-default-features
+        working-directory: shared-lib

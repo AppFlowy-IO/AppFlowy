@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
 use crate::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;

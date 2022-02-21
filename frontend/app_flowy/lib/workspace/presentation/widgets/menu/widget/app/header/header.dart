@@ -26,7 +26,7 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.read<AppTheme>();
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(

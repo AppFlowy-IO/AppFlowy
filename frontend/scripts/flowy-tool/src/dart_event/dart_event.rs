@@ -15,7 +15,7 @@ impl DartEventCodeGen {
         let event_crates = parse_dart_event_files(self.rust_sources.clone());
         let event_ast = event_crates
             .iter()
-            .map(|event_crate| parse_event_crate(event_crate))
+            .map(parse_event_crate)
             .flatten()
             .collect::<Vec<_>>();
 
@@ -62,7 +62,7 @@ pub fn parse_dart_event_files(roots: Vec<String>) -> Vec<DartEventCrate> {
             .into_iter()
             .filter_entry(|e| !is_hidden(e))
             .filter_map(|e| e.ok())
-            .filter(|e| is_crate_dir(e))
+            .filter(is_crate_dir)
             .flat_map(|e| parse_crate_config_from(&e))
             .map(|crate_config| DartEventCrate::from_config(&crate_config))
             .collect::<Vec<DartEventCrate>>();

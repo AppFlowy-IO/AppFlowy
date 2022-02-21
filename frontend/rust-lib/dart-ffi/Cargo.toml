@@ -26,13 +26,14 @@ once_cell = "1"
 lib-dispatch = {path = "../lib-dispatch" }
 flowy-sdk = {path = "../flowy-sdk"}
 dart-notify = {path = "../dart-notify" }
-
 flowy-derive = {path = "../../../shared-lib/flowy-derive" }
-backend-service = { path = "../../../shared-lib/backend-service" }
-
 
 [features]
-flutter = ["dart-notify/dart"]
+default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
+flutter = []
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "dart"] }

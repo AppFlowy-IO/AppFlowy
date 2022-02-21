@@ -1,11 +1,14 @@
-pub mod controller;
-pub mod core;
-// mod notify;
-pub mod protobuf;
-pub use controller::*;
+pub mod editor;
+pub mod manager;
+mod queue;
+mod web_socket;
+
+pub use manager::*;
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }
+
+pub const DOCUMENT_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
 use flowy_collaboration::entities::document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};

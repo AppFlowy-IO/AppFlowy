@@ -1,8 +1,7 @@
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
 use flowy_user_data_model::entities::{
-    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_LANGUAGE,
-    APPEARANCE_DEFAULT_THEME,
+    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_THEME,
 };
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
@@ -50,10 +49,6 @@ pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<()
         setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
     }
 
-    if setting.language.is_empty() {
-        setting.theme = APPEARANCE_DEFAULT_LANGUAGE.to_string();
-    }
-
     let s = serde_json::to_string(&setting)?;
     KV::set_str(APPEARANCE_SETTING_CACHE_KEY, s);
     Ok(())
@@ -64,7 +59,13 @@ pub async fn get_appearance_setting() -> DataResult<AppearanceSettings, FlowyErr
     match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
         None => data_result(AppearanceSettings::default()),
         Some(s) => {
-            let setting: AppearanceSettings = serde_json::from_str(&s)?;
+            let setting = match serde_json::from_str(&s) {
+                Ok(setting) => setting,
+                Err(e) => {
+                    tracing::error!("Deserialize AppearanceSettings failed: {:?}, fallback to default", e);
+                    AppearanceSettings::default()
+                }
+            };
             data_result(setting)
         }
     }

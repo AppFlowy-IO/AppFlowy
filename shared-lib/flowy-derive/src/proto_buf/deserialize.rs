@@ -1,4 +1,4 @@
-use crate::{derive_cache::TypeCategory, proto_buf::util::*};
+use crate::proto_buf::util::*;
 use flowy_ast::*;
 use proc_macro2::{Span, TokenStream};
 

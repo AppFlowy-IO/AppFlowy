@@ -4,7 +4,6 @@ use crate::{
     errors::WSError,
     WSChannel, WebSocketRawMessage,
 };
-use backend_service::errors::ServerError;
 use bytes::Bytes;
 use dashmap::DashMap;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
@@ -73,7 +72,7 @@ impl WSController {
         Ok(())
     }
 
-    pub async fn start(&self, addr: String) -> Result<(), ServerError> {
+    pub async fn start(&self, addr: String) -> Result<(), WSError> {
         *self.addr.write().await = Some(addr.clone());
         let strategy = FixedInterval::from_millis(5000).take(3);
         self.connect(addr, strategy).await
@@ -89,7 +88,7 @@ impl WSController {
         }
     }
 
-    async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
+    async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), WSError>
     where
         T: IntoIterator<IntoIter = I, Item = Duration>,
         I: Iterator<Item = Duration> + Send + 'static,
@@ -100,7 +99,7 @@ impl WSController {
             return Ok(());
         }
 
-        let (ret, rx) = oneshot::channel::<Result<(), ServerError>>();
+        let (ret, rx) = oneshot::channel::<Result<(), WSError>>();
         *self.addr.write().await = Some(addr.clone());
         let action = WSConnectAction {
             addr,
@@ -133,14 +132,14 @@ impl WSController {
                         .write()
                         .await
                         .update_state(WSConnectState::Disconnected);
-                    let _ = ret.send(Err(ServerError::internal().context(e)));
+                    let _ = ret.send(Err(WSError::internal().context(e)));
                 }
             }
         });
         rx.await?
     }
 
-    pub async fn retry(&self, count: usize) -> Result<(), ServerError> {
+    pub async fn retry(&self, count: usize) -> Result<(), WSError> {
         if !self.conn_state_notify.read().await.conn_state.is_disconnected() {
             return Ok(());
         }

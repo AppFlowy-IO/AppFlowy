@@ -14,7 +14,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database" }
-flowy-error = { path = "../flowy-error", features = ["db", "backend"]}
+flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-sqlite = { path = "../lib-sqlite" }
@@ -53,3 +53,7 @@ flowy-test = { path = "../flowy-test" }
 default = []
 http_server = []
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-sync/flowy_unit_test"]
+dart = ["lib-infra/dart", "flowy-folder/dart", "flowy-folder/dart",]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }

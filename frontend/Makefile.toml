@@ -14,13 +14,16 @@ RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
+LIB_NAME = "dart_ffi"
 VERSION = "0.0.3"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
-CRATE_TYPE = "staticlib"
-SDK_EXT = "a"
+CRATE_TYPE = "cdylib"
+SDK_EXT = "dylib"
 APP_ENVIRONMENT = "local"
+FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
+PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 
 [env.development-mac]
 RUST_LOG = "trace"
@@ -115,12 +118,6 @@ script = [
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
-
-    echo "-------- Flutter --------"
-    flutter doctor
-
-    echo "-------- Rust --------"
-    rustup show
     '''
 ]
 script_runner = "@shell"
@@ -128,7 +125,6 @@ script_runner = "@shell"
 [env.production-ios]
 BUILD_FLAG = "release"
 TARGET_OS = "ios"
-CRATE_TYPE = "staticlib"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
@@ -156,3 +152,13 @@ script = [
       """,
 ]
 script_runner = "@duckscript"
+
+[tasks.test-build]
+condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }
+script = [
+    """
+      cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-net
+      cargo build -vv --features=dart
+      """,
+]
+script_runner = "@shell"

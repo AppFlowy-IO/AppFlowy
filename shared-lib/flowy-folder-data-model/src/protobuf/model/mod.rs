@@ -7,9 +7,6 @@ pub use share::*;
 mod app;
 pub use app::*;
 
-mod errors;
-pub use errors::*;
-
 mod view;
 pub use view::*;
 

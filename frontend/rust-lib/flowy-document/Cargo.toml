@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
@@ -17,7 +17,7 @@ derive_more = {version = "0.99", features = ["display"]}
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-database = { path = "../flowy-database" }
 flowy-sync = { path = "../flowy-sync" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "backend", "serde", "db"] }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
 dart-notify = { path = "../dart-notify" }
 
 diesel = {version = "1.4.8", features = ["sqlite"]}
@@ -51,7 +51,6 @@ flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
-
 
 [features]
 http_server = []

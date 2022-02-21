@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

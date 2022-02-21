@@ -1,0 +1,45 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+pub enum TypeCategory {
+    Array,
+    Map,
+    Str,
+    Protobuf,
+    Bytes,
+    Enum,
+    Opt,
+    Primitive,
+}
+// auto generate, do not edit
+pub fn category_from_str(type_str: &str) -> TypeCategory {
+    match type_str {
+        "Vec" => TypeCategory::Array,
+        "HashMap" => TypeCategory::Map,
+        "u8" => TypeCategory::Bytes,
+        "String" => TypeCategory::Str,
+{%- for name in names -%}
+    {%- if loop.first %}
+        "{{ name }}"
+    {%- else %}
+        | "{{ name }}"
+    {%- endif -%}
+    {%- if loop.last %}
+        => TypeCategory::Protobuf,
+    {%- endif %}
+
+{%- endfor %}
+
+{%- for enum in enums -%}
+    {%- if loop.first %}
+        "{{ enum }}"
+    {%- else %}
+        | "{{ enum }}"
+    {%- endif -%}
+    {%- if loop.last %}
+        => TypeCategory::Enum,
+    {%- endif %}
+{%- endfor %}
+
+        "Option" => TypeCategory::Opt,
+        _ => TypeCategory::Primitive,
+    }
+}

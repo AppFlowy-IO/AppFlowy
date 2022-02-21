@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -39,7 +39,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.View)]);
+          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },

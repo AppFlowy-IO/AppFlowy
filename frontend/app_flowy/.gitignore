@@ -60,3 +60,4 @@ windows/flutter/dart_ffi/
 **/**/*.dll
 **/**/*.so
 **/**/Brewfile.lock.json
+**/.sandbox

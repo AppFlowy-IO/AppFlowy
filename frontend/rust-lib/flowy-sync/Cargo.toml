@@ -11,7 +11,7 @@ lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-database = { path = "../flowy-database" }
-flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "backend", "serde", "db"] }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
