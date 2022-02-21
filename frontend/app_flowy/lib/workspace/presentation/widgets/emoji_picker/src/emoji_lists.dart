@@ -441,6 +441,7 @@ final Map<String, String> smileys = Map.fromIterables([
   '😟',
   '🙁',
   '☹️',
+  '😮',
   '😯',
   '😲',
   '😳',
