@@ -40,6 +40,11 @@ class _DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView> with Ti
       String query = _emojiController.text.toLowerCase();
       if (query.isEmpty) {
         searchEmojiList.emoji.clear();
+        _pageController!.animateToPage(
+          initCategory,
+          duration: widget.config.tabIndicatorAnimDuration,
+          curve: Curves.ease,
+        );
         // searchEmojiList
         //   ..clear()
         //   ..addAll(widget.state.categoryEmoji);
