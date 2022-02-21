@@ -139,9 +139,7 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: EmojiPicker(
-                  onEmojiSelected: (category, emoji) {
-                    // widget.controller.document.insert(widget.controller.document.length - 1, emoji.emoji);
-                  },
+                  onEmojiSelected: (category, emoji) => insertEmoji(emoji),
                   config: const Config(
                     columns: 8,
                     emojiSizeMax: 28,
@@ -161,5 +159,17 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
         ),
       ],
     );
+  }
+
+  void insertEmoji(Emoji emoji) {
+    final baseOffset = widget.controller.selection.baseOffset;
+    final extentOffset = widget.controller.selection.extentOffset;
+    final replaceLen = extentOffset - baseOffset;
+    final selection = widget.controller.selection.copyWith(
+      baseOffset: baseOffset + emoji.emoji.length,
+      extentOffset: baseOffset + emoji.emoji.length,
+    );
+
+    widget.controller.replaceText(baseOffset, replaceLen, emoji.emoji, selection);
   }
 }

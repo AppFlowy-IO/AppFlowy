@@ -111,6 +111,8 @@ class Config {
         return categoryIcons.symbolIcon;
       case Category.FLAGS:
         return categoryIcons.flagIcon;
+      case Category.SEARCH:
+        return categoryIcons.searchIcon;
       default:
         throw Exception('Unsupported Category');
     }

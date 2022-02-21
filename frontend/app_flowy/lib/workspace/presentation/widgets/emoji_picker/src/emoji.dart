@@ -14,7 +14,7 @@ class Emoji {
   @override
   String toString() {
     // return 'Name: $name, Emoji: $emoji';
-    return "$name";
+    return name;
   }
 
   /// Parse Emoji from json
