@@ -30,6 +30,6 @@ jobs:
           file: ./frontend/scripts/docker-buildfiles/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/appflawy:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/appflawy:buildcache,mode=max
