@@ -3,20 +3,20 @@
   "defaultUsername": "Moi",
   "welcomeText": "Bienvenue à @:appName",
   "githubStarText": "Favorier sur GitHub",
-  "subscribeNewsletterText": "S'inscrire à la Bulletin",
+  "subscribeNewsletterText": "S'inscrire à la Newsletter",
   "letsGoButtonText": "Allons-y",
   "title": "Titre",
   "signUp": {
     "buttonText": "S'inscrire",
     "title": "Inscrivez-vous pour @:appName",
     "getStartedText": "Commencer",
-    "emptyPasswordError": "Mot de passe ne peut pas être vide",
-    "repeatPasswordEmptyError": "Le mot de passe de répétition ne peut pas être vide",
-    "unmatchedPasswordError": "Le mot de passe de répétition n'est pas le même que le mot de passe",
+    "emptyPasswordError": "Vous n'avez pas saisi votre mot de passe",
+    "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
+    "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
     "alreadyHaveAnAccount": "Vous avez déjà un compte?",
     "emailHint": "Email",
     "passwordHint": "Mot de passe",
-    "repeatPasswordHint": "Répéter le mot de passe"
+    "repeatPasswordHint": "Ressaisir le mot de passe"
   },
   "signIn": {
     "loginTitle": "Connexion à @:appName",
@@ -25,20 +25,20 @@
     "forgotPassword": "Mot de passe oublié?",
     "emailHint": "Email",
     "passwordHint": "Mot de passe",
-    "dontHaveAnAccount": "Don't have an account?",
-    "repeatPasswordEmptyError": "Le mot de passe de répétition ne peut pas être vide",
-    "unmatchedPasswordError": "Le mot de passe de répétition n'est pas le même que le mot de passe"
+    "dontHaveAnAccount": "Vous n'avez pas encore créé votre compte?",
+    "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
+    "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques"
   },
   "workspace": {
     "create": "Créer un espace de travail",
-    "hint": "espace de travail",
-    "notFoundError": "L'espace de travail pas trouvé"
+    "hint": "Espace de travail",
+    "notFoundError": "On n'a pas pu trouver votre espace de travail"
   },
   "shareAction": {
     "buttonText": "Partager",
     "workInProgress": "Bientôt disponible",
     "markdown": "Markdown",
-    "copyLink": "Copier Lien"
+    "copyLink": "Copier le lien"
   },
   "disclosureAction": {
     "rename": "Renommer",
@@ -49,16 +49,16 @@
   "newPageText": "Nouvelle page",
   "trash": {
     "text": "Corbeille",
-    "restoreAll": "Restaurer Tout",
-    "deleteAll": "Supprimer Tout",
+    "restoreAll": "Restaurer tout",
+    "deleteAll": "Supprimer tout",
     "pageHeader": {
       "fileName": "Nom de fichier",
-      "lastModified": "Dernière Modification",
+      "lastModified": "Dernière modification",
       "created": "Créé"
     }
   },
   "deletePagePrompt": {
-    "text": "Cette page est dans la corbeille",
+    "text": "Cette page a été supprimée, vous pouvez la retrouver dans la corbeille",
     "restore": "Restaurer la page",
     "deletePermanent": "Supprimer définitivement"
   },
@@ -67,9 +67,9 @@
     "whatsNew": "Nouveautés",
     "help": "Aide et Support",
     "debug": {
-      "name": "Informations de Débogage",
-      "success": "Informations de débogage copiées dans le presse-papiers!",
-      "fail": "Impossible de copier informations de débogage dans le presse-papiers"
+      "name": "Informations de Debug",
+      "success": "Informations de Debug copiées dans le presse-papiers!",
+      "fail": "Impossible de copier les informations de Debug dans le presse-papiers"
     }
   },
   "menuAppHeader": {
@@ -84,17 +84,17 @@
     "italic": "Italique",
     "underline": "Souligner",
     "strike": "Barré",
-    "numList": "Liste Numérotée",
-    "bulletList": "Liste à Puces",
-    "checkList": "Liste de Contrôle",
-    "inlineCode": "Code en Ligne",
-    "quote": "Bloc Citation",
+    "numList": "Liste numérotée",
+    "bulletList": "Liste à puces",
+    "checkList": "To-Do List",
+    "inlineCode": "Code",
+    "quote": "Bloc de citation",
     "header": "En-tête",
     "highlight": "Surligner"
   },
   "tooltip": {
-    "lightMode": "Passer en Mode Clair",
-    "darkMode": "Passer en Mode Sombre"
+    "lightMode": "Passer en mode clair",
+    "darkMode": "Passer en mode sombre"
   },
   "contactsPage": {
     "title": "Contacts",
@@ -105,9 +105,9 @@
   "button": {
     "OK": "OK",
     "Cancel": "Annuler",
-    "signIn": "Se Connecter",
-    "signOut": "Se Déconnecter",
-    "complete": "Complêt",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "complete": "Achevé",
     "save": "Enregistrer"
   },
   "label": {
@@ -135,11 +135,11 @@
     "menu": {
       "appearance": "Apparence",
       "language": "Langue",
-      "open": "Ouvrir les Paramètres"
+      "open": "Ouvrir les paramètres"
     },
     "appearance": {
-      "lightLabel": "Mode Clair",
-      "darkLabel": "Mode Sombre"
+      "lightLabel": "Mode clair",
+      "darkLabel": "Mode sombre"
     }
   }
 }
