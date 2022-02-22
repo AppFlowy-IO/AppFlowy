@@ -31,5 +31,5 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/appflowy:${{ github.ref_name }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/appflawy:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/appflawy:buildcache,mode=max
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/af_build_cache:buildcache,mode=max
