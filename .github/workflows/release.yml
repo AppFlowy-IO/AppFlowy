@@ -34,13 +34,13 @@ jobs:
   build-linux-x86:
     runs-on: ubuntu-latest
     needs: create-release
-    env: 
+    env:
       LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy-linux-x86.tar.gz
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
@@ -61,13 +61,13 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
-      
+
       - name: Build Linux app
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
           cargo make --profile production-linux-x86 appflowy
-      
+
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -82,7 +82,7 @@ jobs:
   build-macos-x86_64:
     runs-on: macos-latest
     needs: create-release
-    env: 
+    env:
       MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
       MACOS_X86_ZIP_NAME: Appflowy-macos-x86_64.zip
     steps:
@@ -93,7 +93,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      
+
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -106,17 +106,17 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
-      
+
       - name: Build macOS app for x86_64
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
           cargo make --profile production-mac-x86 appflowy
-      
+
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: zip -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
-      
+
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
