@@ -35,8 +35,7 @@ jobs:
         working-directory: frontend/app_flowy
         run: |
           flutter pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
-          sed -i '/generate: true/s/true/false/g' pubspec.yaml
-          flutter pub get
+          flutter packages pub get
           flutter packages pub run build_runner build --delete-conflicting-outputs
       - name: flutter analyze
         working-directory: frontend/app_flowy

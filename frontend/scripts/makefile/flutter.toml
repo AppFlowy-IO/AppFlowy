@@ -187,33 +187,19 @@ script = [
   """
   cd app_flowy
   flutter clean
-  sed -i '/generate: true/s/true/false/g' pubspec.yaml
-  flutter pub get
+  flutter packages pub get
   flutter packages pub run build_runner build --delete-conflicting-outputs
   """
 ]
 
-# TODO: Add support for Windows.
-# [tasks.generate_freezed_files.windows]
-# script_runner = "@duckscript"
-# script = [
-#   """
-#   cd ./app_flowy/
-#   exec cmd.exe /c flutter clean
-#   exec cmd.exe /c flutter pub get
-#   exec cmd.exe /c flutter pub run easy_localization:generate -S assets/translations/
-#   exec cmd.exe /c flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
-#   """
-# ]
-
-[tasks.generate_freezed_files.mac]
-script_runner = "@shell"
+[tasks.generate_freezed_files.windows]
+script_runner = "@duckscript"
 script = [
   """
-  cd app_flowy
-  flutter clean
-  sed -i '' '/generate: true/s/true/false/g' pubspec.yaml
-  flutter pub get
-  flutter packages pub run build_runner build --delete-conflicting-outputs
+  cd ./app_flowy/
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter packages pub get
+  exec cmd.exe /c flutter packages pub get
+  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
   """
 ]
