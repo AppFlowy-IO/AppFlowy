@@ -60,8 +60,7 @@ mixin _$ViewEvent {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -175,8 +174,7 @@ class _$Initial implements Initial {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return initial();
   }
@@ -328,8 +326,7 @@ class _$SetEditing implements SetEditing {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return setIsEditing(isEditing);
   }
@@ -484,8 +481,7 @@ class _$Rename implements Rename {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return rename(newName);
   }
@@ -614,8 +610,7 @@ class _$Delete implements Delete {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return delete();
   }
@@ -740,8 +735,7 @@ class _$Duplicate implements Duplicate {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return duplicate();
   }
@@ -893,8 +887,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, FlowyError> result)
-        viewDidUpdate,
+    required TResult Function(Either<View, FlowyError> result) viewDidUpdate,
   }) {
     return viewDidUpdate(result);
   }
@@ -1019,9 +1012,7 @@ abstract class $ViewStateCopyWith<$Res> {
   factory $ViewStateCopyWith(ViewState value, $Res Function(ViewState) then) =
       _$ViewStateCopyWithImpl<$Res>;
   $Res call(
-      {View view,
-      bool isEditing,
-      Either<Unit, FlowyError> successOrFailure});
+      {View view, bool isEditing, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1062,9 +1053,7 @@ abstract class _$ViewStateCopyWith<$Res> implements $ViewStateCopyWith<$Res> {
       __$ViewStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {View view,
-      bool isEditing,
-      Either<Unit, FlowyError> successOrFailure});
+      {View view, bool isEditing, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc

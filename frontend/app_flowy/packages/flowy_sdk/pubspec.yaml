@@ -15,13 +15,14 @@ dependencies:
   isolates: ^3.0.3+8
   protobuf: "2.0.0"
   dartz: "0.10.0-nullsafety.2"
-  freezed_annotation: ^0.14.1
+  freezed_annotation:
   logger: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: "1.12.2"
+  build_runner:
+  freezed:
   flutter_lints: ^1.0.0
 
 # For information on the generic Dart part of this file, see the

@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-class DocBanner extends StatelessWidget {
+class DocumentBanner extends StatelessWidget {
   final void Function() onRestore;
   final void Function() onDelete;
-  const DocBanner({required this.onRestore, required this.onDelete, Key? key}) : super(key: key);
+  const DocumentBanner({required this.onRestore, required this.onDelete, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

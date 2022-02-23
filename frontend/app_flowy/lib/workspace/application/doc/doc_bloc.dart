@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,21 +13,23 @@ import 'package:dartz/dartz.dart';
 import 'dart:async';
 part 'doc_bloc.freezed.dart';
 
-class DocBloc extends Bloc<DocEvent, DocState> {
+typedef FlutterQuillDocument = Document;
+
+class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
-  final DocRepository repo;
+  final DocumentRepository repo;
   final ViewListener listener;
   final TrashRepo trashRepo;
-  late Document document;
+  late FlutterQuillDocument document;
   StreamSubscription? _subscription;
 
-  DocBloc({
+  DocumentBloc({
     required this.view,
     required this.repo,
     required this.listener,
     required this.trashRepo,
-  }) : super(DocState.initial()) {
-    on<DocEvent>((event, emit) async {
+  }) : super(DocumentState.initial()) {
+    on<DocumentEvent>((event, emit) async {
       await event.map(
         initial: (Initial value) async {
           await _initial(value, emit);
@@ -60,27 +62,27 @@ class DocBloc extends Bloc<DocEvent, DocState> {
       await _subscription?.cancel();
     }
 
-    repo.closeDoc();
+    repo.closeDocument();
     return super.close();
   }
 
-  Future<void> _initial(Initial value, Emitter<DocState> emit) async {
+  Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
     listener.deletedNotifier.addPublishListener((result) {
       result.fold(
-        (view) => add(const DocEvent.deleted()),
+        (view) => add(const DocumentEvent.deleted()),
         (error) {},
       );
     });
 
     listener.restoredNotifier.addPublishListener((result) {
       result.fold(
-        (view) => add(const DocEvent.restore()),
+        (view) => add(const DocumentEvent.restore()),
         (error) {},
       );
     });
 
     listener.start();
-    final result = await repo.readDoc();
+    final result = await repo.openDocument();
     result.fold(
       (doc) {
         document = _decodeJsonToDocument(doc.deltaJson);
@@ -89,10 +91,10 @@ class DocBloc extends Bloc<DocEvent, DocState> {
           final documentDelta = document.toDelta();
           _composeDelta(delta, documentDelta);
         });
-        emit(state.copyWith(loadState: DocLoadState.finish(left(unit))));
+        emit(state.copyWith(loadingState: DocumentLoadingState.finish(left(unit))));
       },
       (err) {
-        emit(state.copyWith(loadState: DocLoadState.finish(right(err))));
+        emit(state.copyWith(loadingState: DocumentLoadingState.finish(right(err))));
       },
     );
   }
@@ -126,31 +128,31 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 }
 
 @freezed
-class DocEvent with _$DocEvent {
-  const factory DocEvent.initial() = Initial;
-  const factory DocEvent.deleted() = Deleted;
-  const factory DocEvent.restore() = Restore;
-  const factory DocEvent.restorePage() = RestorePage;
-  const factory DocEvent.deletePermanently() = DeletePermanently;
+class DocumentEvent with _$DocumentEvent {
+  const factory DocumentEvent.initial() = Initial;
+  const factory DocumentEvent.deleted() = Deleted;
+  const factory DocumentEvent.restore() = Restore;
+  const factory DocumentEvent.restorePage() = RestorePage;
+  const factory DocumentEvent.deletePermanently() = DeletePermanently;
 }
 
 @freezed
-class DocState with _$DocState {
-  const factory DocState({
-    required DocLoadState loadState,
+class DocumentState with _$DocumentState {
+  const factory DocumentState({
+    required DocumentLoadingState loadingState,
     required bool isDeleted,
     required bool forceClose,
-  }) = _DocState;
+  }) = _DocumentState;
 
-  factory DocState.initial() => const DocState(
-        loadState: _Loading(),
+  factory DocumentState.initial() => const DocumentState(
+        loadingState: _Loading(),
         isDeleted: false,
         forceClose: false,
       );
 }
 
 @freezed
-class DocLoadState with _$DocLoadState {
-  const factory DocLoadState.loading() = _Loading;
-  const factory DocLoadState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
+class DocumentLoadingState with _$DocumentLoadingState {
+  const factory DocumentLoadingState.loading() = _Loading;
+  const factory DocumentLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
 }

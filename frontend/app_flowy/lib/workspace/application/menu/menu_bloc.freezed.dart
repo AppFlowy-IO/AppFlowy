@@ -67,8 +67,7 @@ mixin _$MenuEvent {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -77,8 +76,7 @@ mixin _$MenuEvent {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -182,8 +180,7 @@ class _$_Initial implements _Initial {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return initial?.call();
   }
@@ -195,8 +192,7 @@ class _$_Initial implements _Initial {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -305,8 +301,7 @@ class _$Collapse implements Collapse {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return collapse?.call();
   }
@@ -318,8 +313,7 @@ class _$Collapse implements Collapse {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -453,8 +447,7 @@ class _$OpenPage implements OpenPage {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return openPage?.call(context);
   }
@@ -466,8 +459,7 @@ class _$OpenPage implements OpenPage {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -619,8 +611,7 @@ class _$CreateApp implements CreateApp {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return createApp?.call(name, desc);
   }
@@ -632,8 +623,7 @@ class _$CreateApp implements CreateApp {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -776,8 +766,7 @@ class _$ReceiveApps implements ReceiveApps {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return didReceiveApps?.call(appsOrFail);
   }
@@ -789,8 +778,7 @@ class _$ReceiveApps implements ReceiveApps {
     TResult Function()? collapse,
     TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, FlowyError> appsOrFail)?
-        didReceiveApps,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (didReceiveApps != null) {
