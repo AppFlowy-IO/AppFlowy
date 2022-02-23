@@ -206,7 +206,7 @@ script = [
 #   """
 # ]
 
-[tasks.generate_freezed_files.macos]
+[tasks.generate_freezed_files.mac]
 script_runner = "@shell"
 script = [
   """
