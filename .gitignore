@@ -15,3 +15,5 @@
 package-lock.json
 yarn.lock
 node_modules
+**/.proto_cache
+**/.cache

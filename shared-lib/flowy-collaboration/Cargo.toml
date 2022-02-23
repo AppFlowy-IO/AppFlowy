@@ -29,7 +29,7 @@ futures = "0.3.15"
 async-stream = "0.3.2"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["pb_gen"] }
+lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
 
 [features]
 dart = ["lib-infra/dart"]

@@ -98,7 +98,7 @@ impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
     fn receive_message(&self, msg: WebSocketRawMessage) {
         let handler = self.0.clone();
         tokio::spawn(async move {
-            handler.did_receive_ws_data(Bytes::from(msg.data)).await;
+            handler.receive_ws_data(Bytes::from(msg.data)).await;
         });
     }
 }

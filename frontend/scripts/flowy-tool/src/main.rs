@@ -10,7 +10,7 @@ fn main() {
 
     let matches = app().get_matches();
 
-    if let Some(ref matches) = matches.subcommand_matches("pb-gen") {
+    if let Some(matches) = matches.subcommand_matches("pb-gen") {
         let rust_sources: Vec<String> = matches
             .values_of("rust_sources")
             .unwrap()
@@ -27,7 +27,7 @@ fn main() {
             .gen();
     }
 
-    if let Some(ref matches) = matches.subcommand_matches("dart-event") {
+    if let Some(matches) = matches.subcommand_matches("dart-event") {
         let rust_sources: Vec<String> = matches
             .values_of("rust_sources")
             .unwrap()

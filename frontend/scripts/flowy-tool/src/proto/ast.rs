@@ -59,7 +59,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
                 .iter()
                 .filter(|f| f.attrs.pb_index().is_some())
                 .for_each(|f| {
-                    struct_template.set_field(&f);
+                    struct_template.set_field(f);
                 });
 
             let s = struct_template.render().unwrap();
@@ -70,7 +70,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
         let enums = get_ast_enums(&ast);
         enums.iter().for_each(|e| {
             let mut enum_template = EnumTemplate::new();
-            enum_template.set_message_enum(&e);
+            enum_template.set_message_enum(e);
             let s = enum_template.render().unwrap();
             proto_file_content.push_str(s.as_ref());
             proto_file_content.push('\n');

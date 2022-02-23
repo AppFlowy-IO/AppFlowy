@@ -203,8 +203,8 @@ impl FolderTest {
                 }
                 let next_revision = next_revision
                     .unwrap_or_else(|| panic!("Expected Next revision is {}, but receive None", rev_id.unwrap()));
-                let mut receiver = rev_manager.revision_ack_receiver();
-                let _ = receiver.recv().await;
+                let mut notify = rev_manager.ack_notify();
+                let _ = notify.recv().await;
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
             }
         }

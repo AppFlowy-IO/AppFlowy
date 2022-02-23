@@ -24,5 +24,5 @@ fn mk_folder_module(core: Arc<FolderManager>) -> Module {
 }
 
 fn mk_network_module(ws_conn: Arc<FlowyWebSocketConnect>) -> Module {
-    flowy_net::module::create(ws_conn)
+    flowy_net::event_map::create(ws_conn)
 }

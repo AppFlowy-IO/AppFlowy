@@ -9,5 +9,5 @@ pub mod protobuf;
 pub mod user_default;
 
 pub mod errors {
-    pub use error_code::ErrorCode;
+    pub use flowy_error_code::ErrorCode;
 }

@@ -8,6 +8,7 @@ use crate::proto_buf::{
 };
 use flowy_ast::*;
 use proc_macro2::TokenStream;
+use std::default::Default;
 
 pub fn expand_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::Error>> {
     let ctxt = Ctxt::new();

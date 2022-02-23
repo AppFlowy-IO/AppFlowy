@@ -1,5 +1,6 @@
 use flowy_collaboration::entities::revision::RevisionState;
-use flowy_document::core::{ClientDocumentEditor, DOCUMENT_SYNC_INTERVAL_IN_MILLIS};
+use flowy_document::editor::ClientDocumentEditor;
+use flowy_document::DOCUMENT_SYNC_INTERVAL_IN_MILLIS;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
@@ -67,8 +68,8 @@ impl EditorTest {
                     return;
                 }
                 let next_revision = next_revision.unwrap();
-                let mut receiver = rev_manager.revision_ack_receiver();
-                let _ = receiver.recv().await;
+                let mut notify = rev_manager.ack_notify();
+                let _ = notify.recv().await;
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
             }
             EditorScript::AssertJson(expected) => {
