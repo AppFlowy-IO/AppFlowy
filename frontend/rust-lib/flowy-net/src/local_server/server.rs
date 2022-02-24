@@ -413,7 +413,7 @@ impl DocumentCloudService for LocalServer {
 
     fn read_document(&self, _token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         let doc = DocumentInfo {
-            doc_id: params.doc_id,
+            doc_id: params.value,
             text: initial_delta_string(),
             rev_id: 0,
             base_rev_id: 0,

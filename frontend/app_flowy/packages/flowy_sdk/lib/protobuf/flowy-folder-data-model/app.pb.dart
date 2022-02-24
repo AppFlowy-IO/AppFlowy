@@ -200,8 +200,8 @@ class RepeatedApp extends $pb.GeneratedMessage {
   $core.List<App> get items => $_getList(0);
 }
 
-class CreateAppRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateAppRequest', createEmptyInstance: create)
+class CreateAppPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateAppPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
@@ -209,8 +209,8 @@ class CreateAppRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  CreateAppRequest._() : super();
-  factory CreateAppRequest({
+  CreateAppPayload._() : super();
+  factory CreateAppPayload({
     $core.String? workspaceId,
     $core.String? name,
     $core.String? desc,
@@ -231,26 +231,26 @@ class CreateAppRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CreateAppRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CreateAppRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CreateAppPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateAppPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CreateAppRequest clone() => CreateAppRequest()..mergeFromMessage(this);
+  CreateAppPayload clone() => CreateAppPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CreateAppRequest copyWith(void Function(CreateAppRequest) updates) => super.copyWith((message) => updates(message as CreateAppRequest)) as CreateAppRequest; // ignore: deprecated_member_use
+  CreateAppPayload copyWith(void Function(CreateAppPayload) updates) => super.copyWith((message) => updates(message as CreateAppPayload)) as CreateAppPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CreateAppRequest create() => CreateAppRequest._();
-  CreateAppRequest createEmptyInstance() => create();
-  static $pb.PbList<CreateAppRequest> createRepeated() => $pb.PbList<CreateAppRequest>();
+  static CreateAppPayload create() => CreateAppPayload._();
+  CreateAppPayload createEmptyInstance() => create();
+  static $pb.PbList<CreateAppPayload> createRepeated() => $pb.PbList<CreateAppPayload>();
   @$core.pragma('dart2js:noInline')
-  static CreateAppRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateAppRequest>(create);
-  static CreateAppRequest? _defaultInstance;
+  static CreateAppPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateAppPayload>(create);
+  static CreateAppPayload? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get workspaceId => $_getSZ(0);
@@ -429,60 +429,19 @@ class CreateAppParams extends $pb.GeneratedMessage {
   ColorStyle ensureColorStyle() => $_ensure(3);
 }
 
-class QueryAppRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryAppRequest', createEmptyInstance: create)
-    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appIds')
-    ..hasRequiredFields = false
-  ;
-
-  QueryAppRequest._() : super();
-  factory QueryAppRequest({
-    $core.Iterable<$core.String>? appIds,
-  }) {
-    final _result = create();
-    if (appIds != null) {
-      _result.appIds.addAll(appIds);
-    }
-    return _result;
-  }
-  factory QueryAppRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryAppRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  QueryAppRequest clone() => QueryAppRequest()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  QueryAppRequest copyWith(void Function(QueryAppRequest) updates) => super.copyWith((message) => updates(message as QueryAppRequest)) as QueryAppRequest; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static QueryAppRequest create() => QueryAppRequest._();
-  QueryAppRequest createEmptyInstance() => create();
-  static $pb.PbList<QueryAppRequest> createRepeated() => $pb.PbList<QueryAppRequest>();
-  @$core.pragma('dart2js:noInline')
-  static QueryAppRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryAppRequest>(create);
-  static QueryAppRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<$core.String> get appIds => $_getList(0);
-}
-
 class AppId extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppId', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
     ..hasRequiredFields = false
   ;
 
   AppId._() : super();
   factory AppId({
-    $core.String? appId,
+    $core.String? value,
   }) {
     final _result = create();
-    if (appId != null) {
-      _result.appId = appId;
+    if (value != null) {
+      _result.value = value;
     }
     return _result;
   }
@@ -508,53 +467,53 @@ class AppId extends $pb.GeneratedMessage {
   static AppId? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get appId => $_getSZ(0);
+  $core.String get value => $_getSZ(0);
   @$pb.TagNumber(1)
-  set appId($core.String v) { $_setString(0, v); }
+  set value($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasAppId() => $_has(0);
+  $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAppId() => clearField(1);
+  void clearValue() => clearField(1);
 }
 
-enum UpdateAppRequest_OneOfName {
+enum UpdateAppPayload_OneOfName {
   name, 
   notSet
 }
 
-enum UpdateAppRequest_OneOfDesc {
+enum UpdateAppPayload_OneOfDesc {
   desc, 
   notSet
 }
 
-enum UpdateAppRequest_OneOfColorStyle {
+enum UpdateAppPayload_OneOfColorStyle {
   colorStyle, 
   notSet
 }
 
-enum UpdateAppRequest_OneOfIsTrash {
+enum UpdateAppPayload_OneOfIsTrash {
   isTrash, 
   notSet
 }
 
-class UpdateAppRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateAppRequest_OneOfName> _UpdateAppRequest_OneOfNameByTag = {
-    2 : UpdateAppRequest_OneOfName.name,
-    0 : UpdateAppRequest_OneOfName.notSet
+class UpdateAppPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateAppPayload_OneOfName> _UpdateAppPayload_OneOfNameByTag = {
+    2 : UpdateAppPayload_OneOfName.name,
+    0 : UpdateAppPayload_OneOfName.notSet
   };
-  static const $core.Map<$core.int, UpdateAppRequest_OneOfDesc> _UpdateAppRequest_OneOfDescByTag = {
-    3 : UpdateAppRequest_OneOfDesc.desc,
-    0 : UpdateAppRequest_OneOfDesc.notSet
+  static const $core.Map<$core.int, UpdateAppPayload_OneOfDesc> _UpdateAppPayload_OneOfDescByTag = {
+    3 : UpdateAppPayload_OneOfDesc.desc,
+    0 : UpdateAppPayload_OneOfDesc.notSet
   };
-  static const $core.Map<$core.int, UpdateAppRequest_OneOfColorStyle> _UpdateAppRequest_OneOfColorStyleByTag = {
-    4 : UpdateAppRequest_OneOfColorStyle.colorStyle,
-    0 : UpdateAppRequest_OneOfColorStyle.notSet
+  static const $core.Map<$core.int, UpdateAppPayload_OneOfColorStyle> _UpdateAppPayload_OneOfColorStyleByTag = {
+    4 : UpdateAppPayload_OneOfColorStyle.colorStyle,
+    0 : UpdateAppPayload_OneOfColorStyle.notSet
   };
-  static const $core.Map<$core.int, UpdateAppRequest_OneOfIsTrash> _UpdateAppRequest_OneOfIsTrashByTag = {
-    5 : UpdateAppRequest_OneOfIsTrash.isTrash,
-    0 : UpdateAppRequest_OneOfIsTrash.notSet
+  static const $core.Map<$core.int, UpdateAppPayload_OneOfIsTrash> _UpdateAppPayload_OneOfIsTrashByTag = {
+    5 : UpdateAppPayload_OneOfIsTrash.isTrash,
+    0 : UpdateAppPayload_OneOfIsTrash.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateAppRequest', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateAppPayload', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
@@ -567,8 +526,8 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  UpdateAppRequest._() : super();
-  factory UpdateAppRequest({
+  UpdateAppPayload._() : super();
+  factory UpdateAppPayload({
     $core.String? appId,
     $core.String? name,
     $core.String? desc,
@@ -593,37 +552,37 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory UpdateAppRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UpdateAppRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UpdateAppPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateAppPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UpdateAppRequest clone() => UpdateAppRequest()..mergeFromMessage(this);
+  UpdateAppPayload clone() => UpdateAppPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UpdateAppRequest copyWith(void Function(UpdateAppRequest) updates) => super.copyWith((message) => updates(message as UpdateAppRequest)) as UpdateAppRequest; // ignore: deprecated_member_use
+  UpdateAppPayload copyWith(void Function(UpdateAppPayload) updates) => super.copyWith((message) => updates(message as UpdateAppPayload)) as UpdateAppPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static UpdateAppRequest create() => UpdateAppRequest._();
-  UpdateAppRequest createEmptyInstance() => create();
-  static $pb.PbList<UpdateAppRequest> createRepeated() => $pb.PbList<UpdateAppRequest>();
+  static UpdateAppPayload create() => UpdateAppPayload._();
+  UpdateAppPayload createEmptyInstance() => create();
+  static $pb.PbList<UpdateAppPayload> createRepeated() => $pb.PbList<UpdateAppPayload>();
   @$core.pragma('dart2js:noInline')
-  static UpdateAppRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateAppRequest>(create);
-  static UpdateAppRequest? _defaultInstance;
+  static UpdateAppPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateAppPayload>(create);
+  static UpdateAppPayload? _defaultInstance;
 
-  UpdateAppRequest_OneOfName whichOneOfName() => _UpdateAppRequest_OneOfNameByTag[$_whichOneof(0)]!;
+  UpdateAppPayload_OneOfName whichOneOfName() => _UpdateAppPayload_OneOfNameByTag[$_whichOneof(0)]!;
   void clearOneOfName() => clearField($_whichOneof(0));
 
-  UpdateAppRequest_OneOfDesc whichOneOfDesc() => _UpdateAppRequest_OneOfDescByTag[$_whichOneof(1)]!;
+  UpdateAppPayload_OneOfDesc whichOneOfDesc() => _UpdateAppPayload_OneOfDescByTag[$_whichOneof(1)]!;
   void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  UpdateAppRequest_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppRequest_OneOfColorStyleByTag[$_whichOneof(2)]!;
+  UpdateAppPayload_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppPayload_OneOfColorStyleByTag[$_whichOneof(2)]!;
   void clearOneOfColorStyle() => clearField($_whichOneof(2));
 
-  UpdateAppRequest_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppRequest_OneOfIsTrashByTag[$_whichOneof(3)]!;
+  UpdateAppPayload_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppPayload_OneOfIsTrashByTag[$_whichOneof(3)]!;
   void clearOneOfIsTrash() => clearField($_whichOneof(3));
 
   @$pb.TagNumber(1)

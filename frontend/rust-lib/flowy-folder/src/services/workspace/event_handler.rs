@@ -7,7 +7,7 @@ use crate::{
 use flowy_folder_data_model::entities::{
     app::RepeatedApp,
     view::View,
-    workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceId, *},
+    workspace::{CurrentWorkspaceSetting, RepeatedWorkspace, WorkspaceId, *},
 };
 
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
@@ -15,7 +15,7 @@ use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(
-    data: Data<CreateWorkspaceRequest>,
+    data: Data<CreateWorkspacePayload>,
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, FlowyError> {
     let controller = controller.get_ref().clone();
@@ -34,20 +34,20 @@ pub(crate) async fn read_workspace_apps_handler(
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn open_workspace_handler(
-    data: Data<QueryWorkspaceRequest>,
+    data: Data<WorkspaceId>,
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, FlowyError> {
-    let params: WorkspaceId = data.into_inner().try_into()?;
+    let params: WorkspaceId = data.into_inner();
     let workspaces = controller.open_workspace(params).await?;
     data_result(workspaces)
 }
 
 #[tracing::instrument(skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
-    data: Data<QueryWorkspaceRequest>,
+    data: Data<WorkspaceId>,
     folder: Unit<Arc<FolderManager>>,
 ) -> DataResult<RepeatedWorkspace, FlowyError> {
-    let params: WorkspaceId = data.into_inner().try_into()?;
+    let params: WorkspaceId = data.into_inner();
     let user_id = folder.user.user_id()?;
     let workspace_controller = folder.workspace_controller.clone();
 
@@ -56,7 +56,7 @@ pub(crate) async fn read_workspaces_handler(
         .persistence
         .begin_transaction(|transaction| {
             let mut workspaces =
-                workspace_controller.read_local_workspaces(params.workspace_id.clone(), &user_id, &transaction)?;
+                workspace_controller.read_local_workspaces(params.value.clone(), &user_id, &transaction)?;
             for workspace in workspaces.iter_mut() {
                 let apps =
                     read_local_workspace_apps(&workspace.id, trash_controller.clone(), &transaction)?.into_inner();
@@ -76,7 +76,7 @@ pub async fn read_cur_workspace_handler(
     let workspace_id = get_current_workspace()?;
     let user_id = folder.user.user_id()?;
     let params = WorkspaceId {
-        workspace_id: Some(workspace_id.clone()),
+        value: Some(workspace_id.clone()),
     };
 
     let workspace = folder

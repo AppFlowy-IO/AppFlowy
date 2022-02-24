@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message ExportRequest {
+message ExportPayload {
     string doc_id = 1;
     ExportType export_type = 2;
 }

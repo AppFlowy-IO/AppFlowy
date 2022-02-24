@@ -70,9 +70,9 @@ final $typed_data.Uint8List newDocUserDescriptor = $convert.base64Decode('CgpOZX
 const DocumentId$json = const {
   '1': 'DocumentId',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'value', '3': 1, '4': 1, '5': 9, '10': 'value'},
   ],
 };
 
 /// Descriptor for `DocumentId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentIdDescriptor = $convert.base64Decode('CgpEb2N1bWVudElkEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQ=');
+final $typed_data.Uint8List documentIdDescriptor = $convert.base64Decode('CgpEb2N1bWVudElkEhQKBXZhbHVlGAEgASgJUgV2YWx1ZQ==');

@@ -13,7 +13,7 @@ message Workspace {
 message RepeatedWorkspace {
     repeated Workspace items = 1;
 }
-message CreateWorkspaceRequest {
+message CreateWorkspacePayload {
     string name = 1;
     string desc = 2;
 }
@@ -21,11 +21,8 @@ message CreateWorkspaceParams {
     string name = 1;
     string desc = 2;
 }
-message QueryWorkspaceRequest {
-    oneof one_of_workspace_id { string workspace_id = 1; };
-}
 message WorkspaceId {
-    oneof one_of_workspace_id { string workspace_id = 1; };
+    oneof one_of_value { string value = 1; };
 }
 message CurrentWorkspaceSetting {
     Workspace workspace = 1;

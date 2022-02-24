@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct ExportRequest {
+pub struct ExportPayload {
     // message fields
     pub doc_id: ::std::string::String,
     pub export_type: ExportType,
@@ -33,14 +33,14 @@ pub struct ExportRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a ExportRequest {
-    fn default() -> &'a ExportRequest {
-        <ExportRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a ExportPayload {
+    fn default() -> &'a ExportPayload {
+        <ExportPayload as ::protobuf::Message>::default_instance()
     }
 }
 
-impl ExportRequest {
-    pub fn new() -> ExportRequest {
+impl ExportPayload {
+    pub fn new() -> ExportPayload {
         ::std::default::Default::default()
     }
 
@@ -86,7 +86,7 @@ impl ExportRequest {
     }
 }
 
-impl ::protobuf::Message for ExportRequest {
+impl ::protobuf::Message for ExportPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -161,8 +161,8 @@ impl ::protobuf::Message for ExportRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> ExportRequest {
-        ExportRequest::new()
+    fn new() -> ExportPayload {
+        ExportPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -171,29 +171,29 @@ impl ::protobuf::Message for ExportRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "doc_id",
-                |m: &ExportRequest| { &m.doc_id },
-                |m: &mut ExportRequest| { &mut m.doc_id },
+                |m: &ExportPayload| { &m.doc_id },
+                |m: &mut ExportPayload| { &mut m.doc_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ExportType>>(
                 "export_type",
-                |m: &ExportRequest| { &m.export_type },
-                |m: &mut ExportRequest| { &mut m.export_type },
+                |m: &ExportPayload| { &m.export_type },
+                |m: &mut ExportPayload| { &mut m.export_type },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ExportRequest>(
-                "ExportRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ExportPayload>(
+                "ExportPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static ExportRequest {
-        static instance: ::protobuf::rt::LazyV2<ExportRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(ExportRequest::new)
+    fn default_instance() -> &'static ExportPayload {
+        static instance: ::protobuf::rt::LazyV2<ExportPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ExportPayload::new)
     }
 }
 
-impl ::protobuf::Clear for ExportRequest {
+impl ::protobuf::Clear for ExportPayload {
     fn clear(&mut self) {
         self.doc_id.clear();
         self.export_type = ExportType::Text;
@@ -201,13 +201,13 @@ impl ::protobuf::Clear for ExportRequest {
     }
 }
 
-impl ::std::fmt::Debug for ExportRequest {
+impl ::std::fmt::Debug for ExportPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ExportRequest {
+impl ::protobuf::reflect::ProtobufValue for ExportPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -457,7 +457,7 @@ impl ::protobuf::reflect::ProtobufValue for ExportType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bshare.proto\"T\n\rExportRequest\x12\x15\n\x06doc_id\x18\x01\x20\
+    \n\x0bshare.proto\"T\n\rExportPayload\x12\x15\n\x06doc_id\x18\x01\x20\
     \x01(\tR\x05docId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.Export\
     TypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\tR\
     \x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportTypeR\nex\

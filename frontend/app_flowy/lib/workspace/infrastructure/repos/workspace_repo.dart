@@ -25,7 +25,7 @@ class WorkspaceRepo {
   });
 
   Future<Either<App, FlowyError>> createApp(String name, String desc) {
-    final request = CreateAppRequest.create()
+    final request = CreateAppPayload.create()
       ..name = name
       ..workspaceId = workspaceId
       ..desc = desc;
@@ -33,7 +33,7 @@ class WorkspaceRepo {
   }
 
   Future<Either<Workspace, FlowyError>> getWorkspace() {
-    final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
+    final request = WorkspaceId.create()..value = workspaceId;
     return FolderEventReadWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) {
@@ -51,7 +51,7 @@ class WorkspaceRepo {
   }
 
   Future<Either<List<App>, FlowyError>> getApps() {
-    final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
+    final request = WorkspaceId.create()..value = workspaceId;
     return FolderEventReadWorkspaceApps(request).send().then((result) {
       return result.fold(
         (apps) => left(apps.items),

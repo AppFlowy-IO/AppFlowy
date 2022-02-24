@@ -637,7 +637,7 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedApp {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateAppRequest {
+pub struct CreateAppPayload {
     // message fields
     pub workspace_id: ::std::string::String,
     pub name: ::std::string::String,
@@ -648,14 +648,14 @@ pub struct CreateAppRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CreateAppRequest {
-    fn default() -> &'a CreateAppRequest {
-        <CreateAppRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a CreateAppPayload {
+    fn default() -> &'a CreateAppPayload {
+        <CreateAppPayload as ::protobuf::Message>::default_instance()
     }
 }
 
-impl CreateAppRequest {
-    pub fn new() -> CreateAppRequest {
+impl CreateAppPayload {
+    pub fn new() -> CreateAppPayload {
         ::std::default::Default::default()
     }
 
@@ -771,7 +771,7 @@ impl CreateAppRequest {
     }
 }
 
-impl ::protobuf::Message for CreateAppRequest {
+impl ::protobuf::Message for CreateAppPayload {
     fn is_initialized(&self) -> bool {
         for v in &self.color_style {
             if !v.is_initialized() {
@@ -872,8 +872,8 @@ impl ::protobuf::Message for CreateAppRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> CreateAppRequest {
-        CreateAppRequest::new()
+    fn new() -> CreateAppPayload {
+        CreateAppPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -882,39 +882,39 @@ impl ::protobuf::Message for CreateAppRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "workspace_id",
-                |m: &CreateAppRequest| { &m.workspace_id },
-                |m: &mut CreateAppRequest| { &mut m.workspace_id },
+                |m: &CreateAppPayload| { &m.workspace_id },
+                |m: &mut CreateAppPayload| { &mut m.workspace_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &CreateAppRequest| { &m.name },
-                |m: &mut CreateAppRequest| { &mut m.name },
+                |m: &CreateAppPayload| { &m.name },
+                |m: &mut CreateAppPayload| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "desc",
-                |m: &CreateAppRequest| { &m.desc },
-                |m: &mut CreateAppRequest| { &mut m.desc },
+                |m: &CreateAppPayload| { &m.desc },
+                |m: &mut CreateAppPayload| { &mut m.desc },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ColorStyle>>(
                 "color_style",
-                |m: &CreateAppRequest| { &m.color_style },
-                |m: &mut CreateAppRequest| { &mut m.color_style },
+                |m: &CreateAppPayload| { &m.color_style },
+                |m: &mut CreateAppPayload| { &mut m.color_style },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateAppRequest>(
-                "CreateAppRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateAppPayload>(
+                "CreateAppPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CreateAppRequest {
-        static instance: ::protobuf::rt::LazyV2<CreateAppRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateAppRequest::new)
+    fn default_instance() -> &'static CreateAppPayload {
+        static instance: ::protobuf::rt::LazyV2<CreateAppPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateAppPayload::new)
     }
 }
 
-impl ::protobuf::Clear for CreateAppRequest {
+impl ::protobuf::Clear for CreateAppPayload {
     fn clear(&mut self) {
         self.workspace_id.clear();
         self.name.clear();
@@ -924,13 +924,13 @@ impl ::protobuf::Clear for CreateAppRequest {
     }
 }
 
-impl ::std::fmt::Debug for CreateAppRequest {
+impl ::std::fmt::Debug for CreateAppPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CreateAppRequest {
+impl ::protobuf::reflect::ProtobufValue for CreateAppPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1396,167 +1396,9 @@ impl ::protobuf::reflect::ProtobufValue for CreateAppParams {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryAppRequest {
-    // message fields
-    pub app_ids: ::protobuf::RepeatedField<::std::string::String>,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a QueryAppRequest {
-    fn default() -> &'a QueryAppRequest {
-        <QueryAppRequest as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl QueryAppRequest {
-    pub fn new() -> QueryAppRequest {
-        ::std::default::Default::default()
-    }
-
-    // repeated string app_ids = 1;
-
-
-    pub fn get_app_ids(&self) -> &[::std::string::String] {
-        &self.app_ids
-    }
-    pub fn clear_app_ids(&mut self) {
-        self.app_ids.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_app_ids(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
-        self.app_ids = v;
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_app_ids(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
-        &mut self.app_ids
-    }
-
-    // Take field
-    pub fn take_app_ids(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
-        ::std::mem::replace(&mut self.app_ids, ::protobuf::RepeatedField::new())
-    }
-}
-
-impl ::protobuf::Message for QueryAppRequest {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.app_ids)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        for value in &self.app_ids {
-            my_size += ::protobuf::rt::string_size(1, &value);
-        };
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        for v in &self.app_ids {
-            os.write_string(1, &v)?;
-        };
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> QueryAppRequest {
-        QueryAppRequest::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "app_ids",
-                |m: &QueryAppRequest| { &m.app_ids },
-                |m: &mut QueryAppRequest| { &mut m.app_ids },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryAppRequest>(
-                "QueryAppRequest",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static QueryAppRequest {
-        static instance: ::protobuf::rt::LazyV2<QueryAppRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryAppRequest::new)
-    }
-}
-
-impl ::protobuf::Clear for QueryAppRequest {
-    fn clear(&mut self) {
-        self.app_ids.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for QueryAppRequest {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for QueryAppRequest {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
 pub struct AppId {
     // message fields
-    pub app_id: ::std::string::String,
+    pub value: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1573,30 +1415,30 @@ impl AppId {
         ::std::default::Default::default()
     }
 
-    // string app_id = 1;
+    // string value = 1;
 
 
-    pub fn get_app_id(&self) -> &str {
-        &self.app_id
+    pub fn get_value(&self) -> &str {
+        &self.value
     }
-    pub fn clear_app_id(&mut self) {
-        self.app_id.clear();
+    pub fn clear_value(&mut self) {
+        self.value.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_app_id(&mut self, v: ::std::string::String) {
-        self.app_id = v;
+    pub fn set_value(&mut self, v: ::std::string::String) {
+        self.value = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_app_id(&mut self) -> &mut ::std::string::String {
-        &mut self.app_id
+    pub fn mut_value(&mut self) -> &mut ::std::string::String {
+        &mut self.value
     }
 
     // Take field
-    pub fn take_app_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
+    pub fn take_value(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.value, ::std::string::String::new())
     }
 }
 
@@ -1610,7 +1452,7 @@ impl ::protobuf::Message for AppId {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.value)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1624,8 +1466,8 @@ impl ::protobuf::Message for AppId {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.app_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.app_id);
+        if !self.value.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.value);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1633,8 +1475,8 @@ impl ::protobuf::Message for AppId {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.app_id.is_empty() {
-            os.write_string(1, &self.app_id)?;
+        if !self.value.is_empty() {
+            os.write_string(1, &self.value)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1675,9 +1517,9 @@ impl ::protobuf::Message for AppId {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "app_id",
-                |m: &AppId| { &m.app_id },
-                |m: &mut AppId| { &mut m.app_id },
+                "value",
+                |m: &AppId| { &m.value },
+                |m: &mut AppId| { &mut m.value },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<AppId>(
                 "AppId",
@@ -1695,7 +1537,7 @@ impl ::protobuf::Message for AppId {
 
 impl ::protobuf::Clear for AppId {
     fn clear(&mut self) {
-        self.app_id.clear();
+        self.value.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1713,47 +1555,47 @@ impl ::protobuf::reflect::ProtobufValue for AppId {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UpdateAppRequest {
+pub struct UpdateAppPayload {
     // message fields
     pub app_id: ::std::string::String,
     // message oneof groups
-    pub one_of_name: ::std::option::Option<UpdateAppRequest_oneof_one_of_name>,
-    pub one_of_desc: ::std::option::Option<UpdateAppRequest_oneof_one_of_desc>,
-    pub one_of_color_style: ::std::option::Option<UpdateAppRequest_oneof_one_of_color_style>,
-    pub one_of_is_trash: ::std::option::Option<UpdateAppRequest_oneof_one_of_is_trash>,
+    pub one_of_name: ::std::option::Option<UpdateAppPayload_oneof_one_of_name>,
+    pub one_of_desc: ::std::option::Option<UpdateAppPayload_oneof_one_of_desc>,
+    pub one_of_color_style: ::std::option::Option<UpdateAppPayload_oneof_one_of_color_style>,
+    pub one_of_is_trash: ::std::option::Option<UpdateAppPayload_oneof_one_of_is_trash>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UpdateAppRequest {
-    fn default() -> &'a UpdateAppRequest {
-        <UpdateAppRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a UpdateAppPayload {
+    fn default() -> &'a UpdateAppPayload {
+        <UpdateAppPayload as ::protobuf::Message>::default_instance()
     }
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateAppRequest_oneof_one_of_name {
+pub enum UpdateAppPayload_oneof_one_of_name {
     name(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateAppRequest_oneof_one_of_desc {
+pub enum UpdateAppPayload_oneof_one_of_desc {
     desc(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateAppRequest_oneof_one_of_color_style {
+pub enum UpdateAppPayload_oneof_one_of_color_style {
     color_style(ColorStyle),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateAppRequest_oneof_one_of_is_trash {
+pub enum UpdateAppPayload_oneof_one_of_is_trash {
     is_trash(bool),
 }
 
-impl UpdateAppRequest {
-    pub fn new() -> UpdateAppRequest {
+impl UpdateAppPayload {
+    pub fn new() -> UpdateAppPayload {
         ::std::default::Default::default()
     }
 
@@ -1788,7 +1630,7 @@ impl UpdateAppRequest {
 
     pub fn get_name(&self) -> &str {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(ref v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(ref v)) => v,
             _ => "",
         }
     }
@@ -1798,24 +1640,24 @@ impl UpdateAppRequest {
 
     pub fn has_name(&self) -> bool {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(..)) => true,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_name(&mut self, v: ::std::string::String) {
-        self.one_of_name = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(v))
+        self.one_of_name = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(_)) = self.one_of_name {
+        if let ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(_)) = self.one_of_name {
         } else {
-            self.one_of_name = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(::std::string::String::new()));
+            self.one_of_name = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(::std::string::String::new()));
         }
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1824,7 +1666,7 @@ impl UpdateAppRequest {
     pub fn take_name(&mut self) -> ::std::string::String {
         if self.has_name() {
             match self.one_of_name.take() {
-                ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(v)) => v,
+                ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1837,7 +1679,7 @@ impl UpdateAppRequest {
 
     pub fn get_desc(&self) -> &str {
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(ref v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(ref v)) => v,
             _ => "",
         }
     }
@@ -1847,24 +1689,24 @@ impl UpdateAppRequest {
 
     pub fn has_desc(&self) -> bool {
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(..)) => true,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.one_of_desc = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(v))
+        self.one_of_desc = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(_)) = self.one_of_desc {
+        if let ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(_)) = self.one_of_desc {
         } else {
-            self.one_of_desc = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(::std::string::String::new()));
+            self.one_of_desc = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(::std::string::String::new()));
         }
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1873,7 +1715,7 @@ impl UpdateAppRequest {
     pub fn take_desc(&mut self) -> ::std::string::String {
         if self.has_desc() {
             match self.one_of_desc.take() {
-                ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(v)) => v,
+                ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1886,7 +1728,7 @@ impl UpdateAppRequest {
 
     pub fn get_color_style(&self) -> &ColorStyle {
         match self.one_of_color_style {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(ref v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(ref v)) => v,
             _ => <ColorStyle as ::protobuf::Message>::default_instance(),
         }
     }
@@ -1896,24 +1738,24 @@ impl UpdateAppRequest {
 
     pub fn has_color_style(&self) -> bool {
         match self.one_of_color_style {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(..)) => true,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_color_style(&mut self, v: ColorStyle) {
-        self.one_of_color_style = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(v))
+        self.one_of_color_style = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_color_style(&mut self) -> &mut ColorStyle {
-        if let ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(_)) = self.one_of_color_style {
+        if let ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(_)) = self.one_of_color_style {
         } else {
-            self.one_of_color_style = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(ColorStyle::new()));
+            self.one_of_color_style = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(ColorStyle::new()));
         }
         match self.one_of_color_style {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1922,7 +1764,7 @@ impl UpdateAppRequest {
     pub fn take_color_style(&mut self) -> ColorStyle {
         if self.has_color_style() {
             match self.one_of_color_style.take() {
-                ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(v)) => v,
+                ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1935,7 +1777,7 @@ impl UpdateAppRequest {
 
     pub fn get_is_trash(&self) -> bool {
         match self.one_of_is_trash {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(v)) => v,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_is_trash::is_trash(v)) => v,
             _ => false,
         }
     }
@@ -1945,20 +1787,20 @@ impl UpdateAppRequest {
 
     pub fn has_is_trash(&self) -> bool {
         match self.one_of_is_trash {
-            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(..)) => true,
+            ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_is_trash::is_trash(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_is_trash(&mut self, v: bool) {
-        self.one_of_is_trash = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(v))
+        self.one_of_is_trash = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_is_trash::is_trash(v))
     }
 }
 
-impl ::protobuf::Message for UpdateAppRequest {
+impl ::protobuf::Message for UpdateAppPayload {
     fn is_initialized(&self) -> bool {
-        if let Some(UpdateAppRequest_oneof_one_of_color_style::color_style(ref v)) = self.one_of_color_style {
+        if let Some(UpdateAppPayload_oneof_one_of_color_style::color_style(ref v)) = self.one_of_color_style {
             if !v.is_initialized() {
                 return false;
             }
@@ -1977,25 +1819,25 @@ impl ::protobuf::Message for UpdateAppRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_name = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_name::name(is.read_string()?));
+                    self.one_of_name = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_name::name(is.read_string()?));
                 },
                 3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_desc = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_desc::desc(is.read_string()?));
+                    self.one_of_desc = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_desc::desc(is.read_string()?));
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_color_style = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(is.read_message()?));
+                    self.one_of_color_style = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_color_style::color_style(is.read_message()?));
                 },
                 5 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_is_trash = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(is.read_bool()?));
+                    self.one_of_is_trash = ::std::option::Option::Some(UpdateAppPayload_oneof_one_of_is_trash::is_trash(is.read_bool()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2014,21 +1856,21 @@ impl ::protobuf::Message for UpdateAppRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateAppRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateAppPayload_oneof_one_of_name::name(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &UpdateAppRequest_oneof_one_of_desc::desc(ref v) => {
+                &UpdateAppPayload_oneof_one_of_desc::desc(ref v) => {
                     my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_color_style {
             match v {
-                &UpdateAppRequest_oneof_one_of_color_style::color_style(ref v) => {
+                &UpdateAppPayload_oneof_one_of_color_style::color_style(ref v) => {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
                 },
@@ -2036,7 +1878,7 @@ impl ::protobuf::Message for UpdateAppRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_is_trash {
             match v {
-                &UpdateAppRequest_oneof_one_of_is_trash::is_trash(v) => {
+                &UpdateAppPayload_oneof_one_of_is_trash::is_trash(v) => {
                     my_size += 2;
                 },
             };
@@ -2052,21 +1894,21 @@ impl ::protobuf::Message for UpdateAppRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateAppRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateAppPayload_oneof_one_of_name::name(ref v) => {
                     os.write_string(2, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &UpdateAppRequest_oneof_one_of_desc::desc(ref v) => {
+                &UpdateAppPayload_oneof_one_of_desc::desc(ref v) => {
                     os.write_string(3, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_color_style {
             match v {
-                &UpdateAppRequest_oneof_one_of_color_style::color_style(ref v) => {
+                &UpdateAppPayload_oneof_one_of_color_style::color_style(ref v) => {
                     os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
@@ -2075,7 +1917,7 @@ impl ::protobuf::Message for UpdateAppRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_is_trash {
             match v {
-                &UpdateAppRequest_oneof_one_of_is_trash::is_trash(v) => {
+                &UpdateAppPayload_oneof_one_of_is_trash::is_trash(v) => {
                     os.write_bool(5, v)?;
                 },
             };
@@ -2110,8 +1952,8 @@ impl ::protobuf::Message for UpdateAppRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> UpdateAppRequest {
-        UpdateAppRequest::new()
+    fn new() -> UpdateAppPayload {
+        UpdateAppPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -2120,44 +1962,44 @@ impl ::protobuf::Message for UpdateAppRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "app_id",
-                |m: &UpdateAppRequest| { &m.app_id },
-                |m: &mut UpdateAppRequest| { &mut m.app_id },
+                |m: &UpdateAppPayload| { &m.app_id },
+                |m: &mut UpdateAppPayload| { &mut m.app_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
-                UpdateAppRequest::has_name,
-                UpdateAppRequest::get_name,
+                UpdateAppPayload::has_name,
+                UpdateAppPayload::get_name,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "desc",
-                UpdateAppRequest::has_desc,
-                UpdateAppRequest::get_desc,
+                UpdateAppPayload::has_desc,
+                UpdateAppPayload::get_desc,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, ColorStyle>(
                 "color_style",
-                UpdateAppRequest::has_color_style,
-                UpdateAppRequest::get_color_style,
+                UpdateAppPayload::has_color_style,
+                UpdateAppPayload::get_color_style,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_bool_accessor::<_>(
                 "is_trash",
-                UpdateAppRequest::has_is_trash,
-                UpdateAppRequest::get_is_trash,
+                UpdateAppPayload::has_is_trash,
+                UpdateAppPayload::get_is_trash,
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateAppRequest>(
-                "UpdateAppRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateAppPayload>(
+                "UpdateAppPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UpdateAppRequest {
-        static instance: ::protobuf::rt::LazyV2<UpdateAppRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UpdateAppRequest::new)
+    fn default_instance() -> &'static UpdateAppPayload {
+        static instance: ::protobuf::rt::LazyV2<UpdateAppPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateAppPayload::new)
     }
 }
 
-impl ::protobuf::Clear for UpdateAppRequest {
+impl ::protobuf::Clear for UpdateAppPayload {
     fn clear(&mut self) {
         self.app_id.clear();
         self.one_of_name = ::std::option::Option::None;
@@ -2168,13 +2010,13 @@ impl ::protobuf::Clear for UpdateAppRequest {
     }
 }
 
-impl ::std::fmt::Debug for UpdateAppRequest {
+impl ::std::fmt::Debug for UpdateAppPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UpdateAppRequest {
+impl ::protobuf::reflect::ProtobufValue for UpdateAppPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2657,7 +2499,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ion\x12#\n\rmodified_time\x18\x07\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\
     \n\x0bcreate_time\x18\x08\x20\x01(\x03R\ncreateTime\")\n\x0bRepeatedApp\
     \x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\x04.AppR\x05items\"\x8b\x01\n\
-    \x10CreateAppRequest\x12!\n\x0cworkspace_id\x18\x01\x20\x01(\tR\x0bworks\
+    \x10CreateAppPayload\x12!\n\x0cworkspace_id\x18\x01\x20\x01(\tR\x0bworks\
     paceId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
     \x18\x03\x20\x01(\tR\x04desc\x12,\n\x0bcolor_style\x18\x04\x20\x01(\x0b2\
     \x0b.ColorStyleR\ncolorStyle\"-\n\nColorStyle\x12\x1f\n\x0btheme_color\
@@ -2665,9 +2507,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0cworkspace_id\x18\x01\x20\x01(\tR\x0bworkspaceId\x12\x12\n\x04name\
     \x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04de\
     sc\x12,\n\x0bcolor_style\x18\x04\x20\x01(\x0b2\x0b.ColorStyleR\ncolorSty\
-    le\"*\n\x0fQueryAppRequest\x12\x17\n\x07app_ids\x18\x01\x20\x03(\tR\x06a\
-    ppIds\"\x1e\n\x05AppId\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\x05appId\
-    \"\xe9\x01\n\x10UpdateAppRequest\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\
+    le\"\x1d\n\x05AppId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"\
+    \xe9\x01\n\x10UpdateAppPayload\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\
     \x05appId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04\
     desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12.\n\x0bcolor_style\x18\x04\x20\
     \x01(\x0b2\x0b.ColorStyleH\x02R\ncolorStyle\x12\x1b\n\x08is_trash\x18\

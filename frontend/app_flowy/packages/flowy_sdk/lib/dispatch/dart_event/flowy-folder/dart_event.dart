@@ -2,7 +2,7 @@
 /// Auto generate. Do not edit
 part of '../../dispatch.dart';
 class FolderEventCreateWorkspace {
-     CreateWorkspaceRequest request;
+     CreateWorkspacePayload request;
      FolderEventCreateWorkspace(this.request);
 
     Future<Either<Workspace, FlowyError>> send() {
@@ -33,7 +33,7 @@ class FolderEventReadCurWorkspace {
 }
 
 class FolderEventReadWorkspaces {
-     QueryWorkspaceRequest request;
+     WorkspaceId request;
      FolderEventReadWorkspaces(this.request);
 
     Future<Either<RepeatedWorkspace, FlowyError>> send() {
@@ -50,7 +50,7 @@ class FolderEventReadWorkspaces {
 }
 
 class FolderEventDeleteWorkspace {
-     QueryWorkspaceRequest request;
+     WorkspaceId request;
      FolderEventDeleteWorkspace(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -67,7 +67,7 @@ class FolderEventDeleteWorkspace {
 }
 
 class FolderEventOpenWorkspace {
-     QueryWorkspaceRequest request;
+     WorkspaceId request;
      FolderEventOpenWorkspace(this.request);
 
     Future<Either<Workspace, FlowyError>> send() {
@@ -84,7 +84,7 @@ class FolderEventOpenWorkspace {
 }
 
 class FolderEventReadWorkspaceApps {
-     QueryWorkspaceRequest request;
+     WorkspaceId request;
      FolderEventReadWorkspaceApps(this.request);
 
     Future<Either<RepeatedApp, FlowyError>> send() {
@@ -101,7 +101,7 @@ class FolderEventReadWorkspaceApps {
 }
 
 class FolderEventCreateApp {
-     CreateAppRequest request;
+     CreateAppPayload request;
      FolderEventCreateApp(this.request);
 
     Future<Either<App, FlowyError>> send() {
@@ -118,7 +118,7 @@ class FolderEventCreateApp {
 }
 
 class FolderEventDeleteApp {
-     QueryAppRequest request;
+     AppId request;
      FolderEventDeleteApp(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -135,7 +135,7 @@ class FolderEventDeleteApp {
 }
 
 class FolderEventReadApp {
-     QueryAppRequest request;
+     AppId request;
      FolderEventReadApp(this.request);
 
     Future<Either<App, FlowyError>> send() {
@@ -152,7 +152,7 @@ class FolderEventReadApp {
 }
 
 class FolderEventUpdateApp {
-     UpdateAppRequest request;
+     UpdateAppPayload request;
      FolderEventUpdateApp(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -169,7 +169,7 @@ class FolderEventUpdateApp {
 }
 
 class FolderEventCreateView {
-     CreateViewRequest request;
+     CreateViewPayload request;
      FolderEventCreateView(this.request);
 
     Future<Either<View, FlowyError>> send() {
@@ -203,7 +203,7 @@ class FolderEventReadView {
 }
 
 class FolderEventUpdateView {
-     UpdateViewRequest request;
+     UpdateViewPayload request;
      FolderEventUpdateView(this.request);
 
     Future<Either<View, FlowyError>> send() {
@@ -395,7 +395,7 @@ class FolderEventApplyDocDelta {
 }
 
 class FolderEventExportDocument {
-     ExportRequest request;
+     ExportPayload request;
      FolderEventExportDocument(this.request);
 
     Future<Either<ExportData, FlowyError>> send() {

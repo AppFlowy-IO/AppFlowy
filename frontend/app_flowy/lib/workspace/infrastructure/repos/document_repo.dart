@@ -11,7 +11,7 @@ class DocumentRepository {
   });
 
   Future<Either<DocumentDelta, FlowyError>> openDocument() {
-    final request = ViewId(viewId: docId);
+    final request = ViewId(value: docId);
     return FolderEventOpenView(request).send();
   }
 
@@ -23,7 +23,7 @@ class DocumentRepository {
   }
 
   Future<Either<Unit, FlowyError>> closeDocument() {
-    final request = ViewId(viewId: docId);
+    final request = ViewId(value: docId);
     return FolderEventCloseView(request).send();
   }
 }

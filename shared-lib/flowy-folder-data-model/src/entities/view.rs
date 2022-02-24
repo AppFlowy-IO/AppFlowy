@@ -88,7 +88,7 @@ impl std::convert::From<i32> for ViewType {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CreateViewRequest {
+pub struct CreateViewPayload {
     #[pb(index = 1)]
     pub belong_to_id: String,
 
@@ -152,7 +152,7 @@ impl CreateViewParams {
     }
 }
 
-impl TryInto<CreateViewParams> for CreateViewRequest {
+impl TryInto<CreateViewParams> for CreateViewPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
@@ -180,16 +180,16 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct ViewId {
     #[pb(index = 1)]
-    pub view_id: String,
+    pub value: String,
 }
 
-// impl<T: ToString> std::convert::From<T> for ViewId {
-//     fn from(value: T) -> Self {
-//         ViewId {
-//             view_id: value.to_string(),
-//         }
-//     }
-// }
+impl std::convert::From<&str> for ViewId {
+    fn from(value: &str) -> Self {
+        ViewId {
+            value: value.to_string(),
+        }
+    }
+}
 
 #[derive(Default, ProtoBuf)]
 pub struct RepeatedViewId {
@@ -198,7 +198,7 @@ pub struct RepeatedViewId {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UpdateViewRequest {
+pub struct UpdateViewPayload {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -246,7 +246,7 @@ impl UpdateViewParams {
     }
 }
 
-impl TryInto<UpdateViewParams> for UpdateViewRequest {
+impl TryInto<UpdateViewParams> for UpdateViewPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {

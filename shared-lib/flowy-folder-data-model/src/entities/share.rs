@@ -30,7 +30,7 @@ impl std::convert::From<i32> for ExportType {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct ExportRequest {
+pub struct ExportPayload {
     #[pb(index = 1)]
     pub doc_id: String,
 
@@ -44,7 +44,7 @@ pub struct ExportParams {
     pub export_type: ExportType,
 }
 
-impl TryInto<ExportParams> for ExportRequest {
+impl TryInto<ExportParams> for ExportPayload {
     type Error = ErrorCode;
     fn try_into(self) -> Result<ExportParams, Self::Error> {
         Ok(ExportParams {

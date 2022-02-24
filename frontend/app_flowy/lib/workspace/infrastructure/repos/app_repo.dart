@@ -18,7 +18,7 @@ class AppRepository {
   });
 
   Future<Either<App, FlowyError>> getAppDesc() {
-    final request = QueryAppRequest.create()..appIds.add(appId);
+    final request = AppId.create()..value = appId;
 
     return FolderEventReadApp(request).send();
   }
@@ -28,7 +28,7 @@ class AppRepository {
     required String desc,
     required ViewType viewType,
   }) {
-    final request = CreateViewRequest.create()
+    final request = CreateViewPayload.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc
@@ -38,7 +38,7 @@ class AppRepository {
   }
 
   Future<Either<List<View>, FlowyError>> getViews() {
-    final request = QueryAppRequest.create()..appIds.add(appId);
+    final request = AppId.create()..value = appId;
 
     return FolderEventReadApp(request).send().then((result) {
       return result.fold(
@@ -49,12 +49,12 @@ class AppRepository {
   }
 
   Future<Either<Unit, FlowyError>> delete() {
-    final request = QueryAppRequest.create()..appIds.add(appId);
+    final request = AppId.create()..value = appId;
     return FolderEventDeleteApp(request).send();
   }
 
   Future<Either<Unit, FlowyError>> updateApp({String? name}) {
-    UpdateAppRequest request = UpdateAppRequest.create()..appId = appId;
+    UpdateAppPayload request = UpdateAppPayload.create()..appId = appId;
 
     if (name != null) {
       request.name = name;

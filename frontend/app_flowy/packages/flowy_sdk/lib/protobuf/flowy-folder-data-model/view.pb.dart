@@ -216,17 +216,17 @@ class RepeatedView extends $pb.GeneratedMessage {
   $core.List<View> get items => $_getList(0);
 }
 
-enum CreateViewRequest_OneOfThumbnail {
+enum CreateViewPayload_OneOfThumbnail {
   thumbnail, 
   notSet
 }
 
-class CreateViewRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, CreateViewRequest_OneOfThumbnail> _CreateViewRequest_OneOfThumbnailByTag = {
-    4 : CreateViewRequest_OneOfThumbnail.thumbnail,
-    0 : CreateViewRequest_OneOfThumbnail.notSet
+class CreateViewPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CreateViewPayload_OneOfThumbnail> _CreateViewPayload_OneOfThumbnailByTag = {
+    4 : CreateViewPayload_OneOfThumbnail.thumbnail,
+    0 : CreateViewPayload_OneOfThumbnail.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateViewRequest', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateViewPayload', createEmptyInstance: create)
     ..oo(0, [4])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongToId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
@@ -236,8 +236,8 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  CreateViewRequest._() : super();
-  factory CreateViewRequest({
+  CreateViewPayload._() : super();
+  factory CreateViewPayload({
     $core.String? belongToId,
     $core.String? name,
     $core.String? desc,
@@ -262,28 +262,28 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CreateViewRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CreateViewRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CreateViewPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateViewPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CreateViewRequest clone() => CreateViewRequest()..mergeFromMessage(this);
+  CreateViewPayload clone() => CreateViewPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CreateViewRequest copyWith(void Function(CreateViewRequest) updates) => super.copyWith((message) => updates(message as CreateViewRequest)) as CreateViewRequest; // ignore: deprecated_member_use
+  CreateViewPayload copyWith(void Function(CreateViewPayload) updates) => super.copyWith((message) => updates(message as CreateViewPayload)) as CreateViewPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CreateViewRequest create() => CreateViewRequest._();
-  CreateViewRequest createEmptyInstance() => create();
-  static $pb.PbList<CreateViewRequest> createRepeated() => $pb.PbList<CreateViewRequest>();
+  static CreateViewPayload create() => CreateViewPayload._();
+  CreateViewPayload createEmptyInstance() => create();
+  static $pb.PbList<CreateViewPayload> createRepeated() => $pb.PbList<CreateViewPayload>();
   @$core.pragma('dart2js:noInline')
-  static CreateViewRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateViewRequest>(create);
-  static CreateViewRequest? _defaultInstance;
+  static CreateViewPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateViewPayload>(create);
+  static CreateViewPayload? _defaultInstance;
 
-  CreateViewRequest_OneOfThumbnail whichOneOfThumbnail() => _CreateViewRequest_OneOfThumbnailByTag[$_whichOneof(0)]!;
+  CreateViewPayload_OneOfThumbnail whichOneOfThumbnail() => _CreateViewPayload_OneOfThumbnailByTag[$_whichOneof(0)]!;
   void clearOneOfThumbnail() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -465,17 +465,17 @@ class CreateViewParams extends $pb.GeneratedMessage {
 
 class ViewId extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewId', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
     ..hasRequiredFields = false
   ;
 
   ViewId._() : super();
   factory ViewId({
-    $core.String? viewId,
+    $core.String? value,
   }) {
     final _result = create();
-    if (viewId != null) {
-      _result.viewId = viewId;
+    if (value != null) {
+      _result.value = value;
     }
     return _result;
   }
@@ -501,13 +501,13 @@ class ViewId extends $pb.GeneratedMessage {
   static ViewId? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get viewId => $_getSZ(0);
+  $core.String get value => $_getSZ(0);
   @$pb.TagNumber(1)
-  set viewId($core.String v) { $_setString(0, v); }
+  set value($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasViewId() => $_has(0);
+  $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
-  void clearViewId() => clearField(1);
+  void clearValue() => clearField(1);
 }
 
 class RepeatedViewId extends $pb.GeneratedMessage {
@@ -551,35 +551,35 @@ class RepeatedViewId extends $pb.GeneratedMessage {
   $core.List<$core.String> get items => $_getList(0);
 }
 
-enum UpdateViewRequest_OneOfName {
+enum UpdateViewPayload_OneOfName {
   name, 
   notSet
 }
 
-enum UpdateViewRequest_OneOfDesc {
+enum UpdateViewPayload_OneOfDesc {
   desc, 
   notSet
 }
 
-enum UpdateViewRequest_OneOfThumbnail {
+enum UpdateViewPayload_OneOfThumbnail {
   thumbnail, 
   notSet
 }
 
-class UpdateViewRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateViewRequest_OneOfName> _UpdateViewRequest_OneOfNameByTag = {
-    2 : UpdateViewRequest_OneOfName.name,
-    0 : UpdateViewRequest_OneOfName.notSet
+class UpdateViewPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateViewPayload_OneOfName> _UpdateViewPayload_OneOfNameByTag = {
+    2 : UpdateViewPayload_OneOfName.name,
+    0 : UpdateViewPayload_OneOfName.notSet
   };
-  static const $core.Map<$core.int, UpdateViewRequest_OneOfDesc> _UpdateViewRequest_OneOfDescByTag = {
-    3 : UpdateViewRequest_OneOfDesc.desc,
-    0 : UpdateViewRequest_OneOfDesc.notSet
+  static const $core.Map<$core.int, UpdateViewPayload_OneOfDesc> _UpdateViewPayload_OneOfDescByTag = {
+    3 : UpdateViewPayload_OneOfDesc.desc,
+    0 : UpdateViewPayload_OneOfDesc.notSet
   };
-  static const $core.Map<$core.int, UpdateViewRequest_OneOfThumbnail> _UpdateViewRequest_OneOfThumbnailByTag = {
-    4 : UpdateViewRequest_OneOfThumbnail.thumbnail,
-    0 : UpdateViewRequest_OneOfThumbnail.notSet
+  static const $core.Map<$core.int, UpdateViewPayload_OneOfThumbnail> _UpdateViewPayload_OneOfThumbnailByTag = {
+    4 : UpdateViewPayload_OneOfThumbnail.thumbnail,
+    0 : UpdateViewPayload_OneOfThumbnail.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateViewRequest', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateViewPayload', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
@@ -590,8 +590,8 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  UpdateViewRequest._() : super();
-  factory UpdateViewRequest({
+  UpdateViewPayload._() : super();
+  factory UpdateViewPayload({
     $core.String? viewId,
     $core.String? name,
     $core.String? desc,
@@ -612,34 +612,34 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory UpdateViewRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UpdateViewRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UpdateViewPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateViewPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UpdateViewRequest clone() => UpdateViewRequest()..mergeFromMessage(this);
+  UpdateViewPayload clone() => UpdateViewPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UpdateViewRequest copyWith(void Function(UpdateViewRequest) updates) => super.copyWith((message) => updates(message as UpdateViewRequest)) as UpdateViewRequest; // ignore: deprecated_member_use
+  UpdateViewPayload copyWith(void Function(UpdateViewPayload) updates) => super.copyWith((message) => updates(message as UpdateViewPayload)) as UpdateViewPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static UpdateViewRequest create() => UpdateViewRequest._();
-  UpdateViewRequest createEmptyInstance() => create();
-  static $pb.PbList<UpdateViewRequest> createRepeated() => $pb.PbList<UpdateViewRequest>();
+  static UpdateViewPayload create() => UpdateViewPayload._();
+  UpdateViewPayload createEmptyInstance() => create();
+  static $pb.PbList<UpdateViewPayload> createRepeated() => $pb.PbList<UpdateViewPayload>();
   @$core.pragma('dart2js:noInline')
-  static UpdateViewRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateViewRequest>(create);
-  static UpdateViewRequest? _defaultInstance;
+  static UpdateViewPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateViewPayload>(create);
+  static UpdateViewPayload? _defaultInstance;
 
-  UpdateViewRequest_OneOfName whichOneOfName() => _UpdateViewRequest_OneOfNameByTag[$_whichOneof(0)]!;
+  UpdateViewPayload_OneOfName whichOneOfName() => _UpdateViewPayload_OneOfNameByTag[$_whichOneof(0)]!;
   void clearOneOfName() => clearField($_whichOneof(0));
 
-  UpdateViewRequest_OneOfDesc whichOneOfDesc() => _UpdateViewRequest_OneOfDescByTag[$_whichOneof(1)]!;
+  UpdateViewPayload_OneOfDesc whichOneOfDesc() => _UpdateViewPayload_OneOfDescByTag[$_whichOneof(1)]!;
   void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  UpdateViewRequest_OneOfThumbnail whichOneOfThumbnail() => _UpdateViewRequest_OneOfThumbnailByTag[$_whichOneof(2)]!;
+  UpdateViewPayload_OneOfThumbnail whichOneOfThumbnail() => _UpdateViewPayload_OneOfThumbnailByTag[$_whichOneof(2)]!;
   void clearOneOfThumbnail() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)

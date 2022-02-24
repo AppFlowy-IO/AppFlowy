@@ -18,12 +18,12 @@ class ViewRepository {
   });
 
   Future<Either<View, FlowyError>> readView() {
-    final request = ViewId(viewId: view.id);
+    final request = ViewId(value: view.id);
     return FolderEventReadView(request).send();
   }
 
   Future<Either<View, FlowyError>> updateView({String? name, String? desc}) {
-    final request = UpdateViewRequest.create()..viewId = view.id;
+    final request = UpdateViewPayload.create()..viewId = view.id;
 
     if (name != null) {
       request.name = name;
@@ -42,7 +42,7 @@ class ViewRepository {
   }
 
   Future<Either<Unit, FlowyError>> duplicate() {
-    final request = ViewId(viewId: view.id);
+    final request = ViewId(value: view.id);
     return FolderEventDuplicateView(request).send();
   }
 }

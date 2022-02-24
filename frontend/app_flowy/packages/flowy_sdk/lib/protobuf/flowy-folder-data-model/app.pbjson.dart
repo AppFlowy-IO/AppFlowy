@@ -35,9 +35,9 @@ const RepeatedApp$json = const {
 
 /// Descriptor for `RepeatedApp`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List repeatedAppDescriptor = $convert.base64Decode('CgtSZXBlYXRlZEFwcBIaCgVpdGVtcxgBIAMoCzIELkFwcFIFaXRlbXM=');
-@$core.Deprecated('Use createAppRequestDescriptor instead')
-const CreateAppRequest$json = const {
-  '1': 'CreateAppRequest',
+@$core.Deprecated('Use createAppPayloadDescriptor instead')
+const CreateAppPayload$json = const {
+  '1': 'CreateAppPayload',
   '2': const [
     const {'1': 'workspace_id', '3': 1, '4': 1, '5': 9, '10': 'workspaceId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -46,8 +46,8 @@ const CreateAppRequest$json = const {
   ],
 };
 
-/// Descriptor for `CreateAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createAppRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVBcHBSZXF1ZXN0EiEKDHdvcmtzcGFjZV9pZBgBIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEiwKC2NvbG9yX3N0eWxlGAQgASgLMgsuQ29sb3JTdHlsZVIKY29sb3JTdHlsZQ==');
+/// Descriptor for `CreateAppPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createAppPayloadDescriptor = $convert.base64Decode('ChBDcmVhdGVBcHBQYXlsb2FkEiEKDHdvcmtzcGFjZV9pZBgBIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEiwKC2NvbG9yX3N0eWxlGAQgASgLMgsuQ29sb3JTdHlsZVIKY29sb3JTdHlsZQ==');
 @$core.Deprecated('Use colorStyleDescriptor instead')
 const ColorStyle$json = const {
   '1': 'ColorStyle',
@@ -71,29 +71,19 @@ const CreateAppParams$json = const {
 
 /// Descriptor for `CreateAppParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createAppParamsDescriptor = $convert.base64Decode('Cg9DcmVhdGVBcHBQYXJhbXMSIQoMd29ya3NwYWNlX2lkGAEgASgJUgt3b3Jrc3BhY2VJZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSLAoLY29sb3Jfc3R5bGUYBCABKAsyCy5Db2xvclN0eWxlUgpjb2xvclN0eWxl');
-@$core.Deprecated('Use queryAppRequestDescriptor instead')
-const QueryAppRequest$json = const {
-  '1': 'QueryAppRequest',
-  '2': const [
-    const {'1': 'app_ids', '3': 1, '4': 3, '5': 9, '10': 'appIds'},
-  ],
-};
-
-/// Descriptor for `QueryAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFwoHYXBwX2lkcxgBIAMoCVIGYXBwSWRz');
 @$core.Deprecated('Use appIdDescriptor instead')
 const AppId$json = const {
   '1': 'AppId',
   '2': const [
-    const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
+    const {'1': 'value', '3': 1, '4': 1, '5': 9, '10': 'value'},
   ],
 };
 
 /// Descriptor for `AppId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appIdDescriptor = $convert.base64Decode('CgVBcHBJZBIVCgZhcHBfaWQYASABKAlSBWFwcElk');
-@$core.Deprecated('Use updateAppRequestDescriptor instead')
-const UpdateAppRequest$json = const {
-  '1': 'UpdateAppRequest',
+final $typed_data.Uint8List appIdDescriptor = $convert.base64Decode('CgVBcHBJZBIUCgV2YWx1ZRgBIAEoCVIFdmFsdWU=');
+@$core.Deprecated('Use updateAppPayloadDescriptor instead')
+const UpdateAppPayload$json = const {
+  '1': 'UpdateAppPayload',
   '2': const [
     const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
@@ -109,8 +99,8 @@ const UpdateAppRequest$json = const {
   ],
 };
 
-/// Descriptor for `UpdateAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateAppRequestDescriptor = $convert.base64Decode('ChBVcGRhdGVBcHBSZXF1ZXN0EhUKBmFwcF9pZBgBIAEoCVIFYXBwSWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIuCgtjb2xvcl9zdHlsZRgEIAEoCzILLkNvbG9yU3R5bGVIAlIKY29sb3JTdHlsZRIbCghpc190cmFzaBgFIAEoCEgDUgdpc1RyYXNoQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNjQhQKEm9uZV9vZl9jb2xvcl9zdHlsZUIRCg9vbmVfb2ZfaXNfdHJhc2g=');
+/// Descriptor for `UpdateAppPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateAppPayloadDescriptor = $convert.base64Decode('ChBVcGRhdGVBcHBQYXlsb2FkEhUKBmFwcF9pZBgBIAEoCVIFYXBwSWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIuCgtjb2xvcl9zdHlsZRgEIAEoCzILLkNvbG9yU3R5bGVIAlIKY29sb3JTdHlsZRIbCghpc190cmFzaBgFIAEoCEgDUgdpc1RyYXNoQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNjQhQKEm9uZV9vZl9jb2xvcl9zdHlsZUIRCg9vbmVfb2ZfaXNfdHJhc2g=');
 @$core.Deprecated('Use updateAppParamsDescriptor instead')
 const UpdateAppParams$json = const {
   '1': 'UpdateAppParams',

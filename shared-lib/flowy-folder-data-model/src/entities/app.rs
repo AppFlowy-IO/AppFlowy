@@ -48,7 +48,7 @@ pub struct RepeatedApp {
 impl_def_and_def_mut!(RepeatedApp, App);
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateAppRequest {
+pub struct CreateAppPayload {
     #[pb(index = 1)]
     pub workspace_id: String,
 
@@ -83,7 +83,7 @@ pub struct CreateAppParams {
     pub color_style: ColorStyle,
 }
 
-impl TryInto<CreateAppParams> for CreateAppRequest {
+impl TryInto<CreateAppParams> for CreateAppPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
@@ -108,44 +108,22 @@ impl std::convert::From<AppColorStyle> for ColorStyle {
     }
 }
 
-#[derive(Default, ProtoBuf, Clone)]
-pub struct QueryAppRequest {
-    #[pb(index = 1)]
-    pub app_ids: Vec<String>,
-}
-
 #[derive(ProtoBuf, Default, Clone, Debug)]
 pub struct AppId {
     #[pb(index = 1)]
-    pub app_id: String,
+    pub value: String,
 }
 
 impl AppId {
     pub fn new(app_id: &str) -> Self {
         Self {
-            app_id: app_id.to_string(),
+            value: app_id.to_string(),
         }
-    }
-}
-
-impl TryInto<AppId> for QueryAppRequest {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<AppId, Self::Error> {
-        debug_assert!(self.app_ids.len() == 1);
-        if self.app_ids.len() != 1 {
-            log::error!("The len of app_ids should be equal to 1");
-            return Err(ErrorCode::AppIdInvalid);
-        }
-
-        let app_id = self.app_ids.first().unwrap().clone();
-        let app_id = AppIdentify::parse(app_id)?.0;
-        Ok(AppId { app_id })
     }
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateAppRequest {
+pub struct UpdateAppPayload {
     #[pb(index = 1)]
     pub app_id: String,
 
@@ -204,7 +182,7 @@ impl UpdateAppParams {
     }
 }
 
-impl TryInto<UpdateAppParams> for UpdateAppRequest {
+impl TryInto<UpdateAppParams> for UpdateAppPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {

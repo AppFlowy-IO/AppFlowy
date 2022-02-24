@@ -47,9 +47,9 @@ const RepeatedView$json = const {
 
 /// Descriptor for `RepeatedView`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List repeatedViewDescriptor = $convert.base64Decode('CgxSZXBlYXRlZFZpZXcSGwoFaXRlbXMYASADKAsyBS5WaWV3UgVpdGVtcw==');
-@$core.Deprecated('Use createViewRequestDescriptor instead')
-const CreateViewRequest$json = const {
-  '1': 'CreateViewRequest',
+@$core.Deprecated('Use createViewPayloadDescriptor instead')
+const CreateViewPayload$json = const {
+  '1': 'CreateViewPayload',
   '2': const [
     const {'1': 'belong_to_id', '3': 1, '4': 1, '5': 9, '10': 'belongToId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -62,8 +62,8 @@ const CreateViewRequest$json = const {
   ],
 };
 
-/// Descriptor for `CreateViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewRequestDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UmVxdWVzdBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlQhIKEG9uZV9vZl90aHVtYm5haWw=');
+/// Descriptor for `CreateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlQhIKEG9uZV9vZl90aHVtYm5haWw=');
 @$core.Deprecated('Use createViewParamsDescriptor instead')
 const CreateViewParams$json = const {
   '1': 'CreateViewParams',
@@ -84,12 +84,12 @@ final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('
 const ViewId$json = const {
   '1': 'ViewId',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'value', '3': 1, '4': 1, '5': 9, '10': 'value'},
   ],
 };
 
 /// Descriptor for `ViewId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewIdDescriptor = $convert.base64Decode('CgZWaWV3SWQSFwoHdmlld19pZBgBIAEoCVIGdmlld0lk');
+final $typed_data.Uint8List viewIdDescriptor = $convert.base64Decode('CgZWaWV3SWQSFAoFdmFsdWUYASABKAlSBXZhbHVl');
 @$core.Deprecated('Use repeatedViewIdDescriptor instead')
 const RepeatedViewId$json = const {
   '1': 'RepeatedViewId',
@@ -100,9 +100,9 @@ const RepeatedViewId$json = const {
 
 /// Descriptor for `RepeatedViewId`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List repeatedViewIdDescriptor = $convert.base64Decode('Cg5SZXBlYXRlZFZpZXdJZBIUCgVpdGVtcxgBIAMoCVIFaXRlbXM=');
-@$core.Deprecated('Use updateViewRequestDescriptor instead')
-const UpdateViewRequest$json = const {
-  '1': 'UpdateViewRequest',
+@$core.Deprecated('Use updateViewPayloadDescriptor instead')
+const UpdateViewPayload$json = const {
+  '1': 'UpdateViewPayload',
   '2': const [
     const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
@@ -116,8 +116,8 @@ const UpdateViewRequest$json = const {
   ],
 };
 
-/// Descriptor for `UpdateViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateViewRequestDescriptor = $convert.base64Decode('ChFVcGRhdGVWaWV3UmVxdWVzdBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIeCgl0aHVtYm5haWwYBCABKAlIAlIJdGh1bWJuYWlsQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNjQhIKEG9uZV9vZl90aHVtYm5haWw=');
+/// Descriptor for `UpdateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateViewPayloadDescriptor = $convert.base64Decode('ChFVcGRhdGVWaWV3UGF5bG9hZBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIeCgl0aHVtYm5haWwYBCABKAlIAlIJdGh1bWJuYWlsQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNjQhIKEG9uZV9vZl90aHVtYm5haWw=');
 @$core.Deprecated('Use updateViewParamsDescriptor instead')
 const UpdateViewParams$json = const {
   '1': 'UpdateViewParams',

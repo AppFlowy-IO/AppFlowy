@@ -1,14 +1,15 @@
 use crate::prelude::*;
+use flowy_folder::prelude::WorkspaceId;
 use flowy_folder::{
     entities::{
         app::*,
         view::*,
-        workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
+        workspace::{CreateWorkspacePayload, Workspace},
     },
     event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
 };
 use flowy_user::{
-    entities::{SignInRequest, SignUpRequest, UserProfile},
+    entities::{SignInPayload, SignUpPayload, UserProfile},
     errors::FlowyError,
     event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
@@ -39,14 +40,14 @@ impl ViewTest {
 }
 
 async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspace {
-    let request = CreateWorkspaceRequest {
+    let request = CreateWorkspacePayload {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
 
     let workspace = FolderEventBuilder::new(sdk.clone())
         .event(CreateWorkspace)
-        .request(request)
+        .payload(request)
         .async_send()
         .await
         .parse::<Workspace>();
@@ -54,18 +55,18 @@ async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspa
 }
 
 async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
-    let request = QueryWorkspaceRequest {
-        workspace_id: Some(workspace_id.to_owned()),
+    let payload = WorkspaceId {
+        value: Some(workspace_id.to_owned()),
     };
     let _ = FolderEventBuilder::new(sdk.clone())
         .event(OpenWorkspace)
-        .request(request)
+        .payload(payload)
         .async_send()
         .await;
 }
 
 async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> App {
-    let create_app_request = CreateAppRequest {
+    let create_app_request = CreateAppPayload {
         workspace_id: workspace_id.to_owned(),
         name: name.to_string(),
         desc: desc.to_string(),
@@ -74,7 +75,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
 
     let app = FolderEventBuilder::new(sdk.clone())
         .event(CreateApp)
-        .request(create_app_request)
+        .payload(create_app_request)
         .async_send()
         .await
         .parse::<App>();
@@ -82,7 +83,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
 }
 
 async fn create_view(sdk: &FlowySDKTest, app_id: &str) -> View {
-    let request = CreateViewRequest {
+    let request = CreateViewPayload {
         belong_to_id: app_id.to_string(),
         name: "View A".to_string(),
         desc: "".to_string(),
@@ -92,7 +93,7 @@ async fn create_view(sdk: &FlowySDKTest, app_id: &str) -> View {
 
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)
-        .request(request)
+        .payload(request)
         .async_send()
         .await
         .parse::<View>();
@@ -133,7 +134,7 @@ pub struct SignUpContext {
 
 pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
-    let payload = SignUpRequest {
+    let payload = SignUpPayload {
         email: random_email(),
         name: "app flowy".to_string(),
         password: password.clone(),
@@ -152,7 +153,7 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 
 pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
-    let payload = SignUpRequest {
+    let payload = SignUpPayload {
         email: random_email(),
         name: "app flowy".to_string(),
         password: password.clone(),
@@ -178,7 +179,7 @@ pub async fn init_user_setting(dispatch: Arc<EventDispatcher>) {
 
 #[allow(dead_code)]
 fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
-    let payload = SignInRequest {
+    let payload = SignInPayload {
         email: login_email(),
         password: login_password(),
         name: "rust".to_owned(),

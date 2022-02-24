@@ -40,7 +40,7 @@ where
         }
     }
 
-    pub fn request<P>(mut self, payload: P) -> Self
+    pub fn payload<P>(mut self, payload: P) -> Self
     where
         P: ToBytes,
     {

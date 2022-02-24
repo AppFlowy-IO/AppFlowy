@@ -1,7 +1,7 @@
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
 use flowy_user_data_model::entities::{
-    AppearanceSettings, UpdateUserParams, UpdateUserRequest, UserProfile, APPEARANCE_DEFAULT_THEME,
+    AppearanceSettings, UpdateUserParams, UpdateUserPayload, UserProfile, APPEARANCE_DEFAULT_THEME,
 };
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
@@ -32,7 +32,7 @@ pub async fn sign_out(session: Unit<Arc<UserSession>>) -> Result<(), FlowyError>
 
 #[tracing::instrument(name = "update_user", skip(data, session))]
 pub async fn update_user_handler(
-    data: Data<UpdateUserRequest>,
+    data: Data<UpdateUserPayload>,
     session: Unit<Arc<UserSession>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateUserParams = data.into_inner().try_into()?;

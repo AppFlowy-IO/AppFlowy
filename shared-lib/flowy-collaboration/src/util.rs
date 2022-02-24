@@ -112,9 +112,9 @@ pub fn repeated_revision_pb_from_revisions(revisions: Vec<RevisionPB>) -> Repeat
 }
 
 pub fn repeated_revision_from_repeated_revision_pb(
-    mut repeated_revision: RepeatedRevisionPB,
+    repeated_revision: RepeatedRevisionPB,
 ) -> CollaborateResult<RepeatedRevision> {
-    (&mut repeated_revision)
+    repeated_revision
         .try_into()
         .map_err(|e| CollaborateError::internal().context(format!("Cast repeated revision failed: {:?}", e)))
 }
@@ -156,10 +156,8 @@ pub fn make_folder_from_revisions_pb(
 ) -> Result<Option<FolderInfo>, CollaborateError> {
     match make_folder_pb_from_revisions_pb(folder_id, revisions)? {
         None => Ok(None),
-        Some(mut pb) => {
-            let folder_info: FolderInfo = (&mut pb)
-                .try_into()
-                .map_err(|e| CollaborateError::internal().context(e))?;
+        Some(pb) => {
+            let folder_info: FolderInfo = pb.try_into().map_err(|e| CollaborateError::internal().context(e))?;
             Ok(Some(folder_info))
         }
     }
@@ -204,8 +202,8 @@ pub fn make_document_info_from_revisions_pb(
 ) -> Result<Option<DocumentInfo>, CollaborateError> {
     match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
         None => Ok(None),
-        Some(mut pb) => {
-            let document_info: DocumentInfo = (&mut pb).try_into().map_err(|e| {
+        Some(pb) => {
+            let document_info: DocumentInfo = pb.try_into().map_err(|e| {
                 CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
             })?;
             Ok(Some(document_info))

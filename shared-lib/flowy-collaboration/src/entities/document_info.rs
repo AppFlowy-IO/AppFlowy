@@ -90,19 +90,19 @@ pub struct NewDocUser {
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct DocumentId {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub value: String,
 }
 
 impl std::convert::From<String> for DocumentId {
     fn from(doc_id: String) -> Self {
-        DocumentId { doc_id }
+        DocumentId { value: doc_id }
     }
 }
 
 impl std::convert::From<&String> for DocumentId {
     fn from(doc_id: &String) -> Self {
         DocumentId {
-            doc_id: doc_id.to_owned(),
+            value: doc_id.to_owned(),
         }
     }
 }

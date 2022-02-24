@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use signInRequestDescriptor instead')
-const SignInRequest$json = const {
-  '1': 'SignInRequest',
+@$core.Deprecated('Use signInPayloadDescriptor instead')
+const SignInPayload$json = const {
+  '1': 'SignInPayload',
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'password', '3': 2, '4': 1, '5': 9, '10': 'password'},
@@ -18,8 +18,8 @@ const SignInRequest$json = const {
   ],
 };
 
-/// Descriptor for `SignInRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signInRequestDescriptor = $convert.base64Decode('Cg1TaWduSW5SZXF1ZXN0EhQKBWVtYWlsGAEgASgJUgVlbWFpbBIaCghwYXNzd29yZBgCIAEoCVIIcGFzc3dvcmQSEgoEbmFtZRgDIAEoCVIEbmFtZQ==');
+/// Descriptor for `SignInPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signInPayloadDescriptor = $convert.base64Decode('Cg1TaWduSW5QYXlsb2FkEhQKBWVtYWlsGAEgASgJUgVlbWFpbBIaCghwYXNzd29yZBgCIAEoCVIIcGFzc3dvcmQSEgoEbmFtZRgDIAEoCVIEbmFtZQ==');
 @$core.Deprecated('Use signInParamsDescriptor instead')
 const SignInParams$json = const {
   '1': 'SignInParams',
@@ -45,9 +45,9 @@ const SignInResponse$json = const {
 
 /// Descriptor for `SignInResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List signInResponseDescriptor = $convert.base64Decode('Cg5TaWduSW5SZXNwb25zZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIUCgVlbWFpbBgDIAEoCVIFZW1haWwSFAoFdG9rZW4YBCABKAlSBXRva2Vu');
-@$core.Deprecated('Use signUpRequestDescriptor instead')
-const SignUpRequest$json = const {
-  '1': 'SignUpRequest',
+@$core.Deprecated('Use signUpPayloadDescriptor instead')
+const SignUpPayload$json = const {
+  '1': 'SignUpPayload',
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -55,8 +55,8 @@ const SignUpRequest$json = const {
   ],
 };
 
-/// Descriptor for `SignUpRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signUpRequestDescriptor = $convert.base64Decode('Cg1TaWduVXBSZXF1ZXN0EhQKBWVtYWlsGAEgASgJUgVlbWFpbBISCgRuYW1lGAIgASgJUgRuYW1lEhoKCHBhc3N3b3JkGAMgASgJUghwYXNzd29yZA==');
+/// Descriptor for `SignUpPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signUpPayloadDescriptor = $convert.base64Decode('Cg1TaWduVXBQYXlsb2FkEhQKBWVtYWlsGAEgASgJUgVlbWFpbBISCgRuYW1lGAIgASgJUgRuYW1lEhoKCHBhc3N3b3JkGAMgASgJUghwYXNzd29yZA==');
 @$core.Deprecated('Use signUpParamsDescriptor instead')
 const SignUpParams$json = const {
   '1': 'SignUpParams',

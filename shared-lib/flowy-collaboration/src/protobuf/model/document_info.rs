@@ -1166,7 +1166,7 @@ impl ::protobuf::reflect::ProtobufValue for NewDocUser {
 #[derive(PartialEq,Clone,Default)]
 pub struct DocumentId {
     // message fields
-    pub doc_id: ::std::string::String,
+    pub value: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1183,30 +1183,30 @@ impl DocumentId {
         ::std::default::Default::default()
     }
 
-    // string doc_id = 1;
+    // string value = 1;
 
 
-    pub fn get_doc_id(&self) -> &str {
-        &self.doc_id
+    pub fn get_value(&self) -> &str {
+        &self.value
     }
-    pub fn clear_doc_id(&mut self) {
-        self.doc_id.clear();
+    pub fn clear_value(&mut self) {
+        self.value.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_doc_id(&mut self, v: ::std::string::String) {
-        self.doc_id = v;
+    pub fn set_value(&mut self, v: ::std::string::String) {
+        self.value = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_doc_id(&mut self) -> &mut ::std::string::String {
-        &mut self.doc_id
+    pub fn mut_value(&mut self) -> &mut ::std::string::String {
+        &mut self.value
     }
 
     // Take field
-    pub fn take_doc_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
+    pub fn take_value(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.value, ::std::string::String::new())
     }
 }
 
@@ -1220,7 +1220,7 @@ impl ::protobuf::Message for DocumentId {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.value)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1234,8 +1234,8 @@ impl ::protobuf::Message for DocumentId {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.doc_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.doc_id);
+        if !self.value.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.value);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1243,8 +1243,8 @@ impl ::protobuf::Message for DocumentId {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.doc_id.is_empty() {
-            os.write_string(1, &self.doc_id)?;
+        if !self.value.is_empty() {
+            os.write_string(1, &self.value)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1285,9 +1285,9 @@ impl ::protobuf::Message for DocumentId {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "doc_id",
-                |m: &DocumentId| { &m.doc_id },
-                |m: &mut DocumentId| { &mut m.doc_id },
+                "value",
+                |m: &DocumentId| { &m.value },
+                |m: &mut DocumentId| { &mut m.value },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocumentId>(
                 "DocumentId",
@@ -1305,7 +1305,7 @@ impl ::protobuf::Message for DocumentId {
 
 impl ::protobuf::Clear for DocumentId {
     fn clear(&mut self) {
-        self.doc_id.clear();
+        self.value.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1334,8 +1334,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     entDelta\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\x1d\n\ndel\
     ta_json\x18\x02\x20\x01(\tR\tdeltaJson\"S\n\nNewDocUser\x12\x17\n\x07use\
     r_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\
-    \x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05docId\"#\n\nDo\
-    cumentId\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docIdb\x06proto3\
+    \x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05docId\"\"\n\nD\
+    ocumentId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05valueb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

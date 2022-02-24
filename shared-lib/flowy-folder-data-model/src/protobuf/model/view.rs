@@ -668,32 +668,32 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedView {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateViewRequest {
+pub struct CreateViewPayload {
     // message fields
     pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
     pub view_type: ViewType,
     // message oneof groups
-    pub one_of_thumbnail: ::std::option::Option<CreateViewRequest_oneof_one_of_thumbnail>,
+    pub one_of_thumbnail: ::std::option::Option<CreateViewPayload_oneof_one_of_thumbnail>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CreateViewRequest {
-    fn default() -> &'a CreateViewRequest {
-        <CreateViewRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a CreateViewPayload {
+    fn default() -> &'a CreateViewPayload {
+        <CreateViewPayload as ::protobuf::Message>::default_instance()
     }
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum CreateViewRequest_oneof_one_of_thumbnail {
+pub enum CreateViewPayload_oneof_one_of_thumbnail {
     thumbnail(::std::string::String),
 }
 
-impl CreateViewRequest {
-    pub fn new() -> CreateViewRequest {
+impl CreateViewPayload {
+    pub fn new() -> CreateViewPayload {
         ::std::default::Default::default()
     }
 
@@ -780,7 +780,7 @@ impl CreateViewRequest {
 
     pub fn get_thumbnail(&self) -> &str {
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v)) => v,
+            ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v)) => v,
             _ => "",
         }
     }
@@ -790,24 +790,24 @@ impl CreateViewRequest {
 
     pub fn has_thumbnail(&self) -> bool {
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(..)) => true,
+            ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_thumbnail(&mut self, v: ::std::string::String) {
-        self.one_of_thumbnail = ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(v))
+        self.one_of_thumbnail = ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_thumbnail(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(_)) = self.one_of_thumbnail {
+        if let ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(_)) = self.one_of_thumbnail {
         } else {
-            self.one_of_thumbnail = ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(::std::string::String::new()));
+            self.one_of_thumbnail = ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(::std::string::String::new()));
         }
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(ref mut v)) => v,
+            ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -816,7 +816,7 @@ impl CreateViewRequest {
     pub fn take_thumbnail(&mut self) -> ::std::string::String {
         if self.has_thumbnail() {
             match self.one_of_thumbnail.take() {
-                ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(v)) => v,
+                ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -840,7 +840,7 @@ impl CreateViewRequest {
     }
 }
 
-impl ::protobuf::Message for CreateViewRequest {
+impl ::protobuf::Message for CreateViewPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -862,7 +862,7 @@ impl ::protobuf::Message for CreateViewRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_thumbnail = ::std::option::Option::Some(CreateViewRequest_oneof_one_of_thumbnail::thumbnail(is.read_string()?));
+                    self.one_of_thumbnail = ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(is.read_string()?));
                 },
                 5 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
@@ -893,7 +893,7 @@ impl ::protobuf::Message for CreateViewRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
-                &CreateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v) => {
+                &CreateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
@@ -918,7 +918,7 @@ impl ::protobuf::Message for CreateViewRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
-                &CreateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v) => {
+                &CreateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
@@ -953,8 +953,8 @@ impl ::protobuf::Message for CreateViewRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> CreateViewRequest {
-        CreateViewRequest::new()
+    fn new() -> CreateViewPayload {
+        CreateViewPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -963,44 +963,44 @@ impl ::protobuf::Message for CreateViewRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "belong_to_id",
-                |m: &CreateViewRequest| { &m.belong_to_id },
-                |m: &mut CreateViewRequest| { &mut m.belong_to_id },
+                |m: &CreateViewPayload| { &m.belong_to_id },
+                |m: &mut CreateViewPayload| { &mut m.belong_to_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &CreateViewRequest| { &m.name },
-                |m: &mut CreateViewRequest| { &mut m.name },
+                |m: &CreateViewPayload| { &m.name },
+                |m: &mut CreateViewPayload| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "desc",
-                |m: &CreateViewRequest| { &m.desc },
-                |m: &mut CreateViewRequest| { &mut m.desc },
+                |m: &CreateViewPayload| { &m.desc },
+                |m: &mut CreateViewPayload| { &mut m.desc },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "thumbnail",
-                CreateViewRequest::has_thumbnail,
-                CreateViewRequest::get_thumbnail,
+                CreateViewPayload::has_thumbnail,
+                CreateViewPayload::get_thumbnail,
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
                 "view_type",
-                |m: &CreateViewRequest| { &m.view_type },
-                |m: &mut CreateViewRequest| { &mut m.view_type },
+                |m: &CreateViewPayload| { &m.view_type },
+                |m: &mut CreateViewPayload| { &mut m.view_type },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateViewRequest>(
-                "CreateViewRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateViewPayload>(
+                "CreateViewPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CreateViewRequest {
-        static instance: ::protobuf::rt::LazyV2<CreateViewRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateViewRequest::new)
+    fn default_instance() -> &'static CreateViewPayload {
+        static instance: ::protobuf::rt::LazyV2<CreateViewPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateViewPayload::new)
     }
 }
 
-impl ::protobuf::Clear for CreateViewRequest {
+impl ::protobuf::Clear for CreateViewPayload {
     fn clear(&mut self) {
         self.belong_to_id.clear();
         self.name.clear();
@@ -1011,13 +1011,13 @@ impl ::protobuf::Clear for CreateViewRequest {
     }
 }
 
-impl ::std::fmt::Debug for CreateViewRequest {
+impl ::std::fmt::Debug for CreateViewPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CreateViewRequest {
+impl ::protobuf::reflect::ProtobufValue for CreateViewPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1426,7 +1426,7 @@ impl ::protobuf::reflect::ProtobufValue for CreateViewParams {
 #[derive(PartialEq,Clone,Default)]
 pub struct ViewId {
     // message fields
-    pub view_id: ::std::string::String,
+    pub value: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1443,30 +1443,30 @@ impl ViewId {
         ::std::default::Default::default()
     }
 
-    // string view_id = 1;
+    // string value = 1;
 
 
-    pub fn get_view_id(&self) -> &str {
-        &self.view_id
+    pub fn get_value(&self) -> &str {
+        &self.value
     }
-    pub fn clear_view_id(&mut self) {
-        self.view_id.clear();
+    pub fn clear_value(&mut self) {
+        self.value.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_view_id(&mut self, v: ::std::string::String) {
-        self.view_id = v;
+    pub fn set_value(&mut self, v: ::std::string::String) {
+        self.value = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
-        &mut self.view_id
+    pub fn mut_value(&mut self) -> &mut ::std::string::String {
+        &mut self.value
     }
 
     // Take field
-    pub fn take_view_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    pub fn take_value(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.value, ::std::string::String::new())
     }
 }
 
@@ -1480,7 +1480,7 @@ impl ::protobuf::Message for ViewId {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.value)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1494,8 +1494,8 @@ impl ::protobuf::Message for ViewId {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.view_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.view_id);
+        if !self.value.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.value);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1503,8 +1503,8 @@ impl ::protobuf::Message for ViewId {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.view_id.is_empty() {
-            os.write_string(1, &self.view_id)?;
+        if !self.value.is_empty() {
+            os.write_string(1, &self.value)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1545,9 +1545,9 @@ impl ::protobuf::Message for ViewId {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_id",
-                |m: &ViewId| { &m.view_id },
-                |m: &mut ViewId| { &mut m.view_id },
+                "value",
+                |m: &ViewId| { &m.value },
+                |m: &mut ViewId| { &mut m.value },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewId>(
                 "ViewId",
@@ -1565,7 +1565,7 @@ impl ::protobuf::Message for ViewId {
 
 impl ::protobuf::Clear for ViewId {
     fn clear(&mut self) {
-        self.view_id.clear();
+        self.value.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1741,41 +1741,41 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedViewId {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UpdateViewRequest {
+pub struct UpdateViewPayload {
     // message fields
     pub view_id: ::std::string::String,
     // message oneof groups
-    pub one_of_name: ::std::option::Option<UpdateViewRequest_oneof_one_of_name>,
-    pub one_of_desc: ::std::option::Option<UpdateViewRequest_oneof_one_of_desc>,
-    pub one_of_thumbnail: ::std::option::Option<UpdateViewRequest_oneof_one_of_thumbnail>,
+    pub one_of_name: ::std::option::Option<UpdateViewPayload_oneof_one_of_name>,
+    pub one_of_desc: ::std::option::Option<UpdateViewPayload_oneof_one_of_desc>,
+    pub one_of_thumbnail: ::std::option::Option<UpdateViewPayload_oneof_one_of_thumbnail>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UpdateViewRequest {
-    fn default() -> &'a UpdateViewRequest {
-        <UpdateViewRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a UpdateViewPayload {
+    fn default() -> &'a UpdateViewPayload {
+        <UpdateViewPayload as ::protobuf::Message>::default_instance()
     }
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateViewRequest_oneof_one_of_name {
+pub enum UpdateViewPayload_oneof_one_of_name {
     name(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateViewRequest_oneof_one_of_desc {
+pub enum UpdateViewPayload_oneof_one_of_desc {
     desc(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateViewRequest_oneof_one_of_thumbnail {
+pub enum UpdateViewPayload_oneof_one_of_thumbnail {
     thumbnail(::std::string::String),
 }
 
-impl UpdateViewRequest {
-    pub fn new() -> UpdateViewRequest {
+impl UpdateViewPayload {
+    pub fn new() -> UpdateViewPayload {
         ::std::default::Default::default()
     }
 
@@ -1810,7 +1810,7 @@ impl UpdateViewRequest {
 
     pub fn get_name(&self) -> &str {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(ref v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(ref v)) => v,
             _ => "",
         }
     }
@@ -1820,24 +1820,24 @@ impl UpdateViewRequest {
 
     pub fn has_name(&self) -> bool {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(..)) => true,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_name(&mut self, v: ::std::string::String) {
-        self.one_of_name = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(v))
+        self.one_of_name = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(_)) = self.one_of_name {
+        if let ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(_)) = self.one_of_name {
         } else {
-            self.one_of_name = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(::std::string::String::new()));
+            self.one_of_name = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(::std::string::String::new()));
         }
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1846,7 +1846,7 @@ impl UpdateViewRequest {
     pub fn take_name(&mut self) -> ::std::string::String {
         if self.has_name() {
             match self.one_of_name.take() {
-                ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(v)) => v,
+                ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1859,7 +1859,7 @@ impl UpdateViewRequest {
 
     pub fn get_desc(&self) -> &str {
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(ref v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(ref v)) => v,
             _ => "",
         }
     }
@@ -1869,24 +1869,24 @@ impl UpdateViewRequest {
 
     pub fn has_desc(&self) -> bool {
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(..)) => true,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.one_of_desc = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(v))
+        self.one_of_desc = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(_)) = self.one_of_desc {
+        if let ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(_)) = self.one_of_desc {
         } else {
-            self.one_of_desc = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(::std::string::String::new()));
+            self.one_of_desc = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(::std::string::String::new()));
         }
         match self.one_of_desc {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1895,7 +1895,7 @@ impl UpdateViewRequest {
     pub fn take_desc(&mut self) -> ::std::string::String {
         if self.has_desc() {
             match self.one_of_desc.take() {
-                ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(v)) => v,
+                ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1908,7 +1908,7 @@ impl UpdateViewRequest {
 
     pub fn get_thumbnail(&self) -> &str {
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v)) => v,
             _ => "",
         }
     }
@@ -1918,24 +1918,24 @@ impl UpdateViewRequest {
 
     pub fn has_thumbnail(&self) -> bool {
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(..)) => true,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_thumbnail(&mut self, v: ::std::string::String) {
-        self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(v))
+        self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_thumbnail(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(_)) = self.one_of_thumbnail {
+        if let ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(_)) = self.one_of_thumbnail {
         } else {
-            self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(::std::string::String::new()));
+            self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(::std::string::String::new()));
         }
         match self.one_of_thumbnail {
-            ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1944,7 +1944,7 @@ impl UpdateViewRequest {
     pub fn take_thumbnail(&mut self) -> ::std::string::String {
         if self.has_thumbnail() {
             match self.one_of_thumbnail.take() {
-                ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(v)) => v,
+                ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1953,7 +1953,7 @@ impl UpdateViewRequest {
     }
 }
 
-impl ::protobuf::Message for UpdateViewRequest {
+impl ::protobuf::Message for UpdateViewPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -1969,19 +1969,19 @@ impl ::protobuf::Message for UpdateViewRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_name = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_name::name(is.read_string()?));
+                    self.one_of_name = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_name::name(is.read_string()?));
                 },
                 3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_desc = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_desc::desc(is.read_string()?));
+                    self.one_of_desc = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_desc::desc(is.read_string()?));
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(is.read_string()?));
+                    self.one_of_thumbnail = ::std::option::Option::Some(UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2000,21 +2000,21 @@ impl ::protobuf::Message for UpdateViewRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateViewRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateViewPayload_oneof_one_of_name::name(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &UpdateViewRequest_oneof_one_of_desc::desc(ref v) => {
+                &UpdateViewPayload_oneof_one_of_desc::desc(ref v) => {
                     my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
-                &UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v) => {
+                &UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
@@ -2030,21 +2030,21 @@ impl ::protobuf::Message for UpdateViewRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateViewRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateViewPayload_oneof_one_of_name::name(ref v) => {
                     os.write_string(2, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &UpdateViewRequest_oneof_one_of_desc::desc(ref v) => {
+                &UpdateViewPayload_oneof_one_of_desc::desc(ref v) => {
                     os.write_string(3, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
-                &UpdateViewRequest_oneof_one_of_thumbnail::thumbnail(ref v) => {
+                &UpdateViewPayload_oneof_one_of_thumbnail::thumbnail(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
@@ -2079,8 +2079,8 @@ impl ::protobuf::Message for UpdateViewRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> UpdateViewRequest {
-        UpdateViewRequest::new()
+    fn new() -> UpdateViewPayload {
+        UpdateViewPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -2089,39 +2089,39 @@ impl ::protobuf::Message for UpdateViewRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "view_id",
-                |m: &UpdateViewRequest| { &m.view_id },
-                |m: &mut UpdateViewRequest| { &mut m.view_id },
+                |m: &UpdateViewPayload| { &m.view_id },
+                |m: &mut UpdateViewPayload| { &mut m.view_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
-                UpdateViewRequest::has_name,
-                UpdateViewRequest::get_name,
+                UpdateViewPayload::has_name,
+                UpdateViewPayload::get_name,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "desc",
-                UpdateViewRequest::has_desc,
-                UpdateViewRequest::get_desc,
+                UpdateViewPayload::has_desc,
+                UpdateViewPayload::get_desc,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "thumbnail",
-                UpdateViewRequest::has_thumbnail,
-                UpdateViewRequest::get_thumbnail,
+                UpdateViewPayload::has_thumbnail,
+                UpdateViewPayload::get_thumbnail,
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateViewRequest>(
-                "UpdateViewRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateViewPayload>(
+                "UpdateViewPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UpdateViewRequest {
-        static instance: ::protobuf::rt::LazyV2<UpdateViewRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UpdateViewRequest::new)
+    fn default_instance() -> &'static UpdateViewPayload {
+        static instance: ::protobuf::rt::LazyV2<UpdateViewPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateViewPayload::new)
     }
 }
 
-impl ::protobuf::Clear for UpdateViewRequest {
+impl ::protobuf::Clear for UpdateViewPayload {
     fn clear(&mut self) {
         self.view_id.clear();
         self.one_of_name = ::std::option::Option::None;
@@ -2131,13 +2131,13 @@ impl ::protobuf::Clear for UpdateViewRequest {
     }
 }
 
-impl ::std::fmt::Debug for UpdateViewRequest {
+impl ::std::fmt::Debug for UpdateViewPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UpdateViewRequest {
+impl ::protobuf::reflect::ProtobufValue for UpdateViewPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2605,7 +2605,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     gings\x18\x07\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12#\n\rmodified\
     _time\x18\x08\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\
     \t\x20\x01(\x03R\ncreateTime\"+\n\x0cRepeatedView\x12\x1b\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xb9\x01\n\x11CreateViewRequest\
+    \x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xb9\x01\n\x11CreateViewPayload\
     \x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04\
     name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\
     \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\t\
@@ -2615,10 +2615,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     me\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\
     \x18\x04\x20\x01(\tR\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\
     \t.ViewTypeR\x08viewType\x12\x1b\n\tview_data\x18\x06\x20\x01(\tR\x08vie\
-    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"!\n\x06ViewId\
-    \x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\"&\n\x0eRepeatedView\
-    Id\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11Update\
-    ViewRequest\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
+    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"\x1e\n\x06View\
+    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewI\
+    d\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateV\
+    iewPayload\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
     \x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
     \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
     mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\

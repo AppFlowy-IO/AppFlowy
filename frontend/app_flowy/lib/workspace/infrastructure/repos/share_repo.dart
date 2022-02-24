@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class ShareRepo {
   Future<Either<ExportData, FlowyError>> export(String docId, ExportType type) {
-    final request = ExportRequest.create()
+    final request = ExportPayload.create()
       ..docId = docId
       ..exportType = type;
 

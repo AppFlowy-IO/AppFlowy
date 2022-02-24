@@ -2,19 +2,19 @@ use crate::{
     entities::{
         trash::Trash,
         view::{
-            CreateViewParams, CreateViewRequest, RepeatedViewId, UpdateViewParams, UpdateViewRequest, View, ViewId,
+            CreateViewParams, CreateViewPayload, RepeatedViewId, UpdateViewParams, UpdateViewPayload, View, ViewId,
         },
     },
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
 use flowy_collaboration::entities::document_info::DocumentDelta;
-use flowy_folder_data_model::entities::share::{ExportData, ExportParams, ExportRequest};
+use flowy_folder_data_model::entities::share::{ExportData, ExportParams, ExportPayload};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_view_handler(
-    data: Data<CreateViewRequest>,
+    data: Data<CreateViewPayload>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
     let params: CreateViewParams = data.into_inner().try_into()?;
@@ -26,18 +26,18 @@ pub(crate) async fn read_view_handler(
     data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
-    let params: ViewId = data.into_inner();
-    let mut view = controller.read_view(params.clone()).await?;
+    let view_id: ViewId = data.into_inner();
+    let mut view = controller.read_view(view_id.clone()).await?;
     // For the moment, app and view can contains lots of views. Reading the view
     // belongings using the view_id.
-    view.belongings = controller.read_views_belong_to(&params.view_id).await?;
+    view.belongings = controller.read_views_belong_to(&view_id.value).await?;
 
     data_result(view)
 }
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn update_view_handler(
-    data: Data<UpdateViewRequest>,
+    data: Data<UpdateViewPayload>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateViewParams = data.into_inner().try_into()?;
@@ -79,8 +79,8 @@ pub(crate) async fn open_document_handler(
     data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
-    let params: ViewId = data.into_inner();
-    let doc = controller.open_document(&params.view_id).await?;
+    let view_id: ViewId = data.into_inner();
+    let doc = controller.open_document(&view_id.value).await?;
     data_result(doc)
 }
 
@@ -88,8 +88,8 @@ pub(crate) async fn close_view_handler(
     data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewId = data.into_inner();
-    let _ = controller.close_view(&params.view_id).await?;
+    let view_id: ViewId = data.into_inner();
+    let _ = controller.close_view(&view_id.value).await?;
     Ok(())
 }
 
@@ -98,14 +98,14 @@ pub(crate) async fn duplicate_view_handler(
     data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewId = data.into_inner();
-    let _ = controller.duplicate_view(&params.view_id).await?;
+    let view_id: ViewId = data.into_inner();
+    let _ = controller.duplicate_view(&view_id.value).await?;
     Ok(())
 }
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn export_handler(
-    data: Data<ExportRequest>,
+    data: Data<ExportPayload>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<ExportData, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;

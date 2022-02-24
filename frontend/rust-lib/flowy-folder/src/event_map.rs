@@ -82,43 +82,43 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum FolderEvent {
-    #[event(input = "CreateWorkspaceRequest", output = "Workspace")]
+    #[event(input = "CreateWorkspacePayload", output = "Workspace")]
     CreateWorkspace = 0,
 
     #[event(output = "CurrentWorkspaceSetting")]
     ReadCurWorkspace = 1,
 
-    #[event(input = "QueryWorkspaceRequest", output = "RepeatedWorkspace")]
+    #[event(input = "WorkspaceId", output = "RepeatedWorkspace")]
     ReadWorkspaces = 2,
 
-    #[event(input = "QueryWorkspaceRequest")]
+    #[event(input = "WorkspaceId")]
     DeleteWorkspace = 3,
 
-    #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
+    #[event(input = "WorkspaceId", output = "Workspace")]
     OpenWorkspace = 4,
 
-    #[event(input = "QueryWorkspaceRequest", output = "RepeatedApp")]
+    #[event(input = "WorkspaceId", output = "RepeatedApp")]
     ReadWorkspaceApps = 5,
 
-    #[event(input = "CreateAppRequest", output = "App")]
+    #[event(input = "CreateAppPayload", output = "App")]
     CreateApp = 101,
 
-    #[event(input = "QueryAppRequest")]
+    #[event(input = "AppId")]
     DeleteApp = 102,
 
-    #[event(input = "QueryAppRequest", output = "App")]
+    #[event(input = "AppId", output = "App")]
     ReadApp = 103,
 
-    #[event(input = "UpdateAppRequest")]
+    #[event(input = "UpdateAppPayload")]
     UpdateApp = 104,
 
-    #[event(input = "CreateViewRequest", output = "View")]
+    #[event(input = "CreateViewPayload", output = "View")]
     CreateView = 201,
 
     #[event(input = "ViewId", output = "View")]
     ReadView = 202,
 
-    #[event(input = "UpdateViewRequest", output = "View")]
+    #[event(input = "UpdateViewPayload", output = "View")]
     UpdateView = 203,
 
     #[event(input = "RepeatedViewId")]
@@ -154,7 +154,7 @@ pub enum FolderEvent {
     #[event(input = "DocumentDelta", output = "DocumentDelta")]
     ApplyDocDelta = 400,
 
-    #[event(input = "ExportRequest", output = "ExportData")]
+    #[event(input = "ExportPayload", output = "ExportData")]
     ExportDocument = 500,
 }
 
