@@ -5,16 +5,16 @@ linux_alias = "appflowy-linux"
 
 [tasks.appflowy-macos]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product", "create-release-archive"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product", "create-release-archive"] }
 script_runner = "@shell"
 
 [tasks.appflowy-dev]
@@ -24,16 +24,16 @@ linux_alias = "appflowy-linux-dev"
 
 [tasks.appflowy-macos-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["generate_language_files", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.copy-to-product]
@@ -156,45 +156,26 @@ script = [
 ]
 script_runner = "@duckscript"
 
-[tasks.freeze_setup]
-script = [
-  """
-  flutter clean
-  flutter pub get
-  flutter pub run build_runner build --delete-conflicting-outputs
-  """,
-]
-script_runner = "@shell"
-
-[tasks.freeze_watch]
-script = [
-  """
-  flutter pub run build_runner watch
-  """,
-]
-script_runner = "@shell"
-
-[tasks.generate_language_files]
+[tasks.code_generation]
 script_runner = "@shell"
 script = [
   """
   cd app_flowy
   flutter clean
-  flutter pub get
-  flutter pub run easy_localization:generate -S assets/translations/
-  flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  flutter packages pub get
+  flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  flutter packages pub run build_runner build --delete-conflicting-outputs
   """
 ]
 
-
-[tasks.generate_language_files.windows]
+[tasks.code_generation.windows]
 script_runner = "@duckscript"
 script = [
   """
   cd ./app_flowy/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter pub run easy_localization:generate -S assets/translations/
-  exec cmd.exe /c flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
+  exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
   """
 ]
