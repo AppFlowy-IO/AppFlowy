@@ -25,5 +25,5 @@ message NewDocUser {
     string doc_id = 3;
 }
 message DocumentId {
-    string doc_id = 1;
+    string value = 1;
 }

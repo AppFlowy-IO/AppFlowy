@@ -64,7 +64,7 @@ impl AppController {
         let app = self
             .persistence
             .begin_transaction(|transaction| {
-                let app = transaction.read_app(&params.app_id)?;
+                let app = transaction.read_app(&params.value)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&app.id) {
                     return Err(FlowyError::record_not_found());

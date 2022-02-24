@@ -28,7 +28,7 @@ pub struct UserProfile {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateUserRequest {
+pub struct UpdateUserPayload {
     #[pb(index = 1)]
     pub id: String,
 
@@ -42,7 +42,7 @@ pub struct UpdateUserRequest {
     pub password: Option<String>,
 }
 
-impl UpdateUserRequest {
+impl UpdateUserPayload {
     pub fn new(id: &str) -> Self {
         Self {
             id: id.to_owned(),
@@ -105,7 +105,7 @@ impl UpdateUserParams {
     }
 }
 
-impl TryInto<UpdateUserParams> for UpdateUserRequest {
+impl TryInto<UpdateUserParams> for UpdateUserPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateUserParams, Self::Error> {

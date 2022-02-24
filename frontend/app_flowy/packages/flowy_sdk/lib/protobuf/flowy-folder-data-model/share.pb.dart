@@ -13,15 +13,15 @@ import 'share.pbenum.dart';
 
 export 'share.pbenum.dart';
 
-class ExportRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ExportRequest', createEmptyInstance: create)
+class ExportPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ExportPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<ExportType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'exportType', $pb.PbFieldType.OE, defaultOrMaker: ExportType.Text, valueOf: ExportType.valueOf, enumValues: ExportType.values)
     ..hasRequiredFields = false
   ;
 
-  ExportRequest._() : super();
-  factory ExportRequest({
+  ExportPayload._() : super();
+  factory ExportPayload({
     $core.String? docId,
     ExportType? exportType,
   }) {
@@ -34,26 +34,26 @@ class ExportRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory ExportRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ExportRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ExportPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ExportPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ExportRequest clone() => ExportRequest()..mergeFromMessage(this);
+  ExportPayload clone() => ExportPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ExportRequest copyWith(void Function(ExportRequest) updates) => super.copyWith((message) => updates(message as ExportRequest)) as ExportRequest; // ignore: deprecated_member_use
+  ExportPayload copyWith(void Function(ExportPayload) updates) => super.copyWith((message) => updates(message as ExportPayload)) as ExportPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ExportRequest create() => ExportRequest._();
-  ExportRequest createEmptyInstance() => create();
-  static $pb.PbList<ExportRequest> createRepeated() => $pb.PbList<ExportRequest>();
+  static ExportPayload create() => ExportPayload._();
+  ExportPayload createEmptyInstance() => create();
+  static $pb.PbList<ExportPayload> createRepeated() => $pb.PbList<ExportPayload>();
   @$core.pragma('dart2js:noInline')
-  static ExportRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExportRequest>(create);
-  static ExportRequest? _defaultInstance;
+  static ExportPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExportPayload>(create);
+  static ExportPayload? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);

@@ -1,6 +1,6 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
 use flowy_collaboration::{client_document::default::initial_delta_string, entities::revision::RevisionState};
-use flowy_folder::entities::workspace::CreateWorkspaceRequest;
+use flowy_folder::entities::workspace::CreateWorkspacePayload;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
 #[tokio::test]
@@ -64,14 +64,14 @@ async fn workspace_create_with_apps() {
 async fn workspace_create_with_invalid_name() {
     for (name, code) in invalid_workspace_name_test_case() {
         let sdk = FlowySDKTest::default();
-        let request = CreateWorkspaceRequest {
+        let request = CreateWorkspacePayload {
             name,
             desc: "".to_owned(),
         };
         assert_eq!(
             FolderEventBuilder::new(sdk)
                 .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
-                .request(request)
+                .payload(request)
                 .async_send()
                 .await
                 .error()

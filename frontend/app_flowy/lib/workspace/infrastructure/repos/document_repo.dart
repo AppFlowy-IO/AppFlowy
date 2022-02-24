@@ -4,15 +4,15 @@ import 'package:flowy_sdk/protobuf/flowy-collaboration/document_info.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
-class DocRepository {
+class DocumentRepository {
   final String docId;
-  DocRepository({
+  DocumentRepository({
     required this.docId,
   });
 
-  Future<Either<DocumentDelta, FlowyError>> readDoc() {
-    final request = QueryViewRequest(viewIds: [docId]);
-    return FolderEventOpenDocument(request).send();
+  Future<Either<DocumentDelta, FlowyError>> openDocument() {
+    final request = ViewId(value: docId);
+    return FolderEventOpenView(request).send();
   }
 
   Future<Either<DocumentDelta, FlowyError>> composeDelta({required String data}) {
@@ -22,8 +22,8 @@ class DocRepository {
     return FolderEventApplyDocDelta(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> closeDoc() {
-    final request = QueryViewRequest(viewIds: [docId]);
+  Future<Either<Unit, FlowyError>> closeDocument() {
+    final request = ViewId(value: docId);
     return FolderEventCloseView(request).send();
   }
 }

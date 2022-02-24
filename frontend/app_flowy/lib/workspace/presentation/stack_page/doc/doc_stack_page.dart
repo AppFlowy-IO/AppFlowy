@@ -22,7 +22,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
-import 'doc_page.dart';
+import 'document_page.dart';
 
 class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   View _view;
@@ -56,7 +56,7 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   HomeStackType get type => _view.stackType();
 
   @override
-  Widget buildWidget() => DocPage(view: _view, key: ValueKey(_view.id));
+  Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
 
   @override
   List<NavigationItem> get navigationItems => _makeNavigationItems();

@@ -96,7 +96,7 @@ impl WorkspaceController {
 
     pub(crate) async fn open_workspace(&self, params: WorkspaceId) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
-        if let Some(workspace_id) = params.workspace_id {
+        if let Some(workspace_id) = params.value {
             let workspace = self
                 .persistence
                 .begin_transaction(|transaction| self.read_local_workspace(workspace_id, &user_id, &transaction))
@@ -174,7 +174,7 @@ impl WorkspaceController {
     #[tracing::instrument(level = "trace", skip(self), err)]
     fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), FlowyError> {
         let params = WorkspaceId {
-            workspace_id: Some(workspace_id.to_string()),
+            value: Some(workspace_id.to_string()),
         };
         let (token, server) = (self.user.token()?, self.cloud_service.clone());
         tokio::spawn(async move {

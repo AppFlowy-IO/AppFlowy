@@ -173,15 +173,15 @@ class RepeatedWorkspace extends $pb.GeneratedMessage {
   $core.List<Workspace> get items => $_getList(0);
 }
 
-class CreateWorkspaceRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspaceRequest', createEmptyInstance: create)
+class CreateWorkspacePayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspacePayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..hasRequiredFields = false
   ;
 
-  CreateWorkspaceRequest._() : super();
-  factory CreateWorkspaceRequest({
+  CreateWorkspacePayload._() : super();
+  factory CreateWorkspacePayload({
     $core.String? name,
     $core.String? desc,
   }) {
@@ -194,26 +194,26 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CreateWorkspaceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CreateWorkspaceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CreateWorkspacePayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateWorkspacePayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CreateWorkspaceRequest clone() => CreateWorkspaceRequest()..mergeFromMessage(this);
+  CreateWorkspacePayload clone() => CreateWorkspacePayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CreateWorkspaceRequest copyWith(void Function(CreateWorkspaceRequest) updates) => super.copyWith((message) => updates(message as CreateWorkspaceRequest)) as CreateWorkspaceRequest; // ignore: deprecated_member_use
+  CreateWorkspacePayload copyWith(void Function(CreateWorkspacePayload) updates) => super.copyWith((message) => updates(message as CreateWorkspacePayload)) as CreateWorkspacePayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CreateWorkspaceRequest create() => CreateWorkspaceRequest._();
-  CreateWorkspaceRequest createEmptyInstance() => create();
-  static $pb.PbList<CreateWorkspaceRequest> createRepeated() => $pb.PbList<CreateWorkspaceRequest>();
+  static CreateWorkspacePayload create() => CreateWorkspacePayload._();
+  CreateWorkspacePayload createEmptyInstance() => create();
+  static $pb.PbList<CreateWorkspacePayload> createRepeated() => $pb.PbList<CreateWorkspacePayload>();
   @$core.pragma('dart2js:noInline')
-  static CreateWorkspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateWorkspaceRequest>(create);
-  static CreateWorkspaceRequest? _defaultInstance;
+  static CreateWorkspacePayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateWorkspacePayload>(create);
+  static CreateWorkspacePayload? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
@@ -295,89 +295,29 @@ class CreateWorkspaceParams extends $pb.GeneratedMessage {
   void clearDesc() => clearField(2);
 }
 
-enum QueryWorkspaceRequest_OneOfWorkspaceId {
-  workspaceId, 
-  notSet
-}
-
-class QueryWorkspaceRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, QueryWorkspaceRequest_OneOfWorkspaceId> _QueryWorkspaceRequest_OneOfWorkspaceIdByTag = {
-    1 : QueryWorkspaceRequest_OneOfWorkspaceId.workspaceId,
-    0 : QueryWorkspaceRequest_OneOfWorkspaceId.notSet
-  };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryWorkspaceRequest', createEmptyInstance: create)
-    ..oo(0, [1])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..hasRequiredFields = false
-  ;
-
-  QueryWorkspaceRequest._() : super();
-  factory QueryWorkspaceRequest({
-    $core.String? workspaceId,
-  }) {
-    final _result = create();
-    if (workspaceId != null) {
-      _result.workspaceId = workspaceId;
-    }
-    return _result;
-  }
-  factory QueryWorkspaceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryWorkspaceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  QueryWorkspaceRequest clone() => QueryWorkspaceRequest()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  QueryWorkspaceRequest copyWith(void Function(QueryWorkspaceRequest) updates) => super.copyWith((message) => updates(message as QueryWorkspaceRequest)) as QueryWorkspaceRequest; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static QueryWorkspaceRequest create() => QueryWorkspaceRequest._();
-  QueryWorkspaceRequest createEmptyInstance() => create();
-  static $pb.PbList<QueryWorkspaceRequest> createRepeated() => $pb.PbList<QueryWorkspaceRequest>();
-  @$core.pragma('dart2js:noInline')
-  static QueryWorkspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryWorkspaceRequest>(create);
-  static QueryWorkspaceRequest? _defaultInstance;
-
-  QueryWorkspaceRequest_OneOfWorkspaceId whichOneOfWorkspaceId() => _QueryWorkspaceRequest_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
-  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
-
-  @$pb.TagNumber(1)
-  $core.String get workspaceId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set workspaceId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasWorkspaceId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearWorkspaceId() => clearField(1);
-}
-
-enum WorkspaceId_OneOfWorkspaceId {
-  workspaceId, 
+enum WorkspaceId_OneOfValue {
+  value, 
   notSet
 }
 
 class WorkspaceId extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, WorkspaceId_OneOfWorkspaceId> _WorkspaceId_OneOfWorkspaceIdByTag = {
-    1 : WorkspaceId_OneOfWorkspaceId.workspaceId,
-    0 : WorkspaceId_OneOfWorkspaceId.notSet
+  static const $core.Map<$core.int, WorkspaceId_OneOfValue> _WorkspaceId_OneOfValueByTag = {
+    1 : WorkspaceId_OneOfValue.value,
+    0 : WorkspaceId_OneOfValue.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WorkspaceId', createEmptyInstance: create)
     ..oo(0, [1])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
     ..hasRequiredFields = false
   ;
 
   WorkspaceId._() : super();
   factory WorkspaceId({
-    $core.String? workspaceId,
+    $core.String? value,
   }) {
     final _result = create();
-    if (workspaceId != null) {
-      _result.workspaceId = workspaceId;
+    if (value != null) {
+      _result.value = value;
     }
     return _result;
   }
@@ -402,17 +342,17 @@ class WorkspaceId extends $pb.GeneratedMessage {
   static WorkspaceId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkspaceId>(create);
   static WorkspaceId? _defaultInstance;
 
-  WorkspaceId_OneOfWorkspaceId whichOneOfWorkspaceId() => _WorkspaceId_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
-  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
+  WorkspaceId_OneOfValue whichOneOfValue() => _WorkspaceId_OneOfValueByTag[$_whichOneof(0)]!;
+  void clearOneOfValue() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $core.String get workspaceId => $_getSZ(0);
+  $core.String get value => $_getSZ(0);
   @$pb.TagNumber(1)
-  set workspaceId($core.String v) { $_setString(0, v); }
+  set value($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasWorkspaceId() => $_has(0);
+  $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
-  void clearWorkspaceId() => clearField(1);
+  void clearValue() => clearField(1);
 }
 
 enum CurrentWorkspaceSetting_OneOfLatestView {

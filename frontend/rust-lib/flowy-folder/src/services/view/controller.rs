@@ -113,12 +113,12 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(skip(self, params), fields(view_id = %params.view_id), err)]
-    pub(crate) async fn read_view(&self, params: ViewId) -> Result<View, FlowyError> {
+    #[tracing::instrument(skip(self, view_id), fields(view_id = %view_id.value), err)]
+    pub(crate) async fn read_view(&self, view_id: ViewId) -> Result<View, FlowyError> {
         let view = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&params.view_id)?;
+                let view = transaction.read_view(&view_id.value)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&view.id) {
                     return Err(FlowyError::record_not_found());
@@ -126,7 +126,7 @@ impl ViewController {
                 Ok(view)
             })
             .await?;
-        let _ = self.read_view_on_server(params);
+        let _ = self.read_view_on_server(view_id);
         Ok(view)
     }
 
@@ -159,14 +159,14 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
+    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
     pub(crate) async fn delete_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
-            if view_id == params.doc_id {
+            if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document_manager.close_document(&params.doc_id)?;
+        let _ = self.document_manager.close_document(&params.value)?;
         Ok(())
     }
 

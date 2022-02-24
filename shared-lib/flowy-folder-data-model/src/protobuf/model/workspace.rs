@@ -560,7 +560,7 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedWorkspace {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateWorkspaceRequest {
+pub struct CreateWorkspacePayload {
     // message fields
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
@@ -569,14 +569,14 @@ pub struct CreateWorkspaceRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CreateWorkspaceRequest {
-    fn default() -> &'a CreateWorkspaceRequest {
-        <CreateWorkspaceRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a CreateWorkspacePayload {
+    fn default() -> &'a CreateWorkspacePayload {
+        <CreateWorkspacePayload as ::protobuf::Message>::default_instance()
     }
 }
 
-impl CreateWorkspaceRequest {
-    pub fn new() -> CreateWorkspaceRequest {
+impl CreateWorkspacePayload {
+    pub fn new() -> CreateWorkspacePayload {
         ::std::default::Default::default()
     }
 
@@ -633,7 +633,7 @@ impl CreateWorkspaceRequest {
     }
 }
 
-impl ::protobuf::Message for CreateWorkspaceRequest {
+impl ::protobuf::Message for CreateWorkspacePayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -708,8 +708,8 @@ impl ::protobuf::Message for CreateWorkspaceRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> CreateWorkspaceRequest {
-        CreateWorkspaceRequest::new()
+    fn new() -> CreateWorkspacePayload {
+        CreateWorkspacePayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -718,29 +718,29 @@ impl ::protobuf::Message for CreateWorkspaceRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &CreateWorkspaceRequest| { &m.name },
-                |m: &mut CreateWorkspaceRequest| { &mut m.name },
+                |m: &CreateWorkspacePayload| { &m.name },
+                |m: &mut CreateWorkspacePayload| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "desc",
-                |m: &CreateWorkspaceRequest| { &m.desc },
-                |m: &mut CreateWorkspaceRequest| { &mut m.desc },
+                |m: &CreateWorkspacePayload| { &m.desc },
+                |m: &mut CreateWorkspacePayload| { &mut m.desc },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateWorkspaceRequest>(
-                "CreateWorkspaceRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateWorkspacePayload>(
+                "CreateWorkspacePayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CreateWorkspaceRequest {
-        static instance: ::protobuf::rt::LazyV2<CreateWorkspaceRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateWorkspaceRequest::new)
+    fn default_instance() -> &'static CreateWorkspacePayload {
+        static instance: ::protobuf::rt::LazyV2<CreateWorkspacePayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateWorkspacePayload::new)
     }
 }
 
-impl ::protobuf::Clear for CreateWorkspaceRequest {
+impl ::protobuf::Clear for CreateWorkspacePayload {
     fn clear(&mut self) {
         self.name.clear();
         self.desc.clear();
@@ -748,13 +748,13 @@ impl ::protobuf::Clear for CreateWorkspaceRequest {
     }
 }
 
-impl ::std::fmt::Debug for CreateWorkspaceRequest {
+impl ::std::fmt::Debug for CreateWorkspacePayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CreateWorkspaceRequest {
+impl ::protobuf::reflect::ProtobufValue for CreateWorkspacePayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -962,207 +962,9 @@ impl ::protobuf::reflect::ProtobufValue for CreateWorkspaceParams {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryWorkspaceRequest {
-    // message oneof groups
-    pub one_of_workspace_id: ::std::option::Option<QueryWorkspaceRequest_oneof_one_of_workspace_id>,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a QueryWorkspaceRequest {
-    fn default() -> &'a QueryWorkspaceRequest {
-        <QueryWorkspaceRequest as ::protobuf::Message>::default_instance()
-    }
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum QueryWorkspaceRequest_oneof_one_of_workspace_id {
-    workspace_id(::std::string::String),
-}
-
-impl QueryWorkspaceRequest {
-    pub fn new() -> QueryWorkspaceRequest {
-        ::std::default::Default::default()
-    }
-
-    // string workspace_id = 1;
-
-
-    pub fn get_workspace_id(&self) -> &str {
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v)) => v,
-            _ => "",
-        }
-    }
-    pub fn clear_workspace_id(&mut self) {
-        self.one_of_workspace_id = ::std::option::Option::None;
-    }
-
-    pub fn has_workspace_id(&self) -> bool {
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(..)) => true,
-            _ => false,
-        }
-    }
-
-    // Param is passed by value, moved
-    pub fn set_workspace_id(&mut self, v: ::std::string::String) {
-        self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(v))
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_workspace_id(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(_)) = self.one_of_workspace_id {
-        } else {
-            self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(::std::string::String::new()));
-        }
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref mut v)) => v,
-            _ => panic!(),
-        }
-    }
-
-    // Take field
-    pub fn take_workspace_id(&mut self) -> ::std::string::String {
-        if self.has_workspace_id() {
-            match self.one_of_workspace_id.take() {
-                ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(v)) => v,
-                _ => panic!(),
-            }
-        } else {
-            ::std::string::String::new()
-        }
-    }
-}
-
-impl ::protobuf::Message for QueryWorkspaceRequest {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(is.read_string()?));
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
-            match v {
-                &QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v) => {
-                    my_size += ::protobuf::rt::string_size(1, &v);
-                },
-            };
-        }
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
-            match v {
-                &QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v) => {
-                    os.write_string(1, v)?;
-                },
-            };
-        }
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> QueryWorkspaceRequest {
-        QueryWorkspaceRequest::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "workspace_id",
-                QueryWorkspaceRequest::has_workspace_id,
-                QueryWorkspaceRequest::get_workspace_id,
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryWorkspaceRequest>(
-                "QueryWorkspaceRequest",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static QueryWorkspaceRequest {
-        static instance: ::protobuf::rt::LazyV2<QueryWorkspaceRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryWorkspaceRequest::new)
-    }
-}
-
-impl ::protobuf::Clear for QueryWorkspaceRequest {
-    fn clear(&mut self) {
-        self.one_of_workspace_id = ::std::option::Option::None;
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for QueryWorkspaceRequest {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for QueryWorkspaceRequest {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
 pub struct WorkspaceId {
     // message oneof groups
-    pub one_of_workspace_id: ::std::option::Option<WorkspaceId_oneof_one_of_workspace_id>,
+    pub one_of_value: ::std::option::Option<WorkspaceId_oneof_one_of_value>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1175,8 +977,8 @@ impl<'a> ::std::default::Default for &'a WorkspaceId {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum WorkspaceId_oneof_one_of_workspace_id {
-    workspace_id(::std::string::String),
+pub enum WorkspaceId_oneof_one_of_value {
+    value(::std::string::String),
 }
 
 impl WorkspaceId {
@@ -1184,48 +986,48 @@ impl WorkspaceId {
         ::std::default::Default::default()
     }
 
-    // string workspace_id = 1;
+    // string value = 1;
 
 
-    pub fn get_workspace_id(&self) -> &str {
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(ref v)) => v,
+    pub fn get_value(&self) -> &str {
+        match self.one_of_value {
+            ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_workspace_id(&mut self) {
-        self.one_of_workspace_id = ::std::option::Option::None;
+    pub fn clear_value(&mut self) {
+        self.one_of_value = ::std::option::Option::None;
     }
 
-    pub fn has_workspace_id(&self) -> bool {
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(..)) => true,
+    pub fn has_value(&self) -> bool {
+        match self.one_of_value {
+            ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_workspace_id(&mut self, v: ::std::string::String) {
-        self.one_of_workspace_id = ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(v))
+    pub fn set_value(&mut self, v: ::std::string::String) {
+        self.one_of_value = ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_workspace_id(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(_)) = self.one_of_workspace_id {
+    pub fn mut_value(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(_)) = self.one_of_value {
         } else {
-            self.one_of_workspace_id = ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(::std::string::String::new()));
+            self.one_of_value = ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(::std::string::String::new()));
         }
-        match self.one_of_workspace_id {
-            ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(ref mut v)) => v,
+        match self.one_of_value {
+            ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_workspace_id(&mut self) -> ::std::string::String {
-        if self.has_workspace_id() {
-            match self.one_of_workspace_id.take() {
-                ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(v)) => v,
+    pub fn take_value(&mut self) -> ::std::string::String {
+        if self.has_value() {
+            match self.one_of_value.take() {
+                ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1247,7 +1049,7 @@ impl ::protobuf::Message for WorkspaceId {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_workspace_id = ::std::option::Option::Some(WorkspaceId_oneof_one_of_workspace_id::workspace_id(is.read_string()?));
+                    self.one_of_value = ::std::option::Option::Some(WorkspaceId_oneof_one_of_value::value(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1261,9 +1063,9 @@ impl ::protobuf::Message for WorkspaceId {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_value {
             match v {
-                &WorkspaceId_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                &WorkspaceId_oneof_one_of_value::value(ref v) => {
                     my_size += ::protobuf::rt::string_size(1, &v);
                 },
             };
@@ -1274,9 +1076,9 @@ impl ::protobuf::Message for WorkspaceId {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_value {
             match v {
-                &WorkspaceId_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                &WorkspaceId_oneof_one_of_value::value(ref v) => {
                     os.write_string(1, v)?;
                 },
             };
@@ -1320,9 +1122,9 @@ impl ::protobuf::Message for WorkspaceId {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "workspace_id",
-                WorkspaceId::has_workspace_id,
-                WorkspaceId::get_workspace_id,
+                "value",
+                WorkspaceId::has_value,
+                WorkspaceId::get_value,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<WorkspaceId>(
                 "WorkspaceId",
@@ -1340,7 +1142,7 @@ impl ::protobuf::Message for WorkspaceId {
 
 impl ::protobuf::Clear for WorkspaceId {
     fn clear(&mut self) {
-        self.one_of_workspace_id = ::std::option::Option::None;
+        self.one_of_value = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -2273,22 +2075,20 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     dified_time\x18\x05\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_ti\
     me\x18\x06\x20\x01(\x03R\ncreateTime\"5\n\x11RepeatedWorkspace\x12\x20\n\
     \x05items\x18\x01\x20\x03(\x0b2\n.WorkspaceR\x05items\"@\n\x16CreateWork\
-    spaceRequest\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04\
+    spacePayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04\
     desc\x18\x02\x20\x01(\tR\x04desc\"?\n\x15CreateWorkspaceParams\x12\x12\n\
     \x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x02\x20\x01(\
-    \tR\x04desc\"S\n\x15QueryWorkspaceRequest\x12#\n\x0cworkspace_id\x18\x01\
-    \x20\x01(\tH\0R\x0bworkspaceIdB\x15\n\x13one_of_workspace_id\"I\n\x0bWor\
-    kspaceId\x12#\n\x0cworkspace_id\x18\x01\x20\x01(\tH\0R\x0bworkspaceIdB\
-    \x15\n\x13one_of_workspace_id\"\x83\x01\n\x17CurrentWorkspaceSetting\x12\
-    (\n\tworkspace\x18\x01\x20\x01(\x0b2\n.WorkspaceR\tworkspace\x12(\n\x0bl\
-    atest_view\x18\x02\x20\x01(\x0b2\x05.ViewH\0R\nlatestViewB\x14\n\x12one_\
-    of_latest_view\"r\n\x16UpdateWorkspaceRequest\x12\x0e\n\x02id\x18\x01\
-    \x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\
-    \x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04descB\r\n\x0bone_of_nameB\r\n\
-    \x0bone_of_desc\"q\n\x15UpdateWorkspaceParams\x12\x0e\n\x02id\x18\x01\
-    \x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\
-    \x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04descB\r\n\x0bone_of_nameB\r\n\
-    \x0bone_of_descb\x06proto3\
+    \tR\x04desc\"5\n\x0bWorkspaceId\x12\x16\n\x05value\x18\x01\x20\x01(\tH\0\
+    R\x05valueB\x0e\n\x0cone_of_value\"\x83\x01\n\x17CurrentWorkspaceSetting\
+    \x12(\n\tworkspace\x18\x01\x20\x01(\x0b2\n.WorkspaceR\tworkspace\x12(\n\
+    \x0blatest_view\x18\x02\x20\x01(\x0b2\x05.ViewH\0R\nlatestViewB\x14\n\
+    \x12one_of_latest_view\"r\n\x16UpdateWorkspaceRequest\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
+    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04descB\r\n\x0bone_of_na\
+    meB\r\n\x0bone_of_desc\"q\n\x15UpdateWorkspaceParams\x12\x0e\n\x02id\x18\
+    \x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\
+    \x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04descB\r\n\x0bone_of_nameB\
+    \r\n\x0bone_of_descb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

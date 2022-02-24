@@ -16,7 +16,7 @@ class UserEventInitUser {
 }
 
 class UserEventSignIn {
-     SignInRequest request;
+     SignInPayload request;
      UserEventSignIn(this.request);
 
     Future<Either<UserProfile, FlowyError>> send() {
@@ -33,7 +33,7 @@ class UserEventSignIn {
 }
 
 class UserEventSignUp {
-     SignUpRequest request;
+     SignUpPayload request;
      UserEventSignUp(this.request);
 
     Future<Either<UserProfile, FlowyError>> send() {
@@ -64,7 +64,7 @@ class UserEventSignOut {
 }
 
 class UserEventUpdateUser {
-     UpdateUserRequest request;
+     UpdateUserPayload request;
      UserEventUpdateUser(this.request);
 
     Future<Either<Unit, FlowyError>> send() {

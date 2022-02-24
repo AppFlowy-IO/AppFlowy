@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SignInRequest {
+pub struct SignInPayload {
     // message fields
     pub email: ::std::string::String,
     pub password: ::std::string::String,
@@ -34,14 +34,14 @@ pub struct SignInRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SignInRequest {
-    fn default() -> &'a SignInRequest {
-        <SignInRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SignInPayload {
+    fn default() -> &'a SignInPayload {
+        <SignInPayload as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SignInRequest {
-    pub fn new() -> SignInRequest {
+impl SignInPayload {
+    pub fn new() -> SignInPayload {
         ::std::default::Default::default()
     }
 
@@ -124,7 +124,7 @@ impl SignInRequest {
     }
 }
 
-impl ::protobuf::Message for SignInRequest {
+impl ::protobuf::Message for SignInPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -208,8 +208,8 @@ impl ::protobuf::Message for SignInRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> SignInRequest {
-        SignInRequest::new()
+    fn new() -> SignInPayload {
+        SignInPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -218,34 +218,34 @@ impl ::protobuf::Message for SignInRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "email",
-                |m: &SignInRequest| { &m.email },
-                |m: &mut SignInRequest| { &mut m.email },
+                |m: &SignInPayload| { &m.email },
+                |m: &mut SignInPayload| { &mut m.email },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "password",
-                |m: &SignInRequest| { &m.password },
-                |m: &mut SignInRequest| { &mut m.password },
+                |m: &SignInPayload| { &m.password },
+                |m: &mut SignInPayload| { &mut m.password },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &SignInRequest| { &m.name },
-                |m: &mut SignInRequest| { &mut m.name },
+                |m: &SignInPayload| { &m.name },
+                |m: &mut SignInPayload| { &mut m.name },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignInRequest>(
-                "SignInRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignInPayload>(
+                "SignInPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SignInRequest {
-        static instance: ::protobuf::rt::LazyV2<SignInRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SignInRequest::new)
+    fn default_instance() -> &'static SignInPayload {
+        static instance: ::protobuf::rt::LazyV2<SignInPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SignInPayload::new)
     }
 }
 
-impl ::protobuf::Clear for SignInRequest {
+impl ::protobuf::Clear for SignInPayload {
     fn clear(&mut self) {
         self.email.clear();
         self.password.clear();
@@ -254,13 +254,13 @@ impl ::protobuf::Clear for SignInRequest {
     }
 }
 
-impl ::std::fmt::Debug for SignInRequest {
+impl ::std::fmt::Debug for SignInPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SignInRequest {
+impl ::protobuf::reflect::ProtobufValue for SignInPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -795,7 +795,7 @@ impl ::protobuf::reflect::ProtobufValue for SignInResponse {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SignUpRequest {
+pub struct SignUpPayload {
     // message fields
     pub email: ::std::string::String,
     pub name: ::std::string::String,
@@ -805,14 +805,14 @@ pub struct SignUpRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SignUpRequest {
-    fn default() -> &'a SignUpRequest {
-        <SignUpRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SignUpPayload {
+    fn default() -> &'a SignUpPayload {
+        <SignUpPayload as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SignUpRequest {
-    pub fn new() -> SignUpRequest {
+impl SignUpPayload {
+    pub fn new() -> SignUpPayload {
         ::std::default::Default::default()
     }
 
@@ -895,7 +895,7 @@ impl SignUpRequest {
     }
 }
 
-impl ::protobuf::Message for SignUpRequest {
+impl ::protobuf::Message for SignUpPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -979,8 +979,8 @@ impl ::protobuf::Message for SignUpRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> SignUpRequest {
-        SignUpRequest::new()
+    fn new() -> SignUpPayload {
+        SignUpPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -989,34 +989,34 @@ impl ::protobuf::Message for SignUpRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "email",
-                |m: &SignUpRequest| { &m.email },
-                |m: &mut SignUpRequest| { &mut m.email },
+                |m: &SignUpPayload| { &m.email },
+                |m: &mut SignUpPayload| { &mut m.email },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &SignUpRequest| { &m.name },
-                |m: &mut SignUpRequest| { &mut m.name },
+                |m: &SignUpPayload| { &m.name },
+                |m: &mut SignUpPayload| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "password",
-                |m: &SignUpRequest| { &m.password },
-                |m: &mut SignUpRequest| { &mut m.password },
+                |m: &SignUpPayload| { &m.password },
+                |m: &mut SignUpPayload| { &mut m.password },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpRequest>(
-                "SignUpRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpPayload>(
+                "SignUpPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SignUpRequest {
-        static instance: ::protobuf::rt::LazyV2<SignUpRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SignUpRequest::new)
+    fn default_instance() -> &'static SignUpPayload {
+        static instance: ::protobuf::rt::LazyV2<SignUpPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SignUpPayload::new)
     }
 }
 
-impl ::protobuf::Clear for SignUpRequest {
+impl ::protobuf::Clear for SignUpPayload {
     fn clear(&mut self) {
         self.email.clear();
         self.name.clear();
@@ -1025,13 +1025,13 @@ impl ::protobuf::Clear for SignUpRequest {
     }
 }
 
-impl ::std::fmt::Debug for SignUpRequest {
+impl ::std::fmt::Debug for SignUpPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SignUpRequest {
+impl ::protobuf::reflect::ProtobufValue for SignUpPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1566,7 +1566,7 @@ impl ::protobuf::reflect::ProtobufValue for SignUpResponse {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nauth.proto\"U\n\rSignInRequest\x12\x14\n\x05email\x18\x01\x20\x01(\t\
+    \n\nauth.proto\"U\n\rSignInPayload\x12\x14\n\x05email\x18\x01\x20\x01(\t\
     R\x05email\x12\x1a\n\x08password\x18\x02\x20\x01(\tR\x08password\x12\x12\
     \n\x04name\x18\x03\x20\x01(\tR\x04name\"T\n\x0cSignInParams\x12\x14\n\
     \x05email\x18\x01\x20\x01(\tR\x05email\x12\x1a\n\x08password\x18\x02\x20\
@@ -1574,7 +1574,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0eSignInResponse\x12\x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\
     \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x14\n\x05email\x18\
     \x03\x20\x01(\tR\x05email\x12\x14\n\x05token\x18\x04\x20\x01(\tR\x05toke\
-    n\"U\n\rSignUpRequest\x12\x14\n\x05email\x18\x01\x20\x01(\tR\x05email\
+    n\"U\n\rSignUpPayload\x12\x14\n\x05email\x18\x01\x20\x01(\tR\x05email\
     \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1a\n\x08password\x18\
     \x03\x20\x01(\tR\x08password\"T\n\x0cSignUpParams\x12\x14\n\x05email\x18\
     \x01\x20\x01(\tR\x05email\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\

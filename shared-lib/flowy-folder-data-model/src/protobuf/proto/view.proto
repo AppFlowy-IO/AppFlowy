@@ -14,7 +14,7 @@ message View {
 message RepeatedView {
     repeated View items = 1;
 }
-message CreateViewRequest {
+message CreateViewPayload {
     string belong_to_id = 1;
     string name = 2;
     string desc = 3;
@@ -30,16 +30,13 @@ message CreateViewParams {
     string view_data = 6;
     string view_id = 7;
 }
-message QueryViewRequest {
-    repeated string view_ids = 1;
-}
 message ViewId {
-    string view_id = 1;
+    string value = 1;
 }
 message RepeatedViewId {
     repeated string items = 1;
 }
-message UpdateViewRequest {
+message UpdateViewPayload {
     string view_id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };

@@ -468,41 +468,41 @@ impl ::protobuf::reflect::ProtobufValue for UserProfile {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UpdateUserRequest {
+pub struct UpdateUserPayload {
     // message fields
     pub id: ::std::string::String,
     // message oneof groups
-    pub one_of_name: ::std::option::Option<UpdateUserRequest_oneof_one_of_name>,
-    pub one_of_email: ::std::option::Option<UpdateUserRequest_oneof_one_of_email>,
-    pub one_of_password: ::std::option::Option<UpdateUserRequest_oneof_one_of_password>,
+    pub one_of_name: ::std::option::Option<UpdateUserPayload_oneof_one_of_name>,
+    pub one_of_email: ::std::option::Option<UpdateUserPayload_oneof_one_of_email>,
+    pub one_of_password: ::std::option::Option<UpdateUserPayload_oneof_one_of_password>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UpdateUserRequest {
-    fn default() -> &'a UpdateUserRequest {
-        <UpdateUserRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a UpdateUserPayload {
+    fn default() -> &'a UpdateUserPayload {
+        <UpdateUserPayload as ::protobuf::Message>::default_instance()
     }
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateUserRequest_oneof_one_of_name {
+pub enum UpdateUserPayload_oneof_one_of_name {
     name(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateUserRequest_oneof_one_of_email {
+pub enum UpdateUserPayload_oneof_one_of_email {
     email(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateUserRequest_oneof_one_of_password {
+pub enum UpdateUserPayload_oneof_one_of_password {
     password(::std::string::String),
 }
 
-impl UpdateUserRequest {
-    pub fn new() -> UpdateUserRequest {
+impl UpdateUserPayload {
+    pub fn new() -> UpdateUserPayload {
         ::std::default::Default::default()
     }
 
@@ -537,7 +537,7 @@ impl UpdateUserRequest {
 
     pub fn get_name(&self) -> &str {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(ref v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(ref v)) => v,
             _ => "",
         }
     }
@@ -547,24 +547,24 @@ impl UpdateUserRequest {
 
     pub fn has_name(&self) -> bool {
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(..)) => true,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_name(&mut self, v: ::std::string::String) {
-        self.one_of_name = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(v))
+        self.one_of_name = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(_)) = self.one_of_name {
+        if let ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(_)) = self.one_of_name {
         } else {
-            self.one_of_name = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(::std::string::String::new()));
+            self.one_of_name = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(::std::string::String::new()));
         }
         match self.one_of_name {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -573,7 +573,7 @@ impl UpdateUserRequest {
     pub fn take_name(&mut self) -> ::std::string::String {
         if self.has_name() {
             match self.one_of_name.take() {
-                ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(v)) => v,
+                ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -586,7 +586,7 @@ impl UpdateUserRequest {
 
     pub fn get_email(&self) -> &str {
         match self.one_of_email {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(ref v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(ref v)) => v,
             _ => "",
         }
     }
@@ -596,24 +596,24 @@ impl UpdateUserRequest {
 
     pub fn has_email(&self) -> bool {
         match self.one_of_email {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(..)) => true,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_email(&mut self, v: ::std::string::String) {
-        self.one_of_email = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(v))
+        self.one_of_email = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_email(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(_)) = self.one_of_email {
+        if let ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(_)) = self.one_of_email {
         } else {
-            self.one_of_email = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(::std::string::String::new()));
+            self.one_of_email = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(::std::string::String::new()));
         }
         match self.one_of_email {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -622,7 +622,7 @@ impl UpdateUserRequest {
     pub fn take_email(&mut self) -> ::std::string::String {
         if self.has_email() {
             match self.one_of_email.take() {
-                ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(v)) => v,
+                ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -635,7 +635,7 @@ impl UpdateUserRequest {
 
     pub fn get_password(&self) -> &str {
         match self.one_of_password {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(ref v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(ref v)) => v,
             _ => "",
         }
     }
@@ -645,24 +645,24 @@ impl UpdateUserRequest {
 
     pub fn has_password(&self) -> bool {
         match self.one_of_password {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(..)) => true,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_password(&mut self, v: ::std::string::String) {
-        self.one_of_password = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(v))
+        self.one_of_password = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_password(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(_)) = self.one_of_password {
+        if let ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(_)) = self.one_of_password {
         } else {
-            self.one_of_password = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(::std::string::String::new()));
+            self.one_of_password = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(::std::string::String::new()));
         }
         match self.one_of_password {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(ref mut v)) => v,
+            ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -671,7 +671,7 @@ impl UpdateUserRequest {
     pub fn take_password(&mut self) -> ::std::string::String {
         if self.has_password() {
             match self.one_of_password.take() {
-                ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(v)) => v,
+                ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -680,7 +680,7 @@ impl UpdateUserRequest {
     }
 }
 
-impl ::protobuf::Message for UpdateUserRequest {
+impl ::protobuf::Message for UpdateUserPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -696,19 +696,19 @@ impl ::protobuf::Message for UpdateUserRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_name = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_name::name(is.read_string()?));
+                    self.one_of_name = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_name::name(is.read_string()?));
                 },
                 3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_email = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_email::email(is.read_string()?));
+                    self.one_of_email = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_email::email(is.read_string()?));
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_password = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(is.read_string()?));
+                    self.one_of_password = ::std::option::Option::Some(UpdateUserPayload_oneof_one_of_password::password(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -727,21 +727,21 @@ impl ::protobuf::Message for UpdateUserRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateUserRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateUserPayload_oneof_one_of_name::name(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_email {
             match v {
-                &UpdateUserRequest_oneof_one_of_email::email(ref v) => {
+                &UpdateUserPayload_oneof_one_of_email::email(ref v) => {
                     my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
-                &UpdateUserRequest_oneof_one_of_password::password(ref v) => {
+                &UpdateUserPayload_oneof_one_of_password::password(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
@@ -757,21 +757,21 @@ impl ::protobuf::Message for UpdateUserRequest {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &UpdateUserRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateUserPayload_oneof_one_of_name::name(ref v) => {
                     os.write_string(2, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_email {
             match v {
-                &UpdateUserRequest_oneof_one_of_email::email(ref v) => {
+                &UpdateUserPayload_oneof_one_of_email::email(ref v) => {
                     os.write_string(3, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
-                &UpdateUserRequest_oneof_one_of_password::password(ref v) => {
+                &UpdateUserPayload_oneof_one_of_password::password(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
@@ -806,8 +806,8 @@ impl ::protobuf::Message for UpdateUserRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> UpdateUserRequest {
-        UpdateUserRequest::new()
+    fn new() -> UpdateUserPayload {
+        UpdateUserPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -816,39 +816,39 @@ impl ::protobuf::Message for UpdateUserRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &UpdateUserRequest| { &m.id },
-                |m: &mut UpdateUserRequest| { &mut m.id },
+                |m: &UpdateUserPayload| { &m.id },
+                |m: &mut UpdateUserPayload| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
-                UpdateUserRequest::has_name,
-                UpdateUserRequest::get_name,
+                UpdateUserPayload::has_name,
+                UpdateUserPayload::get_name,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "email",
-                UpdateUserRequest::has_email,
-                UpdateUserRequest::get_email,
+                UpdateUserPayload::has_email,
+                UpdateUserPayload::get_email,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "password",
-                UpdateUserRequest::has_password,
-                UpdateUserRequest::get_password,
+                UpdateUserPayload::has_password,
+                UpdateUserPayload::get_password,
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateUserRequest>(
-                "UpdateUserRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateUserPayload>(
+                "UpdateUserPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UpdateUserRequest {
-        static instance: ::protobuf::rt::LazyV2<UpdateUserRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UpdateUserRequest::new)
+    fn default_instance() -> &'static UpdateUserPayload {
+        static instance: ::protobuf::rt::LazyV2<UpdateUserPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateUserPayload::new)
     }
 }
 
-impl ::protobuf::Clear for UpdateUserRequest {
+impl ::protobuf::Clear for UpdateUserPayload {
     fn clear(&mut self) {
         self.id.clear();
         self.one_of_name = ::std::option::Option::None;
@@ -858,13 +858,13 @@ impl ::protobuf::Clear for UpdateUserRequest {
     }
 }
 
-impl ::std::fmt::Debug for UpdateUserRequest {
+impl ::std::fmt::Debug for UpdateUserPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UpdateUserRequest {
+impl ::protobuf::reflect::ProtobufValue for UpdateUserPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1278,7 +1278,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\tR\x05token\"]\n\x0bUserProfile\x12\x0e\n\x02id\x18\x01\x20\x01(\t\
     R\x02id\x12\x14\n\x05email\x18\x02\x20\x01(\tR\x05email\x12\x12\n\x04nam\
     e\x18\x03\x20\x01(\tR\x04name\x12\x14\n\x05token\x18\x04\x20\x01(\tR\x05\
-    token\"\xa1\x01\n\x11UpdateUserRequest\x12\x0e\n\x02id\x18\x01\x20\x01(\
+    token\"\xa1\x01\n\x11UpdateUserPayload\x12\x0e\n\x02id\x18\x01\x20\x01(\
     \tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x16\n\x05\
     email\x18\x03\x20\x01(\tH\x01R\x05email\x12\x1c\n\x08password\x18\x04\
     \x20\x01(\tH\x02R\x08passwordB\r\n\x0bone_of_nameB\x0e\n\x0cone_of_email\

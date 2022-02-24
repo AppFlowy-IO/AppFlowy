@@ -14,13 +14,7 @@ where
     fn into_bytes(self) -> Result<Bytes, DispatchError> {
         match self.try_into() {
             Ok(data) => Ok(data),
-            Err(e) => {
-                // let system_err: DispatchError = InternalError::new(format!("{:?}",
-                // e)).into(); system_err.into()
-                // Err(format!("{:?}", e))
-
-                Err(InternalError::ProtobufError(format!("{:?}", e)).into())
-            }
+            Err(e) => Err(InternalError::ProtobufError(format!("{:?}", e)).into()),
         }
     }
 }

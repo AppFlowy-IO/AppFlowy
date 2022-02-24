@@ -38,7 +38,7 @@ pub struct RepeatedWorkspace {
 impl_def_and_def_mut!(RepeatedWorkspace, Workspace);
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateWorkspaceRequest {
+pub struct CreateWorkspacePayload {
     #[pb(index = 1)]
     pub name: String,
 
@@ -55,7 +55,7 @@ pub struct CreateWorkspaceParams {
     pub desc: String,
 }
 
-impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
+impl TryInto<CreateWorkspaceParams> for CreateWorkspacePayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
@@ -69,42 +69,16 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
     }
 }
 
-#[derive(Default, ProtoBuf, Clone)]
-pub struct QueryWorkspaceRequest {
-    // return all workspace if workspace_id is None
-    #[pb(index = 1, one_of)]
-    pub workspace_id: Option<String>,
-}
-
-impl QueryWorkspaceRequest {
-    pub fn new(workspace_id: Option<String>) -> Self {
-        Self { workspace_id }
-    }
-}
-
 // Read all workspaces if the workspace_id is None
 #[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct WorkspaceId {
     #[pb(index = 1, one_of)]
-    pub workspace_id: Option<String>,
+    pub value: Option<String>,
 }
 
 impl WorkspaceId {
     pub fn new(workspace_id: Option<String>) -> Self {
-        Self { workspace_id }
-    }
-}
-
-impl TryInto<WorkspaceId> for QueryWorkspaceRequest {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<WorkspaceId, Self::Error> {
-        let workspace_id = match self.workspace_id {
-            None => None,
-            Some(workspace_id) => Some(WorkspaceIdentify::parse(workspace_id)?.0),
-        };
-
-        Ok(WorkspaceId { workspace_id })
+        Self { value: workspace_id }
     }
 }
 

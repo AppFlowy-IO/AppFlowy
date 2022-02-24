@@ -1,7 +1,7 @@
 use crate::helper::*;
 use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
-use flowy_user_data_model::entities::{UpdateUserRequest, UserProfile};
+use flowy_user_data_model::entities::{UpdateUserPayload, UserProfile};
 use lib_infra::uuid_string;
 use serial_test::*;
 
@@ -34,10 +34,10 @@ async fn user_update_with_name() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_name = "hello_world".to_owned();
-    let request = UpdateUserRequest::new(&user.id).name(&new_name);
+    let request = UpdateUserPayload::new(&user.id).name(&new_name);
     let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)
-        .request(request)
+        .payload(request)
         .sync_send();
 
     let user_profile = UserModuleEventBuilder::new(sdk.clone())
@@ -55,10 +55,10 @@ async fn user_update_with_email() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_email = format!("{}@gmail.com", uuid_string());
-    let request = UpdateUserRequest::new(&user.id).email(&new_email);
+    let request = UpdateUserPayload::new(&user.id).email(&new_email);
     let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)
-        .request(request)
+        .payload(request)
         .sync_send();
     let user_profile = UserModuleEventBuilder::new(sdk.clone())
         .event(GetUserProfile)
@@ -75,11 +75,11 @@ async fn user_update_with_password() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
     let new_password = "H123world!".to_owned();
-    let request = UpdateUserRequest::new(&user.id).password(&new_password);
+    let request = UpdateUserPayload::new(&user.id).password(&new_password);
 
     let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)
-        .request(request)
+        .payload(request)
         .sync_send()
         .assert_success();
 }
@@ -90,11 +90,11 @@ async fn user_update_with_invalid_email() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;
     for email in invalid_email_test_case() {
-        let request = UpdateUserRequest::new(&user.id).email(&email);
+        let request = UpdateUserPayload::new(&user.id).email(&email);
         assert_eq!(
             UserModuleEventBuilder::new(test.clone())
                 .event(UpdateUser)
-                .request(request)
+                .payload(request)
                 .sync_send()
                 .error()
                 .code,
@@ -109,11 +109,11 @@ async fn user_update_with_invalid_password() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;
     for password in invalid_password_test_case() {
-        let request = UpdateUserRequest::new(&user.id).password(&password);
+        let request = UpdateUserPayload::new(&user.id).password(&password);
 
         UserModuleEventBuilder::new(test.clone())
             .event(UpdateUser)
-            .request(request)
+            .payload(request)
             .sync_send()
             .assert_error();
     }
@@ -124,10 +124,10 @@ async fn user_update_with_invalid_password() {
 async fn user_update_with_invalid_name() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;
-    let request = UpdateUserRequest::new(&user.id).name("");
+    let request = UpdateUserPayload::new(&user.id).name("");
     UserModuleEventBuilder::new(test.clone())
         .event(UpdateUser)
-        .request(request)
+        .payload(request)
         .sync_send()
         .assert_error();
 }

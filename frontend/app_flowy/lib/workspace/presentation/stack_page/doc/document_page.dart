@@ -14,23 +14,23 @@ import 'styles.dart';
 import 'widget/banner.dart';
 import 'widget/toolbar/tool_bar.dart';
 
-class DocPage extends StatefulWidget {
+class DocumentPage extends StatefulWidget {
   final View view;
 
-  DocPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
+  DocumentPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 
   @override
-  State<DocPage> createState() => _DocPageState();
+  State<DocumentPage> createState() => _DocumentPageState();
 }
 
-class _DocPageState extends State<DocPage> {
-  late DocBloc docBloc;
+class _DocumentPageState extends State<DocumentPage> {
+  late DocumentBloc documentBloc;
   final scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
-    docBloc = getIt<DocBloc>(param1: super.widget.view)..add(const DocEvent.initial());
+    documentBloc = getIt<DocumentBloc>(param1: super.widget.view)..add(const DocumentEvent.initial());
     super.initState();
   }
 
@@ -38,10 +38,10 @@ class _DocPageState extends State<DocPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<DocBloc>.value(value: docBloc),
+        BlocProvider<DocumentBloc>.value(value: documentBloc),
       ],
-      child: BlocBuilder<DocBloc, DocState>(builder: (context, state) {
-        return state.loadState.map(
+      child: BlocBuilder<DocumentBloc, DocumentState>(builder: (context, state) {
+        return state.loadingState.map(
           // loading: (_) => const FlowyProgressIndicator(),
           loading: (_) => SizedBox.expand(child: Container(color: Colors.transparent)),
           finish: (result) => result.successOrFail.fold(
@@ -49,7 +49,7 @@ class _DocPageState extends State<DocPage> {
               if (state.forceClose) {
                 return _renderAppPage();
               } else {
-                return _renderDoc(context, state);
+                return _renderDocument(context, state);
               }
             },
             (err) => FlowyErrorPage(err.toString()),
@@ -61,13 +61,13 @@ class _DocPageState extends State<DocPage> {
 
   @override
   Future<void> dispose() async {
-    docBloc.close();
+    documentBloc.close();
     super.dispose();
   }
 
-  Widget _renderDoc(BuildContext context, DocState state) {
+  Widget _renderDocument(BuildContext context, DocumentState state) {
     quill.QuillController controller = quill.QuillController(
-      document: context.read<DocBloc>().document,
+      document: context.read<DocumentBloc>().document,
       selection: const TextSelection.collapsed(offset: 0),
     );
     return Column(
@@ -89,9 +89,9 @@ class _DocPageState extends State<DocPage> {
   }
 
   Widget _renderBanner(BuildContext context) {
-    return DocBanner(
-      onRestore: () => context.read<DocBloc>().add(const DocEvent.restorePage()),
-      onDelete: () => context.read<DocBloc>().add(const DocEvent.deletePermanently()),
+    return DocumentBanner(
+      onRestore: () => context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
+      onDelete: () => context.read<DocumentBloc>().add(const DocumentEvent.deletePermanently()),
     );
   }
 

@@ -153,7 +153,7 @@ impl FolderTest {
                 assert_eq!(self.view, view);
             }
             FolderScript::ReadView(view_id) => {
-                let view = read_view(sdk, vec![view_id]).await;
+                let view = read_view(sdk, &view_id).await;
                 self.view = view;
             }
             FolderScript::UpdateView { name, desc } => {

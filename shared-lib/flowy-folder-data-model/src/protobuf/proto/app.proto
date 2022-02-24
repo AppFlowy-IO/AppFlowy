@@ -14,7 +14,7 @@ message App {
 message RepeatedApp {
     repeated App items = 1;
 }
-message CreateAppRequest {
+message CreateAppPayload {
     string workspace_id = 1;
     string name = 2;
     string desc = 3;
@@ -29,13 +29,10 @@ message CreateAppParams {
     string desc = 3;
     ColorStyle color_style = 4;
 }
-message QueryAppRequest {
-    repeated string app_ids = 1;
-}
 message AppId {
-    string app_id = 1;
+    string value = 1;
 }
-message UpdateAppRequest {
+message UpdateAppPayload {
     string app_id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };

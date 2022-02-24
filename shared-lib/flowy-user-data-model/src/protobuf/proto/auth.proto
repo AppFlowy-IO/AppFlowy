@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message SignInRequest {
+message SignInPayload {
     string email = 1;
     string password = 2;
     string name = 3;
@@ -16,7 +16,7 @@ message SignInResponse {
     string email = 3;
     string token = 4;
 }
-message SignUpRequest {
+message SignUpPayload {
     string email = 1;
     string name = 2;
     string password = 3;

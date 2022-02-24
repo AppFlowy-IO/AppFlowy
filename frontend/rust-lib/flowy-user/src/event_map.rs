@@ -39,16 +39,16 @@ pub enum UserEvent {
     #[event()]
     InitUser = 0,
 
-    #[event(input = "SignInRequest", output = "UserProfile")]
+    #[event(input = "SignInPayload", output = "UserProfile")]
     SignIn = 1,
 
-    #[event(input = "SignUpRequest", output = "UserProfile")]
+    #[event(input = "SignUpPayload", output = "UserProfile")]
     SignUp = 2,
 
     #[event(passthrough)]
     SignOut = 3,
 
-    #[event(input = "UpdateUserRequest")]
+    #[event(input = "UpdateUserPayload")]
     UpdateUser = 4,
 
     #[event(output = "UserProfile")]

@@ -9,7 +9,7 @@ message UserProfile {
     string name = 3;
     string token = 4;
 }
-message UpdateUserRequest {
+message UpdateUserPayload {
     string id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_email { string email = 3; };

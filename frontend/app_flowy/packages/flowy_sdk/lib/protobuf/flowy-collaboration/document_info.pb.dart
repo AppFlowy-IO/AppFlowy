@@ -365,17 +365,17 @@ class NewDocUser extends $pb.GeneratedMessage {
 
 class DocumentId extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentId', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
     ..hasRequiredFields = false
   ;
 
   DocumentId._() : super();
   factory DocumentId({
-    $core.String? docId,
+    $core.String? value,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (value != null) {
+      _result.value = value;
     }
     return _result;
   }
@@ -401,12 +401,12 @@ class DocumentId extends $pb.GeneratedMessage {
   static DocumentId? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get value => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set value($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearValue() => clearField(1);
 }
 
