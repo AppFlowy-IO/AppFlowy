@@ -29,12 +29,13 @@ jobs:
           cargo make flowy_dev
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Deps Flutter
-        run: flutter pub get
+        run: flutter packages pub get
         working-directory: frontend/app_flowy
-      - name: Code Generate
+      - name: Code Generation
         working-directory: frontend/app_flowy
-        run:
-          flutter pub run easy_localization:generate --source-dir ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
+        run: |
+          flutter packages pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
+          flutter packages pub run build_runner build --delete-conflicting-outputs
       - name: Build FlowySDK
         working-directory: frontend
         run: |

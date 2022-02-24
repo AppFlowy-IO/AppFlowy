@@ -16,43 +16,44 @@ class DocumentBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    // [[Row]] CrossAxisAlignment vs mainAxisAlignment
-    // https://stackoverflow.com/questions/53850149/flutter-crossaxisalignment-vs-mainaxisalignment
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
+        width: double.infinity,
         color: theme.main1,
-        child: Row(
-          children: [
-            FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(), color: Colors.white),
-            const HSpace(20),
-            BaseStyledButton(
-                minWidth: 160,
-                minHeight: 40,
-                contentPadding: EdgeInsets.zero,
-                bgColor: Colors.transparent,
-                hoverColor: theme.main2,
-                downColor: theme.main1,
-                outlineColor: Colors.white,
-                borderRadius: Corners.s8Border,
-                child: FlowyText.medium(LocaleKeys.deletePagePrompt_restore.tr(), color: Colors.white, fontSize: 14),
-                onPressed: onRestore),
-            const HSpace(20),
-            BaseStyledButton(
-                minWidth: 220,
-                minHeight: 40,
-                contentPadding: EdgeInsets.zero,
-                bgColor: Colors.transparent,
-                hoverColor: theme.main2,
-                downColor: theme.main1,
-                outlineColor: Colors.white,
-                borderRadius: Corners.s8Border,
-                child: FlowyText.medium(LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                    color: Colors.white, fontSize: 14),
-                onPressed: onDelete),
-          ],
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: FittedBox(
+          alignment: Alignment.center,
+          fit: BoxFit.scaleDown,
+          child: Row(
+            children: [
+              FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(), color: Colors.white),
+              const HSpace(20),
+              BaseStyledButton(
+                  minWidth: 160,
+                  minHeight: 40,
+                  contentPadding: EdgeInsets.zero,
+                  bgColor: Colors.transparent,
+                  hoverColor: theme.main2,
+                  downColor: theme.main1,
+                  outlineColor: Colors.white,
+                  borderRadius: Corners.s8Border,
+                  child: FlowyText.medium(LocaleKeys.deletePagePrompt_restore.tr(), color: Colors.white, fontSize: 14),
+                  onPressed: onRestore),
+              const HSpace(20),
+              BaseStyledButton(
+                  minWidth: 220,
+                  minHeight: 40,
+                  contentPadding: EdgeInsets.zero,
+                  bgColor: Colors.transparent,
+                  hoverColor: theme.main2,
+                  downColor: theme.main1,
+                  outlineColor: Colors.white,
+                  borderRadius: Corners.s8Border,
+                  child: FlowyText.medium(LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                      color: Colors.white, fontSize: 14),
+                  onPressed: onDelete),
+            ],
+          ),
         ),
       ),
     );

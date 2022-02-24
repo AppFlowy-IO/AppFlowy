@@ -37,6 +37,10 @@ lib/generated_plugin_registrant.dart
 # Language related generated files
 lib/generated/
 
+# Freezed generated files
+*.g.dart 
+*.freezed.dart
+
 # Symbolication related
 app.*.symbols
 
