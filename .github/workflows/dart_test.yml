@@ -21,6 +21,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: Deps Flutter
+        run: flutter packages pub get
+        working-directory: frontend/app_flowy
       - name: Deps Rust
         working-directory: frontend
         run: |
@@ -28,9 +31,6 @@ jobs:
           cargo install --force duckscript_cli
           cargo make flowy_dev
           echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
-      - name: Deps Flutter
-        run: flutter packages pub get
-        working-directory: frontend/app_flowy
       - name: Code Generation
         working-directory: frontend/app_flowy
         run: |
