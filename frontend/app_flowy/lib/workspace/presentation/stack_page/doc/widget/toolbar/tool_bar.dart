@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:app_flowy/workspace/presentation/stack_page/doc/widget/toolbar/history_button.dart';
+import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/material.dart';
@@ -150,6 +151,11 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
         FlowyLinkStyleButton(
           controller: controller,
           iconSize: toolbarIconSize,
+        ),
+        FlowyEmojiStyleButton(
+          normalIcon: 'editor/insert_emoticon',
+          controller: controller,
+          tooltipText: "Emoji Picker",
         ),
       ],
     );
