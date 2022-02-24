@@ -1,38 +1,38 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "Moi",
-  "welcomeText": "Bienvenue à @:appName",
-  "githubStarText": "Favorier sur GitHub",
+  "welcomeText": "Bienvenue sur @:appName",
+  "githubStarText": "Favoriser sur GitHub",
   "subscribeNewsletterText": "S'inscrire à la Newsletter",
   "letsGoButtonText": "Allons-y",
   "title": "Titre",
   "signUp": {
     "buttonText": "S'inscrire",
-    "title": "Inscrivez-vous pour @:appName",
+    "title": "Inscrivez-vous sur @:appName",
     "getStartedText": "Commencer",
     "emptyPasswordError": "Vous n'avez pas saisi votre mot de passe",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
-    "alreadyHaveAnAccount": "Vous avez déjà un compte?",
+    "alreadyHaveAnAccount": "Avez-vous déjà un compte ?",
     "emailHint": "Email",
     "passwordHint": "Mot de passe",
-    "repeatPasswordHint": "Ressaisir le mot de passe"
+    "repeatPasswordHint": "Ressaisir votre mot de passe"
   },
   "signIn": {
     "loginTitle": "Connexion à @:appName",
     "loginButtonText": "Connexion",
     "buttonText": "Se connecter",
-    "forgotPassword": "Mot de passe oublié?",
+    "forgotPassword": "Mot de passe oublié ?",
     "emailHint": "Email",
     "passwordHint": "Mot de passe",
-    "dontHaveAnAccount": "Vous n'avez pas encore créé votre compte?",
+    "dontHaveAnAccount": "Vous n'avez pas encore créé votre compte ?",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques"
   },
   "workspace": {
     "create": "Créer un espace de travail",
     "hint": "Espace de travail",
-    "notFoundError": "On n'a pas pu trouver votre espace de travail"
+    "notFoundError": "Espace de travail introuvable"
   },
   "shareAction": {
     "buttonText": "Partager",
@@ -67,9 +67,9 @@
     "whatsNew": "Nouveautés",
     "help": "Aide et Support",
     "debug": {
-      "name": "Informations de Debug",
-      "success": "Informations de Debug copiées dans le presse-papiers!",
-      "fail": "Impossible de copier les informations de Debug dans le presse-papiers"
+      "name": "Informations de Débogage",
+      "success": "Informations de Débogage copiées dans le presse-papiers!",
+      "fail": "Impossible de copier les informations de Débogage dans le presse-papiers"
     }
   },
   "menuAppHeader": {
@@ -98,7 +98,7 @@
   },
   "contactsPage": {
     "title": "Contacts",
-    "whatsHappening": "Que se passe-t-il cette semaine?",
+    "whatsHappening": "Que se passe-t-il cette semaine ?",
     "addContact": "Ajouter un contact",
     "editContact": "Modifier le contact"
   },
@@ -111,7 +111,7 @@
     "save": "Enregistrer"
   },
   "label": {
-    "welcome": "Bienvenue!",
+    "welcome": "Bienvenue !",
     "firstName": "Prénom",
     "middleName": "Deuxième prénom",
     "lastName": "Nom",
