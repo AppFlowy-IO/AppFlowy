@@ -41,7 +41,7 @@ pub enum FolderEvent {
     DeleteView = 204,
     DuplicateView = 205,
     CopyLink = 206,
-    OpenDocument = 207,
+    OpenView = 207,
     CloseView = 208,
     ReadTrash = 300,
     PutbackTrash = 301,
@@ -75,7 +75,7 @@ impl ::protobuf::ProtobufEnum for FolderEvent {
             204 => ::std::option::Option::Some(FolderEvent::DeleteView),
             205 => ::std::option::Option::Some(FolderEvent::DuplicateView),
             206 => ::std::option::Option::Some(FolderEvent::CopyLink),
-            207 => ::std::option::Option::Some(FolderEvent::OpenDocument),
+            207 => ::std::option::Option::Some(FolderEvent::OpenView),
             208 => ::std::option::Option::Some(FolderEvent::CloseView),
             300 => ::std::option::Option::Some(FolderEvent::ReadTrash),
             301 => ::std::option::Option::Some(FolderEvent::PutbackTrash),
@@ -106,7 +106,7 @@ impl ::protobuf::ProtobufEnum for FolderEvent {
             FolderEvent::DeleteView,
             FolderEvent::DuplicateView,
             FolderEvent::CopyLink,
-            FolderEvent::OpenDocument,
+            FolderEvent::OpenView,
             FolderEvent::CloseView,
             FolderEvent::ReadTrash,
             FolderEvent::PutbackTrash,
@@ -143,19 +143,19 @@ impl ::protobuf::reflect::ProtobufValue for FolderEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xd6\x03\n\x0bFolderEvent\x12\x13\n\x0fCreateWorks\
+    \n\x0fevent_map.proto*\xd2\x03\n\x0bFolderEvent\x12\x13\n\x0fCreateWorks\
     pace\x10\0\x12\x14\n\x10ReadCurWorkspace\x10\x01\x12\x12\n\x0eReadWorksp\
     aces\x10\x02\x12\x13\n\x0fDeleteWorkspace\x10\x03\x12\x11\n\rOpenWorkspa\
     ce\x10\x04\x12\x15\n\x11ReadWorkspaceApps\x10\x05\x12\r\n\tCreateApp\x10\
     e\x12\r\n\tDeleteApp\x10f\x12\x0b\n\x07ReadApp\x10g\x12\r\n\tUpdateApp\
     \x10h\x12\x0f\n\nCreateView\x10\xc9\x01\x12\r\n\x08ReadView\x10\xca\x01\
     \x12\x0f\n\nUpdateView\x10\xcb\x01\x12\x0f\n\nDeleteView\x10\xcc\x01\x12\
-    \x12\n\rDuplicateView\x10\xcd\x01\x12\r\n\x08CopyLink\x10\xce\x01\x12\
-    \x11\n\x0cOpenDocument\x10\xcf\x01\x12\x0e\n\tCloseView\x10\xd0\x01\x12\
-    \x0e\n\tReadTrash\x10\xac\x02\x12\x11\n\x0cPutbackTrash\x10\xad\x02\x12\
-    \x10\n\x0bDeleteTrash\x10\xae\x02\x12\x14\n\x0fRestoreAllTrash\x10\xaf\
-    \x02\x12\x13\n\x0eDeleteAllTrash\x10\xb0\x02\x12\x12\n\rApplyDocDelta\
-    \x10\x90\x03\x12\x13\n\x0eExportDocument\x10\xf4\x03b\x06proto3\
+    \x12\n\rDuplicateView\x10\xcd\x01\x12\r\n\x08CopyLink\x10\xce\x01\x12\r\
+    \n\x08OpenView\x10\xcf\x01\x12\x0e\n\tCloseView\x10\xd0\x01\x12\x0e\n\tR\
+    eadTrash\x10\xac\x02\x12\x11\n\x0cPutbackTrash\x10\xad\x02\x12\x10\n\x0b\
+    DeleteTrash\x10\xae\x02\x12\x14\n\x0fRestoreAllTrash\x10\xaf\x02\x12\x13\
+    \n\x0eDeleteAllTrash\x10\xb0\x02\x12\x12\n\rApplyDocDelta\x10\x90\x03\
+    \x12\x13\n\x0eExportDocument\x10\xf4\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

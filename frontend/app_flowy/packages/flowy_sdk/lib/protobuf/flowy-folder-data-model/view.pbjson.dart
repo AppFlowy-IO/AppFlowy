@@ -80,16 +80,6 @@ const CreateViewParams$json = const {
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhsKCXZpZXdfZGF0YRgGIAEoCVIIdmlld0RhdGESFwoHdmlld19pZBgHIAEoCVIGdmlld0lk');
-@$core.Deprecated('Use queryViewRequestDescriptor instead')
-const QueryViewRequest$json = const {
-  '1': 'QueryViewRequest',
-  '2': const [
-    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
-  ],
-};
-
-/// Descriptor for `QueryViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhkKCHZpZXdfaWRzGAEgAygJUgd2aWV3SWRz');
 @$core.Deprecated('Use viewIdDescriptor instead')
 const ViewId$json = const {
   '1': 'ViewId',

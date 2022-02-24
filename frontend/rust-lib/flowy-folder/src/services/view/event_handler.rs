@@ -2,8 +2,7 @@ use crate::{
     entities::{
         trash::Trash,
         view::{
-            CreateViewParams, CreateViewRequest, QueryViewRequest, RepeatedViewId, UpdateViewParams, UpdateViewRequest,
-            View, ViewId,
+            CreateViewParams, CreateViewRequest, RepeatedViewId, UpdateViewParams, UpdateViewRequest, View, ViewId,
         },
     },
     errors::FlowyError,
@@ -24,10 +23,10 @@ pub(crate) async fn create_view_handler(
 }
 
 pub(crate) async fn read_view_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
-    let params: ViewId = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner();
     let mut view = controller.read_view(params.clone()).await?;
     // For the moment, app and view can contains lots of views. Reading the view
     // belongings using the view_id.
@@ -56,11 +55,11 @@ pub(crate) async fn document_delta_handler(
 }
 
 pub(crate) async fn delete_view_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<RepeatedViewId>,
     view_controller: Unit<Arc<ViewController>>,
     trash_controller: Unit<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let params: RepeatedViewId = data.into_inner().try_into()?;
+    let params: RepeatedViewId = data.into_inner();
     for view_id in &params.items {
         let _ = view_controller.delete_view(view_id.into()).await;
     }
@@ -77,29 +76,29 @@ pub(crate) async fn delete_view_handler(
 }
 
 pub(crate) async fn open_document_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
-    let params: ViewId = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner();
     let doc = controller.open_document(&params.view_id).await?;
     data_result(doc)
 }
 
 pub(crate) async fn close_view_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewId = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner();
     let _ = controller.close_view(&params.view_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn duplicate_view_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<ViewId>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewId = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner();
     let _ = controller.duplicate_view(&params.view_id).await?;
     Ok(())
 }

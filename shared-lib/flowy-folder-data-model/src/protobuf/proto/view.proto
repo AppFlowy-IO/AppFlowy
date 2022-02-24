@@ -30,9 +30,6 @@ message CreateViewParams {
     string view_data = 6;
     string view_id = 7;
 }
-message QueryViewRequest {
-    repeated string view_ids = 1;
-}
 message ViewId {
     string view_id = 1;
 }

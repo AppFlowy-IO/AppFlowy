@@ -1424,164 +1424,6 @@ impl ::protobuf::reflect::ProtobufValue for CreateViewParams {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryViewRequest {
-    // message fields
-    pub view_ids: ::protobuf::RepeatedField<::std::string::String>,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a QueryViewRequest {
-    fn default() -> &'a QueryViewRequest {
-        <QueryViewRequest as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl QueryViewRequest {
-    pub fn new() -> QueryViewRequest {
-        ::std::default::Default::default()
-    }
-
-    // repeated string view_ids = 1;
-
-
-    pub fn get_view_ids(&self) -> &[::std::string::String] {
-        &self.view_ids
-    }
-    pub fn clear_view_ids(&mut self) {
-        self.view_ids.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_view_ids(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
-        self.view_ids = v;
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_view_ids(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
-        &mut self.view_ids
-    }
-
-    // Take field
-    pub fn take_view_ids(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
-        ::std::mem::replace(&mut self.view_ids, ::protobuf::RepeatedField::new())
-    }
-}
-
-impl ::protobuf::Message for QueryViewRequest {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.view_ids)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        for value in &self.view_ids {
-            my_size += ::protobuf::rt::string_size(1, &value);
-        };
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        for v in &self.view_ids {
-            os.write_string(1, &v)?;
-        };
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> QueryViewRequest {
-        QueryViewRequest::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_ids",
-                |m: &QueryViewRequest| { &m.view_ids },
-                |m: &mut QueryViewRequest| { &mut m.view_ids },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryViewRequest>(
-                "QueryViewRequest",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static QueryViewRequest {
-        static instance: ::protobuf::rt::LazyV2<QueryViewRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryViewRequest::new)
-    }
-}
-
-impl ::protobuf::Clear for QueryViewRequest {
-    fn clear(&mut self) {
-        self.view_ids.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for QueryViewRequest {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for QueryViewRequest {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
 pub struct ViewId {
     // message fields
     pub view_id: ::std::string::String,
@@ -2773,20 +2615,19 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     me\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\
     \x18\x04\x20\x01(\tR\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\
     \t.ViewTypeR\x08viewType\x12\x1b\n\tview_data\x18\x06\x20\x01(\tR\x08vie\
-    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"-\n\x10QueryVi\
-    ewRequest\x12\x19\n\x08view_ids\x18\x01\x20\x03(\tR\x07viewIds\"!\n\x06V\
-    iewId\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\"&\n\x0eRepeate\
-    dViewId\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11U\
-    pdateViewRequest\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\
-    \x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\
-    \x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\
-    \tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thu\
-    mbnail\"\xa9\x01\n\x10UpdateViewParams\x12\x17\n\x07view_id\x18\x01\x20\
-    \x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\
-    \x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\
-    \x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_desc\
-    B\x12\n\x10one_of_thumbnail*\x1e\n\x08ViewType\x12\t\n\x05Blank\x10\0\
-    \x12\x07\n\x03Doc\x10\x01b\x06proto3\
+    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"!\n\x06ViewId\
+    \x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\"&\n\x0eRepeatedView\
+    Id\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11Update\
+    ViewRequest\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
+    \x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
+    \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
+    mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
+    l\"\xa9\x01\n\x10UpdateViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\
+    \tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\
+    \x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\
+    \x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
+    \x12\n\x10one_of_thumbnail*\x1e\n\x08ViewType\x12\t\n\x05Blank\x10\0\x12\
+    \x07\n\x03Doc\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

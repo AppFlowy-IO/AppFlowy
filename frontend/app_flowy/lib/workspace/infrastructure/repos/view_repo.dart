@@ -18,7 +18,7 @@ class ViewRepository {
   });
 
   Future<Either<View, FlowyError>> readView() {
-    final request = QueryViewRequest(viewIds: [view.id]);
+    final request = ViewId(viewId: view.id);
     return FolderEventReadView(request).send();
   }
 
@@ -37,12 +37,12 @@ class ViewRepository {
   }
 
   Future<Either<Unit, FlowyError>> delete() {
-    final request = QueryViewRequest.create()..viewIds.add(view.id);
+    final request = RepeatedViewId.create()..items.add(view.id);
     return FolderEventDeleteView(request).send();
   }
 
   Future<Either<Unit, FlowyError>> duplicate() {
-    final request = QueryViewRequest.create()..viewIds.add(view.id);
+    final request = ViewId(viewId: view.id);
     return FolderEventDuplicateView(request).send();
   }
 }

@@ -164,10 +164,8 @@ struct DocumentRevisionCloudServiceImpl {
 
 impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     #[tracing::instrument(level = "trace", skip(self))]
-    fn fetch_object(&self, user_id: &str, doc_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params = DocumentId {
-            doc_id: doc_id.to_string(),
-        };
+    fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
+        let params: DocumentId = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
         let user_id = user_id.to_string();

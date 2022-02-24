@@ -63,7 +63,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::UpdateView, update_view_handler)
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
-        .event(FolderEvent::OpenDocument, open_document_handler)
+        .event(FolderEvent::OpenView, open_document_handler)
         .event(FolderEvent::CloseView, close_view_handler)
         .event(FolderEvent::ApplyDocDelta, document_delta_handler);
 
@@ -115,25 +115,25 @@ pub enum FolderEvent {
     #[event(input = "CreateViewRequest", output = "View")]
     CreateView = 201,
 
-    #[event(input = "QueryViewRequest", output = "View")]
+    #[event(input = "ViewId", output = "View")]
     ReadView = 202,
 
     #[event(input = "UpdateViewRequest", output = "View")]
     UpdateView = 203,
 
-    #[event(input = "QueryViewRequest")]
+    #[event(input = "RepeatedViewId")]
     DeleteView = 204,
 
-    #[event(input = "QueryViewRequest")]
+    #[event(input = "ViewId")]
     DuplicateView = 205,
 
     #[event()]
     CopyLink = 206,
 
-    #[event(input = "QueryViewRequest", output = "DocumentDelta")]
-    OpenDocument = 207,
+    #[event(input = "ViewId", output = "DocumentDelta")]
+    OpenView = 207,
 
-    #[event(input = "QueryViewRequest")]
+    #[event(input = "ViewId")]
     CloseView = 208,
 
     #[event(output = "RepeatedTrash")]

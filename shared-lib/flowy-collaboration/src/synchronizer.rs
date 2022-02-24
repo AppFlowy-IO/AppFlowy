@@ -149,7 +149,7 @@ where
 
         match server_rev_id.cmp(&client_rev_id) {
             Ordering::Less => {
-                tracing::error!("Client should not send ping and the server should pull the revisions from the client")
+                tracing::warn!("Client should not send ping and the server should pull the revisions from the client")
             }
             Ordering::Equal => tracing::trace!("{} is up to date.", object_id),
             Ordering::Greater => {

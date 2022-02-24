@@ -11,8 +11,8 @@ class DocumentRepository {
   });
 
   Future<Either<DocumentDelta, FlowyError>> openDocument() {
-    final request = QueryViewRequest(viewIds: [docId]);
-    return FolderEventOpenDocument(request).send();
+    final request = ViewId(viewId: docId);
+    return FolderEventOpenView(request).send();
   }
 
   Future<Either<DocumentDelta, FlowyError>> composeDelta({required String data}) {
@@ -23,7 +23,7 @@ class DocumentRepository {
   }
 
   Future<Either<Unit, FlowyError>> closeDocument() {
-    final request = QueryViewRequest(viewIds: [docId]);
+    final request = ViewId(viewId: docId);
     return FolderEventCloseView(request).send();
   }
 }

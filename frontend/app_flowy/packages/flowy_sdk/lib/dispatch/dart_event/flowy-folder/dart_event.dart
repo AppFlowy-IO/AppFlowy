@@ -186,7 +186,7 @@ class FolderEventCreateView {
 }
 
 class FolderEventReadView {
-     QueryViewRequest request;
+     ViewId request;
      FolderEventReadView(this.request);
 
     Future<Either<View, FlowyError>> send() {
@@ -220,7 +220,7 @@ class FolderEventUpdateView {
 }
 
 class FolderEventDeleteView {
-     QueryViewRequest request;
+     RepeatedViewId request;
      FolderEventDeleteView(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -237,7 +237,7 @@ class FolderEventDeleteView {
 }
 
 class FolderEventDuplicateView {
-     QueryViewRequest request;
+     ViewId request;
      FolderEventDuplicateView(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -267,13 +267,13 @@ class FolderEventCopyLink {
     }
 }
 
-class FolderEventOpenDocument {
-     QueryViewRequest request;
-     FolderEventOpenDocument(this.request);
+class FolderEventOpenView {
+     ViewId request;
+     FolderEventOpenView(this.request);
 
     Future<Either<DocumentDelta, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = FolderEvent.OpenDocument.toString()
+          ..event = FolderEvent.OpenView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -285,7 +285,7 @@ class FolderEventOpenDocument {
 }
 
 class FolderEventCloseView {
-     QueryViewRequest request;
+     ViewId request;
      FolderEventCloseView(this.request);
 
     Future<Either<Unit, FlowyError>> send() {

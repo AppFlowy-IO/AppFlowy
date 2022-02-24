@@ -1,9 +1,10 @@
 use flowy_collaboration::entities::document_info::DocumentInfo;
 use flowy_folder::event_map::FolderEvent::*;
+use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppRequest, QueryAppRequest, UpdateAppRequest},
     trash::{RepeatedTrash, TrashId, TrashType},
-    view::{CreateViewRequest, QueryViewRequest, UpdateViewRequest, View, ViewType},
+    view::{CreateViewRequest, UpdateViewRequest, View, ViewType},
     workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, RepeatedWorkspace, Workspace},
 };
 use flowy_test::{event_builder::*, FlowySDKTest};
@@ -124,8 +125,10 @@ pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &st
     view
 }
 
-pub async fn read_view(sdk: &FlowySDKTest, view_ids: Vec<String>) -> View {
-    let request = QueryViewRequest { view_ids };
+pub async fn read_view(sdk: &FlowySDKTest, view_id: &str) -> View {
+    let request = ViewId {
+        view_id: view_id.to_string(),
+    };
     FolderEventBuilder::new(sdk.clone())
         .event(ReadView)
         .request(request)
@@ -149,7 +152,7 @@ pub async fn update_view(sdk: &FlowySDKTest, view_id: &str, name: Option<String>
 }
 
 pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
-    let request = QueryViewRequest { view_ids };
+    let request = RepeatedViewId { items: view_ids };
     FolderEventBuilder::new(sdk.clone())
         .event(DeleteView)
         .request(request)
@@ -158,11 +161,11 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
 }
 
 pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> DocumentInfo {
-    let request = QueryViewRequest {
-        view_ids: vec![view_id.to_owned()],
+    let request = ViewId {
+        view_id: view_id.to_string(),
     };
     FolderEventBuilder::new(sdk.clone())
-        .event(OpenDocument)
+        .event(OpenView)
         .request(request)
         .async_send()
         .await
