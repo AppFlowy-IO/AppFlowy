@@ -645,7 +645,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.4"
+    version: "0.6.3"
   json_annotation:
     dependency: transitive
     description:
@@ -799,7 +799,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.1"
+    version: "1.8.0"
   path_drawing:
     dependency: transitive
     description:
@@ -1133,21 +1133,21 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.20.1"
+    version: "1.19.5"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.9"
+    version: "0.4.8"
   test_core:
     dependency: transitive
     description:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.11"
+    version: "0.4.9"
   textstyle_extensions:
     dependency: transitive
     description:
@@ -1354,5 +1354,5 @@ packages:
     source: hosted
     version: "8.0.0"
 sdks:
-  dart: ">=2.16.0-100.0.dev <3.0.0"
+  dart: ">=2.15.0-116.0.dev <3.0.0"
   flutter: ">=2.5.0"
