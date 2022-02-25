@@ -22,7 +22,9 @@ jobs:
         with:
           toolchain: stable
       - name: Deps Flutter
-        run: flutter packages pub get
+        run: |
+          flutter config --enable-linux-desktop
+          flutter doctor
         working-directory: frontend/app_flowy
       - name: Deps Rust
         working-directory: frontend
@@ -34,15 +36,16 @@ jobs:
       - name: Code Generation
         working-directory: frontend/app_flowy
         run: |
+          flutter packages pub get
           flutter packages pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
           flutter packages pub run build_runner build --delete-conflicting-outputs
       - name: Build FlowySDK
         working-directory: frontend
         run: |
-          flutter config --enable-linux-desktop
           cargo make --profile development-linux-x86 flowy-sdk-dev
       - name: Run bloc tests
         working-directory: frontend/app_flowy
         run: |
+          flutter pub get
           flutter test
 
