@@ -1,5 +1,5 @@
 use flowy_collaboration::entities::revision::RevisionState;
-use flowy_document::editor::ClientDocumentEditor;
+use flowy_document::editor::ClientBlockEditor;
 use flowy_document::DOCUMENT_SYNC_INTERVAL_IN_MILLIS;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
@@ -19,7 +19,7 @@ pub enum EditorScript {
 
 pub struct EditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<ClientDocumentEditor>,
+    pub editor: Arc<ClientBlockEditor>,
 }
 
 impl EditorTest {
@@ -27,7 +27,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.document_manager.open_document(&test.view.id).await.unwrap();
+        let editor = sdk.document_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 

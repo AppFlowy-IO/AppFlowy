@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 use flowy_folder::{controller::FolderManager, errors::FlowyError};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -85,7 +85,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub document_manager: Arc<FlowyDocumentManager>,
+    pub document_manager: Arc<BlockManager>,
     pub folder_manager: Arc<FolderManager>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,

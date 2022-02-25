@@ -6,7 +6,7 @@ use flowy_derive::ProtoBuf;
 use lib_ot::{errors::OTError, rich_text::RichTextDelta};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct CreateDocParams {
+pub struct CreateBlockParams {
     #[pb(index = 1)]
     pub id: String,
 
@@ -15,7 +15,7 @@ pub struct CreateDocParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct DocumentInfo {
+pub struct BlockInfo {
     #[pb(index = 1)]
     pub doc_id: String,
 
@@ -29,14 +29,14 @@ pub struct DocumentInfo {
     pub base_rev_id: i64,
 }
 
-impl DocumentInfo {
+impl BlockInfo {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Revision> for DocumentInfo {
+impl std::convert::TryFrom<Revision> for BlockInfo {
     type Error = CollaborateError;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -48,7 +48,7 @@ impl std::convert::TryFrom<Revision> for DocumentInfo {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let doc_json = delta.to_json();
 
-        Ok(DocumentInfo {
+        Ok(BlockInfo {
             doc_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
@@ -67,9 +67,9 @@ pub struct ResetDocumentParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentDelta {
+pub struct BlockDelta {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub delta_json: String,
@@ -88,20 +88,20 @@ pub struct NewDocUser {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentId {
+pub struct BlockId {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl std::convert::From<String> for DocumentId {
-    fn from(doc_id: String) -> Self {
-        DocumentId { value: doc_id }
+impl std::convert::From<String> for BlockId {
+    fn from(value: String) -> Self {
+        BlockId { value }
     }
 }
 
-impl std::convert::From<&String> for DocumentId {
+impl std::convert::From<&String> for BlockId {
     fn from(doc_id: &String) -> Self {
-        DocumentId {
+        BlockId {
             value: doc_id.to_owned(),
         }
     }

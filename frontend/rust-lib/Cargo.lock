@@ -1108,6 +1108,7 @@ name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
  "async-stream",
+ "async-trait",
  "bytes",
  "dashmap",
  "diesel",

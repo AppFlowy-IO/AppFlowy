@@ -3,11 +3,12 @@ use crate::web_socket::{make_document_ws_manager, EditorCommandSender};
 use crate::{
     errors::FlowyError,
     queue::{EditorCommand, EditorCommandQueue},
-    DocumentUser, DocumentWSReceiver,
+    BlockUser,
 };
 use bytes::Bytes;
+use flowy_collaboration::entities::ws_data::ServerRevisionWSData;
 use flowy_collaboration::{
-    entities::{document_info::DocumentInfo, revision::Revision},
+    entities::{document_info::BlockInfo, revision::Revision},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
@@ -19,10 +20,11 @@ use lib_ot::{
     core::{Interval, Operation},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
+use lib_ws::WSConnectState;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct ClientDocumentEditor {
+pub struct ClientBlockEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -30,16 +32,16 @@ pub struct ClientDocumentEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ClientDocumentEditor {
+impl ClientBlockEditor {
     pub(crate) async fn new(
         doc_id: &str,
-        user: Arc<dyn DocumentUser>,
+        user: Arc<dyn BlockUser>,
         mut rev_manager: RevisionManager,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document_info = rev_manager
-            .load::<DocumentInfoBuilder, DocumentRevisionCompact>(cloud_service)
+            .load::<BlockInfoBuilder, DocumentRevisionCompact>(cloud_service)
             .await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
@@ -138,9 +140,9 @@ impl ClientDocumentEditor {
         Ok(())
     }
 
-    pub async fn document_json(&self) -> FlowyResult<String> {
+    pub async fn block_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadDocumentAsJson { ret };
+        let msg = EditorCommand::ReadBlockJson { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let json = rx.await.map_err(internal_error)??;
         Ok(json)
@@ -163,12 +165,16 @@ impl ClientDocumentEditor {
         self.ws_manager.stop();
     }
 
-    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWSReceiver> {
-        self.ws_manager.clone()
+    pub(crate) async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError> {
+        self.ws_manager.receive_ws_data(data).await
+    }
+
+    pub(crate) fn receive_ws_state(&self, state: &WSConnectState) {
+        self.ws_manager.connect_state_changed(state.clone());
     }
 }
 
-impl std::ops::Drop for ClientDocumentEditor {
+impl std::ops::Drop for ClientBlockEditor {
     fn drop(&mut self) {
         tracing::trace!("{} ClientDocumentEditor was dropped", self.doc_id)
     }
@@ -176,7 +182,7 @@ impl std::ops::Drop for ClientDocumentEditor {
 
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
-    user: Arc<dyn DocumentUser>,
+    user: Arc<dyn BlockUser>,
     rev_manager: Arc<RevisionManager>,
     delta: RichTextDelta,
 ) -> EditorCommandSender {
@@ -187,10 +193,10 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl ClientDocumentEditor {
+impl ClientBlockEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadDocumentAsJson { ret };
+        let msg = EditorCommand::ReadBlockJson { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let s = rx.await.map_err(internal_error)??;
         Ok(s)
@@ -198,7 +204,7 @@ impl ClientDocumentEditor {
 
     pub async fn doc_delta(&self) -> FlowyResult<RichTextDelta> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
-        let msg = EditorCommand::ReadDocumentAsDelta { ret };
+        let msg = EditorCommand::ReadBlockDelta { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)
@@ -209,16 +215,16 @@ impl ClientDocumentEditor {
     }
 }
 
-struct DocumentInfoBuilder();
-impl RevisionObjectBuilder for DocumentInfoBuilder {
-    type Output = DocumentInfo;
+struct BlockInfoBuilder();
+impl RevisionObjectBuilder for BlockInfoBuilder {
+    type Output = BlockInfo;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_delta_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
+        Result::<BlockInfo, FlowyError>::Ok(BlockInfo {
             doc_id: object_id.to_owned(),
             text: delta.to_json(),
             rev_id,

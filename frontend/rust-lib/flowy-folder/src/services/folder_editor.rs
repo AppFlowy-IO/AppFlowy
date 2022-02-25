@@ -8,8 +8,8 @@ use crate::controller::FolderId;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    RevisionCache, RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
-    RevisionWebSocketManager,
+    RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
+    RevisionWebSocket, RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainAttributes;
@@ -33,8 +33,8 @@ impl FolderEditor {
         pool: Arc<ConnectionPool>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> FlowyResult<Self> {
-        let cache = Arc::new(RevisionCache::new(user_id, folder_id.as_ref(), pool));
-        let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), cache);
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), pool));
+        let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
         let cloud = Arc::new(FolderRevisionCloudServiceImpl {
             token: token.to_string(),
         });

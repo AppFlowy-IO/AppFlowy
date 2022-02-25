@@ -1,4 +1,4 @@
-use flowy_collaboration::entities::document_info::DocumentInfo;
+use flowy_collaboration::entities::document_info::BlockInfo;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
 use flowy_folder_data_model::entities::workspace::WorkspaceId;
@@ -159,14 +159,14 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
         .await;
 }
 
-pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> DocumentInfo {
+pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> BlockInfo {
     let view_id: ViewId = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(OpenView)
         .payload(view_id)
         .async_send()
         .await
-        .parse::<DocumentInfo>()
+        .parse::<BlockInfo>()
 }
 
 pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {

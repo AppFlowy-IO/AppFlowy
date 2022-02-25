@@ -10,14 +10,14 @@ class DocumentRepository {
     required this.docId,
   });
 
-  Future<Either<DocumentDelta, FlowyError>> openDocument() {
+  Future<Either<BlockDelta, FlowyError>> openDocument() {
     final request = ViewId(value: docId);
     return FolderEventOpenView(request).send();
   }
 
-  Future<Either<DocumentDelta, FlowyError>> composeDelta({required String data}) {
-    final request = DocumentDelta.create()
-      ..docId = docId
+  Future<Either<BlockDelta, FlowyError>> composeDelta({required String data}) {
+    final request = BlockDelta.create()
+      ..blockId = docId
       ..deltaJson = data;
     return FolderEventApplyDocDelta(request).send();
   }

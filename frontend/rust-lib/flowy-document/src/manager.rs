@@ -1,76 +1,64 @@
-use crate::{editor::ClientDocumentEditor, errors::FlowyError, DocumentCloudService};
-use async_trait::async_trait;
+use crate::{editor::ClientBlockEditor, errors::FlowyError, BlockCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::{
-    document_info::{DocumentDelta, DocumentId},
+    document_info::{BlockDelta, BlockId},
     revision::{md5, RepeatedRevision, Revision},
     ws_data::ServerRevisionWSData,
 };
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_sync::{RevisionCache, RevisionCloudService, RevisionManager, RevisionWebSocket};
+use flowy_sync::{RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lib_infra::future::FutureResult;
-use lib_ws::WSConnectState;
 use std::{convert::TryInto, sync::Arc};
 
-pub trait DocumentUser: Send + Sync {
+pub trait BlockUser: Send + Sync {
     fn user_dir(&self) -> Result<String, FlowyError>;
     fn user_id(&self) -> Result<String, FlowyError>;
     fn token(&self) -> Result<String, FlowyError>;
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
-#[async_trait]
-pub(crate) trait DocumentWSReceiver: Send + Sync {
-    async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError>;
-    fn connect_state_changed(&self, state: WSConnectState);
-}
-type WebSocketDataReceivers = Arc<DashMap<String, Arc<dyn DocumentWSReceiver>>>;
-pub struct FlowyDocumentManager {
-    cloud_service: Arc<dyn DocumentCloudService>,
-    ws_data_receivers: WebSocketDataReceivers,
+pub struct BlockManager {
+    cloud_service: Arc<dyn BlockCloudService>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
-    document_handlers: Arc<DocumentEditorHandlers>,
-    document_user: Arc<dyn DocumentUser>,
+    block_handlers: Arc<BlockEditorHandlers>,
+    document_user: Arc<dyn BlockUser>,
 }
 
-impl FlowyDocumentManager {
+impl BlockManager {
     pub fn new(
-        cloud_service: Arc<dyn DocumentCloudService>,
-        document_user: Arc<dyn DocumentUser>,
+        cloud_service: Arc<dyn BlockCloudService>,
+        document_user: Arc<dyn BlockUser>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
-        let ws_data_receivers = Arc::new(DashMap::new());
-        let document_handlers = Arc::new(DocumentEditorHandlers::new());
+        let block_handlers = Arc::new(BlockEditorHandlers::new());
         Self {
             cloud_service,
-            ws_data_receivers,
             rev_web_socket,
-            document_handlers,
+            block_handlers,
             document_user,
         }
     }
 
     pub fn init(&self) -> FlowyResult<()> {
-        listen_ws_state_changed(self.rev_web_socket.clone(), self.ws_data_receivers.clone());
+        listen_ws_state_changed(self.rev_web_socket.clone(), self.block_handlers.clone());
 
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
-    pub async fn open_document<T: AsRef<str>>(&self, doc_id: T) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
-        let doc_id = doc_id.as_ref();
-        tracing::Span::current().record("doc_id", &doc_id);
-        self.get_editor(doc_id).await
+    #[tracing::instrument(level = "debug", skip(self, block_id), fields(block_id), err)]
+    pub async fn open_block<T: AsRef<str>>(&self, block_id: T) -> Result<Arc<ClientBlockEditor>, FlowyError> {
+        let block_id = block_id.as_ref();
+        tracing::Span::current().record("block_id", &block_id);
+        self.get_block_editor(block_id).await
     }
 
-    #[tracing::instrument(level = "trace", skip(self, doc_id), fields(doc_id), err)]
-    pub fn close_document<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
-        let doc_id = doc_id.as_ref();
-        tracing::Span::current().record("doc_id", &doc_id);
-        self.document_handlers.remove(doc_id);
-        self.ws_data_receivers.remove(doc_id);
+    #[tracing::instrument(level = "trace", skip(self, block_id), fields(block_id), err)]
+    pub fn close_block<T: AsRef<str>>(&self, block_id: T) -> Result<(), FlowyError> {
+        let block_id = block_id.as_ref();
+        tracing::Span::current().record("block_id", &block_id);
+        self.block_handlers.remove(block_id);
         Ok(())
     }
 
@@ -78,18 +66,17 @@ impl FlowyDocumentManager {
     pub fn delete<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
-        self.document_handlers.remove(doc_id);
-        self.ws_data_receivers.remove(doc_id);
+        self.block_handlers.remove(doc_id);
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.doc_id), err)]
-    pub async fn receive_local_delta(&self, delta: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let editor = self.get_editor(&delta.doc_id).await?;
+    #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.block_id), err)]
+    pub async fn receive_local_delta(&self, delta: BlockDelta) -> Result<BlockDelta, FlowyError> {
+        let editor = self.get_block_editor(&delta.block_id).await?;
         let _ = editor.compose_local_delta(Bytes::from(delta.delta_json)).await?;
-        let document_json = editor.document_json().await?;
-        Ok(DocumentDelta {
-            doc_id: delta.doc_id.clone(),
+        let document_json = editor.block_json().await?;
+        Ok(BlockDelta {
+            block_id: delta.block_id.clone(),
             delta_json: document_json,
         })
     }
@@ -105,9 +92,9 @@ impl FlowyDocumentManager {
     pub async fn receive_ws_data(&self, data: Bytes) {
         let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
         match result {
-            Ok(data) => match self.ws_data_receivers.get(&data.object_id) {
+            Ok(data) => match self.block_handlers.get(&data.object_id) {
                 None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
-                Some(handler) => match handler.receive_ws_data(data).await {
+                Some(block_editor) => match block_editor.receive_ws_data(data).await {
                     Ok(_) => {}
                     Err(e) => tracing::error!("{}", e),
                 },
@@ -119,59 +106,57 @@ impl FlowyDocumentManager {
     }
 }
 
-impl FlowyDocumentManager {
-    async fn get_editor(&self, doc_id: &str) -> FlowyResult<Arc<ClientDocumentEditor>> {
-        match self.document_handlers.get(doc_id) {
+impl BlockManager {
+    async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientBlockEditor>> {
+        match self.block_handlers.get(block_id) {
             None => {
                 let db_pool = self.document_user.db_pool()?;
-                self.make_editor(doc_id, db_pool).await
+                self.make_block_editor(block_id, db_pool).await
             }
             Some(editor) => Ok(editor),
         }
     }
 
-    async fn make_editor(
+    async fn make_block_editor(
         &self,
-        doc_id: &str,
+        block_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
+    ) -> Result<Arc<ClientBlockEditor>, FlowyError> {
         let user = self.document_user.clone();
         let token = self.document_user.token()?;
-        let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
+        let rev_manager = self.make_rev_manager(block_id, pool.clone())?;
         let cloud_service = Arc::new(DocumentRevisionCloudServiceImpl {
             token,
             server: self.cloud_service.clone(),
         });
         let doc_editor =
-            ClientDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
-        self.ws_data_receivers
-            .insert(doc_id.to_string(), doc_editor.ws_handler());
-        self.document_handlers.insert(doc_id, &doc_editor);
+            ClientBlockEditor::new(block_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+        self.block_handlers.insert(block_id, &doc_editor);
         Ok(doc_editor)
     }
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         let user_id = self.document_user.user_id()?;
-        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
-        Ok(RevisionManager::new(&user_id, doc_id, cache))
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, pool));
+        Ok(RevisionManager::new(&user_id, doc_id, rev_persistence))
     }
 }
 
 struct DocumentRevisionCloudServiceImpl {
     token: String,
-    server: Arc<dyn DocumentCloudService>,
+    server: Arc<dyn BlockCloudService>,
 }
 
 impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params: DocumentId = object_id.to_string().into();
+        let params: BlockId = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
         let user_id = user_id.to_string();
 
         FutureResult::new(async move {
-            match server.read_document(&token, params).await? {
+            match server.read_block(&token, params).await? {
                 None => Err(FlowyError::record_not_found().context("Remote doesn't have this document")),
                 Some(doc) => {
                     let delta_data = Bytes::from(doc.text.clone());
@@ -185,51 +170,50 @@ impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     }
 }
 
-pub struct DocumentEditorHandlers {
-    inner: DashMap<String, Arc<ClientDocumentEditor>>,
+pub struct BlockEditorHandlers {
+    inner: DashMap<String, Arc<ClientBlockEditor>>,
 }
 
-impl DocumentEditorHandlers {
+impl BlockEditorHandlers {
     fn new() -> Self {
         Self { inner: DashMap::new() }
     }
 
-    pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocumentEditor>) {
-        if self.inner.contains_key(doc_id) {
-            log::warn!("Doc:{} already exists in cache", doc_id);
+    pub(crate) fn insert(&self, block_id: &str, doc: &Arc<ClientBlockEditor>) {
+        if self.inner.contains_key(block_id) {
+            log::warn!("Doc:{} already exists in cache", block_id);
         }
-        self.inner.insert(doc_id.to_string(), doc.clone());
+        self.inner.insert(block_id.to_string(), doc.clone());
     }
 
-    pub(crate) fn contains(&self, doc_id: &str) -> bool {
-        self.inner.get(doc_id).is_some()
+    pub(crate) fn contains(&self, block_id: &str) -> bool {
+        self.inner.get(block_id).is_some()
     }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Option<Arc<ClientDocumentEditor>> {
-        if !self.contains(doc_id) {
+    pub(crate) fn get(&self, block_id: &str) -> Option<Arc<ClientBlockEditor>> {
+        if !self.contains(block_id) {
             return None;
         }
-        let opened_doc = self.inner.get(doc_id).unwrap();
+        let opened_doc = self.inner.get(block_id).unwrap();
         Some(opened_doc.clone())
     }
 
-    pub(crate) fn remove(&self, id: &str) {
-        let doc_id = id.to_string();
-        if let Some(editor) = self.get(id) {
+    pub(crate) fn remove(&self, block_id: &str) {
+        if let Some(editor) = self.get(block_id) {
             editor.stop()
         }
-        self.inner.remove(&doc_id);
+        self.inner.remove(block_id);
     }
 }
 
-#[tracing::instrument(level = "trace", skip(web_socket, receivers))]
-fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, receivers: WebSocketDataReceivers) {
+#[tracing::instrument(level = "trace", skip(web_socket, handlers))]
+fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, handlers: Arc<BlockEditorHandlers>) {
     tokio::spawn(async move {
         let mut notify = web_socket.subscribe_state_changed().await;
         while let Ok(state) = notify.recv().await {
-            for receiver in receivers.iter() {
-                receiver.value().connect_state_changed(state.clone());
-            }
+            handlers.inner.iter().for_each(|handler| {
+                handler.receive_ws_state(&state);
+            })
         }
     });
 }

@@ -6,7 +6,7 @@ use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
@@ -71,7 +71,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
-        document_manager: Arc<FlowyDocumentManager>,
+        document_manager: Arc<BlockManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(user_id) = user.user_id() {

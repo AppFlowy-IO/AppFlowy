@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 use flowy_folder::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},
@@ -24,12 +24,12 @@ impl FolderDepsResolver {
         local_server: Option<Arc<LocalServer>>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-        document_manager: &Arc<FlowyDocumentManager>,
+        document_manager: &Arc<BlockManager>,
         ws_conn: Arc<FlowyWebSocketConnect>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
-        let web_socket = Arc::new(FolderWebSocketImpl(ws_conn.clone()));
+        let web_socket = Arc::new(FolderWebSocket(ws_conn.clone()));
         let cloud_service: Arc<dyn FolderCouldServiceV1> = match local_server {
             None => Arc::new(FolderHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
@@ -78,8 +78,8 @@ impl WorkspaceUser for WorkspaceUserImpl {
     }
 }
 
-struct FolderWebSocketImpl(Arc<FlowyWebSocketConnect>);
-impl RevisionWebSocket for FolderWebSocketImpl {
+struct FolderWebSocket(Arc<FlowyWebSocketConnect>);
+impl RevisionWebSocket for FolderWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {

@@ -84,8 +84,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     listener.start();
     final result = await repo.openDocument();
     result.fold(
-      (doc) {
-        document = _decodeJsonToDocument(doc.deltaJson);
+      (block) {
+        document = _decodeJsonToDocument(block.deltaJson);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();

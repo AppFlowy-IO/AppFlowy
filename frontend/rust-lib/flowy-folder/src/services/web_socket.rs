@@ -21,44 +21,36 @@ pub(crate) async fn make_folder_ws_manager(
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_pad: Arc<RwLock<FolderPad>>,
 ) -> Arc<RevisionWebSocketManager> {
-    let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(folder_id, rev_manager.clone()));
-    let resolve_target = Arc::new(FolderRevisionResolveTarget { folder_pad });
-    let resolver = RevisionConflictResolver::<PlainAttributes>::new(
-        user_id,
-        resolve_target,
-        Arc::new(composite_sink_provider.clone()),
-        rev_manager,
-    );
-
-    let ws_stream_consumer = Arc::new(FolderWSStreamConsumerAdapter {
-        resolver: Arc::new(resolver),
-    });
-
-    let sink_provider = Arc::new(FolderWSSinkDataProviderAdapter(composite_sink_provider));
+    let ws_data_provider = Arc::new(WSDataProvider::new(folder_id, Arc::new(rev_manager.clone())));
+    let resolver = Arc::new(FolderConflictResolver { folder_pad });
+    let conflict_controller =
+        ConflictController::<PlainAttributes>::new(user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
+    let ws_data_stream = Arc::new(FolderRevisionWSDataStream::new(conflict_controller));
+    let ws_data_sink = Arc::new(FolderWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);
     Arc::new(RevisionWebSocketManager::new(
         "Folder",
         folder_id,
         web_socket,
-        sink_provider,
-        ws_stream_consumer,
+        ws_data_sink,
+        ws_data_stream,
         ping_duration,
     ))
 }
 
-pub(crate) struct FolderWSSinkDataProviderAdapter(Arc<CompositeWSSinkDataProvider>);
-impl RevisionWSSinkDataProvider for FolderWSSinkDataProviderAdapter {
+pub(crate) struct FolderWSDataSink(Arc<WSDataProvider>);
+impl RevisionWSDataIterator for FolderWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })
     }
 }
 
-struct FolderRevisionResolveTarget {
+struct FolderConflictResolver {
     folder_pad: Arc<RwLock<FolderPad>>,
 }
 
-impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
+impl ConflictResolver<PlainAttributes> for FolderConflictResolver {
     fn compose_delta(&self, delta: Delta<PlainAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
@@ -101,18 +93,26 @@ impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
     }
 }
 
-struct FolderWSStreamConsumerAdapter {
-    resolver: Arc<RevisionConflictResolver<PlainAttributes>>,
+struct FolderRevisionWSDataStream {
+    conflict_controller: Arc<ConflictController<PlainAttributes>>,
 }
 
-impl RevisionWSSteamConsumer for FolderWSStreamConsumerAdapter {
+impl FolderRevisionWSDataStream {
+    pub fn new(conflict_controller: ConflictController<PlainAttributes>) -> Self {
+        Self {
+            conflict_controller: Arc::new(conflict_controller),
+        }
+    }
+}
+
+impl RevisionWSDataStream for FolderRevisionWSDataStream {
     fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.receive_bytes(bytes).await })
     }
 
     fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.ack_revision(id, ty).await })
     }
 
@@ -122,7 +122,7 @@ impl RevisionWSSteamConsumer for FolderWSStreamConsumerAdapter {
     }
 
     fn pull_revisions_in_range(&self, range: RevisionRange) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.send_revisions(range).await })
     }
 }

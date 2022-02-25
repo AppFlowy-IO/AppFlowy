@@ -15,19 +15,19 @@ export 'share.pbenum.dart';
 
 class ExportPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ExportPayload', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..e<ExportType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'exportType', $pb.PbFieldType.OE, defaultOrMaker: ExportType.Text, valueOf: ExportType.valueOf, enumValues: ExportType.values)
     ..hasRequiredFields = false
   ;
 
   ExportPayload._() : super();
   factory ExportPayload({
-    $core.String? docId,
+    $core.String? viewId,
     ExportType? exportType,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (viewId != null) {
+      _result.viewId = viewId;
     }
     if (exportType != null) {
       _result.exportType = exportType;
@@ -56,13 +56,13 @@ class ExportPayload extends $pb.GeneratedMessage {
   static ExportPayload? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get viewId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set viewId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasViewId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearViewId() => clearField(1);
 
   @$pb.TagNumber(2)
   ExportType get exportType => $_getN(1);

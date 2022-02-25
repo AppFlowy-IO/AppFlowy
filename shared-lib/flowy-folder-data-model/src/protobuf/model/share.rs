@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct ExportPayload {
     // message fields
-    pub doc_id: ::std::string::String,
+    pub view_id: ::std::string::String,
     pub export_type: ExportType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,30 +44,30 @@ impl ExportPayload {
         ::std::default::Default::default()
     }
 
-    // string doc_id = 1;
+    // string view_id = 1;
 
 
-    pub fn get_doc_id(&self) -> &str {
-        &self.doc_id
+    pub fn get_view_id(&self) -> &str {
+        &self.view_id
     }
-    pub fn clear_doc_id(&mut self) {
-        self.doc_id.clear();
+    pub fn clear_view_id(&mut self) {
+        self.view_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_doc_id(&mut self, v: ::std::string::String) {
-        self.doc_id = v;
+    pub fn set_view_id(&mut self, v: ::std::string::String) {
+        self.view_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_doc_id(&mut self) -> &mut ::std::string::String {
-        &mut self.doc_id
+    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
+        &mut self.view_id
     }
 
     // Take field
-    pub fn take_doc_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
+    pub fn take_view_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
     }
 
     // .ExportType export_type = 2;
@@ -96,7 +96,7 @@ impl ::protobuf::Message for ExportPayload {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.export_type, 2, &mut self.unknown_fields)?
@@ -113,8 +113,8 @@ impl ::protobuf::Message for ExportPayload {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.doc_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.doc_id);
+        if !self.view_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.view_id);
         }
         if self.export_type != ExportType::Text {
             my_size += ::protobuf::rt::enum_size(2, self.export_type);
@@ -125,8 +125,8 @@ impl ::protobuf::Message for ExportPayload {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.doc_id.is_empty() {
-            os.write_string(1, &self.doc_id)?;
+        if !self.view_id.is_empty() {
+            os.write_string(1, &self.view_id)?;
         }
         if self.export_type != ExportType::Text {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.export_type))?;
@@ -170,9 +170,9 @@ impl ::protobuf::Message for ExportPayload {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "doc_id",
-                |m: &ExportPayload| { &m.doc_id },
-                |m: &mut ExportPayload| { &mut m.doc_id },
+                "view_id",
+                |m: &ExportPayload| { &m.view_id },
+                |m: &mut ExportPayload| { &mut m.view_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ExportType>>(
                 "export_type",
@@ -195,7 +195,7 @@ impl ::protobuf::Message for ExportPayload {
 
 impl ::protobuf::Clear for ExportPayload {
     fn clear(&mut self) {
-        self.doc_id.clear();
+        self.view_id.clear();
         self.export_type = ExportType::Text;
         self.unknown_fields.clear();
     }
@@ -457,11 +457,11 @@ impl ::protobuf::reflect::ProtobufValue for ExportType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bshare.proto\"T\n\rExportPayload\x12\x15\n\x06doc_id\x18\x01\x20\
-    \x01(\tR\x05docId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.Export\
-    TypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\tR\
-    \x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportTypeR\nex\
-    portType*.\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08Markdown\
+    \n\x0bshare.proto\"V\n\rExportPayload\x12\x17\n\x07view_id\x18\x01\x20\
+    \x01(\tR\x06viewId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.Expor\
+    tTypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\t\
+    R\x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportTypeR\ne\
+    xportType*.\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08Markdown\
     \x10\x01\x12\x08\n\x04Link\x10\x02b\x06proto3\
 ";
 
