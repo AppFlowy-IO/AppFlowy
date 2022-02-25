@@ -4,7 +4,7 @@ import 'config.dart';
 import 'emoji_view_state.dart';
 
 /// Template class for custom implementation
-/// Inhert this class to create your own EmojiPicker
+/// Inherit this class to create your own EmojiPicker
 abstract class EmojiPickerBuilder extends StatefulWidget {
   /// Constructor
   const EmojiPickerBuilder(this.config, this.state, {Key? key}) : super(key: key);

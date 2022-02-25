@@ -114,7 +114,7 @@ class _DeltaVisitor implements ast.NodeVisitor {
         // TODO(kolja): Determine which behavior we really want here.
         // We can either insert an additional newline or just have the
         // paragraphs as single lines. Zefyr will by default render two lines
-        // are different paragraphs so for now we will not add an additonal
+        // are different paragraphs so for now we will not add an additional
         // newline here.
         //
         // if (previousToplevelElement != null &&

@@ -154,7 +154,7 @@ abstract class InlineSyntax {
 
   /// Tries to match at the parser's current position.
   ///
-  /// The parser's position can be overriden with [startMatchPos].
+  /// The parser's position can be overridden with [startMatchPos].
   /// Returns whether or not the pattern successfully matched.
   bool tryMatch(InlineParser parser, [int? startMatchPos]) {
     startMatchPos ??= parser.pos;
@@ -609,7 +609,7 @@ class LinkSyntax extends TagSyntax {
   //
   // Once we have parsed `Text [`, there is one (pending) link in the state
   // stack.  It is, by default, active. Once we parse the next possible link,
-  // `[more](links)`, as a real link, we must deactive the pending links (just
+  // `[more](links)`, as a real link, we must deactivate the pending links (just
   // the one, in this case).
   var _pendingStatesAreActive = true;
 
@@ -933,7 +933,7 @@ class LinkSyntax extends TagSyntax {
             // followed by mystery characters; no longer a link.
             return null;
           }
-          // [_parseTitle] made sure the title was follwed by a closing `)`
+          // [_parseTitle] made sure the title was followed by a closing `)`
           // (but it's up to the code here to examine the balance of
           // parentheses).
           parenCount--;

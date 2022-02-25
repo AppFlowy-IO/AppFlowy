@@ -40,7 +40,7 @@ enum Category {
   /// Travel emojis
   TRAVEL,
 
-  /// Ojects emojis
+  /// Objects emojis
   OBJECTS,
 
   /// Sumbol emojis
@@ -179,7 +179,7 @@ class _EmojiPickerState extends State<EmojiPicker> {
     };
   }
 
-  // Initalize emoji data
+  // Initialize emoji data
   Future<void> _updateEmojis() async {
     categoryEmoji.clear();
     if (widget.config.showRecentsTab) {
