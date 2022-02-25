@@ -1,0 +1,146 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "Ich",
+    "welcomeText": "Willkommen bei @:appName",
+    "githubStarText": "GitHub Star vergeben",
+    "subscribeNewsletterText": "Abonniere den Newsletter",
+    "letsGoButtonText": "Los geht's",
+    "title": "Titel",
+    "signUp": {
+      "buttonText": "Registrieren",
+      "title": "Registriere dich bei @:appName",
+      "getStartedText": "Erste Schritte",
+      "emptyPasswordError": "Passwort darf nicht leer sein",
+      "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
+      "unmatchedPasswordError": "Passwörter stimmen nicht überein",
+      "alreadyHaveAnAccount": "Bereits registriert?",
+      "emailHint": "E-Mail",
+      "passwordHint": "Passwort",
+      "repeatPasswordHint": "Wiederhole Passwort"
+    },
+    "signIn": {
+      "loginTitle": "Bei @:appName einloggen",
+      "loginButtonText": "Anmelden",
+      "buttonText": "Anmelden",
+      "forgotPassword": "Passwort vergessen?",
+      "emailHint": "E-Mail",
+      "passwordHint": "Passwort",
+      "dontHaveAnAccount": "Du besitzt noch kein Konto?",
+      "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
+      "unmatchedPasswordError": "Passwörter stimmen nicht überein"
+    },
+    "workspace": {
+      "create": "Arbeitsbereich erstellen",
+      "hint": "Arbeitsbereich",
+      "notFoundError": "Arbeitsbereich nicht gefunden"
+    },
+    "shareAction": {
+      "buttonText": "Teilen",
+      "workInProgress": "Demnächst verfügbar",
+      "markdown": "Markdown",
+      "copyLink": "Link kopieren"
+    },
+    "disclosureAction": {
+      "rename": "Umbenennen",
+      "delete": "Löschen",
+      "duplicate": "Duplizieren"
+    },
+    "blankPageTitle": "Leere Seite",
+    "newPageText": "Neue Seite",
+    "trash": {
+      "text": "Papierkorb",
+      "restoreAll": "Alles wiederherstellen",
+      "deleteAll": "Alles löschen",
+      "pageHeader": {
+        "fileName": "Dateiname",
+        "lastModified": "Letzte Änderung",
+        "created": "Erstellt"
+      }
+    },
+    "deletePagePrompt": {
+      "text": "Diese Seite ist im Papierkorb",
+      "restore": "Seite wiederherstellen",
+      "deletePermanent": "Dauerhaft löschen"
+    },
+    "dialogCreatePageNameHint": "Seitenname",
+    "questionBubble": {
+      "whatsNew": "Was gibt es Neues?",
+      "help": "Hilfe & Support",
+      "debug": {
+        "name": "Debug-Informationen",
+        "success": "Debug-Informationen in die Zwischenablage kopiert!",
+        "fail": "Debug-Informationen können nicht in die Zwischenablage kopiert werden"
+      }
+    },
+    "menuAppHeader": {
+      "addPageTooltip": "Schnell eine Seite innerhalb hinzufügen",
+      "defaultNewPageName": "Unbenannt",
+      "renameDialog": "Umbenennen"
+    },
+    "toolbar": {
+      "undo": "Rückgängig",
+      "redo": "Wiederherstellen",
+      "bold": "Fett",
+      "italic": "Kursiv",
+      "underline": "Unterstreichen",
+      "strike": "Durchstreichen",
+      "numList": "Nummerierte Liste",
+      "bulletList": "Aufzählung",
+      "checkList": "Checkliste",
+      "inlineCode": "Inline-Code",
+      "quote": "Zitat",
+      "header": "Überschrift",
+      "highlight": "Hervorhebung"
+    },
+    "tooltip": {
+      "lightMode": "In den hellen Modus wechseln",
+      "darkMode": "In den dunklen Modus wechseln"
+    },
+    "contactsPage": {
+      "title": "Kontakte",
+      "whatsHappening": "Was geschieht diese Woche?",
+      "addContact": "Kontakt hinzufügen",
+      "editContact": "Kontakt bearbeiten"
+    },
+    "button": {
+      "OK": "OK",
+      "Cancel": "Abbrechen",
+      "signIn": "Anmelden",
+      "signOut": "Abmelden",
+      "complete": "Fertig",
+      "save": "Speichern"
+    },
+    "label": {
+      "welcome": "Willkommen!",
+      "firstName": "Vorname",
+      "middleName": "Zweiter Vorname",
+      "lastName": "Nachname",
+      "stepX": "Schritt {X}"
+    },
+    "oAuth": {
+      "err": {
+        "failedTitle": "Keine Verbindung zu Ihrem Konto möglich.",
+        "failedMsg": "Bitte vergewissern Sie sich, dass Sie den Anmeldevorgang in Ihrem Browser abgeschlossen haben."
+      },
+      "google": {
+        "title": "GOOGLE ANMELDUNG",
+        "instruction1": "Um Ihre Google-Kontakte zu importieren, müssen Sie diese Anwendung über Ihren Webbrowser autorisieren.",
+        "instruction2": "Kopieren Sie diesen Code in Ihre Zwischenablage, indem Sie auf das Symbol klicken oder den Text auswählen:",
+        "instruction3": "Rufen Sie den folgenden Link in Ihrem Webbrowser auf, und geben Sie den obigen Code ein:",
+        "instruction4": "Klicken Sie unten auf die Schaltfläche, wenn Sie die Anmeldung abgeschlossen haben:"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "menu": {
+        "appearance": "Aussehen",
+        "language": "Sprache",
+        "open": "Einstellungen öffnen"
+      },
+      "appearance": {
+        "lightLabel": "Heller Modus",
+        "darkLabel": "Dunkler Modus"
+      }
+    }
+  }
+  
