@@ -31,7 +31,7 @@ class InitAppWidgetTask extends LaunchTask {
               // In alphabetical order
               Locale('en'),
               Locale('es', 'VE'),
-              Locale('fr'),
+              Locale('fr', 'FR'),
               Locale('fr', 'CA'),
               Locale('it', 'IT'),
               Locale('ru', 'RU'),
