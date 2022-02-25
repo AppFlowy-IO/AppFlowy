@@ -6,7 +6,7 @@ RUN pacman -Syu --needed --noconfirm git xdg-user-dirs
 
 # makepkg user and workdir
 ARG user=makepkg
-ENV PATH="/home/makepkg/.pub-cache/bin:/home/makepkg/.local/flutter/bin:/home/makepkg/.local/flutter/bin/cache/dart-sdk/bin:${PATH}"
+ENV PATH="/home/$user/.pub-cache/bin:/home/$user/.local/flutter/bin:/home/$user/.local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 RUN useradd --system --create-home $user \
   && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
 USER $user
@@ -15,9 +15,7 @@ WORKDIR /home/$user
 # Install yay
 RUN git clone https://aur.archlinux.org/yay.git \
   && cd yay \
-  && makepkg -sri --needed --noconfirm \
-  && cd \
-  && rm -rf .cache yay
+  && makepkg -sri --needed --noconfirm
 
 RUN yay -S --noconfirm curl base-devel sqlite openssl clang cmake ninja pkg-config gtk3 unzip
 RUN xdg-user-dirs-update
@@ -40,21 +38,25 @@ cargo make -p production-linux-x86 appflowy-linux
 CMD ["/home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/app_flowy"]
 
 #################
-FROM archlinux/archlinux:base-devel
+FROM archlinux/archlinux
 
-RUN pacman -Syy
-RUN pacman -Syu --needed --noconfirm xdg-user-dirs
+RUN pacman -Syy && \
+    pacman -Syu --needed --noconfirm xdg-user-dirs && \
+    pacman -Scc --noconfirm
 RUN xdg-user-dirs-update
-
-ARG user=makepkg
-RUN useradd --system --create-home $user \
-  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
-USER $user
-WORKDIR /home/$user
 
 COPY --from=builder /usr/sbin/yay /usr/sbin/yay
 RUN yay -S --noconfirm gtk3
 
-COPY --from=builder /home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle ./AppFlowy
+ARG user=appflowy
+ARG uid=1000
+ARG gid=1000
 
-CMD ["/home/makepkg/AppFlowy/app_flowy"]
+RUN groupadd --gid $gid appflowy
+RUN useradd --create-home --uid $uid --gid $gid $user
+USER $user
+WORKDIR /home/$user
+
+COPY --from=builder /home/makepkg/appflowy/frontend/app_flowy/build/linux/x64/release/bundle/ .
+
+CMD ["./app_flowy"]
