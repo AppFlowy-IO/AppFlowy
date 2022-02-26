@@ -28,3 +28,27 @@ extension ToHomeStackType on View {
     }
   }
 }
+
+extension ViewTypeExtension on ViewType {
+  String displayName() {
+    switch (this) {
+      case ViewType.QuillDocument:
+        return "Doc";
+      case ViewType.Kanban:
+        return "Kanban";
+      default:
+        return "";
+    }
+  }
+
+  bool enable() {
+    switch (this) {
+      case ViewType.QuillDocument:
+        return true;
+      case ViewType.Kanban:
+        return false;
+      default:
+        return false;
+    }
+  }
+}

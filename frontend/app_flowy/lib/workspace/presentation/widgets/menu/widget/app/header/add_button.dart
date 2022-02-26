@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -41,7 +42,7 @@ class ActionList {
   const ActionList({required this.anchorContext, required this.onSelected});
 
   void show(BuildContext buildContext) {
-    final items = ViewType.values.where((element) => element != ViewType.Blank).map((ty) {
+    final items = ViewType.values.where((element) => element.enable()).map((ty) {
       return CreateItem(
           viewType: ty,
           onSelected: (viewType) {
@@ -83,7 +84,7 @@ class CreateItem extends StatelessWidget {
         return GestureDetector(
           onTap: () => onSelected(viewType),
           child: FlowyText.medium(
-            viewType.name,
+            viewType.displayName(),
             color: theme.textColor,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),
