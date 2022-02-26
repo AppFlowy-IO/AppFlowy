@@ -2,12 +2,8 @@ import 'package:app_flowy/workspace/domain/edit_action/app_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
-<<<<<<< HEAD
-import 'package:flowy_infra/flowy_icon_data_icons.dart';
-=======
 import 'package:flowy_infra/icon_data.dart';
 import 'package:flowy_infra/theme.dart';
->>>>>>> upstream/main
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
@@ -30,10 +26,7 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     final theme = context.read<AppTheme>();
->>>>>>> upstream/main
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
@@ -76,16 +69,19 @@ class MenuAppHeader extends StatelessWidget {
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
         listener: (context, state) {
-          final expandableController = ExpandableController.of(context, rebuildOnChange: false, required: true)!;
+          final expandableController =
+              ExpandableController.of(context, rebuildOnChange: false, required: true)!;
           if (!expandableController.expanded) {
             expandableController.toggle();
           }
         },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
+          onTap: () =>
+              ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
           onSecondaryTap: () {
-            final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
+            final actionList =
+                AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
               context,
@@ -109,9 +105,8 @@ class MenuAppHeader extends StatelessWidget {
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
         onSelected: (viewType) {
-          context
-              .read<AppBloc>()
-              .add(AppEvent.createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), "", viewType));
+          context.read<AppBloc>().add(
+              AppEvent.createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), "", viewType));
         },
       ).padding(right: MenuAppSizes.headerPadding),
     );

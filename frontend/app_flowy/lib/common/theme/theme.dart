@@ -3,32 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:flowy_infra/color.dart';
-
 part 'theme.freezed.dart';
 
 class ThemeCubit extends HydratedCubit<ThemeState> {
   ThemeCubit() : super(ThemeState.initial());
 
-  void toggle() => emit(state.copyWith(isDark: state.isDark ? false : true));
+  void toggle() => emit(state.copyWith(
+      theme: state.theme == DefaultThemes.light ? DefaultThemes.dark : DefaultThemes.light));
 
   @override
-  ThemeState fromJson(Map<String, dynamic> json) => ThemeState(isDark: json['isDark'] as bool);
+  ThemeState fromJson(Map<String, dynamic> json) =>
+      ThemeState(theme: json['theme'] as DefaultThemes);
 
   @override
-  Map<String, dynamic> toJson(ThemeState state) => <String, bool>{'isDark': state.isDark};
+  Map<String, dynamic> toJson(ThemeState state) => <String, DefaultThemes>{'theme': state.theme};
 }
 
 @freezed
 class ThemeState with _$ThemeState {
   const ThemeState._();
   const factory ThemeState({
-    required bool isDark,
+    required DefaultThemes theme,
   }) = _ThemeState;
 
-  factory ThemeState.initial() => const ThemeState(isDark: false);
+  factory ThemeState.initial() => const ThemeState(theme: DefaultThemes.light);
 
-  ThemeData get themeData => FlowyTheme(isDark).themeData;
+  ThemeData get themeData => FlowyTheme(theme).themeData;
 }
 
 // FIXME: Different colors for different themes (light/dark).
@@ -45,9 +45,17 @@ extension ColorSchemeExtension on ColorScheme {
 }
 
 class FlowyTheme {
-  const FlowyTheme([this.isDark = false]);
+  FlowyTheme(this._theme);
 
-  final bool isDark;
+  FlowyTheme.fromName(String name) {
+    _theme = DefaultThemesExtension.fromName(name);
+  }
+
+  late final DefaultThemes _theme;
+
+  DefaultThemes get theme => _theme;
+
+  bool get isDark => _theme == DefaultThemes.dark ? true : false;
 
   ThemeData get themeData => ThemeData(
         brightness: isDark ? Brightness.dark : Brightness.light,
@@ -127,4 +135,50 @@ class FlowyTheme {
       );
 
   Color shift(Color c, double d) => ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
+}
+
+class ColorUtils {
+  static Color shiftHsl(Color c, [double amt = 0]) {
+    var hslc = HSLColor.fromColor(c);
+    return hslc.withLightness((hslc.lightness + amt).clamp(0.0, 1.0)).toColor();
+  }
+
+  static Color parseHex(String value) =>
+      Color(int.parse(value.substring(1, 7), radix: 16) + 0xFF000000);
+
+  static Color blend(Color dst, Color src, double opacity) {
+    return Color.fromARGB(
+      255,
+      (dst.red.toDouble() * (1.0 - opacity) + src.red.toDouble() * opacity).toInt(),
+      (dst.green.toDouble() * (1.0 - opacity) + src.green.toDouble() * opacity).toInt(),
+      (dst.blue.toDouble() * (1.0 - opacity) + src.blue.toDouble() * opacity).toInt(),
+    );
+  }
+}
+
+extension DefaultThemesExtension on DefaultThemes {
+  String get name {
+    switch (this) {
+      case DefaultThemes.light:
+        return "light";
+      case DefaultThemes.dark:
+        return "dark";
+    }
+  }
+
+  static DefaultThemes fromName(String name) {
+    switch (name) {
+      case "light":
+        return DefaultThemes.light;
+      case "dark":
+        return DefaultThemes.dark;
+      default:
+        return DefaultThemes.light;
+    }
+  }
+}
+
+enum DefaultThemes {
+  light,
+  dark,
 }
