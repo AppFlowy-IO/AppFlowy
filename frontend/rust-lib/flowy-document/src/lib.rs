@@ -1,4 +1,4 @@
-pub mod editor;
+pub mod block_editor;
 pub mod manager;
 mod queue;
 mod web_socket;

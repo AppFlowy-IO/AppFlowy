@@ -17,7 +17,7 @@ use crate::{
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
-        folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
+        folder_editor::ClientFolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
     },
 };
@@ -63,7 +63,7 @@ pub struct FolderManager {
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) trash_controller: Arc<TrashController>,
     web_socket: Arc<dyn RevisionWebSocket>,
-    folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
+    folder_editor: Arc<TokioRwLock<Option<Arc<ClientFolderEditor>>>>,
 }
 
 impl FolderManager {
@@ -162,7 +162,7 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let folder_editor = FolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
+        let folder_editor = ClientFolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -219,7 +219,7 @@ impl DefaultFolderBuilder {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderManager {
-    pub async fn folder_editor(&self) -> Arc<FolderEditor> {
+    pub async fn folder_editor(&self) -> Arc<ClientFolderEditor> {
         self.folder_editor.read().await.clone().unwrap()
     }
 }

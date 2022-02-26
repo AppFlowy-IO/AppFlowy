@@ -1,8 +1,8 @@
-use crate::queue::DocumentRevisionCompact;
-use crate::web_socket::{make_document_ws_manager, EditorCommandSender};
+use crate::queue::BlockRevisionCompact;
+use crate::web_socket::{make_block_ws_manager, EditorCommandSender};
 use crate::{
     errors::FlowyError,
-    queue::{EditorCommand, EditorCommandQueue},
+    queue::{EditBlockQueue, EditorCommand},
     BlockUser,
 };
 use bytes::Bytes;
@@ -41,7 +41,7 @@ impl ClientBlockEditor {
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document_info = rev_manager
-            .load::<BlockInfoBuilder, DocumentRevisionCompact>(cloud_service)
+            .load::<BlockInfoBuilder, BlockRevisionCompact>(cloud_service)
             .await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
@@ -49,7 +49,7 @@ impl ClientBlockEditor {
         let user_id = user.user_id()?;
 
         let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), delta);
-        let ws_manager = make_document_ws_manager(
+        let ws_manager = make_block_ws_manager(
             doc_id.clone(),
             user_id.clone(),
             edit_cmd_tx.clone(),
@@ -176,7 +176,7 @@ impl ClientBlockEditor {
 
 impl std::ops::Drop for ClientBlockEditor {
     fn drop(&mut self) {
-        tracing::trace!("{} ClientDocumentEditor was dropped", self.doc_id)
+        tracing::trace!("{} ClientBlockEditor was dropped", self.doc_id)
     }
 }
 
@@ -187,8 +187,8 @@ fn spawn_edit_queue(
     delta: RichTextDelta,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
-    let actor = EditorCommandQueue::new(user, rev_manager, delta, receiver);
-    tokio::spawn(actor.run());
+    let edit_queue = EditBlockQueue::new(user, rev_manager, delta, receiver);
+    tokio::spawn(edit_queue.run());
     sender
 }
 

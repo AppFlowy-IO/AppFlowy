@@ -19,14 +19,14 @@ use tokio::sync::{oneshot, RwLock};
 
 // The EditorCommandQueue executes each command that will alter the document in
 // serial.
-pub(crate) struct EditorCommandQueue {
+pub(crate) struct EditBlockQueue {
     document: Arc<RwLock<ClientDocument>>,
     user: Arc<dyn BlockUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
-impl EditorCommandQueue {
+impl EditBlockQueue {
     pub(crate) fn new(
         user: Arc<dyn BlockUser>,
         rev_manager: Arc<RevisionManager>,
@@ -187,17 +187,17 @@ impl EditorCommandQueue {
         );
         let _ = self
             .rev_manager
-            .add_local_revision::<DocumentRevisionCompact>(&revision)
+            .add_local_revision::<BlockRevisionCompact>(&revision)
             .await?;
         Ok(rev_id.into())
     }
 }
 
-pub(crate) struct DocumentRevisionCompact();
-impl RevisionCompact for DocumentRevisionCompact {
+pub(crate) struct BlockRevisionCompact();
+impl RevisionCompact for BlockRevisionCompact {
     fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
         if revisions.is_empty() {
-            return Err(FlowyError::internal().context("Can't compact the empty document's revisions"));
+            return Err(FlowyError::internal().context("Can't compact the empty block's revisions"));
         }
 
         if revisions.len() == 1 {

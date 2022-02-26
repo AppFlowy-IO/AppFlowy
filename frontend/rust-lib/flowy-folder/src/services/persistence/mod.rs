@@ -13,7 +13,7 @@ pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::
 use crate::{
     controller::FolderId,
     event_map::WorkspaceDatabase,
-    services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
+    services::{folder_editor::ClientFolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::entities::{
@@ -50,11 +50,14 @@ pub trait FolderPersistenceTransaction {
 
 pub struct FolderPersistence {
     database: Arc<dyn WorkspaceDatabase>,
-    folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>,
+    folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
 }
 
 impl FolderPersistence {
-    pub fn new(database: Arc<dyn WorkspaceDatabase>, folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>) -> Self {
+    pub fn new(
+        database: Arc<dyn WorkspaceDatabase>,
+        folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
+    ) -> Self {
         Self {
             database,
             folder_editor,

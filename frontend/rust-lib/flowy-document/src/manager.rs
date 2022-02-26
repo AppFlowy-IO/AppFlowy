@@ -1,4 +1,4 @@
-use crate::{editor::ClientBlockEditor, errors::FlowyError, BlockCloudService};
+use crate::{block_editor::ClientBlockEditor, errors::FlowyError, BlockCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::{
@@ -22,27 +22,27 @@ pub trait BlockUser: Send + Sync {
 pub struct BlockManager {
     cloud_service: Arc<dyn BlockCloudService>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
-    block_handlers: Arc<BlockEditorHandlers>,
-    document_user: Arc<dyn BlockUser>,
+    block_editors: Arc<BlockEditors>,
+    block_user: Arc<dyn BlockUser>,
 }
 
 impl BlockManager {
     pub fn new(
         cloud_service: Arc<dyn BlockCloudService>,
-        document_user: Arc<dyn BlockUser>,
+        block_user: Arc<dyn BlockUser>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
-        let block_handlers = Arc::new(BlockEditorHandlers::new());
+        let block_handlers = Arc::new(BlockEditors::new());
         Self {
             cloud_service,
             rev_web_socket,
-            block_handlers,
-            document_user,
+            block_editors: block_handlers,
+            block_user,
         }
     }
 
     pub fn init(&self) -> FlowyResult<()> {
-        listen_ws_state_changed(self.rev_web_socket.clone(), self.block_handlers.clone());
+        listen_ws_state_changed(self.rev_web_socket.clone(), self.block_editors.clone());
 
         Ok(())
     }
@@ -58,7 +58,7 @@ impl BlockManager {
     pub fn close_block<T: AsRef<str>>(&self, block_id: T) -> Result<(), FlowyError> {
         let block_id = block_id.as_ref();
         tracing::Span::current().record("block_id", &block_id);
-        self.block_handlers.remove(block_id);
+        self.block_editors.remove(block_id);
         Ok(())
     }
 
@@ -66,7 +66,7 @@ impl BlockManager {
     pub fn delete<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
-        self.block_handlers.remove(doc_id);
+        self.block_editors.remove(doc_id);
         Ok(())
     }
 
@@ -83,7 +83,7 @@ impl BlockManager {
 
     pub async fn reset_with_revisions<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
-        let db_pool = self.document_user.db_pool()?;
+        let db_pool = self.block_user.db_pool()?;
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
@@ -92,7 +92,7 @@ impl BlockManager {
     pub async fn receive_ws_data(&self, data: Bytes) {
         let result: Result<ServerRevisionWSData, protobuf::ProtobufError> = data.try_into();
         match result {
-            Ok(data) => match self.block_handlers.get(&data.object_id) {
+            Ok(data) => match self.block_editors.get(&data.object_id) {
                 None => tracing::error!("Can't find any source handler for {:?}-{:?}", data.object_id, data.ty),
                 Some(block_editor) => match block_editor.receive_ws_data(data).await {
                     Ok(_) => {}
@@ -108,9 +108,9 @@ impl BlockManager {
 
 impl BlockManager {
     async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientBlockEditor>> {
-        match self.block_handlers.get(block_id) {
+        match self.block_editors.get(block_id) {
             None => {
-                let db_pool = self.document_user.db_pool()?;
+                let db_pool = self.block_user.db_pool()?;
                 self.make_block_editor(block_id, db_pool).await
             }
             Some(editor) => Ok(editor),
@@ -122,32 +122,32 @@ impl BlockManager {
         block_id: &str,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientBlockEditor>, FlowyError> {
-        let user = self.document_user.clone();
-        let token = self.document_user.token()?;
+        let user = self.block_user.clone();
+        let token = self.block_user.token()?;
         let rev_manager = self.make_rev_manager(block_id, pool.clone())?;
-        let cloud_service = Arc::new(DocumentRevisionCloudServiceImpl {
+        let cloud_service = Arc::new(BlockRevisionCloudService {
             token,
             server: self.cloud_service.clone(),
         });
         let doc_editor =
             ClientBlockEditor::new(block_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
-        self.block_handlers.insert(block_id, &doc_editor);
+        self.block_editors.insert(block_id, &doc_editor);
         Ok(doc_editor)
     }
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
-        let user_id = self.document_user.user_id()?;
+        let user_id = self.block_user.user_id()?;
         let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, rev_persistence))
     }
 }
 
-struct DocumentRevisionCloudServiceImpl {
+struct BlockRevisionCloudService {
     token: String,
     server: Arc<dyn BlockCloudService>,
 }
 
-impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
+impl RevisionCloudService for BlockRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         let params: BlockId = object_id.to_string().into();
@@ -170,11 +170,11 @@ impl RevisionCloudService for DocumentRevisionCloudServiceImpl {
     }
 }
 
-pub struct BlockEditorHandlers {
+pub struct BlockEditors {
     inner: DashMap<String, Arc<ClientBlockEditor>>,
 }
 
-impl BlockEditorHandlers {
+impl BlockEditors {
     fn new() -> Self {
         Self { inner: DashMap::new() }
     }
@@ -207,7 +207,7 @@ impl BlockEditorHandlers {
 }
 
 #[tracing::instrument(level = "trace", skip(web_socket, handlers))]
-fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, handlers: Arc<BlockEditorHandlers>) {
+fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, handlers: Arc<BlockEditors>) {
     tokio::spawn(async move {
         let mut notify = web_socket.subscribe_state_changed().await;
         while let Ok(state) = notify.recv().await {

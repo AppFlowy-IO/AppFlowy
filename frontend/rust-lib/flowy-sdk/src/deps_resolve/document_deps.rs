@@ -24,7 +24,7 @@ impl DocumentDepsResolver {
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
     ) -> Arc<BlockManager> {
-        let user = Arc::new(DocumentUserImpl(user_session));
+        let user = Arc::new(BlockUserImpl(user_session));
         let ws_sender = Arc::new(BlockWebSocket(ws_conn.clone()));
         let cloud_service: Arc<dyn BlockCloudService> = match local_server {
             None => Arc::new(BlockHttpCloudService::new(server_config.clone())),
@@ -39,8 +39,8 @@ impl DocumentDepsResolver {
     }
 }
 
-struct DocumentUserImpl(Arc<UserSession>);
-impl BlockUser for DocumentUserImpl {
+struct BlockUserImpl(Arc<UserSession>);
+impl BlockUser for BlockUserImpl {
     fn user_dir(&self) -> Result<String, FlowyError> {
         let dir = self.0.user_dir().map_err(|e| FlowyError::unauthorized().context(e))?;
 

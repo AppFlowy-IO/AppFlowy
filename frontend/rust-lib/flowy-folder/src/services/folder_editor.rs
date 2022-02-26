@@ -17,7 +17,7 @@ use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
-pub struct FolderEditor {
+pub struct ClientFolderEditor {
     user_id: String,
     pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
@@ -25,7 +25,7 @@ pub struct FolderEditor {
     ws_manager: Arc<RevisionWebSocketManager>,
 }
 
-impl FolderEditor {
+impl ClientFolderEditor {
     pub async fn new(
         user_id: &str,
         folder_id: &FolderId,
@@ -35,7 +35,7 @@ impl FolderEditor {
     ) -> FlowyResult<Self> {
         let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), pool));
         let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
-        let cloud = Arc::new(FolderRevisionCloudServiceImpl {
+        let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
         let folder = Arc::new(RwLock::new(
@@ -109,12 +109,12 @@ impl RevisionObjectBuilder for FolderPadBuilder {
     }
 }
 
-struct FolderRevisionCloudServiceImpl {
+struct FolderRevisionCloudService {
     #[allow(dead_code)]
     token: String,
 }
 
-impl RevisionCloudService for FolderRevisionCloudServiceImpl {
+impl RevisionCloudService for FolderRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
@@ -122,7 +122,7 @@ impl RevisionCloudService for FolderRevisionCloudServiceImpl {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl FolderEditor {
+impl ClientFolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
     }

@@ -1,6 +1,6 @@
 use crate::helper::*;
 use flowy_collaboration::entities::{document_info::BlockInfo, revision::RevisionState};
-use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
+use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
     trash::Trash,
@@ -95,7 +95,7 @@ impl FolderTest {
 
     pub async fn run_script(&mut self, script: FolderScript) {
         let sdk = &self.sdk;
-        let folder_editor: Arc<FolderEditor> = sdk.folder_manager.folder_editor().await;
+        let folder_editor: Arc<ClientFolderEditor> = sdk.folder_manager.folder_editor().await;
         let rev_manager = folder_editor.rev_manager();
         let cache = rev_manager.revision_cache().await;
 

@@ -22,7 +22,7 @@ use tokio::sync::{
 pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 
-pub(crate) async fn make_document_ws_manager(
+pub(crate) async fn make_block_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
@@ -41,7 +41,7 @@ pub(crate) async fn make_document_ws_manager(
     let ws_data_sink = Arc::new(BlockWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
-        "Document",
+        "Block",
         &doc_id,
         rev_web_socket,
         ws_data_sink,
