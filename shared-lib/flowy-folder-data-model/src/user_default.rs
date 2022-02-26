@@ -49,7 +49,7 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> View {
     let view_id = uuid::Uuid::new_v4();
     let name = "Read me".to_string();
     let desc = "".to_string();
-    let view_type = ViewType::Doc;
+    let view_type = ViewType::QuillDocument;
 
     View {
         id: view_id.to_string(),

@@ -127,8 +127,9 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view: View) -> Self {
         let view_type = match view.view_type {
-            ViewType::Blank => ViewTableType::Docs,
-            ViewType::Doc => ViewTableType::Docs,
+            ViewType::Kanban => ViewTableType::Kanban,
+            ViewType::QuillDocument => ViewTableType::QuillDocument,
+            ViewType::Blank => ViewTableType::QuillDocument,
         };
 
         ViewTable {
@@ -150,7 +151,8 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for View {
     fn from(table: ViewTable) -> Self {
         let view_type = match table.view_type {
-            ViewTableType::Docs => ViewType::Doc,
+            ViewTableType::QuillDocument => ViewType::QuillDocument,
+            ViewTableType::Kanban => ViewType::Kanban,
         };
 
         View {
@@ -215,22 +217,24 @@ impl ViewChangeset {
 #[repr(i32)]
 #[sql_type = "Integer"]
 pub enum ViewTableType {
-    Docs = 0,
+    QuillDocument = 0,
+    Kanban = 1,
 }
 
 impl std::default::Default for ViewTableType {
     fn default() -> Self {
-        ViewTableType::Docs
+        ViewTableType::QuillDocument
     }
 }
 
 impl std::convert::From<i32> for ViewTableType {
     fn from(value: i32) -> Self {
         match value {
-            0 => ViewTableType::Docs,
+            0 => ViewTableType::QuillDocument,
+            1 => ViewTableType::Kanban,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
-                ViewTableType::Docs
+                ViewTableType::QuillDocument
             }
         }
     }

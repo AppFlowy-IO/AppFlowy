@@ -65,7 +65,8 @@ impl std::convert::From<View> for Trash {
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum ViewType {
     Blank = 0,
-    Doc = 1,
+    QuillDocument = 1,
+    Kanban = 2,
 }
 
 impl std::default::Default for ViewType {
@@ -77,8 +78,9 @@ impl std::default::Default for ViewType {
 impl std::convert::From<i32> for ViewType {
     fn from(val: i32) -> Self {
         match val {
-            1 => ViewType::Doc,
             0 => ViewType::Blank,
+            1 => ViewType::QuillDocument,
+            2 => ViewType::Kanban,
             _ => {
                 log::error!("Invalid view type: {}", val);
                 ViewType::Blank

@@ -67,7 +67,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_collaboration={}", level));
+    // filters.push(format!("flowy_collaboration={}", level));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));

@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
@@ -16,15 +14,13 @@ part 'doc_bloc.freezed.dart';
 typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
-  final View view;
-  final DocumentRepository repo;
+  final ViewRepository repo;
   final ViewListener listener;
   final TrashRepo trashRepo;
   late FlutterQuillDocument document;
   StreamSubscription? _subscription;
 
   DocumentBloc({
-    required this.view,
     required this.repo,
     required this.listener,
     required this.trashRepo,
@@ -41,12 +37,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+          final result = await trashRepo.deleteViews([Tuple2(repo.view.id, TrashType.TrashView)]);
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },
         restorePage: (RestorePage value) async {
-          final result = await trashRepo.putback(view.id);
+          final result = await trashRepo.putback(repo.view.id);
           final newState = result.fold((l) => state.copyWith(isDeleted: false), (r) => state);
           emit(newState);
         },
@@ -107,7 +103,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
-    Log.debug("doc_id: $view.id - Send json: $json");
+    Log.debug("doc_id: $repo.view.id - Send json: $json");
     final result = await repo.composeDelta(data: json);
 
     result.fold((rustDoc) {

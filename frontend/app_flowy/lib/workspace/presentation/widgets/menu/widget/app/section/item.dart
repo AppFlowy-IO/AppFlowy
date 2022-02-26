@@ -36,12 +36,12 @@ class ViewSectionItem extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (ctx) => getIt<ViewBloc>(param1: view)..add(const ViewEvent.initial())),
+        BlocProvider(create: (ctx) => getIt<ViewMenuBloc>(param1: view)..add(const ViewEvent.initial())),
       ],
-      child: BlocBuilder<ViewBloc, ViewState>(
+      child: BlocBuilder<ViewMenuBloc, ViewState>(
         builder: (context, state) {
           return InkWell(
-            onTap: () => onSelected(context.read<ViewBloc>().state.view),
+            onTap: () => onSelected(context.read<ViewMenuBloc>().state.view),
             child: FlowyHover(
               config: HoverDisplayConfig(hoverColor: theme.bg3),
               builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
@@ -63,9 +63,9 @@ class ViewSectionItem extends StatelessWidget {
     if (onHover || state.isEditing) {
       children.add(
         ViewDisclosureButton(
-          onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
+          onTap: () => context.read<ViewMenuBloc>().add(const ViewEvent.setIsEditing(true)),
           onSelected: (action) {
-            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
+            context.read<ViewMenuBloc>().add(const ViewEvent.setIsEditing(false));
             _handleAction(context, action);
           },
         ),
@@ -87,18 +87,18 @@ class ViewSectionItem extends StatelessWidget {
         case ViewDisclosureAction.rename:
           TextFieldDialog(
             title: LocaleKeys.disclosureAction_rename.tr(),
-            value: context.read<ViewBloc>().state.view.name,
+            value: context.read<ViewMenuBloc>().state.view.name,
             confirm: (newValue) {
-              context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+              context.read<ViewMenuBloc>().add(ViewEvent.rename(newValue));
             },
           ).show(context);
 
           break;
         case ViewDisclosureAction.delete:
-          context.read<ViewBloc>().add(const ViewEvent.delete());
+          context.read<ViewMenuBloc>().add(const ViewEvent.delete());
           break;
         case ViewDisclosureAction.duplicate:
-          context.read<ViewBloc>().add(const ViewEvent.duplicate());
+          context.read<ViewMenuBloc>().add(const ViewEvent.duplicate());
           break;
       }
     });

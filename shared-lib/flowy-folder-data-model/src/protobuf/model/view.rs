@@ -2549,7 +2549,8 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ViewType {
     Blank = 0,
-    Doc = 1,
+    QuillDocument = 1,
+    Kanban = 2,
 }
 
 impl ::protobuf::ProtobufEnum for ViewType {
@@ -2560,7 +2561,8 @@ impl ::protobuf::ProtobufEnum for ViewType {
     fn from_i32(value: i32) -> ::std::option::Option<ViewType> {
         match value {
             0 => ::std::option::Option::Some(ViewType::Blank),
-            1 => ::std::option::Option::Some(ViewType::Doc),
+            1 => ::std::option::Option::Some(ViewType::QuillDocument),
+            2 => ::std::option::Option::Some(ViewType::Kanban),
             _ => ::std::option::Option::None
         }
     }
@@ -2568,7 +2570,8 @@ impl ::protobuf::ProtobufEnum for ViewType {
     fn values() -> &'static [Self] {
         static values: &'static [ViewType] = &[
             ViewType::Blank,
-            ViewType::Doc,
+            ViewType::QuillDocument,
+            ViewType::Kanban,
         ];
         values
     }
@@ -2626,8 +2629,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\
     \x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\
     \x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
-    \x12\n\x10one_of_thumbnail*\x1e\n\x08ViewType\x12\t\n\x05Blank\x10\0\x12\
-    \x07\n\x03Doc\x10\x01b\x06proto3\
+    \x12\n\x10one_of_thumbnail*4\n\x08ViewType\x12\t\n\x05Blank\x10\0\x12\
+    \x11\n\rQuillDocument\x10\x01\x12\n\n\x06Kanban\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

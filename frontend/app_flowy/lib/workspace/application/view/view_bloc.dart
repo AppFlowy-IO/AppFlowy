@@ -7,12 +7,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'view_bloc.freezed.dart';
 
-class ViewBloc extends Bloc<ViewEvent, ViewState> {
+class ViewMenuBloc extends Bloc<ViewEvent, ViewState> {
   final ViewRepository repo;
 
   final ViewListener listener;
 
-  ViewBloc({
+  ViewMenuBloc({
     required this.repo,
     required this.listener,
   }) : super(ViewState.init(repo.view)) {

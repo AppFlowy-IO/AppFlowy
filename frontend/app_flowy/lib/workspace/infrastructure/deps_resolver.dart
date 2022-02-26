@@ -9,7 +9,6 @@ import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
@@ -48,8 +47,8 @@ class HomeDepsResolver {
       (view, _) => ViewListener(view: view),
     );
 
-    getIt.registerFactoryParam<ViewBloc, View, void>(
-      (view, _) => ViewBloc(
+    getIt.registerFactoryParam<ViewMenuBloc, View, void>(
+      (view, _) => ViewMenuBloc(
         repo: ViewRepository(view: view),
         listener: getIt<ViewListener>(param1: view),
       ),
@@ -82,8 +81,7 @@ class HomeDepsResolver {
     // Doc
     getIt.registerFactoryParam<DocumentBloc, View, void>(
       (view, _) => DocumentBloc(
-        view: view,
-        repo: DocumentRepository(docId: view.id),
+        repo: ViewRepository(view: view),
         listener: getIt<ViewListener>(param1: view),
         trashRepo: getIt<TrashRepo>(),
       ),

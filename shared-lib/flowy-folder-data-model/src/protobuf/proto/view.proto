@@ -50,5 +50,6 @@ message UpdateViewParams {
 }
 enum ViewType {
     Blank = 0;
-    Doc = 1;
+    QuillDocument = 1;
+    Kanban = 2;
 }

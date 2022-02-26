@@ -35,9 +35,7 @@ class TrashStackContext extends HomeStackContext {
   HomeStackType get type => HomeStackType.trash;
 
   @override
-  Widget buildWidget() {
-    return const TrashStackPage(key: ValueKey('TrashStackPage'));
-  }
+  Widget buildWidget() => const TrashStackPage(key: ValueKey('TrashStackPage'));
 
   @override
   List<NavigationItem> get navigationItems => [this];

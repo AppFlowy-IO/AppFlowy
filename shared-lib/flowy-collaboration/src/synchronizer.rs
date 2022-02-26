@@ -146,10 +146,9 @@ where
         let object_id = self.object_id.clone();
         let server_rev_id = self.rev_id();
         tracing::Span::current().record("server_rev_id", &server_rev_id);
-
         match server_rev_id.cmp(&client_rev_id) {
             Ordering::Less => {
-                tracing::warn!("Client should not send ping and the server should pull the revisions from the client")
+                tracing::trace!("Client should not send ping and the server should pull the revisions from the client")
             }
             Ordering::Equal => tracing::trace!("{} is up to date.", object_id),
             Ordering::Greater => {

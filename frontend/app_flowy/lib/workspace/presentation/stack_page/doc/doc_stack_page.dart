@@ -64,10 +64,6 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   @override
   ValueNotifier<int> get isUpdated => _isUpdated;
 
-  // List<NavigationItem> get navigationItems => naviStacks.map((stack) {
-  //       return NavigationItemImpl(context: stack);
-  //     }).toList();
-
   List<NavigationItem> _makeNavigationItems() {
     return [
       this,

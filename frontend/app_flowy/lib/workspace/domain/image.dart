@@ -17,7 +17,9 @@ extension SvgViewType on View {
 
 String _imageNameForViewType(ViewType type) {
   switch (type) {
-    case ViewType.Doc:
+    case ViewType.QuillDocument:
+      return "file_icon";
+    case ViewType.Kanban:
       return "file_icon";
     default:
       return "file_icon";

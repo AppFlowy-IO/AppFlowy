@@ -11,11 +11,13 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class ViewType extends $pb.ProtobufEnum {
   static const ViewType Blank = ViewType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Blank');
-  static const ViewType Doc = ViewType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
+  static const ViewType QuillDocument = ViewType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'QuillDocument');
+  static const ViewType Kanban = ViewType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Kanban');
 
   static const $core.List<ViewType> values = <ViewType> [
     Blank,
-    Doc,
+    QuillDocument,
+    Kanban,
   ];
 
   static final $core.Map<$core.int, ViewType> _byValue = $pb.ProtobufEnum.initByValue(values);
