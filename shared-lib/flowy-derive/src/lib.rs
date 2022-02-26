@@ -9,7 +9,6 @@ use syn::{parse_macro_input, DeriveInput};
 extern crate quote;
 
 mod dart_event;
-mod derive_cache;
 mod proto_buf;
 
 // Inspired by https://serde.rs/attributes.html

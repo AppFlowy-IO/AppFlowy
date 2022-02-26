@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
-import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
@@ -10,25 +10,26 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/export.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/share.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:provider/provider.dart';
 
-import 'doc_page.dart';
+import 'document_page.dart';
 
 class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   View _view;
-  late IViewListener _listener;
+  late ViewListener _listener;
   final ValueNotifier<int> _isUpdated = ValueNotifier<int>(0);
 
   DocStackContext({required View view, Key? key}) : _view = view {
-    _listener = getIt<IViewListener>(param1: view);
+    _listener = getIt<ViewListener>(param1: view);
     _listener.updatedNotifier.addPublishListener((result) {
       result.fold(
         (newView) {
@@ -42,10 +43,10 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   }
 
   @override
-  Widget get leftBarItem => DocLeftBarItem(view: _view);
+  Widget get leftBarItem => DocumentLeftBarItem(view: _view);
 
   @override
-  Widget? get rightBarItem => DocShareButton(view: _view);
+  Widget? get rightBarItem => DocumentShareButton(view: _view);
 
   @override
   String get identifier => _view.id;
@@ -54,7 +55,7 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   HomeStackType get type => _view.stackType();
 
   @override
-  Widget buildWidget() => DocPage(view: _view, key: ValueKey(_view.id));
+  Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
 
   @override
   List<NavigationItem> get navigationItems => _makeNavigationItems();
@@ -74,20 +75,20 @@ class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
 
   @override
   void dispose() {
-    _listener.stop();
+    _listener.close();
   }
 }
 
-class DocLeftBarItem extends StatefulWidget {
+class DocumentLeftBarItem extends StatefulWidget {
   final View view;
 
-  DocLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
+  DocumentLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
 
   @override
-  State<DocLeftBarItem> createState() => _DocLeftBarItemState();
+  State<DocumentLeftBarItem> createState() => _DocumentLeftBarItemState();
 }
 
-class _DocLeftBarItemState extends State<DocLeftBarItem> {
+class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   late ViewRepository repo;
@@ -140,9 +141,9 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
   }
 }
 
-class DocShareButton extends StatelessWidget {
+class DocumentShareButton extends StatelessWidget {
   final View view;
-  DocShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
+  DocumentShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {
@@ -164,14 +165,25 @@ class DocShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            return RoundedTextButton(
-              title: 'shareAction.buttonText'.tr(),
-              height: 30,
-              width: buttonWidth,
-              fontSize: 12,
-              borderRadius: Corners.s6Border,
-              color: Colors.lightBlue,
-              onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+            return ChangeNotifierProvider.value(
+              value: Provider.of<AppearanceSettingModel>(context, listen: true),
+              child: Selector<AppearanceSettingModel, Locale>(
+                selector: (ctx, notifier) => notifier.locale,
+                builder: (ctx, _, child) => ConstrainedBox(
+                  constraints: const BoxConstraints.expand(
+                    height: 30,
+                    // minWidth: buttonWidth,
+                    width: 100,
+                  ),
+                  child: RoundedTextButton(
+                    title: LocaleKeys.shareAction_buttonText.tr(),
+                    fontSize: 12,
+                    borderRadius: Corners.s6Border,
+                    color: Colors.lightBlue,
+                    onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+                  ),
+                ),
+              ),
             );
           },
         ),
@@ -182,13 +194,11 @@ class DocShareButton extends StatelessWidget {
   void _handleExportData(ExportData exportData) {
     switch (exportData.exportType) {
       case ExportType.Link:
-        // TODO: Handle this case.
         break;
       case ExportType.Markdown:
         FlutterClipboard.copy(exportData.data).then((value) => Log.info('copied to clipboard'));
         break;
       case ExportType.Text:
-        // TODO: Handle this case.
         break;
     }
   }

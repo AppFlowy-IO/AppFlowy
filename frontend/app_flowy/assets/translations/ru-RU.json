@@ -1,0 +1,146 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "Я",
+    "welcomeText": "Добро пожаловать в @:appName",
+    "githubStarText": "Поставить звезду на GitHub",
+    "subscribeNewsletterText": "Подписаться на рассылку",
+    "letsGoButtonText": "Начнём",
+    "title": "Заголовок",
+    "signUp": {
+      "buttonText": "Зарегистрироваться",
+      "title": "Регистрация в @:appName",
+      "getStartedText": "Начать",
+      "emptyPasswordError": "Пароль не может быть пустым",
+      "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
+      "unmatchedPasswordError": "Пароли не совпадают",
+      "alreadyHaveAnAccount": "Уже есть аккаунт?",
+      "emailHint": "Электронная почта",
+      "passwordHint": "Пароль",
+      "repeatPasswordHint": "Повторите пароль"
+    },
+    "signIn": {
+      "loginTitle": "Войти в @:appName",
+      "loginButtonText": "Войти",
+      "buttonText": "Авторизация",
+      "forgotPassword": "Забыли пароль?",
+      "emailHint": "Электронная почта",
+      "passwordHint": "Пароль",
+      "dontHaveAnAccount": "Нет аккаунта?",
+      "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
+      "unmatchedPasswordError": "Пароли не совпадают"
+    },
+    "workspace": {
+      "create": "Создать рабочее пространство",
+      "hint": "рабочее пространство",
+      "notFoundError": "Нет такого рабочего пространства"
+    },
+    "shareAction": {
+      "buttonText": "Поделиться",
+      "workInProgress": "В разработке",
+      "markdown": "Markdown",
+      "copyLink": "Скопировать ссылку"
+    },
+    "disclosureAction": {
+      "rename": "Переименовать",
+      "delete": "Удалить",
+      "duplicate": "Дублировать"
+    },
+    "blankPageTitle": "Пустая страница",
+    "newPageText": "Новая страница",
+    "trash": {
+      "text": "Корзина",
+      "restoreAll": "Восстановить всё",
+      "deleteAll": "Очистить",
+      "pageHeader": {
+        "fileName": "Имя",
+        "lastModified": "Последнее изменение",
+        "created": "Создан"
+      }
+    },
+    "deletePagePrompt": {
+      "text": "Эта страница в Корзине",
+      "restore": "Восстановить страницу",
+      "deletePermanent": "Удалить навсегда"
+    },
+    "dialogCreatePageNameHint": "Имя",
+    "questionBubble": {
+      "whatsNew": "Что нового?",
+      "help": "Помощь",
+      "debug": {
+        "name": "Отладочная информация",
+        "success": "Скопировано в буфер обмена!",
+        "fail": "Не получилось скопировать"
+      }
+    },
+    "menuAppHeader": {
+      "addPageTooltip": "Быстро добавить новую страницу",
+      "defaultNewPageName": "Без заголовка",
+      "renameDialog": "Переименовать"
+    },
+    "toolbar": {
+      "undo": "Отменить",
+      "redo": "Повторить",
+      "bold": "Жирный",
+      "italic": "Курсив",
+      "underline": "Подчёркнутый",
+      "strike": "Зачёркнутый",
+      "numList": "Нумерованный список",
+      "bulletList": "Маркированный список",
+      "checkList": "Список To-Do",
+      "inlineCode": "Код",
+      "quote": "Цитата",
+      "header": "Заголовок",
+      "highlight": "Выделение"
+    },
+    "tooltip": {
+      "lightMode": "Переключиться в светлую тему",
+      "darkMode": "Переключиться в тёмную тему"
+    },
+    "contactsPage": {
+      "title": "Контакты",
+      "whatsHappening": "Что происходит на этой неделе?",
+      "addContact": "Новый контакт",
+      "editContact": "Редактировать"
+    },
+    "button": {
+      "OK": "OK",
+      "Cancel": "Отмена",
+      "signIn": "Войти",
+      "signOut": "Выйти",
+      "complete": "Завершить",
+      "save": "Сохранить"
+    },
+    "label": {
+      "welcome": "Добро пожаловать!",
+      "firstName": "Имя",
+      "middleName": "Отчество",
+      "lastName": "Фамилия",
+      "stepX": "Этап {X}"
+    },
+    "oAuth": {
+      "err": {
+        "failedTitle": "Ошибка подключения к аккаунту.",
+        "failedMsg": "Убедитесь, что вы завершили вход в своём браузере."
+      },
+      "google": {
+        "title": "Вход через Google",
+        "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизовать приложение через браузер.",
+        "instruction2": "Скопируйте этот код в буфер обмена (нажав кнопку или выделив текст):",
+        "instruction3": "Пройдите по ссылке и введите этот код:",
+        "instruction4": "Нажмите на кнопку, когда завершите вход:"
+      }
+    },
+    "settings": {
+      "title": "Настройки",
+      "menu": {
+        "appearance": "Внешний вид",
+        "language": "Язык",
+        "open": "Открыть настройки"
+      },
+      "appearance": {
+        "lightLabel": "Светлая тема",
+        "darkLabel": "Тёмная тема"
+      }
+    }
+  }
+  

@@ -1,9 +1,10 @@
 use crate::{
-    core::{Attributes, Operation},
+    core::{Attributes, Operation, PlainAttributes},
     rich_text::RichTextAttributes,
 };
 
 pub type RichTextOpBuilder = OpBuilder<RichTextAttributes>;
+pub type PlainTextOpBuilder = OpBuilder<PlainAttributes>;
 
 pub struct OpBuilder<T: Attributes> {
     ty: Operation<T>,
@@ -21,11 +22,17 @@ where
         }
     }
 
-    pub fn retain(n: usize) -> OpBuilder<T> { OpBuilder::new(Operation::Retain(n.into())) }
+    pub fn retain(n: usize) -> OpBuilder<T> {
+        OpBuilder::new(Operation::Retain(n.into()))
+    }
 
-    pub fn delete(n: usize) -> OpBuilder<T> { OpBuilder::new(Operation::Delete(n)) }
+    pub fn delete(n: usize) -> OpBuilder<T> {
+        OpBuilder::new(Operation::Delete(n))
+    }
 
-    pub fn insert(s: &str) -> OpBuilder<T> { OpBuilder::new(Operation::Insert(s.into())) }
+    pub fn insert(s: &str) -> OpBuilder<T> {
+        OpBuilder::new(Operation::Insert(s.into()))
+    }
 
     pub fn attributes(mut self, attrs: T) -> OpBuilder<T> {
         self.attrs = attrs;
@@ -35,7 +42,7 @@ where
     pub fn build(self) -> Operation<T> {
         let mut operation = self.ty;
         match &mut operation {
-            Operation::Delete(_) => {},
+            Operation::Delete(_) => {}
             Operation::Retain(retain) => retain.attributes = self.attrs,
             Operation::Insert(insert) => insert.attributes = self.attrs,
         }

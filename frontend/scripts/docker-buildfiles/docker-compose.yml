@@ -3,10 +3,18 @@ version: "3"
 services:
   app:
     build: .
-    stdin_open: true 
+    image: appflowy/appflowy:latest
+    stdin_open: true
     # tty: true
     environment:
       - DISPLAY=${DISPLAY}
     volumes:
       - $HOME/.Xauthority:/root/.Xauthority:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/dri:/dev/dri
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - appflowy-data:/home/makepkg
     network_mode: host
+
+volumes:
+  appflowy-data:

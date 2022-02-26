@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message UserPreferences {
+    string user_id = 1;
+    AppearanceSettings appearance_setting = 2;
+}
+message AppearanceSettings {
+    string theme = 1;
+    LocaleSettings locale = 2;
+    bool reset_as_default = 3;
+}
+message LocaleSettings {
+    string language_code = 1;
+    string country_code = 2;
+}

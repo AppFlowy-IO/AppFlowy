@@ -43,19 +43,21 @@ impl CollaborateError {
 }
 
 impl fmt::Display for CollaborateError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}: {}", &self.code, &self.msg)
+    }
 }
 
 #[derive(Debug, Clone, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    DocIdInvalid     = 0,
-    DocNotfound      = 1,
-    UndoFail         = 200,
-    RedoFail         = 201,
-    OutOfBound       = 202,
+    DocIdInvalid = 0,
+    DocNotfound = 1,
+    UndoFail = 200,
+    RedoFail = 201,
+    OutOfBound = 202,
     RevisionConflict = 203,
-    RecordNotFound   = 300,
-    InternalError    = 1000,
+    RecordNotFound = 300,
+    InternalError = 1000,
 }
 
 impl std::convert::From<lib_ot::errors::OTError> for CollaborateError {
@@ -65,7 +67,9 @@ impl std::convert::From<lib_ot::errors::OTError> for CollaborateError {
 }
 
 impl std::convert::From<protobuf::ProtobufError> for CollaborateError {
-    fn from(e: protobuf::ProtobufError) -> Self { CollaborateError::internal().context(e) }
+    fn from(e: protobuf::ProtobufError) -> Self {
+        CollaborateError::internal().context(e)
+    }
 }
 
 pub(crate) fn internal_error<T>(e: T) -> CollaborateError

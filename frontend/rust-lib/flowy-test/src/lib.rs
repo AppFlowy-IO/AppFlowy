@@ -2,7 +2,7 @@ pub mod event_builder;
 pub mod helper;
 
 use crate::helper::*;
-use backend_service::configuration::{get_client_server_configuration, ClientServerConfiguration};
+use flowy_net::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 use lib_infra::uuid_string;
@@ -20,7 +20,9 @@ pub struct FlowySDKTest {
 impl std::ops::Deref for FlowySDKTest {
     type Target = FlowySDK;
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl std::default::Default for FlowySDKTest {
@@ -35,7 +37,7 @@ impl std::default::Default for FlowySDKTest {
 impl FlowySDKTest {
     pub fn new(server_config: ClientServerConfiguration) -> Self {
         let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string()).log_filter("trace");
-        let sdk = FlowySDK::new(config);
+        let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }
     }

@@ -22,5 +22,7 @@ impl FFIRequest {
 }
 
 impl std::convert::From<FFIRequest> for ModuleRequest {
-    fn from(ffi_request: FFIRequest) -> Self { ModuleRequest::new(ffi_request.event).payload(ffi_request.payload) }
+    fn from(ffi_request: FFIRequest) -> Self {
+        ModuleRequest::new(ffi_request.event).payload(ffi_request.payload)
+    }
 }

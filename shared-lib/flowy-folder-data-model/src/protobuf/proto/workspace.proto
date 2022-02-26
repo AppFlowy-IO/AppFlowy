@@ -1,0 +1,40 @@
+syntax = "proto3";
+import "app.proto";
+import "view.proto";
+
+message Workspace {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+    RepeatedApp apps = 4;
+    int64 modified_time = 5;
+    int64 create_time = 6;
+}
+message RepeatedWorkspace {
+    repeated Workspace items = 1;
+}
+message CreateWorkspacePayload {
+    string name = 1;
+    string desc = 2;
+}
+message CreateWorkspaceParams {
+    string name = 1;
+    string desc = 2;
+}
+message WorkspaceId {
+    oneof one_of_value { string value = 1; };
+}
+message CurrentWorkspaceSetting {
+    Workspace workspace = 1;
+    oneof one_of_latest_view { View latest_view = 2; };
+}
+message UpdateWorkspaceRequest {
+    string id = 1;
+    oneof one_of_name { string name = 2; };
+    oneof one_of_desc { string desc = 3; };
+}
+message UpdateWorkspaceParams {
+    string id = 1;
+    oneof one_of_name { string name = 2; };
+    oneof one_of_desc { string desc = 3; };
+}

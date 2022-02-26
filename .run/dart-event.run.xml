@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="dart-event" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --manifest-path $PROJECT_DIR$/scripts/flowy-tool/Cargo.toml -- dart-event --rust_source=$PROJECT_DIR$/rust-lib/  --output=$PROJECT_DIR$/app_flowy/packages/flowy_sdk/lib/dispatch/code_gen.dart" />
+    <option name="command" value="run --manifest-path $PROJECT_DIR$/scripts/flowy-tool/Cargo.toml -- dart-event --rust_source=$PROJECT_DIR$/rust-lib/  --output=$PROJECT_DIR$/app_flowy/packages/flowy_sdk/lib/dispatch/dart_event.dart" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="allFeatures" value="false" />

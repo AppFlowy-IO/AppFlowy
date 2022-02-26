@@ -1,9 +1,10 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/splash_bloc.dart';
 import 'package:app_flowy/user/domain/auth_state.dart';
-import 'package:app_flowy/user/domain/i_splash.dart';
+import 'package:app_flowy/user/infrastructure/router.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,13 +44,14 @@ class SplashScreen extends StatelessWidget {
 
   void _handleAuthenticated(BuildContext context, Authenticated result) {
     final userProfile = result.userProfile;
-    WorkspaceEventReadCurWorkspace().send().then(
+    FolderEventReadCurWorkspace().send().then(
       (result) {
         return result.fold(
-          (workspaceSetting) => getIt<ISplashRoute>().pushHomeScreen(context, userProfile, workspaceSetting),
+          (workspaceSetting) => getIt<SplashRoute>().pushHomeScreen(context, userProfile, workspaceSetting),
           (error) async {
+            Log.error(error);
             assert(error.code == ErrorCode.RecordNotFound.value);
-            getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
+            getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
           },
         );
       },
@@ -57,8 +59,8 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    // getIt<ISplashRoute>().pushSignInScreen(context);
-    getIt<ISplashRoute>().pushSkipLoginScreen(context);
+    // getIt<SplashRoute>().pushSignInScreen(context);
+    getIt<SplashRoute>().pushSkipLoginScreen(context);
   }
 }
 

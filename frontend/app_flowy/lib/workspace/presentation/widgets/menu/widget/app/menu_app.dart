@@ -1,8 +1,9 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header/header.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -41,13 +42,13 @@ class _MenuAppState extends State<MenuApp> {
       ],
       child: BlocSelector<AppBloc, AppState, AppDataNotifier>(
         selector: (state) {
-          final menuState = Provider.of<MenuSharedState>(context, listen: false);
+          final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
           if (state.latestCreatedView != null) {
-            menuState.forcedOpenView.value = state.latestCreatedView!;
+            menuSharedState.forcedOpenView.value = state.latestCreatedView!;
           }
 
           notifier.views = state.views;
-          notifier.selectedView = menuState.selectedView.value;
+          notifier.selectedView = menuSharedState.selectedView.value;
           return notifier;
         },
         builder: (context, notifier) => ChangeNotifierProvider.value(
@@ -79,7 +80,10 @@ class _MenuAppState extends State<MenuApp> {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: MenuAppHeader(widget.app),
+              header: ChangeNotifierProvider.value(
+                value: Provider.of<AppearanceSettingModel>(context, listen: true),
+                child: MenuAppHeader(widget.app),
+              ),
               expanded: _renderViewSection(notifier),
               collapsed: const SizedBox(),
             ),

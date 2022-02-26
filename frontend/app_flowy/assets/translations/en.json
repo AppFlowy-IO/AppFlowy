@@ -36,7 +36,7 @@
   },
   "shareAction": {
     "buttonText": "Share",
-    "workInProgress": "Work in progress",
+    "workInProgress": "Coming soon",
     "markdown": "Markdown",
     "copyLink": "Copy Link"
   },
@@ -88,9 +88,11 @@
     "bulletList": "Bulleted List",
     "checkList": "Check List",
     "inlineCode": "Inline Code",
-    "quote": "Quote Block"
+    "quote": "Quote Block",
+    "header": "Header",
+    "highlight": "Highlight"
   },
-  "tooltip":{
+  "tooltip": {
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode"
   },
@@ -126,6 +128,18 @@
       "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
       "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
       "instruction4": "Press the button below when you've completed signup:"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "menu": {
+      "appearance": "Appearance",
+      "language": "Language",
+      "open": "Open Settings"
+    },
+    "appearance": {
+      "lightLabel": "Light Mode",
+      "darkLabel": "Dark Mode"
     }
   }
 }

@@ -1,3 +1,8 @@
+#![allow(clippy::all)]
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::proto::ast::*;
 use crate::proto::proto_info::*;
 use crate::{proto::template::*, util::*};
@@ -14,16 +19,14 @@ impl ProtoGen {
     pub fn gen(&self) {
         let crate_proto_infos = parse_crate_protobuf(self.rust_source_dirs.clone());
         write_proto_files(&crate_proto_infos);
-
-        // TODO: ignore unchanged file to reduce time cost
         run_rust_protoc(&crate_proto_infos);
-        write_rust_crate_mod_file(&crate_proto_infos);
+
+        // write_rust_crate_mod_file(&crate_proto_infos);
         write_derive_meta(&crate_proto_infos, self.derive_meta_dir.as_ref());
 
-        // TODO: ignore unchanged file to reduce time cost
-        let flutter_package = FlutterProtobufInfo::new(self.flutter_package_lib.as_ref());
-        run_flutter_protoc(&crate_proto_infos, &flutter_package);
-        write_flutter_protobuf_package_mod_file(&crate_proto_infos, &flutter_package);
+        // let flutter_package = FlutterProtobufInfo::new(self.flutter_package_lib.as_ref());
+        // run_flutter_protoc(&crate_proto_infos, &flutter_package);
+        // write_flutter_protobuf_package_mod_file(&crate_proto_infos, &flutter_package);
     }
 }
 

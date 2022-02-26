@@ -3,10 +3,7 @@ use serde::{
     de,
     de::{MapAccess, SeqAccess, Visitor},
     ser::SerializeMap,
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::{fmt, marker::PhantomData};
 
@@ -24,7 +21,7 @@ where
                 let mut map = serializer.serialize_map(Some(1))?;
                 map.serialize_entry("delete", i)?;
                 map.end()
-            },
+            }
             Operation::Insert(insert) => insert.serialize(serializer),
         }
     }
@@ -64,28 +61,28 @@ where
                                 return Err(de::Error::duplicate_field("operation"));
                             }
                             operation = Some(Operation::<T>::Delete(map.next_value()?));
-                        },
+                        }
                         "retain" => {
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
                             let i: usize = map.next_value()?;
                             operation = Some(Operation::<T>::Retain(i.into()));
-                        },
+                        }
                         "insert" => {
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
                             let i: String = map.next_value()?;
                             operation = Some(Operation::<T>::Insert(i.into()));
-                        },
+                        }
                         "attributes" => {
                             if attributes.is_some() {
                                 return Err(de::Error::duplicate_field("attributes"));
                             }
                             let map: T = map.next_value()?;
                             attributes = Some(map);
-                        },
+                        }
                         _ => panic!(),
                     }
                 }
@@ -96,7 +93,7 @@ where
                             operation.set_attributes(attributes.unwrap_or_default());
                         }
                         Ok(operation)
-                    },
+                    }
                 }
             }
         }
@@ -139,7 +136,9 @@ where
         {
             type Value = Retain<T>;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("struct Retain") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct Retain")
+            }
 
             #[inline]
             fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
@@ -150,14 +149,14 @@ where
                     Some(val) => val,
                     None => {
                         return Err(de::Error::invalid_length(0, &"struct Retain with 2 elements"));
-                    },
+                    }
                 };
 
                 let attributes = match serde::de::SeqAccess::next_element::<T>(&mut seq)? {
                     Some(val) => val,
                     None => {
                         return Err(de::Error::invalid_length(1, &"struct Retain with 2 elements"));
-                    },
+                    }
                 };
 
                 Ok(Retain::<T> { n: len, attributes })
@@ -177,13 +176,13 @@ where
                                 return Err(de::Error::duplicate_field("retain"));
                             }
                             len = Some(map.next_value()?);
-                        },
+                        }
                         "attributes" => {
                             if attributes.is_some() {
                                 return Err(de::Error::duplicate_field("attributes"));
                             }
                             attributes = Some(map.next_value()?);
-                        },
+                        }
                         _ => panic!(),
                     }
                 }
@@ -240,7 +239,9 @@ where
         {
             type Value = Insert<T>;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("struct Insert") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct Insert")
+            }
 
             #[inline]
             fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
@@ -251,14 +252,14 @@ where
                     Some(val) => val,
                     None => {
                         return Err(de::Error::invalid_length(0, &"struct Insert with 2 elements"));
-                    },
+                    }
                 };
 
                 let attributes = match serde::de::SeqAccess::next_element::<T>(&mut seq)? {
                     Some(val) => val,
                     None => {
                         return Err(de::Error::invalid_length(1, &"struct Retain with 2 elements"));
-                    },
+                    }
                 };
 
                 Ok(Insert::<T> { s, attributes })
@@ -278,13 +279,13 @@ where
                                 return Err(de::Error::duplicate_field("insert"));
                             }
                             s = Some(map.next_value()?);
-                        },
+                        }
                         "attributes" => {
                             if attributes.is_some() {
                                 return Err(de::Error::duplicate_field("attributes"));
                             }
                             attributes = Some(map.next_value()?);
-                        },
+                        }
                         _ => panic!(),
                     }
                 }

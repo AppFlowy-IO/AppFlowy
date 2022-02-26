@@ -2,7 +2,7 @@ import 'dart:isolate';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ffi';
-import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/log.dart';
 import 'protobuf/dart-notify/subject.pb.dart';
 
 typedef ObserverCallback = void Function(SubscribeObject observable);
@@ -30,8 +30,8 @@ class RustStreamReceiver {
     return shared;
   }
 
-  static listen(void Function(SubscribeObject subject) callback) {
-    RustStreamReceiver.shared.observable.stream.listen(callback);
+  static StreamSubscription<SubscribeObject> listen(void Function(SubscribeObject subject) callback) {
+    return RustStreamReceiver.shared.observable.stream.listen(callback);
   }
 
   void streamCallback(Uint8List bytes) {

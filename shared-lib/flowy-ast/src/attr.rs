@@ -29,33 +29,33 @@ impl AttrsContainer {
                     if let Ok(into_ty) = parse_lit_into_ty(cx, PB_STRUCT, &m.lit) {
                         pb_struct_type.set_opt(&m.path, Some(into_ty));
                     }
-                },
+                }
 
                 // Parse `#[pb(enum = "Type")]
                 Meta(NameValue(m)) if m.path == PB_ENUM => {
                     if let Ok(into_ty) = parse_lit_into_ty(cx, PB_ENUM, &m.lit) {
                         pb_enum_type.set_opt(&m.path, Some(into_ty));
                     }
-                },
+                }
 
                 Meta(meta_item) => {
                     let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
                     cx.error_spanned_by(meta_item.path(), format!("unknown pb container attribute `{}`", path));
-                },
+                }
 
                 Lit(lit) => {
                     cx.error_spanned_by(lit, "unexpected literal in pb container attribute");
-                },
+                }
             }
         }
         match &item.data {
             syn::Data::Struct(_) => {
                 pb_struct_type.set_if_none(default_pb_type(&cx, &item.ident));
-            },
+            }
             syn::Data::Enum(_) => {
                 pb_enum_type.set_if_none(default_pb_type(&cx, &item.ident));
-            },
-            _ => {},
+            }
+            _ => {}
         }
 
         AttrsContainer {
@@ -65,9 +65,13 @@ impl AttrsContainer {
         }
     }
 
-    pub fn pb_struct_type(&self) -> Option<&syn::Type> { self.pb_struct_type.as_ref() }
+    pub fn pb_struct_type(&self) -> Option<&syn::Type> {
+        self.pb_struct_type.as_ref()
+    }
 
-    pub fn pb_enum_type(&self) -> Option<&syn::Type> { self.pb_enum_type.as_ref() }
+    pub fn pb_enum_type(&self) -> Option<&syn::Type> {
+        self.pb_enum_type.as_ref()
+    }
 }
 
 struct ASTAttr<'c, T> {
@@ -111,7 +115,9 @@ impl<'c, T> ASTAttr<'c, T> {
         }
     }
 
-    fn get(self) -> Option<T> { self.value }
+    fn get(self) -> Option<T> {
+        self.value
+    }
 
     #[allow(dead_code)]
     fn get_with_tokens(self) -> Option<(TokenStream, T)> {
@@ -154,42 +160,42 @@ impl ASTAttrField {
                 Meta(Path(word)) if word == SKIP => {
                     skip_serializing.set_true(word);
                     skip_deserializing.set_true(word);
-                },
+                }
 
                 // Parse '#[pb(index = x)]'
                 Meta(NameValue(m)) if m.path == PB_INDEX => {
                     if let syn::Lit::Int(lit) = &m.lit {
                         pb_index.set(&m.path, lit.clone());
                     }
-                },
+                }
 
                 // Parse `#[pb(one_of)]`
                 Meta(Path(path)) if path == PB_ONE_OF => {
                     pb_one_of.set_true(path);
-                },
+                }
 
                 // Parse `#[pb(serialize_with = "...")]`
                 Meta(NameValue(m)) if m.path == SERIALIZE_WITH => {
                     if let Ok(path) = parse_lit_into_expr_path(cx, SERIALIZE_WITH, &m.lit) {
                         serialize_with.set(&m.path, path);
                     }
-                },
+                }
 
                 // Parse `#[pb(deserialize_with = "...")]`
                 Meta(NameValue(m)) if m.path == DESERIALIZE_WITH => {
                     if let Ok(path) = parse_lit_into_expr_path(cx, DESERIALIZE_WITH, &m.lit) {
                         deserialize_with.set(&m.path, path);
                     }
-                },
+                }
 
                 Meta(meta_item) => {
                     let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
                     cx.error_spanned_by(meta_item.path(), format!("unknown field attribute `{}`", path));
-                },
+                }
 
                 Lit(lit) => {
                     cx.error_spanned_by(lit, "unexpected literal in pb field attribute");
-                },
+                }
             }
         }
 
@@ -205,17 +211,29 @@ impl ASTAttrField {
     }
 
     #[allow(dead_code)]
-    pub fn pb_index(&self) -> Option<String> { self.pb_index.as_ref().map(|lit| lit.base10_digits().to_string()) }
+    pub fn pb_index(&self) -> Option<String> {
+        self.pb_index.as_ref().map(|lit| lit.base10_digits().to_string())
+    }
 
-    pub fn is_one_of(&self) -> bool { self.pb_one_of }
+    pub fn is_one_of(&self) -> bool {
+        self.pb_one_of
+    }
 
-    pub fn serialize_with(&self) -> Option<&syn::ExprPath> { self.serialize_with.as_ref() }
+    pub fn serialize_with(&self) -> Option<&syn::ExprPath> {
+        self.serialize_with.as_ref()
+    }
 
-    pub fn deserialize_with(&self) -> Option<&syn::ExprPath> { self.deserialize_with.as_ref() }
+    pub fn deserialize_with(&self) -> Option<&syn::ExprPath> {
+        self.deserialize_with.as_ref()
+    }
 
-    pub fn skip_serializing(&self) -> bool { self.skip_serializing }
+    pub fn skip_serializing(&self) -> bool {
+        self.skip_serializing
+    }
 
-    pub fn skip_deserializing(&self) -> bool { self.skip_deserializing }
+    pub fn skip_deserializing(&self) -> bool {
+        self.skip_deserializing
+    }
 }
 
 pub enum Default {
@@ -267,11 +285,17 @@ impl ASTEnumAttrVariant {
         }
     }
 
-    pub fn event_input(&self) -> Option<syn::Path> { self.event_attrs.input.clone() }
+    pub fn event_input(&self) -> Option<syn::Path> {
+        self.event_attrs.input.clone()
+    }
 
-    pub fn event_output(&self) -> Option<syn::Path> { self.event_attrs.output.clone() }
+    pub fn event_output(&self) -> Option<syn::Path> {
+        self.event_attrs.output.clone()
+    }
 
-    pub fn event_error(&self) -> String { self.event_attrs.error_ty.as_ref().unwrap().clone() }
+    pub fn event_error(&self) -> String {
+        self.event_attrs.error_ty.as_ref().unwrap().clone()
+    }
 }
 
 fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &[syn::Attribute], enum_attrs: &[syn::Attribute]) -> EventAttrs {
@@ -320,12 +344,12 @@ fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &[syn::Attribute], enum_attr
                     event_attrs.output = Some(output_type);
                 }
             }
-        },
+        }
         Meta(Path(word)) => {
             if word == EVENT_IGNORE && attr.path == EVENT {
                 event_attrs.ignore = true;
             }
-        },
+        }
         Lit(s) => ctxt.error_spanned_by(s, "unexpected attribute"),
         _ => ctxt.error_spanned_by(meta_item, "unexpected attribute"),
     };
@@ -359,12 +383,12 @@ pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::Neste
         Ok(other) => {
             cx.error_spanned_by(other, "expected #[pb(...)] or or #[event(...)]");
             Err(())
-        },
+        }
         Err(err) => {
             cx.error_spanned_by(attr, "attribute must be str, e.g. #[pb(xx = \"xxx\")]");
             cx.syn_error(err);
             Err(())
-        },
+        }
     }
 }
 
@@ -442,19 +466,19 @@ pub fn is_option(ty: &syn::Type) -> bool {
         syn::Type::Path(ty) => &ty.path,
         _ => {
             return false;
-        },
+        }
     };
     let seg = match path.segments.last() {
         Some(seg) => seg,
         None => {
             return false;
-        },
+        }
     };
     let args = match &seg.arguments {
         syn::PathArguments::AngleBracketed(bracketed) => &bracketed.args,
         _ => {
             return false;
-        },
+        }
     };
     seg.ident == "Option" && args.len() == 1
 }
@@ -470,9 +494,15 @@ pub fn ungroup(mut ty: &syn::Type) -> &syn::Type {
 struct BoolAttr<'c>(ASTAttr<'c, ()>);
 
 impl<'c> BoolAttr<'c> {
-    fn none(cx: &'c Ctxt, name: Symbol) -> Self { BoolAttr(ASTAttr::none(cx, name)) }
+    fn none(cx: &'c Ctxt, name: Symbol) -> Self {
+        BoolAttr(ASTAttr::none(cx, name))
+    }
 
-    fn set_true<A: ToTokens>(&mut self, obj: A) { self.0.set(obj, ()); }
+    fn set_true<A: ToTokens>(&mut self, obj: A) {
+        self.0.set(obj, ());
+    }
 
-    fn get(&self) -> bool { self.0.value.is_some() }
+    fn get(&self) -> bool {
+        self.0.value.is_some()
+    }
 }

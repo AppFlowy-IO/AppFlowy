@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "app_flowy",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "build_flowy_sdk",
+            "env":{
+                "RUST_LOG":"info",
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+        {
+            "name": "app_flowy(trace)",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "build_flowy_sdk",
+            "env":{
+                "RUST_LOG":"trace",
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+        {
+            "name": "app_flowy (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Generate Language Files",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "Generate Language Files",
+            "cwd": "${workspaceRoot}/app_flowy/"
+        },
+    ]
+}

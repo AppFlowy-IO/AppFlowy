@@ -12,5 +12,7 @@ impl UserWorkspace {
 }
 
 impl AsRef<str> for UserWorkspace {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

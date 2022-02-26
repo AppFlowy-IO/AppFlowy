@@ -1,28 +1,44 @@
 use crate::{
-    entities::revision::{RepeatedRevision, Revision},
+    entities::{
+        document_info::DocumentInfo,
+        folder_info::{FolderDelta, FolderInfo},
+        revision::{RepeatedRevision, Revision},
+    },
     errors::{CollaborateError, CollaborateResult},
-    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::{
+        DocumentInfo as DocumentInfoPB, FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB,
+        Revision as RevisionPB,
+    },
 };
 use lib_ot::{
-    core::{OperationTransformable, NEW_LINE, WHITESPACE},
+    core::{Attributes, Delta, OperationTransformable, NEW_LINE, WHITESPACE},
     rich_text::RichTextDelta,
 };
+use serde::de::DeserializeOwned;
 use std::{
     convert::TryInto,
     sync::atomic::{AtomicI64, Ordering::SeqCst},
 };
 
 #[inline]
-pub fn find_newline(s: &str) -> Option<usize> { s.find(NEW_LINE) }
+pub fn find_newline(s: &str) -> Option<usize> {
+    s.find(NEW_LINE)
+}
 
 #[inline]
-pub fn is_newline(s: &str) -> bool { s == NEW_LINE }
+pub fn is_newline(s: &str) -> bool {
+    s == NEW_LINE
+}
 
 #[inline]
-pub fn is_whitespace(s: &str) -> bool { s == WHITESPACE }
+pub fn is_whitespace(s: &str) -> bool {
+    s == WHITESPACE
+}
 
 #[inline]
-pub fn contain_newline(s: &str) -> bool { s.contains(NEW_LINE) }
+pub fn contain_newline(s: &str) -> bool {
+    s.contains(NEW_LINE)
+}
 
 #[inline]
 pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
@@ -34,20 +50,33 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 pub struct RevIdCounter(pub AtomicI64);
 
 impl RevIdCounter {
-    pub fn new(n: i64) -> Self { Self(AtomicI64::new(n)) }
+    pub fn new(n: i64) -> Self {
+        Self(AtomicI64::new(n))
+    }
     pub fn next(&self) -> i64 {
         let _ = self.0.fetch_add(1, SeqCst);
         self.value()
     }
-    pub fn value(&self) -> i64 { self.0.load(SeqCst) }
+    pub fn value(&self) -> i64 {
+        self.0.load(SeqCst)
+    }
 
-    pub fn set(&self, n: i64) { let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n)); }
+    pub fn set(&self, n: i64) {
+        let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n));
+    }
 }
 
-pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<RichTextDelta> {
-    let mut delta = RichTextDelta::new();
+pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
+where
+    T: Attributes + DeserializeOwned,
+{
+    let mut delta = Delta::<T>::new();
     for revision in revisions {
-        let revision_delta = RichTextDelta::from_bytes(revision.delta_data).map_err(|e| {
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+
+        let revision_delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
@@ -56,10 +85,13 @@ pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<
     Ok(delta)
 }
 
-pub fn make_delta_from_revision_pb(revisions: Vec<RevisionPB>) -> CollaborateResult<RichTextDelta> {
-    let mut new_delta = RichTextDelta::new();
+pub fn make_delta_from_revision_pb<T>(revisions: Vec<RevisionPB>) -> CollaborateResult<Delta<T>>
+where
+    T: Attributes + DeserializeOwned,
+{
+    let mut new_delta = Delta::<T>::new();
     for revision in revisions {
-        let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(|e| {
+        let delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
@@ -80,9 +112,9 @@ pub fn repeated_revision_pb_from_revisions(revisions: Vec<RevisionPB>) -> Repeat
 }
 
 pub fn repeated_revision_from_repeated_revision_pb(
-    mut repeated_revision: RepeatedRevisionPB,
+    repeated_revision: RepeatedRevisionPB,
 ) -> CollaborateResult<RepeatedRevision> {
-    (&mut repeated_revision)
+    repeated_revision
         .try_into()
         .map_err(|e| CollaborateError::internal().context(format!("Cast repeated revision failed: {:?}", e)))
 }
@@ -115,4 +147,109 @@ pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
     } else {
         (0, rev_id)
     }
+}
+
+#[inline]
+pub fn make_folder_from_revisions_pb(
+    folder_id: &str,
+    revisions: RepeatedRevisionPB,
+) -> Result<Option<FolderInfo>, CollaborateError> {
+    match make_folder_pb_from_revisions_pb(folder_id, revisions)? {
+        None => Ok(None),
+        Some(pb) => {
+            let folder_info: FolderInfo = pb.try_into().map_err(|e| CollaborateError::internal().context(e))?;
+            Ok(Some(folder_info))
+        }
+    }
+}
+
+#[inline]
+pub fn make_folder_pb_from_revisions_pb(
+    folder_id: &str,
+    mut revisions: RepeatedRevisionPB,
+) -> Result<Option<FolderInfoPB>, CollaborateError> {
+    let revisions = revisions.take_items();
+    if revisions.is_empty() {
+        return Ok(None);
+    }
+
+    let mut folder_delta = FolderDelta::new();
+    let mut base_rev_id = 0;
+    let mut rev_id = 0;
+    for revision in revisions {
+        base_rev_id = revision.base_rev_id;
+        rev_id = revision.rev_id;
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+        let delta = FolderDelta::from_bytes(revision.delta_data)?;
+        folder_delta = folder_delta.compose(&delta)?;
+    }
+
+    let text = folder_delta.to_json();
+    let mut folder_info = FolderInfoPB::new();
+    folder_info.set_folder_id(folder_id.to_owned());
+    folder_info.set_text(text);
+    folder_info.set_base_rev_id(base_rev_id);
+    folder_info.set_rev_id(rev_id);
+    Ok(Some(folder_info))
+}
+
+#[inline]
+pub fn make_document_info_from_revisions_pb(
+    doc_id: &str,
+    revisions: RepeatedRevisionPB,
+) -> Result<Option<DocumentInfo>, CollaborateError> {
+    match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
+        None => Ok(None),
+        Some(pb) => {
+            let document_info: DocumentInfo = pb.try_into().map_err(|e| {
+                CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
+            })?;
+            Ok(Some(document_info))
+        }
+    }
+}
+
+#[inline]
+pub fn make_document_info_pb_from_revisions_pb(
+    doc_id: &str,
+    mut revisions: RepeatedRevisionPB,
+) -> Result<Option<DocumentInfoPB>, CollaborateError> {
+    let revisions = revisions.take_items();
+    if revisions.is_empty() {
+        return Ok(None);
+    }
+
+    let mut document_delta = RichTextDelta::new();
+    let mut base_rev_id = 0;
+    let mut rev_id = 0;
+    for revision in revisions {
+        base_rev_id = revision.base_rev_id;
+        rev_id = revision.rev_id;
+
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+
+        let delta = RichTextDelta::from_bytes(revision.delta_data)?;
+        document_delta = document_delta.compose(&delta)?;
+    }
+
+    let text = document_delta.to_json();
+    let mut document_info = DocumentInfoPB::new();
+    document_info.set_doc_id(doc_id.to_owned());
+    document_info.set_text(text);
+    document_info.set_base_rev_id(base_rev_id);
+    document_info.set_rev_id(rev_id);
+    Ok(Some(document_info))
+}
+
+#[inline]
+pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
+    let rev_id = s
+        .to_owned()
+        .parse::<i64>()
+        .map_err(|e| CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", s, e)))?;
+    Ok(rev_id)
 }

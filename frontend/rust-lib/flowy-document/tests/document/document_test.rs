@@ -11,7 +11,7 @@ async fn document_sync_current_rev_id_check() {
         AssertCurrentRevId(2),
         InsertText("3", 2),
         AssertCurrentRevId(3),
-        AssertNextRevId(None),
+        AssertNextSyncRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
     EditorTest::new().await.run_scripts(scripts).await;
@@ -38,7 +38,7 @@ async fn document_sync_insert_test() {
         InsertText("2", 1),
         InsertText("3", 2),
         AssertJson(r#"[{"insert":"123\n"}]"#),
-        AssertNextRevId(None),
+        AssertNextSyncRevId(None),
     ];
     EditorTest::new().await.run_scripts(scripts).await;
 }

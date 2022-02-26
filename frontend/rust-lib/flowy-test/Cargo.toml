@@ -6,14 +6,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-sdk = { path = "../flowy-sdk"}
+flowy-sdk = { path = "../flowy-sdk", default-features = false }
 flowy-user = { path = "../flowy-user"}
 flowy-net = { path = "../flowy-net"}
-flowy-core = { path = "../flowy-core", default-features = false}
+flowy-folder = { path = "../flowy-folder", default-features = false}
 lib-dispatch = { path = "../lib-dispatch" }
 
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
@@ -35,3 +34,6 @@ fake = "~2.3.0"
 claim = "0.4.0"
 futures = "0.3.15"
 serial_test = "0.5.1"
+
+[features]
+dart = ["flowy-sdk/dart"]

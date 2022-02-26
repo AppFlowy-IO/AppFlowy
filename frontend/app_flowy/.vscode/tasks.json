@@ -51,6 +51,40 @@
 			// ],
 		},
 		{
+			"label": "Code Gen",
+			"type": "shell",
+			"dependsOn": [
+				"Flutter Pub",
+				"Flutter Package Get",
+				"Generate Language Files",
+				"Generate Freezed Files"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true,
+			},
+			"dependsOrder": "sequence",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+		},
+		{
+			"label": "Flutter Pub",
+			"type": "shell",
+			"command": "flutter pub get",
+		},
+		{
+			"label": "Flutter Package Get",
+			"type": "shell",
+			"command": "flutter packages pub get",
+		},
+		{
+			"label": "Generate Freezed Files",
+			"type": "shell",
+			"command": "flutter pub run build_runner build --delete-conflicting-outputs",
+		},
+		{
 			"label": "Generate Language Files",
 			"type": "shell",
 			"command": "sh ./scripts/generate_language_files.sh",
@@ -67,6 +101,26 @@
 				}
 			},
 			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/../"
+			},
+		},
+		{
+			"label": "Clean",
+			"type": "shell",
+			"command": "sh ./scripts/clean.sh",
+			"windows": {
+				"options": {
+					"shell": {
+						"executable": "cmd.exe",
+						"args": [
+							"/d",
+							"/c",
+							".\\scripts\\clean.cmd"
+						]
+					}
+				}
+			},
 			"options": {
 				"cwd": "${workspaceFolder}/../"
 			},

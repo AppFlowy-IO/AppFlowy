@@ -2,6 +2,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use futures_channel::mpsc::TrySendError;
 use std::fmt::Debug;
 use strum_macros::Display;
+use tokio::sync::oneshot::error::RecvError;
 use tokio_tungstenite::tungstenite::{http::StatusCode, Message};
 use url::ParseError;
 
@@ -54,25 +55,39 @@ where
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    InternalError      = 0,
+    InternalError = 0,
     UnsupportedMessage = 1,
-    Unauthorized       = 2,
+    Unauthorized = 2,
 }
 
 impl std::default::Default for ErrorCode {
-    fn default() -> Self { ErrorCode::InternalError }
+    fn default() -> Self {
+        ErrorCode::InternalError
+    }
 }
 
 impl std::convert::From<url::ParseError> for WSError {
-    fn from(error: ParseError) -> Self { WSError::internal().context(error) }
+    fn from(error: ParseError) -> Self {
+        WSError::internal().context(error)
+    }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for WSError {
-    fn from(error: protobuf::ProtobufError) -> Self { WSError::internal().context(error) }
+    fn from(error: protobuf::ProtobufError) -> Self {
+        WSError::internal().context(error)
+    }
 }
 
 impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WSError {
-    fn from(error: TrySendError<Message>) -> Self { WSError::internal().context(error) }
+    fn from(error: TrySendError<Message>) -> Self {
+        WSError::internal().context(error)
+    }
+}
+
+impl std::convert::From<RecvError> for WSError {
+    fn from(error: RecvError) -> Self {
+        WSError::internal().context(error)
+    }
 }
 
 impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WSError {
@@ -84,7 +99,7 @@ impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WSError {
                 } else {
                     WSError::internal().context(response)
                 }
-            },
+            }
             _ => WSError::internal().context(error),
         }
     }

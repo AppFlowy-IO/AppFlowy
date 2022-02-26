@@ -1,0 +1,30 @@
+[package]
+name = "flowy-folder-data-model"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive = { path = "../flowy-derive" }
+protobuf = {version = "2.18.0"}
+bytes = "1.0"
+unicode-segmentation = "1.8"
+strum = "0.21"
+strum_macros = "0.21"
+derive_more = {version = "0.99", features = ["display"]}
+log = "0.4.14"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+chrono = { version = "0.4" }
+flowy-error-code = { path = "../flowy-error-code"}
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[build-dependencies]
+lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
+
+[features]
+default = []
+backend = []
+frontend = []
+dart = ["lib-infra/dart", "flowy-error-code/dart"]

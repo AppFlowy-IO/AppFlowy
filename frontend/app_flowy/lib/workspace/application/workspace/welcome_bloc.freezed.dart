@@ -872,10 +872,9 @@ class _$_WelcomeState implements _WelcomeState {
 
 abstract class _WelcomeState implements WelcomeState {
   const factory _WelcomeState(
-          {required bool isLoading,
-          required List<Workspace> workspaces,
-          required Either<Unit, FlowyError> successOrFailure}) =
-      _$_WelcomeState;
+      {required bool isLoading,
+      required List<Workspace> workspaces,
+      required Either<Unit, FlowyError> successOrFailure}) = _$_WelcomeState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;

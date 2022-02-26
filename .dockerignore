@@ -1,5 +1,4 @@
 frontend/app_flowy/
 frontend/scripts/
 frontend/rust-lib/target
-backend/target/
 shared-lib/target/

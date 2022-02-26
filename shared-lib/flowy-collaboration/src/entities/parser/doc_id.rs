@@ -12,5 +12,7 @@ impl DocumentIdentify {
 }
 
 impl AsRef<str> for DocumentIdentify {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

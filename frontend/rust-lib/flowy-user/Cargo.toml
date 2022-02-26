@@ -7,19 +7,15 @@ edition = "2018"
 
 [dependencies]
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
 
 derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
-flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error", features = ["db", "backend"] }
+flowy-error = { path = "../flowy-error", features = ["db", "http_server"] }
 lib-sqlite = { path = "../lib-sqlite" }
-
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
@@ -49,3 +45,7 @@ serial_test = "0.5.1"
 
 [features]
 http_server = []
+dart = ["lib-infra/dart"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen"] }

@@ -1,0 +1,42 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Flutter lint
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/app_flowy'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/app_flowy'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:  
+  flutter-analyze:
+    name: flutter analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: Deps Flutter
+        run: flutter packages pub get
+        working-directory: frontend/app_flowy
+      - name: Code Generation
+        working-directory: frontend/app_flowy
+        run: |
+          flutter packages pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
+          flutter packages pub run build_runner build --delete-conflicting-outputs
+      - name: Run Flutter Analyzer
+        working-directory: frontend/app_flowy
+        run: flutter analyze
+

@@ -1,0 +1,145 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Moi",
+  "welcomeText": "Bienvenue sur @:appName",
+  "githubStarText": "Favoriser sur GitHub",
+  "subscribeNewsletterText": "Abonnez-vous à notre courriel",
+  "letsGoButtonText": "Allons-y",
+  "title": "Titre",
+  "signUp": {
+    "buttonText": "S'inscrire",
+    "title": "S'inscrire à @:appName",
+    "getStartedText": "Commencer",
+    "emptyPasswordError": "Vous n'avez pas saisi votre mot de passe",
+    "repeatPasswordEmptyError": "Mot de passe ne doit pas être vide",
+    "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
+    "alreadyHaveAnAccount": "Avez-vous déjà un compte?",
+    "emailHint": "courriel",
+    "passwordHint": "Mot de passe",
+    "repeatPasswordHint": "Ressaisir votre mot de passe"
+  },
+  "signIn": {
+    "loginTitle": "Connexion à @:appName",
+    "loginButtonText": "Connexion",
+    "buttonText": "Se connecter",
+    "forgotPassword": "Mot de passe oublié?",
+    "emailHint": "courriel",
+    "passwordHint": "Mot de passe",
+    "dontHaveAnAccount": "Vous n'avez pas de compte?",
+    "repeatPasswordEmptyError": "Mot de passe ne doit pas être vide",
+    "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques"
+  },
+  "workspace": {
+    "create": "Créer un espace de travail",
+    "hint": "Espace de travail",
+    "notFoundError": "Espace de travail introuvable"
+  },
+  "shareAction": {
+    "buttonText": "Partager",
+    "workInProgress": "Bientôt disponible",
+    "markdown": "Markdown",
+    "copyLink": "Copier le lien"
+  },
+  "disclosureAction": {
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "duplicate": "Dupliquer"
+  },
+  "blankPageTitle": "Page vierge",
+  "newPageText": "Nouvelle page",
+  "trash": {
+    "text": "Corbeille",
+    "restoreAll": "Tout récupérer",
+    "deleteAll": "Tout supprimer",
+    "pageHeader": {
+      "fileName": "Nom de fichier",
+      "lastModified": "Dernière modification",
+      "created": "Créé"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Cette page est dans la corbeille",
+    "restore": "Récupérer la page",
+    "deletePermanent": "Supprimer définitivement"
+  },
+  "dialogCreatePageNameHint": "Nom de la page",
+  "questionBubble": {
+    "whatsNew": "Nouveautés",
+    "help": "Aide et Support Technique",
+    "debug": {
+      "name": "Infos du système",
+      "success": "Info copié!",
+      "fail": "Impossible de copier l'info"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Ajouter une page",
+    "defaultNewPageName": "Sans titre",
+    "renameDialog": "Renommer"
+  },
+  "toolbar": {
+    "undo": "Annuler",
+    "redo": "Rétablir",
+    "bold": "Gras",
+    "italic": "Italique",
+    "underline": "Souligner",
+    "strike": "Barré",
+    "numList": "Liste numérotée",
+    "bulletList": "Liste à puces",
+    "checkList": "Liste de contrôle",
+    "inlineCode": "Code en ligne",
+    "quote": "Citation",
+    "header": "En-tête",
+    "highlight": "Surligner"
+  },
+  "tooltip": {
+    "lightMode": "Passer en mode clair",
+    "darkMode": "Passer en mode sombre"
+  },
+  "contactsPage": {
+    "title": "Contacts",
+    "whatsHappening": "Quoi de neuf?",
+    "addContact": "Ajouter un contact",
+    "editContact": "Modifier le contact"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Annuler",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "complete": "Achevé",
+    "save": "Sauvegarder"
+  },
+  "label": {
+    "welcome": "Bienvenue!",
+    "firstName": "Prénom",
+    "middleName": "Deuxième nom",
+    "lastName": "Nom de famille",
+    "stepX": "Étape {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Incapable de se connecter à votre compte.",
+      "failedMsg": "SVP vous assurrez d'avoir complèté le processus d'enregistrement dans votre fureteur."
+    },
+    "google": {
+      "title": "S'identifier avec Google",
+      "instruction1": "Pour importer vos contacts Google, vous devez autoriser cette application à l'aide de votre navigateur Web.",
+      "instruction2": "Copiez ce code dans votre presse-papiers en cliquant sur l'icône ou en sélectionnant le texte:",
+      "instruction3": "Accédez au lien suivant dans votre navigateur Web et saisissez le code ci-dessus:",
+      "instruction4": "Appuyez sur le bouton ci-dessous lorsque vous avez terminé votre inscription:"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "menu": {
+      "appearance": "Apparence",
+      "language": "Langue",
+      "open": "Ouvrir les paramètres"
+    },
+    "appearance": {
+      "lightLabel": "Mode clair",
+      "darkLabel": "Mode sombre"
+    }
+  }
+}

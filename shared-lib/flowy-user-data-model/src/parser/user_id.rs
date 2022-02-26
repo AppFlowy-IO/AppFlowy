@@ -14,5 +14,7 @@ impl UserId {
 }
 
 impl AsRef<str> for UserId {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }

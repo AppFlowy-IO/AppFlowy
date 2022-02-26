@@ -19,7 +19,9 @@ impl UserEmail {
 }
 
 impl AsRef<str> for UserEmail {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 #[cfg(test)]

@@ -23,23 +23,37 @@ impl Interval {
         Interval { start, end }
     }
 
-    pub fn start(&self) -> usize { self.start }
+    pub fn start(&self) -> usize {
+        self.start
+    }
 
-    pub fn end(&self) -> usize { self.end }
+    pub fn end(&self) -> usize {
+        self.end
+    }
 
-    pub fn start_end(&self) -> (usize, usize) { (self.start, self.end) }
+    pub fn start_end(&self) -> (usize, usize) {
+        (self.start, self.end)
+    }
 
-    pub fn is_before(&self, val: usize) -> bool { self.end <= val }
+    pub fn is_before(&self, val: usize) -> bool {
+        self.end <= val
+    }
 
-    pub fn contains(&self, val: usize) -> bool { self.start <= val && val < self.end }
+    pub fn contains(&self, val: usize) -> bool {
+        self.start <= val && val < self.end
+    }
 
     pub fn contains_range(&self, start: usize, end: usize) -> bool {
         !self.intersect(Interval::new(start, end)).is_empty()
     }
 
-    pub fn is_after(&self, val: usize) -> bool { self.start > val }
+    pub fn is_after(&self, val: usize) -> bool {
+        self.start > val
+    }
 
-    pub fn is_empty(&self) -> bool { self.end <= self.start }
+    pub fn is_empty(&self) -> bool {
+        self.end <= self.start
+    }
 
     pub fn intersect(&self, other: Interval) -> Interval {
         let start = max(self.start, other.start);
@@ -93,19 +107,27 @@ impl Interval {
         Interval { start, end }
     }
 
-    pub fn size(&self) -> usize { self.end - self.start }
+    pub fn size(&self) -> usize {
+        self.end - self.start
+    }
 }
 
 impl std::default::Default for Interval {
-    fn default() -> Self { Interval::new(0, 0) }
+    fn default() -> Self {
+        Interval::new(0, 0)
+    }
 }
 
 impl fmt::Display for Interval {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "[{}, {})", self.start(), self.end()) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}, {})", self.start(), self.end())
+    }
 }
 
 impl fmt::Debug for Interval {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { fmt::Display::fmt(self, f) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
 }
 
 impl From<Range<usize>> for Interval {
@@ -116,15 +138,21 @@ impl From<Range<usize>> for Interval {
 }
 
 impl From<RangeTo<usize>> for Interval {
-    fn from(src: RangeTo<usize>) -> Interval { Interval::new(0, src.end) }
+    fn from(src: RangeTo<usize>) -> Interval {
+        Interval::new(0, src.end)
+    }
 }
 
 impl From<RangeInclusive<usize>> for Interval {
-    fn from(src: RangeInclusive<usize>) -> Interval { Interval::new(*src.start(), src.end().saturating_add(1)) }
+    fn from(src: RangeInclusive<usize>) -> Interval {
+        Interval::new(*src.start(), src.end().saturating_add(1))
+    }
 }
 
 impl From<RangeToInclusive<usize>> for Interval {
-    fn from(src: RangeToInclusive<usize>) -> Interval { Interval::new(0, src.end.saturating_add(1)) }
+    fn from(src: RangeToInclusive<usize>) -> Interval {
+        Interval::new(0, src.end.saturating_add(1))
+    }
 }
 
 #[cfg(test)]

@@ -145,35 +145,35 @@ class UserProfile extends $pb.GeneratedMessage {
   void clearToken() => clearField(4);
 }
 
-enum UpdateUserRequest_OneOfName {
+enum UpdateUserPayload_OneOfName {
   name, 
   notSet
 }
 
-enum UpdateUserRequest_OneOfEmail {
+enum UpdateUserPayload_OneOfEmail {
   email, 
   notSet
 }
 
-enum UpdateUserRequest_OneOfPassword {
+enum UpdateUserPayload_OneOfPassword {
   password, 
   notSet
 }
 
-class UpdateUserRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateUserRequest_OneOfName> _UpdateUserRequest_OneOfNameByTag = {
-    2 : UpdateUserRequest_OneOfName.name,
-    0 : UpdateUserRequest_OneOfName.notSet
+class UpdateUserPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateUserPayload_OneOfName> _UpdateUserPayload_OneOfNameByTag = {
+    2 : UpdateUserPayload_OneOfName.name,
+    0 : UpdateUserPayload_OneOfName.notSet
   };
-  static const $core.Map<$core.int, UpdateUserRequest_OneOfEmail> _UpdateUserRequest_OneOfEmailByTag = {
-    3 : UpdateUserRequest_OneOfEmail.email,
-    0 : UpdateUserRequest_OneOfEmail.notSet
+  static const $core.Map<$core.int, UpdateUserPayload_OneOfEmail> _UpdateUserPayload_OneOfEmailByTag = {
+    3 : UpdateUserPayload_OneOfEmail.email,
+    0 : UpdateUserPayload_OneOfEmail.notSet
   };
-  static const $core.Map<$core.int, UpdateUserRequest_OneOfPassword> _UpdateUserRequest_OneOfPasswordByTag = {
-    4 : UpdateUserRequest_OneOfPassword.password,
-    0 : UpdateUserRequest_OneOfPassword.notSet
+  static const $core.Map<$core.int, UpdateUserPayload_OneOfPassword> _UpdateUserPayload_OneOfPasswordByTag = {
+    4 : UpdateUserPayload_OneOfPassword.password,
+    0 : UpdateUserPayload_OneOfPassword.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateUserRequest', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateUserPayload', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
@@ -184,8 +184,8 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  UpdateUserRequest._() : super();
-  factory UpdateUserRequest({
+  UpdateUserPayload._() : super();
+  factory UpdateUserPayload({
     $core.String? id,
     $core.String? name,
     $core.String? email,
@@ -206,34 +206,34 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory UpdateUserRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UpdateUserRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UpdateUserPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateUserPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UpdateUserRequest clone() => UpdateUserRequest()..mergeFromMessage(this);
+  UpdateUserPayload clone() => UpdateUserPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UpdateUserRequest copyWith(void Function(UpdateUserRequest) updates) => super.copyWith((message) => updates(message as UpdateUserRequest)) as UpdateUserRequest; // ignore: deprecated_member_use
+  UpdateUserPayload copyWith(void Function(UpdateUserPayload) updates) => super.copyWith((message) => updates(message as UpdateUserPayload)) as UpdateUserPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static UpdateUserRequest create() => UpdateUserRequest._();
-  UpdateUserRequest createEmptyInstance() => create();
-  static $pb.PbList<UpdateUserRequest> createRepeated() => $pb.PbList<UpdateUserRequest>();
+  static UpdateUserPayload create() => UpdateUserPayload._();
+  UpdateUserPayload createEmptyInstance() => create();
+  static $pb.PbList<UpdateUserPayload> createRepeated() => $pb.PbList<UpdateUserPayload>();
   @$core.pragma('dart2js:noInline')
-  static UpdateUserRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateUserRequest>(create);
-  static UpdateUserRequest? _defaultInstance;
+  static UpdateUserPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateUserPayload>(create);
+  static UpdateUserPayload? _defaultInstance;
 
-  UpdateUserRequest_OneOfName whichOneOfName() => _UpdateUserRequest_OneOfNameByTag[$_whichOneof(0)]!;
+  UpdateUserPayload_OneOfName whichOneOfName() => _UpdateUserPayload_OneOfNameByTag[$_whichOneof(0)]!;
   void clearOneOfName() => clearField($_whichOneof(0));
 
-  UpdateUserRequest_OneOfEmail whichOneOfEmail() => _UpdateUserRequest_OneOfEmailByTag[$_whichOneof(1)]!;
+  UpdateUserPayload_OneOfEmail whichOneOfEmail() => _UpdateUserPayload_OneOfEmailByTag[$_whichOneof(1)]!;
   void clearOneOfEmail() => clearField($_whichOneof(1));
 
-  UpdateUserRequest_OneOfPassword whichOneOfPassword() => _UpdateUserRequest_OneOfPasswordByTag[$_whichOneof(2)]!;
+  UpdateUserPayload_OneOfPassword whichOneOfPassword() => _UpdateUserPayload_OneOfPasswordByTag[$_whichOneof(2)]!;
   void clearOneOfPassword() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)

@@ -1007,8 +1007,7 @@ abstract class $TrashStateCopyWith<$Res> {
   factory $TrashStateCopyWith(
           TrashState value, $Res Function(TrashState) then) =
       _$TrashStateCopyWithImpl<$Res>;
-  $Res call(
-      {List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
+  $Res call({List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1043,8 +1042,7 @@ abstract class _$TrashStateCopyWith<$Res> implements $TrashStateCopyWith<$Res> {
           _TrashState value, $Res Function(_TrashState) then) =
       __$TrashStateCopyWithImpl<$Res>;
   @override
-  $Res call(
-      {List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
+  $Res call({List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc

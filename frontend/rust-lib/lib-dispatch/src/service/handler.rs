@@ -78,7 +78,9 @@ where
     type Context = ();
     type Future = Ready<Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, _: ()) -> Self::Future { ready(Ok(self.clone())) }
+    fn new_service(&self, _: ()) -> Self::Future {
+        ready(Ok(self.clone()))
+    }
 }
 
 impl<H, T, R> Service<ServiceRequest> for HandlerService<H, T, R>
@@ -129,21 +131,21 @@ where
                             let fut = handle.call(params);
                             let state = HandlerServiceFuture::Handle(fut, req.take());
                             self.as_mut().set(state);
-                        },
+                        }
                         Err(err) => {
                             let req = req.take().unwrap();
                             let system_err: DispatchError = err.into();
                             let res: EventResponse = system_err.into();
                             return Poll::Ready(Ok(ServiceResponse::new(req, res)));
-                        },
+                        }
                     };
-                },
+                }
                 HandlerServiceProj::Handle(fut, req) => {
                     let result = ready!(fut.poll(cx));
                     let req = req.take().unwrap();
                     let resp = result.respond_to(&req);
                     return Poll::Ready(Ok(ServiceResponse::new(req, resp)));
-                },
+                }
             }
         }
     }

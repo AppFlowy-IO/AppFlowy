@@ -1,0 +1,5 @@
+message {{ struct_name }} {
+    {%- for field in fields %}
+    {{ field }}
+    {%- endfor %}
+}

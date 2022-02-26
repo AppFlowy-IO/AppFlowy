@@ -7,9 +7,15 @@ edition = "2018"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-error = { path = "../flowy-error" }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
+flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
+flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
+flowy-folder = { path = "../flowy-folder" }
+flowy-user = { path = "../flowy-user" }
+flowy-document = { path = "../flowy-document" }
+lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}
 lib-ws = { path = "../../../shared-lib/lib-ws" }
@@ -21,5 +27,27 @@ strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
 dashmap = {version = "4.0"}
+async-stream = "0.3.2"
+futures-util = "0.3.15"
+http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"] }
+serde-aux = "1.0.1"
+reqwest = "0.11"
+hyper = "0.14"
+config = { version = "0.10.1", default-features = false, features = ["yaml"] }
+log = "0.4.14"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
 [features]
 http_server = []
+dart = [
+    "lib-infra/dart",
+    "flowy-user/dart",
+    "flowy-collaboration/dart",
+    "flowy-error/dart",
+    "flowy-user-data-model/dart",
+    "flowy-folder-data-model/dart"
+]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen"] }

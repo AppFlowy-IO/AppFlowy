@@ -50,7 +50,12 @@ class _FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
   Widget build(BuildContext context) {
     final isEnabled = !widget.controller.selection.isCollapsed;
     final pressedHandler = isEnabled ? () => _openLinkDialog(context) : null;
-    final icon = isEnabled ? svg('editor/share') : svg('editor/share', color: Theme.of(context).disabledColor);
+    final icon = isEnabled
+        ? svg(
+            'editor/share',
+            color: Theme.of(context).iconTheme.color,
+          )
+        : svg('editor/share', color: Theme.of(context).disabledColor);
 
     return FlowyIconButton(
       onPressed: pressedHandler,

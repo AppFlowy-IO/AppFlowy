@@ -1,5 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
@@ -8,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:app_flowy/common/theme/theme.dart';
 
@@ -25,14 +28,15 @@ class MenuUser extends StatelessWidget {
             _renderAvatar(context),
             const HSpace(10),
             _renderUserName(context),
-            const HSpace(80),
-            (_isDark(context) ? _renderLightMode(context) : _renderDarkMode(context)),
+            // const HSpace(80),
+            // (_isDark(context) ? _renderLightMode(context) : _renderDarkMode(context)),
 
+            // const Spacer(),
+            // _renderSettingsButton(context),
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
             //_renderDropButton(context),
           ],
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
         ),
       ),
@@ -87,8 +91,26 @@ class MenuUser extends StatelessWidget {
     if (name.isEmpty) {
       name = context.read<MenuUserBloc>().state.user.email;
     }
-    return Flexible(
-      child: FlowyText(name, fontSize: 12),
+    return FlowyText(name, fontSize: 12);
+  }
+
+  Widget _renderSettingsButton(BuildContext context) {
+    return Tooltip(
+      message: LocaleKeys.settings_menu_open.tr(),
+      child: IconButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const SettingsDialog();
+            },
+          );
+        },
+        icon: SizedBox.square(
+          dimension: 20,
+          child: svg("home/settings", color: Theme.of(context).iconTheme.color),
+        ),
+      ),
     );
   }
 

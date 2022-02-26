@@ -37,4 +37,6 @@ pub(crate) fn invalid_password_test_case() -> Vec<String> {
         .collect::<Vec<_>>()
 }
 
-pub(crate) fn valid_name() -> String { "AppFlowy".to_string() }
+pub(crate) fn valid_name() -> String {
+    "AppFlowy".to_string()
+}

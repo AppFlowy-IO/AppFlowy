@@ -1,0 +1,47 @@
+name: Rust lint
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/rust-lib'
+      - 'shared-lib'
+
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: rustup component add rustfmt
+        working-directory: frontend/rust-lib
+      - run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+
+  rust-clippy:
+    runs-on: ubuntu-latest
+    name: Clippy
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: rustup component add clippy
+        working-directory: frontend/rust-lib
+      - run: cargo clippy --no-default-features
+        working-directory: frontend/rust-lib

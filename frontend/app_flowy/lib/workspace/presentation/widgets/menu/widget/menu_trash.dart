@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/trash_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
@@ -29,9 +30,23 @@ class MenuTrash extends StatelessWidget {
 
   Widget _render(BuildContext context) {
     return Row(children: [
-      SizedBox(width: 16, height: 16, child: svg("home/trash", color: Theme.of(context).iconTheme.color!)),
+      // SizedBox(width: 16, height: 16, child: svg("home/trash", color: Theme.of(context).iconTheme.color!)),
+      // ChangeNotifierProvider.value(
+      //   value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      //   child: Selector<AppearanceSettingModel, AppTheme>(
+      //     selector: (ctx, notifier) => notifier.theme,
+      //     builder: (ctx, theme, child) =>
+      //         SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
+      //   ),
+      // ),
       const HSpace(6),
-      FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
+      ChangeNotifierProvider.value(
+        value: Provider.of<AppearanceSettingModel>(context, listen: true),
+        child: Selector<AppearanceSettingModel, Locale>(
+          selector: (ctx, notifier) => notifier.locale,
+          builder: (ctx, _, child) => FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
+        ),
+      ),
     ]);
   }
 }

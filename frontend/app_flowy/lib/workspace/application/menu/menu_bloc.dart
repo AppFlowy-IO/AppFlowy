@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:app_flowy/workspace/domain/i_workspace.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,9 +12,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final IWorkspace workspaceManager;
-  final IWorkspaceListener listener;
-  MenuBloc({required this.workspaceManager, required this.listener}) : super(MenuState.initial()) {
+  final WorkspaceRepo repo;
+  final WorkspaceListener listener;
+  MenuBloc({required this.repo, required this.listener}) : super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -48,19 +48,19 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Future<void> _performActionOnCreateApp(CreateApp event, Emitter<MenuState> emit) async {
-    final result = await workspaceManager.createApp(name: event.name, desc: event.desc);
-    emit(result.fold(
-      (app) => state.copyWith(apps: some([app])),
+    final result = await repo.createApp(event.name, event.desc ?? "");
+    result.fold(
+      (app) => {},
       (error) {
         Log.error(error);
-        return state.copyWith(successOrFailure: right(error));
+        emit(state.copyWith(successOrFailure: right(error)));
       },
-    ));
+    );
   }
 
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
-    final appsOrFail = await workspaceManager.getApps();
+    final appsOrFail = await repo.getApps();
     emit(appsOrFail.fold(
       (apps) => state.copyWith(apps: some(apps)),
       (error) {

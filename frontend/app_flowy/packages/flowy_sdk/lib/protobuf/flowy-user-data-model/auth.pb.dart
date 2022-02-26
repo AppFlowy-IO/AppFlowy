@@ -9,16 +9,16 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class SignInRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignInRequest', createEmptyInstance: create)
+class SignInPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignInPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..hasRequiredFields = false
   ;
 
-  SignInRequest._() : super();
-  factory SignInRequest({
+  SignInPayload._() : super();
+  factory SignInPayload({
     $core.String? email,
     $core.String? password,
     $core.String? name,
@@ -35,26 +35,26 @@ class SignInRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory SignInRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SignInRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SignInPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SignInPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  SignInRequest clone() => SignInRequest()..mergeFromMessage(this);
+  SignInPayload clone() => SignInPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  SignInRequest copyWith(void Function(SignInRequest) updates) => super.copyWith((message) => updates(message as SignInRequest)) as SignInRequest; // ignore: deprecated_member_use
+  SignInPayload copyWith(void Function(SignInPayload) updates) => super.copyWith((message) => updates(message as SignInPayload)) as SignInPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static SignInRequest create() => SignInRequest._();
-  SignInRequest createEmptyInstance() => create();
-  static $pb.PbList<SignInRequest> createRepeated() => $pb.PbList<SignInRequest>();
+  static SignInPayload create() => SignInPayload._();
+  SignInPayload createEmptyInstance() => create();
+  static $pb.PbList<SignInPayload> createRepeated() => $pb.PbList<SignInPayload>();
   @$core.pragma('dart2js:noInline')
-  static SignInRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SignInRequest>(create);
-  static SignInRequest? _defaultInstance;
+  static SignInPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SignInPayload>(create);
+  static SignInPayload? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get email => $_getSZ(0);
@@ -248,16 +248,16 @@ class SignInResponse extends $pb.GeneratedMessage {
   void clearToken() => clearField(4);
 }
 
-class SignUpRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignUpRequest', createEmptyInstance: create)
+class SignUpPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignUpPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
     ..hasRequiredFields = false
   ;
 
-  SignUpRequest._() : super();
-  factory SignUpRequest({
+  SignUpPayload._() : super();
+  factory SignUpPayload({
     $core.String? email,
     $core.String? name,
     $core.String? password,
@@ -274,26 +274,26 @@ class SignUpRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory SignUpRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory SignUpRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SignUpPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SignUpPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  SignUpRequest clone() => SignUpRequest()..mergeFromMessage(this);
+  SignUpPayload clone() => SignUpPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  SignUpRequest copyWith(void Function(SignUpRequest) updates) => super.copyWith((message) => updates(message as SignUpRequest)) as SignUpRequest; // ignore: deprecated_member_use
+  SignUpPayload copyWith(void Function(SignUpPayload) updates) => super.copyWith((message) => updates(message as SignUpPayload)) as SignUpPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static SignUpRequest create() => SignUpRequest._();
-  SignUpRequest createEmptyInstance() => create();
-  static $pb.PbList<SignUpRequest> createRepeated() => $pb.PbList<SignUpRequest>();
+  static SignUpPayload create() => SignUpPayload._();
+  SignUpPayload createEmptyInstance() => create();
+  static $pb.PbList<SignUpPayload> createRepeated() => $pb.PbList<SignUpPayload>();
   @$core.pragma('dart2js:noInline')
-  static SignUpRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SignUpRequest>(create);
-  static SignUpRequest? _defaultInstance;
+  static SignUpPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SignUpPayload>(create);
+  static SignUpPayload? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get email => $_getSZ(0);

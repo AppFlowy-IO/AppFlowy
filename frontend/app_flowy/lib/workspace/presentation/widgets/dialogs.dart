@@ -5,7 +5,7 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:app_flowy/startup/tasks/application_widget.dart';
+import 'package:app_flowy/startup/tasks/app_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -180,7 +180,12 @@ class OkCancelButton extends StatelessWidget {
   final double? minHeight;
 
   const OkCancelButton(
-      {Key? key, this.onOkPressed, this.onCancelPressed, this.okTitle, this.cancelTitle, this.minHeight})
+      {Key? key,
+      this.onOkPressed,
+      this.onCancelPressed,
+      this.okTitle,
+      this.cancelTitle,
+      this.minHeight})
       : super(key: key);
 
   @override

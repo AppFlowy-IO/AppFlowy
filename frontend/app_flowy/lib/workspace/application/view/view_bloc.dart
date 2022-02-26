@@ -1,20 +1,21 @@
+import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:app_flowy/workspace/domain/i_view.dart';
 
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  final IView viewManager;
-  final IViewListener listener;
+  final ViewRepository repo;
+
+  final ViewListener listener;
 
   ViewBloc({
-    required this.viewManager,
+    required this.repo,
     required this.listener,
-  }) : super(ViewState.init(viewManager.view)) {
+  }) : super(ViewState.init(repo.view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
@@ -36,7 +37,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         rename: (e) async {
-          final result = await viewManager.rename(e.newName);
+          final result = await repo.updateView(name: e.newName);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -45,7 +46,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         delete: (e) async {
-          final result = await viewManager.delete();
+          final result = await repo.delete();
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -54,7 +55,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         duplicate: (e) async {
-          final result = await viewManager.duplicate();
+          final result = await repo.duplicate();
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -68,7 +69,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 
   @override
   Future<void> close() async {
-    await listener.stop();
+    await listener.close();
     return super.close();
   }
 }

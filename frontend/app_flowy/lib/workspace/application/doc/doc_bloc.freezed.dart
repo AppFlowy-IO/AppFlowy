@@ -14,8 +14,8 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
-class _$DocEventTearOff {
-  const _$DocEventTearOff();
+class _$DocumentEventTearOff {
+  const _$DocumentEventTearOff();
 
   Initial initial() {
     return const Initial();
@@ -39,10 +39,10 @@ class _$DocEventTearOff {
 }
 
 /// @nodoc
-const $DocEvent = _$DocEventTearOff();
+const $DocumentEvent = _$DocumentEventTearOff();
 
 /// @nodoc
-mixin _$DocEvent {
+mixin _$DocumentEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
@@ -102,18 +102,20 @@ mixin _$DocEvent {
 }
 
 /// @nodoc
-abstract class $DocEventCopyWith<$Res> {
-  factory $DocEventCopyWith(DocEvent value, $Res Function(DocEvent) then) =
-      _$DocEventCopyWithImpl<$Res>;
+abstract class $DocumentEventCopyWith<$Res> {
+  factory $DocumentEventCopyWith(
+          DocumentEvent value, $Res Function(DocumentEvent) then) =
+      _$DocumentEventCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$DocEventCopyWithImpl<$Res> implements $DocEventCopyWith<$Res> {
-  _$DocEventCopyWithImpl(this._value, this._then);
+class _$DocumentEventCopyWithImpl<$Res>
+    implements $DocumentEventCopyWith<$Res> {
+  _$DocumentEventCopyWithImpl(this._value, this._then);
 
-  final DocEvent _value;
+  final DocumentEvent _value;
   // ignore: unused_field
-  final $Res Function(DocEvent) _then;
+  final $Res Function(DocumentEvent) _then;
 }
 
 /// @nodoc
@@ -123,7 +125,7 @@ abstract class $InitialCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$InitialCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+class _$InitialCopyWithImpl<$Res> extends _$DocumentEventCopyWithImpl<$Res>
     implements $InitialCopyWith<$Res> {
   _$InitialCopyWithImpl(Initial _value, $Res Function(Initial) _then)
       : super(_value, (v) => _then(v as Initial));
@@ -139,7 +141,7 @@ class _$Initial implements Initial {
 
   @override
   String toString() {
-    return 'DocEvent.initial()';
+    return 'DocumentEvent.initial()';
   }
 
   @override
@@ -231,7 +233,7 @@ class _$Initial implements Initial {
   }
 }
 
-abstract class Initial implements DocEvent {
+abstract class Initial implements DocumentEvent {
   const factory Initial() = _$Initial;
 }
 
@@ -242,7 +244,7 @@ abstract class $DeletedCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$DeletedCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+class _$DeletedCopyWithImpl<$Res> extends _$DocumentEventCopyWithImpl<$Res>
     implements $DeletedCopyWith<$Res> {
   _$DeletedCopyWithImpl(Deleted _value, $Res Function(Deleted) _then)
       : super(_value, (v) => _then(v as Deleted));
@@ -258,7 +260,7 @@ class _$Deleted implements Deleted {
 
   @override
   String toString() {
-    return 'DocEvent.deleted()';
+    return 'DocumentEvent.deleted()';
   }
 
   @override
@@ -350,7 +352,7 @@ class _$Deleted implements Deleted {
   }
 }
 
-abstract class Deleted implements DocEvent {
+abstract class Deleted implements DocumentEvent {
   const factory Deleted() = _$Deleted;
 }
 
@@ -361,7 +363,7 @@ abstract class $RestoreCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$RestoreCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+class _$RestoreCopyWithImpl<$Res> extends _$DocumentEventCopyWithImpl<$Res>
     implements $RestoreCopyWith<$Res> {
   _$RestoreCopyWithImpl(Restore _value, $Res Function(Restore) _then)
       : super(_value, (v) => _then(v as Restore));
@@ -377,7 +379,7 @@ class _$Restore implements Restore {
 
   @override
   String toString() {
-    return 'DocEvent.restore()';
+    return 'DocumentEvent.restore()';
   }
 
   @override
@@ -469,7 +471,7 @@ class _$Restore implements Restore {
   }
 }
 
-abstract class Restore implements DocEvent {
+abstract class Restore implements DocumentEvent {
   const factory Restore() = _$Restore;
 }
 
@@ -481,7 +483,7 @@ abstract class $RestorePageCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$RestorePageCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+class _$RestorePageCopyWithImpl<$Res> extends _$DocumentEventCopyWithImpl<$Res>
     implements $RestorePageCopyWith<$Res> {
   _$RestorePageCopyWithImpl(
       RestorePage _value, $Res Function(RestorePage) _then)
@@ -498,7 +500,7 @@ class _$RestorePage implements RestorePage {
 
   @override
   String toString() {
-    return 'DocEvent.restorePage()';
+    return 'DocumentEvent.restorePage()';
   }
 
   @override
@@ -590,7 +592,7 @@ class _$RestorePage implements RestorePage {
   }
 }
 
-abstract class RestorePage implements DocEvent {
+abstract class RestorePage implements DocumentEvent {
   const factory RestorePage() = _$RestorePage;
 }
 
@@ -602,7 +604,8 @@ abstract class $DeletePermanentlyCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$DeletePermanentlyCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+class _$DeletePermanentlyCopyWithImpl<$Res>
+    extends _$DocumentEventCopyWithImpl<$Res>
     implements $DeletePermanentlyCopyWith<$Res> {
   _$DeletePermanentlyCopyWithImpl(
       DeletePermanently _value, $Res Function(DeletePermanently) _then)
@@ -619,7 +622,7 @@ class _$DeletePermanently implements DeletePermanently {
 
   @override
   String toString() {
-    return 'DocEvent.deletePermanently()';
+    return 'DocumentEvent.deletePermanently()';
   }
 
   @override
@@ -711,20 +714,20 @@ class _$DeletePermanently implements DeletePermanently {
   }
 }
 
-abstract class DeletePermanently implements DocEvent {
+abstract class DeletePermanently implements DocumentEvent {
   const factory DeletePermanently() = _$DeletePermanently;
 }
 
 /// @nodoc
-class _$DocStateTearOff {
-  const _$DocStateTearOff();
+class _$DocumentStateTearOff {
+  const _$DocumentStateTearOff();
 
-  _DocState call(
-      {required DocLoadState loadState,
+  _DocumentState call(
+      {required DocumentLoadingState loadingState,
       required bool isDeleted,
       required bool forceClose}) {
-    return _DocState(
-      loadState: loadState,
+    return _DocumentState(
+      loadingState: loadingState,
       isDeleted: isDeleted,
       forceClose: forceClose,
     );
@@ -732,47 +735,50 @@ class _$DocStateTearOff {
 }
 
 /// @nodoc
-const $DocState = _$DocStateTearOff();
+const $DocumentState = _$DocumentStateTearOff();
 
 /// @nodoc
-mixin _$DocState {
-  DocLoadState get loadState => throw _privateConstructorUsedError;
+mixin _$DocumentState {
+  DocumentLoadingState get loadingState => throw _privateConstructorUsedError;
   bool get isDeleted => throw _privateConstructorUsedError;
   bool get forceClose => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $DocStateCopyWith<DocState> get copyWith =>
+  $DocumentStateCopyWith<DocumentState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $DocStateCopyWith<$Res> {
-  factory $DocStateCopyWith(DocState value, $Res Function(DocState) then) =
-      _$DocStateCopyWithImpl<$Res>;
-  $Res call({DocLoadState loadState, bool isDeleted, bool forceClose});
+abstract class $DocumentStateCopyWith<$Res> {
+  factory $DocumentStateCopyWith(
+          DocumentState value, $Res Function(DocumentState) then) =
+      _$DocumentStateCopyWithImpl<$Res>;
+  $Res call(
+      {DocumentLoadingState loadingState, bool isDeleted, bool forceClose});
 
-  $DocLoadStateCopyWith<$Res> get loadState;
+  $DocumentLoadingStateCopyWith<$Res> get loadingState;
 }
 
 /// @nodoc
-class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
-  _$DocStateCopyWithImpl(this._value, this._then);
+class _$DocumentStateCopyWithImpl<$Res>
+    implements $DocumentStateCopyWith<$Res> {
+  _$DocumentStateCopyWithImpl(this._value, this._then);
 
-  final DocState _value;
+  final DocumentState _value;
   // ignore: unused_field
-  final $Res Function(DocState) _then;
+  final $Res Function(DocumentState) _then;
 
   @override
   $Res call({
-    Object? loadState = freezed,
+    Object? loadingState = freezed,
     Object? isDeleted = freezed,
     Object? forceClose = freezed,
   }) {
     return _then(_value.copyWith(
-      loadState: loadState == freezed
-          ? _value.loadState
-          : loadState // ignore: cast_nullable_to_non_nullable
-              as DocLoadState,
+      loadingState: loadingState == freezed
+          ? _value.loadingState
+          : loadingState // ignore: cast_nullable_to_non_nullable
+              as DocumentLoadingState,
       isDeleted: isDeleted == freezed
           ? _value.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
@@ -785,44 +791,49 @@ class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
   }
 
   @override
-  $DocLoadStateCopyWith<$Res> get loadState {
-    return $DocLoadStateCopyWith<$Res>(_value.loadState, (value) {
-      return _then(_value.copyWith(loadState: value));
+  $DocumentLoadingStateCopyWith<$Res> get loadingState {
+    return $DocumentLoadingStateCopyWith<$Res>(_value.loadingState, (value) {
+      return _then(_value.copyWith(loadingState: value));
     });
   }
 }
 
 /// @nodoc
-abstract class _$DocStateCopyWith<$Res> implements $DocStateCopyWith<$Res> {
-  factory _$DocStateCopyWith(_DocState value, $Res Function(_DocState) then) =
-      __$DocStateCopyWithImpl<$Res>;
+abstract class _$DocumentStateCopyWith<$Res>
+    implements $DocumentStateCopyWith<$Res> {
+  factory _$DocumentStateCopyWith(
+          _DocumentState value, $Res Function(_DocumentState) then) =
+      __$DocumentStateCopyWithImpl<$Res>;
   @override
-  $Res call({DocLoadState loadState, bool isDeleted, bool forceClose});
+  $Res call(
+      {DocumentLoadingState loadingState, bool isDeleted, bool forceClose});
 
   @override
-  $DocLoadStateCopyWith<$Res> get loadState;
+  $DocumentLoadingStateCopyWith<$Res> get loadingState;
 }
 
 /// @nodoc
-class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
-    implements _$DocStateCopyWith<$Res> {
-  __$DocStateCopyWithImpl(_DocState _value, $Res Function(_DocState) _then)
-      : super(_value, (v) => _then(v as _DocState));
+class __$DocumentStateCopyWithImpl<$Res>
+    extends _$DocumentStateCopyWithImpl<$Res>
+    implements _$DocumentStateCopyWith<$Res> {
+  __$DocumentStateCopyWithImpl(
+      _DocumentState _value, $Res Function(_DocumentState) _then)
+      : super(_value, (v) => _then(v as _DocumentState));
 
   @override
-  _DocState get _value => super._value as _DocState;
+  _DocumentState get _value => super._value as _DocumentState;
 
   @override
   $Res call({
-    Object? loadState = freezed,
+    Object? loadingState = freezed,
     Object? isDeleted = freezed,
     Object? forceClose = freezed,
   }) {
-    return _then(_DocState(
-      loadState: loadState == freezed
-          ? _value.loadState
-          : loadState // ignore: cast_nullable_to_non_nullable
-              as DocLoadState,
+    return _then(_DocumentState(
+      loadingState: loadingState == freezed
+          ? _value.loadingState
+          : loadingState // ignore: cast_nullable_to_non_nullable
+              as DocumentLoadingState,
       isDeleted: isDeleted == freezed
           ? _value.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
@@ -837,14 +848,14 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_DocState implements _DocState {
-  const _$_DocState(
-      {required this.loadState,
+class _$_DocumentState implements _DocumentState {
+  const _$_DocumentState(
+      {required this.loadingState,
       required this.isDeleted,
       required this.forceClose});
 
   @override
-  final DocLoadState loadState;
+  final DocumentLoadingState loadingState;
   @override
   final bool isDeleted;
   @override
@@ -852,16 +863,16 @@ class _$_DocState implements _DocState {
 
   @override
   String toString() {
-    return 'DocState(loadState: $loadState, isDeleted: $isDeleted, forceClose: $forceClose)';
+    return 'DocumentState(loadingState: $loadingState, isDeleted: $isDeleted, forceClose: $forceClose)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _DocState &&
-            (identical(other.loadState, loadState) ||
+        (other is _DocumentState &&
+            (identical(other.loadingState, loadingState) ||
                 const DeepCollectionEquality()
-                    .equals(other.loadState, loadState)) &&
+                    .equals(other.loadingState, loadingState)) &&
             (identical(other.isDeleted, isDeleted) ||
                 const DeepCollectionEquality()
                     .equals(other.isDeleted, isDeleted)) &&
@@ -873,37 +884,37 @@ class _$_DocState implements _DocState {
   @override
   int get hashCode =>
       runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(loadState) ^
+      const DeepCollectionEquality().hash(loadingState) ^
       const DeepCollectionEquality().hash(isDeleted) ^
       const DeepCollectionEquality().hash(forceClose);
 
   @JsonKey(ignore: true)
   @override
-  _$DocStateCopyWith<_DocState> get copyWith =>
-      __$DocStateCopyWithImpl<_DocState>(this, _$identity);
+  _$DocumentStateCopyWith<_DocumentState> get copyWith =>
+      __$DocumentStateCopyWithImpl<_DocumentState>(this, _$identity);
 }
 
-abstract class _DocState implements DocState {
-  const factory _DocState(
-      {required DocLoadState loadState,
+abstract class _DocumentState implements DocumentState {
+  const factory _DocumentState(
+      {required DocumentLoadingState loadingState,
       required bool isDeleted,
-      required bool forceClose}) = _$_DocState;
+      required bool forceClose}) = _$_DocumentState;
 
   @override
-  DocLoadState get loadState => throw _privateConstructorUsedError;
+  DocumentLoadingState get loadingState => throw _privateConstructorUsedError;
   @override
   bool get isDeleted => throw _privateConstructorUsedError;
   @override
   bool get forceClose => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$DocStateCopyWith<_DocState> get copyWith =>
+  _$DocumentStateCopyWith<_DocumentState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-class _$DocLoadStateTearOff {
-  const _$DocLoadStateTearOff();
+class _$DocumentLoadingStateTearOff {
+  const _$DocumentLoadingStateTearOff();
 
   _Loading loading() {
     return const _Loading();
@@ -917,15 +928,14 @@ class _$DocLoadStateTearOff {
 }
 
 /// @nodoc
-const $DocLoadState = _$DocLoadStateTearOff();
+const $DocumentLoadingState = _$DocumentLoadingStateTearOff();
 
 /// @nodoc
-mixin _$DocLoadState {
+mixin _$DocumentLoadingState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, FlowyError> successOrFail)
-        finish,
+    required TResult Function(Either<Unit, FlowyError> successOrFail) finish,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -963,19 +973,20 @@ mixin _$DocLoadState {
 }
 
 /// @nodoc
-abstract class $DocLoadStateCopyWith<$Res> {
-  factory $DocLoadStateCopyWith(
-          DocLoadState value, $Res Function(DocLoadState) then) =
-      _$DocLoadStateCopyWithImpl<$Res>;
+abstract class $DocumentLoadingStateCopyWith<$Res> {
+  factory $DocumentLoadingStateCopyWith(DocumentLoadingState value,
+          $Res Function(DocumentLoadingState) then) =
+      _$DocumentLoadingStateCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$DocLoadStateCopyWithImpl<$Res> implements $DocLoadStateCopyWith<$Res> {
-  _$DocLoadStateCopyWithImpl(this._value, this._then);
+class _$DocumentLoadingStateCopyWithImpl<$Res>
+    implements $DocumentLoadingStateCopyWith<$Res> {
+  _$DocumentLoadingStateCopyWithImpl(this._value, this._then);
 
-  final DocLoadState _value;
+  final DocumentLoadingState _value;
   // ignore: unused_field
-  final $Res Function(DocLoadState) _then;
+  final $Res Function(DocumentLoadingState) _then;
 }
 
 /// @nodoc
@@ -985,7 +996,8 @@ abstract class _$LoadingCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$LoadingCopyWithImpl<$Res> extends _$DocLoadStateCopyWithImpl<$Res>
+class __$LoadingCopyWithImpl<$Res>
+    extends _$DocumentLoadingStateCopyWithImpl<$Res>
     implements _$LoadingCopyWith<$Res> {
   __$LoadingCopyWithImpl(_Loading _value, $Res Function(_Loading) _then)
       : super(_value, (v) => _then(v as _Loading));
@@ -1001,7 +1013,7 @@ class _$_Loading implements _Loading {
 
   @override
   String toString() {
-    return 'DocLoadState.loading()';
+    return 'DocumentLoadingState.loading()';
   }
 
   @override
@@ -1016,8 +1028,7 @@ class _$_Loading implements _Loading {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, FlowyError> successOrFail)
-        finish,
+    required TResult Function(Either<Unit, FlowyError> successOrFail) finish,
   }) {
     return loading();
   }
@@ -1076,7 +1087,7 @@ class _$_Loading implements _Loading {
   }
 }
 
-abstract class _Loading implements DocLoadState {
+abstract class _Loading implements DocumentLoadingState {
   const factory _Loading() = _$_Loading;
 }
 
@@ -1088,7 +1099,8 @@ abstract class _$FinishCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$FinishCopyWithImpl<$Res> extends _$DocLoadStateCopyWithImpl<$Res>
+class __$FinishCopyWithImpl<$Res>
+    extends _$DocumentLoadingStateCopyWithImpl<$Res>
     implements _$FinishCopyWith<$Res> {
   __$FinishCopyWithImpl(_Finish _value, $Res Function(_Finish) _then)
       : super(_value, (v) => _then(v as _Finish));
@@ -1119,7 +1131,7 @@ class _$_Finish implements _Finish {
 
   @override
   String toString() {
-    return 'DocLoadState.finish(successOrFail: $successOrFail)';
+    return 'DocumentLoadingState.finish(successOrFail: $successOrFail)';
   }
 
   @override
@@ -1144,8 +1156,7 @@ class _$_Finish implements _Finish {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, FlowyError> successOrFail)
-        finish,
+    required TResult Function(Either<Unit, FlowyError> successOrFail) finish,
   }) {
     return finish(successOrFail);
   }
@@ -1204,7 +1215,7 @@ class _$_Finish implements _Finish {
   }
 }
 
-abstract class _Finish implements DocLoadState {
+abstract class _Finish implements DocumentLoadingState {
   const factory _Finish(Either<Unit, FlowyError> successOrFail) = _$_Finish;
 
   Either<Unit, FlowyError> get successOrFail =>

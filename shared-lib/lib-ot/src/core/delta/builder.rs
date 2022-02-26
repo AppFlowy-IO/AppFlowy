@@ -1,4 +1,6 @@
-use crate::core::{trim, Attributes, Delta};
+use crate::core::{trim, Attributes, Delta, PlainAttributes};
+
+pub type PlainDeltaBuilder = DeltaBuilder<PlainAttributes>;
 
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,
@@ -8,14 +10,18 @@ impl<T> std::default::Default for DeltaBuilder<T>
 where
     T: Attributes,
 {
-    fn default() -> Self { Self { delta: Delta::new() } }
+    fn default() -> Self {
+        Self { delta: Delta::new() }
+    }
 }
 
 impl<T> DeltaBuilder<T>
 where
     T: Attributes,
 {
-    pub fn new() -> Self { DeltaBuilder::default() }
+    pub fn new() -> Self {
+        DeltaBuilder::default()
+    }
 
     pub fn retain_with_attributes(mut self, n: usize, attrs: T) -> Self {
         self.delta.retain(n, attrs);
@@ -47,5 +53,7 @@ where
         self
     }
 
-    pub fn build(self) -> Delta<T> { self.delta }
+    pub fn build(self) -> Delta<T> {
+        self.delta
+    }
 }

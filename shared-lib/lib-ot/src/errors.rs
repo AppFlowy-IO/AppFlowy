@@ -9,7 +9,9 @@ pub struct OTError {
 macro_rules! static_ot_error {
     ($name:ident, $code:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> OTError { $code.into() }
+        pub fn $name() -> OTError {
+            $code.into()
+        }
     };
 }
 
@@ -41,15 +43,21 @@ impl OTError {
 }
 
 impl fmt::Display for OTError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "incompatible lengths") }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "incompatible lengths")
+    }
 }
 
 impl std::convert::From<serde_json::Error> for OTError {
-    fn from(error: serde_json::Error) -> Self { ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build() }
+    fn from(error: serde_json::Error) -> Self {
+        ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build()
+    }
 }
 
 impl std::convert::From<Utf8Error> for OTError {
-    fn from(error: Utf8Error) -> Self { ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build() }
+    fn from(error: Utf8Error) -> Self {
+        ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -74,7 +82,9 @@ pub struct ErrorBuilder {
 }
 
 impl ErrorBuilder {
-    pub fn new(code: OTErrorCode) -> Self { ErrorBuilder { code, msg: None } }
+    pub fn new(code: OTErrorCode) -> Self {
+        ErrorBuilder { code, msg: None }
+    }
 
     pub fn msg<T>(mut self, msg: T) -> Self
     where
@@ -92,5 +102,7 @@ impl ErrorBuilder {
         self
     }
 
-    pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned())) }
+    pub fn build(mut self) -> OTError {
+        OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned()))
+    }
 }

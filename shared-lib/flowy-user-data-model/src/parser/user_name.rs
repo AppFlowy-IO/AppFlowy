@@ -34,7 +34,9 @@ impl UserName {
 }
 
 impl AsRef<str> for UserName {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 #[cfg(test)]

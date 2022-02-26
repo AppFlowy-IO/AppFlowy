@@ -13,7 +13,9 @@ pub struct DartStreamSender {
 }
 
 impl DartStreamSender {
-    fn new() -> Self { Self { isolate: None } }
+    fn new() -> Self {
+        Self { isolate: None }
+    }
 
     fn inner_set_port(&mut self, port: i64) {
         log::info!("Setup rust to flutter stream with port {}", port);
@@ -27,7 +29,7 @@ impl DartStreamSender {
                 let bytes: Bytes = observable_subject.try_into().unwrap();
                 isolate.post(bytes.to_vec());
                 Ok(())
-            },
+            }
             None => Err("Isolate is not set".to_owned()),
         }
     }
@@ -38,7 +40,7 @@ impl DartStreamSender {
             Err(e) => {
                 let msg = format!("Get rust to flutter stream lock fail. {:?}", e);
                 log::error!("{:?}", msg);
-            },
+            }
         }
     }
 

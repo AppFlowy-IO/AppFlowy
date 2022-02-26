@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-enum DocObservable {
-    UserCreateDoc = 0;
-}

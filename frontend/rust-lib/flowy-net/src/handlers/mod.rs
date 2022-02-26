@@ -1,4 +1,4 @@
-use crate::{entities::NetworkState, services::ws_conn::FlowyWebSocketConnect};
+use crate::{entities::NetworkState, ws::connection::FlowyWebSocketConnect};
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{Data, Unit};
 use std::sync::Arc;

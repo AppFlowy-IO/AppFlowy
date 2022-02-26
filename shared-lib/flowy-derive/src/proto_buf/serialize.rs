@@ -1,7 +1,5 @@
-use crate::{
-    derive_cache::TypeCategory,
-    proto_buf::util::{get_member_ident, ident_category},
-};
+#![allow(clippy::while_let_on_iterator)]
+use crate::proto_buf::util::{get_member_ident, ident_category, TypeCategory};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 
@@ -13,7 +11,7 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
         .data
         .all_fields()
         .filter(|f| !f.attrs.skip_serializing())
-        .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
+        .flat_map(|field| se_token_stream_for_field(ctxt, field, false));
 
     let se_token_stream: TokenStream = quote! {
 
@@ -47,19 +45,19 @@ fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Opti
     } else if field.attrs.is_one_of() {
         token_stream_for_one_of(ctxt, field)
     } else {
-        gen_token_stream(ctxt, &field.member, &field.ty, false)
+        gen_token_stream(ctxt, &field.member, field.ty, false)
     }
 }
 
 fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
-    let ty_info = match parse_ty(ctxt, &field.ty) {
+    let ty_info = match parse_ty(ctxt, field.ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
             eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
             panic!();
-        },
+        }
     }?;
 
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
@@ -88,11 +86,11 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
         Err(e) => {
             eprintln!("gen_token_stream failed: {:?} with error: {}", member, e);
             panic!();
-        },
+        }
     }?;
     match ident_category(ty_info.ident) {
-        TypeCategory::Array => token_stream_for_vec(ctxt, &member, &ty_info.ty),
-        TypeCategory::Map => token_stream_for_map(ctxt, &member, &ty_info.bracket_ty_info.unwrap().ty),
+        TypeCategory::Array => token_stream_for_vec(ctxt, member, ty_info.ty),
+        TypeCategory::Map => token_stream_for_map(ctxt, member, ty_info.bracket_ty_info.unwrap().ty),
         TypeCategory::Str => {
             if is_option {
                 Some(quote! {
@@ -104,10 +102,10 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
             } else {
                 Some(quote! { pb.#member = self.#member.clone(); })
             }
-        },
+        }
         TypeCategory::Protobuf => {
             Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); })
-        },
+        }
         TypeCategory::Opt => gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Enum => {
             // let pb_enum_ident = format_ident!("{}", ty_info.ident.to_string());
@@ -117,7 +115,7 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
             Some(quote! {
                 pb.#member = self.#member.try_into().unwrap();
             })
-        },
+        }
         _ => Some(quote! { pb.#member = self.#member; }),
     }
 }
@@ -129,7 +127,7 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
         Err(e) => {
             eprintln!("token_stream_for_vec failed: {:?} with error: {}", member, e);
             panic!();
-        },
+        }
     }?;
 
     match ident_category(ty_info.ident) {
@@ -157,7 +155,7 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
         Err(e) => {
             eprintln!("token_stream_for_map failed: {:?} with error: {}", member, e);
             panic!();
-        },
+        }
     }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => {
@@ -169,7 +167,7 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
                 });
                 pb.#member = m;
             })
-        },
+        }
 
         _ => {
             let value_type = ty_info.ident;
@@ -180,6 +178,6 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
                   });
                 pb.#member = m;
             })
-        },
+        }
     }
 }

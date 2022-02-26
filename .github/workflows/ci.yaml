@@ -10,9 +10,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Env install
-        working-directory: frontend
-        run: make install_rust
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Checkout Flutter
         uses: actions/checkout@v2
         with:
@@ -32,6 +32,7 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Build
         working-directory: frontend
         run: cargo make --profile production-mac-x86 appflowy
@@ -51,8 +52,8 @@ jobs:
           curl \
             --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
-          rustup toolchain install nightly
-          rustup default nightly
+          rustup toolchain install stable
+          rustup default stable
       - name: Checkout Flutter
         uses: actions/checkout@v2
         with:
@@ -72,6 +73,7 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
+          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
       - name: Build
         working-directory: frontend
         run: cargo make --profile production-linux-x86 appflowy

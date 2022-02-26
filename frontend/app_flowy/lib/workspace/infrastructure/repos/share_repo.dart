@@ -1,15 +1,27 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class ShareRepo {
   Future<Either<ExportData, FlowyError>> export(String docId, ExportType type) {
-    final request = ExportRequest.create()
+    final request = ExportPayload.create()
       ..docId = docId
       ..exportType = type;
 
-    return WorkspaceEventExportDocument(request).send();
+    return FolderEventExportDocument(request).send();
+  }
+
+  Future<Either<ExportData, FlowyError>> exportText(String docId) {
+    return export(docId, ExportType.Text);
+  }
+
+  Future<Either<ExportData, FlowyError>> exportMarkdown(String docId) {
+    return export(docId, ExportType.Markdown);
+  }
+
+  Future<Either<ExportData, FlowyError>> exportURL(String docId) {
+    return export(docId, ExportType.Link);
   }
 }

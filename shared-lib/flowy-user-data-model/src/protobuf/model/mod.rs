@@ -4,6 +4,9 @@
 mod errors;
 pub use errors::*;
 
+mod user_setting;
+pub use user_setting::*;
+
 mod user_profile;
 pub use user_profile::*;
 

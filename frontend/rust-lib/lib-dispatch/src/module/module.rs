@@ -17,14 +17,7 @@ use crate::{
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
     service::{
-        factory,
-        BoxService,
-        BoxServiceFactory,
-        Handler,
-        HandlerService,
-        Service,
-        ServiceFactory,
-        ServiceRequest,
+        factory, BoxService, BoxServiceFactory, Handler, HandlerService, Service, ServiceFactory, ServiceRequest,
         ServiceResponse,
     },
 };
@@ -48,7 +41,9 @@ pub(crate) fn as_module_map(modules: Vec<Module>) -> ModuleMap {
 pub struct Event(String);
 
 impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for Event {
-    fn from(t: T) -> Self { Event(format!("{}", t)) }
+    fn from(t: T) -> Self {
+        Event(format!("{}", t))
+    }
 }
 
 pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>;
@@ -70,7 +65,9 @@ impl std::default::Default for Module {
 }
 
 impl Module {
-    pub fn new() -> Self { Module::default() }
+    pub fn new() -> Self {
+        Module::default()
+    }
 
     pub fn name(mut self, s: &str) -> Self {
         self.name = s.to_owned();
@@ -103,7 +100,9 @@ impl Module {
         self
     }
 
-    pub fn events(&self) -> Vec<Event> { self.service_map.keys().cloned().collect::<Vec<_>>() }
+    pub fn events(&self) -> Vec<Event> {
+        self.service_map.keys().cloned().collect::<Vec<_>>()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -135,7 +134,9 @@ impl ModuleRequest {
 }
 
 impl std::fmt::Display for ModuleRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}:{:?}", self.id, self.event) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{:?}", self.id, self.event)
+    }
 }
 
 impl ServiceFactory<ModuleRequest> for Module {
@@ -185,11 +186,11 @@ impl Service<ModuleRequest> for ModuleService {
                     }),
                 };
                 Box::pin(async move { Ok(fut.await.unwrap_or_else(|e| e.into())) })
-            },
+            }
             None => {
                 let msg = format!("Can not find service factory for event: {:?}", request.event);
                 Box::pin(async { Err(InternalError::ServiceNotFound(msg).into()) })
-            },
+            }
         }
     }
 }

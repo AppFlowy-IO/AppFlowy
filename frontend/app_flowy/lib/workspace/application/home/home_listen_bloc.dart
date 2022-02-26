@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +7,7 @@ import 'package:dartz/dartz.dart';
 part 'home_listen_bloc.freezed.dart';
 
 class HomeListenBloc extends Bloc<HomeListenEvent, HomeListenState> {
-  final IUserListener listener;
+  final UserListener listener;
   HomeListenBloc(this.listener) : super(const HomeListenState.loading()) {
     on<HomeListenEvent>((event, emit) async {
       await event.map(

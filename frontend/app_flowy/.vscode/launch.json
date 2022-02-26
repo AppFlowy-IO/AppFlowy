@@ -10,8 +10,8 @@
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
-            "env":{
-                "RUST_LOG":"info",
+            "env": {
+                "RUST_LOG": "debug"
             },
             "cwd": "${workspaceRoot}"
         },
@@ -21,8 +21,8 @@
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
-            "env":{
-                "RUST_LOG":"trace",
+            "env": {
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}"
         },
@@ -31,14 +31,6 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
-        },
-        {
-            "name": "Generate Language Files",
-            "request": "launch",
-            "program": "${workspaceRoot}/lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "Generate Language Files",
-            "cwd": "${workspaceRoot}"
         },
     ]
 }

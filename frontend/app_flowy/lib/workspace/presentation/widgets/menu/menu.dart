@@ -1,11 +1,12 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/top_bar.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_setting.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +77,9 @@ class HomeMenu extends StatelessWidget {
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
-            listener: (context, state) => _collapsedNotifier.value = state.isCollapse,
+            listener: (context, state) {
+              _collapsedNotifier.value = state.isCollapse;
+            },
           )
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
@@ -88,8 +91,9 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderBody(BuildContext context) {
     // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
+    final theme = context.watch<AppTheme>();
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: theme.bg1,
       child: ChangeNotifierProvider(
         create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
         child: Consumer(builder: (context, MenuSharedState sharedState, child) {

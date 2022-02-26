@@ -125,7 +125,7 @@ macro_rules! impl_sql_binary_expression {
                             e
                         );
                         panic!();
-                    },
+                    }
                 }
             }
         }

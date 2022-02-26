@@ -27,14 +27,18 @@ impl Database {
         })
     }
 
-    pub fn get_uri(&self) -> &str { &self.uri }
+    pub fn get_uri(&self) -> &str {
+        &self.uri
+    }
 
     pub fn get_connection(&self) -> Result<DBConnection> {
         let conn = self.pool.get()?;
         Ok(conn)
     }
 
-    pub fn get_pool(&self) -> Arc<ConnectionPool> { self.pool.clone() }
+    pub fn get_pool(&self) -> Arc<ConnectionPool> {
+        self.pool.clone()
+    }
 }
 
 pub fn db_file_uri(dir: &str, name: &str) -> String {

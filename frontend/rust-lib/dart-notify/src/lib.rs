@@ -34,7 +34,7 @@ impl DartNotifyBuilder {
             Ok(bytes) => self.payload = Some(bytes),
             Err(e) => {
                 log::error!("Set observable payload failed: {:?}", e);
-            },
+            }
         }
 
         self
@@ -48,7 +48,7 @@ impl DartNotifyBuilder {
             Ok(bytes) => self.error = Some(bytes),
             Err(e) => {
                 log::error!("Set observable error failed: {:?}", e);
-            },
+            }
         }
         self
     }
@@ -67,7 +67,7 @@ impl DartNotifyBuilder {
         };
 
         match DartStreamSender::post(subject) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(error) => log::error!("Send observable subject failed: {}", error),
         }
     }

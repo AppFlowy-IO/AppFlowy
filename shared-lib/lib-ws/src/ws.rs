@@ -2,16 +2,13 @@
 use crate::{
     connect::{WSConnectionFuture, WSStream},
     errors::WSError,
-    WSModule,
-    WebSocketRawMessage,
+    WSChannel, WebSocketRawMessage,
 };
-use backend_service::errors::ServerError;
 use bytes::Bytes;
 use dashmap::DashMap;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use lib_infra::retry::{Action, FixedInterval, Retry};
-use parking_lot::RwLock;
 use pin_project::pin_project;
 use std::{
     convert::TryFrom,
@@ -22,7 +19,7 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
-use tokio::sync::{broadcast, oneshot};
+use tokio::sync::{broadcast, oneshot, RwLock};
 use tokio_tungstenite::tungstenite::{
     protocol::{frame::coding::CloseCode, CloseFrame},
     Message,
@@ -30,68 +27,91 @@ use tokio_tungstenite::tungstenite::{
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
-type Handlers = DashMap<WSModule, Arc<dyn WSMessageReceiver>>;
+type Handlers = DashMap<WSChannel, Arc<dyn WSMessageReceiver>>;
 
 pub trait WSMessageReceiver: Sync + Send + 'static {
-    fn source(&self) -> WSModule;
+    fn source(&self) -> WSChannel;
     fn receive_message(&self, msg: WebSocketRawMessage);
 }
 
 pub struct WSController {
     handlers: Handlers,
-    state_notify: Arc<broadcast::Sender<WSConnectState>>,
-    sender_ctrl: Arc<RwLock<WSSenderController>>,
     addr: Arc<RwLock<Option<String>>>,
+    sender: Arc<RwLock<Option<Arc<WSSender>>>>,
+    conn_state_notify: Arc<RwLock<WSConnectStateNotifier>>,
+}
+
+impl std::fmt::Display for WSController {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("WebSocket")
+    }
 }
 
 impl std::default::Default for WSController {
     fn default() -> Self {
-        let (state_notify, _) = broadcast::channel(16);
         Self {
             handlers: DashMap::new(),
-            sender_ctrl: Arc::new(RwLock::new(WSSenderController::default())),
-            state_notify: Arc::new(state_notify),
             addr: Arc::new(RwLock::new(None)),
+            sender: Arc::new(RwLock::new(None)),
+            conn_state_notify: Arc::new(RwLock::new(WSConnectStateNotifier::default())),
         }
     }
 }
 
 impl WSController {
-    pub fn new() -> Self { WSController::default() }
+    pub fn new() -> Self {
+        WSController::default()
+    }
 
     pub fn add_ws_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
-            log::error!("WsSource's {:?} is already registered", source);
+            log::error!("{:?} is already registered", source);
         }
         self.handlers.insert(source, handler);
         Ok(())
     }
 
-    pub async fn start(&self, addr: String) -> Result<(), ServerError> {
-        *self.addr.write() = Some(addr.clone());
+    pub async fn start(&self, addr: String) -> Result<(), WSError> {
+        *self.addr.write().await = Some(addr.clone());
         let strategy = FixedInterval::from_millis(5000).take(3);
         self.connect(addr, strategy).await
     }
 
-    pub async fn stop(&self) { self.sender_ctrl.write().set_state(WSConnectState::Disconnected); }
+    pub async fn stop(&self) {
+        if self.conn_state_notify.read().await.conn_state.is_connected() {
+            tracing::trace!("[{}] stop", self);
+            self.conn_state_notify
+                .write()
+                .await
+                .update_state(WSConnectState::Disconnected);
+        }
+    }
 
-    async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
+    async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), WSError>
     where
         T: IntoIterator<IntoIter = I, Item = Duration>,
         I: Iterator<Item = Duration> + Send + 'static,
     {
-        let (ret, rx) = oneshot::channel::<Result<(), ServerError>>();
-        *self.addr.write() = Some(addr.clone());
+        let mut conn_state_notify = self.conn_state_notify.write().await;
+        let conn_state = conn_state_notify.conn_state.clone();
+        if conn_state.is_connected() || conn_state.is_connecting() {
+            return Ok(());
+        }
+
+        let (ret, rx) = oneshot::channel::<Result<(), WSError>>();
+        *self.addr.write().await = Some(addr.clone());
         let action = WSConnectAction {
             addr,
             handlers: self.handlers.clone(),
         };
-
         let retry = Retry::spawn(strategy, action);
-        let sender_ctrl = self.sender_ctrl.clone();
-        sender_ctrl.write().set_state(WSConnectState::Connecting);
+        conn_state_notify.update_state(WSConnectState::Connecting);
+        drop(conn_state_notify);
 
+        let cloned_conn_state = self.conn_state_notify.clone();
+        let cloned_sender = self.sender.clone();
+        tracing::trace!("[{}] start connecting", self);
         tokio::spawn(async move {
             match retry.await {
                 Ok(result) => {
@@ -100,56 +120,67 @@ impl WSController {
                         handlers_fut,
                         sender,
                     } = result;
-                    sender_ctrl.write().set_sender(sender);
-                    sender_ctrl.write().set_state(WSConnectState::Connected);
+
+                    cloned_conn_state.write().await.update_state(WSConnectState::Connected);
+                    *cloned_sender.write().await = Some(Arc::new(sender));
+
                     let _ = ret.send(Ok(()));
-                    spawn_stream_and_handlers(stream, handlers_fut, sender_ctrl.clone()).await;
-                },
+                    spawn_stream_and_handlers(stream, handlers_fut).await;
+                }
                 Err(e) => {
-                    sender_ctrl.write().set_error(e.clone());
-                    let _ = ret.send(Err(ServerError::internal().context(e)));
-                },
+                    cloned_conn_state
+                        .write()
+                        .await
+                        .update_state(WSConnectState::Disconnected);
+                    let _ = ret.send(Err(WSError::internal().context(e)));
+                }
             }
         });
-
         rx.await?
     }
 
-    pub async fn retry(&self, count: usize) -> Result<(), ServerError> {
-        if self.sender_ctrl.read().is_connecting() {
+    pub async fn retry(&self, count: usize) -> Result<(), WSError> {
+        if !self.conn_state_notify.read().await.conn_state.is_disconnected() {
             return Ok(());
         }
 
+        tracing::trace!("[WebSocket]: retry connect...");
         let strategy = FixedInterval::from_millis(5000).take(count);
         let addr = self
             .addr
             .read()
+            .await
             .as_ref()
-            .expect("must call start_connect first")
+            .expect("Retry web socket connection failed, should call start_connect first")
             .clone();
 
         self.connect(addr, strategy).await
     }
 
-    pub fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_notify.subscribe() }
+    pub async fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> {
+        self.conn_state_notify.read().await.notify.subscribe()
+    }
 
-    pub fn ws_message_sender(&self) -> Result<Arc<WSSender>, WSError> {
-        match self.sender_ctrl.read().sender() {
-            None => Err(WSError::internal().context("WsSender is not initialized, should call connect first")),
-            Some(sender) => Ok(sender),
+    pub async fn ws_message_sender(&self) -> Result<Option<Arc<WSSender>>, WSError> {
+        let sender = self.sender.read().await.clone();
+        match sender {
+            None => match self.conn_state_notify.read().await.conn_state {
+                WSConnectState::Disconnected => {
+                    let msg = "WebSocket is disconnected";
+                    Err(WSError::internal().context(msg))
+                }
+                _ => Ok(None),
+            },
+            Some(sender) => Ok(Some(sender)),
         }
     }
 }
 
-async fn spawn_stream_and_handlers(
-    stream: WSStream,
-    handlers: WSHandlerFuture,
-    sender_ctrl: Arc<RwLock<WSSenderController>>,
-) {
+async fn spawn_stream_and_handlers(stream: WSStream, handlers: WSHandlerFuture) {
     tokio::select! {
         result = stream => {
             if let Err(e) = result {
-                sender_ctrl.write().set_error(e);
+                tracing::error!("WSStream error: {:?}", e);
             }
         },
         result = handlers => tracing::debug!("handlers completed {:?}", result),
@@ -160,12 +191,13 @@ async fn spawn_stream_and_handlers(
 pub struct WSHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
-    // Opti: Hashmap would be better
     handlers: Handlers,
 }
 
 impl WSHandlerFuture {
-    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self {
+        Self { msg_rx, handlers }
+    }
 
     fn handler_ws_message(&self, message: Message) {
         if let Message::Binary(bytes) = message {
@@ -176,13 +208,13 @@ impl WSHandlerFuture {
     fn handle_binary_message(&self, bytes: Vec<u8>) {
         let bytes = Bytes::from(bytes);
         match WebSocketRawMessage::try_from(bytes) {
-            Ok(message) => match self.handlers.get(&message.module) {
+            Ok(message) => match self.handlers.get(&message.channel) {
                 None => log::error!("Can't find any handler for message: {:?}", message),
                 Some(handler) => handler.receive_message(message.clone()),
             },
             Err(e) => {
                 log::error!("Deserialize binary ws message failed: {:?}", e);
-            },
+            }
         }
     }
 }
@@ -194,7 +226,7 @@ impl Future for WSHandlerFuture {
             match ready!(self.as_mut().project().msg_rx.poll_next(cx)) {
                 None => {
                     return Poll::Ready(());
-                },
+                }
                 Some(message) => self.handler_ws_message(message),
             }
         }
@@ -202,31 +234,29 @@ impl Future for WSHandlerFuture {
 }
 
 #[derive(Debug, Clone)]
-pub struct WSSender {
-    ws_tx: MsgSender,
-}
+pub struct WSSender(MsgSender);
 
 impl WSSender {
     pub fn send_msg<T: Into<WebSocketRawMessage>>(&self, msg: T) -> Result<(), WSError> {
         let msg = msg.into();
         let _ = self
-            .ws_tx
+            .0
             .unbounded_send(msg.into())
             .map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 
-    pub fn send_text(&self, source: &WSModule, text: &str) -> Result<(), WSError> {
+    pub fn send_text(&self, source: &WSChannel, text: &str) -> Result<(), WSError> {
         let msg = WebSocketRawMessage {
-            module: source.clone(),
+            channel: source.clone(),
             data: text.as_bytes().to_vec(),
         };
         self.send_msg(msg)
     }
 
-    pub fn send_binary(&self, source: &WSModule, bytes: Vec<u8>) -> Result<(), WSError> {
+    pub fn send_binary(&self, source: &WSChannel, bytes: Vec<u8>) -> Result<(), WSError> {
         let msg = WebSocketRawMessage {
-            module: source.clone(),
+            channel: source.clone(),
             data: bytes,
         };
         self.send_msg(msg)
@@ -238,10 +268,7 @@ impl WSSender {
             reason: reason.to_owned().into(),
         };
         let msg = Message::Close(Some(frame));
-        let _ = self
-            .ws_tx
-            .unbounded_send(msg)
-            .map_err(|e| WSError::internal().context(e))?;
+        let _ = self.0.unbounded_send(msg).map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 }
@@ -292,7 +319,7 @@ impl WSConnectActionFut {
         //               └───────────────┘                 └──────────────┘
         let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
         let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
-        let sender = WSSender { ws_tx };
+        let sender = WSSender(ws_tx);
         let handlers_fut = WSHandlerFuture::new(handlers, msg_rx);
         let conn = WSConnectionFuture::new(msg_tx, ws_rx, addr.clone());
         Self {
@@ -317,7 +344,7 @@ impl Future for WSConnectActionFut {
                     handlers_fut,
                     sender,
                 }))
-            },
+            }
             Err(e) => Poll::Ready(Err(e)),
         }
     }
@@ -331,59 +358,63 @@ pub enum WSConnectState {
     Disconnected,
 }
 
+impl WSConnectState {
+    fn is_connected(&self) -> bool {
+        self == &WSConnectState::Connected
+    }
+
+    fn is_connecting(&self) -> bool {
+        self == &WSConnectState::Connecting
+    }
+
+    fn is_disconnected(&self) -> bool {
+        self == &WSConnectState::Disconnected || self == &WSConnectState::Init
+    }
+}
+
 impl std::fmt::Display for WSConnectState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             WSConnectState::Init => f.write_str("Init"),
-            WSConnectState::Connected => f.write_str("Connecting"),
-            WSConnectState::Connecting => f.write_str("Connected"),
+            WSConnectState::Connected => f.write_str("Connected"),
+            WSConnectState::Connecting => f.write_str("Connecting"),
             WSConnectState::Disconnected => f.write_str("Disconnected"),
         }
     }
 }
 
 impl std::fmt::Debug for WSConnectState {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
-}
-
-struct WSSenderController {
-    state: WSConnectState,
-    state_notify: Arc<broadcast::Sender<WSConnectState>>,
-    sender: Option<Arc<WSSender>>,
-}
-
-impl WSSenderController {
-    fn set_sender(&mut self, sender: WSSender) { self.sender = Some(Arc::new(sender)); }
-
-    fn set_state(&mut self, state: WSConnectState) {
-        if state != WSConnectState::Connected {
-            self.sender = None;
-        }
-
-        self.state = state;
-        let _ = self.state_notify.send(self.state.clone());
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self))
     }
-
-    fn set_error(&mut self, error: WSError) {
-        log::error!("{:?}", error);
-        self.set_state(WSConnectState::Disconnected);
-    }
-
-    fn sender(&self) -> Option<Arc<WSSender>> { self.sender.clone() }
-
-    fn is_connecting(&self) -> bool { self.state == WSConnectState::Connecting }
-
-    #[allow(dead_code)]
-    fn is_connected(&self) -> bool { self.state == WSConnectState::Connected }
 }
 
-impl std::default::Default for WSSenderController {
+struct WSConnectStateNotifier {
+    conn_state: WSConnectState,
+    notify: Arc<broadcast::Sender<WSConnectState>>,
+}
+
+impl std::default::Default for WSConnectStateNotifier {
     fn default() -> Self {
         let (state_notify, _) = broadcast::channel(16);
-        WSSenderController {
-            state: WSConnectState::Init,
-            state_notify: Arc::new(state_notify),
-            sender: None,
+        Self {
+            conn_state: WSConnectState::Init,
+            notify: Arc::new(state_notify),
         }
+    }
+}
+
+impl WSConnectStateNotifier {
+    fn update_state(&mut self, new_state: WSConnectState) {
+        if self.conn_state == new_state {
+            return;
+        }
+        tracing::debug!(
+            "WebSocket connect state did change: {} -> {}",
+            self.conn_state,
+            new_state
+        );
+        self.conn_state = new_state.clone();
+        let _ = self.notify.send(new_state);
     }
 }

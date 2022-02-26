@@ -1,4 +1,5 @@
-use futures_core::{future::BoxFuture, ready};
+use futures_core::future::BoxFuture;
+use futures_core::ready;
 use pin_project::pin_project;
 use std::{
     fmt::Debug,

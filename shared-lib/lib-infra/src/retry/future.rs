@@ -132,7 +132,7 @@ where
                 let future = sleep_until(deadline);
                 self.as_mut().project().state.set(RetryState::Sleeping(future));
                 Ok(self.poll(cx))
-            },
+            }
         }
     }
 }
@@ -159,7 +159,7 @@ where
                     } else {
                         Poll::Ready(Err(err))
                     }
-                },
+                }
             },
             RetryFuturePoll::Sleeping(poll_result) => match poll_result {
                 Poll::Pending => Poll::Pending,
@@ -190,7 +190,9 @@ pub trait Condition<E> {
 }
 
 impl<E, F: FnMut(&E) -> bool> Condition<E> for F {
-    fn should_retry(&mut self, error: &E) -> bool { self(error) }
+    fn should_retry(&mut self, error: &E) -> bool {
+        self(error)
+    }
 }
 
 pub fn spawn_retry<A: Action + 'static>(

@@ -9,10 +9,11 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-database",
-  "flowy-core",
+  "flowy-folder",
   "dart-notify",
   "flowy-document",
   "flowy-error",
+  "flowy-sync",
 ]
 
 [profile.dev]

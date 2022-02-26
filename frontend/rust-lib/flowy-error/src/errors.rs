@@ -1,6 +1,6 @@
 use bytes::Bytes;
-use error_code::ErrorCode;
 use flowy_derive::ProtoBuf;
+use flowy_error_code::ErrorCode;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 
@@ -18,7 +18,9 @@ pub struct FlowyError {
 macro_rules! static_flowy_error {
     ($name:ident, $code:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> FlowyError { $code.into() }
+        pub fn $name() -> FlowyError {
+            $code.into()
+        }
     };
 }
 
@@ -81,7 +83,9 @@ where
 }
 
 impl fmt::Display for FlowyError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}: {}", &self.code, &self.msg)
+    }
 }
 
 impl lib_dispatch::Error for FlowyError {
@@ -92,9 +96,13 @@ impl lib_dispatch::Error for FlowyError {
 }
 
 impl std::convert::From<std::io::Error> for FlowyError {
-    fn from(error: std::io::Error) -> Self { FlowyError::internal().context(error) }
+    fn from(error: std::io::Error) -> Self {
+        FlowyError::internal().context(error)
+    }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
-    fn from(e: protobuf::ProtobufError) -> Self { FlowyError::internal().context(e) }
+    fn from(e: protobuf::ProtobufError) -> Self {
+        FlowyError::internal().context(e)
+    }
 }

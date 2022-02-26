@@ -1,11 +1,13 @@
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
+import 'package:provider/provider.dart';
 
 import 'sizes.dart';
 
@@ -17,6 +19,7 @@ class TrashCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return Row(
       children: [
         SizedBox(width: TrashSizes.fileNameWidth, child: FlowyText(object.name, fontSize: 12)),
@@ -26,13 +29,13 @@ class TrashCell extends StatelessWidget {
         FlowyIconButton(
           width: 16,
           onPressed: onRestore,
-          icon: svg("editor/restore"),
+          icon: svg("editor/restore", color: theme.iconColor),
         ),
         const HSpace(20),
         FlowyIconButton(
           width: 16,
           onPressed: onDelete,
-          icon: svg("editor/delete"),
+          icon: svg("editor/delete", color: theme.iconColor),
         ),
       ],
     );

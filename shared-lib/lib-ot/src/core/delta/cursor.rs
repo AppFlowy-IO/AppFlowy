@@ -1,3 +1,4 @@
+#![allow(clippy::while_let_on_iterator)]
 use crate::{
     core::{Attributes, Delta, Interval, Operation},
     errors::{ErrorBuilder, OTError, OTErrorCode},
@@ -35,9 +36,13 @@ where
     }
 
     // get the next operation interval
-    pub fn next_iv(&self) -> Interval { self.next_iv_with_len(None).unwrap_or_else(|| Interval::new(0, 0)) }
+    pub fn next_iv(&self) -> Interval {
+        self.next_iv_with_len(None).unwrap_or_else(|| Interval::new(0, 0))
+    }
 
-    pub fn next_op(&mut self) -> Option<Operation<T>> { self.next_with_len(None) }
+    pub fn next_op(&mut self) -> Option<Operation<T>> {
+        self.next_with_len(None)
+    }
 
     // get the last operation before the end.
     // checkout the delta_next_op_with_len_cross_op_return_last test for more detail
@@ -91,7 +96,9 @@ where
         find_op
     }
 
-    pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }
+    pub fn has_next(&self) -> bool {
+        self.next_iter_op().is_some()
+    }
 
     fn descend(&mut self, index: usize) {
         self.consume_iv.start += index;
@@ -151,7 +158,7 @@ where
         Some((o_index, op)) => {
             cursor.op_index = o_index;
             Some(op)
-        },
+        }
     }
 }
 

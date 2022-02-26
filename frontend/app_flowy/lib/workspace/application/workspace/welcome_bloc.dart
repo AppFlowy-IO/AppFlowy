@@ -1,7 +1,6 @@
-import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
-import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +10,7 @@ part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserRepo repo;
-  final IUserListener listener;
+  final UserListener listener;
   WelcomeBloc({required this.repo, required this.listener}) : super(WelcomeState.initial()) {
     on<WelcomeEvent>(
       (event, emit) async {

@@ -3,7 +3,7 @@ import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 
 typedef UserNotificationCallback = void Function(UserNotification, Either<Uint8List, FlowyError>);
 
@@ -17,14 +17,14 @@ class UserNotificationParser extends NotificationParser<UserNotification, FlowyE
         );
 }
 
-typedef NotificationCallback = void Function(WorkspaceNotification, Either<Uint8List, FlowyError>);
+typedef NotificationCallback = void Function(FolderNotification, Either<Uint8List, FlowyError>);
 
-class WorkspaceNotificationParser extends NotificationParser<WorkspaceNotification, FlowyError> {
-  WorkspaceNotificationParser({String? id, required NotificationCallback callback})
+class FolderNotificationParser extends NotificationParser<FolderNotification, FlowyError> {
+  FolderNotificationParser({String? id, required NotificationCallback callback})
       : super(
           id: id,
           callback: callback,
-          tyParser: (ty) => WorkspaceNotification.valueOf(ty),
+          tyParser: (ty) => FolderNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }

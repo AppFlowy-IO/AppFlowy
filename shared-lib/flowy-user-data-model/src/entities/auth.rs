@@ -5,7 +5,7 @@ use flowy_derive::ProtoBuf;
 use crate::{errors::*, parser::*};
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInRequest {
+pub struct SignInPayload {
     #[pb(index = 1)]
     pub email: String,
 
@@ -43,7 +43,7 @@ pub struct SignInResponse {
     pub token: String,
 }
 
-impl TryInto<SignInParams> for SignInRequest {
+impl TryInto<SignInParams> for SignInPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
@@ -59,7 +59,7 @@ impl TryInto<SignInParams> for SignInRequest {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignUpRequest {
+pub struct SignUpPayload {
     #[pb(index = 1)]
     pub email: String,
 
@@ -69,7 +69,7 @@ pub struct SignUpRequest {
     #[pb(index = 3)]
     pub password: String,
 }
-impl TryInto<SignUpParams> for SignUpRequest {
+impl TryInto<SignUpParams> for SignUpPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {

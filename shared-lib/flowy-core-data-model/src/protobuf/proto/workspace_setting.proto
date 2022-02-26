@@ -1,8 +1,0 @@
-syntax = "proto3";
-import "view_create.proto";
-import "workspace_create.proto";
-
-message CurrentWorkspaceSetting {
-    Workspace workspace = 1;
-    oneof one_of_latest_view { View latest_view = 2; };
-}

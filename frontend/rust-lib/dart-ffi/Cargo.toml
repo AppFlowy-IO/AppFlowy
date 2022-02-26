@@ -16,24 +16,24 @@ allo-isolate = {version = "^0.1", features = ["catch-unwind",]}
 byteorder = {version = "1.3.4"}
 ffi-support = {version = "0.4.2"}
 protobuf = {version = "2.20.0"}
-lazy_static = {version = "1.4.0"}
 tokio = { version = "1", features = ["rt", "rt-multi-thread"] }
 log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 bytes = { version = "1.0" }
-parking_lot = "0.11"
+once_cell = "1"
 
 lib-dispatch = {path = "../lib-dispatch" }
 flowy-sdk = {path = "../flowy-sdk"}
 dart-notify = {path = "../dart-notify" }
-
 flowy-derive = {path = "../../../shared-lib/flowy-derive" }
-backend-service = { path = "../../../shared-lib/backend-service" }
-
 
 [features]
-flutter = ["dart-notify/dart"]
+default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
+flutter = []
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "dart"] }
