@@ -24,12 +24,12 @@ import 'package:provider/provider.dart';
 
 import 'document_page.dart';
 
-class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
+class DocumentStackContext extends HomeStackContext<int, ShareActionWrapper> {
   View _view;
   late ViewListener _listener;
   final ValueNotifier<int> _isUpdated = ValueNotifier<int>(0);
 
-  DocStackContext({required View view, Key? key}) : _view = view {
+  DocumentStackContext({required View view, Key? key}) : _view = view {
     _listener = getIt<ViewListener>(param1: view);
     _listener.updatedNotifier.addPublishListener((result) {
       result.fold(

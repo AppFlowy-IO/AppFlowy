@@ -19,7 +19,8 @@ abstract class NavigationItem {
 
 enum HomeStackType {
   blank,
-  doc,
+  document,
+  kanban,
   trash,
 }
 

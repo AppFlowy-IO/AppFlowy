@@ -8,6 +8,8 @@ use crate::{
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use serde::de::Unexpected;
+use serde::{de, de::Visitor, Deserializer};
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
@@ -62,7 +64,7 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize)]
 pub enum ViewType {
     Blank = 0,
     QuillDocument = 1,
@@ -71,7 +73,7 @@ pub enum ViewType {
 
 impl std::default::Default for ViewType {
     fn default() -> Self {
-        ViewType::Blank
+        ViewType::QuillDocument
     }
 }
 
@@ -275,5 +277,47 @@ impl TryInto<UpdateViewParams> for UpdateViewPayload {
             desc,
             thumbnail,
         })
+    }
+}
+
+impl<'de> Deserialize<'de> for ViewType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ViewTypeVisitor();
+
+        impl<'de> Visitor<'de> for ViewTypeVisitor {
+            type Value = ViewType;
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("QuillDocument, Kanban, Blank")
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                let mut view_type = None;
+                match s {
+                    "Doc" => {
+                        view_type = Some(ViewType::QuillDocument);
+                    }
+                    "QuillDocument" => {
+                        view_type = Some(ViewType::QuillDocument);
+                    }
+                    "Kanban" => {
+                        view_type = Some(ViewType::Kanban);
+                    }
+                    "Blank" => {
+                        view_type = Some(ViewType::Blank);
+                    }
+                    unknown => {
+                        return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
+                    }
+                }
+                Ok(view_type.unwrap())
+            }
+        }
+        deserializer.deserialize_any(ViewTypeVisitor())
     }
 }
