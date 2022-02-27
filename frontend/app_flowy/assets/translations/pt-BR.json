@@ -1,0 +1,146 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "Me",
+    "welcomeText": "Bem vindo @:appName",
+    "githubStarText": "Star on GitHub",
+    "subscribeNewsletterText": "Se inscreva na Newsletter",
+    "letsGoButtonText": "Vamos lá",
+    "title": "Título",
+    "signUp": {
+      "buttonText": "Inscreve-se",
+      "title": "Inscrever-se @:appName",
+      "getStartedText": "Começar",
+      "emptyPasswordError": "Senha não pode ser em branco.",
+      "repeatPasswordEmptyError": "Confirmar a senha não pode ser em branco.",
+      "unmatchedPasswordError": "As senhas não conferem.",
+      "alreadyHaveAnAccount": "Já possui uma conta?",
+      "emailHint": "Email",
+      "passwordHint": "Senha",
+      "repeatPasswordHint": "Confirme a senha"
+    },
+    "signIn": {
+      "loginTitle": "Login to @:appName",
+      "loginButtonText": "Login",
+      "buttonText": "Entre",
+      "forgotPassword": "Esqueceu a senha?",
+      "emailHint": "Email",
+      "passwordHint": "Senha",
+      "dontHaveAnAccount": "Não possui uma conta?",
+      "repeatPasswordEmptyError": "Confirmar a senha não pode ser em branco.",
+      "unmatchedPasswordError": "As senhas não conferem."
+    },
+    "workspace": {
+      "create": "Crie uma área de trabalho",
+      "hint": "área de trabalho",
+      "notFoundError": "Área de trabalho não encontrada"
+    },
+    "shareAction": {
+      "buttonText": "Compartilhar",
+      "workInProgress": "Em breve",
+      "markdown": "Markdown",
+      "copyLink": "Copiar o link"
+    },
+    "disclosureAction": {
+      "rename": "Renomear",
+      "delete": "Deletar",
+      "duplicate": "Duplicar"
+    },
+    "blankPageTitle": "Página em branco",
+    "newPageText": "Nova página",
+    "trash": {
+      "text": "Lixeira",
+      "restoreAll": "Restaurar todos",
+      "deleteAll": "Deletar todos",
+      "pageHeader": {
+        "fileName": "Nome do arquivo",
+        "lastModified": "Última modificação",
+        "created": "Criado"
+      }
+    },
+    "deletePagePrompt": {
+      "text": "Está página está na lixeira",
+      "restore": "Restaurar a oágina",
+      "deletePermanent": "Deletar permanentemente"
+    },
+    "dialogCreatePageNameHint": "Nome da página",
+    "questionBubble": {
+      "whatsNew": "O que há de novo?",
+      "help": "Ajuda & Suporte",
+      "debug": {
+        "name": "Informação de debug",
+        "success": "Copiar informação de debug para o clipboard!",
+        "fail": "Falha em copiar a informação de debug para o clipboard"
+      }
+    },
+    "menuAppHeader": {
+      "addPageTooltip": "Adicione uma nova página.",
+      "defaultNewPageName": "Sem título",
+      "renameDialog": "Renomear"
+    },
+    "toolbar": {
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strike": "Tachado",
+      "numList": "Lista numerada",
+      "bulletList": "Lista com marcadores",
+      "checkList": "Check List",
+      "inlineCode": "Embutir código",
+      "quote": "Citação em bloco",
+      "header": "Cabeçalho",
+      "highlight": "Realçar"
+    },
+    "tooltip": {
+      "lightMode": "Mudar para o modo Claro.",
+      "darkMode": "Mudar para o modo Escuro."
+    },
+    "contactsPage": {
+      "title": "Contatos",
+      "whatsHappening": "O que está acontecendo essa semana?",
+      "addContact": "Adicionar um contato",
+      "editContact": "Editar um contato"
+    },
+    "button": {
+      "OK": "OK",
+      "Cancel": "Canelar",
+      "signIn": "Entrar",
+      "signOut": "Sair",
+      "complete": "Completar",
+      "save": "Salvar"
+    },
+    "label": {
+      "welcome": "Bem vindo!",
+      "firstName": "Primeiro Nome",
+      "middleName": "Nome do Meio",
+      "lastName": "Último Nome",
+      "stepX": "Passo {X}"
+    },
+    "oAuth": {
+      "err": {
+        "failedTitle": "Erro ao conectar a sua conta.",
+        "failedMsg": "Verifique se você concluiu o processo de login em seu navegador."
+      },
+      "google": {
+        "title": "GOOGLE SIGN-IN",
+        "instruction1": "Para importar seus Contatos do Google, você precisará autorizar este aplicativo usando seu navegador web.",
+        "instruction2": "Copie este código para sua área de transferência clicando no ícone ou selecionando o texto:",
+        "instruction3": "Navegue até o link a seguir em seu navegador e digite o código acima:",
+        "instruction4": "Pressione o botão abaixo ao concluir a inscrição:"
+      }
+    },
+    "settings": {
+      "title": "Configurações",
+      "menu": {
+        "appearance": "Aparência",
+        "language": "Idioma",
+        "open": "Abrir as Configurações"
+      },
+      "appearance": {
+        "lightLabel": "Modo Claro",
+        "darkLabel": "Modo Escuro"
+      }
+    }
+  }
+  

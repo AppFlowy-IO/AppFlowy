@@ -14,7 +14,7 @@ String languageFromLocale(Locale locale) {
     case "es":
       return "Español";
     case "fr":
-      switch (locale.countryCode) {
+      switch(locale.countryCode) {
         case "CA" : 
           return "Français (CA)";
         case "FR" :
@@ -24,6 +24,8 @@ String languageFromLocale(Locale locale) {
       }
     case "it":
       return "Italiano";
+    case "pt":
+      return "Português";
     case "ru":
       return "русский";
 
