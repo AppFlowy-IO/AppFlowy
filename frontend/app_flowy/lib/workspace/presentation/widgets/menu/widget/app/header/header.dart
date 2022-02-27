@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/icon_data.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';

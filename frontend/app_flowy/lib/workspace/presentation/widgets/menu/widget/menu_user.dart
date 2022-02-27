@@ -10,9 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
-
-import 'package:app_flowy/common/theme/theme.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -28,11 +25,8 @@ class MenuUser extends StatelessWidget {
             _renderAvatar(context),
             const HSpace(10),
             _renderUserName(context),
-            // const HSpace(80),
-            // (_isDark(context) ? _renderLightMode(context) : _renderDarkMode(context)),
-
-            // const Spacer(),
-            // _renderSettingsButton(context),
+            const Spacer(),
+            _renderSettingsButton(context),
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
             //_renderDropButton(context),
@@ -59,30 +53,6 @@ class MenuUser extends StatelessWidget {
               ),
             ),
           )),
-    );
-  }
-
-  Widget _renderThemeToggle(BuildContext context) {
-    return CircleAvatar(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      child: IconButton(
-          icon: Icon(_isDark(context) ? Icons.dark_mode : Icons.light_mode),
-          color: Theme.of(context).iconTheme.color,
-          onPressed: () => context.read<ThemeCubit>().toggle()),
-    );
-  }
-
-  Widget _renderDarkMode(BuildContext context) {
-    return Tooltip(
-      message: LocaleKeys.tooltip_darkMode.tr(),
-      child: _renderThemeToggle(context),
-    );
-  }
-
-  Widget _renderLightMode(BuildContext context) {
-    return Tooltip(
-      message: LocaleKeys.tooltip_lightMode.tr(),
-      child: _renderThemeToggle(context),
     );
   }
 

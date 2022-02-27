@@ -30,20 +30,23 @@ class LanguageSelectorDropdown extends StatefulWidget {
 class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<Locale>(
-      value: context.read<AppearanceSettingModel>().locale,
-      onChanged: (val) {
-        setState(() {
-          context.read<AppearanceSettingModel>().setLocale(context, val!);
-        });
-      },
-      autofocus: true,
-      items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
-        return DropdownMenuItem<Locale>(
-          value: locale,
-          child: Text(languageFromLocale(locale)),
-        );
-      }).toList(),
+    return BlocSelector<AppearanceSettingsCubit, AppearanceSettingsState, Locale>(
+      selector: (state) => state.locale,
+      builder: (context, state) => DropdownButton<Locale>(
+        value: state,
+        onChanged: (val) {
+          setState(() {
+            context.read<AppearanceSettingsCubit>().setLocale(context, val!);
+          });
+        },
+        autofocus: true,
+        items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
+          return DropdownMenuItem<Locale>(
+            value: locale,
+            child: Text(languageFromLocale(locale)),
+          );
+        }).toList(),
+      ),
     );
   }
 }

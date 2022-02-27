@@ -165,23 +165,20 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            return ChangeNotifierProvider.value(
-              value: Provider.of<AppearanceSettingModel>(context, listen: true),
-              child: Selector<AppearanceSettingModel, Locale>(
-                selector: (ctx, notifier) => notifier.locale,
-                builder: (ctx, _, child) => ConstrainedBox(
-                  constraints: const BoxConstraints.expand(
-                    height: 30,
-                    // minWidth: buttonWidth,
-                    width: 100,
-                  ),
-                  child: RoundedTextButton(
-                    title: LocaleKeys.shareAction_buttonText.tr(),
-                    fontSize: 12,
-                    borderRadius: Corners.s6Border,
-                    color: Colors.lightBlue,
-                    onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
-                  ),
+            return BlocSelector<AppearanceSettingsCubit, AppearanceSettingsState, Locale>(
+              selector: (state) => state.locale,
+              builder: (context, state) => ConstrainedBox(
+                constraints: const BoxConstraints.expand(
+                  height: 30,
+                  // minWidth: buttonWidth,
+                  width: 100,
+                ),
+                child: RoundedTextButton(
+                  title: LocaleKeys.shareAction_buttonText.tr(),
+                  fontSize: 12,
+                  borderRadius: Corners.s6Border,
+                  color: Colors.lightBlue,
+                  onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
                 ),
               ),
             );

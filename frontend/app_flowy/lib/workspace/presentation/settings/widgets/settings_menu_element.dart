@@ -1,6 +1,4 @@
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({

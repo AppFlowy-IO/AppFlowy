@@ -2,13 +2,13 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:window_size/window_size.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flowy_sdk/log.dart';
+
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   @override
@@ -16,12 +16,9 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    final widget = context.getIt<EntryPoint>().create();
-    final setting = await UserSettingReppsitory().getAppearanceSettings();
-    final settingModel = AppearanceSettingModel(setting);
     final app = ApplicationWidget(
-      child: widget,
-      settingModel: settingModel,
+      child: context.getIt<EntryPoint>().create(),
+      settings: await UserSettingReppsitory().getAppearanceSettings(),
     );
     BlocOverrides.runZoned(
       () {
@@ -54,49 +51,40 @@ class InitAppWidgetTask extends LaunchTask {
 
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
-  final AppearanceSettingModel settingModel;
+  final AppearanceSettings settings;
 
   const ApplicationWidget({
     Key? key,
     required this.child,
-    required this.settingModel,
+    required this.settings,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider.value(
-        value: settingModel,
-        builder: (context, _) {
-          const ratio = 1.73;
-          const minWidth = 600.0;
-          setWindowMinSize(const Size(minWidth, minWidth / ratio));
-          settingModel.readLocaleWhenAppLaunch(context);
-          AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
-            (value) => value.theme,
-          );
-          Locale locale = context.select<AppearanceSettingModel, Locale>(
-            (value) => value.locale,
-          );
+  Widget build(BuildContext context) {
+    const ratio = 1.73;
+    const minWidth = 600.0;
+    setWindowMinSize(const Size(minWidth, minWidth / ratio));
 
-          return MultiProvider(
-            providers: [
-              Provider.value(value: theme),
-              Provider.value(value: locale),
-            ],
-            builder: (context, _) {
-              return MaterialApp(
-                builder: overlayManagerBuilder(),
-                debugShowCheckedModeBanner: false,
-                theme: theme.themeData,
-                localizationsDelegates: context.localizationDelegates,
-                supportedLocales: context.supportedLocales,
-                locale: locale,
-                navigatorKey: AppGlobals.rootNavKey,
-                home: child,
-              );
-            },
+    return BlocProvider(
+      create: (BuildContext context) => AppearanceSettingsCubit(settings),
+      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+        builder: (context, state) {
+          context.read<AppearanceSettingsCubit>().loadLocale(context);
+
+          return MaterialApp(
+            builder: overlayManagerBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: state.theme.themeData,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: state.locale,
+            navigatorKey: AppGlobals.rootNavKey,
+            home: child,
           );
         },
-      );
+      ),
+    );
+  }
 }
 
 class AppGlobals {

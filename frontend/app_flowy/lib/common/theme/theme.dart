@@ -1,36 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'theme.freezed.dart';
-
-class ThemeCubit extends HydratedCubit<ThemeState> {
-  ThemeCubit() : super(ThemeState.initial());
-
-  void toggle() => emit(state.copyWith(
-      theme: state.theme == DefaultThemes.light ? DefaultThemes.dark : DefaultThemes.light));
-
-  @override
-  ThemeState fromJson(Map<String, dynamic> json) =>
-      ThemeState(theme: json['theme'] as DefaultThemes);
-
-  @override
-  Map<String, dynamic> toJson(ThemeState state) => <String, DefaultThemes>{'theme': state.theme};
-}
-
-@freezed
-class ThemeState with _$ThemeState {
-  const ThemeState._();
-  const factory ThemeState({
-    required DefaultThemes theme,
-  }) = _ThemeState;
-
-  factory ThemeState.initial() => const ThemeState(theme: DefaultThemes.light);
-
-  ThemeData get themeData => FlowyTheme(theme).themeData;
-}
-
 // FIXME: Different colors for different themes (light/dark).
 extension ColorSchemeExtension on ColorScheme {
   Color get red => const Color(0xFFffadad);
@@ -143,8 +112,7 @@ class ColorUtils {
     return hslc.withLightness((hslc.lightness + amt).clamp(0.0, 1.0)).toColor();
   }
 
-  static Color parseHex(String value) =>
-      Color(int.parse(value.substring(1, 7), radix: 16) + 0xFF000000);
+  static Color parseHex(String value) => Color(int.parse(value.substring(1, 7), radix: 16) + 0xFF000000);
 
   static Color blend(Color dst, Color src, double opacity) {
     return Color.fromARGB(

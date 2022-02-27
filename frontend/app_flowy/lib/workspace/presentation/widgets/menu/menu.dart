@@ -1,7 +1,6 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/top_bar.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
