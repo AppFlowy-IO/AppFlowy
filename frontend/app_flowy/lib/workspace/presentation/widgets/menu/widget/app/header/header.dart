@@ -26,7 +26,6 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
@@ -69,19 +68,16 @@ class MenuAppHeader extends StatelessWidget {
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
         listener: (context, state) {
-          final expandableController =
-              ExpandableController.of(context, rebuildOnChange: false, required: true)!;
+          final expandableController = ExpandableController.of(context, rebuildOnChange: false, required: true)!;
           if (!expandableController.expanded) {
             expandableController.toggle();
           }
         },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () =>
-              ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
+          onTap: () => ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
           onSecondaryTap: () {
-            final actionList =
-                AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
+            final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
               context,
@@ -105,8 +101,9 @@ class MenuAppHeader extends StatelessWidget {
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
         onSelected: (viewType) {
-          context.read<AppBloc>().add(
-              AppEvent.createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), "", viewType));
+          context
+              .read<AppBloc>()
+              .add(AppEvent.createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), "", viewType));
         },
       ).padding(right: MenuAppSizes.headerPadding),
     );

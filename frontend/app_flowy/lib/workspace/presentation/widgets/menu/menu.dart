@@ -91,9 +91,8 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderBody(BuildContext context) {
     // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
-    final theme = context.watch<AppTheme>();
     return Container(
-      color: theme.bg1,
+      color: Theme.of(context).backgroundColor,
       child: ChangeNotifierProvider(
         create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
         child: Consumer(builder: (context, MenuSharedState sharedState, child) {
