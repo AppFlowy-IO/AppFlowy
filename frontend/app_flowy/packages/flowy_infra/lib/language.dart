@@ -9,6 +9,8 @@ String languageFromLocale(Locale locale) {
       return "简体中文";
 
     // Then in alphabetical order
+    case "ca":
+      return "Català";
     case "de":
       return "Deutsch";
     case "es":

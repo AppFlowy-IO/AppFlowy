@@ -29,6 +29,7 @@ class InitAppWidgetTask extends LaunchTask {
           EasyLocalization(
             supportedLocales: const [
               // In alphabetical order
+              Locale('ca', 'ES'),
               Locale('de', 'DE'),
               Locale('en'),
               Locale('es', 'VE'),
