@@ -29,12 +29,10 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(
-      BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(
-          () => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }
@@ -53,20 +51,17 @@ class SplashRoute {
     pushHomeScreen(context, repo.user, workspaceId);
   }
 
-  void pushHomeScreen(
-      BuildContext context, UserProfile userProfile, CurrentWorkspaceSetting workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfile userProfile, CurrentWorkspaceSetting workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting),
-          RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()),
-          RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 

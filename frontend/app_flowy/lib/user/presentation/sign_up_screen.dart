@@ -141,8 +141,7 @@ class PasswordTextField extends StatelessWidget {
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           cursorColor: theme.main1,
-          errorText:
-              context.read<SignUpBloc>().state.passwordError.fold(() => "", (error) => error),
+          errorText: context.read<SignUpBloc>().state.passwordError.fold(() => "", (error) => error),
           onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.passwordChanged(value)),
         );
       },
@@ -170,10 +169,8 @@ class RepeatPasswordTextField extends StatelessWidget {
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           cursorColor: theme.main1,
-          errorText:
-              context.read<SignUpBloc>().state.repeatPasswordError.fold(() => "", (error) => error),
-          onChanged: (value) =>
-              context.read<SignUpBloc>().add(SignUpEvent.repeatPasswordChanged(value)),
+          errorText: context.read<SignUpBloc>().state.repeatPasswordError.fold(() => "", (error) => error),
+          onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.repeatPasswordChanged(value)),
         );
       },
     );

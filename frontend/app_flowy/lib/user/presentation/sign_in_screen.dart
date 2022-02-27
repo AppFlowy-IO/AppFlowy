@@ -95,8 +95,7 @@ class SignUpPrompt extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return Row(
       children: [
-        Text(LocaleKeys.signIn_dontHaveAnAccount.tr(),
-            style: TextStyle(color: theme.shader3, fontSize: 12)),
+        Text(LocaleKeys.signIn_dontHaveAnAccount.tr(), style: TextStyle(color: theme.shader3, fontSize: 12)),
         TextButton(
           style: TextButton.styleFrom(
             textStyle: const TextStyle(fontSize: 12),
@@ -177,8 +176,7 @@ class PasswordTextField extends StatelessWidget {
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           cursorColor: theme.main1,
-          errorText:
-              context.read<SignInBloc>().state.passwordError.fold(() => "", (error) => error),
+          errorText: context.read<SignInBloc>().state.passwordError.fold(() => "", (error) => error),
           onChanged: (value) => context.read<SignInBloc>().add(SignInEvent.passwordChanged(value)),
         );
       },
