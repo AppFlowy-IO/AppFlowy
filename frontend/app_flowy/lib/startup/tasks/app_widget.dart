@@ -20,6 +20,7 @@ class InitAppWidgetTask extends LaunchTask {
       child: context.getIt<EntryPoint>().create(),
       settings: await UserSettingReppsitory().getAppearanceSettings(),
     );
+
     BlocOverrides.runZoned(
       () {
         runApp(
@@ -66,11 +67,13 @@ class ApplicationWidget extends StatelessWidget {
     setWindowMinSize(const Size(minWidth, minWidth / ratio));
 
     return BlocProvider(
-      create: (BuildContext context) => AppearanceSettingsCubit(settings),
+      create: (BuildContext context) {
+        final cubit = AppearanceSettingsCubit(settings);
+        cubit.loadLocale(context);
+        return cubit;
+      },
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
         builder: (context, state) {
-          context.read<AppearanceSettingsCubit>().loadLocale(context);
-
           return MaterialApp(
             builder: overlayManagerBuilder(),
             debugShowCheckedModeBanner: false,

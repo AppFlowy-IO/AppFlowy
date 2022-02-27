@@ -24,7 +24,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void swapTheme() {
     final _newTheme = FlowyTheme(state.theme.isDark ? DefaultThemes.light : DefaultThemes.dark);
     emit(state.copyWith(theme: _newTheme));
-    settings.theme = state.theme.theme.toString();
+    settings.theme = state.theme.theme.name;
     _save();
   }
 
