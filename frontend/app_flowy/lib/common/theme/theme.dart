@@ -49,19 +49,11 @@ class FlowyTheme {
           displayColor: isDark ? const Color(0xFFffffff) : const Color(0xFF333333),
         ),
 
-        buttonTheme: const ButtonThemeData(
-          buttonColor: Color(0xFF00bcf0),
-          textTheme: ButtonTextTheme.normal,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            onPrimary: isDark ? const Color(0xFF000000) : const Color(0xFFfefefe),
+          ),
         ),
-
-        // textButtonTheme: TextButtonThemeData (
-        //   style: ButtonStyle(
-        //     backgroundColor: Color(0xFF00bcf0),
-        //     foregroundColor: Colors.white,
-        //     // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        //   ),
-        //   )
-        // ),
 
         textSelectionTheme: const TextSelectionThemeData(
           cursorColor: Color(0xFFb061ff),
@@ -69,7 +61,7 @@ class FlowyTheme {
         ),
 
         primaryIconTheme: const IconThemeData(color: Color(0xFF00bcf0)),
-        iconTheme: IconThemeData(color: isDark ? const Color(0xFFffffff) : const Color(0xFF333333)),
+        iconTheme: IconThemeData(color: isDark ? const Color(0xFFfefefe) : const Color(0xFF000000)),
 
         colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
