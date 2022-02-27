@@ -29,19 +29,6 @@ You are in charge of your data and customizations.
 
 Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods) for OS specific installation instructions.
 
-You can also try AppFlowy using the docker image:
-
-```
-docker run --rm \
-  -v $HOME/.Xauthority:/root/.Xauthority:rw \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v /dev/dri:/dev/dri \
-  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket \
-  -v appflowy-data:/home/appflowy \
-  -e DISPLAY=${DISPLAY} \
-  appflowyio/appflowy_client:latest
-```
-
 ## Built With
 
 * [Flutter](https://flutter.dev/)
