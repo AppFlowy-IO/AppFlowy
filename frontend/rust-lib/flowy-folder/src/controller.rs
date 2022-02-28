@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use flowy_document::BlockManager;
 
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 
@@ -201,9 +202,10 @@ impl DefaultFolderBuilder {
                     initial_delta().to_json()
                 };
                 view_controller.set_latest_view(view);
-                let _ = view_controller
-                    .create_view_document_content(&view.id, view_data)
-                    .await?;
+                let delta_data = Bytes::from(view_data);
+                let repeated_revision: RepeatedRevision =
+                    Revision::initial_revision(user_id, &view.id, delta_data).into();
+                let _ = view_controller.create_view(&view.id, repeated_revision).await?;
             }
         }
         let folder = FolderPad::new(vec![workspace.clone()], vec![])?;

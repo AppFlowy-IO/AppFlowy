@@ -81,9 +81,10 @@ impl BlockManager {
         })
     }
 
-    pub async fn reset_with_revisions<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_block<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.block_user.db_pool()?;
+        // Maybe we could save the block to disk without creating the RevisionManager
         let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())

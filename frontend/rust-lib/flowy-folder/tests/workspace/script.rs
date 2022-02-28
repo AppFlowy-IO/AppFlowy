@@ -68,14 +68,7 @@ impl FolderTest {
         let _ = sdk.init_user().await;
         let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
         let mut app = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
-        let view = create_view(
-            &sdk,
-            &app.id,
-            "Folder View",
-            "Folder test view",
-            ViewType::QuillDocument,
-        )
-        .await;
+        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewType::RichText).await;
         app.belongings = RepeatedView {
             items: vec![view.clone()],
         };
@@ -153,7 +146,7 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, ViewType::QuillDocument).await;
+                let view = create_view(sdk, &self.app.id, &name, &desc, ViewType::RichText).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {

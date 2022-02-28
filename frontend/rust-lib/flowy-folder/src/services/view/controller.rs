@@ -24,6 +24,7 @@ use crate::{
 use flowy_database::kv::KV;
 use flowy_document::BlockManager;
 use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
+use flowy_folder_data_model::entities::view::ViewType;
 use lib_infra::uuid_string;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -61,43 +62,33 @@ impl ViewController {
 
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let view_data = if params.view_data.is_empty() {
+        let view_data = if params.ext.is_empty() {
             initial_delta_string()
         } else {
-            params.view_data.clone()
+            params.ext.clone()
         };
 
         let delta_data = Bytes::from(view_data);
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
-        let _ = self
-            .block_manager
-            .reset_with_revisions(&params.view_id, repeated_revision)
-            .await?;
+        let _ = self.create_view(&params.view_id, repeated_revision).await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
-
         Ok(view)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, view_data), err)]
-    pub(crate) async fn create_view_document_content(
+    #[tracing::instrument(level = "debug", skip(self, view_id, view_type, repeated_revision), err)]
+    pub(crate) async fn create_view(
         &self,
         view_id: &str,
-        view_data: String,
+        repeated_revision: RepeatedRevision,
+        view_type: ViewType,
     ) -> Result<(), FlowyError> {
-        if view_data.is_empty() {
+        if repeated_revision.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
-
-        let delta_data = Bytes::from(view_data);
-        let user_id = self.user.user_id()?;
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
-        let _ = self
-            .block_manager
-            .reset_with_revisions(view_id, repeated_revision)
-            .await?;
+        let _ = self.block_manager.create_block(view_id, repeated_revision).await?;
         Ok(())
     }
 
@@ -185,7 +176,7 @@ impl ViewController {
             desc: view.desc.clone(),
             thumbnail: "".to_owned(),
             view_type: view.view_type.clone(),
-            view_data: document_json,
+            ext: document_json,
             view_id: uuid_string(),
         };
 

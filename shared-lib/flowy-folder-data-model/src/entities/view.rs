@@ -4,7 +4,7 @@ use crate::{
     impl_def_and_def_mut,
     parser::{
         app::AppIdentify,
-        view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
+        view::{ViewDesc, ViewExtensionData, ViewIdentify, ViewName, ViewThumbnail},
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -66,26 +66,24 @@ impl std::convert::From<View> for Trash {
 
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize)]
 pub enum ViewType {
-    Blank = 0,
-    QuillDocument = 1,
-    Kanban = 2,
+    RichText = 0,
+    PlainText = 1,
 }
 
 impl std::default::Default for ViewType {
     fn default() -> Self {
-        ViewType::QuillDocument
+        ViewType::PlainText
     }
 }
 
 impl std::convert::From<i32> for ViewType {
     fn from(val: i32) -> Self {
         match val {
-            0 => ViewType::Blank,
-            1 => ViewType::QuillDocument,
-            2 => ViewType::Kanban,
+            0 => ViewType::RichText,
+            1 => ViewType::PlainText,
             _ => {
                 log::error!("Invalid view type: {}", val);
-                ViewType::Blank
+                ViewType::PlainText
             }
         }
     }
@@ -107,6 +105,9 @@ pub struct CreateViewPayload {
 
     #[pb(index = 5)]
     pub view_type: ViewType,
+
+    #[pb(index = 6)]
+    pub ext: String,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -126,9 +127,8 @@ pub struct CreateViewParams {
     #[pb(index = 5)]
     pub view_type: ViewType,
 
-    // ViewType::Doc -> Delta string
     #[pb(index = 6)]
-    pub view_data: String,
+    pub ext: String,
 
     #[pb(index = 7)]
     pub view_id: String,
@@ -141,7 +141,7 @@ impl CreateViewParams {
         desc: String,
         view_type: ViewType,
         thumbnail: String,
-        view_data: String,
+        ext: String,
         view_id: String,
     ) -> Self {
         Self {
@@ -150,7 +150,7 @@ impl CreateViewParams {
             desc,
             thumbnail,
             view_type,
-            view_data,
+            ext,
             view_id,
         }
     }
@@ -162,8 +162,8 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
-        let view_data = "".to_string();
         let view_id = uuid::Uuid::new_v4().to_string();
+        let ext = ViewExtensionData::parse(self.ext)?.0;
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
@@ -175,7 +175,7 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
             self.desc,
             self.view_type,
             thumbnail,
-            view_data,
+            ext,
             view_id,
         ))
     }
@@ -290,32 +290,27 @@ impl<'de> Deserialize<'de> for ViewType {
         impl<'de> Visitor<'de> for ViewTypeVisitor {
             type Value = ViewType;
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("QuillDocument, Kanban, Blank")
+                formatter.write_str("Plugin, RichText")
             }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                let mut view_type = None;
+                let view_type;
                 match s {
-                    "Doc" => {
-                        view_type = Some(ViewType::QuillDocument);
+                    "Doc" | "RichText" => {
+                        // Rename ViewType::Doc to ViewType::RichText, So we need to migrate the ViewType manually.
+                        view_type = ViewType::RichText;
                     }
-                    "QuillDocument" => {
-                        view_type = Some(ViewType::QuillDocument);
-                    }
-                    "Kanban" => {
-                        view_type = Some(ViewType::Kanban);
-                    }
-                    "Blank" => {
-                        view_type = Some(ViewType::Blank);
+                    "Plugin" => {
+                        view_type = ViewType::PlainText;
                     }
                     unknown => {
                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
                     }
                 }
-                Ok(view_type.unwrap())
+                Ok(view_type)
             }
         }
         deserializer.deserialize_any(ViewTypeVisitor())

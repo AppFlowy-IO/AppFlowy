@@ -162,7 +162,7 @@ impl View {
         self.view_type
     }
     pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
+        self.view_type = ViewType::RichText;
     }
 
     // Param is passed by value, moved
@@ -326,7 +326,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.desc);
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
         }
         if self.version != 0 {
@@ -360,7 +360,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             os.write_string(4, &self.desc)?;
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
         }
         if self.version != 0 {
@@ -480,7 +480,7 @@ impl ::protobuf::Clear for View {
         self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
-        self.view_type = ViewType::Blank;
+        self.view_type = ViewType::RichText;
         self.version = 0;
         self.belongings.clear();
         self.modified_time = 0;
@@ -674,6 +674,7 @@ pub struct CreateViewPayload {
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
     pub view_type: ViewType,
+    pub ext: ::std::string::String,
     // message oneof groups
     pub one_of_thumbnail: ::std::option::Option<CreateViewPayload_oneof_one_of_thumbnail>,
     // special fields
@@ -831,12 +832,38 @@ impl CreateViewPayload {
         self.view_type
     }
     pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
+        self.view_type = ViewType::RichText;
     }
 
     // Param is passed by value, moved
     pub fn set_view_type(&mut self, v: ViewType) {
         self.view_type = v;
+    }
+
+    // string ext = 6;
+
+
+    pub fn get_ext(&self) -> &str {
+        &self.ext
+    }
+    pub fn clear_ext(&mut self) {
+        self.ext.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ext(&mut self, v: ::std::string::String) {
+        self.ext = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ext(&mut self) -> &mut ::std::string::String {
+        &mut self.ext
+    }
+
+    // Take field
+    pub fn take_ext(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ext, ::std::string::String::new())
     }
 }
 
@@ -867,6 +894,9 @@ impl ::protobuf::Message for CreateViewPayload {
                 5 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
                 },
+                6 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -888,8 +918,11 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
+        }
+        if !self.ext.is_empty() {
+            my_size += ::protobuf::rt::string_size(6, &self.ext);
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -913,8 +946,11 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
+        }
+        if !self.ext.is_empty() {
+            os.write_string(6, &self.ext)?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -986,6 +1022,11 @@ impl ::protobuf::Message for CreateViewPayload {
                 |m: &CreateViewPayload| { &m.view_type },
                 |m: &mut CreateViewPayload| { &mut m.view_type },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ext",
+                |m: &CreateViewPayload| { &m.ext },
+                |m: &mut CreateViewPayload| { &mut m.ext },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateViewPayload>(
                 "CreateViewPayload",
                 fields,
@@ -1006,7 +1047,8 @@ impl ::protobuf::Clear for CreateViewPayload {
         self.name.clear();
         self.desc.clear();
         self.one_of_thumbnail = ::std::option::Option::None;
-        self.view_type = ViewType::Blank;
+        self.view_type = ViewType::RichText;
+        self.ext.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1031,7 +1073,7 @@ pub struct CreateViewParams {
     pub desc: ::std::string::String,
     pub thumbnail: ::std::string::String,
     pub view_type: ViewType,
-    pub view_data: ::std::string::String,
+    pub ext: ::std::string::String,
     pub view_id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -1160,7 +1202,7 @@ impl CreateViewParams {
         self.view_type
     }
     pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
+        self.view_type = ViewType::RichText;
     }
 
     // Param is passed by value, moved
@@ -1168,30 +1210,30 @@ impl CreateViewParams {
         self.view_type = v;
     }
 
-    // string view_data = 6;
+    // string ext = 6;
 
 
-    pub fn get_view_data(&self) -> &str {
-        &self.view_data
+    pub fn get_ext(&self) -> &str {
+        &self.ext
     }
-    pub fn clear_view_data(&mut self) {
-        self.view_data.clear();
+    pub fn clear_ext(&mut self) {
+        self.ext.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_view_data(&mut self, v: ::std::string::String) {
-        self.view_data = v;
+    pub fn set_ext(&mut self, v: ::std::string::String) {
+        self.ext = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_view_data(&mut self) -> &mut ::std::string::String {
-        &mut self.view_data
+    pub fn mut_ext(&mut self) -> &mut ::std::string::String {
+        &mut self.ext
     }
 
     // Take field
-    pub fn take_view_data(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.view_data, ::std::string::String::new())
+    pub fn take_ext(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ext, ::std::string::String::new())
     }
 
     // string view_id = 7;
@@ -1246,7 +1288,7 @@ impl ::protobuf::Message for CreateViewParams {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
                 },
                 6 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_data)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext)?;
                 },
                 7 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
@@ -1275,11 +1317,11 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.thumbnail);
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
         }
-        if !self.view_data.is_empty() {
-            my_size += ::protobuf::rt::string_size(6, &self.view_data);
+        if !self.ext.is_empty() {
+            my_size += ::protobuf::rt::string_size(6, &self.ext);
         }
         if !self.view_id.is_empty() {
             my_size += ::protobuf::rt::string_size(7, &self.view_id);
@@ -1302,11 +1344,11 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             os.write_string(4, &self.thumbnail)?;
         }
-        if self.view_type != ViewType::Blank {
+        if self.view_type != ViewType::RichText {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
         }
-        if !self.view_data.is_empty() {
-            os.write_string(6, &self.view_data)?;
+        if !self.ext.is_empty() {
+            os.write_string(6, &self.ext)?;
         }
         if !self.view_id.is_empty() {
             os.write_string(7, &self.view_id)?;
@@ -1375,9 +1417,9 @@ impl ::protobuf::Message for CreateViewParams {
                 |m: &mut CreateViewParams| { &mut m.view_type },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_data",
-                |m: &CreateViewParams| { &m.view_data },
-                |m: &mut CreateViewParams| { &mut m.view_data },
+                "ext",
+                |m: &CreateViewParams| { &m.ext },
+                |m: &mut CreateViewParams| { &mut m.ext },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "view_id",
@@ -1404,8 +1446,8 @@ impl ::protobuf::Clear for CreateViewParams {
         self.name.clear();
         self.desc.clear();
         self.thumbnail.clear();
-        self.view_type = ViewType::Blank;
-        self.view_data.clear();
+        self.view_type = ViewType::RichText;
+        self.ext.clear();
         self.view_id.clear();
         self.unknown_fields.clear();
     }
@@ -2548,9 +2590,8 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ViewType {
-    Blank = 0,
-    QuillDocument = 1,
-    Kanban = 2,
+    RichText = 0,
+    PlainText = 1,
 }
 
 impl ::protobuf::ProtobufEnum for ViewType {
@@ -2560,18 +2601,16 @@ impl ::protobuf::ProtobufEnum for ViewType {
 
     fn from_i32(value: i32) -> ::std::option::Option<ViewType> {
         match value {
-            0 => ::std::option::Option::Some(ViewType::Blank),
-            1 => ::std::option::Option::Some(ViewType::QuillDocument),
-            2 => ::std::option::Option::Some(ViewType::Kanban),
+            0 => ::std::option::Option::Some(ViewType::RichText),
+            1 => ::std::option::Option::Some(ViewType::PlainText),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
         static values: &'static [ViewType] = &[
-            ViewType::Blank,
-            ViewType::QuillDocument,
-            ViewType::Kanban,
+            ViewType::RichText,
+            ViewType::PlainText,
         ];
         values
     }
@@ -2589,7 +2628,7 @@ impl ::std::marker::Copy for ViewType {
 
 impl ::std::default::Default for ViewType {
     fn default() -> Self {
-        ViewType::Blank
+        ViewType::RichText
     }
 }
 
@@ -2608,29 +2647,29 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     gings\x18\x07\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12#\n\rmodified\
     _time\x18\x08\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\
     \t\x20\x01(\x03R\ncreateTime\"+\n\x0cRepeatedView\x12\x1b\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xb9\x01\n\x11CreateViewPayload\
+    \x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xcb\x01\n\x11CreateViewPayload\
     \x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04\
     name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\
     \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\t\
-    view_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of\
-    _thumbnail\"\xd8\x01\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\
-    \x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04na\
-    me\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\
-    \x18\x04\x20\x01(\tR\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\
-    \t.ViewTypeR\x08viewType\x12\x1b\n\tview_data\x18\x06\x20\x01(\tR\x08vie\
-    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"\x1e\n\x06View\
-    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewI\
-    d\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateV\
-    iewPayload\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
-    \x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
-    \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
-    mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
-    l\"\xa9\x01\n\x10UpdateViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\
-    \tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\
-    \x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\
-    \x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
-    \x12\n\x10one_of_thumbnail*4\n\x08ViewType\x12\t\n\x05Blank\x10\0\x12\
-    \x11\n\rQuillDocument\x10\x01\x12\n\n\x06Kanban\x10\x02b\x06proto3\
+    view_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewType\x12\x10\n\x03ext\
+    \x18\x06\x20\x01(\tR\x03extB\x12\n\x10one_of_thumbnail\"\xcd\x01\n\x10Cr\
+    eateViewParams\x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\
+    \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\
+    \x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\x20\x01(\tR\tthumbnail\
+    \x12&\n\tview_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewType\x12\x10\
+    \n\x03ext\x18\x06\x20\x01(\tR\x03ext\x12\x17\n\x07view_id\x18\x07\x20\
+    \x01(\tR\x06viewId\"\x1e\n\x06ViewId\x12\x14\n\x05value\x18\x01\x20\x01(\
+    \tR\x05value\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\x18\x01\x20\x03(\
+    \tR\x05items\"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\x07view_id\x18\
+    \x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
+    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbn\
+    ail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_\
+    of_descB\x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10UpdateViewParams\x12\
+    \x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\
+    \x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\
+    \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\
+    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*'\n\x08Vi\
+    ewType\x12\x0c\n\x08RichText\x10\0\x12\r\n\tPlainText\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

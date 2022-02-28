@@ -6,9 +6,9 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 extension ToHomeStackContext on View {
   HomeStackContext stackContext() {
     switch (viewType) {
-      case ViewType.QuillDocument:
+      case ViewType.RichText:
         return DocumentStackContext(view: this);
-      case ViewType.Kanban:
+      case ViewType.Plugin:
         return DocumentStackContext(view: this);
       default:
         return BlankStackContext();
@@ -19,9 +19,9 @@ extension ToHomeStackContext on View {
 extension ToHomeStackType on View {
   HomeStackType stackType() {
     switch (viewType) {
-      case ViewType.QuillDocument:
+      case ViewType.RichText:
         return HomeStackType.document;
-      case ViewType.Kanban:
+      case ViewType.PlainText:
         return HomeStackType.kanban;
       default:
         return HomeStackType.blank;
@@ -32,9 +32,9 @@ extension ToHomeStackType on View {
 extension ViewTypeExtension on ViewType {
   String displayName() {
     switch (this) {
-      case ViewType.QuillDocument:
+      case ViewType.RichText:
         return "Doc";
-      case ViewType.Kanban:
+      case ViewType.Plugin:
         return "Kanban";
       default:
         return "";
@@ -43,9 +43,9 @@ extension ViewTypeExtension on ViewType {
 
   bool enable() {
     switch (this) {
-      case ViewType.QuillDocument:
+      case ViewType.RichText:
         return true;
-      case ViewType.Kanban:
+      case ViewType.Plugin:
         return false;
       default:
         return false;

@@ -12,14 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const ViewType$json = const {
   '1': 'ViewType',
   '2': const [
-    const {'1': 'Blank', '2': 0},
-    const {'1': 'QuillDocument', '2': 1},
-    const {'1': 'Kanban', '2': 2},
+    const {'1': 'RichText', '2': 0},
+    const {'1': 'PlainText', '2': 1},
   ],
 };
 
 /// Descriptor for `ViewType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List viewTypeDescriptor = $convert.base64Decode('CghWaWV3VHlwZRIJCgVCbGFuaxAAEhEKDVF1aWxsRG9jdW1lbnQQARIKCgZLYW5iYW4QAg==');
+final $typed_data.Uint8List viewTypeDescriptor = $convert.base64Decode('CghWaWV3VHlwZRIMCghSaWNoVGV4dBAAEg0KCVBsYWluVGV4dBAB');
 @$core.Deprecated('Use viewDescriptor instead')
 const View$json = const {
   '1': 'View',
@@ -57,6 +56,7 @@ const CreateViewPayload$json = const {
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'thumbnail'},
     const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
+    const {'1': 'ext', '3': 6, '4': 1, '5': 9, '10': 'ext'},
   ],
   '8': const [
     const {'1': 'one_of_thumbnail'},
@@ -64,7 +64,7 @@ const CreateViewPayload$json = const {
 };
 
 /// Descriptor for `CreateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlQhIKEG9uZV9vZl90aHVtYm5haWw=');
+final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhAKA2V4dBgGIAEoCVIDZXh0QhIKEG9uZV9vZl90aHVtYm5haWw=');
 @$core.Deprecated('Use createViewParamsDescriptor instead')
 const CreateViewParams$json = const {
   '1': 'CreateViewParams',
@@ -74,13 +74,13 @@ const CreateViewParams$json = const {
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '10': 'thumbnail'},
     const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
-    const {'1': 'view_data', '3': 6, '4': 1, '5': 9, '10': 'viewData'},
+    const {'1': 'ext', '3': 6, '4': 1, '5': 9, '10': 'ext'},
     const {'1': 'view_id', '3': 7, '4': 1, '5': 9, '10': 'viewId'},
   ],
 };
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhsKCXZpZXdfZGF0YRgGIAEoCVIIdmlld0RhdGESFwoHdmlld19pZBgHIAEoCVIGdmlld0lk');
+final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhAKA2V4dBgGIAEoCVIDZXh0EhcKB3ZpZXdfaWQYByABKAlSBnZpZXdJZA==');
 @$core.Deprecated('Use viewIdDescriptor instead')
 const ViewId$json = const {
   '1': 'ViewId',
