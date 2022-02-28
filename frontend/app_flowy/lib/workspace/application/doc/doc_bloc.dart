@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
+import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-collaboration/document_info.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,17 +18,17 @@ typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
-  final DocumentRepository repo;
   final ViewListener listener;
   final TrashRepo trashRepo;
   late FlutterQuillDocument document;
   StreamSubscription? _subscription;
+  final String docId;
 
   DocumentBloc({
     required this.view,
-    required this.repo,
     required this.listener,
     required this.trashRepo,
+    required this.docId,
   }) : super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
       await event.map(
@@ -62,7 +63,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _subscription?.cancel();
     }
 
-    repo.closeDocument();
+    final request = ViewId(value: docId);
+    FolderEventCloseView(request).send();
+  
     return super.close();
   }
 
@@ -82,7 +85,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     });
 
     listener.start();
-    final result = await repo.openDocument();
+
+    final request = ViewId(value: docId);
+    final result = await FolderEventOpenView(request).send();
+
     result.fold(
       (doc) {
         document = _decodeJsonToDocument(doc.deltaJson);
@@ -108,7 +114,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
     Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await repo.composeDelta(data: json);
+
+    final request = DocumentDelta.create()
+      ..docId = docId
+      ..deltaJson = json;
+    final result = await FolderEventApplyDocDelta(request).send();
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);

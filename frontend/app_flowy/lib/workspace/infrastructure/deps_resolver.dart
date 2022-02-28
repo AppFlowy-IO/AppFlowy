@@ -83,9 +83,9 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<DocumentBloc, View, void>(
       (view, _) => DocumentBloc(
         view: view,
-        repo: DocumentRepository(docId: view.id),
         listener: getIt<ViewListener>(param1: view),
         trashRepo: getIt<TrashRepo>(),
+        docId: view.id
       ),
     );
 
