@@ -1,0 +1,145 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Ben",
+  "welcomeText": "@:appName'e Hoş Geldiniz!",
+  "githubStarText": "GitHub Yıldızı!",
+  "subscribeNewsletterText": "Bültene Abone Ol",
+  "letsGoButtonText": "Hadi başlayalım.",
+  "title": "Başlık",
+  "signUp": {
+    "buttonText": "Kayıt Ol",
+    "title": "@:appName'e kaydolun.",
+    "getStartedText": "başlayalım",
+    "emptyPasswordError": "Parola boş olamaz",
+    "repeatPasswordEmptyError": "Parola (tekrar) boş olamaz",
+    "unmatchedPasswordError": "Parolalar eşleşmiyor",
+    "alreadyHaveAnAccount": "Zaten hesabınız var mı?",
+    "emailHint": "E-Posta",
+    "passwordHint": "Parola",
+    "repeatPasswordHint": "Tekrar parola"
+  },
+  "signIn": {
+    "loginTitle": "@:appName oturum aç",
+    "loginButtonText": "Giriş",
+    "buttonText": "Oturum Aç",
+    "forgotPassword": "Parolanızı mı Unuttunuz?",
+    "emailHint": "E-Posta",
+    "passwordHint": "Parola",
+    "dontHaveAnAccount": "Hesabınız yok mu?",
+    "repeatPasswordEmptyError": "Parola (tekrar) boş olamaz",
+    "unmatchedPasswordError": "Parolalar eşleşmiyor"
+  },
+  "workspace": {
+    "create": "Çalışma alanı oluştur",
+    "hint": "Çalışma alanı",
+    "notFoundError": "Çalışma alanı bulunamadı"
+  },
+  "shareAction": {
+    "buttonText": "Paylaş",
+    "workInProgress": "Yakında",
+    "markdown": "Markdown",
+    "copyLink": "Link'i Kopyala"
+  },
+  "disclosureAction": {
+    "rename": "Yeniden adlandır",
+    "delete": "Sil",
+    "duplicate": "Çoğalt"
+  },
+  "blankPageTitle": "Boş sayfa",
+  "newPageText": "Yeni sayfa",
+  "trash": {
+    "text": "Çöp",
+    "restoreAll": "Geri Yükle",
+    "deleteAll": "Sil",
+    "pageHeader": {
+      "fileName": "Dosya adı",
+      "lastModified": "Son Değiştirme",
+      "created": "Oluşturuldu"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Bu sayfa Çöp Kutusu'nda",
+    "restore": "Sayfayı geri yükle",
+    "deletePermanent": "Kalıcı olarak sil"
+  },
+  "dialogCreatePageNameHint": "Sayfa adı",
+  "questionBubble": {
+    "whatsNew": "Yeni ne var?",
+    "help": "Yardım & Destek",
+    "debug": {
+      "name": "Hata Ayıklama",
+      "success": "Hata ayıklama bilgileri panoya kopyalandı!",
+      "fail": "Hata ayıklama bilgileri panoya kopyalanamıyor"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Yeni bir sayfa ekleyin",
+    "defaultNewPageName": "Başlıksız",
+    "renameDialog": "Yeniden adlandır"
+  },
+  "toolbar": {
+    "undo": "Geri",
+    "redo": "İleri",
+    "bold": "Kalın",
+    "italic": "İtalik",
+    "underline": "Altı Çizili",
+    "strike": "Üstü Çizili",
+    "numList": "Numaralı Liste",
+    "bulletList": "Madde İşaretli Liste",
+    "checkList": "Yapılacaklar Listesi",
+    "inlineCode": "Kod",
+    "quote": "Alıntı",
+    "header": "Başlık",
+    "highlight": "Vurgu"
+  },
+  "tooltip": {
+    "lightMode": "Aydınlık Mod'a Geç",
+    "darkMode": "Karanlık Mod'a Geç"
+  },
+  "contactsPage": {
+    "title": "İletişim",
+    "whatsHappening": "Bu hafta neler var?",
+    "addContact": "Kişi Ekle",
+    "editContact": "Kişiyi Düzenle"
+  },
+  "button": {
+    "OK": "TAMAM",
+    "Cancel": "İptal",
+    "signIn": "Oturum Aç",
+    "signOut": "Oturum Kapat",
+    "complete": "Tamamlandı",
+    "save": "Kaydet"
+  },
+  "label": {
+    "welcome": "Merhaba!",
+    "firstName": "Ad",
+    "middleName": "İkinci Ad",
+    "lastName": "Soyad",
+    "stepX": "Aşama {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Hesabınıza bağlanılamıyor.",
+      "failedMsg": "Lütfen, tarayıcınızda oturum açma işlemini tamamladığınızdan emin olun."
+    },
+    "google": {
+      "title": "GOOGLE OTURUM AÇMA",
+      "instruction1": "Google Kişilerinizi içe aktarmak için web tarayıcınızı kullanarak bu uygulamaya izin vermeniz gerekir.",
+      "instruction2": "Simgeyi tıklayarak veya metni seçerek bu kodu panonuza kopyalayın:",
+      "instruction3": "Web tarayıcınızda aşağıdaki bağlantıyı açın ve yukarıdaki kodu girin:",
+      "instruction4": "Kayıt işlemini tamamladığınızda aşağıdaki düğmeye basın:"
+    }
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "menu": {
+      "appearance": "Görünüm",
+      "language": "Dil",
+      "open": "Ayarları Aç"
+    },
+    "appearance": {
+      "lightLabel": "Aydınlık Mod",
+      "darkLabel": "Karanlık Mod"
+    }
+  }
+}
