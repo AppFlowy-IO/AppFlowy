@@ -14,14 +14,16 @@ String languageFromLocale(Locale locale) {
     case "es":
       return "Español";
     case "fr":
-      switch(locale.countryCode) {
-        case "CA" : 
+      switch (locale.countryCode) {
+        case "CA":
           return "Français (CA)";
-        case "FR" :
+        case "FR":
           return "Français (FR)";
-        default : 
+        default:
           return locale.languageCode;
       }
+    case "hu":
+      return "Magyar";
     case "it":
       return "Italiano";
     case "pt":
