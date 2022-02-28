@@ -3,7 +3,6 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/document_info.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
@@ -19,7 +18,6 @@ typedef FlutterQuillDocument = Document;
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
   final ViewListener listener;
-  final TrashRepo trashRepo;
   late FlutterQuillDocument document;
   StreamSubscription? _subscription;
   final String docId;
@@ -27,7 +25,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
     required this.listener,
-    required this.trashRepo,
     required this.docId,
   }) : super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
@@ -42,12 +39,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+          final result = await _deleteViews([Tuple2(view.id, TrashType.TrashView)]);
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },
         restorePage: (RestorePage value) async {
-          final result = await trashRepo.putback(view.id);
+          final id = TrashId.create()..id = view.id;
+          final result = await FolderEventPutbackTrash(id).send();
+
           final newState = result.fold((l) => state.copyWith(isDeleted: false), (r) => state);
           emit(newState);
         },
@@ -65,7 +64,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     final request = ViewId(value: docId);
     FolderEventCloseView(request).send();
-  
+
     return super.close();
   }
 
@@ -128,6 +127,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         Log.error("Expected : $documentDelta");
       }
     }, (r) => null);
+  }
+
+  Future<Either<Unit, FlowyError>> _deleteViews(List<Tuple2<String, TrashType>> trashList) {
+    final items = trashList.map((trash) {
+      return TrashId.create()
+        ..id = trash.value1
+        ..ty = trash.value2;
+    });
+
+    final ids = RepeatedTrashId(items: items);
+    return FolderEventDeleteTrash(ids).send();
   }
 
   Document _decodeJsonToDocument(String data) {

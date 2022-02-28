@@ -1,20 +1,24 @@
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'trash_listener.dart';
+import 'dart:async';
+import 'package:flowy_sdk/dispatch/dispatch.dart';
+
 part 'trash_bloc.freezed.dart';
 
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
-  final TrashRepo repo;
   final TrashListener listener;
-  TrashBloc({required this.repo, required this.listener}) : super(TrashState.init()) {
+  TrashBloc({required this.listener}) : super(TrashState.init()) {
     on<TrashEvent>((event, emit) async {
       await event.map(initial: (e) async {
         listener.startListening(trashUpdated: _listenTrashUpdated);
-        final result = await repo.readTrash();
+
+        final result = await FolderEventReadTrash().send();
+
         emit(result.fold(
           (object) => state.copyWith(objects: object.items, successOrFailure: left(unit)),
           (error) => state.copyWith(successOrFailure: right(error)),
@@ -22,16 +26,18 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       }, didReceiveTrash: (e) async {
         emit(state.copyWith(objects: e.trash));
       }, putback: (e) async {
-        final result = await repo.putback(e.trashId);
+        final id = TrashId.create()..id = e.trashId;
+        final result = await FolderEventPutbackTrash(id).send();
+
         await _handleResult(result, emit);
       }, delete: (e) async {
-        final result = await repo.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
+        final result = await _deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
         await _handleResult(result, emit);
       }, deleteAll: (e) async {
-        final result = await repo.deleteAll();
+        final result = await FolderEventDeleteAllTrash().send();
         await _handleResult(result, emit);
       }, restoreAll: (e) async {
-        final result = await repo.restoreAll();
+        final result = await FolderEventRestoreAllTrash().send();
         await _handleResult(result, emit);
       });
     });
@@ -53,6 +59,17 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         Log.error(error);
       },
     );
+  }
+
+  Future<Either<Unit, FlowyError>> _deleteViews(List<Tuple2<String, TrashType>> trashList) {
+    final items = trashList.map((trash) {
+      return TrashId.create()
+        ..id = trash.value1
+        ..ty = trash.value2;
+    });
+
+    final ids = RepeatedTrashId(items: items);
+    return FolderEventDeleteTrash(ids).send();
   }
 
   @override

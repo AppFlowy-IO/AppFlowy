@@ -7,10 +7,9 @@ import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
+import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
@@ -81,20 +80,13 @@ class HomeDepsResolver {
 
     // Doc
     getIt.registerFactoryParam<DocumentBloc, View, void>(
-      (view, _) => DocumentBloc(
-        view: view,
-        listener: getIt<ViewListener>(param1: view),
-        trashRepo: getIt<TrashRepo>(),
-        docId: view.id
-      ),
+      (view, _) => DocumentBloc(view: view, listener: getIt<ViewListener>(param1: view), docId: view.id),
     );
 
     // trash
-    getIt.registerLazySingleton<TrashRepo>(() => TrashRepo());
     getIt.registerLazySingleton<TrashListener>(() => TrashListener());
     getIt.registerFactory<TrashBloc>(
       () => TrashBloc(
-        repo: getIt<TrashRepo>(),
         listener: getIt<TrashListener>(),
       ),
     );
