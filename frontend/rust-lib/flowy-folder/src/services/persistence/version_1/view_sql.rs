@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         trash::{Trash, TrashType},
-        view::{RepeatedView, UpdateViewParams, View, ViewType},
+        view::{RepeatedView, UpdateViewParams, View, ViewDataType},
     },
     errors::FlowyError,
     services::persistence::version_1::app_sql::AppTable,
@@ -119,16 +119,16 @@ pub(crate) struct ViewTable {
     pub modified_time: i64,
     pub create_time: i64,
     pub thumbnail: String,
-    pub view_type: ViewTableType,
+    pub view_type: SqlViewDataType,
     pub version: i64,
     pub is_trash: bool,
 }
 
 impl ViewTable {
     pub fn new(view: View) -> Self {
-        let view_type = match view.view_type {
-            ViewType::RichText => ViewTableType::RichText,
-            ViewType::PlainText => ViewTableType::Text,
+        let data_type = match view.data_type {
+            ViewDataType::RichText => SqlViewDataType::RichText,
+            ViewDataType::PlainText => SqlViewDataType::PlainText,
         };
 
         ViewTable {
@@ -138,9 +138,8 @@ impl ViewTable {
             desc: view.desc,
             modified_time: view.modified_time,
             create_time: view.create_time,
-            // TODO: thumbnail
-            thumbnail: "".to_owned(),
-            view_type,
+            thumbnail: view.thumbnail,
+            view_type: data_type,
             version: 0,
             is_trash: false,
         }
@@ -149,9 +148,9 @@ impl ViewTable {
 
 impl std::convert::From<ViewTable> for View {
     fn from(table: ViewTable) -> Self {
-        let view_type = match table.view_type {
-            ViewTableType::RichText => ViewType::RichText,
-            ViewTableType::Text => ViewType::PlainText,
+        let data_type = match table.view_type {
+            SqlViewDataType::RichText => ViewDataType::RichText,
+            SqlViewDataType::PlainText => ViewDataType::PlainText,
         };
 
         View {
@@ -159,11 +158,13 @@ impl std::convert::From<ViewTable> for View {
             belong_to_id: table.belong_to_id,
             name: table.name,
             desc: table.desc,
-            view_type,
+            data_type,
             belongings: RepeatedView::default(),
             modified_time: table.modified_time,
             version: table.version,
             create_time: table.create_time,
+            ext_data: "".to_string(),
+            thumbnail: table.thumbnail,
         }
     }
 }
@@ -215,34 +216,34 @@ impl ViewChangeset {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum ViewTableType {
+pub enum SqlViewDataType {
     RichText = 0,
-    Text = 1,
+    PlainText = 1,
 }
 
-impl std::default::Default for ViewTableType {
+impl std::default::Default for SqlViewDataType {
     fn default() -> Self {
-        ViewTableType::RichText
+        SqlViewDataType::RichText
     }
 }
 
-impl std::convert::From<i32> for ViewTableType {
+impl std::convert::From<i32> for SqlViewDataType {
     fn from(value: i32) -> Self {
         match value {
-            0 => ViewTableType::RichText,
-            1 => ViewTableType::Text,
+            0 => SqlViewDataType::RichText,
+            1 => SqlViewDataType::PlainText,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
-                ViewTableType::Text
+                SqlViewDataType::PlainText
             }
         }
     }
 }
 
-impl ViewTableType {
+impl SqlViewDataType {
     pub fn value(&self) -> i32 {
         *self as i32
     }
 }
 
-impl_sql_integer_expression!(ViewTableType);
+impl_sql_integer_expression!(SqlViewDataType);

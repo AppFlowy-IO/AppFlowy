@@ -6,7 +6,7 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use flowy_folder_data_model::entities::{trash::Trash, workspace::Workspace};
-use lib_ot::core::{PlainAttributes, PlainDelta, PlainDeltaBuilder};
+use lib_ot::core::{PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -34,7 +34,7 @@ impl FolderPadBuilder {
         self
     }
 
-    pub(crate) fn build_with_delta(self, mut delta: PlainDelta) -> CollaborateResult<FolderPad> {
+    pub(crate) fn build_with_delta(self, mut delta: PlainTextDelta) -> CollaborateResult<FolderPad> {
         if delta.is_empty() {
             delta = default_folder_delta();
         }
@@ -47,7 +47,7 @@ impl FolderPadBuilder {
     }
 
     pub(crate) fn build_with_revisions(self, revisions: Vec<Revision>) -> CollaborateResult<FolderPad> {
-        let folder_delta: FolderDelta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
+        let folder_delta: FolderDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         self.build_with_delta(folder_delta)
     }
 
@@ -57,7 +57,7 @@ impl FolderPadBuilder {
         Ok(FolderPad {
             workspaces: self.workspaces,
             trash: self.trash,
-            root: PlainDeltaBuilder::new().insert(&json).build(),
+            root: PlainTextDeltaBuilder::new().insert(&json).build(),
         })
     }
 }

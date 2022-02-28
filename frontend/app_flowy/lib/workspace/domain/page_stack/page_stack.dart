@@ -1,3 +1,5 @@
+import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,23 +12,13 @@ typedef NavigationCallback = void Function(String id);
 abstract class NavigationItem {
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
-  String get identifier;
 
   NavigationCallback get action => (id) {
         getIt<HomeStackManager>().setStackWithId(id);
       };
 }
 
-enum HomeStackType {
-  blank,
-  document,
-  kanban,
-  trash,
-}
-
-List<HomeStackType> pages = HomeStackType.values.toList();
-
-abstract class HomeStackContext<T, S> with NavigationItem {
+abstract class HomeStackContext<T> with NavigationItem {
   List<NavigationItem> get navigationItems;
 
   @override
@@ -35,12 +27,7 @@ abstract class HomeStackContext<T, S> with NavigationItem {
   @override
   Widget? get rightBarItem;
 
-  @override
-  String get identifier;
-
   ValueNotifier<T> get isUpdated;
-
-  HomeStackType get type;
 
   Widget buildWidget();
 
@@ -48,27 +35,27 @@ abstract class HomeStackContext<T, S> with NavigationItem {
 }
 
 class HomeStackNotifier extends ChangeNotifier {
-  HomeStackContext stackContext;
+  Plugin _plugin;
   PublishNotifier<bool> collapsedNotifier = PublishNotifier();
 
-  Widget get titleWidget => stackContext.leftBarItem;
+  Widget get titleWidget => _plugin.display.leftBarItem;
 
-  HomeStackNotifier({HomeStackContext? context}) : stackContext = context ?? BlankStackContext();
+  HomeStackNotifier({Plugin? plugin}) : _plugin = plugin ?? makePlugin(pluginType: DefaultPluginEnum.blank.type());
 
-  set context(HomeStackContext context) {
-    if (stackContext.identifier == context.identifier) {
+  set plugin(Plugin newPlugin) {
+    if (newPlugin.pluginId == _plugin.pluginId) {
       return;
     }
 
-    stackContext.isUpdated.removeListener(notifyListeners);
-    stackContext.dispose();
+    // stackContext.isUpdated.removeListener(notifyListeners);
+    _plugin.dispose();
 
-    stackContext = context;
-    stackContext.isUpdated.addListener(notifyListeners);
+    _plugin = newPlugin;
+    // stackContext.isUpdated.addListener(notifyListeners);
     notifyListeners();
   }
 
-  HomeStackContext get context => stackContext;
+  Plugin get plugin => _plugin;
 }
 
 // HomeStack is initialized as singleton to controll the page stack.
@@ -77,13 +64,13 @@ class HomeStackManager {
   HomeStackManager();
 
   Widget title() {
-    return _notifier.context.leftBarItem;
+    return _notifier.plugin.display.leftBarItem;
   }
 
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
 
-  void setStack(HomeStackContext context) {
-    _notifier.context = context;
+  void setPlugin(Plugin newPlugin) {
+    _notifier.plugin = newPlugin;
   }
 
   void setStackWithId(String id) {}
@@ -109,10 +96,10 @@ class HomeStackManager {
       ],
       child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
         return FadingIndexedStack(
-          index: pages.indexOf(notifier.context.type),
-          children: HomeStackType.values.map((viewType) {
-            if (viewType == notifier.context.type) {
-              return notifier.context.buildWidget();
+          index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
+          children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
+            if (pluginType == notifier.plugin.pluginType) {
+              return notifier.plugin.display.buildWidget();
             } else {
               return const BlankStackPage();
             }

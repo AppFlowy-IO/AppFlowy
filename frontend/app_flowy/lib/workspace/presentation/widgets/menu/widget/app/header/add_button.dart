@@ -1,3 +1,6 @@
+import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -5,13 +8,12 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class AddButton extends StatelessWidget {
-  final Function(ViewType) onSelected;
+  final Function(PluginBuilder) onSelected;
   const AddButton({
     Key? key,
     required this.onSelected,
@@ -35,21 +37,29 @@ class AddButton extends StatelessWidget {
 }
 
 class ActionList {
-  final Function(ViewType) onSelected;
+  final Function(PluginBuilder) onSelected;
   final BuildContext anchorContext;
   final String _identifier = 'DisclosureButtonActionList';
 
   const ActionList({required this.anchorContext, required this.onSelected});
 
   void show(BuildContext buildContext) {
-    final items = ViewType.values.where((element) => element.enable()).map((ty) {
-      return CreateItem(
-          viewType: ty,
-          onSelected: (viewType) {
+    final items = getIt<PluginSandbox>()
+        .builders
+        .where(
+          (builder) => !isDefaultPlugin(builder.pluginType),
+        )
+        .map(
+      (pluginBuilder) {
+        return CreateItem(
+          pluginBuilder: pluginBuilder,
+          onSelected: (builder) {
             FlowyOverlay.of(buildContext).remove(_identifier);
-            onSelected(viewType);
-          });
-    }).toList();
+            onSelected(builder);
+          },
+        );
+      },
+    ).toList();
 
     ListOverlay.showWithAnchor(
       buildContext,
@@ -65,11 +75,11 @@ class ActionList {
 }
 
 class CreateItem extends StatelessWidget {
-  final ViewType viewType;
-  final Function(ViewType) onSelected;
+  final PluginBuilder pluginBuilder;
+  final Function(PluginBuilder) onSelected;
   const CreateItem({
     Key? key,
-    required this.viewType,
+    required this.pluginBuilder,
     required this.onSelected,
   }) : super(key: key);
 
@@ -82,9 +92,9 @@ class CreateItem extends StatelessWidget {
       config: config,
       builder: (context, onHover) {
         return GestureDetector(
-          onTap: () => onSelected(viewType),
+          onTap: () => onSelected(pluginBuilder),
           child: FlowyText.medium(
-            viewType.displayName(),
+            pluginBuilder.pluginName,
             color: theme.textColor,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),

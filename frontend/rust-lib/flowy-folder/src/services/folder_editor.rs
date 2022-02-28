@@ -12,7 +12,7 @@ use flowy_sync::{
     RevisionWebSocket, RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
-use lib_ot::core::PlainAttributes;
+use lib_ot::core::PlainTextAttributes;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -144,7 +144,7 @@ impl RevisionCompact for FolderRevisionCompact {
 
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
-        let delta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
+        let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         let delta_data = delta.to_bytes();
         Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }

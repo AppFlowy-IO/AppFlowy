@@ -1,8 +1,8 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -24,12 +24,34 @@ import 'package:provider/provider.dart';
 
 import 'document_page.dart';
 
-class DocumentStackContext extends HomeStackContext<int, ShareActionWrapper> {
-  View _view;
+class DocumentPluginBuilder implements PluginBuilder {
+  @override
+  Plugin build(dynamic data) {
+    if (data is View) {
+      return DocumentPlugin(pluginType: pluginType, view: data);
+    } else {
+      throw FlowyPluginException.invalidData;
+    }
+  }
+
+  @override
+  String get pluginName => "Doc";
+
+  @override
+  PluginType get pluginType => "RichText";
+
+  @override
+  ViewDataType get dataType => ViewDataType.RichText;
+}
+
+class DocumentPlugin implements Plugin {
+  late View _view;
   late ViewListener _listener;
   final ValueNotifier<int> _isUpdated = ValueNotifier<int>(0);
+  late PluginType _pluginType;
 
-  DocumentStackContext({required View view, Key? key}) : _view = view {
+  DocumentPlugin({required PluginType pluginType, required View view, Key? key}) : _view = view {
+    _pluginType = pluginType;
     _listener = getIt<ViewListener>(param1: view);
     _listener.updatedNotifier.addPublishListener((result) {
       result.fold(
@@ -44,35 +66,44 @@ class DocumentStackContext extends HomeStackContext<int, ShareActionWrapper> {
   }
 
   @override
+  void dispose() {
+    _listener.close();
+  }
+
+  @override
+  PluginDisplay get display => DocumentPluginDisplay(view: _view);
+
+  @override
+  bool get enable => true;
+
+  @override
+  PluginType get pluginType => _pluginType;
+
+  @override
+  String get pluginId => _view.id;
+}
+
+class DocumentPluginDisplay extends PluginDisplay {
+  final View _view;
+
+  DocumentPluginDisplay({required View view, Key? key}) : _view = view;
+
+  @override
+  Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
+
+  @override
   Widget get leftBarItem => DocumentLeftBarItem(view: _view);
 
   @override
   Widget? get rightBarItem => DocumentShareButton(view: _view);
 
   @override
-  String get identifier => _view.id;
-
-  @override
-  HomeStackType get type => _view.stackType();
-
-  @override
-  Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
-
-  @override
   List<NavigationItem> get navigationItems => _makeNavigationItems();
-
-  @override
-  ValueNotifier<int> get isUpdated => _isUpdated;
 
   List<NavigationItem> _makeNavigationItems() {
     return [
       this,
     ];
-  }
-
-  @override
-  void dispose() {
-    _listener.close();
   }
 }
 

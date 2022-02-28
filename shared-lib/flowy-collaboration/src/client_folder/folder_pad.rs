@@ -8,7 +8,7 @@ use crate::{
 };
 use dissimilar::*;
 use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-use lib_ot::core::{Delta, FlowyStr, OperationTransformable, PlainAttributes, PlainDeltaBuilder};
+use lib_ot::core::{FlowyStr, OperationTransformable, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -21,7 +21,7 @@ pub struct FolderPad {
 }
 
 pub fn default_folder_delta() -> FolderDelta {
-    PlainDeltaBuilder::new()
+    PlainTextDeltaBuilder::new()
         .insert(r#"{"workspaces":[],"trash":[]}"#)
         .build()
 }
@@ -385,9 +385,9 @@ impl FolderPad {
     }
 }
 
-fn cal_diff(old: String, new: String) -> Delta<PlainAttributes> {
+fn cal_diff(old: String, new: String) -> PlainTextDelta {
     let chunks = dissimilar::diff(&old, &new);
-    let mut delta_builder = PlainDeltaBuilder::new();
+    let mut delta_builder = PlainTextDeltaBuilder::new();
     for chunk in &chunks {
         match chunk {
             Chunk::Equal(s) => {
@@ -410,7 +410,7 @@ mod tests {
     use crate::{client_folder::folder_pad::FolderPad, entities::folder_info::FolderDelta};
     use chrono::Utc;
     use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-    use lib_ot::core::{OperationTransformable, PlainDelta, PlainDeltaBuilder};
+    use lib_ot::core::{OperationTransformable, PlainTextDelta, PlainTextDeltaBuilder};
 
     #[test]
     fn folder_add_workspace() {
@@ -725,7 +725,7 @@ mod tests {
     fn test_folder() -> (FolderPad, FolderDelta, Workspace) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
-        let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
+        let mut delta = PlainTextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut workspace = Workspace::default();
         workspace.name = "😁 my first workspace".to_owned();
@@ -767,7 +767,7 @@ mod tests {
     fn test_trash() -> (FolderPad, FolderDelta, Trash) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
-        let mut delta = PlainDeltaBuilder::new().insert(&folder_json).build();
+        let mut delta = PlainTextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut trash = Trash::default();
         trash.name = "🚽 my first trash".to_owned();
@@ -780,7 +780,7 @@ mod tests {
         (folder, delta, trash)
     }
 
-    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<PlainDelta>) -> FolderPad {
+    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<PlainTextDelta>) -> FolderPad {
         for delta in deltas {
             initial_delta = initial_delta.compose(&delta).unwrap();
         }

@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -109,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     if (initialView == null && widget.workspaceSetting.hasLatestView()) {
       initialView = widget.workspaceSetting.latestView;
-      getIt<HomeStackManager>().setStack(initialView!.stackContext());
+      final plugin = makePlugin(pluginType: "RichText", data: initialView);
+      getIt<HomeStackManager>().setPlugin(plugin);
     }
 
     HomeMenu homeMenu = HomeMenu(

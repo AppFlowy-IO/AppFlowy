@@ -1,7 +1,8 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/trash/trash_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -22,7 +23,7 @@ class MenuTrash extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Provider.of<MenuSharedState>(context, listen: false).selectedView.value = null;
-          getIt<HomeStackManager>().setStack(TrashStackContext());
+          getIt<HomeStackManager>().setPlugin(makePlugin(pluginType: DefaultPluginEnum.trash.type()));
         },
         child: _render(context),
       ),

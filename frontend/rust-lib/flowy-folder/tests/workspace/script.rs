@@ -4,7 +4,7 @@ use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEdito
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
     trash::Trash,
-    view::{RepeatedView, View, ViewType},
+    view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -68,7 +68,7 @@ impl FolderTest {
         let _ = sdk.init_user().await;
         let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
         let mut app = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
-        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewType::RichText).await;
+        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewDataType::RichText).await;
         app.belongings = RepeatedView {
             items: vec![view.clone()],
         };
@@ -146,7 +146,7 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, ViewType::RichText).await;
+                let view = create_view(sdk, &self.app.id, &name, &desc, ViewDataType::RichText).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {

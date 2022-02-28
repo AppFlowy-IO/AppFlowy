@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/domain/edit_action/view_edit.dart';
+import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
@@ -12,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
@@ -55,7 +55,7 @@ class ViewSectionItem extends StatelessWidget {
 
   Widget _render(BuildContext context, bool onHover, ViewState state, Color iconColor) {
     List<Widget> children = [
-      SizedBox(width: 16, height: 16, child: state.view.thumbnail(iconColor: iconColor)),
+      SizedBox(width: 16, height: 16, child: state.view.renderThumbnail(iconColor: iconColor)),
       const HSpace(2),
       Expanded(child: FlowyText.regular(state.view.name, fontSize: 12, overflow: TextOverflow.clip)),
     ];

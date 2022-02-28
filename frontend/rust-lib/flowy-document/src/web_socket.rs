@@ -10,7 +10,8 @@ use flowy_collaboration::{
 use flowy_error::{internal_error, FlowyError};
 use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::{core::Delta, rich_text::RichTextAttributes};
+use lib_ot::rich_text::RichTextAttributes;
+use lib_ot::rich_text::RichTextDelta;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{
@@ -31,12 +32,8 @@ pub(crate) async fn make_block_ws_manager(
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));
     let resolver = Arc::new(BlockConflictResolver { edit_cmd_tx });
-    let conflict_controller = ConflictController::<RichTextAttributes>::new(
-        &user_id,
-        resolver,
-        Arc::new(ws_data_provider.clone()),
-        rev_manager,
-    );
+    let conflict_controller =
+        RichTextConflictController::new(&user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
     let ws_data_stream = Arc::new(BlockRevisionWSDataStream::new(conflict_controller));
     let ws_data_sink = Arc::new(BlockWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS);
@@ -66,11 +63,11 @@ fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broad
 }
 
 pub(crate) struct BlockRevisionWSDataStream {
-    conflict_controller: Arc<ConflictController<RichTextAttributes>>,
+    conflict_controller: Arc<RichTextConflictController>,
 }
 
 impl BlockRevisionWSDataStream {
-    pub fn new(conflict_controller: ConflictController<RichTextAttributes>) -> Self {
+    pub fn new(conflict_controller: RichTextConflictController) -> Self {
         Self {
             conflict_controller: Arc::new(conflict_controller),
         }
@@ -112,7 +109,7 @@ struct BlockConflictResolver {
 }
 
 impl ConflictResolver<RichTextAttributes> for BlockConflictResolver {
-    fn compose_delta(&self, delta: Delta<RichTextAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn compose_delta(&self, delta: RichTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
@@ -131,11 +128,11 @@ impl ConflictResolver<RichTextAttributes> for BlockConflictResolver {
 
     fn transform_delta(
         &self,
-        delta: Delta<RichTextAttributes>,
-    ) -> BoxResultFuture<flowy_sync::TransformDeltas<RichTextAttributes>, FlowyError> {
+        delta: RichTextDelta,
+    ) -> BoxResultFuture<flowy_sync::RichTextTransformDeltas, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
-            let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas<RichTextAttributes>>>();
+            let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextTransformDeltas>>();
             tx.send(EditorCommand::TransformDelta { delta, ret })
                 .await
                 .map_err(internal_error)?;
@@ -146,7 +143,7 @@ impl ConflictResolver<RichTextAttributes> for BlockConflictResolver {
         })
     }
 
-    fn reset_delta(&self, delta: Delta<RichTextAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: RichTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();

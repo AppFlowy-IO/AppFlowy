@@ -8,7 +8,7 @@ use flowy_collaboration::{
     errors::CollaborateError,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, TransformDeltas};
+use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, RichTextTransformDeltas, TransformDeltas};
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -102,7 +102,7 @@ impl EditBlockQueue {
                         server_prime = Some(s_prime);
                     }
                     drop(read_guard);
-                    Ok::<TransformDeltas<RichTextAttributes>, CollaborateError>(TransformDeltas {
+                    Ok::<RichTextTransformDeltas, CollaborateError>(TransformDeltas {
                         client_prime,
                         server_prime,
                     })
@@ -232,7 +232,7 @@ pub(crate) enum EditorCommand {
     },
     TransformDelta {
         delta: RichTextDelta,
-        ret: Ret<TransformDeltas<RichTextAttributes>>,
+        ret: Ret<RichTextTransformDeltas>,
     },
     Insert {
         index: usize,

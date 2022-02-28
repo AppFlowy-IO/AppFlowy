@@ -28,7 +28,8 @@ pub struct View {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    #[serde(default)]
+    pub data_type: ViewDataType,
 
     #[pb(index = 6)]
     pub version: i64,
@@ -41,6 +42,12 @@ pub struct View {
 
     #[pb(index = 9)]
     pub create_time: i64,
+
+    #[pb(index = 10)]
+    pub ext_data: String,
+
+    #[pb(index = 11)]
+    pub thumbnail: String,
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
@@ -65,25 +72,25 @@ impl std::convert::From<View> for Trash {
 }
 
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize)]
-pub enum ViewType {
+pub enum ViewDataType {
     RichText = 0,
     PlainText = 1,
 }
 
-impl std::default::Default for ViewType {
+impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewType::PlainText
+        ViewDataType::PlainText
     }
 }
 
-impl std::convert::From<i32> for ViewType {
+impl std::convert::From<i32> for ViewDataType {
     fn from(val: i32) -> Self {
         match val {
-            0 => ViewType::RichText,
-            1 => ViewType::PlainText,
+            0 => ViewDataType::RichText,
+            1 => ViewDataType::PlainText,
             _ => {
                 log::error!("Invalid view type: {}", val);
-                ViewType::PlainText
+                ViewDataType::PlainText
             }
         }
     }
@@ -104,10 +111,10 @@ pub struct CreateViewPayload {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub ext: String,
+    pub ext_data: String,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -125,35 +132,16 @@ pub struct CreateViewParams {
     pub thumbnail: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub ext: String,
+    pub ext_data: String,
 
     #[pb(index = 7)]
     pub view_id: String,
-}
 
-impl CreateViewParams {
-    pub fn new(
-        belong_to_id: String,
-        name: String,
-        desc: String,
-        view_type: ViewType,
-        thumbnail: String,
-        ext: String,
-        view_id: String,
-    ) -> Self {
-        Self {
-            belong_to_id,
-            name,
-            desc,
-            thumbnail,
-            view_type,
-            ext,
-            view_id,
-        }
-    }
+    #[pb(index = 8)]
+    pub data: String,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayload {
@@ -163,21 +151,22 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
         let view_id = uuid::Uuid::new_v4().to_string();
-        let ext = ViewExtensionData::parse(self.ext)?.0;
+        let ext_data = ViewExtensionData::parse(self.ext_data)?.0;
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
         };
 
-        Ok(CreateViewParams::new(
+        Ok(CreateViewParams {
             belong_to_id,
             name,
-            self.desc,
-            self.view_type,
+            desc: self.desc,
+            data_type: self.data_type,
             thumbnail,
-            ext,
+            ext_data,
             view_id,
-        ))
+            data: "".to_string(),
+        })
     }
 }
 
@@ -280,7 +269,7 @@ impl TryInto<UpdateViewParams> for UpdateViewPayload {
     }
 }
 
-impl<'de> Deserialize<'de> for ViewType {
+impl<'de> Deserialize<'de> for ViewDataType {
     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
     where
         D: Deserializer<'de>,
@@ -288,7 +277,7 @@ impl<'de> Deserialize<'de> for ViewType {
         struct ViewTypeVisitor();
 
         impl<'de> Visitor<'de> for ViewTypeVisitor {
-            type Value = ViewType;
+            type Value = ViewDataType;
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 formatter.write_str("Plugin, RichText")
             }
@@ -301,10 +290,10 @@ impl<'de> Deserialize<'de> for ViewType {
                 match s {
                     "Doc" | "RichText" => {
                         // Rename ViewType::Doc to ViewType::RichText, So we need to migrate the ViewType manually.
-                        view_type = ViewType::RichText;
+                        view_type = ViewDataType::RichText;
                     }
                     "Plugin" => {
-                        view_type = ViewType::PlainText;
+                        view_type = ViewDataType::PlainText;
                     }
                     unknown => {
                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));

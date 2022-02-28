@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
@@ -21,7 +22,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         );
         await _fetchViews(emit);
       }, createView: (CreateView value) async {
-        final viewOrFailed = await repo.createView(name: value.name, desc: value.desc, viewType: value.viewType);
+        final viewOrFailed = await repo.createView(name: value.name, desc: value.desc, dataType: value.dataType);
         viewOrFailed.fold(
           (view) => emit(state.copyWith(
             latestCreatedView: view,
@@ -95,7 +96,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 @freezed
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
-  const factory AppEvent.createView(String name, String desc, ViewType viewType) = CreateView;
+  const factory AppEvent.createView(String name, String desc, PluginDataType dataType) = CreateView;
   const factory AppEvent.delete() = Delete;
   const factory AppEvent.rename(String newName) = Rename;
   const factory AppEvent.didReceiveViews(List<View> views) = ReceiveViews;

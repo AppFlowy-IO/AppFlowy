@@ -300,11 +300,13 @@ impl FolderCouldServiceV1 for LocalServer {
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
-            view_type: params.view_type,
+            data_type: params.data_type,
             version: 0,
             belongings: RepeatedView::default(),
             modified_time: time,
             create_time: time,
+            ext_data: params.ext_data,
+            thumbnail: params.thumbnail,
         };
         FutureResult::new(async { Ok(view) })
     }

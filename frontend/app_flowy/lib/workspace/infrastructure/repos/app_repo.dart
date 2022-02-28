@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -26,13 +27,13 @@ class AppRepository {
   Future<Either<View, FlowyError>> createView({
     required String name,
     required String desc,
-    required ViewType viewType,
+    required PluginDataType dataType,
   }) {
     final request = CreateViewPayload.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc
-      ..viewType = viewType;
+      ..dataType = dataType;
 
     return FolderEventCreateView(request).send();
   }

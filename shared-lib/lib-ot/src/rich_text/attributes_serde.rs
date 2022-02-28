@@ -101,7 +101,7 @@ impl<'de> Deserialize<'de> for RichTextAttributes {
                 let mut attributes = RichTextAttributes::new();
                 while let Some(key) = map.next_key::<RichTextAttributeKey>()? {
                     let value = map.next_value::<RichTextAttributeValue>()?;
-                    attributes.add_kv(key, value);
+                    attributes.insert(key, value);
                 }
 
                 Ok(attributes)

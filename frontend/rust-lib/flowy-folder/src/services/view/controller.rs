@@ -24,7 +24,7 @@ use crate::{
 use flowy_database::kv::KV;
 use flowy_document::BlockManager;
 use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
-use flowy_folder_data_model::entities::view::ViewType;
+
 use lib_infra::uuid_string;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -62,10 +62,10 @@ impl ViewController {
 
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let view_data = if params.ext.is_empty() {
+        let view_data = if params.data.is_empty() {
             initial_delta_string()
         } else {
-            params.ext.clone()
+            params.data.clone()
         };
 
         let delta_data = Bytes::from(view_data);
@@ -78,12 +78,11 @@ impl ViewController {
         Ok(view)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, view_type, repeated_revision), err)]
+    #[tracing::instrument(level = "debug", skip(self, view_id, repeated_revision), err)]
     pub(crate) async fn create_view(
         &self,
         view_id: &str,
         repeated_revision: RepeatedRevision,
-        view_type: ViewType,
     ) -> Result<(), FlowyError> {
         if repeated_revision.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
@@ -173,11 +172,12 @@ impl ViewController {
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
-            desc: view.desc.clone(),
-            thumbnail: "".to_owned(),
-            view_type: view.view_type.clone(),
-            ext: document_json,
+            desc: view.desc,
+            thumbnail: view.thumbnail,
+            data_type: view.data_type,
+            data: document_json,
             view_id: uuid_string(),
+            ext_data: view.ext_data,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;

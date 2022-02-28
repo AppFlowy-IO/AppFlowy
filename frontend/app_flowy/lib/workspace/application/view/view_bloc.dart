@@ -9,7 +9,6 @@ part 'view_bloc.freezed.dart';
 
 class ViewMenuBloc extends Bloc<ViewEvent, ViewState> {
   final ViewRepository repo;
-
   final ViewListener listener;
 
   ViewMenuBloc({

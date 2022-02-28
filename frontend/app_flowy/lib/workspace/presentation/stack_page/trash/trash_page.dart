@@ -1,4 +1,6 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/sizes.dart';
@@ -12,6 +14,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -19,12 +22,46 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'widget/trash_header.dart';
 
-class TrashStackContext extends HomeStackContext {
-  final ValueNotifier<bool> _isUpdated = ValueNotifier<bool>(false);
+class TrashPluginBuilder implements PluginBuilder {
+  @override
+  Plugin build(dynamic data) {
+    return TrashPlugin(pluginType: pluginType);
+  }
 
   @override
-  String get identifier => "TrashStackContext";
+  String get pluginName => "Trash";
 
+  @override
+  PluginType get pluginType => DefaultPluginEnum.trash.type();
+
+  @override
+  ViewDataType get dataType => ViewDataType.PlainText;
+}
+
+class TrashPlugin implements Plugin {
+  late PluginType _pluginType;
+
+  TrashPlugin({required PluginType pluginType}) {
+    _pluginType = pluginType;
+  }
+
+  @override
+  void dispose() {}
+
+  @override
+  PluginDisplay get display => TrashPluginDisplay();
+
+  @override
+  bool get enable => true;
+
+  @override
+  String get pluginId => "TrashStack";
+
+  @override
+  PluginType get pluginType => _pluginType;
+}
+
+class TrashPluginDisplay extends PluginDisplay {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12);
 
@@ -32,19 +69,10 @@ class TrashStackContext extends HomeStackContext {
   Widget? get rightBarItem => null;
 
   @override
-  HomeStackType get type => HomeStackType.trash;
-
-  @override
   Widget buildWidget() => const TrashStackPage(key: ValueKey('TrashStackPage'));
 
   @override
   List<NavigationItem> get navigationItems => [this];
-
-  @override
-  ValueNotifier<bool> get isUpdated => _isUpdated;
-
-  @override
-  void dispose() {}
 }
 
 class TrashStackPage extends StatefulWidget {

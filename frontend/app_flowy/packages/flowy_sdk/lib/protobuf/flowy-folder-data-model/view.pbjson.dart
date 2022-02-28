@@ -8,17 +8,17 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use viewTypeDescriptor instead')
-const ViewType$json = const {
-  '1': 'ViewType',
+@$core.Deprecated('Use viewDataTypeDescriptor instead')
+const ViewDataType$json = const {
+  '1': 'ViewDataType',
   '2': const [
     const {'1': 'RichText', '2': 0},
     const {'1': 'PlainText', '2': 1},
   ],
 };
 
-/// Descriptor for `ViewType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List viewTypeDescriptor = $convert.base64Decode('CghWaWV3VHlwZRIMCghSaWNoVGV4dBAAEg0KCVBsYWluVGV4dBAB');
+/// Descriptor for `ViewDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List viewDataTypeDescriptor = $convert.base64Decode('CgxWaWV3RGF0YVR5cGUSDAoIUmljaFRleHQQABINCglQbGFpblRleHQQAQ==');
 @$core.Deprecated('Use viewDescriptor instead')
 const View$json = const {
   '1': 'View',
@@ -27,16 +27,18 @@ const View$json = const {
     const {'1': 'belong_to_id', '3': 2, '4': 1, '5': 9, '10': 'belongToId'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 4, '4': 1, '5': 9, '10': 'desc'},
-    const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
+    const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
     const {'1': 'version', '3': 6, '4': 1, '5': 3, '10': 'version'},
     const {'1': 'belongings', '3': 7, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'belongings'},
     const {'1': 'modified_time', '3': 8, '4': 1, '5': 3, '10': 'modifiedTime'},
     const {'1': 'create_time', '3': 9, '4': 1, '5': 3, '10': 'createTime'},
+    const {'1': 'ext_data', '3': 10, '4': 1, '5': 9, '10': 'extData'},
+    const {'1': 'thumbnail', '3': 11, '4': 1, '5': 9, '10': 'thumbnail'},
   ],
 };
 
 /// Descriptor for `View`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEiYKCXZpZXdfdHlwZRgFIAEoDjIJLlZpZXdUeXBlUgh2aWV3VHlwZRIYCgd2ZXJzaW9uGAYgASgDUgd2ZXJzaW9uEi0KCmJlbG9uZ2luZ3MYByABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3MSIwoNbW9kaWZpZWRfdGltZRgIIAEoA1IMbW9kaWZpZWRUaW1lEh8KC2NyZWF0ZV90aW1lGAkgASgDUgpjcmVhdGVUaW1l');
+final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEioKCWRhdGFfdHlwZRgFIAEoDjINLlZpZXdEYXRhVHlwZVIIZGF0YVR5cGUSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbhItCgpiZWxvbmdpbmdzGAcgASgLMg0uUmVwZWF0ZWRWaWV3UgpiZWxvbmdpbmdzEiMKDW1vZGlmaWVkX3RpbWUYCCABKANSDG1vZGlmaWVkVGltZRIfCgtjcmVhdGVfdGltZRgJIAEoA1IKY3JlYXRlVGltZRIZCghleHRfZGF0YRgKIAEoCVIHZXh0RGF0YRIcCgl0aHVtYm5haWwYCyABKAlSCXRodW1ibmFpbA==');
 @$core.Deprecated('Use repeatedViewDescriptor instead')
 const RepeatedView$json = const {
   '1': 'RepeatedView',
@@ -55,8 +57,8 @@ const CreateViewPayload$json = const {
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'thumbnail'},
-    const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
-    const {'1': 'ext', '3': 6, '4': 1, '5': 9, '10': 'ext'},
+    const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
+    const {'1': 'ext_data', '3': 6, '4': 1, '5': 9, '10': 'extData'},
   ],
   '8': const [
     const {'1': 'one_of_thumbnail'},
@@ -64,7 +66,7 @@ const CreateViewPayload$json = const {
 };
 
 /// Descriptor for `CreateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhAKA2V4dBgGIAEoCVIDZXh0QhIKEG9uZV9vZl90aHVtYm5haWw=');
+final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YUISChBvbmVfb2ZfdGh1bWJuYWls');
 @$core.Deprecated('Use createViewParamsDescriptor instead')
 const CreateViewParams$json = const {
   '1': 'CreateViewParams',
@@ -73,14 +75,15 @@ const CreateViewParams$json = const {
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '10': 'thumbnail'},
-    const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
-    const {'1': 'ext', '3': 6, '4': 1, '5': 9, '10': 'ext'},
+    const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
+    const {'1': 'ext_data', '3': 6, '4': 1, '5': 9, '10': 'extData'},
     const {'1': 'view_id', '3': 7, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'data', '3': 8, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhAKA2V4dBgGIAEoCVIDZXh0EhcKB3ZpZXdfaWQYByABKAlSBnZpZXdJZA==');
+final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YRIXCgd2aWV3X2lkGAcgASgJUgZ2aWV3SWQSEgoEZGF0YRgIIAEoCVIEZGF0YQ==');
 @$core.Deprecated('Use viewIdDescriptor instead')
 const ViewId$json = const {
   '1': 'ViewId',

@@ -10,17 +10,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 late FToast fToast;
 
-// [[diagram: HomeStack's widget structure]]
-//
-//                                                               ┌──────────────────┐   ┌───────────────┐
-//                                                            ┌──│BlankStackContext │──▶│BlankStackPage │
-// ┌──────────┐  ┌───────────────────┐   ┌─────────────────┐  │  └──────────────────┘   └───────────────┘
-// │HomeStack │─▶│ HomeStackManager  │──▶│HomeStackContext │◀─┤
-// └──────────┘  └───────────────────┘   └─────────────────┘  │  ┌─────────────────┐    ┌────────────┐
-//                                                            └──│ DocStackContext │───▶│DocStackPage│
-//                                                               └─────────────────┘    └────────────┘
-//
-//
 class HomeStack extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   // final Size size;
