@@ -12,10 +12,11 @@ import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
 import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -42,8 +43,8 @@ class HomeDepsResolver {
     );
 
     //workspace
-    getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
-        (user, workspaceId) => WorkspaceListener(repo: WorkspaceListenerRepo(user: user, workspaceId: workspaceId)));
+    getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>((user, workspaceId) =>
+        WorkspaceListener(service: WorkspaceListenerService(user: user, workspaceId: workspaceId)));
 
     // View
     getIt.registerFactoryParam<ViewListener, View, void>(
@@ -60,7 +61,8 @@ class HomeDepsResolver {
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
       (user, workspaceId) => MenuBloc(
-        repo: WorkspaceRepo(user: user, workspaceId: workspaceId),
+        workspaceId: workspaceId,
+        service: WorkspaceService(),
         listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
       ),
     );
