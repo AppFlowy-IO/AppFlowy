@@ -1,9 +1,8 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/widgets/edit_pannel/pannel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
-import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
@@ -12,9 +11,12 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:app_flowy/workspace/domain/view_ext.dart';
+
+import '../widgets/edit_pannel/edit_pannel.dart';
 
 import 'home_layout.dart';
+import 'home_stack.dart';
+import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
@@ -109,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     if (initialView == null && widget.workspaceSetting.hasLatestView()) {
       initialView = widget.workspaceSetting.latestView;
-      getIt<HomeStackManager>().setStack(initialView!.stackContext());
+      final plugin = makePlugin(pluginType: initialView!.pluginType, data: initialView);
+      getIt<HomeStackManager>().setPlugin(plugin);
     }
 
     HomeMenu homeMenu = HomeMenu(

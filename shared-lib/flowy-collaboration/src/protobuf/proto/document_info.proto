@@ -1,11 +1,11 @@
 syntax = "proto3";
 import "revision.proto";
 
-message CreateDocParams {
+message CreateBlockParams {
     string id = 1;
     RepeatedRevision revisions = 2;
 }
-message DocumentInfo {
+message BlockInfo {
     string doc_id = 1;
     string text = 2;
     int64 rev_id = 3;
@@ -15,8 +15,8 @@ message ResetDocumentParams {
     string doc_id = 1;
     RepeatedRevision revisions = 2;
 }
-message DocumentDelta {
-    string doc_id = 1;
+message BlockDelta {
+    string block_id = 1;
     string delta_json = 2;
 }
 message NewDocUser {
@@ -24,6 +24,6 @@ message NewDocUser {
     int64 rev_id = 2;
     string doc_id = 3;
 }
-message DocumentId {
+message BlockId {
     string value = 1;
 }

@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 class ShareService {
   Future<Either<ExportData, FlowyError>> export(String docId, ExportType type) {
     final request = ExportPayload.create()
-      ..docId = docId
+      ..viewId = docId
       ..exportType = type;
 
     return FolderEventExportDocument(request).send();

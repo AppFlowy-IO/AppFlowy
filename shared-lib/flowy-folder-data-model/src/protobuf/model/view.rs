@@ -30,11 +30,14 @@ pub struct View {
     pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
     pub version: i64,
     pub belongings: ::protobuf::SingularPtrField<RepeatedView>,
     pub modified_time: i64,
     pub create_time: i64,
+    pub ext_data: ::std::string::String,
+    pub thumbnail: ::std::string::String,
+    pub plugin_type: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -155,19 +158,19 @@ impl View {
         ::std::mem::replace(&mut self.desc, ::std::string::String::new())
     }
 
-    // .ViewType view_type = 5;
+    // .ViewDataType data_type = 5;
 
 
-    pub fn get_view_type(&self) -> ViewType {
-        self.view_type
+    pub fn get_data_type(&self) -> ViewDataType {
+        self.data_type
     }
-    pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
+    pub fn clear_data_type(&mut self) {
+        self.data_type = ViewDataType::RichText;
     }
 
     // Param is passed by value, moved
-    pub fn set_view_type(&mut self, v: ViewType) {
-        self.view_type = v;
+    pub fn set_data_type(&mut self, v: ViewDataType) {
+        self.data_type = v;
     }
 
     // int64 version = 6;
@@ -247,6 +250,73 @@ impl View {
     pub fn set_create_time(&mut self, v: i64) {
         self.create_time = v;
     }
+
+    // string ext_data = 10;
+
+
+    pub fn get_ext_data(&self) -> &str {
+        &self.ext_data
+    }
+    pub fn clear_ext_data(&mut self) {
+        self.ext_data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ext_data(&mut self, v: ::std::string::String) {
+        self.ext_data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ext_data(&mut self) -> &mut ::std::string::String {
+        &mut self.ext_data
+    }
+
+    // Take field
+    pub fn take_ext_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ext_data, ::std::string::String::new())
+    }
+
+    // string thumbnail = 11;
+
+
+    pub fn get_thumbnail(&self) -> &str {
+        &self.thumbnail
+    }
+    pub fn clear_thumbnail(&mut self) {
+        self.thumbnail.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_thumbnail(&mut self, v: ::std::string::String) {
+        self.thumbnail = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_thumbnail(&mut self) -> &mut ::std::string::String {
+        &mut self.thumbnail
+    }
+
+    // Take field
+    pub fn take_thumbnail(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.thumbnail, ::std::string::String::new())
+    }
+
+    // int32 plugin_type = 12;
+
+
+    pub fn get_plugin_type(&self) -> i32 {
+        self.plugin_type
+    }
+    pub fn clear_plugin_type(&mut self) {
+        self.plugin_type = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_plugin_type(&mut self, v: i32) {
+        self.plugin_type = v;
+    }
 }
 
 impl ::protobuf::Message for View {
@@ -276,7 +346,7 @@ impl ::protobuf::Message for View {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
                 },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.data_type, 5, &mut self.unknown_fields)?
                 },
                 6 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -302,6 +372,19 @@ impl ::protobuf::Message for View {
                     let tmp = is.read_int64()?;
                     self.create_time = tmp;
                 },
+                10 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext_data)?;
+                },
+                11 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.thumbnail)?;
+                },
+                12 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.plugin_type = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -326,8 +409,8 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.desc);
         }
-        if self.view_type != ViewType::Blank {
-            my_size += ::protobuf::rt::enum_size(5, self.view_type);
+        if self.data_type != ViewDataType::RichText {
+            my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
         if self.version != 0 {
             my_size += ::protobuf::rt::value_size(6, self.version, ::protobuf::wire_format::WireTypeVarint);
@@ -341,6 +424,15 @@ impl ::protobuf::Message for View {
         }
         if self.create_time != 0 {
             my_size += ::protobuf::rt::value_size(9, self.create_time, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if !self.ext_data.is_empty() {
+            my_size += ::protobuf::rt::string_size(10, &self.ext_data);
+        }
+        if !self.thumbnail.is_empty() {
+            my_size += ::protobuf::rt::string_size(11, &self.thumbnail);
+        }
+        if self.plugin_type != 0 {
+            my_size += ::protobuf::rt::value_size(12, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -360,8 +452,8 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             os.write_string(4, &self.desc)?;
         }
-        if self.view_type != ViewType::Blank {
-            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
+        if self.data_type != ViewDataType::RichText {
+            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
         if self.version != 0 {
             os.write_int64(6, self.version)?;
@@ -376,6 +468,15 @@ impl ::protobuf::Message for View {
         }
         if self.create_time != 0 {
             os.write_int64(9, self.create_time)?;
+        }
+        if !self.ext_data.is_empty() {
+            os.write_string(10, &self.ext_data)?;
+        }
+        if !self.thumbnail.is_empty() {
+            os.write_string(11, &self.thumbnail)?;
+        }
+        if self.plugin_type != 0 {
+            os.write_int32(12, self.plugin_type)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -435,10 +536,10 @@ impl ::protobuf::Message for View {
                 |m: &View| { &m.desc },
                 |m: &mut View| { &mut m.desc },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
-                "view_type",
-                |m: &View| { &m.view_type },
-                |m: &mut View| { &mut m.view_type },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewDataType>>(
+                "data_type",
+                |m: &View| { &m.data_type },
+                |m: &mut View| { &mut m.data_type },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
                 "version",
@@ -460,6 +561,21 @@ impl ::protobuf::Message for View {
                 |m: &View| { &m.create_time },
                 |m: &mut View| { &mut m.create_time },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ext_data",
+                |m: &View| { &m.ext_data },
+                |m: &mut View| { &mut m.ext_data },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "thumbnail",
+                |m: &View| { &m.thumbnail },
+                |m: &mut View| { &mut m.thumbnail },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "plugin_type",
+                |m: &View| { &m.plugin_type },
+                |m: &mut View| { &mut m.plugin_type },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<View>(
                 "View",
                 fields,
@@ -480,11 +596,14 @@ impl ::protobuf::Clear for View {
         self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
-        self.view_type = ViewType::Blank;
+        self.data_type = ViewDataType::RichText;
         self.version = 0;
         self.belongings.clear();
         self.modified_time = 0;
         self.create_time = 0;
+        self.ext_data.clear();
+        self.thumbnail.clear();
+        self.plugin_type = 0;
         self.unknown_fields.clear();
     }
 }
@@ -673,7 +792,9 @@ pub struct CreateViewPayload {
     pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
+    pub ext_data: ::std::string::String,
+    pub plugin_type: i32,
     // message oneof groups
     pub one_of_thumbnail: ::std::option::Option<CreateViewPayload_oneof_one_of_thumbnail>,
     // special fields
@@ -824,19 +945,60 @@ impl CreateViewPayload {
         }
     }
 
-    // .ViewType view_type = 5;
+    // .ViewDataType data_type = 5;
 
 
-    pub fn get_view_type(&self) -> ViewType {
-        self.view_type
+    pub fn get_data_type(&self) -> ViewDataType {
+        self.data_type
     }
-    pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
+    pub fn clear_data_type(&mut self) {
+        self.data_type = ViewDataType::RichText;
     }
 
     // Param is passed by value, moved
-    pub fn set_view_type(&mut self, v: ViewType) {
-        self.view_type = v;
+    pub fn set_data_type(&mut self, v: ViewDataType) {
+        self.data_type = v;
+    }
+
+    // string ext_data = 6;
+
+
+    pub fn get_ext_data(&self) -> &str {
+        &self.ext_data
+    }
+    pub fn clear_ext_data(&mut self) {
+        self.ext_data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ext_data(&mut self, v: ::std::string::String) {
+        self.ext_data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_ext_data(&mut self) -> &mut ::std::string::String {
+        &mut self.ext_data
+    }
+
+    // Take field
+    pub fn take_ext_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ext_data, ::std::string::String::new())
+    }
+
+    // int32 plugin_type = 7;
+
+
+    pub fn get_plugin_type(&self) -> i32 {
+        self.plugin_type
+    }
+    pub fn clear_plugin_type(&mut self) {
+        self.plugin_type = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_plugin_type(&mut self, v: i32) {
+        self.plugin_type = v;
     }
 }
 
@@ -865,7 +1027,17 @@ impl ::protobuf::Message for CreateViewPayload {
                     self.one_of_thumbnail = ::std::option::Option::Some(CreateViewPayload_oneof_one_of_thumbnail::thumbnail(is.read_string()?));
                 },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.data_type, 5, &mut self.unknown_fields)?
+                },
+                6 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext_data)?;
+                },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.plugin_type = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -888,8 +1060,14 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
-        if self.view_type != ViewType::Blank {
-            my_size += ::protobuf::rt::enum_size(5, self.view_type);
+        if self.data_type != ViewDataType::RichText {
+            my_size += ::protobuf::rt::enum_size(5, self.data_type);
+        }
+        if !self.ext_data.is_empty() {
+            my_size += ::protobuf::rt::string_size(6, &self.ext_data);
+        }
+        if self.plugin_type != 0 {
+            my_size += ::protobuf::rt::value_size(7, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -913,8 +1091,14 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
         }
-        if self.view_type != ViewType::Blank {
-            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
+        if self.data_type != ViewDataType::RichText {
+            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
+        }
+        if !self.ext_data.is_empty() {
+            os.write_string(6, &self.ext_data)?;
+        }
+        if self.plugin_type != 0 {
+            os.write_int32(7, self.plugin_type)?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -981,10 +1165,20 @@ impl ::protobuf::Message for CreateViewPayload {
                 CreateViewPayload::has_thumbnail,
                 CreateViewPayload::get_thumbnail,
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
-                "view_type",
-                |m: &CreateViewPayload| { &m.view_type },
-                |m: &mut CreateViewPayload| { &mut m.view_type },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewDataType>>(
+                "data_type",
+                |m: &CreateViewPayload| { &m.data_type },
+                |m: &mut CreateViewPayload| { &mut m.data_type },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "ext_data",
+                |m: &CreateViewPayload| { &m.ext_data },
+                |m: &mut CreateViewPayload| { &mut m.ext_data },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "plugin_type",
+                |m: &CreateViewPayload| { &m.plugin_type },
+                |m: &mut CreateViewPayload| { &mut m.plugin_type },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateViewPayload>(
                 "CreateViewPayload",
@@ -1006,7 +1200,9 @@ impl ::protobuf::Clear for CreateViewPayload {
         self.name.clear();
         self.desc.clear();
         self.one_of_thumbnail = ::std::option::Option::None;
-        self.view_type = ViewType::Blank;
+        self.data_type = ViewDataType::RichText;
+        self.ext_data.clear();
+        self.plugin_type = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1030,9 +1226,11 @@ pub struct CreateViewParams {
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
     pub thumbnail: ::std::string::String,
-    pub view_type: ViewType,
-    pub view_data: ::std::string::String,
+    pub data_type: ViewDataType,
+    pub ext_data: ::std::string::String,
     pub view_id: ::std::string::String,
+    pub data: ::std::string::String,
+    pub plugin_type: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1153,45 +1351,45 @@ impl CreateViewParams {
         ::std::mem::replace(&mut self.thumbnail, ::std::string::String::new())
     }
 
-    // .ViewType view_type = 5;
+    // .ViewDataType data_type = 5;
 
 
-    pub fn get_view_type(&self) -> ViewType {
-        self.view_type
+    pub fn get_data_type(&self) -> ViewDataType {
+        self.data_type
     }
-    pub fn clear_view_type(&mut self) {
-        self.view_type = ViewType::Blank;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_view_type(&mut self, v: ViewType) {
-        self.view_type = v;
-    }
-
-    // string view_data = 6;
-
-
-    pub fn get_view_data(&self) -> &str {
-        &self.view_data
-    }
-    pub fn clear_view_data(&mut self) {
-        self.view_data.clear();
+    pub fn clear_data_type(&mut self) {
+        self.data_type = ViewDataType::RichText;
     }
 
     // Param is passed by value, moved
-    pub fn set_view_data(&mut self, v: ::std::string::String) {
-        self.view_data = v;
+    pub fn set_data_type(&mut self, v: ViewDataType) {
+        self.data_type = v;
+    }
+
+    // string ext_data = 6;
+
+
+    pub fn get_ext_data(&self) -> &str {
+        &self.ext_data
+    }
+    pub fn clear_ext_data(&mut self) {
+        self.ext_data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ext_data(&mut self, v: ::std::string::String) {
+        self.ext_data = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_view_data(&mut self) -> &mut ::std::string::String {
-        &mut self.view_data
+    pub fn mut_ext_data(&mut self) -> &mut ::std::string::String {
+        &mut self.ext_data
     }
 
     // Take field
-    pub fn take_view_data(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.view_data, ::std::string::String::new())
+    pub fn take_ext_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.ext_data, ::std::string::String::new())
     }
 
     // string view_id = 7;
@@ -1219,6 +1417,47 @@ impl CreateViewParams {
     pub fn take_view_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
     }
+
+    // string data = 8;
+
+
+    pub fn get_data(&self) -> &str {
+        &self.data
+    }
+    pub fn clear_data(&mut self) {
+        self.data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        &mut self.data
+    }
+
+    // Take field
+    pub fn take_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.data, ::std::string::String::new())
+    }
+
+    // int32 plugin_type = 9;
+
+
+    pub fn get_plugin_type(&self) -> i32 {
+        self.plugin_type
+    }
+    pub fn clear_plugin_type(&mut self) {
+        self.plugin_type = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_plugin_type(&mut self, v: i32) {
+        self.plugin_type = v;
+    }
 }
 
 impl ::protobuf::Message for CreateViewParams {
@@ -1243,13 +1482,23 @@ impl ::protobuf::Message for CreateViewParams {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.thumbnail)?;
                 },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.data_type, 5, &mut self.unknown_fields)?
                 },
                 6 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_data)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext_data)?;
                 },
                 7 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                },
+                8 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                },
+                9 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.plugin_type = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1275,14 +1524,20 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.thumbnail);
         }
-        if self.view_type != ViewType::Blank {
-            my_size += ::protobuf::rt::enum_size(5, self.view_type);
+        if self.data_type != ViewDataType::RichText {
+            my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
-        if !self.view_data.is_empty() {
-            my_size += ::protobuf::rt::string_size(6, &self.view_data);
+        if !self.ext_data.is_empty() {
+            my_size += ::protobuf::rt::string_size(6, &self.ext_data);
         }
         if !self.view_id.is_empty() {
             my_size += ::protobuf::rt::string_size(7, &self.view_id);
+        }
+        if !self.data.is_empty() {
+            my_size += ::protobuf::rt::string_size(8, &self.data);
+        }
+        if self.plugin_type != 0 {
+            my_size += ::protobuf::rt::value_size(9, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1302,14 +1557,20 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             os.write_string(4, &self.thumbnail)?;
         }
-        if self.view_type != ViewType::Blank {
-            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
+        if self.data_type != ViewDataType::RichText {
+            os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
-        if !self.view_data.is_empty() {
-            os.write_string(6, &self.view_data)?;
+        if !self.ext_data.is_empty() {
+            os.write_string(6, &self.ext_data)?;
         }
         if !self.view_id.is_empty() {
             os.write_string(7, &self.view_id)?;
+        }
+        if !self.data.is_empty() {
+            os.write_string(8, &self.data)?;
+        }
+        if self.plugin_type != 0 {
+            os.write_int32(9, self.plugin_type)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1369,20 +1630,30 @@ impl ::protobuf::Message for CreateViewParams {
                 |m: &CreateViewParams| { &m.thumbnail },
                 |m: &mut CreateViewParams| { &mut m.thumbnail },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
-                "view_type",
-                |m: &CreateViewParams| { &m.view_type },
-                |m: &mut CreateViewParams| { &mut m.view_type },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewDataType>>(
+                "data_type",
+                |m: &CreateViewParams| { &m.data_type },
+                |m: &mut CreateViewParams| { &mut m.data_type },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_data",
-                |m: &CreateViewParams| { &m.view_data },
-                |m: &mut CreateViewParams| { &mut m.view_data },
+                "ext_data",
+                |m: &CreateViewParams| { &m.ext_data },
+                |m: &mut CreateViewParams| { &mut m.ext_data },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "view_id",
                 |m: &CreateViewParams| { &m.view_id },
                 |m: &mut CreateViewParams| { &mut m.view_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "data",
+                |m: &CreateViewParams| { &m.data },
+                |m: &mut CreateViewParams| { &mut m.data },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "plugin_type",
+                |m: &CreateViewParams| { &m.plugin_type },
+                |m: &mut CreateViewParams| { &mut m.plugin_type },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateViewParams>(
                 "CreateViewParams",
@@ -1404,9 +1675,11 @@ impl ::protobuf::Clear for CreateViewParams {
         self.name.clear();
         self.desc.clear();
         self.thumbnail.clear();
-        self.view_type = ViewType::Blank;
-        self.view_data.clear();
+        self.data_type = ViewDataType::RichText;
+        self.ext_data.clear();
         self.view_id.clear();
+        self.data.clear();
+        self.plugin_type = 0;
         self.unknown_fields.clear();
     }
 }
@@ -2547,28 +2820,28 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum ViewType {
-    Blank = 0,
-    Doc = 1,
+pub enum ViewDataType {
+    RichText = 0,
+    PlainText = 1,
 }
 
-impl ::protobuf::ProtobufEnum for ViewType {
+impl ::protobuf::ProtobufEnum for ViewDataType {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<ViewType> {
+    fn from_i32(value: i32) -> ::std::option::Option<ViewDataType> {
         match value {
-            0 => ::std::option::Option::Some(ViewType::Blank),
-            1 => ::std::option::Option::Some(ViewType::Doc),
+            0 => ::std::option::Option::Some(ViewDataType::RichText),
+            1 => ::std::option::Option::Some(ViewDataType::PlainText),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [ViewType] = &[
-            ViewType::Blank,
-            ViewType::Doc,
+        static values: &'static [ViewDataType] = &[
+            ViewDataType::RichText,
+            ViewDataType::PlainText,
         ];
         values
     }
@@ -2576,58 +2849,64 @@ impl ::protobuf::ProtobufEnum for ViewType {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ViewType>("ViewType", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ViewDataType>("ViewDataType", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for ViewType {
+impl ::std::marker::Copy for ViewDataType {
 }
 
-impl ::std::default::Default for ViewType {
+impl ::std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewType::Blank
+        ViewDataType::RichText
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ViewType {
+impl ::protobuf::reflect::ProtobufValue for ViewDataType {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nview.proto\"\x97\x02\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \n\nview.proto\"\xf5\x02\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
     \x02id\x12\x20\n\x0cbelong_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\
     \n\x04name\x18\x03\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01\
-    (\tR\x04desc\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08view\
-    Type\x12\x18\n\x07version\x18\x06\x20\x01(\x03R\x07version\x12-\n\nbelon\
-    gings\x18\x07\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12#\n\rmodified\
-    _time\x18\x08\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\
-    \t\x20\x01(\x03R\ncreateTime\"+\n\x0cRepeatedView\x12\x1b\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xb9\x01\n\x11CreateViewPayload\
-    \x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04\
-    name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\
-    \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\t\
-    view_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of\
-    _thumbnail\"\xd8\x01\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\
-    \x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04na\
-    me\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\
-    \x18\x04\x20\x01(\tR\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\
-    \t.ViewTypeR\x08viewType\x12\x1b\n\tview_data\x18\x06\x20\x01(\tR\x08vie\
-    wData\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\"\x1e\n\x06View\
-    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewI\
-    d\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateV\
-    iewPayload\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
-    \x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
-    \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
-    mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
-    l\"\xa9\x01\n\x10UpdateViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\
-    \tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\
-    \x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\
-    \x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
-    \x12\n\x10one_of_thumbnail*\x1e\n\x08ViewType\x12\t\n\x05Blank\x10\0\x12\
-    \x07\n\x03Doc\x10\x01b\x06proto3\
+    (\tR\x04desc\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08\
+    dataType\x12\x18\n\x07version\x18\x06\x20\x01(\x03R\x07version\x12-\n\nb\
+    elongings\x18\x07\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12#\n\rmodi\
+    fied_time\x18\x08\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\
+    \x18\t\x20\x01(\x03R\ncreateTime\x12\x19\n\x08ext_data\x18\n\x20\x01(\tR\
+    \x07extData\x12\x1c\n\tthumbnail\x18\x0b\x20\x01(\tR\tthumbnail\x12\x1f\
+    \n\x0bplugin_type\x18\x0c\x20\x01(\x05R\npluginType\"+\n\x0cRepeatedView\
+    \x12\x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xf9\x01\n\
+    \x11CreateViewPayload\x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbel\
+    ongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
+    \x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\
+    \tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08d\
+    ataType\x12\x19\n\x08ext_data\x18\x06\x20\x01(\tR\x07extData\x12\x1f\n\
+    \x0bplugin_type\x18\x07\x20\x01(\x05R\npluginTypeB\x12\n\x10one_of_thumb\
+    nail\"\x8f\x02\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\x01\
+    \x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\
+    \x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\
+    \x04\x20\x01(\tR\tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.Vi\
+    ewDataTypeR\x08dataType\x12\x19\n\x08ext_data\x18\x06\x20\x01(\tR\x07ext\
+    Data\x12\x17\n\x07view_id\x18\x07\x20\x01(\tR\x06viewId\x12\x12\n\x04dat\
+    a\x18\x08\x20\x01(\tR\x04data\x12\x1f\n\x0bplugin_type\x18\t\x20\x01(\
+    \x05R\npluginType\"\x1e\n\x06ViewId\x12\x14\n\x05value\x18\x01\x20\x01(\
+    \tR\x05value\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\x18\x01\x20\x03(\
+    \tR\x05items\"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\x07view_id\x18\
+    \x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
+    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbn\
+    ail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_\
+    of_descB\x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10UpdateViewParams\x12\
+    \x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\
+    \x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\
+    \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\
+    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*+\n\x0cVi\
+    ewDataType\x12\x0c\n\x08RichText\x10\0\x12\r\n\tPlainText\x10\x01b\x06pr\
+    oto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

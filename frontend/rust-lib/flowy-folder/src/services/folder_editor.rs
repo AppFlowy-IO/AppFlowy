@@ -8,16 +8,16 @@ use crate::controller::FolderId;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    RevisionCache, RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
-    RevisionWebSocketManager,
+    RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
+    RevisionWebSocket, RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
-use lib_ot::core::PlainAttributes;
+use lib_ot::core::PlainTextAttributes;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
-pub struct FolderEditor {
+pub struct ClientFolderEditor {
     user_id: String,
     pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
@@ -25,7 +25,7 @@ pub struct FolderEditor {
     ws_manager: Arc<RevisionWebSocketManager>,
 }
 
-impl FolderEditor {
+impl ClientFolderEditor {
     pub async fn new(
         user_id: &str,
         folder_id: &FolderId,
@@ -33,9 +33,9 @@ impl FolderEditor {
         pool: Arc<ConnectionPool>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> FlowyResult<Self> {
-        let cache = Arc::new(RevisionCache::new(user_id, folder_id.as_ref(), pool));
-        let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), cache);
-        let cloud = Arc::new(FolderRevisionCloudServiceImpl {
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), pool));
+        let mut rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
+        let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
         let folder = Arc::new(RwLock::new(
@@ -109,12 +109,12 @@ impl RevisionObjectBuilder for FolderPadBuilder {
     }
 }
 
-struct FolderRevisionCloudServiceImpl {
+struct FolderRevisionCloudService {
     #[allow(dead_code)]
     token: String,
 }
 
-impl RevisionCloudService for FolderRevisionCloudServiceImpl {
+impl RevisionCloudService for FolderRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
@@ -122,7 +122,7 @@ impl RevisionCloudService for FolderRevisionCloudServiceImpl {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl FolderEditor {
+impl ClientFolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
     }
@@ -144,7 +144,7 @@ impl RevisionCompact for FolderRevisionCompact {
 
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
-        let delta = make_delta_from_revisions::<PlainAttributes>(revisions)?;
+        let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         let delta_data = delta.to_bytes();
         Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
     }

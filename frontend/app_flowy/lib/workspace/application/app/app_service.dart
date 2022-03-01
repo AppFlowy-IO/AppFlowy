@@ -4,9 +4,9 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:app_flowy/plugin/plugin.dart';
 
 class AppService {
-
   Future<Either<App, FlowyError>> getAppDesc({required String appId}) {
     final request = AppId.create()..value = appId;
 
@@ -17,13 +17,15 @@ class AppService {
     required String appId,
     required String name,
     required String desc,
-    required ViewType viewType,
+    required PluginDataType dataType,
+    required PluginType pluginType,
   }) {
     final request = CreateViewPayload.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc
-      ..viewType = viewType;
+      ..dataType = dataType
+      ..pluginType = pluginType;
 
     return FolderEventCreateView(request).send();
   }
@@ -53,5 +55,3 @@ class AppService {
     return FolderEventUpdateApp(request).send();
   }
 }
-
-

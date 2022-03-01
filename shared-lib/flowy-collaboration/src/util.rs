@@ -1,12 +1,12 @@
 use crate::{
     entities::{
-        document_info::DocumentInfo,
+        document_info::BlockInfo,
         folder_info::{FolderDelta, FolderInfo},
         revision::{RepeatedRevision, Revision},
     },
     errors::{CollaborateError, CollaborateResult},
     protobuf::{
-        DocumentInfo as DocumentInfoPB, FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB,
+        BlockInfo as BlockInfoPB, FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB,
         Revision as RevisionPB,
     },
 };
@@ -66,6 +66,7 @@ impl RevIdCounter {
     }
 }
 
+#[tracing::instrument(level = "trace", skip(revisions), err)]
 pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
 where
     T: Attributes + DeserializeOwned,
@@ -186,7 +187,7 @@ pub fn make_folder_pb_from_revisions_pb(
         folder_delta = folder_delta.compose(&delta)?;
     }
 
-    let text = folder_delta.to_json();
+    let text = folder_delta.to_delta_json();
     let mut folder_info = FolderInfoPB::new();
     folder_info.set_folder_id(folder_id.to_owned());
     folder_info.set_text(text);
@@ -199,11 +200,11 @@ pub fn make_folder_pb_from_revisions_pb(
 pub fn make_document_info_from_revisions_pb(
     doc_id: &str,
     revisions: RepeatedRevisionPB,
-) -> Result<Option<DocumentInfo>, CollaborateError> {
+) -> Result<Option<BlockInfo>, CollaborateError> {
     match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
         None => Ok(None),
         Some(pb) => {
-            let document_info: DocumentInfo = pb.try_into().map_err(|e| {
+            let document_info: BlockInfo = pb.try_into().map_err(|e| {
                 CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
             })?;
             Ok(Some(document_info))
@@ -215,7 +216,7 @@ pub fn make_document_info_from_revisions_pb(
 pub fn make_document_info_pb_from_revisions_pb(
     doc_id: &str,
     mut revisions: RepeatedRevisionPB,
-) -> Result<Option<DocumentInfoPB>, CollaborateError> {
+) -> Result<Option<BlockInfoPB>, CollaborateError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Ok(None);
@@ -236,13 +237,13 @@ pub fn make_document_info_pb_from_revisions_pb(
         document_delta = document_delta.compose(&delta)?;
     }
 
-    let text = document_delta.to_json();
-    let mut document_info = DocumentInfoPB::new();
-    document_info.set_doc_id(doc_id.to_owned());
-    document_info.set_text(text);
-    document_info.set_base_rev_id(base_rev_id);
-    document_info.set_rev_id(rev_id);
-    Ok(Some(document_info))
+    let text = document_delta.to_delta_json();
+    let mut block_info = BlockInfoPB::new();
+    block_info.set_doc_id(doc_id.to_owned());
+    block_info.set_text(text);
+    block_info.set_base_rev_id(base_rev_id);
+    block_info.set_rev_id(rev_id);
+    Ok(Some(block_info))
 }
 
 #[inline]

@@ -10,13 +10,13 @@ use flowy_folder_data_model::entities::{
     workspace::{CurrentWorkspaceSetting, RepeatedWorkspace, WorkspaceId, *},
 };
 
-use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
+use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(
     data: Data<CreateWorkspacePayload>,
-    controller: Unit<Arc<WorkspaceController>>,
+    controller: AppData<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, FlowyError> {
     let controller = controller.get_ref().clone();
     let params: CreateWorkspaceParams = data.into_inner().try_into()?;
@@ -26,7 +26,7 @@ pub(crate) async fn create_workspace_handler(
 
 #[tracing::instrument(skip(controller), err)]
 pub(crate) async fn read_workspace_apps_handler(
-    controller: Unit<Arc<WorkspaceController>>,
+    controller: AppData<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedApp, FlowyError> {
     let repeated_app = controller.read_current_workspace_apps().await?;
     data_result(repeated_app)
@@ -35,7 +35,7 @@ pub(crate) async fn read_workspace_apps_handler(
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn open_workspace_handler(
     data: Data<WorkspaceId>,
-    controller: Unit<Arc<WorkspaceController>>,
+    controller: AppData<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, FlowyError> {
     let params: WorkspaceId = data.into_inner();
     let workspaces = controller.open_workspace(params).await?;
@@ -45,7 +45,7 @@ pub(crate) async fn open_workspace_handler(
 #[tracing::instrument(skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
     data: Data<WorkspaceId>,
-    folder: Unit<Arc<FolderManager>>,
+    folder: AppData<Arc<FolderManager>>,
 ) -> DataResult<RepeatedWorkspace, FlowyError> {
     let params: WorkspaceId = data.into_inner();
     let user_id = folder.user.user_id()?;
@@ -71,7 +71,7 @@ pub(crate) async fn read_workspaces_handler(
 
 #[tracing::instrument(skip(folder), err)]
 pub async fn read_cur_workspace_handler(
-    folder: Unit<Arc<FolderManager>>,
+    folder: AppData<Arc<FolderManager>>,
 ) -> DataResult<CurrentWorkspaceSetting, FlowyError> {
     let workspace_id = get_current_workspace()?;
     let user_id = folder.user.user_id()?;
@@ -96,7 +96,7 @@ pub async fn read_cur_workspace_handler(
 
 #[tracing::instrument(level = "trace", skip(folder_manager), err)]
 fn read_workspaces_on_server(
-    folder_manager: Unit<Arc<FolderManager>>,
+    folder_manager: AppData<Arc<FolderManager>>,
     user_id: String,
     params: WorkspaceId,
 ) -> Result<(), FlowyError> {

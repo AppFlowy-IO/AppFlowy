@@ -8,20 +8,20 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use createDocParamsDescriptor instead')
-const CreateDocParams$json = const {
-  '1': 'CreateDocParams',
+@$core.Deprecated('Use createBlockParamsDescriptor instead')
+const CreateBlockParams$json = const {
+  '1': 'CreateBlockParams',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'revisions', '3': 2, '4': 1, '5': 11, '6': '.RepeatedRevision', '10': 'revisions'},
   ],
 };
 
-/// Descriptor for `CreateDocParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createDocParamsDescriptor = $convert.base64Decode('Cg9DcmVhdGVEb2NQYXJhbXMSDgoCaWQYASABKAlSAmlkEi8KCXJldmlzaW9ucxgCIAEoCzIRLlJlcGVhdGVkUmV2aXNpb25SCXJldmlzaW9ucw==');
-@$core.Deprecated('Use documentInfoDescriptor instead')
-const DocumentInfo$json = const {
-  '1': 'DocumentInfo',
+/// Descriptor for `CreateBlockParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createBlockParamsDescriptor = $convert.base64Decode('ChFDcmVhdGVCbG9ja1BhcmFtcxIOCgJpZBgBIAEoCVICaWQSLwoJcmV2aXNpb25zGAIgASgLMhEuUmVwZWF0ZWRSZXZpc2lvblIJcmV2aXNpb25z');
+@$core.Deprecated('Use blockInfoDescriptor instead')
+const BlockInfo$json = const {
+  '1': 'BlockInfo',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
@@ -30,8 +30,8 @@ const DocumentInfo$json = const {
   ],
 };
 
-/// Descriptor for `DocumentInfo`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentInfoDescriptor = $convert.base64Decode('CgxEb2N1bWVudEluZm8SFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgR0ZXh0GAIgASgJUgR0ZXh0EhUKBnJldl9pZBgDIAEoA1IFcmV2SWQSHgoLYmFzZV9yZXZfaWQYBCABKANSCWJhc2VSZXZJZA==');
+/// Descriptor for `BlockInfo`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List blockInfoDescriptor = $convert.base64Decode('CglCbG9ja0luZm8SFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgR0ZXh0GAIgASgJUgR0ZXh0EhUKBnJldl9pZBgDIAEoA1IFcmV2SWQSHgoLYmFzZV9yZXZfaWQYBCABKANSCWJhc2VSZXZJZA==');
 @$core.Deprecated('Use resetDocumentParamsDescriptor instead')
 const ResetDocumentParams$json = const {
   '1': 'ResetDocumentParams',
@@ -43,17 +43,17 @@ const ResetDocumentParams$json = const {
 
 /// Descriptor for `ResetDocumentParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List resetDocumentParamsDescriptor = $convert.base64Decode('ChNSZXNldERvY3VtZW50UGFyYW1zEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSLwoJcmV2aXNpb25zGAIgASgLMhEuUmVwZWF0ZWRSZXZpc2lvblIJcmV2aXNpb25z');
-@$core.Deprecated('Use documentDeltaDescriptor instead')
-const DocumentDelta$json = const {
-  '1': 'DocumentDelta',
+@$core.Deprecated('Use blockDeltaDescriptor instead')
+const BlockDelta$json = const {
+  '1': 'BlockDelta',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'delta_json', '3': 2, '4': 1, '5': 9, '10': 'deltaJson'},
   ],
 };
 
-/// Descriptor for `DocumentDelta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentDeltaDescriptor = $convert.base64Decode('Cg1Eb2N1bWVudERlbHRhEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSHQoKZGVsdGFfanNvbhgCIAEoCVIJZGVsdGFKc29u');
+/// Descriptor for `BlockDelta`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List blockDeltaDescriptor = $convert.base64Decode('CgpCbG9ja0RlbHRhEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEh0KCmRlbHRhX2pzb24YAiABKAlSCWRlbHRhSnNvbg==');
 @$core.Deprecated('Use newDocUserDescriptor instead')
 const NewDocUser$json = const {
   '1': 'NewDocUser',
@@ -66,13 +66,13 @@ const NewDocUser$json = const {
 
 /// Descriptor for `NewDocUser`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List newDocUserDescriptor = $convert.base64Decode('CgpOZXdEb2NVc2VyEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZBIVCgZyZXZfaWQYAiABKANSBXJldklkEhUKBmRvY19pZBgDIAEoCVIFZG9jSWQ=');
-@$core.Deprecated('Use documentIdDescriptor instead')
-const DocumentId$json = const {
-  '1': 'DocumentId',
+@$core.Deprecated('Use blockIdDescriptor instead')
+const BlockId$json = const {
+  '1': 'BlockId',
   '2': const [
     const {'1': 'value', '3': 1, '4': 1, '5': 9, '10': 'value'},
   ],
 };
 
-/// Descriptor for `DocumentId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentIdDescriptor = $convert.base64Decode('CgpEb2N1bWVudElkEhQKBXZhbHVlGAEgASgJUgV2YWx1ZQ==');
+/// Descriptor for `BlockId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List blockIdDescriptor = $convert.base64Decode('CgdCbG9ja0lkEhQKBXZhbHVlGAEgASgJUgV2YWx1ZQ==');

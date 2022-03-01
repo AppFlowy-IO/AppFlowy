@@ -12,7 +12,7 @@ use crate::{
 use async_stream::stream;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::PlainAttributes;
+use lib_ot::core::PlainTextAttributes;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
@@ -187,7 +187,7 @@ impl ServerFolderManager {
     }
 }
 
-type FolderRevisionSynchronizer = RevisionSynchronizer<PlainAttributes>;
+type FolderRevisionSynchronizer = RevisionSynchronizer<PlainTextAttributes>;
 
 struct OpenFolderHandler {
     folder_id: String,

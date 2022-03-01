@@ -271,14 +271,14 @@ class FolderEventOpenView {
      ViewId request;
      FolderEventOpenView(this.request);
 
-    Future<Either<DocumentDelta, FlowyError>> send() {
+    Future<Either<BlockDelta, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = FolderEvent.OpenView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocumentDelta.fromBuffer(okBytes)),
+           (okBytes) => left(BlockDelta.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
@@ -378,17 +378,17 @@ class FolderEventDeleteAllTrash {
 }
 
 class FolderEventApplyDocDelta {
-     DocumentDelta request;
+     BlockDelta request;
      FolderEventApplyDocDelta(this.request);
 
-    Future<Either<DocumentDelta, FlowyError>> send() {
+    Future<Either<BlockDelta, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = FolderEvent.ApplyDocDelta.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocumentDelta.fromBuffer(okBytes)),
+           (okBytes) => left(BlockDelta.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

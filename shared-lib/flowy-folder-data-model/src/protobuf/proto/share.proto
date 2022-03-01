@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message ExportPayload {
-    string doc_id = 1;
+    string view_id = 1;
     ExportType export_type = 2;
 }
 message ExportData {

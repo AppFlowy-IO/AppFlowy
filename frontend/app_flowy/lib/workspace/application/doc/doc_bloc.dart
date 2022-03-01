@@ -3,8 +3,8 @@ import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +19,7 @@ typedef FlutterQuillDocument = Document;
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
   final DocumentService service;
+
   final ViewListener listener;
   final TrashService trashService;
   late FlutterQuillDocument document;
@@ -43,6 +44,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         },
         deletePermanently: (DeletePermanently value) async {
           final result = await trashService.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },
@@ -85,8 +87,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     listener.start();
     final result = await service.openDocument(docId: view.id);
     result.fold(
-      (doc) {
-        document = _decodeJsonToDocument(doc.deltaJson);
+      (block) {
+        document = _decodeJsonToDocument(block.deltaJson);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();

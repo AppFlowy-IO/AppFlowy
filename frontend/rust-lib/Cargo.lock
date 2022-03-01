@@ -1031,6 +1031,7 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "unicode-segmentation",
@@ -1108,6 +1109,7 @@ name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
  "async-stream",
+ "async-trait",
  "bytes",
  "dashmap",
  "diesel",

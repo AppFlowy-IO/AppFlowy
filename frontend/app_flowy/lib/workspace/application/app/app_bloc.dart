@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/app/app_listener.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:flowy_sdk/log.dart';
@@ -15,8 +16,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppService service;
   final AppListener listener;
 
-  AppBloc({required this.app, required this.service, required this.listener})
-      : super(AppState.initial(app)) {
+  AppBloc({required this.app, required this.service, required this.listener}) : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
         listener.startListening(
@@ -25,8 +25,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         );
         await _fetchViews(emit);
       }, createView: (CreateView value) async {
-        final viewOrFailed =
-            await service.createView(appId: app.id, name: value.name, desc: value.desc, viewType: value.viewType);
+        final viewOrFailed = await service.createView(
+          appId: app.id,
+          name: value.name,
+          desc: value.desc,
+          dataType: value.dataType,
+          pluginType: value.pluginType,
+        );
         viewOrFailed.fold(
           (view) => emit(state.copyWith(
             latestCreatedView: view,
@@ -100,7 +105,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 @freezed
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
-  const factory AppEvent.createView(String name, String desc, ViewType viewType) = CreateView;
+  const factory AppEvent.createView(
+    String name,
+    String desc,
+    PluginDataType dataType,
+    PluginType pluginType,
+  ) = CreateView;
   const factory AppEvent.delete() = Delete;
   const factory AppEvent.rename(String newName) = Rename;
   const factory AppEvent.didReceiveViews(List<View> views) = ReceiveViews;

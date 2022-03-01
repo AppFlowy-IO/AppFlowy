@@ -18,20 +18,20 @@ use tokio::task::spawn_blocking;
 
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
-pub struct RevisionCache {
+pub struct RevisionPersistence {
     user_id: String,
     object_id: String,
     disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
-    sync_seq: RwLock<SyncSequence>,
+    sync_seq: RwLock<RevisionSyncSequence>,
 }
-impl RevisionCache {
-    pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
+impl RevisionPersistence {
+    pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionPersistence {
         let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
         let memory_cache = Arc::new(RevisionMemoryCache::new(object_id, Arc::new(disk_cache.clone())));
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
-        let sync_seq = RwLock::new(SyncSequence::new());
+        let sync_seq = RwLock::new(RevisionSyncSequence::new());
         Self {
             user_id,
             object_id,
@@ -261,10 +261,10 @@ impl RevisionRecord {
 }
 
 #[derive(Default)]
-struct SyncSequence(VecDeque<i64>);
-impl SyncSequence {
+struct RevisionSyncSequence(VecDeque<i64>);
+impl RevisionSyncSequence {
     fn new() -> Self {
-        SyncSequence::default()
+        RevisionSyncSequence::default()
     }
 
     fn add(&mut self, new_rev_id: i64) -> FlowyResult<()> {

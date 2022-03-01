@@ -10,7 +10,7 @@ use flowy_collaboration::{
 use flowy_error::FlowyError;
 use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{Delta, OperationTransformable, PlainAttributes, PlainDelta};
+use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
@@ -21,45 +21,41 @@ pub(crate) async fn make_folder_ws_manager(
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_pad: Arc<RwLock<FolderPad>>,
 ) -> Arc<RevisionWebSocketManager> {
-    let composite_sink_provider = Arc::new(CompositeWSSinkDataProvider::new(folder_id, rev_manager.clone()));
-    let resolve_target = Arc::new(FolderRevisionResolveTarget { folder_pad });
-    let resolver = RevisionConflictResolver::<PlainAttributes>::new(
+    let ws_data_provider = Arc::new(WSDataProvider::new(folder_id, Arc::new(rev_manager.clone())));
+    let resolver = Arc::new(FolderConflictResolver { folder_pad });
+    let conflict_controller = ConflictController::<PlainTextAttributes>::new(
         user_id,
-        resolve_target,
-        Arc::new(composite_sink_provider.clone()),
+        resolver,
+        Arc::new(ws_data_provider.clone()),
         rev_manager,
     );
-
-    let ws_stream_consumer = Arc::new(FolderWSStreamConsumerAdapter {
-        resolver: Arc::new(resolver),
-    });
-
-    let sink_provider = Arc::new(FolderWSSinkDataProviderAdapter(composite_sink_provider));
+    let ws_data_stream = Arc::new(FolderRevisionWSDataStream::new(conflict_controller));
+    let ws_data_sink = Arc::new(FolderWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);
     Arc::new(RevisionWebSocketManager::new(
         "Folder",
         folder_id,
         web_socket,
-        sink_provider,
-        ws_stream_consumer,
+        ws_data_sink,
+        ws_data_stream,
         ping_duration,
     ))
 }
 
-pub(crate) struct FolderWSSinkDataProviderAdapter(Arc<CompositeWSSinkDataProvider>);
-impl RevisionWSSinkDataProvider for FolderWSSinkDataProviderAdapter {
+pub(crate) struct FolderWSDataSink(Arc<WSDataProvider>);
+impl RevisionWSDataIterator for FolderWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })
     }
 }
 
-struct FolderRevisionResolveTarget {
+struct FolderConflictResolver {
     folder_pad: Arc<RwLock<FolderPad>>,
 }
 
-impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
-    fn compose_delta(&self, delta: Delta<PlainAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+impl ConflictResolver<PlainTextAttributes> for FolderConflictResolver {
+    fn compose_delta(&self, delta: PlainTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_delta(delta)?;
@@ -69,13 +65,13 @@ impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
 
     fn transform_delta(
         &self,
-        delta: Delta<PlainAttributes>,
-    ) -> BoxResultFuture<TransformDeltas<PlainAttributes>, FlowyError> {
+        delta: PlainTextDelta,
+    ) -> BoxResultFuture<TransformDeltas<PlainTextAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();
-            let mut server_prime: Option<PlainDelta> = None;
-            let client_prime: PlainDelta;
+            let mut server_prime: Option<PlainTextDelta> = None;
+            let client_prime: PlainTextDelta;
             if read_guard.is_empty() {
                 // Do nothing
                 client_prime = delta;
@@ -92,7 +88,7 @@ impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
         })
     }
 
-    fn reset_delta(&self, delta: Delta<PlainAttributes>) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: PlainTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(delta)?;
@@ -101,18 +97,26 @@ impl ResolverTarget<PlainAttributes> for FolderRevisionResolveTarget {
     }
 }
 
-struct FolderWSStreamConsumerAdapter {
-    resolver: Arc<RevisionConflictResolver<PlainAttributes>>,
+struct FolderRevisionWSDataStream {
+    conflict_controller: Arc<PlainTextConflictController>,
 }
 
-impl RevisionWSSteamConsumer for FolderWSStreamConsumerAdapter {
+impl FolderRevisionWSDataStream {
+    pub fn new(conflict_controller: PlainTextConflictController) -> Self {
+        Self {
+            conflict_controller: Arc::new(conflict_controller),
+        }
+    }
+}
+
+impl RevisionWSDataStream for FolderRevisionWSDataStream {
     fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.receive_bytes(bytes).await })
     }
 
     fn receive_ack(&self, id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.ack_revision(id, ty).await })
     }
 
@@ -122,7 +126,7 @@ impl RevisionWSSteamConsumer for FolderWSStreamConsumerAdapter {
     }
 
     fn pull_revisions_in_range(&self, range: RevisionRange) -> BoxResultFuture<(), FlowyError> {
-        let resolver = self.resolver.clone();
+        let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.send_revisions(range).await })
     }
 }

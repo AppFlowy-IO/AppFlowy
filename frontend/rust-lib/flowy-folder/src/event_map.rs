@@ -63,9 +63,9 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::UpdateView, update_view_handler)
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
-        .event(FolderEvent::OpenView, open_document_handler)
+        .event(FolderEvent::OpenView, open_view_handler)
         .event(FolderEvent::CloseView, close_view_handler)
-        .event(FolderEvent::ApplyDocDelta, document_delta_handler);
+        .event(FolderEvent::ApplyDocDelta, block_delta_handler);
 
     module = module
         .event(FolderEvent::ReadTrash, read_trash_handler)
@@ -130,7 +130,7 @@ pub enum FolderEvent {
     #[event()]
     CopyLink = 206,
 
-    #[event(input = "ViewId", output = "DocumentDelta")]
+    #[event(input = "ViewId", output = "BlockDelta")]
     OpenView = 207,
 
     #[event(input = "ViewId")]
@@ -151,7 +151,7 @@ pub enum FolderEvent {
     #[event()]
     DeleteAllTrash = 304,
 
-    #[event(input = "DocumentDelta", output = "DocumentDelta")]
+    #[event(input = "BlockDelta", output = "BlockDelta")]
     ApplyDocDelta = 400,
 
     #[event(input = "ExportPayload", output = "ExportData")]

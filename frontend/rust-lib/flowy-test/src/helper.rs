@@ -88,7 +88,9 @@ async fn create_view(sdk: &FlowySDKTest, app_id: &str) -> View {
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
-        view_type: ViewType::Doc,
+        data_type: ViewDataType::RichText,
+        ext_data: "".to_string(),
+        plugin_type: 0,
     };
 
     let view = FolderEventBuilder::new(sdk.clone())

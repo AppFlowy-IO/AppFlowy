@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf;
-use lib_ot::core::PlainDelta;
+use lib_ot::core::PlainTextDelta;
 
-pub type FolderDelta = PlainDelta;
+pub type FolderDelta = PlainTextDelta;
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
 pub struct FolderInfo {

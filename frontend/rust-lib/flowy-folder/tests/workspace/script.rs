@@ -1,10 +1,10 @@
 use crate::helper::*;
-use flowy_collaboration::entities::{document_info::DocumentInfo, revision::RevisionState};
-use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
+use flowy_collaboration::entities::{document_info::BlockInfo, revision::RevisionState};
+use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
     trash::Trash,
-    view::{RepeatedView, View, ViewType},
+    view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -58,7 +58,7 @@ pub struct FolderTest {
     pub app: App,
     pub view: View,
     pub trash: Vec<Trash>,
-    pub document_info: Option<DocumentInfo>,
+    pub document_info: Option<BlockInfo>,
     // pub folder_editor:
 }
 
@@ -68,7 +68,7 @@ impl FolderTest {
         let _ = sdk.init_user().await;
         let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
         let mut app = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
-        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewType::Doc).await;
+        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewDataType::RichText).await;
         app.belongings = RepeatedView {
             items: vec![view.clone()],
         };
@@ -95,7 +95,7 @@ impl FolderTest {
 
     pub async fn run_script(&mut self, script: FolderScript) {
         let sdk = &self.sdk;
-        let folder_editor: Arc<FolderEditor> = sdk.folder_manager.folder_editor().await;
+        let folder_editor: Arc<ClientFolderEditor> = sdk.folder_manager.folder_editor().await;
         let rev_manager = folder_editor.rev_manager();
         let cache = rev_manager.revision_cache().await;
 
@@ -146,7 +146,7 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, ViewType::Doc).await;
+                let view = create_view(sdk, &self.app.id, &name, &desc, ViewDataType::RichText).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {

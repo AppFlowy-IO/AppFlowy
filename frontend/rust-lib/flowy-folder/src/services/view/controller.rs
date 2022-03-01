@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    document_info::{DocumentDelta, DocumentId},
+    document_info::{BlockDelta, BlockId},
     revision::{RepeatedRevision, Revision},
 };
 
@@ -22,8 +22,9 @@ use crate::{
     },
 };
 use flowy_database::kv::KV;
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
+
 use lib_infra::uuid_string;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -33,7 +34,7 @@ pub(crate) struct ViewController {
     cloud_service: Arc<dyn FolderCouldServiceV1>,
     persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
-    document_manager: Arc<FlowyDocumentManager>,
+    block_manager: Arc<BlockManager>,
 }
 
 impl ViewController {
@@ -42,62 +43,51 @@ impl ViewController {
         persistence: Arc<FolderPersistence>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         trash_can: Arc<TrashController>,
-        document_manager: Arc<FlowyDocumentManager>,
+        document_manager: Arc<BlockManager>,
     ) -> Self {
         Self {
             user,
             cloud_service,
             persistence,
             trash_controller: trash_can,
-            document_manager,
+            block_manager: document_manager,
         }
     }
 
     pub(crate) fn initialize(&self) -> Result<(), FlowyError> {
-        let _ = self.document_manager.init()?;
+        let _ = self.block_manager.init()?;
         self.listen_trash_can_event();
         Ok(())
     }
 
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let view_data = if params.view_data.is_empty() {
+        let view_data = if params.data.is_empty() {
             initial_delta_string()
         } else {
-            params.view_data.clone()
+            params.data.clone()
         };
 
         let delta_data = Bytes::from(view_data);
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
-        let _ = self
-            .document_manager
-            .reset_with_revisions(&params.view_id, repeated_revision)
-            .await?;
+        let _ = self.create_view(&params.view_id, repeated_revision).await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
-
         Ok(view)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, view_data), err)]
-    pub(crate) async fn create_view_document_content(
+    #[tracing::instrument(level = "debug", skip(self, view_id, repeated_revision), err)]
+    pub(crate) async fn create_view(
         &self,
         view_id: &str,
-        view_data: String,
+        repeated_revision: RepeatedRevision,
     ) -> Result<(), FlowyError> {
-        if view_data.is_empty() {
+        if repeated_revision.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
-
-        let delta_data = Bytes::from(view_data);
-        let user_id = self.user.user_id()?;
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
-        let _ = self
-            .document_manager
-            .reset_with_revisions(view_id, repeated_revision)
-            .await?;
+        let _ = self.block_manager.create_block(view_id, repeated_revision).await?;
         Ok(())
     }
 
@@ -143,50 +133,52 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn open_document(&self, doc_id: &str) -> Result<DocumentDelta, FlowyError> {
-        let editor = self.document_manager.open_document(doc_id).await?;
-        KV::set_str(LATEST_VIEW_ID, doc_id.to_owned());
-        let document_json = editor.document_json().await?;
-        Ok(DocumentDelta {
-            doc_id: doc_id.to_string(),
+    pub(crate) async fn open_view(&self, view_id: &str) -> Result<BlockDelta, FlowyError> {
+        let editor = self.block_manager.open_block(view_id).await?;
+        KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
+        let document_json = editor.block_json().await?;
+        Ok(BlockDelta {
+            block_id: view_id.to_string(),
             delta_json: document_json,
         })
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, doc_id: &str) -> Result<(), FlowyError> {
-        let _ = self.document_manager.close_document(doc_id)?;
+        let _ = self.block_manager.close_block(doc_id)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: DocumentId) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: BlockId) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document_manager.close_document(&params.value)?;
+        let _ = self.block_manager.close_block(&params.value)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn duplicate_view(&self, doc_id: &str) -> Result<(), FlowyError> {
+    pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let view = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_view(doc_id))
+            .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
 
-        let editor = self.document_manager.open_document(doc_id).await?;
-        let document_json = editor.document_json().await?;
+        let editor = self.block_manager.open_block(view_id).await?;
+        let document_json = editor.block_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
-            desc: view.desc.clone(),
-            thumbnail: "".to_owned(),
-            view_type: view.view_type.clone(),
-            view_data: document_json,
+            desc: view.desc,
+            thumbnail: view.thumbnail,
+            data_type: view.data_type,
+            data: document_json,
             view_id: uuid_string(),
+            ext_data: view.ext_data,
+            plugin_type: view.plugin_type,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;
@@ -194,9 +186,9 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let editor = self.document_manager.open_document(&params.doc_id).await?;
-        let delta_json = editor.document_json().await?;
+    pub(crate) async fn export_view(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
+        let editor = self.block_manager.open_block(&params.view_id).await?;
+        let delta_json = editor.block_json().await?;
         Ok(ExportData {
             data: delta_json,
             export_type: params.export_type,
@@ -234,8 +226,8 @@ impl ViewController {
         Ok(view)
     }
 
-    pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let doc = self.document_manager.receive_local_delta(params).await?;
+    pub(crate) async fn receive_delta(&self, params: BlockDelta) -> Result<BlockDelta, FlowyError> {
+        let doc = self.block_manager.receive_local_delta(params).await?;
         Ok(doc)
     }
 
@@ -312,7 +304,7 @@ impl ViewController {
     fn listen_trash_can_event(&self) {
         let mut rx = self.trash_controller.subscribe();
         let persistence = self.persistence.clone();
-        let document_manager = self.document_manager.clone();
+        let document_manager = self.block_manager.clone();
         let trash_controller = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
@@ -340,7 +332,7 @@ impl ViewController {
 #[tracing::instrument(level = "trace", skip(persistence, document_manager, trash_can))]
 async fn handle_trash_event(
     persistence: Arc<FolderPersistence>,
-    document_manager: Arc<FlowyDocumentManager>,
+    document_manager: Arc<BlockManager>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
