@@ -151,7 +151,13 @@ where
     pub fn apply(&self, s: &str) -> Result<String, OTError> {
         let s: FlowyStr = s.into();
         if s.utf16_size() != self.utf16_base_len {
-            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
+                .msg(format!(
+                    "Expected: {}, received: {}",
+                    self.utf16_base_len,
+                    s.utf16_size()
+                ))
+                .build());
         }
         let mut new_s = String::new();
         let code_point_iter = &mut s.utf16_code_unit_iter();
@@ -515,12 +521,16 @@ impl<T> Delta<T>
 where
     T: Attributes + serde::Serialize,
 {
-    pub fn to_json(&self) -> String {
+    pub fn to_delta_json(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
+    pub fn to_str(&self) -> Result<String, OTError> {
+        self.apply("")
+    }
+
     pub fn to_bytes(&self) -> Bytes {
-        let json = self.to_json();
+        let json = self.to_delta_json();
         Bytes::from(json.into_bytes())
     }
 }

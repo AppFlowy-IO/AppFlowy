@@ -66,6 +66,7 @@ impl RevIdCounter {
     }
 }
 
+#[tracing::instrument(level = "trace", skip(revisions), err)]
 pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
 where
     T: Attributes + DeserializeOwned,
@@ -186,7 +187,7 @@ pub fn make_folder_pb_from_revisions_pb(
         folder_delta = folder_delta.compose(&delta)?;
     }
 
-    let text = folder_delta.to_json();
+    let text = folder_delta.to_delta_json();
     let mut folder_info = FolderInfoPB::new();
     folder_info.set_folder_id(folder_id.to_owned());
     folder_info.set_text(text);
@@ -236,7 +237,7 @@ pub fn make_document_info_pb_from_revisions_pb(
         document_delta = document_delta.compose(&delta)?;
     }
 
-    let text = document_delta.to_json();
+    let text = document_delta.to_delta_json();
     let mut block_info = BlockInfoPB::new();
     block_info.set_doc_id(doc_id.to_owned());
     block_info.set_text(text);

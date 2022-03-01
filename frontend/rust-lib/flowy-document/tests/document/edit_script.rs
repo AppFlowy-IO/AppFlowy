@@ -77,7 +77,7 @@ impl EditorTest {
                 let delta = self.editor.doc_delta().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);
-                    eprintln!("❌ receive: {}", delta.to_json());
+                    eprintln!("❌ receive: {}", delta.to_delta_json());
                 }
                 assert_eq!(expected_delta, delta);
             }

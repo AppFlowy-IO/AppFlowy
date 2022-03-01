@@ -226,7 +226,7 @@ impl RevisionObjectBuilder for BlockInfoBuilder {
 
         Result::<BlockInfo, FlowyError>::Ok(BlockInfo {
             doc_id: object_id.to_owned(),
-            text: delta.to_json(),
+            text: delta.to_delta_json(),
             rev_id,
             base_rev_id,
         })

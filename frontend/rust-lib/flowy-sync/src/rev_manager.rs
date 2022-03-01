@@ -55,8 +55,8 @@ impl RevisionManager {
         let (revisions, rev_id) = RevisionLoader {
             object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
-            cloud,
-            rev_cache: self.rev_persistence.clone(),
+            cloud: Some(cloud),
+            rev_persistence: self.rev_persistence.clone(),
         }
         .load()
         .await?;
@@ -155,23 +155,28 @@ impl RevisionManager {
     }
 }
 
-struct RevisionLoader {
-    object_id: String,
-    user_id: String,
-    cloud: Arc<dyn RevisionCloudService>,
-    rev_cache: Arc<RevisionPersistence>,
+pub struct RevisionLoader {
+    pub object_id: String,
+    pub user_id: String,
+    pub cloud: Option<Arc<dyn RevisionCloudService>>,
+    pub rev_persistence: Arc<RevisionPersistence>,
 }
 
 impl RevisionLoader {
-    async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.rev_cache.batch_get(&self.object_id)?;
+    pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
+        let records = self.rev_persistence.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;
         let mut rev_id = 0;
-        if records.is_empty() {
-            let remote_revisions = self.cloud.fetch_object(&self.user_id, &self.object_id).await?;
+        if records.is_empty() && self.cloud.is_some() {
+            let remote_revisions = self
+                .cloud
+                .as_ref()
+                .unwrap()
+                .fetch_object(&self.user_id, &self.object_id)
+                .await?;
             for revision in &remote_revisions {
                 rev_id = revision.rev_id;
-                let _ = self.rev_cache.add_ack_revision(revision).await?;
+                let _ = self.rev_persistence.add_ack_revision(revision).await?;
             }
             revisions = remote_revisions;
         } else {
@@ -179,7 +184,7 @@ impl RevisionLoader {
                 rev_id = record.revision.rev_id;
                 if record.state == RevisionState::Sync {
                     // Sync the records if their state is RevisionState::Sync.
-                    let _ = self.rev_cache.sync_revision(&record.revision).await?;
+                    let _ = self.rev_persistence.sync_revision(&record.revision).await?;
                 }
             }
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();

@@ -26,6 +26,12 @@ pub fn default_folder_delta() -> FolderDelta {
         .build()
 }
 
+pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderDelta> {
+    let json = folder_pad.to_json()?;
+    let delta = PlainTextDeltaBuilder::new().insert(&json).build();
+    Ok(delta)
+}
+
 impl std::default::Default for FolderPad {
     fn default() -> Self {
         FolderPad {

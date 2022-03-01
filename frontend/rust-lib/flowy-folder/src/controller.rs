@@ -197,9 +197,9 @@ impl DefaultFolderBuilder {
         for app in workspace.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
-                    initial_read_me().to_json()
+                    initial_read_me().to_delta_json()
                 } else {
-                    initial_delta().to_json()
+                    initial_delta().to_delta_json()
                 };
                 view_controller.set_latest_view(view);
                 let delta_data = Bytes::from(view_data);

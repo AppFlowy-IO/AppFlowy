@@ -92,7 +92,7 @@ fn delta_deserialize_null_test() {
     attribute.value = RichTextAttributeValue(None);
     let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
 
-    assert_eq!(delta2.to_json(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    assert_eq!(delta2.to_delta_json(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     assert_eq!(delta1, delta2);
 }
 

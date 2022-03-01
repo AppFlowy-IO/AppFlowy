@@ -109,13 +109,13 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, view_type: ViewDataType) -> View {
+pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> View {
     let request = CreateViewPayload {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
-        data_type: view_type,
+        data_type,
         ext_data: "".to_string(),
         plugin_type: 0,
     };

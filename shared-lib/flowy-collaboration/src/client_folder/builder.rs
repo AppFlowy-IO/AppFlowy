@@ -38,7 +38,9 @@ impl FolderPadBuilder {
         if delta.is_empty() {
             delta = default_folder_delta();
         }
-        let folder_json = delta.apply("").unwrap();
+
+        // TODO: Reconvert from history if delta.to_str() failed.
+        let folder_json = delta.to_str()?;
         let mut folder: FolderPad = serde_json::from_str(&folder_json).map_err(|e| {
             CollaborateError::internal().context(format!("Deserialize json to root folder failed: {}", e))
         })?;

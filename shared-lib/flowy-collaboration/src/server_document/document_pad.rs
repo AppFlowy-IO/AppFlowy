@@ -39,7 +39,7 @@ impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
     }
 
     fn to_json(&self) -> String {
-        self.delta.to_json()
+        self.delta.to_delta_json()
     }
 
     fn set_delta(&mut self, new_delta: Delta<RichTextAttributes>) {

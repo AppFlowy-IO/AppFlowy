@@ -59,7 +59,7 @@ impl ClientDocument {
     }
 
     pub fn to_json(&self) -> String {
-        self.delta.to_json()
+        self.delta.to_delta_json()
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -84,7 +84,7 @@ impl ClientDocument {
     }
 
     pub fn set_delta(&mut self, data: RichTextDelta) {
-        tracing::trace!("document: {}", data.to_json());
+        tracing::trace!("document: {}", data.to_delta_json());
         self.delta = data;
 
         match &self.notify {
@@ -96,7 +96,7 @@ impl ClientDocument {
     }
 
     pub fn compose_delta(&mut self, delta: RichTextDelta) -> Result<(), CollaborateError> {
-        tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
+        tracing::trace!("{} compose {}", &self.delta.to_delta_json(), delta.to_delta_json());
         let composed_delta = self.delta.compose(&delta)?;
         let mut undo_delta = delta.invert(&self.delta);
 
