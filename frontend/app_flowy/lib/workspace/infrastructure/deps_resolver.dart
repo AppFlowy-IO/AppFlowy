@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
@@ -83,7 +83,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<DocumentBloc, View, void>(
       (view, _) => DocumentBloc(
         view: view,
-        repo: DocumentRepository(docId: view.id),
+        service: DocumentService(),
         listener: getIt<ViewListener>(param1: view),
         trashRepo: getIt<TrashRepo>(),
       ),

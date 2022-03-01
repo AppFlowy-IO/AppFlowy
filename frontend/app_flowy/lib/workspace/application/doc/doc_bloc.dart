@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
+import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
@@ -17,7 +17,7 @@ typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
-  final DocumentRepository repo;
+  final DocumentService service;
   final ViewListener listener;
   final TrashRepo trashRepo;
   late FlutterQuillDocument document;
@@ -25,7 +25,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   DocumentBloc({
     required this.view,
-    required this.repo,
+    required this.service,
     required this.listener,
     required this.trashRepo,
   }) : super(DocumentState.initial()) {
@@ -62,7 +62,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _subscription?.cancel();
     }
 
-    repo.closeDocument();
+    service.closeDocument(docId: view.id);
     return super.close();
   }
 
@@ -82,7 +82,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     });
 
     listener.start();
-    final result = await repo.openDocument();
+    final result = await service.openDocument(docId: view.id);
     result.fold(
       (doc) {
         document = _decodeJsonToDocument(doc.deltaJson);
@@ -108,7 +108,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
     Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await repo.composeDelta(data: json);
+    final result = await service.composeDelta(docId: view.id, data: json);
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);
