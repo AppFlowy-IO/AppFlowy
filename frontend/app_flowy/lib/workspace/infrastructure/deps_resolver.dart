@@ -1,3 +1,5 @@
+import 'package:app_flowy/user/application/user_listener.dart';
+import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_listener.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
@@ -17,7 +19,6 @@ import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -38,8 +39,8 @@ class HomeDepsResolver {
     getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
     getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
       (user, _) => WelcomeBloc(
-        repo: UserRepo(user: user),
-        listener: getIt<UserListener>(param1: user),
+        userService: UserService(),
+        userListener: getIt<UserListener>(param1: user),
       ),
     );
 
@@ -71,7 +72,8 @@ class HomeDepsResolver {
 
     getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
       (user, _) => MenuUserBloc(
-        UserRepo(user: user),
+        user,
+        UserService(),
         getIt<UserListener>(param1: user),
       ),
     );

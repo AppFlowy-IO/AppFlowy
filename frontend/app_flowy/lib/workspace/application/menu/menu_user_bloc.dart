@@ -1,4 +1,5 @@
-import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:app_flowy/user/application/user_listener.dart';
+import 'package:app_flowy/user/application/user_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -10,16 +11,17 @@ import 'package:dartz/dartz.dart';
 part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
-  final UserRepo repo;
-  final UserListener listener;
+  final UserService userService;
+  final UserListener userListener;
+  final UserProfile userProfile;
 
-  MenuUserBloc(this.repo, this.listener) : super(MenuUserState.initial(repo.user)) {
+  MenuUserBloc(this.userProfile, this.userService, this.userListener) : super(MenuUserState.initial(userProfile)) {
     on<MenuUserEvent>((event, emit) async {
       await event.map(
         initial: (_) async {
-          listener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
-          listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
-          listener.start();
+          userListener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
+          userListener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
+          userListener.start();
           await _initUser();
         },
         fetchWorkspaces: (_FetchWorkspaces value) async {},
@@ -29,12 +31,12 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   @override
   Future<void> close() async {
-    await listener.stop();
+    await userListener.stop();
     super.close();
   }
 
   Future<void> _initUser() async {
-    final result = await repo.initUser();
+    final result = await userService.initUser();
     result.fold((l) => null, (error) => Log.error(error));
   }
 
