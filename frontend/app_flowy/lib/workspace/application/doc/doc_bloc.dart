@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
+import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
+
 part 'doc_bloc.freezed.dart';
 
 typedef FlutterQuillDocument = Document;
@@ -19,7 +20,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
   final DocumentService service;
   final ViewListener listener;
-  final TrashRepo trashRepo;
+  final TrashService trashService;
   late FlutterQuillDocument document;
   StreamSubscription? _subscription;
 
@@ -27,7 +28,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     required this.view,
     required this.service,
     required this.listener,
-    required this.trashRepo,
+    required this.trashService,
   }) : super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
       await event.map(
@@ -41,12 +42,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+          final result = await trashService.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },
         restorePage: (RestorePage value) async {
-          final result = await trashRepo.putback(view.id);
+          final result = await trashService.putback(view.id);
           final newState = result.fold((l) => state.copyWith(isDeleted: false), (r) => state);
           emit(newState);
         },
