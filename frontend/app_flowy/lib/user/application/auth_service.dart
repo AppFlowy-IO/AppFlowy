@@ -3,7 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show SignInPayload, SignUpPayload, UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
-class AuthRepository {
+class AuthService {
   Future<Either<UserProfile, FlowyError>> signIn({required String? email, required String? password}) {
     //
     final request = SignInPayload.create()
