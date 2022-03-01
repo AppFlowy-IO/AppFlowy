@@ -70,7 +70,7 @@ class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext get context => stackContext;
 }
 
-// HomeStack is initialized as singleton to controll the page stack.
+// HomeStack is initialized as singleton to control the page stack.
 class HomeStackManager {
   final HomeStackNotifier _notifier = HomeStackNotifier();
   HomeStackManager();
