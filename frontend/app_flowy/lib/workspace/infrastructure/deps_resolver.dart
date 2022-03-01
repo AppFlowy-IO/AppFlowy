@@ -6,6 +6,7 @@ import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
@@ -23,7 +24,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
-import 'repos/share_repo.dart';
 
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
@@ -108,8 +108,8 @@ class HomeDepsResolver {
     );
 
     // share
-    getIt.registerLazySingleton<ShareRepo>(() => ShareRepo());
+    getIt.registerLazySingleton<ShareService>(() => ShareService());
     getIt.registerFactoryParam<DocShareBloc, View, void>(
-        (view, _) => DocShareBloc(view: view, repo: getIt<ShareRepo>()));
+        (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()));
   }
 }

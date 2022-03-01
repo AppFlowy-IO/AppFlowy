@@ -4,7 +4,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
-class ShareRepo {
+class ShareService {
   Future<Either<ExportData, FlowyError>> export(String docId, ExportType type) {
     final request = ExportPayload.create()
       ..docId = docId
