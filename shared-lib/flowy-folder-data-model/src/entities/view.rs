@@ -8,9 +8,8 @@ use crate::{
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::de::Unexpected;
-use serde::{de, de::Visitor, Deserializer};
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
@@ -81,7 +80,8 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize)]
+#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
 pub enum ViewDataType {
     RichText = 0,
     PlainText = 1,
@@ -89,7 +89,7 @@ pub enum ViewDataType {
 
 impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewDataType::PlainText
+        ViewDataType::RichText
     }
 }
 
@@ -287,39 +287,58 @@ impl TryInto<UpdateViewParams> for UpdateViewPayload {
     }
 }
 
-impl<'de> Deserialize<'de> for ViewDataType {
-    fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct ViewTypeVisitor();
-
-        impl<'de> Visitor<'de> for ViewTypeVisitor {
-            type Value = ViewDataType;
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("Plugin, RichText")
-            }
-
-            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                let view_type;
-                match s {
-                    "Doc" | "RichText" => {
-                        // Rename ViewType::Doc to ViewType::RichText, So we need to migrate the ViewType manually.
-                        view_type = ViewDataType::RichText;
-                    }
-                    "Plugin" => {
-                        view_type = ViewDataType::PlainText;
-                    }
-                    unknown => {
-                        return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
-                    }
-                }
-                Ok(view_type)
-            }
-        }
-        deserializer.deserialize_any(ViewTypeVisitor())
-    }
-}
+// impl<'de> Deserialize<'de> for ViewDataType {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         struct ViewTypeVisitor();
+//
+//         impl<'de> Visitor<'de> for ViewTypeVisitor {
+//             type Value = ViewDataType;
+//             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+//                 formatter.write_str("RichText, PlainText")
+//             }
+//
+//             fn visit_u8<E>(self, v: u8) -> Result<Self::Value, E>
+//             where
+//                 E: de::Error,
+//             {
+//                 let data_type;
+//                 match v {
+//                     0 => {
+//                         data_type = ViewDataType::RichText;
+//                     }
+//                     1 => {
+//                         data_type = ViewDataType::PlainText;
+//                     }
+//                     _ => {
+//                         return Err(de::Error::invalid_value(Unexpected::Unsigned(v as u64), &self));
+//                     }
+//                 }
+//                 Ok(data_type)
+//             }
+//
+//             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+//             where
+//                 E: de::Error,
+//             {
+//                 let data_type;
+//                 match s {
+//                     "Doc" | "RichText" => {
+//                         // Rename ViewDataType::Doc to ViewDataType::RichText, So we need to migrate the ViewType manually.
+//                         data_type = ViewDataType::RichText;
+//                     }
+//                     "PlainText" => {
+//                         data_type = ViewDataType::PlainText;
+//                     }
+//                     unknown => {
+//                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
+//                     }
+//                 }
+//                 Ok(data_type)
+//             }
+//         }
+//         deserializer.deserialize_any(ViewTypeVisitor())
+//     }
+// }
