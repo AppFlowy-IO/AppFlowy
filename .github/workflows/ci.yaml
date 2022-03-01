@@ -27,7 +27,7 @@ jobs:
       - id: rust_toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 'stable-2022-01-20'
       
       - id: flutter
         uses: subosito/flutter-action@v2
@@ -47,7 +47,8 @@ jobs:
         with: 
           path: |
             frontend/rust-lib/target
-          key: ${{ runner.os }}-rust-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+            shared-lib/target
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
 
       - name: Setup Environment
         run:   |

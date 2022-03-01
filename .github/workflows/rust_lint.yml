@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 'stable-2022-01-20'
           override: true
       - run: rustup component add rustfmt
         working-directory: frontend/rust-lib
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 'stable-2022-01-20'
           override: true
       - run: rustup component add clippy
         working-directory: frontend/rust-lib

@@ -4,7 +4,6 @@ import 'package:app_flowy/user/presentation/sign_in_screen.dart';
 import 'package:app_flowy/user/presentation/sign_up_screen.dart';
 import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
 import 'package:app_flowy/user/presentation/welcome_screen.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
@@ -38,9 +37,8 @@ class AuthRouter {
 }
 
 class SplashRoute {
-  Future<void> pushWelcomeScreen(BuildContext context, UserProfile user) async {
-    final repo = UserRepo(user: user);
-    final screen = WelcomeScreen(repo: repo);
+  Future<void> pushWelcomeScreen(BuildContext context, UserProfile userProfile) async {
+    final screen = WelcomeScreen(userProfile: userProfile);
     final workspaceId = await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
@@ -48,7 +46,7 @@ class SplashRoute {
       ),
     );
 
-    pushHomeScreen(context, repo.user, workspaceId);
+    pushHomeScreen(context, userProfile, workspaceId);
   }
 
   void pushHomeScreen(BuildContext context, UserProfile userProfile, CurrentWorkspaceSetting workspaceSetting) {

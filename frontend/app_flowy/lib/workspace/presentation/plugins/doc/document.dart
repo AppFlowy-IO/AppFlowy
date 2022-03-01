@@ -10,7 +10,8 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
+import 'package:app_flowy/workspace/application/view/view_service.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -128,11 +129,11 @@ class DocumentLeftBarItem extends StatefulWidget {
 class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  late ViewRepository repo;
+  late ViewService service;
 
   @override
   void initState() {
-    repo = ViewRepository(view: widget.view);
+    service = ViewService(/*view: widget.view*/);
     _focusNode.addListener(_handleFocusChanged);
     super.initState();
   }
@@ -179,7 +180,7 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
     }
 
     if (_controller.text != widget.view.name) {
-      repo.updateView(name: _controller.text);
+      service.updateView(viewId: widget.view.id, name: _controller.text);
     }
   }
 }

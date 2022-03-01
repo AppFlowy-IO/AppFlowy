@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugin/plugin.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
+import 'package:app_flowy/workspace/application/app/app_listener.dart';
+import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
@@ -11,9 +12,11 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppRepository repo;
+  final App app;
+  final AppService service;
   final AppListener listener;
-  AppBloc({required App app, required this.repo, required this.listener}) : super(AppState.initial(app)) {
+
+  AppBloc({required this.app, required this.service, required this.listener}) : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
         listener.startListening(
@@ -22,7 +25,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         );
         await _fetchViews(emit);
       }, createView: (CreateView value) async {
-        final viewOrFailed = await repo.createView(
+        final viewOrFailed = await service.createView(
+          appId: app.id,
           name: value.name,
           desc: value.desc,
           dataType: value.dataType,
@@ -41,13 +45,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }, didReceiveViews: (e) async {
         await handleDidReceiveViews(e.views, emit);
       }, delete: (e) async {
-        final result = await repo.delete();
+        final result = await service.delete(appId: app.id);
         result.fold(
           (unit) => emit(state.copyWith(successOrFailure: left(unit))),
           (error) => emit(state.copyWith(successOrFailure: right(error))),
         );
       }, rename: (e) async {
-        final result = await repo.updateApp(name: e.newName);
+        final result = await service.updateApp(appId: app.id, name: e.newName);
         result.fold(
           (l) => emit(state.copyWith(successOrFailure: left(unit))),
           (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -87,7 +91,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _fetchViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await repo.getViews();
+    final viewsOrFailed = await service.getViews(appId: app.id);
     viewsOrFailed.fold(
       (apps) => emit(state.copyWith(views: apps)),
       (error) {
