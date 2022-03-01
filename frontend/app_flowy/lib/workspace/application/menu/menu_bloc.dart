@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
@@ -12,9 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final WorkspaceRepo repo;
+  final WorkspaceService service;
   final WorkspaceListener listener;
-  MenuBloc({required this.repo, required this.listener}) : super(MenuState.initial()) {
+  final String workspaceId;
+
+  MenuBloc({required this.workspaceId, required this.service, required this.listener}) : super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -48,7 +51,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Future<void> _performActionOnCreateApp(CreateApp event, Emitter<MenuState> emit) async {
-    final result = await repo.createApp(event.name, event.desc ?? "");
+    final result = await service.createApp(workspaceId: workspaceId, name: event.name, desc: event.desc ?? "");
     result.fold(
       (app) => {},
       (error) {
@@ -60,7 +63,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
-    final appsOrFail = await repo.getApps();
+    final appsOrFail = await service.getApps(workspaceId: workspaceId);
     emit(appsOrFail.fold(
       (apps) => state.copyWith(apps: some(apps)),
       (error) {

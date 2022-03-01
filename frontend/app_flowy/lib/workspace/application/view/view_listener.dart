@@ -1,51 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:app_flowy/core/helper.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
-
-import 'helper.dart';
-
-class ViewRepository {
-  View view;
-  ViewRepository({
-    required this.view,
-  });
-
-  Future<Either<View, FlowyError>> readView() {
-    final request = ViewId(value: view.id);
-    return FolderEventReadView(request).send();
-  }
-
-  Future<Either<View, FlowyError>> updateView({String? name, String? desc}) {
-    final request = UpdateViewPayload.create()..viewId = view.id;
-
-    if (name != null) {
-      request.name = name;
-    }
-
-    if (desc != null) {
-      request.desc = desc;
-    }
-
-    return FolderEventUpdateView(request).send();
-  }
-
-  Future<Either<Unit, FlowyError>> delete() {
-    final request = RepeatedViewId.create()..items.add(view.id);
-    return FolderEventDeleteView(request).send();
-  }
-
-  Future<Either<Unit, FlowyError>> duplicate() {
-    final request = ViewId(value: view.id);
-    return FolderEventDuplicateView(request).send();
-  }
-}
 
 typedef DeleteNotifierValue = Either<View, FlowyError>;
 typedef UpdateNotifierValue = Either<View, FlowyError>;

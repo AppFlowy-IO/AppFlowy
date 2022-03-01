@@ -1,67 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
+import 'package:app_flowy/core/helper.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
-import 'helper.dart';
-
-class AppRepository {
-  String appId;
-  AppRepository({
-    required this.appId,
-  });
-
-  Future<Either<App, FlowyError>> getAppDesc() {
-    final request = AppId.create()..value = appId;
-
-    return FolderEventReadApp(request).send();
-  }
-
-  Future<Either<View, FlowyError>> createView({
-    required String name,
-    required String desc,
-    required ViewType viewType,
-  }) {
-    final request = CreateViewPayload.create()
-      ..belongToId = appId
-      ..name = name
-      ..desc = desc
-      ..viewType = viewType;
-
-    return FolderEventCreateView(request).send();
-  }
-
-  Future<Either<List<View>, FlowyError>> getViews() {
-    final request = AppId.create()..value = appId;
-
-    return FolderEventReadApp(request).send().then((result) {
-      return result.fold(
-        (app) => left(app.belongings.items),
-        (error) => right(error),
-      );
-    });
-  }
-
-  Future<Either<Unit, FlowyError>> delete() {
-    final request = AppId.create()..value = appId;
-    return FolderEventDeleteApp(request).send();
-  }
-
-  Future<Either<Unit, FlowyError>> updateApp({String? name}) {
-    UpdateAppPayload request = UpdateAppPayload.create()..appId = appId;
-
-    if (name != null) {
-      request.name = name;
-    }
-    return FolderEventUpdateApp(request).send();
-  }
-}
 
 typedef AppDidUpdateCallback = void Function(App app);
 typedef ViewsDidChangeCallback = void Function(Either<List<View>, FlowyError> viewsOrFailed);

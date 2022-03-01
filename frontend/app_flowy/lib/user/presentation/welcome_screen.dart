@@ -6,22 +6,22 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  final UserRepo repo;
+  final UserProfile userProfile;
   const WelcomeScreen({
     Key? key,
-    required this.repo,
+    required this.userProfile,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<WelcomeBloc>(param1: repo.user)..add(const WelcomeEvent.initial()),
+      create: (_) => getIt<WelcomeBloc>(param1: userProfile)..add(const WelcomeEvent.initial()),
       child: BlocBuilder<WelcomeBloc, WelcomeState>(
         builder: (context, state) {
           return Scaffold(

@@ -1,20 +1,21 @@
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:app_flowy/workspace/application/trash/trash_service.dart';
+import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
 part 'trash_bloc.freezed.dart';
 
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
-  final TrashRepo repo;
+  final TrashService service;
   final TrashListener listener;
-  TrashBloc({required this.repo, required this.listener}) : super(TrashState.init()) {
+  TrashBloc({required this.service, required this.listener}) : super(TrashState.init()) {
     on<TrashEvent>((event, emit) async {
       await event.map(initial: (e) async {
         listener.startListening(trashUpdated: _listenTrashUpdated);
-        final result = await repo.readTrash();
+        final result = await service.readTrash();
         emit(result.fold(
           (object) => state.copyWith(objects: object.items, successOrFailure: left(unit)),
           (error) => state.copyWith(successOrFailure: right(error)),
@@ -22,16 +23,16 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       }, didReceiveTrash: (e) async {
         emit(state.copyWith(objects: e.trash));
       }, putback: (e) async {
-        final result = await repo.putback(e.trashId);
+        final result = await service.putback(e.trashId);
         await _handleResult(result, emit);
       }, delete: (e) async {
-        final result = await repo.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
+        final result = await service.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
         await _handleResult(result, emit);
       }, deleteAll: (e) async {
-        final result = await repo.deleteAll();
+        final result = await service.deleteAll();
         await _handleResult(result, emit);
       }, restoreAll: (e) async {
-        final result = await repo.restoreAll();
+        final result = await service.restoreAll();
         await _handleResult(result, emit);
       });
     });
