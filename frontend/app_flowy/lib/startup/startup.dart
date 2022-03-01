@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app_flowy/startup/deps_resolver.dart';
-import 'package:app_flowy/user/infrastructure/deps_resolver.dart';
+import 'package:app_flowy/user/presentation/deps_resolver.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 
 // [[diagram: flowy startup flow]]

@@ -1,6 +1,6 @@
 import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
-import 'package:app_flowy/user/infrastructure/router.dart';
+import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';

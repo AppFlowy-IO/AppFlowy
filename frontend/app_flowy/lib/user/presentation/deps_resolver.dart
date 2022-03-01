@@ -2,12 +2,12 @@ import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
 import 'package:app_flowy/user/application/splash_bloc.dart';
-import 'package:app_flowy/user/infrastructure/router.dart';
+import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import 'network_monitor.dart';
+import '../../core/network_monitor.dart';
 
 class UserDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
