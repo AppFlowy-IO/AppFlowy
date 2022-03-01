@@ -1,4 +1,6 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
+import 'package:app_flowy/workspace/application/app/app_listener.dart';
+import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
@@ -11,7 +13,6 @@ import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
@@ -75,7 +76,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<AppBloc, App, void>(
       (app, _) => AppBloc(
         app: app,
-        repo: AppRepository(appId: app.id),
+        service: AppService(),
         listener: AppListener(appId: app.id),
       ),
     );
