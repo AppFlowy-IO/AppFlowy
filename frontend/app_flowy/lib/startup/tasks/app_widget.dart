@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
+import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -17,7 +17,7 @@ class InitAppWidgetTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create();
-    final setting = await UserSettingReppsitory().getAppearanceSettings();
+    final setting = await UserSettingsService().getAppearanceSettings();
     final settingModel = AppearanceSettingModel(setting);
     final app = ApplicationWidget(
       child: widget,

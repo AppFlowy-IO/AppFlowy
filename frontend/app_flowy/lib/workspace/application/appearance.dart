@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
+import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
@@ -24,7 +24,7 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
     _saveOperation?.cancel;
     _saveOperation = CancelableOperation.fromFuture(
       Future.delayed(const Duration(seconds: 1), () async {
-        await UserSettingReppsitory().setAppearanceSettings(setting);
+        await UserSettingsService().setAppearanceSettings(setting);
       }),
     );
   }
