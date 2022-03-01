@@ -13,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:app_flowy/workspace/domain/view_ext.dart';
 
 import 'home_layout.dart';
 
@@ -110,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     if (initialView == null && widget.workspaceSetting.hasLatestView()) {
       initialView = widget.workspaceSetting.latestView;
-      final plugin = makePlugin(pluginType: "RichText", data: initialView);
+      final plugin = makePlugin(pluginType: initialView!.pluginType, data: initialView);
       getIt<HomeStackManager>().setPlugin(plugin);
     }
 

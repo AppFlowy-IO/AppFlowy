@@ -8,7 +8,7 @@ import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
 
-typedef PluginType = String;
+typedef PluginType = int;
 
 typedef PluginDataType = ViewDataType;
 
@@ -31,7 +31,7 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataType get dataType;
+  ViewDataType get dataType => ViewDataType.PlainText;
 }
 
 abstract class PluginDisplay with NavigationItem {
@@ -50,7 +50,7 @@ void registerPlugin({required PluginBuilder builder}) {
   getIt<PluginSandbox>().registerPlugin(builder.pluginType, builder);
 }
 
-Plugin makePlugin({required String pluginType, dynamic data}) {
+Plugin makePlugin({required PluginType pluginType, dynamic data}) {
   final plugin = getIt<PluginSandbox>().buildPlugin(pluginType, data);
   return plugin;
 }

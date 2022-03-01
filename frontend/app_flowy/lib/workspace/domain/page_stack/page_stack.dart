@@ -40,7 +40,7 @@ class HomeStackNotifier extends ChangeNotifier {
 
   Widget get titleWidget => _plugin.display.leftBarItem;
 
-  HomeStackNotifier({Plugin? plugin}) : _plugin = plugin ?? makePlugin(pluginType: DefaultPluginEnum.blank.type());
+  HomeStackNotifier({Plugin? plugin}) : _plugin = plugin ?? makePlugin(pluginType: DefaultPlugin.blank.type());
 
   set plugin(Plugin newPlugin) {
     if (newPlugin.pluginId == _plugin.pluginId) {

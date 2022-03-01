@@ -12,6 +12,7 @@ message View {
     int64 create_time = 9;
     string ext_data = 10;
     string thumbnail = 11;
+    int32 plugin_type = 12;
 }
 message RepeatedView {
     repeated View items = 1;
@@ -23,6 +24,7 @@ message CreateViewPayload {
     oneof one_of_thumbnail { string thumbnail = 4; };
     ViewDataType data_type = 5;
     string ext_data = 6;
+    int32 plugin_type = 7;
 }
 message CreateViewParams {
     string belong_to_id = 1;
@@ -33,6 +35,7 @@ message CreateViewParams {
     string ext_data = 6;
     string view_id = 7;
     string data = 8;
+    int32 plugin_type = 9;
 }
 message ViewId {
     string value = 1;

@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -38,7 +39,7 @@ class DocumentPluginBuilder implements PluginBuilder {
   String get pluginName => "Doc";
 
   @override
-  PluginType get pluginType => "RichText";
+  PluginType get pluginType => DefaultPlugin.quillEditor.type();
 
   @override
   ViewDataType get dataType => ViewDataType.RichText;

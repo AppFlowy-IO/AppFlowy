@@ -14,7 +14,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -22,7 +21,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'widget/trash_header.dart';
 
-class TrashPluginBuilder implements PluginBuilder {
+class TrashPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
     return TrashPlugin(pluginType: pluginType);
@@ -32,18 +31,13 @@ class TrashPluginBuilder implements PluginBuilder {
   String get pluginName => "Trash";
 
   @override
-  PluginType get pluginType => DefaultPluginEnum.trash.type();
-
-  @override
-  ViewDataType get dataType => ViewDataType.PlainText;
+  PluginType get pluginType => DefaultPlugin.trash.type();
 }
 
 class TrashPlugin implements Plugin {
-  late PluginType _pluginType;
+  final PluginType _pluginType;
 
-  TrashPlugin({required PluginType pluginType}) {
-    _pluginType = pluginType;
-  }
+  TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
 
   @override
   void dispose() {}

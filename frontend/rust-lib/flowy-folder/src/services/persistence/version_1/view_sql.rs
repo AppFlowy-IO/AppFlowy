@@ -65,49 +65,6 @@ impl ViewTableSql {
     }
 }
 
-// pub(crate) fn read_views(
-//     belong_to_id: &str,
-//     is_trash: Option<bool>,
-//     conn: &SqliteConnection,
-// ) -> Result<RepeatedView, FlowyError> {
-//     let views = dsl::view_table
-//         .inner_join(trash_table::dsl::trash_table.on(trash_id.ne(view_table::
-// id)))         .filter(view_table::belong_to_id.eq(belong_to_id))
-//         .select((
-//             view_table::id,
-//             view_table::belong_to_id,
-//             view_table::name,
-//             view_table::desc,
-//             view_table::modified_time,
-//             view_table::create_time,
-//             view_table::thumbnail,
-//             view_table::view_type,
-//             view_table::version,
-//         ))
-//         .load(conn)?
-//         .into_iter()
-//         .map(
-//             |(id, belong_to_id, name, desc, create_time, modified_time,
-// thumbnail, view_type, version)| {                 ViewTable {
-//                     id,
-//                     belong_to_id,
-//                     name,
-//                     desc,
-//                     modified_time,
-//                     create_time,
-//                     thumbnail,
-//                     view_type,
-//                     version,
-//                     is_trash: false,
-//                 }
-//                 .into()
-//             },
-//         )
-//         .collect::<Vec<View>>();
-//
-//     Ok(RepeatedView { items: views })
-// }
-
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[belongs_to(AppTable, foreign_key = "belong_to_id")]
 #[table_name = "view_table"]
@@ -165,6 +122,9 @@ impl std::convert::From<ViewTable> for View {
             create_time: table.create_time,
             ext_data: "".to_string(),
             thumbnail: table.thumbnail,
+            // Store the view in ViewTable was deprecated since v0.0.2.
+            // No need worry about plugin_type.
+            plugin_type: 0,
         }
     }
 }

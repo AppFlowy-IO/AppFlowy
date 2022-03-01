@@ -34,11 +34,12 @@ const View$json = const {
     const {'1': 'create_time', '3': 9, '4': 1, '5': 3, '10': 'createTime'},
     const {'1': 'ext_data', '3': 10, '4': 1, '5': 9, '10': 'extData'},
     const {'1': 'thumbnail', '3': 11, '4': 1, '5': 9, '10': 'thumbnail'},
+    const {'1': 'plugin_type', '3': 12, '4': 1, '5': 5, '10': 'pluginType'},
   ],
 };
 
 /// Descriptor for `View`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEioKCWRhdGFfdHlwZRgFIAEoDjINLlZpZXdEYXRhVHlwZVIIZGF0YVR5cGUSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbhItCgpiZWxvbmdpbmdzGAcgASgLMg0uUmVwZWF0ZWRWaWV3UgpiZWxvbmdpbmdzEiMKDW1vZGlmaWVkX3RpbWUYCCABKANSDG1vZGlmaWVkVGltZRIfCgtjcmVhdGVfdGltZRgJIAEoA1IKY3JlYXRlVGltZRIZCghleHRfZGF0YRgKIAEoCVIHZXh0RGF0YRIcCgl0aHVtYm5haWwYCyABKAlSCXRodW1ibmFpbA==');
+final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEioKCWRhdGFfdHlwZRgFIAEoDjINLlZpZXdEYXRhVHlwZVIIZGF0YVR5cGUSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbhItCgpiZWxvbmdpbmdzGAcgASgLMg0uUmVwZWF0ZWRWaWV3UgpiZWxvbmdpbmdzEiMKDW1vZGlmaWVkX3RpbWUYCCABKANSDG1vZGlmaWVkVGltZRIfCgtjcmVhdGVfdGltZRgJIAEoA1IKY3JlYXRlVGltZRIZCghleHRfZGF0YRgKIAEoCVIHZXh0RGF0YRIcCgl0aHVtYm5haWwYCyABKAlSCXRodW1ibmFpbBIfCgtwbHVnaW5fdHlwZRgMIAEoBVIKcGx1Z2luVHlwZQ==');
 @$core.Deprecated('Use repeatedViewDescriptor instead')
 const RepeatedView$json = const {
   '1': 'RepeatedView',
@@ -59,6 +60,7 @@ const CreateViewPayload$json = const {
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'thumbnail'},
     const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
     const {'1': 'ext_data', '3': 6, '4': 1, '5': 9, '10': 'extData'},
+    const {'1': 'plugin_type', '3': 7, '4': 1, '5': 5, '10': 'pluginType'},
   ],
   '8': const [
     const {'1': 'one_of_thumbnail'},
@@ -66,7 +68,7 @@ const CreateViewPayload$json = const {
 };
 
 /// Descriptor for `CreateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YUISChBvbmVfb2ZfdGh1bWJuYWls');
+final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YRIfCgtwbHVnaW5fdHlwZRgHIAEoBVIKcGx1Z2luVHlwZUISChBvbmVfb2ZfdGh1bWJuYWls');
 @$core.Deprecated('Use createViewParamsDescriptor instead')
 const CreateViewParams$json = const {
   '1': 'CreateViewParams',
@@ -79,11 +81,12 @@ const CreateViewParams$json = const {
     const {'1': 'ext_data', '3': 6, '4': 1, '5': 9, '10': 'extData'},
     const {'1': 'view_id', '3': 7, '4': 1, '5': 9, '10': 'viewId'},
     const {'1': 'data', '3': 8, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'plugin_type', '3': 9, '4': 1, '5': 5, '10': 'pluginType'},
   ],
 };
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YRIXCgd2aWV3X2lkGAcgASgJUgZ2aWV3SWQSEgoEZGF0YRgIIAEoCVIEZGF0YQ==');
+final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIZCghleHRfZGF0YRgGIAEoCVIHZXh0RGF0YRIXCgd2aWV3X2lkGAcgASgJUgZ2aWV3SWQSEgoEZGF0YRgIIAEoCVIEZGF0YRIfCgtwbHVnaW5fdHlwZRgJIAEoBVIKcGx1Z2luVHlwZQ==');
 @$core.Deprecated('Use viewIdDescriptor instead')
 const ViewId$json = const {
   '1': 'ViewId',

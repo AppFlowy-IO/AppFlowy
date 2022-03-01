@@ -4,24 +4,27 @@ import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dar
 import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/trash_page.dart';
 
-enum DefaultPluginEnum {
+enum DefaultPlugin {
+  quillEditor,
   blank,
   trash,
 }
 
-extension FlowyDefaultPluginExt on DefaultPluginEnum {
-  String type() {
+extension FlowyDefaultPluginExt on DefaultPlugin {
+  int type() {
     switch (this) {
-      case DefaultPluginEnum.blank:
-        return "Blank";
-      case DefaultPluginEnum.trash:
-        return "Trash";
+      case DefaultPlugin.quillEditor:
+        return 0;
+      case DefaultPlugin.blank:
+        return 1;
+      case DefaultPlugin.trash:
+        return 2;
     }
   }
 }
 
-bool isDefaultPlugin(String pluginType) {
-  return DefaultPluginEnum.values.map((e) => e.type()).contains(pluginType);
+bool isDefaultPlugin(PluginType pluginType) {
+  return DefaultPlugin.values.map((e) => e.type()).contains(pluginType);
 }
 
 class PluginLoadTask extends LaunchTask {
@@ -30,10 +33,8 @@ class PluginLoadTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    registerPlugin(builder: DocumentPluginBuilder());
-
-    registerPlugin(builder: TrashPluginBuilder());
-
     registerPlugin(builder: BlankPluginBuilder());
+    registerPlugin(builder: TrashPluginBuilder());
+    registerPlugin(builder: DocumentPluginBuilder());
   }
 }

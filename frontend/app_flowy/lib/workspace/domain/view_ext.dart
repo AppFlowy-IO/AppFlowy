@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -40,5 +41,10 @@ extension ViewExtension on View {
 
     final Widget widget = svg(thumbnail, color: iconColor);
     return widget;
+  }
+
+  Plugin plugin() {
+    final plugin = makePlugin(pluginType: pluginType, data: this);
+    return plugin;
   }
 }

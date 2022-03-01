@@ -63,5 +63,6 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> View {
         create_time: time.timestamp(),
         ext_data: "".to_string(),
         thumbnail: "".to_string(),
+        plugin_type: 0,
     }
 }

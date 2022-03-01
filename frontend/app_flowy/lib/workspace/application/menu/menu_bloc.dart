@@ -100,6 +100,6 @@ class MenuState with _$MenuState {
         isCollapse: false,
         apps: none(),
         successOrFailure: left(unit),
-        plugin: makePlugin(pluginType: DefaultPluginEnum.blank.type()),
+        plugin: makePlugin(pluginType: DefaultPlugin.blank.type()),
       );
 }

@@ -307,6 +307,7 @@ impl FolderCouldServiceV1 for LocalServer {
             create_time: time,
             ext_data: params.ext_data,
             thumbnail: params.thumbnail,
+            plugin_type: params.plugin_type,
         };
         FutureResult::new(async { Ok(view) })
     }

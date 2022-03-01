@@ -178,6 +178,7 @@ impl ViewController {
             data: document_json,
             view_id: uuid_string(),
             ext_data: view.ext_data,
+            plugin_type: view.plugin_type,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;

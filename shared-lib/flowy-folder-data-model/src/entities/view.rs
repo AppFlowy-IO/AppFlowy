@@ -48,6 +48,14 @@ pub struct View {
 
     #[pb(index = 11)]
     pub thumbnail: String,
+
+    #[pb(index = 12)]
+    #[serde(default = "default_plugin_type")]
+    pub plugin_type: i32,
+}
+
+fn default_plugin_type() -> i32 {
+    0
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
@@ -115,6 +123,9 @@ pub struct CreateViewPayload {
 
     #[pb(index = 6)]
     pub ext_data: String,
+
+    #[pb(index = 7)]
+    pub plugin_type: i32,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -142,6 +153,9 @@ pub struct CreateViewParams {
 
     #[pb(index = 8)]
     pub data: String,
+
+    #[pb(index = 9)]
+    pub plugin_type: i32,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayload {
@@ -156,6 +170,7 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
         };
+        let data = "".to_string();
 
         Ok(CreateViewParams {
             belong_to_id,
@@ -165,7 +180,8 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
             thumbnail,
             ext_data,
             view_id,
-            data: "".to_string(),
+            data,
+            plugin_type: self.plugin_type,
         })
     }
 }
