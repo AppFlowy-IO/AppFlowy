@@ -7,7 +7,7 @@ import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dar
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../core/network_monitor.dart';
+import '../core/network_monitor.dart';
 
 class UserDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
