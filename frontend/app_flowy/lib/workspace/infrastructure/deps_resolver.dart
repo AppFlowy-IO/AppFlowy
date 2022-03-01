@@ -11,12 +11,13 @@ import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
 import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
+import 'package:app_flowy/workspace/application/view/view_service.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -53,7 +54,8 @@ class HomeDepsResolver {
 
     getIt.registerFactoryParam<ViewBloc, View, void>(
       (view, _) => ViewBloc(
-        repo: ViewRepository(view: view),
+        view: view, 
+        service: ViewService(),
         listener: getIt<ViewListener>(param1: view),
       ),
     );

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/trash/trash_service.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';

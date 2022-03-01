@@ -1,4 +1,5 @@
-import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
+import 'package:app_flowy/workspace/application/view/view_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -8,18 +9,19 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  final ViewRepository repo;
-
+  final ViewService service;
   final ViewListener listener;
+  final View view;
 
   ViewBloc({
-    required this.repo,
+    required this.view,
+    required this.service,
     required this.listener,
-  }) : super(ViewState.init(repo.view)) {
+  }) : super(ViewState.init(view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
-          // TODO: Listener can be refctored to a stream.
+          // TODO: Listener can be refactored to a stream.
           listener.updatedNotifier.addPublishListener((result) {
             // emit.forEach(stream, onData: onData)
             add(ViewEvent.viewDidUpdate(result));
@@ -37,7 +39,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         rename: (e) async {
-          final result = await repo.updateView(name: e.newName);
+          final result = await service.updateView(viewId: view.id, name: e.newName);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -46,7 +48,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         delete: (e) async {
-          final result = await repo.delete();
+          final result = await service.delete(viewId: view.id);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -55,7 +57,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         duplicate: (e) async {
-          final result = await repo.duplicate();
+          final result = await service.duplicate(viewId: view.id);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
