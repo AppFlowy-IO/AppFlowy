@@ -2,9 +2,12 @@ name: Unit test(Flutter)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
+      
   pull_request:
-    branches: [ main ]
+    branches:
+      - 'main'
 
 env:
   CARGO_TERM_COLOR: always
@@ -13,36 +16,56 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
+      - uses: actions/checkout@v2
+      
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 'stable-2022-01-20'
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with: 
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Cache Rust
+        uses: actions/cache@v2
+        with: 
+          path: |
+            frontend/rust-lib/target
+            shared-lib/target
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+
       - name: Deps Flutter
+        working-directory: frontend/app_flowy
         run: |
           flutter config --enable-linux-desktop
-          flutter doctor
-        working-directory: frontend/app_flowy
+        
       - name: Deps Rust
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install cargo-make
+          cargo install duckscript_cli
           cargo make flowy_dev
-          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
+      
       - name: Code Generation
         working-directory: frontend/app_flowy
         run: |
           flutter packages pub get
           flutter packages pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
           flutter packages pub run build_runner build --delete-conflicting-outputs
+      
       - name: Build FlowySDK
         working-directory: frontend
         run: |
           cargo make --profile development-linux-x86 flowy-sdk-dev
+      
       - name: Run bloc tests
         working-directory: frontend/app_flowy
         run: |
