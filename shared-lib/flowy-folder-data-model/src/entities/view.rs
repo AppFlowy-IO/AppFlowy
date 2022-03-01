@@ -44,9 +44,11 @@ pub struct View {
     pub create_time: i64,
 
     #[pb(index = 10)]
+    #[serde(default)]
     pub ext_data: String,
 
     #[pb(index = 11)]
+    #[serde(default)]
     pub thumbnail: String,
 
     #[pb(index = 12)]

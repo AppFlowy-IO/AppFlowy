@@ -28,10 +28,15 @@ class TrashPluginBuilder extends PluginBuilder {
   }
 
   @override
-  String get pluginName => "Trash";
+  String get name => "Trash";
 
   @override
   PluginType get pluginType => DefaultPlugin.trash.type();
+}
+
+class TrashPluginConfig implements PluginConfig {
+  @override
+  bool get creatable => false;
 }
 
 class TrashPlugin implements Plugin {
@@ -44,9 +49,6 @@ class TrashPlugin implements Plugin {
 
   @override
   PluginDisplay get display => TrashPluginDisplay();
-
-  @override
-  bool get enable => true;
 
   @override
   String get pluginId => "TrashStack";

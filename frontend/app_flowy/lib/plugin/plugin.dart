@@ -17,8 +17,6 @@ abstract class Plugin {
 
   String get pluginId;
 
-  bool get enable;
-
   void dispose();
 
   PluginDisplay get display;
@@ -27,11 +25,15 @@ abstract class Plugin {
 abstract class PluginBuilder {
   Plugin build(dynamic data);
 
-  String get pluginName;
+  String get name;
 
   PluginType get pluginType;
 
   ViewDataType get dataType => ViewDataType.PlainText;
+}
+
+abstract class PluginConfig {
+  bool get creatable => true;
 }
 
 abstract class PluginDisplay with NavigationItem {
@@ -46,13 +48,25 @@ abstract class PluginDisplay with NavigationItem {
   Widget buildWidget();
 }
 
-void registerPlugin({required PluginBuilder builder}) {
-  getIt<PluginSandbox>().registerPlugin(builder.pluginType, builder);
+void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {
+  getIt<PluginSandbox>().registerPlugin(builder.pluginType, builder, config: config);
 }
 
 Plugin makePlugin({required PluginType pluginType, dynamic data}) {
   final plugin = getIt<PluginSandbox>().buildPlugin(pluginType, data);
   return plugin;
+}
+
+List<PluginBuilder> pluginBuilders() {
+  final pluginBuilders = getIt<PluginSandbox>().builders;
+  final pluginConfigs = getIt<PluginSandbox>().pluginConfigs;
+
+  return pluginBuilders.where(
+    (builder) {
+      final config = pluginConfigs[builder.pluginType]?.creatable;
+      return config ?? true;
+    },
+  ).toList();
 }
 
 enum FlowyPluginException {

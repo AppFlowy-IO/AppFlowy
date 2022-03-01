@@ -28,12 +28,14 @@ class AppRepository {
     required String name,
     required String desc,
     required PluginDataType dataType,
+    required PluginType pluginType,
   }) {
     final request = CreateViewPayload.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc
-      ..dataType = dataType;
+      ..dataType = dataType
+      ..pluginType = pluginType;
 
     return FolderEventCreateView(request).send();
   }

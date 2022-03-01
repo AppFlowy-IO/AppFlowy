@@ -25,7 +25,7 @@ import 'package:provider/provider.dart';
 
 import 'document_page.dart';
 
-class DocumentPluginBuilder implements PluginBuilder {
+class DocumentPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
     if (data is View) {
@@ -36,7 +36,7 @@ class DocumentPluginBuilder implements PluginBuilder {
   }
 
   @override
-  String get pluginName => "Doc";
+  String get name => "Doc";
 
   @override
   PluginType get pluginType => DefaultPlugin.quillEditor.type();
@@ -73,9 +73,6 @@ class DocumentPlugin implements Plugin {
 
   @override
   PluginDisplay get display => DocumentPluginDisplay(view: _view);
-
-  @override
-  bool get enable => true;
 
   @override
   PluginType get pluginType => _pluginType;

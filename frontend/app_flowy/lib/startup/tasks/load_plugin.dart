@@ -23,18 +23,14 @@ extension FlowyDefaultPluginExt on DefaultPlugin {
   }
 }
 
-bool isDefaultPlugin(PluginType pluginType) {
-  return DefaultPlugin.values.map((e) => e.type()).contains(pluginType);
-}
-
 class PluginLoadTask extends LaunchTask {
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    registerPlugin(builder: BlankPluginBuilder());
-    registerPlugin(builder: TrashPluginBuilder());
+    registerPlugin(builder: BlankPluginBuilder(), config: BlankPluginConfig());
+    registerPlugin(builder: TrashPluginBuilder(), config: TrashPluginConfig());
     registerPlugin(builder: DocumentPluginBuilder());
   }
 }

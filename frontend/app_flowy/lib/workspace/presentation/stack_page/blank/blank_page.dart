@@ -14,10 +14,15 @@ class BlankPluginBuilder extends PluginBuilder {
   }
 
   @override
-  String get pluginName => "Blank";
+  String get name => "Blank";
 
   @override
   PluginType get pluginType => DefaultPlugin.blank.type();
+}
+
+class BlankPluginConfig implements PluginConfig {
+  @override
+  bool get creatable => false;
 }
 
 class BlankPagePlugin implements Plugin {
@@ -31,9 +36,6 @@ class BlankPagePlugin implements Plugin {
 
   @override
   PluginDisplay get display => BlankPagePluginDisplay();
-
-  @override
-  bool get enable => true;
 
   @override
   String get pluginId => "BlankStack";

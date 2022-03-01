@@ -44,12 +44,7 @@ class ActionList {
   const ActionList({required this.anchorContext, required this.onSelected});
 
   void show(BuildContext buildContext) {
-    final items = getIt<PluginSandbox>()
-        .builders
-        .where(
-          (builder) => !isDefaultPlugin(builder.pluginType),
-        )
-        .map(
+    final items = pluginBuilders().map(
       (pluginBuilder) {
         return CreateItem(
           pluginBuilder: pluginBuilder,
@@ -94,7 +89,7 @@ class CreateItem extends StatelessWidget {
         return GestureDetector(
           onTap: () => onSelected(pluginBuilder),
           child: FlowyText.medium(
-            pluginBuilder.pluginName,
+            pluginBuilder.name,
             color: theme.textColor,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),
