@@ -35,7 +35,7 @@ class Config {
   /// Can be smaller due to screen size and amount of columns
   final double emojiSizeMax;
 
-  /// Verical spacing between emojis
+  /// Vertical spacing between emojis
   final double verticalSpacing;
 
   /// Horizontal spacing between emojis
@@ -57,7 +57,7 @@ class Config {
   /// The color of the category icon when selected
   final Color iconColorSelected;
 
-  /// The color of the loading indicator during initalization
+  /// The color of the loading indicator during initialization
   final Color progressIndicatorColor;
 
   /// The color of the backspace icon button

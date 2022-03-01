@@ -75,7 +75,7 @@ class HomeMenu extends StatelessWidget {
   }
 
   Widget _renderBody(BuildContext context) {
-    // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
+    // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     final theme = context.watch<AppTheme>();
     return Container(
       color: theme.bg1,

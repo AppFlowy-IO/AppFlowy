@@ -1,79 +1,83 @@
 name: CI
+
 on:
   push:
-    branches: [main]
+    branches:
+      - 'main'
+      
   pull_request:
-    branches: [main]
+    branches:
+      - 'main'
+
 jobs:
-  build-macos:
-    runs-on: macOS-latest
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86
+          - os: macos-latest
+            flutter_profile: development-mac
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v2
+      
+      - id: rust_toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Checkout Flutter
-        uses: actions/checkout@v2
+      
+      - id: flutter
+        uses: subosito/flutter-action@v2
         with:
-          repository: flutter/flutter
-          path: flutter
-      - name: Flutter
-        working-directory: flutter
-        run: |
-          echo "$(pwd)/bin" >> $GITHUB_PATH
-          export PATH="$PATH:$(pwd)/bin"
-          flutter channel stable
-          flutter config --enable-macos-desktop
-          flutter doctor
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with: 
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Cache Rust
+        uses: actions/cache@v2
+        with: 
+          path: |
+            frontend/rust-lib/target
+          key: ${{ runner.os }}-rust-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+
+      - name: Setup Environment
+        run:   |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo 'do nothing'
+          fi
+        shell: bash
+
       - name: Deps
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install cargo-make
+          cargo install duckscript_cli
           cargo make flowy_dev
-          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
+
+      - name: Config Flutter
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter config --enable-linux-desktop
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+          fi
+        shell: bash
+
       - name: Build
         working-directory: frontend
-        run: cargo make --profile production-mac-x86 appflowy
-  build-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Packages
         run: |
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-      - name: Rust
-        run: |
-          curl \
-            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup toolchain install stable
-          rustup default stable
-      - name: Checkout Flutter
-        uses: actions/checkout@v2
-        with:
-          repository: flutter/flutter
-          path: flutter
-      - name: Flutter
-        working-directory: flutter
-        run: |
-          echo "$(pwd)/bin" >> $GITHUB_PATH
-          export PATH="$PATH:$(pwd)/bin"
-          flutter channel stable
-          flutter config --enable-linux-desktop
-          flutter doctor
-      - name: Deps
-        working-directory: frontend
-        run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
-          cargo make flowy_dev
-          echo PATH="$PATH":"$HOME/.pub-cache/bin" >> $GITHUB_PATH
-      - name: Build
-        working-directory: frontend
-        run: cargo make --profile production-linux-x86 appflowy
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
