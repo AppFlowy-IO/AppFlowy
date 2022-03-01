@@ -1,8 +1,8 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/trash/trash_page.dart';
+import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
+import 'package:app_flowy/workspace/presentation/plugins/doc/document.dart';
+import 'package:app_flowy/workspace/presentation/plugins/trash/trash.dart';
 
 enum DefaultPlugin {
   quillEditor,

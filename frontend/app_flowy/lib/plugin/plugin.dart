@@ -2,7 +2,7 @@ library flowy_plugin;
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
@@ -12,20 +12,24 @@ typedef PluginType = int;
 
 typedef PluginDataType = ViewDataType;
 
+typedef PluginId = String;
+
 abstract class Plugin {
+  PluginId get pluginId;
+
+  PluginDisplay get pluginDisplay;
+
   PluginType get pluginType;
 
-  String get pluginId;
+  ChangeNotifier? get displayNotifier => null;
 
   void dispose();
-
-  PluginDisplay get display;
 }
 
 abstract class PluginBuilder {
   Plugin build(dynamic data);
 
-  String get name;
+  String get menuName;
 
   PluginType get pluginType;
 
@@ -60,7 +64,6 @@ Plugin makePlugin({required PluginType pluginType, dynamic data}) {
 List<PluginBuilder> pluginBuilders() {
   final pluginBuilders = getIt<PluginSandbox>().builders;
   final pluginConfigs = getIt<PluginSandbox>().pluginConfigs;
-
   return pluginBuilders.where(
     (builder) {
       final config = pluginConfigs[builder.pluginType]?.creatable;

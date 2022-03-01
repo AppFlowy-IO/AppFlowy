@@ -1,10 +1,8 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/widgets/edit_pannel/pannel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
-import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
@@ -14,7 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import '../widgets/edit_pannel/edit_pannel.dart';
+
 import 'home_layout.dart';
+import 'home_stack.dart';
+import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
