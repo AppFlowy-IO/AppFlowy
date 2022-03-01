@@ -2,12 +2,14 @@ name: Unit test(Rust)
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - 'main'
     paths:
       - 'frontend/rust-lib'
       - 'shared-lib'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - 'main'
     paths:
       - 'frontend/rust-lib'
       - 'shared-lib'
@@ -21,19 +23,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install Rust
-        run: |
-          curl \
-            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup toolchain install stable
-          rustup default stable
+      
+      - id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 'stable-2022-01-20'
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with: 
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Cache Rust
+        uses: actions/cache@v2
+        with: 
+          path: |
+            frontend/rust-lib/target
+            shared-lib/target
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+
       - name: Install cargo-make
-        run: cargo install --force cargo-make
         working-directory: frontend
+        run: cargo install cargo-make
+        
       - name: Run rust-lib tests
-        run: cargo test --no-default-features
         working-directory: frontend/rust-lib
-      - name: Run shared-lib tests
         run: cargo test --no-default-features
+        
+      - name: Run shared-lib tests
         working-directory: shared-lib
+        run: cargo test --no-default-features
