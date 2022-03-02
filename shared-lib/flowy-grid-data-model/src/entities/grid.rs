@@ -146,3 +146,15 @@ pub struct Cell {
     #[pb(index = 4)]
     pub data: AnyData,
 }
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateGridPayload {
+    #[pb(index = 1)]
+    pub name: String,
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GridId {
+    #[pb(index = 1)]
+    pub value: String,
+}

@@ -54,6 +54,12 @@ message Cell {
     string field_id = 3;
     AnyData data = 4;
 }
+message CreateGridPayload {
+    string name = 1;
+}
+message GridId {
+    string value = 1;
+}
 enum FieldType {
     RichText = 0;
     Number = 1;

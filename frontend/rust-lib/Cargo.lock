@@ -1041,6 +1041,27 @@ dependencies = [
 [[package]]
 name = "flowy-grid"
 version = "0.1.0"
+dependencies = [
+ "flowy-derive",
+ "flowy-error",
+ "flowy-grid-data-model",
+ "lib-dispatch",
+ "lib-infra",
+ "protobuf",
+ "strum",
+ "strum_macros",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-grid-data-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "lib-infra",
+ "protobuf",
+]
 
 [[package]]
 name = "flowy-net"
@@ -1091,6 +1112,7 @@ dependencies = [
  "flowy-collaboration",
  "flowy-database",
  "flowy-folder",
+ "flowy-grid",
  "flowy-net",
  "flowy-sync",
  "flowy-user",

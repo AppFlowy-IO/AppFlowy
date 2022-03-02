@@ -49,11 +49,11 @@ serde_json = "1.0"
 flowy-folder = { path = "../flowy-folder", features = ["flowy_unit_test"]}
 flowy-test = { path = "../flowy-test" }
 
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+
 [features]
 default = []
 http_server = []
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-sync/flowy_unit_test"]
-dart = ["lib-infra/dart", "flowy-folder/dart", "flowy-folder/dart",]
-
-[build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+dart = ["lib-infra/dart", "flowy-folder/dart"]

@@ -6,3 +6,20 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
+lib-dispatch = { path = "../lib-dispatch" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-error = { path = "../flowy-error"}
+strum = "0.21"
+strum_macros = "0.21"
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+tracing = { version = "0.1", features = ["log"] }
+protobuf = {version = "2.18.0"}
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+
+
+[features]
+default = []
+dart = ["lib-infra/dart"]
