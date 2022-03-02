@@ -40,6 +40,7 @@ impl fmt::Display for RichTextAttributes {
     }
 }
 
+#[inline(always)]
 pub fn plain_attributes() -> RichTextAttributes {
     RichTextAttributes::default()
 }
@@ -58,7 +59,7 @@ impl RichTextAttributes {
         self.inner.insert(key, value);
     }
 
-    pub fn add_kv(&mut self, key: RichTextAttributeKey, value: RichTextAttributeValue) {
+    pub fn insert(&mut self, key: RichTextAttributeKey, value: RichTextAttributeValue) {
         self.inner.insert(key, value);
     }
 

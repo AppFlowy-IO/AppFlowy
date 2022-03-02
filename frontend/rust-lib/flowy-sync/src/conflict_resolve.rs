@@ -9,13 +9,14 @@ use flowy_collaboration::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Delta};
+use lib_ot::core::{Attributes, Delta, PlainTextAttributes};
+use lib_ot::rich_text::RichTextAttributes;
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
 
 pub type DeltaMD5 = String;
 
-pub trait ResolverTarget<T>
+pub trait ConflictResolver<T>
 where
     T: Attributes + Send + Sync,
 {
@@ -24,35 +25,38 @@ where
     fn reset_delta(&self, delta: Delta<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
 }
 
-pub trait ResolverRevisionSink: Send + Sync + 'static {
+pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn send(&self, revisions: Vec<Revision>) -> BoxResultFuture<(), FlowyError>;
     fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
 }
 
-pub struct RevisionConflictResolver<T>
+pub type RichTextConflictController = ConflictController<RichTextAttributes>;
+pub type PlainTextConflictController = ConflictController<PlainTextAttributes>;
+
+pub struct ConflictController<T>
 where
     T: Attributes + Send + Sync,
 {
     user_id: String,
-    target: Arc<dyn ResolverTarget<T> + Send + Sync>,
-    rev_sink: Arc<dyn ResolverRevisionSink>,
+    resolver: Arc<dyn ConflictResolver<T> + Send + Sync>,
+    rev_sink: Arc<dyn ConflictRevisionSink>,
     rev_manager: Arc<RevisionManager>,
 }
 
-impl<T> RevisionConflictResolver<T>
+impl<T> ConflictController<T>
 where
     T: Attributes + Send + Sync + DeserializeOwned + serde::Serialize,
 {
     pub fn new(
         user_id: &str,
-        target: Arc<dyn ResolverTarget<T> + Send + Sync>,
-        rev_sink: Arc<dyn ResolverRevisionSink>,
+        resolver: Arc<dyn ConflictResolver<T> + Send + Sync>,
+        rev_sink: Arc<dyn ConflictRevisionSink>,
         rev_manager: Arc<RevisionManager>,
     ) -> Self {
         let user_id = user_id.to_owned();
         Self {
             user_id,
-            target,
+            resolver,
             rev_sink,
             rev_manager,
         }
@@ -104,20 +108,20 @@ where
         let TransformDeltas {
             client_prime,
             server_prime,
-        } = self.target.transform_delta(new_delta).await?;
+        } = self.resolver.transform_delta(new_delta).await?;
 
         match server_prime {
             None => {
                 // The server_prime is None means the client local revisions conflict with the
                 // // server, and it needs to override the client delta.
-                let md5 = self.target.reset_delta(client_prime).await?;
+                let md5 = self.resolver.reset_delta(client_prime).await?;
                 let repeated_revision = RepeatedRevision::new(revisions);
                 assert_eq!(repeated_revision.last().unwrap().md5, md5);
                 let _ = self.rev_manager.reset_object(repeated_revision).await?;
                 Ok(None)
             }
             Some(server_prime) => {
-                let md5 = self.target.compose_delta(client_prime.clone()).await?;
+                let md5 = self.resolver.compose_delta(client_prime.clone()).await?;
                 for revision in &revisions {
                     let _ = self.rev_manager.add_remote_revision(revision).await?;
                 }
@@ -170,6 +174,8 @@ where
         }
     }
 }
+
+pub type RichTextTransformDeltas = TransformDeltas<RichTextAttributes>;
 
 pub struct TransformDeltas<T>
 where

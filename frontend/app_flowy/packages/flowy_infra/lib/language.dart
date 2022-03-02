@@ -9,21 +9,27 @@ String languageFromLocale(Locale locale) {
       return "简体中文";
 
     // Then in alphabetical order
+    case "ca":
+      return "Català";
     case "de":
       return "Deutsch";
     case "es":
       return "Español";
     case "fr":
       switch (locale.countryCode) {
-        case "CA" : 
+        case "CA":
           return "Français (CA)";
-        case "FR" :
+        case "FR":
           return "Français (FR)";
-        default : 
+        default:
           return locale.languageCode;
       }
+    case "hu":
+      return "Magyar";
     case "it":
       return "Italiano";
+    case "pt":
+      return "Português";
     case "ru":
       return "русский";
 

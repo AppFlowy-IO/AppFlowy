@@ -1,5 +1,5 @@
 use crate::{
-    entities::{document_info::DocumentInfo, ws_data::ServerRevisionWSDataBuilder},
+    entities::{document_info::BlockInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::document_pad::ServerDocument,
@@ -18,13 +18,13 @@ use tokio::{
 };
 
 pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<BlockInfo, CollaborateError>;
 
     fn create_document(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<DocumentInfo>, CollaborateError>;
+    ) -> BoxResultFuture<Option<BlockInfo>, CollaborateError>;
 
     fn read_document_revisions(
         &self,
@@ -181,7 +181,7 @@ impl ServerDocumentManager {
         }
     }
 
-    async fn create_document_handler(&self, doc: DocumentInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
+    async fn create_document_handler(&self, doc: BlockInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
@@ -205,7 +205,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: BlockInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();

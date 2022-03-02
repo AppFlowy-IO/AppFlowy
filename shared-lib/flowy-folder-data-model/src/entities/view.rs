@@ -4,11 +4,12 @@ use crate::{
     impl_def_and_def_mut,
     parser::{
         app::AppIdentify,
-        view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
+        view::{ViewDesc, ViewExtensionData, ViewIdentify, ViewName, ViewThumbnail},
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
@@ -26,7 +27,8 @@ pub struct View {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    #[serde(default)]
+    pub data_type: ViewDataType,
 
     #[pb(index = 6)]
     pub version: i64,
@@ -39,6 +41,22 @@ pub struct View {
 
     #[pb(index = 9)]
     pub create_time: i64,
+
+    #[pb(index = 10)]
+    #[serde(default)]
+    pub ext_data: String,
+
+    #[pb(index = 11)]
+    #[serde(default)]
+    pub thumbnail: String,
+
+    #[pb(index = 12)]
+    #[serde(default = "default_plugin_type")]
+    pub plugin_type: i32,
+}
+
+fn default_plugin_type() -> i32 {
+    0
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
@@ -62,26 +80,27 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
-pub enum ViewType {
-    Blank = 0,
-    Doc = 1,
+#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum ViewDataType {
+    RichText = 0,
+    PlainText = 1,
 }
 
-impl std::default::Default for ViewType {
+impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewType::Blank
+        ViewDataType::RichText
     }
 }
 
-impl std::convert::From<i32> for ViewType {
+impl std::convert::From<i32> for ViewDataType {
     fn from(val: i32) -> Self {
         match val {
-            1 => ViewType::Doc,
-            0 => ViewType::Blank,
+            0 => ViewDataType::RichText,
+            1 => ViewDataType::PlainText,
             _ => {
                 log::error!("Invalid view type: {}", val);
-                ViewType::Blank
+                ViewDataType::PlainText
             }
         }
     }
@@ -102,7 +121,13 @@ pub struct CreateViewPayload {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
+
+    #[pb(index = 6)]
+    pub ext_data: String,
+
+    #[pb(index = 7)]
+    pub plugin_type: i32,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -120,36 +145,19 @@ pub struct CreateViewParams {
     pub thumbnail: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewType,
+    pub data_type: ViewDataType,
 
-    // ViewType::Doc -> Delta string
     #[pb(index = 6)]
-    pub view_data: String,
+    pub ext_data: String,
 
     #[pb(index = 7)]
     pub view_id: String,
-}
 
-impl CreateViewParams {
-    pub fn new(
-        belong_to_id: String,
-        name: String,
-        desc: String,
-        view_type: ViewType,
-        thumbnail: String,
-        view_data: String,
-        view_id: String,
-    ) -> Self {
-        Self {
-            belong_to_id,
-            name,
-            desc,
-            thumbnail,
-            view_type,
-            view_data,
-            view_id,
-        }
-    }
+    #[pb(index = 8)]
+    pub data: String,
+
+    #[pb(index = 9)]
+    pub plugin_type: i32,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayload {
@@ -158,22 +166,25 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
-        let view_data = "".to_string();
         let view_id = uuid::Uuid::new_v4().to_string();
+        let ext_data = ViewExtensionData::parse(self.ext_data)?.0;
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
         };
+        let data = "".to_string();
 
-        Ok(CreateViewParams::new(
+        Ok(CreateViewParams {
             belong_to_id,
             name,
-            self.desc,
-            self.view_type,
+            desc: self.desc,
+            data_type: self.data_type,
             thumbnail,
-            view_data,
+            ext_data,
             view_id,
-        ))
+            data,
+            plugin_type: self.plugin_type,
+        })
     }
 }
 
@@ -275,3 +286,59 @@ impl TryInto<UpdateViewParams> for UpdateViewPayload {
         })
     }
 }
+
+// impl<'de> Deserialize<'de> for ViewDataType {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         struct ViewTypeVisitor();
+//
+//         impl<'de> Visitor<'de> for ViewTypeVisitor {
+//             type Value = ViewDataType;
+//             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+//                 formatter.write_str("RichText, PlainText")
+//             }
+//
+//             fn visit_u8<E>(self, v: u8) -> Result<Self::Value, E>
+//             where
+//                 E: de::Error,
+//             {
+//                 let data_type;
+//                 match v {
+//                     0 => {
+//                         data_type = ViewDataType::RichText;
+//                     }
+//                     1 => {
+//                         data_type = ViewDataType::PlainText;
+//                     }
+//                     _ => {
+//                         return Err(de::Error::invalid_value(Unexpected::Unsigned(v as u64), &self));
+//                     }
+//                 }
+//                 Ok(data_type)
+//             }
+//
+//             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+//             where
+//                 E: de::Error,
+//             {
+//                 let data_type;
+//                 match s {
+//                     "Doc" | "RichText" => {
+//                         // Rename ViewDataType::Doc to ViewDataType::RichText, So we need to migrate the ViewType manually.
+//                         data_type = ViewDataType::RichText;
+//                     }
+//                     "PlainText" => {
+//                         data_type = ViewDataType::PlainText;
+//                     }
+//                     unknown => {
+//                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
+//                     }
+//                 }
+//                 Ok(data_type)
+//             }
+//         }
+//         deserializer.deserialize_any(ViewTypeVisitor())
+//     }
+// }

@@ -25,9 +25,9 @@ class _$MenuEventTearOff {
     return const Collapse();
   }
 
-  OpenPage openPage(HomeStackContext<dynamic, dynamic> context) {
+  OpenPage openPage(Plugin plugin) {
     return OpenPage(
-      context,
+      plugin,
     );
   }
 
@@ -54,8 +54,7 @@ mixin _$MenuEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
@@ -65,7 +64,7 @@ mixin _$MenuEvent {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) =>
@@ -74,7 +73,7 @@ mixin _$MenuEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
@@ -164,8 +163,7 @@ class _$_Initial implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
@@ -178,7 +176,7 @@ class _$_Initial implements _Initial {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
@@ -190,7 +188,7 @@ class _$_Initial implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
@@ -285,8 +283,7 @@ class _$Collapse implements Collapse {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
@@ -299,7 +296,7 @@ class _$Collapse implements Collapse {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
@@ -311,7 +308,7 @@ class _$Collapse implements Collapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
@@ -371,7 +368,7 @@ abstract class Collapse implements MenuEvent {
 abstract class $OpenPageCopyWith<$Res> {
   factory $OpenPageCopyWith(OpenPage value, $Res Function(OpenPage) then) =
       _$OpenPageCopyWithImpl<$Res>;
-  $Res call({HomeStackContext<dynamic, dynamic> context});
+  $Res call({Plugin plugin});
 }
 
 /// @nodoc
@@ -385,13 +382,13 @@ class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? context = freezed,
+    Object? plugin = freezed,
   }) {
     return _then(OpenPage(
-      context == freezed
-          ? _value.context
-          : context // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic, dynamic>,
+      plugin == freezed
+          ? _value.plugin
+          : plugin // ignore: cast_nullable_to_non_nullable
+              as Plugin,
     ));
   }
 }
@@ -399,27 +396,27 @@ class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 /// @nodoc
 
 class _$OpenPage implements OpenPage {
-  const _$OpenPage(this.context);
+  const _$OpenPage(this.plugin);
 
   @override
-  final HomeStackContext<dynamic, dynamic> context;
+  final Plugin plugin;
 
   @override
   String toString() {
-    return 'MenuEvent.openPage(context: $context)';
+    return 'MenuEvent.openPage(plugin: $plugin)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is OpenPage &&
-            (identical(other.context, context) ||
-                const DeepCollectionEquality().equals(other.context, context)));
+            (identical(other.plugin, plugin) ||
+                const DeepCollectionEquality().equals(other.plugin, plugin)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(context);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(plugin);
 
   @JsonKey(ignore: true)
   @override
@@ -431,13 +428,12 @@ class _$OpenPage implements OpenPage {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
-    return openPage(context);
+    return openPage(plugin);
   }
 
   @override
@@ -445,11 +441,11 @@ class _$OpenPage implements OpenPage {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
-    return openPage?.call(context);
+    return openPage?.call(plugin);
   }
 
   @override
@@ -457,13 +453,13 @@ class _$OpenPage implements OpenPage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (openPage != null) {
-      return openPage(context);
+      return openPage(plugin);
     }
     return orElse();
   }
@@ -510,11 +506,9 @@ class _$OpenPage implements OpenPage {
 }
 
 abstract class OpenPage implements MenuEvent {
-  const factory OpenPage(HomeStackContext<dynamic, dynamic> context) =
-      _$OpenPage;
+  const factory OpenPage(Plugin plugin) = _$OpenPage;
 
-  HomeStackContext<dynamic, dynamic> get context =>
-      throw _privateConstructorUsedError;
+  Plugin get plugin => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $OpenPageCopyWith<OpenPage> get copyWith =>
       throw _privateConstructorUsedError;
@@ -595,8 +589,7 @@ class _$CreateApp implements CreateApp {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
@@ -609,7 +602,7 @@ class _$CreateApp implements CreateApp {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
@@ -621,7 +614,7 @@ class _$CreateApp implements CreateApp {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
@@ -750,8 +743,7 @@ class _$ReceiveApps implements ReceiveApps {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic, dynamic> context)
-        openPage,
+    required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
@@ -764,7 +756,7 @@ class _$ReceiveApps implements ReceiveApps {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
@@ -776,7 +768,7 @@ class _$ReceiveApps implements ReceiveApps {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
@@ -847,12 +839,12 @@ class _$MenuStateTearOff {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, FlowyError> successOrFailure,
-      required HomeStackContext<dynamic, dynamic> stackContext}) {
+      required Plugin plugin}) {
     return _MenuState(
       isCollapse: isCollapse,
       apps: apps,
       successOrFailure: successOrFailure,
-      stackContext: stackContext,
+      plugin: plugin,
     );
   }
 }
@@ -866,8 +858,7 @@ mixin _$MenuState {
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
-  HomeStackContext<dynamic, dynamic> get stackContext =>
-      throw _privateConstructorUsedError;
+  Plugin get plugin => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -882,7 +873,7 @@ abstract class $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, FlowyError> successOrFailure,
-      HomeStackContext<dynamic, dynamic> stackContext});
+      Plugin plugin});
 }
 
 /// @nodoc
@@ -898,7 +889,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
     Object? isCollapse = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
-    Object? stackContext = freezed,
+    Object? plugin = freezed,
   }) {
     return _then(_value.copyWith(
       isCollapse: isCollapse == freezed
@@ -913,10 +904,10 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, FlowyError>,
-      stackContext: stackContext == freezed
-          ? _value.stackContext
-          : stackContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic, dynamic>,
+      plugin: plugin == freezed
+          ? _value.plugin
+          : plugin // ignore: cast_nullable_to_non_nullable
+              as Plugin,
     ));
   }
 }
@@ -931,7 +922,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, FlowyError> successOrFailure,
-      HomeStackContext<dynamic, dynamic> stackContext});
+      Plugin plugin});
 }
 
 /// @nodoc
@@ -948,7 +939,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
     Object? isCollapse = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
-    Object? stackContext = freezed,
+    Object? plugin = freezed,
   }) {
     return _then(_MenuState(
       isCollapse: isCollapse == freezed
@@ -963,10 +954,10 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, FlowyError>,
-      stackContext: stackContext == freezed
-          ? _value.stackContext
-          : stackContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic, dynamic>,
+      plugin: plugin == freezed
+          ? _value.plugin
+          : plugin // ignore: cast_nullable_to_non_nullable
+              as Plugin,
     ));
   }
 }
@@ -978,7 +969,7 @@ class _$_MenuState implements _MenuState {
       {required this.isCollapse,
       required this.apps,
       required this.successOrFailure,
-      required this.stackContext});
+      required this.plugin});
 
   @override
   final bool isCollapse;
@@ -987,11 +978,11 @@ class _$_MenuState implements _MenuState {
   @override
   final Either<Unit, FlowyError> successOrFailure;
   @override
-  final HomeStackContext<dynamic, dynamic> stackContext;
+  final Plugin plugin;
 
   @override
   String toString() {
-    return 'MenuState(isCollapse: $isCollapse, apps: $apps, successOrFailure: $successOrFailure, stackContext: $stackContext)';
+    return 'MenuState(isCollapse: $isCollapse, apps: $apps, successOrFailure: $successOrFailure, plugin: $plugin)';
   }
 
   @override
@@ -1006,9 +997,8 @@ class _$_MenuState implements _MenuState {
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)) &&
-            (identical(other.stackContext, stackContext) ||
-                const DeepCollectionEquality()
-                    .equals(other.stackContext, stackContext)));
+            (identical(other.plugin, plugin) ||
+                const DeepCollectionEquality().equals(other.plugin, plugin)));
   }
 
   @override
@@ -1017,7 +1007,7 @@ class _$_MenuState implements _MenuState {
       const DeepCollectionEquality().hash(isCollapse) ^
       const DeepCollectionEquality().hash(apps) ^
       const DeepCollectionEquality().hash(successOrFailure) ^
-      const DeepCollectionEquality().hash(stackContext);
+      const DeepCollectionEquality().hash(plugin);
 
   @JsonKey(ignore: true)
   @override
@@ -1030,7 +1020,7 @@ abstract class _MenuState implements MenuState {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, FlowyError> successOrFailure,
-      required HomeStackContext<dynamic, dynamic> stackContext}) = _$_MenuState;
+      required Plugin plugin}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
@@ -1040,8 +1030,7 @@ abstract class _MenuState implements MenuState {
   Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
-  HomeStackContext<dynamic, dynamic> get stackContext =>
-      throw _privateConstructorUsedError;
+  Plugin get plugin => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$MenuStateCopyWith<_MenuState> get copyWith =>

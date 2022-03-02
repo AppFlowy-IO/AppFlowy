@@ -18,10 +18,10 @@ abstract class FlowyInfraUIPlatform extends PlatformInterface {
   }
 
   Stream<bool> get onKeyboardVisibilityChange {
-    throw UnimplementedError('`onKeyboardChange` should be overrided by subclass.');
+    throw UnimplementedError('`onKeyboardChange` should be overridden by subclass.');
   }
 
   Future<String?> getPlatformVersion() {
-    throw UnimplementedError('`getPlatformVersion` should be overrided by subclass.');
+    throw UnimplementedError('`getPlatformVersion` should be overridden by subclass.');
   }
 }

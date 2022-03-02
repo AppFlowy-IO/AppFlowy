@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/domain/edit_context.dart';
+import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: import_of_legacy_library_into_null_safe

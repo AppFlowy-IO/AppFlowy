@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
+import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/tasks/load_plugin.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
@@ -12,9 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final WorkspaceRepo repo;
+  final WorkspaceService service;
   final WorkspaceListener listener;
-  MenuBloc({required this.repo, required this.listener}) : super(MenuState.initial()) {
+  final String workspaceId;
+
+  MenuBloc({required this.workspaceId, required this.service, required this.listener}) : super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -26,7 +29,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           emit(state.copyWith(isCollapse: !isCollapse));
         },
         openPage: (e) async {
-          emit(state.copyWith(stackContext: e.context));
+          emit(state.copyWith(plugin: e.plugin));
         },
         createApp: (CreateApp event) async {
           await _performActionOnCreateApp(event, emit);
@@ -48,7 +51,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Future<void> _performActionOnCreateApp(CreateApp event, Emitter<MenuState> emit) async {
-    final result = await repo.createApp(event.name, event.desc ?? "");
+    final result = await service.createApp(workspaceId: workspaceId, name: event.name, desc: event.desc ?? "");
     result.fold(
       (app) => {},
       (error) {
@@ -60,7 +63,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
-    final appsOrFail = await repo.getApps();
+    final appsOrFail = await service.getApps(workspaceId: workspaceId);
     emit(appsOrFail.fold(
       (apps) => state.copyWith(apps: some(apps)),
       (error) {
@@ -82,7 +85,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
   const factory MenuEvent.collapse() = Collapse;
-  const factory MenuEvent.openPage(HomeStackContext context) = OpenPage;
+  const factory MenuEvent.openPage(Plugin plugin) = OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
   const factory MenuEvent.didReceiveApps(Either<List<App>, FlowyError> appsOrFail) = ReceiveApps;
 }
@@ -93,13 +96,13 @@ class MenuState with _$MenuState {
     required bool isCollapse,
     required Option<List<App>> apps,
     required Either<Unit, FlowyError> successOrFailure,
-    required HomeStackContext stackContext,
+    required Plugin plugin,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         isCollapse: false,
         apps: none(),
         successOrFailure: left(unit),
-        stackContext: BlankStackContext(),
+        plugin: makePlugin(pluginType: DefaultPlugin.blank.type()),
       );
 }

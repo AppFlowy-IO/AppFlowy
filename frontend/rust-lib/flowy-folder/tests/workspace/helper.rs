@@ -1,11 +1,11 @@
-use flowy_collaboration::entities::document_info::DocumentInfo;
+use flowy_collaboration::entities::document_info::BlockInfo;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
 use flowy_folder_data_model::entities::workspace::WorkspaceId;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppPayload, UpdateAppPayload},
     trash::{RepeatedTrash, TrashId, TrashType},
-    view::{CreateViewPayload, UpdateViewPayload, View, ViewType},
+    view::{CreateViewPayload, UpdateViewPayload, View, ViewDataType},
     workspace::{CreateWorkspacePayload, RepeatedWorkspace, Workspace},
 };
 use flowy_test::{event_builder::*, FlowySDKTest};
@@ -109,13 +109,15 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, view_type: ViewType) -> View {
+pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> View {
     let request = CreateViewPayload {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
-        view_type,
+        data_type,
+        ext_data: "".to_string(),
+        plugin_type: 0,
     };
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)
@@ -159,14 +161,14 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
         .await;
 }
 
-pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> DocumentInfo {
+pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> BlockInfo {
     let view_id: ViewId = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(OpenView)
         .payload(view_id)
         .async_send()
         .await
-        .parse::<DocumentInfo>()
+        .parse::<BlockInfo>()
 }
 
 pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {

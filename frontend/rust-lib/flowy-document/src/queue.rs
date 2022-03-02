@@ -1,5 +1,5 @@
 use crate::web_socket::EditorCommandReceiver;
-use crate::DocumentUser;
+use crate::BlockUser;
 use async_stream::stream;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{
@@ -8,7 +8,7 @@ use flowy_collaboration::{
     errors::CollaborateError,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, TransformDeltas};
+use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, RichTextTransformDeltas, TransformDeltas};
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -19,16 +19,16 @@ use tokio::sync::{oneshot, RwLock};
 
 // The EditorCommandQueue executes each command that will alter the document in
 // serial.
-pub(crate) struct EditorCommandQueue {
+pub(crate) struct EditBlockQueue {
     document: Arc<RwLock<ClientDocument>>,
-    user: Arc<dyn DocumentUser>,
+    user: Arc<dyn BlockUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
-impl EditorCommandQueue {
+impl EditBlockQueue {
     pub(crate) fn new(
-        user: Arc<dyn DocumentUser>,
+        user: Arc<dyn BlockUser>,
         rev_manager: Arc<RevisionManager>,
         delta: RichTextDelta,
         receiver: EditorCommandReceiver,
@@ -102,7 +102,7 @@ impl EditorCommandQueue {
                         server_prime = Some(s_prime);
                     }
                     drop(read_guard);
-                    Ok::<TransformDeltas<RichTextAttributes>, CollaborateError>(TransformDeltas {
+                    Ok::<RichTextTransformDeltas, CollaborateError>(TransformDeltas {
                         client_prime,
                         server_prime,
                     })
@@ -161,11 +161,11 @@ impl EditorCommandQueue {
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
-            EditorCommand::ReadDocumentAsJson { ret } => {
+            EditorCommand::ReadBlockJson { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             }
-            EditorCommand::ReadDocumentAsDelta { ret } => {
+            EditorCommand::ReadBlockDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
             }
@@ -187,17 +187,17 @@ impl EditorCommandQueue {
         );
         let _ = self
             .rev_manager
-            .add_local_revision::<DocumentRevisionCompact>(&revision)
+            .add_local_revision::<BlockRevisionCompact>(&revision)
             .await?;
         Ok(rev_id.into())
     }
 }
 
-pub(crate) struct DocumentRevisionCompact();
-impl RevisionCompact for DocumentRevisionCompact {
+pub(crate) struct BlockRevisionCompact();
+impl RevisionCompact for BlockRevisionCompact {
     fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
         if revisions.is_empty() {
-            return Err(FlowyError::internal().context("Can't compact the empty document's revisions"));
+            return Err(FlowyError::internal().context("Can't compact the empty block's revisions"));
         }
 
         if revisions.len() == 1 {
@@ -232,7 +232,7 @@ pub(crate) enum EditorCommand {
     },
     TransformDelta {
         delta: RichTextDelta,
-        ret: Ret<TransformDeltas<RichTextAttributes>>,
+        ret: Ret<RichTextTransformDeltas>,
     },
     Insert {
         index: usize,
@@ -265,11 +265,11 @@ pub(crate) enum EditorCommand {
     Redo {
         ret: Ret<()>,
     },
-    ReadDocumentAsJson {
+    ReadBlockJson {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadDocumentAsDelta {
+    ReadBlockDelta {
         ret: Ret<RichTextDelta>,
     },
 }
@@ -289,8 +289,8 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::CanRedo { .. } => "CanRedo",
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
-            EditorCommand::ReadDocumentAsJson { .. } => "ReadDocumentAsJson",
-            EditorCommand::ReadDocumentAsDelta { .. } => "ReadDocumentAsDelta",
+            EditorCommand::ReadBlockJson { .. } => "ReadDocumentAsJson",
+            EditorCommand::ReadBlockDelta { .. } => "ReadDocumentAsDelta",
         };
         f.write_str(s)
     }

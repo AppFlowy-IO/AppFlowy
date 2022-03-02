@@ -774,7 +774,7 @@ fn delta_compose() {
         delta = delta.compose(&d).unwrap();
     }
     assert_eq!(
-        delta.to_json(),
+        delta.to_delta_json(),
         r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
     );
 

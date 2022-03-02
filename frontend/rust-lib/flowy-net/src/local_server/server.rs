@@ -4,7 +4,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::{
-        document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams},
+        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -248,7 +248,7 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_document::DocumentCloudService;
+use flowy_document::BlockCloudService;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
@@ -300,11 +300,14 @@ impl FolderCouldServiceV1 for LocalServer {
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
-            view_type: params.view_type,
+            data_type: params.data_type,
             version: 0,
             belongings: RepeatedView::default(),
             modified_time: time,
             create_time: time,
+            ext_data: params.ext_data,
+            thumbnail: params.thumbnail,
+            plugin_type: params.plugin_type,
         };
         FutureResult::new(async { Ok(view) })
     }
@@ -406,13 +409,13 @@ impl UserCloudService for LocalServer {
     }
 }
 
-impl DocumentCloudService for LocalServer {
-    fn create_document(&self, _token: &str, _params: CreateDocParams) -> FutureResult<(), FlowyError> {
+impl BlockCloudService for LocalServer {
+    fn create_block(&self, _token: &str, _params: CreateBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_document(&self, _token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError> {
-        let doc = DocumentInfo {
+    fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
+        let doc = BlockInfo {
             doc_id: params.value,
             text: initial_delta_string(),
             rev_id: 0,
@@ -421,7 +424,7 @@ impl DocumentCloudService for LocalServer {
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_document(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

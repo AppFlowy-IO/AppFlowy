@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile, ErrorCode;
@@ -10,8 +10,8 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 part 'sign_up_bloc.freezed.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
-  final AuthRepository autoRepo;
-  SignUpBloc(this.autoRepo) : super(SignUpState.initial()) {
+  final AuthService authService;
+  SignUpBloc(this.authService) : super(SignUpState.initial()) {
     on<SignUpEvent>((event, emit) async {
       await event.map(signUpWithUserEmailAndPassword: (e) async {
         await _performActionOnSignUp(emit);
@@ -62,7 +62,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       repeatPasswordError: none(),
     ));
 
-    final result = await autoRepo.signUp(
+    final result = await authService.signUp(
       name: state.email,
       password: state.password,
       email: state.email,

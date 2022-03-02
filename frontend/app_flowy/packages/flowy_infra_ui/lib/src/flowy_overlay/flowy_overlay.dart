@@ -37,7 +37,7 @@ enum OverlapBehaviour {
   /// Maintain overlay size, which may cover the anchor widget.
   none,
 
-  /// Resize overlay to avoid overlaping the anchor widget.
+  /// Resize overlay to avoid overlapping the anchor widget.
   stretch,
 }
 

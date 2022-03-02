@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/workspace/domain/edit_context.dart';
+import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:dartz/dartz.dart';

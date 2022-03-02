@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
+import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -18,7 +18,7 @@ class InitAppWidgetTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final app = ApplicationWidget(
       child: context.getIt<EntryPoint>().create(),
-      settings: await UserSettingReppsitory().getAppearanceSettings(),
+      settings: await UserSettingsService().getAppearanceSettings(),
     );
 
     BlocOverrides.runZoned(
@@ -27,12 +27,15 @@ class InitAppWidgetTask extends LaunchTask {
           EasyLocalization(
             supportedLocales: const [
               // In alphabetical order
+              Locale('ca', 'ES'),
               Locale('de', 'DE'),
               Locale('en'),
               Locale('es', 'VE'),
               Locale('fr', 'FR'),
               Locale('fr', 'CA'),
+              Locale('hu', 'HU'),
               Locale('it', 'IT'),
+              Locale('pt', 'BR'),
               Locale('ru', 'RU'),
               Locale('zh', 'CN'),
             ],

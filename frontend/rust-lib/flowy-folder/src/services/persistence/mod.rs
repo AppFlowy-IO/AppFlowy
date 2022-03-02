@@ -2,6 +2,7 @@ mod migration;
 pub mod version_1;
 mod version_2;
 
+use flowy_collaboration::client_folder::initial_folder_delta;
 use flowy_collaboration::{
     client_folder::FolderPad,
     entities::revision::{Revision, RevisionState},
@@ -13,7 +14,7 @@ pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::
 use crate::{
     controller::FolderId,
     event_map::WorkspaceDatabase,
-    services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
+    services::{folder_editor::ClientFolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::entities::{
@@ -50,11 +51,14 @@ pub trait FolderPersistenceTransaction {
 
 pub struct FolderPersistence {
     database: Arc<dyn WorkspaceDatabase>,
-    folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>,
+    folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
 }
 
 impl FolderPersistence {
-    pub fn new(database: Arc<dyn WorkspaceDatabase>, folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>) -> Self {
+    pub fn new(
+        database: Arc<dyn WorkspaceDatabase>,
+        folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
+    ) -> Self {
         Self {
             database,
             folder_editor,
@@ -102,7 +106,10 @@ impl FolderPersistence {
     pub async fn initialize(&self, user_id: &str, folder_id: &FolderId) -> FlowyResult<()> {
         let migrations = FolderMigration::new(user_id, self.database.clone());
         if let Some(migrated_folder) = migrations.run_v1_migration()? {
-            tracing::trace!("Save migration folder");
+            self.save_folder(user_id, folder_id, migrated_folder).await?;
+        }
+
+        if let Some(migrated_folder) = migrations.run_v2_migration(user_id, folder_id).await? {
             self.save_folder(user_id, folder_id, migrated_folder).await?;
         }
 
@@ -111,7 +118,7 @@ impl FolderPersistence {
 
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
-        let delta_data = folder.delta().to_bytes();
+        let delta_data = initial_folder_delta(&folder)?.to_bytes();
         let md5 = folder.md5();
         let revision = Revision::new(folder_id.as_ref(), 0, 0, delta_data, user_id, md5);
         let record = RevisionRecord {
@@ -120,8 +127,7 @@ impl FolderPersistence {
             write_to_disk: true,
         };
 
-        let conn = pool.get()?;
         let disk_cache = mk_revision_disk_cache(user_id, pool);
-        disk_cache.create_revision_records(vec![record], &conn)
+        disk_cache.delete_and_insert_records(folder_id.as_ref(), None, vec![record])
     }
 }

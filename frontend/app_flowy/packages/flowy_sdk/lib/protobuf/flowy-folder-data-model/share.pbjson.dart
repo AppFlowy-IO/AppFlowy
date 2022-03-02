@@ -24,13 +24,13 @@ final $typed_data.Uint8List exportTypeDescriptor = $convert.base64Decode('CgpFeH
 const ExportPayload$json = const {
   '1': 'ExportPayload',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
     const {'1': 'export_type', '3': 2, '4': 1, '5': 14, '6': '.ExportType', '10': 'exportType'},
   ],
 };
 
 /// Descriptor for `ExportPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List exportPayloadDescriptor = $convert.base64Decode('Cg1FeHBvcnRQYXlsb2FkEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSLAoLZXhwb3J0X3R5cGUYAiABKA4yCy5FeHBvcnRUeXBlUgpleHBvcnRUeXBl');
+final $typed_data.Uint8List exportPayloadDescriptor = $convert.base64Decode('Cg1FeHBvcnRQYXlsb2FkEhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIsCgtleHBvcnRfdHlwZRgCIAEoDjILLkV4cG9ydFR5cGVSCmV4cG9ydFR5cGU=');
 @$core.Deprecated('Use exportDataDescriptor instead')
 const ExportData$json = const {
   '1': 'ExportData',

@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -16,8 +16,8 @@ class NavigationNotifier with ChangeNotifier {
 
   void update(HomeStackNotifier notifier) {
     bool shouldNotify = false;
-    if (navigationItems != notifier.context.navigationItems) {
-      navigationItems = notifier.context.navigationItems;
+    if (navigationItems != notifier.plugin.pluginDisplay.navigationItems) {
+      navigationItems = notifier.plugin.pluginDisplay.navigationItems;
       shouldNotify = true;
     }
 
@@ -56,7 +56,7 @@ class FlowyNavigation extends StatelessWidget {
       create: (_) {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
         return NavigationNotifier(
-          navigationItems: notifier.context.navigationItems,
+          navigationItems: notifier.plugin.pluginDisplay.navigationItems,
           collapasedNotifier: notifier.collapsedNotifier,
         );
       },
@@ -176,7 +176,4 @@ class EllipsisNaviItem extends NavigationItem {
 
   @override
   NavigationCallback get action => (id) {};
-
-  @override
-  String get identifier => "Ellipsis";
 }

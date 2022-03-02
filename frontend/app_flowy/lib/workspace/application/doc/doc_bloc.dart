@@ -1,33 +1,35 @@
 import 'dart:convert';
-import 'package:app_flowy/workspace/infrastructure/repos/document_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
+import 'package:app_flowy/workspace/application/doc/doc_service.dart';
+import 'package:app_flowy/workspace/application/trash/trash_service.dart';
+import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 import 'dart:async';
+
 part 'doc_bloc.freezed.dart';
 
 typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final View view;
-  final DocumentRepository repo;
+  final DocumentService service;
+
   final ViewListener listener;
-  final TrashRepo trashRepo;
+  final TrashService trashService;
   late FlutterQuillDocument document;
   StreamSubscription? _subscription;
 
   DocumentBloc({
     required this.view,
-    required this.repo,
+    required this.service,
     required this.listener,
-    required this.trashRepo,
+    required this.trashService,
   }) : super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
       await event.map(
@@ -41,12 +43,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashRepo.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+          final result = await trashService.deleteViews([Tuple2(view.id, TrashType.TrashView)]);
+
           final newState = result.fold((l) => state.copyWith(forceClose: true), (r) => state);
           emit(newState);
         },
         restorePage: (RestorePage value) async {
-          final result = await trashRepo.putback(view.id);
+          final result = await trashService.putback(view.id);
           final newState = result.fold((l) => state.copyWith(isDeleted: false), (r) => state);
           emit(newState);
         },
@@ -62,7 +65,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _subscription?.cancel();
     }
 
-    repo.closeDocument();
+    service.closeDocument(docId: view.id);
     return super.close();
   }
 
@@ -82,10 +85,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     });
 
     listener.start();
-    final result = await repo.openDocument();
+    final result = await service.openDocument(docId: view.id);
     result.fold(
-      (doc) {
-        document = _decodeJsonToDocument(doc.deltaJson);
+      (block) {
+        document = _decodeJsonToDocument(block.deltaJson);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();
@@ -108,7 +111,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
     Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await repo.composeDelta(data: json);
+    final result = await service.composeDelta(docId: view.id, data: json);
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);

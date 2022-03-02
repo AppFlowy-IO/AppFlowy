@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/infrastructure/repos/user_setting_repo.dart';
+import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void setLocale(BuildContext context, Locale newLocale) {
     if (state.locale != newLocale) {
       if (!context.supportedLocales.contains(newLocale)) {
-        Log.error("Unsupported locale: $newLocale");
+        Log.warn("Unsupported locale: $newLocale");
         newLocale = const Locale('en');
         Log.debug("Fallback to locale: $newLocale");
       }
@@ -57,7 +57,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveOperation?.cancel;
     _saveOperation = CancelableOperation.fromFuture(
       Future.delayed(const Duration(seconds: 1), () async {
-        await UserSettingReppsitory().setAppearanceSettings(settings);
+        await UserSettingsService().setAppearanceSettings(settings);
       }),
     );
   }

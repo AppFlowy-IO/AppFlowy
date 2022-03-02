@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
-import 'package:app_flowy/user/infrastructure/router.dart';
+import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';

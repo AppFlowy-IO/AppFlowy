@@ -1,6 +1,6 @@
 use crate::entities::{
     app::{App, RepeatedApp},
-    view::{RepeatedView, View, ViewType},
+    view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
 use chrono::Utc;
@@ -49,17 +49,20 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> View {
     let view_id = uuid::Uuid::new_v4();
     let name = "Read me".to_string();
     let desc = "".to_string();
-    let view_type = ViewType::Doc;
+    let data_type = ViewDataType::RichText;
 
     View {
         id: view_id.to_string(),
         belong_to_id: app_id,
         name,
         desc,
-        view_type,
+        data_type,
         version: 0,
         belongings: Default::default(),
         modified_time: time.timestamp(),
         create_time: time.timestamp(),
+        ext_data: "".to_string(),
+        thumbnail: "".to_string(),
+        plugin_type: 0,
     }
 }

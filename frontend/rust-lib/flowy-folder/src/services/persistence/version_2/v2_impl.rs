@@ -1,5 +1,5 @@
 use crate::services::{
-    folder_editor::FolderEditor,
+    folder_editor::ClientFolderEditor,
     persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset},
 };
 use flowy_error::{FlowyError, FlowyResult};
@@ -11,7 +11,7 @@ use flowy_folder_data_model::entities::{
 };
 use std::sync::Arc;
 
-impl FolderPersistenceTransaction for FolderEditor {
+impl FolderPersistenceTransaction for ClientFolderEditor {
     fn create_workspace(&self, _user_id: &str, workspace: Workspace) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_workspace(workspace)? {
             let _ = self.apply_change(change)?;

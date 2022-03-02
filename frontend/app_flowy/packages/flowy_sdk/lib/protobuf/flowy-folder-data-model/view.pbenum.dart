@@ -9,18 +9,18 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class ViewType extends $pb.ProtobufEnum {
-  static const ViewType Blank = ViewType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Blank');
-  static const ViewType Doc = ViewType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
+class ViewDataType extends $pb.ProtobufEnum {
+  static const ViewDataType RichText = ViewDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RichText');
+  static const ViewDataType PlainText = ViewDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PlainText');
 
-  static const $core.List<ViewType> values = <ViewType> [
-    Blank,
-    Doc,
+  static const $core.List<ViewDataType> values = <ViewDataType> [
+    RichText,
+    PlainText,
   ];
 
-  static final $core.Map<$core.int, ViewType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static ViewType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ViewDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ViewDataType? valueOf($core.int value) => _byValue[value];
 
-  const ViewType._($core.int v, $core.String n) : super(v, n);
+  const ViewDataType._($core.int v, $core.String n) : super(v, n);
 }
 

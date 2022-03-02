@@ -6,8 +6,9 @@ use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 
@@ -17,7 +18,7 @@ use crate::{
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
-        folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
+        folder_editor::ClientFolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
     },
 };
@@ -63,7 +64,7 @@ pub struct FolderManager {
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) trash_controller: Arc<TrashController>,
     web_socket: Arc<dyn RevisionWebSocket>,
-    folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
+    folder_editor: Arc<TokioRwLock<Option<Arc<ClientFolderEditor>>>>,
 }
 
 impl FolderManager {
@@ -71,7 +72,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
-        document_manager: Arc<FlowyDocumentManager>,
+        document_manager: Arc<BlockManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(user_id) = user.user_id() {
@@ -162,7 +163,7 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let folder_editor = FolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
+        let folder_editor = ClientFolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -196,14 +197,15 @@ impl DefaultFolderBuilder {
         for app in workspace.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
-                    initial_read_me().to_json()
+                    initial_read_me().to_delta_json()
                 } else {
-                    initial_delta().to_json()
+                    initial_delta().to_delta_json()
                 };
                 view_controller.set_latest_view(view);
-                let _ = view_controller
-                    .create_view_document_content(&view.id, view_data)
-                    .await?;
+                let delta_data = Bytes::from(view_data);
+                let repeated_revision: RepeatedRevision =
+                    Revision::initial_revision(user_id, &view.id, delta_data).into();
+                let _ = view_controller.create_view(&view.id, repeated_revision).await?;
             }
         }
         let folder = FolderPad::new(vec![workspace.clone()], vec![])?;
@@ -219,7 +221,7 @@ impl DefaultFolderBuilder {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderManager {
-    pub async fn folder_editor(&self) -> Arc<FolderEditor> {
+    pub async fn folder_editor(&self) -> Arc<ClientFolderEditor> {
         self.folder_editor.read().await.clone().unwrap()
     }
 }

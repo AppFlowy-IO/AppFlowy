@@ -1,4 +1,4 @@
-pub mod editor;
+pub mod block_editor;
 pub mod manager;
 mod queue;
 mod web_socket;
@@ -11,13 +11,13 @@ pub mod errors {
 pub const DOCUMENT_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
-use flowy_collaboration::entities::document_info::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
+use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams};
 use lib_infra::future::FutureResult;
 
-pub trait DocumentCloudService: Send + Sync {
-    fn create_document(&self, token: &str, params: CreateDocParams) -> FutureResult<(), FlowyError>;
+pub trait BlockCloudService: Send + Sync {
+    fn create_block(&self, token: &str, params: CreateBlockParams) -> FutureResult<(), FlowyError>;
 
-    fn read_document(&self, token: &str, params: DocumentId) -> FutureResult<Option<DocumentInfo>, FlowyError>;
+    fn read_block(&self, token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError>;
 
-    fn update_document(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError>;
+    fn update_block(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError>;
 }

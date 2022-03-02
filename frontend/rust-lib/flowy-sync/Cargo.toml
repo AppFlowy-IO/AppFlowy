@@ -26,7 +26,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 futures-util = "0.3.15"
 async-stream = "0.3.2"
-
+async-trait = "0.1.52"
 
 [features]
 flowy_unit_test = ["lib-ot/flowy_unit_test"]

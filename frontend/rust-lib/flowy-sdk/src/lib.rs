@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::FlowyDocumentManager;
+use flowy_document::BlockManager;
 use flowy_folder::{controller::FolderManager, errors::FlowyError};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -67,7 +67,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_collaboration={}", level));
+    filters.push(format!("flowy_collaboration={}", "debug"));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));
@@ -76,7 +76,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("dart_ffi={}", "info"));
     filters.push(format!("flowy_database={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
-    filters.push(format!("flowy_sync={}", "info"));
+    filters.push(format!("flowy_sync={}", "trace"));
     filters.join(",")
 }
 
@@ -85,7 +85,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub document_manager: Arc<FlowyDocumentManager>,
+    pub document_manager: Arc<BlockManager>,
     pub folder_manager: Arc<FolderManager>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,

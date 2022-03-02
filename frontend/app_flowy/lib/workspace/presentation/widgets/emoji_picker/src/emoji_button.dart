@@ -1,7 +1,6 @@
+import 'package:app_flowy/workspace/presentation/plugins/doc/document.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-
-import 'package:app_flowy/workspace/presentation/stack_page/doc/widget/toolbar/toolbar_icon_button.dart';
 import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 
 class FlowyEmojiStyleButton extends StatefulWidget {
