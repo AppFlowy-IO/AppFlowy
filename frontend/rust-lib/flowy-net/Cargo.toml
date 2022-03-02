@@ -14,7 +14,7 @@ flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
-flowy-document = { path = "../flowy-document" }
+flowy-block = { path = "../flowy-block" }
 lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}

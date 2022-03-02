@@ -12,7 +12,7 @@ flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
-flowy-document = { path = "../flowy-document" }
+flowy-block = { path = "../flowy-block" }
 flowy-database = { path = "../flowy-database" }
 flowy-error = { path = "../flowy-error", features = ["db", "http_server"]}
 dart-notify = { path = "../dart-notify" }

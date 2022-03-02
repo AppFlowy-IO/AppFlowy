@@ -848,6 +848,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-block"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "async-trait",
+ "bytecount",
+ "byteorder",
+ "bytes",
+ "chrono",
+ "color-eyre",
+ "criterion",
+ "dart-notify",
+ "dashmap",
+ "derive_more",
+ "diesel",
+ "diesel_derives",
+ "flowy-block",
+ "flowy-collaboration",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-sync",
+ "flowy-test",
+ "futures",
+ "futures-util",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "log",
+ "parking_lot",
+ "pin-project",
+ "protobuf",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "unicode-segmentation",
+ "url",
+]
+
+[[package]]
 name = "flowy-collaboration"
 version = "0.1.0"
 dependencies = [
@@ -902,51 +947,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "async-trait",
- "bytecount",
- "byteorder",
- "bytes",
- "chrono",
- "color-eyre",
- "criterion",
- "dart-notify",
- "dashmap",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-collaboration",
- "flowy-database",
- "flowy-derive",
- "flowy-document",
- "flowy-error",
- "flowy-sync",
- "flowy-test",
- "futures",
- "futures-util",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-ws",
- "log",
- "parking_lot",
- "pin-project",
- "protobuf",
- "rand 0.7.3",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "url",
-]
-
-[[package]]
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
@@ -988,10 +988,10 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-block",
  "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
- "flowy-document",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
@@ -1047,9 +1047,9 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
+ "flowy-block",
  "flowy-collaboration",
  "flowy-derive",
- "flowy-document",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
@@ -1083,9 +1083,9 @@ dependencies = [
  "bytes",
  "claim 0.5.0",
  "color-eyre",
+ "flowy-block",
  "flowy-collaboration",
  "flowy-database",
- "flowy-document",
  "flowy-folder",
  "flowy-net",
  "flowy-sync",

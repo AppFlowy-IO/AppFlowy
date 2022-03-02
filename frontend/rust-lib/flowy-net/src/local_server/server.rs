@@ -248,7 +248,7 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_document::BlockCloudService;
+use flowy_block::BlockCloudService;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
