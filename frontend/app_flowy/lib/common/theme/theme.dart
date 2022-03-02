@@ -11,6 +11,13 @@ extension ColorSchemeExtension on ColorScheme {
   Color get blue => const Color(0xFFade4ff);
   Color get purple => const Color(0xFFc3adff);
   Color get pink => const Color(0xFFffadf9);
+
+  Color get shader1 => _isDark ? const Color(0xFFffffff) : const Color(0xFF333333);
+  Color get shader2 => _isDark ? const Color(0xFFffffff) : const Color(0xFF4f4f4f);
+  Color get shader3 => const Color(0xFF828282);
+  Color get shader4 => const Color(0xFFbdbdbd);
+
+  bool get _isDark => brightness == Brightness.dark;
 }
 
 class FlowyTheme {

@@ -26,9 +26,6 @@ class FlowyHistoryButton extends StatelessWidget {
         icon: icon,
         iconSize: iconSize,
         controller: controller,
-        // iconTheme: const QuillIconTheme(
-        //   iconSelectedFillColor: Colors.white38,
-        // ),
         undo: undo,
       ),
     );

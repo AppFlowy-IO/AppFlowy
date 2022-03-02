@@ -37,7 +37,7 @@ class StyledDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget innerContent = Container(
       padding: padding ?? EdgeInsets.all(Insets.lGutter),
-      color: bgColor ?? Colors.grey.shade50,
+      color: bgColor ?? Colors.grey.shade700,
       child: child,
     );
 

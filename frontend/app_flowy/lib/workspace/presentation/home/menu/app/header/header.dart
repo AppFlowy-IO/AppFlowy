@@ -1,3 +1,4 @@
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
@@ -53,7 +54,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: Colors.grey.shade800,
+            iconColor: Theme.of(context).colorScheme.shader1,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,

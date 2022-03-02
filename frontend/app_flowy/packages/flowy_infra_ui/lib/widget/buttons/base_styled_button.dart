@@ -77,7 +77,7 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
         borderRadius: widget.borderRadius ?? Corners.s10Border,
         boxShadow: _isFocused
             ? [
-                BoxShadow(color: Colors.grey.shade100, offset: Offset.zero, blurRadius: 8.0, spreadRadius: 0.0),
+                BoxShadow(color: Colors.grey.shade600, offset: Offset.zero, blurRadius: 8.0, spreadRadius: 0.0),
                 BoxShadow(
                     color: widget.bgColor ?? Theme.of(context).colorScheme.surface,
                     offset: Offset.zero,

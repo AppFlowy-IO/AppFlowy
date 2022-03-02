@@ -66,7 +66,7 @@ class WelcomeScreen extends StatelessWidget {
       child: StyledListView(
         itemBuilder: (BuildContext context, int index) {
           final workspace = workspaces[index];
-          return _WorkspaceItem(
+          return WorkspaceItem(
             workspace: workspace,
             onPressed: (workspace) => _handleOnPress(context, workspace),
           );
@@ -83,10 +83,10 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-class _WorkspaceItem extends StatelessWidget {
+class WorkspaceItem extends StatelessWidget {
   final Workspace workspace;
   final void Function(Workspace workspace) onPressed;
-  const _WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
+  const WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +94,7 @@ class _WorkspaceItem extends StatelessWidget {
       height: 46,
       child: FlowyTextButton(
         workspace.name,
+        hoverColor: Theme.of(context).hoverColor,
         fontSize: 14,
         onPressed: () => onPressed(workspace),
       ),

@@ -1,3 +1,4 @@
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
 import 'package:app_flowy/user/presentation/router.dart';
@@ -131,8 +132,8 @@ class PasswordTextField extends StatelessWidget {
           obscureHideIcon: svg("home/show"),
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           hintText: LocaleKeys.signUp_passwordHint.tr(),
-          normalBorderColor: Colors.transparent,
-          highlightBorderColor: Theme.of(context).primaryColor,
+          normalBorderColor: Theme.of(context).colorScheme.shader4,
+          highlightBorderColor: Theme.of(context).colorScheme.red,
           cursorColor: Theme.of(context).primaryColor,
           errorText: context.read<SignUpBloc>().state.passwordError.fold(() => "", (error) => error),
           onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.passwordChanged(value)),

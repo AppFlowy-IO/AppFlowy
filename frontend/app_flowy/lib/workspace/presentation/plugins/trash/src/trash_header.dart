@@ -1,3 +1,4 @@
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class TrashHeader extends StatelessWidget {
           child: FlowyText(
             item.title,
             fontSize: 12,
-            color: Colors.grey.shade300,
+            color: Theme.of(context).colorScheme.shader3,
           ),
         ),
       );

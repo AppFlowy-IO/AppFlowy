@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@Deprecated('Use `Theme.of(context).textTheme` instead')
 class FlowyText extends StatelessWidget {
   const FlowyText(
     this.title, {

@@ -1,3 +1,4 @@
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -47,7 +48,7 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: Colors.grey.shade400),
+            FlowyText.medium(widget.title, color: Theme.of(context).colorScheme.shader4),
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
@@ -110,7 +111,7 @@ class _CreateFlowyAlertDialog extends State<FlowyAlertDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: Colors.grey.shade400),
+            FlowyText.medium(widget.title, color: Theme.of(context).colorScheme.shader4),
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
@@ -153,7 +154,7 @@ class OkCancelDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(Colors.grey.shade800)),
+            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(Theme.of(context).colorScheme.shader1)),
             VSpace(Insets.sm * 1.5),
             Container(color: Theme.of(context).backgroundColor, height: 1),
             VSpace(Insets.m * 1.5),
@@ -180,12 +181,7 @@ class OkCancelButton extends StatelessWidget {
   final double? minHeight;
 
   const OkCancelButton(
-      {Key? key,
-      this.onOkPressed,
-      this.onCancelPressed,
-      this.okTitle,
-      this.cancelTitle,
-      this.minHeight})
+      {Key? key, this.onOkPressed, this.onCancelPressed, this.okTitle, this.cancelTitle, this.minHeight})
       : super(key: key);
 
   @override

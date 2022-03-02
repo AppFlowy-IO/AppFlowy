@@ -1,3 +1,4 @@
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/presentation/router.dart';
@@ -168,8 +169,8 @@ class PasswordTextField extends StatelessWidget {
           obscureIcon: svg("home/hide"),
           obscureHideIcon: svg("home/show"),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
-          normalBorderColor: Colors.transparent,
-          highlightBorderColor: Theme.of(context).primaryColor,
+          normalBorderColor: Theme.of(context).colorScheme.shader4,
+          highlightBorderColor: Theme.of(context).colorScheme.red,
           cursorColor: Theme.of(context).primaryColor,
           errorText: context.read<SignInBloc>().state.passwordError.fold(() => "", (error) => error),
           onChanged: (value) => context.read<SignInBloc>().add(SignInEvent.passwordChanged(value)),
@@ -192,8 +193,8 @@ class EmailTextField extends StatelessWidget {
         return RoundedInputField(
           hintText: LocaleKeys.signIn_emailHint.tr(),
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          normalBorderColor: Colors.transparent,
-          highlightBorderColor: Theme.of(context).primaryColor,
+          normalBorderColor: Theme.of(context).colorScheme.shader4,
+          highlightBorderColor: Theme.of(context).colorScheme.red,
           cursorColor: Theme.of(context).primaryColor,
           errorText: context.read<SignInBloc>().state.emailError.fold(() => "", (error) => error),
           onChanged: (value) => context.read<SignInBloc>().add(SignInEvent.emailChanged(value)),
