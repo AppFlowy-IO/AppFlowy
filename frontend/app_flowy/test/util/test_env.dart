@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +15,11 @@ class FlowyTest {
   }
 
   Future<UserProfile> signIn() async {
-    final authRepo = getIt<AuthRepository>();
+    final authService = getIt<AuthService>();
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    final result = await authRepo.signUp(
+    final result = await authService.signUp(
       name: "FlowyTestUser",
       password: password,
       email: userEmail,

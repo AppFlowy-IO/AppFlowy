@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:app_flowy/user/presentation/sign_in_screen.dart';
 import 'package:app_flowy/user/presentation/sign_up_screen.dart';
 import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
@@ -69,7 +69,7 @@ class SplashRoute {
       PageRoutes.fade(
           () => SkipLogInScreen(
                 router: getIt<AuthRouter>(),
-                authRepo: getIt<AuthRepository>(),
+                authService: getIt<AuthService>(),
               ),
           RouteDurations.slow.inMilliseconds * .001),
     );

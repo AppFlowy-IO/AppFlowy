@@ -1,6 +1,6 @@
+import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
-import 'package:app_flowy/user/infrastructure/router.dart';
-import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -21,12 +21,12 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SkipLogInScreen extends StatefulWidget {
   final AuthRouter router;
-  final AuthRepository authRepo;
+  final AuthService authService;
 
   const SkipLogInScreen({
     Key? key,
     required this.router,
-    required this.authRepo,
+    required this.authService,
   }) : super(key: key);
 
   @override
@@ -99,7 +99,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    final result = await widget.authRepo.signUp(
+    final result = await widget.authService.signUp(
       name: LocaleKeys.defaultUsername.tr(),
       password: password,
       email: userEmail,
