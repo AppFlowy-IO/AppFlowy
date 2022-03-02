@@ -17,7 +17,7 @@ pub struct CreateBlockParams {
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
 pub struct BlockInfo {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub text: String,
@@ -49,7 +49,7 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
         let doc_json = delta.to_delta_json();
 
         Ok(BlockInfo {
-            doc_id: revision.object_id,
+            block_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,
@@ -58,9 +58,9 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct ResetDocumentParams {
+pub struct ResetBlockParams {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub revisions: RepeatedRevision,

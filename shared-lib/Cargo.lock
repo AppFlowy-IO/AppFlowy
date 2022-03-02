@@ -479,6 +479,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-grid-data-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "lib-infra",
+ "protobuf",
+]
+
+[[package]]
 name = "flowy-user-data-model"
 version = "0.1.0"
 dependencies = [

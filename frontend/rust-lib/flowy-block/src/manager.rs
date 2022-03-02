@@ -162,8 +162,14 @@ impl RevisionCloudService for BlockRevisionCloudService {
                 Some(doc) => {
                     let delta_data = Bytes::from(doc.text.clone());
                     let doc_md5 = md5(&delta_data);
-                    let revision =
-                        Revision::new(&doc.doc_id, doc.base_rev_id, doc.rev_id, delta_data, &user_id, doc_md5);
+                    let revision = Revision::new(
+                        &doc.block_id,
+                        doc.base_rev_id,
+                        doc.rev_id,
+                        delta_data,
+                        &user_id,
+                        doc_md5,
+                    );
                     Ok(vec![revision])
                 }
             }

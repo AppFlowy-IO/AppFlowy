@@ -207,13 +207,12 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyIn
     }
 }
 
-fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
+fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty_info: &TyInfo) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
-
     let take_ident = format_ident!("take_{}", ident.to_string());
-    let ty = bracketed_type.ty;
+    let ty = ty_info.ty;
 
-    match ident_category(bracketed_type.ident) {
+    match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => Some(quote! {
              let mut m: std::collections::HashMap<String, #ty> = std::collections::HashMap::new();
               pb.#take_ident().into_iter().for_each(|(k,v)| {

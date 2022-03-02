@@ -239,7 +239,7 @@ pub fn make_document_info_pb_from_revisions_pb(
 
     let text = document_delta.to_delta_json();
     let mut block_info = BlockInfoPB::new();
-    block_info.set_doc_id(doc_id.to_owned());
+    block_info.set_block_id(doc_id.to_owned());
     block_info.set_text(text);
     block_info.set_base_rev_id(base_rev_id);
     block_info.set_rev_id(rev_id);

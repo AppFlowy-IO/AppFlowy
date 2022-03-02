@@ -4,7 +4,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     client_document::default::initial_delta_string,
     entities::{
-        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams},
+        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -416,7 +416,7 @@ impl BlockCloudService for LocalServer {
 
     fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
         let doc = BlockInfo {
-            doc_id: params.value,
+            block_id: params.value,
             text: initial_delta_string(),
             rev_id: 0,
             base_rev_id: 0,
@@ -424,7 +424,7 @@ impl BlockCloudService for LocalServer {
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_block(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, _token: &str, _params: ResetBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

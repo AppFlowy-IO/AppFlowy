@@ -89,7 +89,7 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
         }
     }?;
     match ident_category(ty_info.ident) {
-        TypeCategory::Array => token_stream_for_vec(ctxt, member, ty_info.ty),
+        TypeCategory::Array => token_stream_for_vec(ctxt, member, ty_info.bracket_ty_info.unwrap().ty),
         TypeCategory::Map => token_stream_for_map(ctxt, member, ty_info.bracket_ty_info.unwrap().ty),
         TypeCategory::Str => {
             if is_option {
@@ -149,7 +149,6 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
 // e.g. pub cells: HashMap<xx, xx>
 fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
     // The key of the hashmap must be string
-    let flowy_protobuf = format_ident!("flowy_protobuf");
     let ty_info = match parse_ty(ctxt, ty) {
         Ok(ty_info) => ty_info,
         Err(e) => {
@@ -157,27 +156,21 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
             panic!();
         }
     }?;
+    let value_ty = ty_info.ty;
     match ident_category(ty_info.ident) {
-        TypeCategory::Protobuf => {
-            let value_type = ty_info.ident;
-            Some(quote! {
-                let mut m: std::collections::HashMap<String, #flowy_protobuf::#value_type> = std::collections::HashMap::new();
-                self.#member.iter().for_each(|(k,v)| {
-                    m.insert(k.clone(), v.try_into().unwrap());
-                });
-                pb.#member = m;
-            })
-        }
-
-        _ => {
-            let value_type = ty_info.ident;
-            Some(quote! {
-                let mut m: std::collections::HashMap<String, #flowy_protobuf::#value_type> = std::collections::HashMap::new();
-                  self.#member.iter().for_each(|(k,v)| {
-                     m.insert(k.clone(), v.clone());
-                  });
-                pb.#member = m;
-            })
-        }
+        TypeCategory::Protobuf => Some(quote! {
+            let mut m: std::collections::HashMap<String, crate::protobuf::#value_ty> = std::collections::HashMap::new();
+            self.#member.into_iter().for_each(|(k,v)| {
+                m.insert(k.clone(), v.try_into().unwrap());
+            });
+            pb.#member = m;
+        }),
+        _ => Some(quote! {
+            let mut m: std::collections::HashMap<String, #value_ty> = std::collections::HashMap::new();
+              self.#member.iter().for_each(|(k,v)| {
+                 m.insert(k.clone(), v.clone());
+              });
+            pb.#member = m;
+        }),
     }
 }

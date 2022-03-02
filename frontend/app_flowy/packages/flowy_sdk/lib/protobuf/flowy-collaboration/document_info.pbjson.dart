@@ -23,7 +23,7 @@ final $typed_data.Uint8List createBlockParamsDescriptor = $convert.base64Decode(
 const BlockInfo$json = const {
   '1': 'BlockInfo',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
     const {'1': 'rev_id', '3': 3, '4': 1, '5': 3, '10': 'revId'},
     const {'1': 'base_rev_id', '3': 4, '4': 1, '5': 3, '10': 'baseRevId'},
@@ -31,18 +31,18 @@ const BlockInfo$json = const {
 };
 
 /// Descriptor for `BlockInfo`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List blockInfoDescriptor = $convert.base64Decode('CglCbG9ja0luZm8SFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgR0ZXh0GAIgASgJUgR0ZXh0EhUKBnJldl9pZBgDIAEoA1IFcmV2SWQSHgoLYmFzZV9yZXZfaWQYBCABKANSCWJhc2VSZXZJZA==');
-@$core.Deprecated('Use resetDocumentParamsDescriptor instead')
-const ResetDocumentParams$json = const {
-  '1': 'ResetDocumentParams',
+final $typed_data.Uint8List blockInfoDescriptor = $convert.base64Decode('CglCbG9ja0luZm8SGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSEgoEdGV4dBgCIAEoCVIEdGV4dBIVCgZyZXZfaWQYAyABKANSBXJldklkEh4KC2Jhc2VfcmV2X2lkGAQgASgDUgliYXNlUmV2SWQ=');
+@$core.Deprecated('Use resetBlockParamsDescriptor instead')
+const ResetBlockParams$json = const {
+  '1': 'ResetBlockParams',
   '2': const [
-    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'revisions', '3': 2, '4': 1, '5': 11, '6': '.RepeatedRevision', '10': 'revisions'},
   ],
 };
 
-/// Descriptor for `ResetDocumentParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resetDocumentParamsDescriptor = $convert.base64Decode('ChNSZXNldERvY3VtZW50UGFyYW1zEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSLwoJcmV2aXNpb25zGAIgASgLMhEuUmVwZWF0ZWRSZXZpc2lvblIJcmV2aXNpb25z');
+/// Descriptor for `ResetBlockParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List resetBlockParamsDescriptor = $convert.base64Decode('ChBSZXNldEJsb2NrUGFyYW1zEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEi8KCXJldmlzaW9ucxgCIAEoCzIRLlJlcGVhdGVkUmV2aXNpb25SCXJldmlzaW9ucw==');
 @$core.Deprecated('Use blockDeltaDescriptor instead')
 const BlockDelta$json = const {
   '1': 'BlockDelta',

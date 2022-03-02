@@ -225,7 +225,7 @@ impl RevisionObjectBuilder for BlockInfoBuilder {
         correct_delta(&mut delta);
 
         Result::<BlockInfo, FlowyError>::Ok(BlockInfo {
-            doc_id: object_id.to_owned(),
+            block_id: object_id.to_owned(),
             text: delta.to_delta_json(),
             rev_id,
             base_rev_id,
