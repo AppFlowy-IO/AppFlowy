@@ -6,7 +6,7 @@ import 'package:flutter_quill/utils/color.dart';
 
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
-import '../../../../../../common/theme/theme.dart' show ColorSchemeExtension;
+import 'package:app_flowy/common/theme/theme.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'toolbar_icon_button.dart';
@@ -42,11 +42,9 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
   void _didChangeEditingValue() {
     setState(() {
       _isToggledColor = _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
-      _isToggledBackground =
-          _getIsToggledBackground(widget.controller.getSelectionStyle().attributes);
+      _isToggledBackground = _getIsToggledBackground(widget.controller.getSelectionStyle().attributes);
       _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground =
-          _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+      _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
     });
   }
 
@@ -56,8 +54,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
     _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
     _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
     _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-    _isWhitebackground =
-        _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+    _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -78,8 +75,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
       _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
       _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
       _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground =
-          _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+      _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
     }
   }
 
@@ -120,8 +116,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
       hex = hex.substring(2);
     }
     hex = '#$hex';
-    widget.controller
-        .formatSelection(widget.background ? BackgroundAttribute(hex) : ColorAttribute(hex));
+    widget.controller.formatSelection(widget.background ? BackgroundAttribute(hex) : ColorAttribute(hex));
     Navigator.of(context).pop();
   }
 

@@ -82,7 +82,7 @@ class CreateItem extends StatelessWidget {
           onTap: () => onSelected(pluginBuilder),
           child: FlowyText.medium(
             pluginBuilder.menuName,
-            color: theme.textColor,
+            color: Theme.of(context).textTheme.bodyText1!.color,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),
         );
