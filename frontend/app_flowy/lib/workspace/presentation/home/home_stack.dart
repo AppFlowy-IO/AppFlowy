@@ -8,7 +8,6 @@ import 'package:time/time.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:app_flowy/plugin/plugin.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
@@ -108,20 +107,20 @@ class HomeStackNotifier extends ChangeNotifier {
   Plugin _plugin;
   PublishNotifier<bool> collapsedNotifier = PublishNotifier();
 
-  Widget get titleWidget => _plugin.pluginDisplay.leftBarItem;
+  Widget get titleWidget => _plugin.display.leftBarItem;
 
   HomeStackNotifier({Plugin? plugin}) : _plugin = plugin ?? makePlugin(pluginType: DefaultPlugin.blank.type());
 
   set plugin(Plugin newPlugin) {
-    if (newPlugin.pluginId == _plugin.pluginId) {
+    if (newPlugin.id == _plugin.id) {
       return;
     }
 
-    _plugin.displayNotifier?.removeListener(notifyListeners);
+    _plugin.display.notifier?.removeListener(notifyListeners);
     _plugin.dispose();
 
     _plugin = newPlugin;
-    _plugin.displayNotifier?.addListener(notifyListeners);
+    _plugin.display.notifier?.addListener(notifyListeners);
     notifyListeners();
   }
 
@@ -134,7 +133,7 @@ class HomeStackManager {
   HomeStackManager();
 
   Widget title() {
-    return _notifier.plugin.pluginDisplay.leftBarItem;
+    return _notifier.plugin.display.leftBarItem;
   }
 
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
@@ -166,10 +165,10 @@ class HomeStackManager {
       ],
       child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
         return FadingIndexedStack(
-          index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
+          index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
           children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
-            if (pluginType == notifier.plugin.pluginType) {
-              return notifier.plugin.pluginDisplay.buildWidget();
+            if (pluginType == notifier.plugin.ty) {
+              return notifier.plugin.display.buildWidget();
             } else {
               return const BlankStackPage();
             }
@@ -198,7 +197,7 @@ class HomeTopBar extends StatelessWidget {
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
               builder: (BuildContext context, HomeStackNotifier notifier, Widget? child) {
-                return notifier.plugin.pluginDisplay.rightBarItem ?? const SizedBox();
+                return notifier.plugin.display.rightBarItem ?? const SizedBox();
               },
             ),
           ) // _renderMoreButton(),

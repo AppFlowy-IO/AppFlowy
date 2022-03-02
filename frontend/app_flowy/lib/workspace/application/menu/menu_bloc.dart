@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:app_flowy/plugin/plugin.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:dartz/dartz.dart';

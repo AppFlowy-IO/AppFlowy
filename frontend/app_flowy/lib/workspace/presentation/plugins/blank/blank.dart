@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -32,16 +31,13 @@ class BlankPagePlugin extends Plugin {
   }) : _pluginType = pluginType;
 
   @override
-  void dispose() {}
+  PluginDisplay get display => BlankPagePluginDisplay();
 
   @override
-  PluginDisplay get pluginDisplay => BlankPagePluginDisplay();
+  PluginId get id => "BlankStack";
 
   @override
-  PluginId get pluginId => "BlankStack";
-
-  @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 }
 
 class BlankPagePluginDisplay extends PluginDisplay {

@@ -55,7 +55,7 @@ class HomeMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.pluginId != c.plugin.pluginId,
+            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
             listener: (context, state) {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },

@@ -4,7 +4,6 @@ export "./src/trash_header.dart";
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,16 +48,13 @@ class TrashPlugin extends Plugin {
   TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
 
   @override
-  void dispose() {}
+  PluginDisplay get display => TrashPluginDisplay();
 
   @override
-  PluginDisplay get pluginDisplay => TrashPluginDisplay();
+  PluginId get id => "TrashStack";
 
   @override
-  PluginId get pluginId => "TrashStack";
-
-  @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 }
 
 class TrashPluginDisplay extends PluginDisplay {
