@@ -1039,6 +1039,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-grid"
+version = "0.1.0"
+
+[[package]]
 name = "flowy-net"
 version = "0.1.0"
 dependencies = [

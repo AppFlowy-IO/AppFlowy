@@ -14,6 +14,7 @@ members = [
   "flowy-block",
   "flowy-error",
   "flowy-sync",
+  "flowy-grid",
 ]
 
 [profile.dev]

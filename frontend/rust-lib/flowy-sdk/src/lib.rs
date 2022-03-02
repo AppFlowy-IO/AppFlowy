@@ -77,6 +77,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_database={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
     filters.push(format!("flowy_sync={}", "info"));
+    filters.push(format!("flowy_sync={}", "info"));
     filters.join(",")
 }
 
