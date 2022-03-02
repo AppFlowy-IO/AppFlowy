@@ -1,6 +1,6 @@
 
 [package]
-name = "flowy-document"
+name = "flowy-block"
 version = "0.1.0"
 edition = "2018"
 
@@ -46,7 +46,7 @@ pin-project = "1.0.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
-flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
+flowy-block = { path = "../flowy-block", features = ["flowy_unit_test"]}
 
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"

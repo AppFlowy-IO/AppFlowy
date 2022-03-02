@@ -5,8 +5,8 @@ use flowy_folder_data_model::user_default;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
 
+use flowy_block::BlockManager;
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
-use flowy_document::BlockManager;
 
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};

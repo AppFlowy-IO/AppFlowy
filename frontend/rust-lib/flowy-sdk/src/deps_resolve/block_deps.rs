@@ -1,10 +1,10 @@
 use bytes::Bytes;
-use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
-use flowy_database::ConnectionPool;
-use flowy_document::{
+use flowy_block::{
     errors::{internal_error, FlowyError},
     BlockCloudService, BlockManager, BlockUser,
 };
+use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
+use flowy_database::ConnectionPool;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::document::BlockHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -16,8 +16,8 @@ use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct DocumentDepsResolver();
-impl DocumentDepsResolver {
+pub struct BlockDepsResolver();
+impl BlockDepsResolver {
     pub fn resolve(
         local_server: Option<Arc<LocalServer>>,
         ws_conn: Arc<FlowyWebSocketConnect>,

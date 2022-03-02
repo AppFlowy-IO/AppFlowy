@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::BlockManager;
+use flowy_block::BlockManager;
 use flowy_folder::{controller::FolderManager, errors::FlowyError};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -101,7 +101,7 @@ impl FlowySDK {
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
         let (user_session, document_manager, folder_manager, local_server) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
-            let document_manager = DocumentDepsResolver::resolve(
+            let document_manager = BlockDepsResolver::resolve(
                 local_server.clone(),
                 ws_conn.clone(),
                 user_session.clone(),

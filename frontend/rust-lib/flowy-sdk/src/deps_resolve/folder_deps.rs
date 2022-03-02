@@ -1,7 +1,7 @@
 use bytes::Bytes;
+use flowy_block::BlockManager;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
-use flowy_document::BlockManager;
 use flowy_folder::{
     controller::FolderManager,
     errors::{internal_error, FlowyError},

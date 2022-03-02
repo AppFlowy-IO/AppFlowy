@@ -21,8 +21,8 @@ use crate::{
         TrashController, TrashEvent,
     },
 };
+use flowy_block::BlockManager;
 use flowy_database::kv::KV;
-use flowy_document::BlockManager;
 use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
 
 use lib_infra::uuid_string;
