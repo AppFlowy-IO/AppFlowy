@@ -142,8 +142,23 @@ pub struct Cell {
 
     #[pb(index = 3)]
     pub field_id: String,
+}
 
-    #[pb(index = 4)]
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DisplayCell {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub content: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RawCell {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
     pub data: AnyData,
 }
 

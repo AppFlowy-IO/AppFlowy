@@ -725,7 +725,6 @@ class Cell extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOM<AnyData>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: AnyData.create)
     ..hasRequiredFields = false
   ;
 
@@ -734,7 +733,6 @@ class Cell extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? rowId,
     $core.String? fieldId,
-    AnyData? data,
   }) {
     final _result = create();
     if (id != null) {
@@ -745,9 +743,6 @@ class Cell extends $pb.GeneratedMessage {
     }
     if (fieldId != null) {
       _result.fieldId = fieldId;
-    }
-    if (data != null) {
-      _result.data = data;
     }
     return _result;
   }
@@ -798,17 +793,130 @@ class Cell extends $pb.GeneratedMessage {
   $core.bool hasFieldId() => $_has(2);
   @$pb.TagNumber(3)
   void clearFieldId() => clearField(3);
+}
 
-  @$pb.TagNumber(4)
-  AnyData get data => $_getN(3);
-  @$pb.TagNumber(4)
-  set data(AnyData v) { setField(4, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearData() => clearField(4);
-  @$pb.TagNumber(4)
-  AnyData ensureData() => $_ensure(3);
+class DisplayCell extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DisplayCell', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..hasRequiredFields = false
+  ;
+
+  DisplayCell._() : super();
+  factory DisplayCell({
+    $core.String? id,
+    $core.String? content,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (content != null) {
+      _result.content = content;
+    }
+    return _result;
+  }
+  factory DisplayCell.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DisplayCell.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DisplayCell clone() => DisplayCell()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DisplayCell copyWith(void Function(DisplayCell) updates) => super.copyWith((message) => updates(message as DisplayCell)) as DisplayCell; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DisplayCell create() => DisplayCell._();
+  DisplayCell createEmptyInstance() => create();
+  static $pb.PbList<DisplayCell> createRepeated() => $pb.PbList<DisplayCell>();
+  @$core.pragma('dart2js:noInline')
+  static DisplayCell getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DisplayCell>(create);
+  static DisplayCell? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get content => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set content($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasContent() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearContent() => clearField(2);
+}
+
+class RawCell extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RawCell', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOM<AnyData>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: AnyData.create)
+    ..hasRequiredFields = false
+  ;
+
+  RawCell._() : super();
+  factory RawCell({
+    $core.String? id,
+    AnyData? data,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (data != null) {
+      _result.data = data;
+    }
+    return _result;
+  }
+  factory RawCell.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RawCell.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RawCell clone() => RawCell()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RawCell copyWith(void Function(RawCell) updates) => super.copyWith((message) => updates(message as RawCell)) as RawCell; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RawCell create() => RawCell._();
+  RawCell createEmptyInstance() => create();
+  static $pb.PbList<RawCell> createRepeated() => $pb.PbList<RawCell>();
+  @$core.pragma('dart2js:noInline')
+  static RawCell getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RawCell>(create);
+  static RawCell? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  AnyData get data => $_getN(1);
+  @$pb.TagNumber(2)
+  set data(AnyData v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasData() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearData() => clearField(2);
+  @$pb.TagNumber(2)
+  AnyData ensureData() => $_ensure(1);
 }
 
 class CreateGridPayload extends $pb.GeneratedMessage {

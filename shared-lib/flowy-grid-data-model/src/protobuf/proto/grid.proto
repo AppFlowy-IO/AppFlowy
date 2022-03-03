@@ -52,7 +52,14 @@ message Cell {
     string id = 1;
     string row_id = 2;
     string field_id = 3;
-    AnyData data = 4;
+}
+message DisplayCell {
+    string id = 1;
+    string content = 2;
+}
+message RawCell {
+    string id = 1;
+    AnyData data = 2;
 }
 message CreateGridPayload {
     string name = 1;

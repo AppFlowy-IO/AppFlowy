@@ -159,12 +159,33 @@ const Cell$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.AnyData', '10': 'data'},
   ],
 };
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhwKBGRhdGEYBCABKAsyCC5BbnlEYXRhUgRkYXRh');
+final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElk');
+@$core.Deprecated('Use displayCellDescriptor instead')
+const DisplayCell$json = const {
+  '1': 'DisplayCell',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
+  ],
+};
+
+/// Descriptor for `DisplayCell`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List displayCellDescriptor = $convert.base64Decode('CgtEaXNwbGF5Q2VsbBIOCgJpZBgBIAEoCVICaWQSGAoHY29udGVudBgCIAEoCVIHY29udGVudA==');
+@$core.Deprecated('Use rawCellDescriptor instead')
+const RawCell$json = const {
+  '1': 'RawCell',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 11, '6': '.AnyData', '10': 'data'},
+  ],
+};
+
+/// Descriptor for `RawCell`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIcCgRkYXRhGAIgASgLMgguQW55RGF0YVIEZGF0YQ==');
 @$core.Deprecated('Use createGridPayloadDescriptor instead')
 const CreateGridPayload$json = const {
   '1': 'CreateGridPayload',
