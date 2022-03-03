@@ -15,6 +15,14 @@ class GridService {
   }
 
   Future<Either<void, FlowyError>> createRow({required String gridId}) {
-    throw UnimplementedError();
+    return GridEventCreateRow(GridId(value: gridId)).send();
+  }
+
+  Future<Either<RepeatedRow, FlowyError>> getRows({required RepeatedRowOrder rowOrders}) {
+    return GridEventGetRows(rowOrders).send();
+  }
+
+  Future<Either<RepeatedField, FlowyError>> getFields({required RepeatedFieldOrder fieldOrders}) {
+    return GridEventGetFields(fieldOrders).send();
   }
 }

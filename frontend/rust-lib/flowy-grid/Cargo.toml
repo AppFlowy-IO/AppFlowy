@@ -15,6 +15,12 @@ strum_macros = "0.21"
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 tracing = { version = "0.1", features = ["log"] }
 protobuf = {version = "2.18.0"}
+rust_decimal = "1.8.1"
+rusty-money = {version = "0.4.0", features = ["iso"]}
+lazy_static = "1.4.0"
+chrono = "0.4.19"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+bytes = { version = "1.0" }
 
 [build-dependencies]
 lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }

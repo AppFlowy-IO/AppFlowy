@@ -14,14 +14,17 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService service;
   final View view;
-  late Grid _grid;
+  late Grid? _grid;
+  late List<Field>? _fields;
 
   GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (Initial value) async {
-            await _initial(value, emit);
+            await _loadGrid(emit);
+            await _loadFields(emit);
+            await _loadGridInfo(emit);
           },
           createRow: (_CreateRow value) {
             service.createRow(gridId: view.id);
@@ -39,12 +42,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  Future<void> _initial(Initial value, Emitter<GridState> emit) async {
+  Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await service.openGrid(gridId: view.id);
     result.fold(
       (grid) {
         _grid = grid;
-        _loadGridInfo(emit);
       },
       (err) {
         emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
@@ -52,10 +54,36 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
+  Future<void> _loadFields(Emitter<GridState> emit) async {
+    if (_grid != null) {
+      final result = await service.getFields(fieldOrders: _grid!.fieldOrders);
+      result.fold(
+        (fields) {
+          _fields = fields.items;
+        },
+        (err) {
+          emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
+        },
+      );
+    }
+  }
+
   Future<void> _loadGridInfo(Emitter<GridState> emit) async {
-    emit(
-      state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
-    );
+    if (_grid != null && _fields != null) {
+      final result = await service.getRows(rowOrders: _grid!.rowOrders);
+      result.fold((repeatedRow) {
+        final rows = repeatedRow.items;
+        final gridInfo = GridInfo(rows: rows, fields: _fields!);
+
+        emit(
+          state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
+        );
+      }, (err) {
+        emit(
+          state.copyWith(loadingState: GridLoadingState.finish(right(err)), gridInfo: none()),
+        );
+      });
+    }
   }
 }
 
@@ -87,49 +115,33 @@ class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
 }
 
-typedef FieldById = Map<String, Field>;
-typedef RowById = Map<String, Row>;
-typedef CellById = Map<String, DisplayCell>;
-
 class GridInfo {
-  List<RowOrder> rowOrders;
-  List<FieldOrder> fieldOrders;
-  RowById rowMap;
-  FieldById fieldMap;
+  List<GridRow> rows;
+  List<Field> fields;
 
   GridInfo({
-    required this.rowOrders,
-    required this.fieldOrders,
-    required this.fieldMap,
-    required this.rowMap,
+    required this.rows,
+    required this.fields,
   });
 
   RowInfo rowInfoAtIndex(int index) {
-    final rowOrder = rowOrders[index];
-    final Row row = rowMap[rowOrder.rowId]!;
-    final cellMap = row.cellByFieldId;
-
-    final displayCellMap = <String, DisplayCell>{};
-
+    final row = rows[index];
     return RowInfo(
-      fieldOrders: fieldOrders,
-      fieldMap: fieldMap,
-      displayCellMap: displayCellMap,
+      fields: fields,
+      cellMap: row.cellByFieldId,
     );
   }
 
   int numberOfRows() {
-    return rowOrders.length;
+    return rows.length;
   }
 }
 
 class RowInfo {
-  List<FieldOrder> fieldOrders;
-  FieldById fieldMap;
-  CellById displayCellMap;
+  List<Field> fields;
+  Map<String, GridCell> cellMap;
   RowInfo({
-    required this.fieldOrders,
-    required this.fieldMap,
-    required this.displayCellMap,
+    required this.fields,
+    required this.cellMap,
   });
 }

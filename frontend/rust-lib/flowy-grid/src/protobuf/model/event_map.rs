@@ -27,6 +27,9 @@
 pub enum GridEvent {
     CreateGrid = 0,
     OpenGrid = 1,
+    GetRows = 2,
+    GetFields = 3,
+    CreateRow = 4,
 }
 
 impl ::protobuf::ProtobufEnum for GridEvent {
@@ -38,6 +41,9 @@ impl ::protobuf::ProtobufEnum for GridEvent {
         match value {
             0 => ::std::option::Option::Some(GridEvent::CreateGrid),
             1 => ::std::option::Option::Some(GridEvent::OpenGrid),
+            2 => ::std::option::Option::Some(GridEvent::GetRows),
+            3 => ::std::option::Option::Some(GridEvent::GetFields),
+            4 => ::std::option::Option::Some(GridEvent::CreateRow),
             _ => ::std::option::Option::None
         }
     }
@@ -46,6 +52,9 @@ impl ::protobuf::ProtobufEnum for GridEvent {
         static values: &'static [GridEvent] = &[
             GridEvent::CreateGrid,
             GridEvent::OpenGrid,
+            GridEvent::GetRows,
+            GridEvent::GetFields,
+            GridEvent::CreateRow,
         ];
         values
     }
@@ -74,8 +83,9 @@ impl ::protobuf::reflect::ProtobufValue for GridEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*)\n\tGridEvent\x12\x0e\n\nCreateGrid\x10\0\x12\x0c\
-    \n\x08OpenGrid\x10\x01b\x06proto3\
+    \n\x0fevent_map.proto*T\n\tGridEvent\x12\x0e\n\nCreateGrid\x10\0\x12\x0c\
+    \n\x08OpenGrid\x10\x01\x12\x0b\n\x07GetRows\x10\x02\x12\r\n\tGetFields\
+    \x10\x03\x12\r\n\tCreateRow\x10\x04b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

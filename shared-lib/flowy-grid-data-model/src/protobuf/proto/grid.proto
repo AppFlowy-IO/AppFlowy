@@ -17,7 +17,6 @@ message RepeatedGridFilter {
 message FieldOrder {
     string field_id = 1;
     bool visibility = 2;
-    int32 width = 3;
 }
 message RepeatedFieldOrder {
     repeated FieldOrder items = 1;
@@ -28,10 +27,14 @@ message Field {
     string desc = 3;
     FieldType field_type = 4;
     bool frozen = 5;
-    AnyData type_options = 6;
+    int32 width = 6;
+    AnyData type_options = 7;
+}
+message RepeatedField {
+    repeated Field items = 1;
 }
 message AnyData {
-    string type_url = 1;
+    string type_id = 1;
     bytes value = 2;
 }
 message RowOrder {
@@ -42,24 +45,20 @@ message RowOrder {
 message RepeatedRowOrder {
     repeated RowOrder items = 1;
 }
-message Row {
+message GridRow {
     string id = 1;
     string grid_id = 2;
     int64 modified_time = 3;
-    map<string, Cell> cell_by_field_id = 4;
+    map<string, GridCell> cell_by_field_id = 4;
 }
-message Cell {
+message RepeatedRow {
+    repeated GridRow items = 1;
+}
+message GridCell {
     string id = 1;
     string row_id = 2;
     string field_id = 3;
-}
-message DisplayCell {
-    string id = 1;
-    string content = 2;
-}
-message RawCell {
-    string id = 1;
-    AnyData data = 2;
+    string content = 4;
 }
 message CreateGridPayload {
     string name = 1;

@@ -1,12 +1,11 @@
 import 'package:app_flowy/workspace/presentation/plugins/grid/grid_sizes.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_decoration.dart';
 import 'grid_cell.dart';
 
 class CellContainer extends StatelessWidget {
-  final GridCell child;
+  final GridCellWidget child;
   final double width;
   const CellContainer({Key? key, required this.child, required this.width}) : super(key: key);
 

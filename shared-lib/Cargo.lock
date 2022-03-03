@@ -486,6 +486,8 @@ dependencies = [
  "flowy-derive",
  "lib-infra",
  "protobuf",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]

@@ -14,8 +14,11 @@ const GridEvent$json = const {
   '2': const [
     const {'1': 'CreateGrid', '2': 0},
     const {'1': 'OpenGrid', '2': 1},
+    const {'1': 'GetRows', '2': 2},
+    const {'1': 'GetFields', '2': 3},
+    const {'1': 'CreateRow', '2': 4},
   ],
 };
 
 /// Descriptor for `GridEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDgoKQ3JlYXRlR3JpZBAAEgwKCE9wZW5HcmlkEAE=');
+final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDgoKQ3JlYXRlR3JpZBAAEgwKCE9wZW5HcmlkEAESCwoHR2V0Um93cxACEg0KCUdldEZpZWxkcxADEg0KCUNyZWF0ZVJvdxAE');

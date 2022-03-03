@@ -101,12 +101,12 @@ class _GridBodyState extends State<GridBody> {
           controller: _scrollController.horizontalController,
           axis: Axis.horizontal,
           child: SizedBox(
-            width: GridLayout.headerWidth(gridInfo.fieldOrders),
+            width: GridLayout.headerWidth(gridInfo.fields),
             child: CustomScrollView(
               physics: StyledScrollPhysics(),
               controller: _scrollController.verticalController,
               slivers: <Widget>[
-                _buildHeader(gridInfo.fieldOrders, gridInfo.fieldMap),
+                _buildHeader(gridInfo.fields),
                 _buildRows(gridInfo),
                 _builderFooter(context),
               ],
@@ -123,9 +123,9 @@ class _GridBodyState extends State<GridBody> {
     );
   }
 
-  Widget _buildHeader(List<FieldOrder> fieldOrders, FieldById fieldById) {
+  Widget _buildHeader(List<Field> fields) {
     return SliverPersistentHeader(
-      delegate: GridHeaderDelegate(fieldOrders, fieldById),
+      delegate: GridHeaderDelegate(fields),
       floating: true,
       pinned: true,
     );
@@ -135,7 +135,7 @@ class _GridBodyState extends State<GridBody> {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         final rowInfo = gridInfo.rowInfoAtIndex(index);
-        return RepaintBoundary(child: GridRow(rowInfo));
+        return RepaintBoundary(child: GridRowWidget(rowInfo));
       }, childCount: gridInfo.numberOfRows()),
     );
   }

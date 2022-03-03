@@ -3,4 +3,7 @@ syntax = "proto3";
 enum GridEvent {
     CreateGrid = 0;
     OpenGrid = 1;
+    GetRows = 2;
+    GetFields = 3;
+    CreateRow = 4;
 }
