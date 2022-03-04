@@ -1,5 +1,6 @@
 pub mod client_document;
 pub mod client_folder;
+pub mod client_grid;
 pub mod entities;
 pub mod errors;
 pub mod protobuf;

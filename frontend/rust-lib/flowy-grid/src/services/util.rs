@@ -1,4 +1,4 @@
-use crate::cell_service::cell_data::FlowyMoney;
+use crate::services::cell_data::FlowyMoney;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
 use lazy_static::lazy_static;

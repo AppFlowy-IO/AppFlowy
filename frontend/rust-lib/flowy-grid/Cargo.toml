@@ -6,13 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
 lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+dart-notify = { path = "../dart-notify" }
+lib-sqlite = { path = "../lib-sqlite" }
+flowy-sync = { path = "../flowy-sync" }
 flowy-error = { path = "../flowy-error"}
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+
 strum = "0.21"
 strum_macros = "0.21"
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 tracing = { version = "0.1", features = ["log"] }
 protobuf = {version = "2.18.0"}
 rust_decimal = "1.8.1"
@@ -21,6 +27,11 @@ lazy_static = "1.4.0"
 chrono = "0.4.19"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 bytes = { version = "1.0" }
+async-trait = "0.1.52"
+diesel = {version = "1.4.8", features = ["sqlite"]}
+
+
+parking_lot = "0.11"
 
 [build-dependencies]
 lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }

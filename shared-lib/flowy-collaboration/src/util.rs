@@ -10,6 +10,8 @@ use crate::{
         Revision as RevisionPB,
     },
 };
+use dissimilar::Chunk;
+use lib_ot::core::{DeltaBuilder, FlowyStr};
 use lib_ot::{
     core::{Attributes, Delta, OperationTransformable, NEW_LINE, WHITESPACE},
     rich_text::RichTextDelta,
@@ -253,4 +255,29 @@ pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
         .parse::<i64>()
         .map_err(|e| CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", s, e)))?;
     Ok(rev_id)
+}
+
+pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Delta<T>> {
+    let chunks = dissimilar::diff(&old, &new);
+    let mut delta_builder = DeltaBuilder::<T>::new();
+    for chunk in &chunks {
+        match chunk {
+            Chunk::Equal(s) => {
+                delta_builder = delta_builder.retain(FlowyStr::from(*s).utf16_size());
+            }
+            Chunk::Delete(s) => {
+                delta_builder = delta_builder.delete(FlowyStr::from(*s).utf16_size());
+            }
+            Chunk::Insert(s) => {
+                delta_builder = delta_builder.insert(*s);
+            }
+        }
+    }
+
+    let delta = delta_builder.build();
+    if delta.is_empty() {
+        None
+    } else {
+        Some(delta)
+    }
 }

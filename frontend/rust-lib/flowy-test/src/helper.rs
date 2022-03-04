@@ -14,7 +14,7 @@ use flowy_user::{
     event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
-use lib_infra::uuid_string;
+use lib_infra::uuid;
 use std::{fs, path::PathBuf, sync::Arc};
 
 pub struct ViewTest {
@@ -118,7 +118,7 @@ pub fn root_dir() -> String {
 }
 
 pub fn random_email() -> String {
-    format!("{}@appflowy.io", uuid_string())
+    format!("{}@appflowy.io", uuid())
 }
 
 pub fn login_email() -> String {

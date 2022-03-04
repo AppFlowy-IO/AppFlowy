@@ -30,7 +30,7 @@ pub trait RevisionWSDataStream: Send + Sync {
 
 // The sink provides the data that will be sent through the web socket to the
 // backend.
-pub trait RevisionWSDataIterator: Send + Sync {
+pub trait RevisionWebSocketSink: Send + Sync {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError>;
 }
 
@@ -43,7 +43,7 @@ pub trait RevisionWebSocket: Send + Sync + 'static {
 pub struct RevisionWebSocketManager {
     pub object_name: String,
     pub object_id: String,
-    ws_data_sink: Arc<dyn RevisionWSDataIterator>,
+    ws_data_sink: Arc<dyn RevisionWebSocketSink>,
     ws_data_stream: Arc<dyn RevisionWSDataStream>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     pub ws_passthrough_tx: Sender<ServerRevisionWSData>,
@@ -62,7 +62,7 @@ impl RevisionWebSocketManager {
         object_name: &str,
         object_id: &str,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
-        ws_data_sink: Arc<dyn RevisionWSDataIterator>,
+        ws_data_sink: Arc<dyn RevisionWebSocketSink>,
         ws_data_stream: Arc<dyn RevisionWSDataStream>,
         ping_duration: Duration,
     ) -> Self {
@@ -246,7 +246,7 @@ type SinkStopTx = broadcast::Sender<()>;
 pub struct RevisionWSSink {
     object_id: String,
     object_name: String,
-    provider: Arc<dyn RevisionWSDataIterator>,
+    provider: Arc<dyn RevisionWebSocketSink>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     stop_rx: Option<SinkStopRx>,
     ping_duration: Duration,
@@ -256,7 +256,7 @@ impl RevisionWSSink {
     pub fn new(
         object_id: &str,
         object_name: &str,
-        provider: Arc<dyn RevisionWSDataIterator>,
+        provider: Arc<dyn RevisionWebSocketSink>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         stop_rx: SinkStopRx,
         ping_duration: Duration,

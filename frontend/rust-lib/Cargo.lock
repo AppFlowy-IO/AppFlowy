@@ -909,6 +909,7 @@ dependencies = [
  "dissimilar",
  "flowy-derive",
  "flowy-folder-data-model",
+ "flowy-grid-data-model",
  "futures",
  "lib-infra",
  "lib-ot",
@@ -1048,14 +1049,22 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "chrono",
+ "dart-notify",
+ "diesel",
+ "flowy-collaboration",
  "flowy-derive",
  "flowy-error",
  "flowy-grid-data-model",
+ "flowy-sync",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
+ "lib-ot",
+ "lib-sqlite",
+ "parking_lot",
  "protobuf",
  "rust_decimal",
  "rusty-money",
@@ -1073,8 +1082,11 @@ dependencies = [
  "flowy-derive",
  "lib-infra",
  "protobuf",
+ "serde",
+ "serde_json",
  "strum",
  "strum_macros",
+ "uuid",
 ]
 
 [[package]]

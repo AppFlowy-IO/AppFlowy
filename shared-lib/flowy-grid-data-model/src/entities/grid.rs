@@ -1,24 +1,23 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
 use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    pub filters: RepeatedFilter,
-
-    #[pb(index = 3)]
+    #[serde(flatten)]
     pub field_orders: RepeatedFieldOrder,
 
-    #[pb(index = 4)]
+    #[pb(index = 3)]
+    #[serde(flatten)]
     pub row_orders: RepeatedRowOrder,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
     pub field_id: String,
@@ -27,10 +26,25 @@ pub struct FieldOrder {
     pub visibility: bool,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct RepeatedFieldOrder {
     #[pb(index = 1)]
+    #[serde(rename(serialize = "field_orders", deserialize = "field_orders"))]
     pub items: Vec<FieldOrder>,
+}
+
+impl std::ops::Deref for RepeatedFieldOrder {
+    type Target = Vec<FieldOrder>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedFieldOrder {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -63,7 +77,7 @@ pub struct RepeatedField {
     pub items: Vec<Field>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display)]
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display, Serialize, Deserialize)]
 pub enum FieldType {
     RichText = 0,
     Number = 1,
@@ -130,7 +144,7 @@ impl ToString for AnyData {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct RowOrder {
     #[pb(index = 1)]
     pub grid_id: String,
@@ -142,10 +156,25 @@ pub struct RowOrder {
     pub visibility: bool,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct RepeatedRowOrder {
     #[pb(index = 1)]
+    #[serde(rename(serialize = "row_orders", deserialize = "row_orders"))]
     pub items: Vec<RowOrder>,
+}
+
+impl std::ops::Deref for RepeatedRowOrder {
+    type Target = Vec<RowOrder>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedRowOrder {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -202,6 +231,21 @@ pub struct Cell {
     pub content: String,
 }
 
+#[derive(Debug, Default, ProtoBuf)]
+pub struct CellChangeset {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
+    pub field_id: String,
+
+    #[pb(index = 4)]
+    pub data: String,
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct CreateGridPayload {
     #[pb(index = 1)]
@@ -214,20 +258,8 @@ pub struct GridId {
     pub value: String,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct Filter {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub desc: String,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedFilter {
-    #[pb(index = 1)]
-    pub items: Vec<Filter>,
+impl AsRef<str> for GridId {
+    fn as_ref(&self) -> &str {
+        &self.value
+    }
 }

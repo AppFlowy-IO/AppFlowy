@@ -2,9 +2,8 @@ syntax = "proto3";
 
 message Grid {
     string id = 1;
-    RepeatedFilter filters = 2;
-    RepeatedFieldOrder field_orders = 3;
-    RepeatedRowOrder row_orders = 4;
+    RepeatedFieldOrder field_orders = 2;
+    RepeatedRowOrder row_orders = 3;
 }
 message FieldOrder {
     string field_id = 1;
@@ -60,19 +59,17 @@ message Cell {
     string field_id = 2;
     string content = 3;
 }
+message CellChangeset {
+    string id = 1;
+    string row_id = 2;
+    string field_id = 3;
+    string data = 4;
+}
 message CreateGridPayload {
     string name = 1;
 }
 message GridId {
     string value = 1;
-}
-message Filter {
-    string id = 1;
-    string name = 2;
-    string desc = 3;
-}
-message RepeatedFilter {
-    repeated Filter items = 1;
 }
 enum FieldType {
     RichText = 0;

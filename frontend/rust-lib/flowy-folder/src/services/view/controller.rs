@@ -25,7 +25,7 @@ use flowy_block::BlockManager;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
 
-use lib_infra::uuid_string;
+use lib_infra::uuid;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
@@ -176,7 +176,7 @@ impl ViewController {
             thumbnail: view.thumbnail,
             data_type: view.data_type,
             data: document_json,
-            view_id: uuid_string(),
+            view_id: uuid(),
             ext_data: view.ext_data,
             plugin_type: view.plugin_type,
         };

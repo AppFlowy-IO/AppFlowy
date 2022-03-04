@@ -97,7 +97,7 @@ impl RevisionWSDataStream for BlockRevisionWSDataStream {
 }
 
 pub(crate) struct BlockWSDataSink(pub(crate) Arc<WSDataProvider>);
-impl RevisionWSDataIterator for BlockWSDataSink {
+impl RevisionWebSocketSink for BlockWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })

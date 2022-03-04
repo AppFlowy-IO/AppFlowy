@@ -3,7 +3,7 @@ pub mod future;
 pub mod retry;
 
 #[allow(dead_code)]
-pub fn uuid_string() -> String {
+pub fn uuid() -> String {
     uuid::Uuid::new_v4().to_string()
 }
 
