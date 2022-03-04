@@ -1052,6 +1052,7 @@ dependencies = [
  "bytes",
  "chrono",
  "dart-notify",
+ "dashmap",
  "diesel",
  "flowy-collaboration",
  "flowy-database",

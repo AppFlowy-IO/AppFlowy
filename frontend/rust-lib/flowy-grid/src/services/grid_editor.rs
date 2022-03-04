@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 pub struct ClientGridEditor {
     user_id: String,
-    grid_id: GridId,
+    grid_id: String,
     grid: Arc<RwLock<GridPad>>,
     rev_manager: Arc<RevisionManager>,
     kv: Arc<GridKVPersistence>,
@@ -25,13 +25,13 @@ pub struct ClientGridEditor {
 impl ClientGridEditor {
     pub async fn new(
         user_id: &str,
-        grid_id: &GridId,
+        grid_id: &str,
         token: &str,
         pool: Arc<ConnectionPool>,
         _web_socket: Arc<dyn RevisionWebSocket>,
-    ) -> FlowyResult<Self> {
-        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, grid_id.as_ref(), pool.clone()));
-        let mut rev_manager = RevisionManager::new(user_id, grid_id.as_ref(), rev_persistence);
+    ) -> FlowyResult<Arc<Self>> {
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, grid_id, pool.clone()));
+        let mut rev_manager = RevisionManager::new(user_id, grid_id, rev_persistence);
         let cloud = Arc::new(GridRevisionCloudService {
             token: token.to_string(),
         });
@@ -43,13 +43,13 @@ impl ClientGridEditor {
 
         let user_id = user_id.to_owned();
         let grid_id = grid_id.to_owned();
-        Ok(Self {
+        Ok(Arc::new(Self {
             user_id,
             grid_id,
             grid,
             rev_manager,
             kv,
-        })
+        }))
     }
 
     pub async fn create_row(&self, row: RawRow) -> FlowyResult<()> {

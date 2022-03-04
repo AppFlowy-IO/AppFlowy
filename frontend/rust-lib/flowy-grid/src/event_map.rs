@@ -1,5 +1,5 @@
-use crate::controller::GridManager;
 use crate::event_handler::*;
+use crate::manager::GridManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 use std::sync::Arc;

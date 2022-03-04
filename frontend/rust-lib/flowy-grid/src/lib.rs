@@ -1,9 +1,9 @@
 #[macro_use]
 mod macros;
 
-mod controller;
 mod event_handler;
-mod event_map;
+pub mod event_map;
+pub mod manager;
 
 mod protobuf;
 mod services;

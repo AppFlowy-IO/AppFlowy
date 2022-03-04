@@ -32,11 +32,11 @@ impl BlockManager {
         block_user: Arc<dyn BlockUser>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
-        let block_handlers = Arc::new(BlockEditors::new());
+        let block_editors = Arc::new(BlockEditors::new());
         Self {
             cloud_service,
             rev_web_socket,
-            block_editors: block_handlers,
+            block_editors,
             block_user,
         }
     }

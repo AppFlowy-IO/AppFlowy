@@ -29,7 +29,7 @@ chrono = "0.4.19"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 bytes = { version = "1.0" }
 diesel = {version = "1.4.8", features = ["sqlite"]}
-#diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+dashmap = "4.0"
 
 
 parking_lot = "0.11"

@@ -122,6 +122,9 @@ impl LocalWebSocketRunner {
                 let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
             }
+            WSChannel::Grid => {
+                todo!("Implement grid web socket channel")
+            }
         }
     }
 
