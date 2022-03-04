@@ -1,9 +1,9 @@
-use crate::services::row_kv::{RowKVPersistence, RowKVTransaction};
+use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use flowy_collaboration::client_grid::{GridChange, GridPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{GridId, RawRow};
+use flowy_grid_data_model::entities::{Field, GridId, RawRow};
 use flowy_sync::{
     RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
     RevisionWebSocket, RevisionWebSocketManager,
@@ -19,7 +19,7 @@ pub struct ClientGridEditor {
     grid_id: GridId,
     grid: Arc<RwLock<GridPad>>,
     rev_manager: Arc<RevisionManager>,
-    kv: Arc<RowKVPersistence>,
+    kv: Arc<GridKVPersistence>,
 }
 
 impl ClientGridEditor {
@@ -39,7 +39,7 @@ impl ClientGridEditor {
             rev_manager.load::<GridPadBuilder, GridRevisionCompact>(cloud).await?,
         ));
         let rev_manager = Arc::new(rev_manager);
-        let kv = Arc::new(RowKVPersistence::new(pool));
+        let kv = Arc::new(GridKVPersistence::new(pool));
 
         let user_id = user_id.to_owned();
         let grid_id = grid_id.to_owned();
@@ -53,18 +53,30 @@ impl ClientGridEditor {
     }
 
     pub async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
-        let _ = self
-            .modify(|grid| {
-                let change = grid.create_row(&row)?;
-                Ok(change)
-            })
-            .await?;
-
+        let _ = self.modify(|grid| Ok(grid.create_row(&row)?)).await?;
         let _ = self.kv.set(row)?;
         Ok(())
     }
 
-    pub async fn modify<F>(&self, f: F) -> FlowyResult<()>
+    pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.delete_rows(&ids)?)).await?;
+        // let _ = self.kv.batch_delete(ids)?;
+        Ok(())
+    }
+
+    pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_field(&field)?)).await?;
+        let _ = self.kv.set(field)?;
+        Ok(())
+    }
+
+    pub async fn delete_field(&mut self, field_id: &str) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
+        // let _ = self.kv.remove(field_id)?;
+        Ok(())
+    }
+
+    async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: FnOnce(&mut GridPad) -> FlowyResult<Option<GridChange>>,
     {

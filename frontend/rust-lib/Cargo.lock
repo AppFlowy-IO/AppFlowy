@@ -1049,12 +1049,12 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "bytes",
  "chrono",
  "dart-notify",
  "diesel",
  "flowy-collaboration",
+ "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-grid-data-model",

@@ -10,12 +10,13 @@ lib-dispatch = { path = "../lib-dispatch" }
 dart-notify = { path = "../dart-notify" }
 lib-sqlite = { path = "../lib-sqlite" }
 flowy-sync = { path = "../flowy-sync" }
-flowy-error = { path = "../flowy-error"}
+flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-database = { path = "../flowy-database" }
 
 strum = "0.21"
 strum_macros = "0.21"
@@ -27,8 +28,8 @@ lazy_static = "1.4.0"
 chrono = "0.4.19"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 bytes = { version = "1.0" }
-async-trait = "0.1.52"
 diesel = {version = "1.4.8", features = ["sqlite"]}
+#diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 
 
 parking_lot = "0.11"

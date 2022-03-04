@@ -2,8 +2,8 @@ use crate::{
     configuration::*,
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
+use flowy_block::BlockCloudService;
 use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams};
-use flowy_document::BlockCloudService;
 use flowy_error::FlowyError;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;

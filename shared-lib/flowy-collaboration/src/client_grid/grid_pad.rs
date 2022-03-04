@@ -54,16 +54,11 @@ impl GridPad {
         })
     }
 
-    pub fn delete_row(&mut self, row_id: &str) -> CollaborateResult<Option<GridChange>> {
-        self.modify_grid(
-            |grid| match grid.row_orders.iter().position(|row_order| row_order.row_id == row_id) {
-                None => Ok(None),
-                Some(index) => {
-                    grid.row_orders.remove(index);
-                    Ok(Some(()))
-                }
-            },
-        )
+    pub fn delete_rows(&mut self, row_ids: &Vec<String>) -> CollaborateResult<Option<GridChange>> {
+        self.modify_grid(|grid| {
+            grid.row_orders.retain(|row_order| !row_ids.contains(&row_order.row_id));
+            Ok(Some(()))
+        })
     }
 
     pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChange>> {
