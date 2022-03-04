@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/grid_sizes.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'cell_builder.dart';
 import 'cell_container.dart';
@@ -9,7 +9,7 @@ import 'grid_cell.dart';
 class GridRowContext {
   final RepeatedFieldOrder fieldOrders;
   final Map<String, Field> fieldById;
-  final Map<String, GridCell> cellByFieldId;
+  final Map<String, Cell> cellByFieldId;
   GridRowContext(this.fieldOrders, this.fieldById, this.cellByFieldId);
 }
 

@@ -6,34 +6,16 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]
-    pub grid_id: String,
+    pub id: String,
 
     #[pb(index = 2)]
-    pub filters: RepeatedGridFilter,
+    pub filters: RepeatedFilter,
 
     #[pb(index = 3)]
     pub field_orders: RepeatedFieldOrder,
 
     #[pb(index = 4)]
     pub row_orders: RepeatedRowOrder,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct GridFilter {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub name: String,
-
-    #[pb(index = 3)]
-    pub desc: String,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedGridFilter {
-    #[pb(index = 1)]
-    pub items: Vec<GridFilter>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -167,7 +149,7 @@ pub struct RepeatedRowOrder {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GridRow {
+pub struct RawRow {
     #[pb(index = 1)]
     pub id: String,
 
@@ -175,20 +157,11 @@ pub struct GridRow {
     pub grid_id: String,
 
     #[pb(index = 3)]
-    pub modified_time: i64,
-
-    #[pb(index = 4)]
-    pub cell_by_field_id: HashMap<String, GridCell>,
+    pub cell_by_field_id: HashMap<String, RawCell>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRow {
-    #[pb(index = 1)]
-    pub items: Vec<GridRow>,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct GridCell {
+pub struct RawCell {
     #[pb(index = 1)]
     pub id: String,
 
@@ -199,6 +172,33 @@ pub struct GridCell {
     pub field_id: String,
 
     #[pb(index = 4)]
+    pub data: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedRow {
+    #[pb(index = 1)]
+    pub items: Vec<Row>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct Row {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub cell_by_field_id: HashMap<String, Cell>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct Cell {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
     pub content: String,
 }
 
@@ -212,4 +212,22 @@ pub struct CreateGridPayload {
 pub struct GridId {
     #[pb(index = 1)]
     pub value: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct Filter {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub desc: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedFilter {
+    #[pb(index = 1)]
+    pub items: Vec<Filter>,
 }

@@ -1,7 +1,8 @@
-import 'package:app_flowy/workspace/presentation/plugins/grid/grid_sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/widgets/grid_content/cell_decoration.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
+
+import '../content/cell_decoration.dart';
 
 class GridFooter extends StatelessWidget {
   final VoidCallback? onAddRow;

@@ -1,6 +1,6 @@
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 
-import 'grid_sizes.dart';
+import 'sizes.dart';
 
 class GridLayout {
   static double headerWidth(List<Field> fields) {

@@ -1,7 +1,7 @@
 use crate::controller::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    CreateGridPayload, Grid, GridId, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
+    CreateGridPayload, Grid, GridId, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
 };
 use lib_dispatch::prelude::{AppData, Data, DataResult};
 use std::sync::Arc;
@@ -28,7 +28,7 @@ pub(crate) async fn open_grid_handler(
 pub(crate) async fn get_rows_handler(
     data: Data<RepeatedRowOrder>,
     controller: AppData<Arc<GridManager>>,
-) -> DataResult<Grid, FlowyError> {
+) -> DataResult<RepeatedRow, FlowyError> {
     let row_orders: RepeatedRowOrder = data.into_inner();
 
     todo!()
@@ -38,7 +38,7 @@ pub(crate) async fn get_rows_handler(
 pub(crate) async fn get_fields_handler(
     data: Data<RepeatedFieldOrder>,
     controller: AppData<Arc<GridManager>>,
-) -> DataResult<Grid, FlowyError> {
+) -> DataResult<RepeatedField, FlowyError> {
     let field_orders: RepeatedFieldOrder = data.into_inner();
 
     todo!()
@@ -48,8 +48,8 @@ pub(crate) async fn get_fields_handler(
 pub(crate) async fn create_row_handler(
     data: Data<GridId>,
     controller: AppData<Arc<GridManager>>,
-) -> DataResult<Grid, FlowyError> {
+) -> Result<(), FlowyError> {
     let id: GridId = data.into_inner();
 
-    todo!()
+    Ok(())
 }

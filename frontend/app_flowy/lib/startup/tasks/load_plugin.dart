@@ -2,6 +2,7 @@ import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/plugins/doc/document.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/trash.dart';
 
 class PluginLoadTask extends LaunchTask {
@@ -13,5 +14,6 @@ class PluginLoadTask extends LaunchTask {
     registerPlugin(builder: BlankPluginBuilder(), config: BlankPluginConfig());
     registerPlugin(builder: TrashPluginBuilder(), config: TrashPluginConfig());
     registerPlugin(builder: DocumentPluginBuilder());
+    registerPlugin(builder: GridPluginBuilder(), config: GridPluginConfig());
   }
 }

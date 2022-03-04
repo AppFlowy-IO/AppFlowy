@@ -1,18 +1,10 @@
 syntax = "proto3";
 
 message Grid {
-    string grid_id = 1;
-    RepeatedGridFilter filters = 2;
+    string id = 1;
+    RepeatedFilter filters = 2;
     RepeatedFieldOrder field_orders = 3;
     RepeatedRowOrder row_orders = 4;
-}
-message GridFilter {
-    string id = 1;
-    string name = 2;
-    string desc = 3;
-}
-message RepeatedGridFilter {
-    repeated GridFilter items = 1;
 }
 message FieldOrder {
     string field_id = 1;
@@ -45,26 +37,42 @@ message RowOrder {
 message RepeatedRowOrder {
     repeated RowOrder items = 1;
 }
-message GridRow {
+message RawRow {
     string id = 1;
     string grid_id = 2;
-    int64 modified_time = 3;
-    map<string, GridCell> cell_by_field_id = 4;
+    map<string, RawCell> cell_by_field_id = 3;
 }
-message RepeatedRow {
-    repeated GridRow items = 1;
-}
-message GridCell {
+message RawCell {
     string id = 1;
     string row_id = 2;
     string field_id = 3;
-    string content = 4;
+    string data = 4;
+}
+message RepeatedRow {
+    repeated Row items = 1;
+}
+message Row {
+    string id = 1;
+    map<string, Cell> cell_by_field_id = 2;
+}
+message Cell {
+    string id = 1;
+    string field_id = 2;
+    string content = 3;
 }
 message CreateGridPayload {
     string name = 1;
 }
 message GridId {
     string value = 1;
+}
+message Filter {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+}
+message RepeatedFilter {
+    repeated Filter items = 1;
 }
 enum FieldType {
     RichText = 0;

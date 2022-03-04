@@ -45,20 +45,20 @@ class BlankPagePluginDisplay extends PluginDisplay {
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
 
   @override
-  Widget buildWidget() => const BlankStackPage();
+  Widget buildWidget() => const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class BlankStackPage extends StatefulWidget {
-  const BlankStackPage({Key? key}) : super(key: key);
+class BlankPage extends StatefulWidget {
+  const BlankPage({Key? key}) : super(key: key);
 
   @override
-  State<BlankStackPage> createState() => _BlankStackPageState();
+  State<BlankPage> createState() => _BlankPageState();
 }
 
-class _BlankStackPageState extends State<BlankStackPage> {
+class _BlankPageState extends State<BlankPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(

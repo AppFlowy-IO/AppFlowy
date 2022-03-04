@@ -65,20 +65,20 @@ class TrashPluginDisplay extends PluginDisplay {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget() => const TrashStackPage(key: ValueKey('TrashStackPage'));
+  Widget buildWidget() => const TrashPage(key: ValueKey('TrashPage'));
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class TrashStackPage extends StatefulWidget {
-  const TrashStackPage({Key? key}) : super(key: key);
+class TrashPage extends StatefulWidget {
+  const TrashPage({Key? key}) : super(key: key);
 
   @override
-  State<TrashStackPage> createState() => _TrashStackPageState();
+  State<TrashPage> createState() => _TrashPageState();
 }
 
-class _TrashStackPageState extends State<TrashStackPage> {
+class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {

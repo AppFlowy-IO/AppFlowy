@@ -8,14 +8,14 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/controller/grid_scroll.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import 'grid_layout.dart';
-import 'grid_sizes.dart';
-import 'widgets/grid_content/grid_row.dart';
-import 'widgets/grid_footer/grid_footer.dart';
-import 'widgets/grid_header/header.dart';
+import 'controller/grid_scroll.dart';
+import 'layout/layout.dart';
+import 'layout/sizes.dart';
+import 'widgets/content/grid_row.dart';
+import 'widgets/footer/grid_footer.dart';
+import 'widgets/header/header.dart';
 
 class GridPage extends StatefulWidget {
   final View view;

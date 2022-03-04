@@ -2,7 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'grid_cell.dart';
 
 class GridCellBuilder {
-  static GridCellWidget buildCell(Field? field, GridCell? cell) {
+  static GridCellWidget buildCell(Field? field, Cell? cell) {
     if (field == null || cell == null) {
       return const BlankCell();
     }

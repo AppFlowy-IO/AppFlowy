@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/presentation/plugins/grid/grid_sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';

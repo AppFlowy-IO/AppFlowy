@@ -26,8 +26,8 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct Grid {
     // message fields
-    pub grid_id: ::std::string::String,
-    pub filters: ::protobuf::SingularPtrField<RepeatedGridFilter>,
+    pub id: ::std::string::String,
+    pub filters: ::protobuf::SingularPtrField<RepeatedFilter>,
     pub field_orders: ::protobuf::SingularPtrField<RepeatedFieldOrder>,
     pub row_orders: ::protobuf::SingularPtrField<RepeatedRowOrder>,
     // special fields
@@ -46,37 +46,37 @@ impl Grid {
         ::std::default::Default::default()
     }
 
-    // string grid_id = 1;
+    // string id = 1;
 
 
-    pub fn get_grid_id(&self) -> &str {
-        &self.grid_id
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
-    pub fn clear_grid_id(&mut self) {
-        self.grid_id.clear();
+    pub fn clear_id(&mut self) {
+        self.id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_grid_id(&mut self, v: ::std::string::String) {
-        self.grid_id = v;
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
-        &mut self.grid_id
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
     }
 
     // Take field
-    pub fn take_grid_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // .RepeatedGridFilter filters = 2;
+    // .RepeatedFilter filters = 2;
 
 
-    pub fn get_filters(&self) -> &RepeatedGridFilter {
-        self.filters.as_ref().unwrap_or_else(|| <RepeatedGridFilter as ::protobuf::Message>::default_instance())
+    pub fn get_filters(&self) -> &RepeatedFilter {
+        self.filters.as_ref().unwrap_or_else(|| <RepeatedFilter as ::protobuf::Message>::default_instance())
     }
     pub fn clear_filters(&mut self) {
         self.filters.clear();
@@ -87,13 +87,13 @@ impl Grid {
     }
 
     // Param is passed by value, moved
-    pub fn set_filters(&mut self, v: RepeatedGridFilter) {
+    pub fn set_filters(&mut self, v: RepeatedFilter) {
         self.filters = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_filters(&mut self) -> &mut RepeatedGridFilter {
+    pub fn mut_filters(&mut self) -> &mut RepeatedFilter {
         if self.filters.is_none() {
             self.filters.set_default();
         }
@@ -101,8 +101,8 @@ impl Grid {
     }
 
     // Take field
-    pub fn take_filters(&mut self) -> RepeatedGridFilter {
-        self.filters.take().unwrap_or_else(|| RepeatedGridFilter::new())
+    pub fn take_filters(&mut self) -> RepeatedFilter {
+        self.filters.take().unwrap_or_else(|| RepeatedFilter::new())
     }
 
     // .RepeatedFieldOrder field_orders = 3;
@@ -197,7 +197,7 @@ impl ::protobuf::Message for Grid {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.filters)?;
@@ -220,8 +220,8 @@ impl ::protobuf::Message for Grid {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.grid_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
         }
         if let Some(ref v) = self.filters.as_ref() {
             let len = v.compute_size();
@@ -241,8 +241,8 @@ impl ::protobuf::Message for Grid {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.grid_id.is_empty() {
-            os.write_string(1, &self.grid_id)?;
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
         }
         if let Some(ref v) = self.filters.as_ref() {
             os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
@@ -298,11 +298,11 @@ impl ::protobuf::Message for Grid {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "grid_id",
-                |m: &Grid| { &m.grid_id },
-                |m: &mut Grid| { &mut m.grid_id },
+                "id",
+                |m: &Grid| { &m.id },
+                |m: &mut Grid| { &mut m.id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RepeatedGridFilter>>(
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RepeatedFilter>>(
                 "filters",
                 |m: &Grid| { &m.filters },
                 |m: &mut Grid| { &mut m.filters },
@@ -333,7 +333,7 @@ impl ::protobuf::Message for Grid {
 
 impl ::protobuf::Clear for Grid {
     fn clear(&mut self) {
-        self.grid_id.clear();
+        self.id.clear();
         self.filters.clear();
         self.field_orders.clear();
         self.row_orders.clear();
@@ -348,415 +348,6 @@ impl ::std::fmt::Debug for Grid {
 }
 
 impl ::protobuf::reflect::ProtobufValue for Grid {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct GridFilter {
-    // message fields
-    pub id: ::std::string::String,
-    pub name: ::std::string::String,
-    pub desc: ::std::string::String,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a GridFilter {
-    fn default() -> &'a GridFilter {
-        <GridFilter as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl GridFilter {
-    pub fn new() -> GridFilter {
-        ::std::default::Default::default()
-    }
-
-    // string id = 1;
-
-
-    pub fn get_id(&self) -> &str {
-        &self.id
-    }
-    pub fn clear_id(&mut self) {
-        self.id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_id(&mut self, v: ::std::string::String) {
-        self.id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_id(&mut self) -> &mut ::std::string::String {
-        &mut self.id
-    }
-
-    // Take field
-    pub fn take_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.id, ::std::string::String::new())
-    }
-
-    // string name = 2;
-
-
-    pub fn get_name(&self) -> &str {
-        &self.name
-    }
-    pub fn clear_name(&mut self) {
-        self.name.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_name(&mut self, v: ::std::string::String) {
-        self.name = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        &mut self.name
-    }
-
-    // Take field
-    pub fn take_name(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.name, ::std::string::String::new())
-    }
-
-    // string desc = 3;
-
-
-    pub fn get_desc(&self) -> &str {
-        &self.desc
-    }
-    pub fn clear_desc(&mut self) {
-        self.desc.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.desc = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        &mut self.desc
-    }
-
-    // Take field
-    pub fn take_desc(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
-    }
-}
-
-impl ::protobuf::Message for GridFilter {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
-                },
-                2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
-                },
-                3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        if !self.id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.id);
-        }
-        if !self.name.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.name);
-        }
-        if !self.desc.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.desc);
-        }
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.id.is_empty() {
-            os.write_string(1, &self.id)?;
-        }
-        if !self.name.is_empty() {
-            os.write_string(2, &self.name)?;
-        }
-        if !self.desc.is_empty() {
-            os.write_string(3, &self.desc)?;
-        }
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> GridFilter {
-        GridFilter::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "id",
-                |m: &GridFilter| { &m.id },
-                |m: &mut GridFilter| { &mut m.id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "name",
-                |m: &GridFilter| { &m.name },
-                |m: &mut GridFilter| { &mut m.name },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "desc",
-                |m: &GridFilter| { &m.desc },
-                |m: &mut GridFilter| { &mut m.desc },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<GridFilter>(
-                "GridFilter",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static GridFilter {
-        static instance: ::protobuf::rt::LazyV2<GridFilter> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(GridFilter::new)
-    }
-}
-
-impl ::protobuf::Clear for GridFilter {
-    fn clear(&mut self) {
-        self.id.clear();
-        self.name.clear();
-        self.desc.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for GridFilter {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for GridFilter {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct RepeatedGridFilter {
-    // message fields
-    pub items: ::protobuf::RepeatedField<GridFilter>,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a RepeatedGridFilter {
-    fn default() -> &'a RepeatedGridFilter {
-        <RepeatedGridFilter as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl RepeatedGridFilter {
-    pub fn new() -> RepeatedGridFilter {
-        ::std::default::Default::default()
-    }
-
-    // repeated .GridFilter items = 1;
-
-
-    pub fn get_items(&self) -> &[GridFilter] {
-        &self.items
-    }
-    pub fn clear_items(&mut self) {
-        self.items.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<GridFilter>) {
-        self.items = v;
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<GridFilter> {
-        &mut self.items
-    }
-
-    // Take field
-    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<GridFilter> {
-        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
-    }
-}
-
-impl ::protobuf::Message for RepeatedGridFilter {
-    fn is_initialized(&self) -> bool {
-        for v in &self.items {
-            if !v.is_initialized() {
-                return false;
-            }
-        };
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        for value in &self.items {
-            let len = value.compute_size();
-            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
-        };
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        for v in &self.items {
-            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-            os.write_raw_varint32(v.get_cached_size())?;
-            v.write_to_with_cached_sizes(os)?;
-        };
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> RepeatedGridFilter {
-        RepeatedGridFilter::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<GridFilter>>(
-                "items",
-                |m: &RepeatedGridFilter| { &m.items },
-                |m: &mut RepeatedGridFilter| { &mut m.items },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedGridFilter>(
-                "RepeatedGridFilter",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static RepeatedGridFilter {
-        static instance: ::protobuf::rt::LazyV2<RepeatedGridFilter> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(RepeatedGridFilter::new)
-    }
-}
-
-impl ::protobuf::Clear for RepeatedGridFilter {
-    fn clear(&mut self) {
-        self.items.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for RepeatedGridFilter {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for RepeatedGridFilter {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2293,25 +1884,24 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedRowOrder {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct GridRow {
+pub struct RawRow {
     // message fields
     pub id: ::std::string::String,
     pub grid_id: ::std::string::String,
-    pub modified_time: i64,
-    pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, GridCell>,
+    pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, RawCell>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a GridRow {
-    fn default() -> &'a GridRow {
-        <GridRow as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a RawRow {
+    fn default() -> &'a RawRow {
+        <RawRow as ::protobuf::Message>::default_instance()
     }
 }
 
-impl GridRow {
-    pub fn new() -> GridRow {
+impl RawRow {
+    pub fn new() -> RawRow {
         ::std::default::Default::default()
     }
 
@@ -2367,25 +1957,10 @@ impl GridRow {
         ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
     }
 
-    // int64 modified_time = 3;
+    // repeated .RawRow.CellByFieldIdEntry cell_by_field_id = 3;
 
 
-    pub fn get_modified_time(&self) -> i64 {
-        self.modified_time
-    }
-    pub fn clear_modified_time(&mut self) {
-        self.modified_time = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_modified_time(&mut self, v: i64) {
-        self.modified_time = v;
-    }
-
-    // repeated .GridRow.CellByFieldIdEntry cell_by_field_id = 4;
-
-
-    pub fn get_cell_by_field_id(&self) -> &::std::collections::HashMap<::std::string::String, GridCell> {
+    pub fn get_cell_by_field_id(&self) -> &::std::collections::HashMap<::std::string::String, RawCell> {
         &self.cell_by_field_id
     }
     pub fn clear_cell_by_field_id(&mut self) {
@@ -2393,22 +1968,22 @@ impl GridRow {
     }
 
     // Param is passed by value, moved
-    pub fn set_cell_by_field_id(&mut self, v: ::std::collections::HashMap<::std::string::String, GridCell>) {
+    pub fn set_cell_by_field_id(&mut self, v: ::std::collections::HashMap<::std::string::String, RawCell>) {
         self.cell_by_field_id = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_cell_by_field_id(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, GridCell> {
+    pub fn mut_cell_by_field_id(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, RawCell> {
         &mut self.cell_by_field_id
     }
 
     // Take field
-    pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, GridCell> {
+    pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, RawCell> {
         ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
     }
 }
 
-impl ::protobuf::Message for GridRow {
+impl ::protobuf::Message for RawRow {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -2424,14 +1999,7 @@ impl ::protobuf::Message for GridRow {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
                 },
                 3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int64()?;
-                    self.modified_time = tmp;
-                },
-                4 => {
-                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<GridCell>>(wire_type, is, &mut self.cell_by_field_id)?;
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(wire_type, is, &mut self.cell_by_field_id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2451,10 +2019,7 @@ impl ::protobuf::Message for GridRow {
         if !self.grid_id.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.grid_id);
         }
-        if self.modified_time != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.modified_time, ::protobuf::wire_format::WireTypeVarint);
-        }
-        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<GridCell>>(4, &self.cell_by_field_id);
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(3, &self.cell_by_field_id);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -2467,10 +2032,7 @@ impl ::protobuf::Message for GridRow {
         if !self.grid_id.is_empty() {
             os.write_string(2, &self.grid_id)?;
         }
-        if self.modified_time != 0 {
-            os.write_int64(3, self.modified_time)?;
-        }
-        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<GridCell>>(4, &self.cell_by_field_id, os)?;
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(3, &self.cell_by_field_id, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -2501,8 +2063,8 @@ impl ::protobuf::Message for GridRow {
         Self::descriptor_static()
     }
 
-    fn new() -> GridRow {
-        GridRow::new()
+    fn new() -> RawRow {
+        RawRow::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -2511,55 +2073,334 @@ impl ::protobuf::Message for GridRow {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &GridRow| { &m.id },
-                |m: &mut GridRow| { &mut m.id },
+                |m: &RawRow| { &m.id },
+                |m: &mut RawRow| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "grid_id",
-                |m: &GridRow| { &m.grid_id },
-                |m: &mut GridRow| { &mut m.grid_id },
+                |m: &RawRow| { &m.grid_id },
+                |m: &mut RawRow| { &mut m.grid_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "modified_time",
-                |m: &GridRow| { &m.modified_time },
-                |m: &mut GridRow| { &mut m.modified_time },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<GridCell>>(
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(
                 "cell_by_field_id",
-                |m: &GridRow| { &m.cell_by_field_id },
-                |m: &mut GridRow| { &mut m.cell_by_field_id },
+                |m: &RawRow| { &m.cell_by_field_id },
+                |m: &mut RawRow| { &mut m.cell_by_field_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<GridRow>(
-                "GridRow",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RawRow>(
+                "RawRow",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static GridRow {
-        static instance: ::protobuf::rt::LazyV2<GridRow> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(GridRow::new)
+    fn default_instance() -> &'static RawRow {
+        static instance: ::protobuf::rt::LazyV2<RawRow> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RawRow::new)
     }
 }
 
-impl ::protobuf::Clear for GridRow {
+impl ::protobuf::Clear for RawRow {
     fn clear(&mut self) {
         self.id.clear();
         self.grid_id.clear();
-        self.modified_time = 0;
         self.cell_by_field_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for GridRow {
+impl ::std::fmt::Debug for RawRow {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for GridRow {
+impl ::protobuf::reflect::ProtobufValue for RawRow {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct RawCell {
+    // message fields
+    pub id: ::std::string::String,
+    pub row_id: ::std::string::String,
+    pub field_id: ::std::string::String,
+    pub data: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RawCell {
+    fn default() -> &'a RawCell {
+        <RawCell as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RawCell {
+    pub fn new() -> RawCell {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // string row_id = 2;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+
+    // string field_id = 3;
+
+
+    pub fn get_field_id(&self) -> &str {
+        &self.field_id
+    }
+    pub fn clear_field_id(&mut self) {
+        self.field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_id(&mut self, v: ::std::string::String) {
+        self.field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.field_id
+    }
+
+    // Take field
+    pub fn take_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    }
+
+    // string data = 4;
+
+
+    pub fn get_data(&self) -> &str {
+        &self.data
+    }
+    pub fn clear_data(&mut self) {
+        self.data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        &mut self.data
+    }
+
+    // Take field
+    pub fn take_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.data, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for RawCell {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.row_id);
+        }
+        if !self.field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.field_id);
+        }
+        if !self.data.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.data);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if !self.row_id.is_empty() {
+            os.write_string(2, &self.row_id)?;
+        }
+        if !self.field_id.is_empty() {
+            os.write_string(3, &self.field_id)?;
+        }
+        if !self.data.is_empty() {
+            os.write_string(4, &self.data)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RawCell {
+        RawCell::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &RawCell| { &m.id },
+                |m: &mut RawCell| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &RawCell| { &m.row_id },
+                |m: &mut RawCell| { &mut m.row_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "field_id",
+                |m: &RawCell| { &m.field_id },
+                |m: &mut RawCell| { &mut m.field_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "data",
+                |m: &RawCell| { &m.data },
+                |m: &mut RawCell| { &mut m.data },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RawCell>(
+                "RawCell",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RawCell {
+        static instance: ::protobuf::rt::LazyV2<RawCell> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RawCell::new)
+    }
+}
+
+impl ::protobuf::Clear for RawCell {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.row_id.clear();
+        self.field_id.clear();
+        self.data.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RawCell {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RawCell {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2568,7 +2409,7 @@ impl ::protobuf::reflect::ProtobufValue for GridRow {
 #[derive(PartialEq,Clone,Default)]
 pub struct RepeatedRow {
     // message fields
-    pub items: ::protobuf::RepeatedField<GridRow>,
+    pub items: ::protobuf::RepeatedField<Row>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2585,10 +2426,10 @@ impl RepeatedRow {
         ::std::default::Default::default()
     }
 
-    // repeated .GridRow items = 1;
+    // repeated .Row items = 1;
 
 
-    pub fn get_items(&self) -> &[GridRow] {
+    pub fn get_items(&self) -> &[Row] {
         &self.items
     }
     pub fn clear_items(&mut self) {
@@ -2596,17 +2437,17 @@ impl RepeatedRow {
     }
 
     // Param is passed by value, moved
-    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<GridRow>) {
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<Row>) {
         self.items = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<GridRow> {
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<Row> {
         &mut self.items
     }
 
     // Take field
-    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<GridRow> {
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<Row> {
         ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
     }
 }
@@ -2693,7 +2534,7 @@ impl ::protobuf::Message for RepeatedRow {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<GridRow>>(
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Row>>(
                 "items",
                 |m: &RepeatedRow| { &m.items },
                 |m: &mut RepeatedRow| { &mut m.items },
@@ -2732,25 +2573,23 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedRow {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct GridCell {
+pub struct Row {
     // message fields
     pub id: ::std::string::String,
-    pub row_id: ::std::string::String,
-    pub field_id: ::std::string::String,
-    pub content: ::std::string::String,
+    pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, Cell>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a GridCell {
-    fn default() -> &'a GridCell {
-        <GridCell as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a Row {
+    fn default() -> &'a Row {
+        <Row as ::protobuf::Message>::default_instance()
     }
 }
 
-impl GridCell {
-    pub fn new() -> GridCell {
+impl Row {
+    pub fn new() -> Row {
         ::std::default::Default::default()
     }
 
@@ -2780,33 +2619,204 @@ impl GridCell {
         ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // string row_id = 2;
+    // repeated .Row.CellByFieldIdEntry cell_by_field_id = 2;
 
 
-    pub fn get_row_id(&self) -> &str {
-        &self.row_id
+    pub fn get_cell_by_field_id(&self) -> &::std::collections::HashMap<::std::string::String, Cell> {
+        &self.cell_by_field_id
     }
-    pub fn clear_row_id(&mut self) {
-        self.row_id.clear();
+    pub fn clear_cell_by_field_id(&mut self) {
+        self.cell_by_field_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_row_id(&mut self, v: ::std::string::String) {
-        self.row_id = v;
+    pub fn set_cell_by_field_id(&mut self, v: ::std::collections::HashMap<::std::string::String, Cell>) {
+        self.cell_by_field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_cell_by_field_id(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, Cell> {
+        &mut self.cell_by_field_id
+    }
+
+    // Take field
+    pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, Cell> {
+        ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
+    }
+}
+
+impl ::protobuf::Message for Row {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(wire_type, is, &mut self.cell_by_field_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(2, &self.cell_by_field_id);
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(2, &self.cell_by_field_id, os)?;
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Row {
+        Row::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &Row| { &m.id },
+                |m: &mut Row| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(
+                "cell_by_field_id",
+                |m: &Row| { &m.cell_by_field_id },
+                |m: &mut Row| { &mut m.cell_by_field_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Row>(
+                "Row",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Row {
+        static instance: ::protobuf::rt::LazyV2<Row> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Row::new)
+    }
+}
+
+impl ::protobuf::Clear for Row {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.cell_by_field_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Row {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Row {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct Cell {
+    // message fields
+    pub id: ::std::string::String,
+    pub field_id: ::std::string::String,
+    pub content: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Cell {
+    fn default() -> &'a Cell {
+        <Cell as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Cell {
+    pub fn new() -> Cell {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
-        &mut self.row_id
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
     }
 
     // Take field
-    pub fn take_row_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // string field_id = 3;
+    // string field_id = 2;
 
 
     pub fn get_field_id(&self) -> &str {
@@ -2832,7 +2842,7 @@ impl GridCell {
         ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
     }
 
-    // string content = 4;
+    // string content = 3;
 
 
     pub fn get_content(&self) -> &str {
@@ -2859,7 +2869,7 @@ impl GridCell {
     }
 }
 
-impl ::protobuf::Message for GridCell {
+impl ::protobuf::Message for Cell {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -2872,12 +2882,9 @@ impl ::protobuf::Message for GridCell {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
-                },
-                3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
                 },
-                4 => {
+                3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.content)?;
                 },
                 _ => {
@@ -2895,14 +2902,11 @@ impl ::protobuf::Message for GridCell {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if !self.row_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.row_id);
-        }
         if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.field_id);
+            my_size += ::protobuf::rt::string_size(2, &self.field_id);
         }
         if !self.content.is_empty() {
-            my_size += ::protobuf::rt::string_size(4, &self.content);
+            my_size += ::protobuf::rt::string_size(3, &self.content);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -2913,14 +2917,11 @@ impl ::protobuf::Message for GridCell {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if !self.row_id.is_empty() {
-            os.write_string(2, &self.row_id)?;
-        }
         if !self.field_id.is_empty() {
-            os.write_string(3, &self.field_id)?;
+            os.write_string(2, &self.field_id)?;
         }
         if !self.content.is_empty() {
-            os.write_string(4, &self.content)?;
+            os.write_string(3, &self.content)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -2952,8 +2953,8 @@ impl ::protobuf::Message for GridCell {
         Self::descriptor_static()
     }
 
-    fn new() -> GridCell {
-        GridCell::new()
+    fn new() -> Cell {
+        Cell::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -2962,55 +2963,49 @@ impl ::protobuf::Message for GridCell {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &GridCell| { &m.id },
-                |m: &mut GridCell| { &mut m.id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "row_id",
-                |m: &GridCell| { &m.row_id },
-                |m: &mut GridCell| { &mut m.row_id },
+                |m: &Cell| { &m.id },
+                |m: &mut Cell| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "field_id",
-                |m: &GridCell| { &m.field_id },
-                |m: &mut GridCell| { &mut m.field_id },
+                |m: &Cell| { &m.field_id },
+                |m: &mut Cell| { &mut m.field_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "content",
-                |m: &GridCell| { &m.content },
-                |m: &mut GridCell| { &mut m.content },
+                |m: &Cell| { &m.content },
+                |m: &mut Cell| { &mut m.content },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<GridCell>(
-                "GridCell",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Cell>(
+                "Cell",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static GridCell {
-        static instance: ::protobuf::rt::LazyV2<GridCell> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(GridCell::new)
+    fn default_instance() -> &'static Cell {
+        static instance: ::protobuf::rt::LazyV2<Cell> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Cell::new)
     }
 }
 
-impl ::protobuf::Clear for GridCell {
+impl ::protobuf::Clear for Cell {
     fn clear(&mut self) {
         self.id.clear();
-        self.row_id.clear();
         self.field_id.clear();
         self.content.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for GridCell {
+impl ::std::fmt::Debug for Cell {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for GridCell {
+impl ::protobuf::reflect::ProtobufValue for Cell {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -3334,6 +3329,415 @@ impl ::protobuf::reflect::ProtobufValue for GridId {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct Filter {
+    // message fields
+    pub id: ::std::string::String,
+    pub name: ::std::string::String,
+    pub desc: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Filter {
+    fn default() -> &'a Filter {
+        <Filter as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Filter {
+    pub fn new() -> Filter {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // string name = 2;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // string desc = 3;
+
+
+    pub fn get_desc(&self) -> &str {
+        &self.desc
+    }
+    pub fn clear_desc(&mut self) {
+        self.desc.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_desc(&mut self, v: ::std::string::String) {
+        self.desc = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
+        &mut self.desc
+    }
+
+    // Take field
+    pub fn take_desc(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for Filter {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.name);
+        }
+        if !self.desc.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.desc);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if !self.name.is_empty() {
+            os.write_string(2, &self.name)?;
+        }
+        if !self.desc.is_empty() {
+            os.write_string(3, &self.desc)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Filter {
+        Filter::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &Filter| { &m.id },
+                |m: &mut Filter| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &Filter| { &m.name },
+                |m: &mut Filter| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "desc",
+                |m: &Filter| { &m.desc },
+                |m: &mut Filter| { &mut m.desc },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Filter>(
+                "Filter",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Filter {
+        static instance: ::protobuf::rt::LazyV2<Filter> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Filter::new)
+    }
+}
+
+impl ::protobuf::Clear for Filter {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.name.clear();
+        self.desc.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Filter {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Filter {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct RepeatedFilter {
+    // message fields
+    pub items: ::protobuf::RepeatedField<Filter>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RepeatedFilter {
+    fn default() -> &'a RepeatedFilter {
+        <RepeatedFilter as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RepeatedFilter {
+    pub fn new() -> RepeatedFilter {
+        ::std::default::Default::default()
+    }
+
+    // repeated .Filter items = 1;
+
+
+    pub fn get_items(&self) -> &[Filter] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<Filter>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<Filter> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<Filter> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for RepeatedFilter {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RepeatedFilter {
+        RepeatedFilter::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Filter>>(
+                "items",
+                |m: &RepeatedFilter| { &m.items },
+                |m: &mut RepeatedFilter| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedFilter>(
+                "RepeatedFilter",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RepeatedFilter {
+        static instance: ::protobuf::rt::LazyV2<RepeatedFilter> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RepeatedFilter::new)
+    }
+}
+
+impl ::protobuf::Clear for RepeatedFilter {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RepeatedFilter {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RepeatedFilter {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum FieldType {
     RichText = 0,
@@ -3397,44 +3801,49 @@ impl ::protobuf::reflect::ProtobufValue for FieldType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ngrid.proto\"\xb8\x01\n\x04Grid\x12\x17\n\x07grid_id\x18\x01\x20\x01(\
-    \tR\x06gridId\x12-\n\x07filters\x18\x02\x20\x01(\x0b2\x13.RepeatedGridFi\
-    lterR\x07filters\x126\n\x0cfield_orders\x18\x03\x20\x01(\x0b2\x13.Repeat\
-    edFieldOrderR\x0bfieldOrders\x120\n\nrow_orders\x18\x04\x20\x01(\x0b2\
-    \x11.RepeatedRowOrderR\trowOrders\"D\n\nGridFilter\x12\x0e\n\x02id\x18\
-    \x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
-    \x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\"7\n\x12RepeatedGridFilter\
-    \x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.GridFilterR\x05items\"G\n\nFi\
-    eldOrder\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x1e\n\
-    \nvisibility\x18\x02\x20\x01(\x08R\nvisibility\"7\n\x12RepeatedFieldOrde\
-    r\x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.FieldOrderR\x05items\"\xc5\
-    \x01\n\x05Field\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04n\
-    ame\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\
-    \x04desc\x12)\n\nfield_type\x18\x04\x20\x01(\x0e2\n.FieldTypeR\tfieldTyp\
-    e\x12\x16\n\x06frozen\x18\x05\x20\x01(\x08R\x06frozen\x12\x14\n\x05width\
-    \x18\x06\x20\x01(\x05R\x05width\x12+\n\x0ctype_options\x18\x07\x20\x01(\
-    \x0b2\x08.AnyDataR\x0btypeOptions\"-\n\rRepeatedField\x12\x1c\n\x05items\
-    \x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"8\n\x07AnyData\x12\x17\n\x07\
-    type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\x05value\x18\x02\x20\x01\
-    (\x0cR\x05value\"Z\n\x08RowOrder\x12\x17\n\x07grid_id\x18\x01\x20\x01(\t\
-    R\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x1e\n\n\
-    visibility\x18\x03\x20\x01(\x08R\nvisibility\"3\n\x10RepeatedRowOrder\
-    \x12\x1f\n\x05items\x18\x01\x20\x03(\x0b2\t.RowOrderR\x05items\"\xea\x01\
-    \n\x07GridRow\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x17\n\x07gri\
-    d_id\x18\x02\x20\x01(\tR\x06gridId\x12#\n\rmodified_time\x18\x03\x20\x01\
-    (\x03R\x0cmodifiedTime\x12D\n\x10cell_by_field_id\x18\x04\x20\x03(\x0b2\
-    \x1b.GridRow.CellByFieldIdEntryR\rcellByFieldId\x1aK\n\x12CellByFieldIdE\
-    ntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\
-    \x02\x20\x01(\x0b2\t.GridCellR\x05value:\x028\x01\"-\n\x0bRepeatedRow\
-    \x12\x1e\n\x05items\x18\x01\x20\x03(\x0b2\x08.GridRowR\x05items\"f\n\x08\
-    GridCell\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06row_id\
-    \x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\
-    \x07fieldId\x12\x18\n\x07content\x18\x04\x20\x01(\tR\x07content\"'\n\x11\
-    CreateGridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\
-    \x06GridId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value*d\n\tFieldTyp\
-    e\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08Dat\
-    eTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\
-    \x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    \n\ngrid.proto\"\xab\x01\n\x04Grid\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \x02id\x12)\n\x07filters\x18\x02\x20\x01(\x0b2\x0f.RepeatedFilterR\x07fi\
+    lters\x126\n\x0cfield_orders\x18\x03\x20\x01(\x0b2\x13.RepeatedFieldOrde\
+    rR\x0bfieldOrders\x120\n\nrow_orders\x18\x04\x20\x01(\x0b2\x11.RepeatedR\
+    owOrderR\trowOrders\"G\n\nFieldOrder\x12\x19\n\x08field_id\x18\x01\x20\
+    \x01(\tR\x07fieldId\x12\x1e\n\nvisibility\x18\x02\x20\x01(\x08R\nvisibil\
+    ity\"7\n\x12RepeatedFieldOrder\x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b\
+    .FieldOrderR\x05items\"\xc5\x01\n\x05Field\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\
+    \x04desc\x18\x03\x20\x01(\tR\x04desc\x12)\n\nfield_type\x18\x04\x20\x01(\
+    \x0e2\n.FieldTypeR\tfieldType\x12\x16\n\x06frozen\x18\x05\x20\x01(\x08R\
+    \x06frozen\x12\x14\n\x05width\x18\x06\x20\x01(\x05R\x05width\x12+\n\x0ct\
+    ype_options\x18\x07\x20\x01(\x0b2\x08.AnyDataR\x0btypeOptions\"-\n\rRepe\
+    atedField\x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"\
+    8\n\x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\
+    \x14\n\x05value\x18\x02\x20\x01(\x0cR\x05value\"Z\n\x08RowOrder\x12\x17\
+    \n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\
+    \x20\x01(\tR\x05rowId\x12\x1e\n\nvisibility\x18\x03\x20\x01(\x08R\nvisib\
+    ility\"3\n\x10RepeatedRowOrder\x12\x1f\n\x05items\x18\x01\x20\x03(\x0b2\
+    \t.RowOrderR\x05items\"\xc2\x01\n\x06RawRow\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\tR\x02id\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12C\n\
+    \x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1a.RawRow.CellByFieldIdEntry\
+    R\rcellByFieldId\x1aJ\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\
+    \x20\x01(\tR\x03key\x12\x1e\n\x05value\x18\x02\x20\x01(\x0b2\x08.RawCell\
+    R\x05value:\x028\x01\"_\n\x07RawCell\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \x02id\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08fie\
+    ld_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x12\n\x04data\x18\x04\x20\x01(\
+    \tR\x04data\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\
+    \x04.RowR\x05items\"\xa0\x01\n\x03Row\x12\x0e\n\x02id\x18\x01\x20\x01(\t\
+    R\x02id\x12@\n\x10cell_by_field_id\x18\x02\x20\x03(\x0b2\x17.Row.CellByF\
+    ieldIdEntryR\rcellByFieldId\x1aG\n\x12CellByFieldIdEntry\x12\x10\n\x03ke\
+    y\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\x18\x02\x20\x01(\x0b2\
+    \x05.CellR\x05value:\x028\x01\"K\n\x04Cell\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\tR\x02id\x12\x19\n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\x12\
+    \x18\n\x07content\x18\x03\x20\x01(\tR\x07content\"'\n\x11CreateGridPaylo\
+    ad\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\
+    \x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"@\n\x06Filter\x12\x0e\n\
+    \x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\
+    \x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\"/\n\x0eRepeatedF\
+    ilter\x12\x1d\n\x05items\x18\x01\x20\x03(\x0b2\x07.FilterR\x05items*d\n\
+    \tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\
+    \x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\
+    \x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

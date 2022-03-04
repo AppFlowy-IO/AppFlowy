@@ -74,7 +74,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       result.fold((repeatedRow) {
         final rows = repeatedRow.items;
         final gridInfo = GridInfo(rows: rows, fields: _fields!);
-
         emit(
           state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
         );
@@ -116,7 +115,7 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridInfo {
-  List<GridRow> rows;
+  List<Row> rows;
   List<Field> fields;
 
   GridInfo({
@@ -139,7 +138,7 @@ class GridInfo {
 
 class RowInfo {
   List<Field> fields;
-  Map<String, GridCell> cellMap;
+  Map<String, Cell> cellMap;
   RowInfo({
     required this.fields,
     required this.cellMap,

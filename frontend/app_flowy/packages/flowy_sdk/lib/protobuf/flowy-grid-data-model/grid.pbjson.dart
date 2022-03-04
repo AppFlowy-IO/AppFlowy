@@ -27,37 +27,15 @@ final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWV
 const Grid$json = const {
   '1': 'Grid',
   '2': const [
-    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'filters', '3': 2, '4': 1, '5': 11, '6': '.RepeatedGridFilter', '10': 'filters'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'filters', '3': 2, '4': 1, '5': 11, '6': '.RepeatedFilter', '10': 'filters'},
     const {'1': 'field_orders', '3': 3, '4': 1, '5': 11, '6': '.RepeatedFieldOrder', '10': 'fieldOrders'},
     const {'1': 'row_orders', '3': 4, '4': 1, '5': 11, '6': '.RepeatedRowOrder', '10': 'rowOrders'},
   ],
 };
 
 /// Descriptor for `Grid`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridDescriptor = $convert.base64Decode('CgRHcmlkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBItCgdmaWx0ZXJzGAIgASgLMhMuUmVwZWF0ZWRHcmlkRmlsdGVyUgdmaWx0ZXJzEjYKDGZpZWxkX29yZGVycxgDIAEoCzITLlJlcGVhdGVkRmllbGRPcmRlclILZmllbGRPcmRlcnMSMAoKcm93X29yZGVycxgEIAEoCzIRLlJlcGVhdGVkUm93T3JkZXJSCXJvd09yZGVycw==');
-@$core.Deprecated('Use gridFilterDescriptor instead')
-const GridFilter$json = const {
-  '1': 'GridFilter',
-  '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
-  ],
-};
-
-/// Descriptor for `GridFilter`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridFilterDescriptor = $convert.base64Decode('CgpHcmlkRmlsdGVyEg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2M=');
-@$core.Deprecated('Use repeatedGridFilterDescriptor instead')
-const RepeatedGridFilter$json = const {
-  '1': 'RepeatedGridFilter',
-  '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.GridFilter', '10': 'items'},
-  ],
-};
-
-/// Descriptor for `RepeatedGridFilter`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List repeatedGridFilterDescriptor = $convert.base64Decode('ChJSZXBlYXRlZEdyaWRGaWx0ZXISIQoFaXRlbXMYASADKAsyCy5HcmlkRmlsdGVyUgVpdGVtcw==');
+final $typed_data.Uint8List gridDescriptor = $convert.base64Decode('CgRHcmlkEg4KAmlkGAEgASgJUgJpZBIpCgdmaWx0ZXJzGAIgASgLMg8uUmVwZWF0ZWRGaWx0ZXJSB2ZpbHRlcnMSNgoMZmllbGRfb3JkZXJzGAMgASgLMhMuUmVwZWF0ZWRGaWVsZE9yZGVyUgtmaWVsZE9yZGVycxIwCgpyb3dfb3JkZXJzGAQgASgLMhEuUmVwZWF0ZWRSb3dPcmRlclIJcm93T3JkZXJz');
 @$core.Deprecated('Use fieldOrderDescriptor instead')
 const FieldOrder$json = const {
   '1': 'FieldOrder',
@@ -138,53 +116,86 @@ const RepeatedRowOrder$json = const {
 
 /// Descriptor for `RepeatedRowOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List repeatedRowOrderDescriptor = $convert.base64Decode('ChBSZXBlYXRlZFJvd09yZGVyEh8KBWl0ZW1zGAEgAygLMgkuUm93T3JkZXJSBWl0ZW1z');
-@$core.Deprecated('Use gridRowDescriptor instead')
-const GridRow$json = const {
-  '1': 'GridRow',
+@$core.Deprecated('Use rawRowDescriptor instead')
+const RawRow$json = const {
+  '1': 'RawRow',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'modified_time', '3': 3, '4': 1, '5': 3, '10': 'modifiedTime'},
-    const {'1': 'cell_by_field_id', '3': 4, '4': 3, '5': 11, '6': '.GridRow.CellByFieldIdEntry', '10': 'cellByFieldId'},
+    const {'1': 'cell_by_field_id', '3': 3, '4': 3, '5': 11, '6': '.RawRow.CellByFieldIdEntry', '10': 'cellByFieldId'},
   ],
-  '3': const [GridRow_CellByFieldIdEntry$json],
+  '3': const [RawRow_CellByFieldIdEntry$json],
 };
 
-@$core.Deprecated('Use gridRowDescriptor instead')
-const GridRow_CellByFieldIdEntry$json = const {
+@$core.Deprecated('Use rawRowDescriptor instead')
+const RawRow_CellByFieldIdEntry$json = const {
   '1': 'CellByFieldIdEntry',
   '2': const [
     const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
-    const {'1': 'value', '3': 2, '4': 1, '5': 11, '6': '.GridCell', '10': 'value'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 11, '6': '.RawCell', '10': 'value'},
   ],
   '7': const {'7': true},
 };
 
-/// Descriptor for `GridRow`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridRowDescriptor = $convert.base64Decode('CgdHcmlkUm93Eg4KAmlkGAEgASgJUgJpZBIXCgdncmlkX2lkGAIgASgJUgZncmlkSWQSIwoNbW9kaWZpZWRfdGltZRgDIAEoA1IMbW9kaWZpZWRUaW1lEkQKEGNlbGxfYnlfZmllbGRfaWQYBCADKAsyGy5HcmlkUm93LkNlbGxCeUZpZWxkSWRFbnRyeVINY2VsbEJ5RmllbGRJZBpLChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHwoFdmFsdWUYAiABKAsyCS5HcmlkQ2VsbFIFdmFsdWU6AjgB');
-@$core.Deprecated('Use repeatedRowDescriptor instead')
-const RepeatedRow$json = const {
-  '1': 'RepeatedRow',
-  '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.GridRow', '10': 'items'},
-  ],
-};
-
-/// Descriptor for `RepeatedRow`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List repeatedRowDescriptor = $convert.base64Decode('CgtSZXBlYXRlZFJvdxIeCgVpdGVtcxgBIAMoCzIILkdyaWRSb3dSBWl0ZW1z');
-@$core.Deprecated('Use gridCellDescriptor instead')
-const GridCell$json = const {
-  '1': 'GridCell',
+/// Descriptor for `RawRow`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rawRowDescriptor = $convert.base64Decode('CgZSYXdSb3cSDgoCaWQYASABKAlSAmlkEhcKB2dyaWRfaWQYAiABKAlSBmdyaWRJZBJDChBjZWxsX2J5X2ZpZWxkX2lkGAMgAygLMhouUmF3Um93LkNlbGxCeUZpZWxkSWRFbnRyeVINY2VsbEJ5RmllbGRJZBpKChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHgoFdmFsdWUYAiABKAsyCC5SYXdDZWxsUgV2YWx1ZToCOAE=');
+@$core.Deprecated('Use rawCellDescriptor instead')
+const RawCell$json = const {
+  '1': 'RawCell',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'content', '3': 4, '4': 1, '5': 9, '10': 'content'},
+    const {'1': 'data', '3': 4, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
-/// Descriptor for `GridCell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridCellDescriptor = $convert.base64Decode('CghHcmlkQ2VsbBIOCgJpZBgBIAEoCVICaWQSFQoGcm93X2lkGAIgASgJUgVyb3dJZBIZCghmaWVsZF9pZBgDIAEoCVIHZmllbGRJZBIYCgdjb250ZW50GAQgASgJUgdjb250ZW50');
+/// Descriptor for `RawCell`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhIKBGRhdGEYBCABKAlSBGRhdGE=');
+@$core.Deprecated('Use repeatedRowDescriptor instead')
+const RepeatedRow$json = const {
+  '1': 'RepeatedRow',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Row', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedRow`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedRowDescriptor = $convert.base64Decode('CgtSZXBlYXRlZFJvdxIaCgVpdGVtcxgBIAMoCzIELlJvd1IFaXRlbXM=');
+@$core.Deprecated('Use rowDescriptor instead')
+const Row$json = const {
+  '1': 'Row',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'cell_by_field_id', '3': 2, '4': 3, '5': 11, '6': '.Row.CellByFieldIdEntry', '10': 'cellByFieldId'},
+  ],
+  '3': const [Row_CellByFieldIdEntry$json],
+};
+
+@$core.Deprecated('Use rowDescriptor instead')
+const Row_CellByFieldIdEntry$json = const {
+  '1': 'CellByFieldIdEntry',
+  '2': const [
+    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 11, '6': '.Cell', '10': 'value'},
+  ],
+  '7': const {'7': true},
+};
+
+/// Descriptor for `Row`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rowDescriptor = $convert.base64Decode('CgNSb3cSDgoCaWQYASABKAlSAmlkEkAKEGNlbGxfYnlfZmllbGRfaWQYAiADKAsyFy5Sb3cuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkGkcKEkNlbGxCeUZpZWxkSWRFbnRyeRIQCgNrZXkYASABKAlSA2tleRIbCgV2YWx1ZRgCIAEoCzIFLkNlbGxSBXZhbHVlOgI4AQ==');
+@$core.Deprecated('Use cellDescriptor instead')
+const Cell$json = const {
+  '1': 'Cell',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'content', '3': 3, '4': 1, '5': 9, '10': 'content'},
+  ],
+};
+
+/// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEg4KAmlkGAEgASgJUgJpZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIYCgdjb250ZW50GAMgASgJUgdjb250ZW50');
 @$core.Deprecated('Use createGridPayloadDescriptor instead')
 const CreateGridPayload$json = const {
   '1': 'CreateGridPayload',
@@ -205,3 +216,25 @@ const GridId$json = const {
 
 /// Descriptor for `GridId`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridIdDescriptor = $convert.base64Decode('CgZHcmlkSWQSFAoFdmFsdWUYASABKAlSBXZhbHVl');
+@$core.Deprecated('Use filterDescriptor instead')
+const Filter$json = const {
+  '1': 'Filter',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+  ],
+};
+
+/// Descriptor for `Filter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterDescriptor = $convert.base64Decode('CgZGaWx0ZXISDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYw==');
+@$core.Deprecated('Use repeatedFilterDescriptor instead')
+const RepeatedFilter$json = const {
+  '1': 'RepeatedFilter',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Filter', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedFilter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedFilterDescriptor = $convert.base64Decode('Cg5SZXBlYXRlZEZpbHRlchIdCgVpdGVtcxgBIAMoCzIHLkZpbHRlclIFaXRlbXM=');

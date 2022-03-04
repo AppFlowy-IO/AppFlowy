@@ -13,6 +13,7 @@ enum DefaultPlugin {
   quillEditor,
   blank,
   trash,
+  grid,
 }
 
 extension FlowyDefaultPluginExt on DefaultPlugin {
@@ -24,6 +25,8 @@ extension FlowyDefaultPluginExt on DefaultPlugin {
         return 1;
       case DefaultPlugin.trash:
         return 2;
+      case DefaultPlugin.grid:
+        return 3;
     }
   }
 }

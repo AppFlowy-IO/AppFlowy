@@ -170,7 +170,7 @@ class HomeStackManager {
             if (pluginType == notifier.plugin.ty) {
               return notifier.plugin.display.buildWidget();
             } else {
-              return const BlankStackPage();
+              return const BlankPage();
             }
           }).toList(),
         );
