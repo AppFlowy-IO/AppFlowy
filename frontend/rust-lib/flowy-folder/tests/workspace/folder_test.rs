@@ -1,5 +1,5 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
-use flowy_collaboration::{client_document::default::initial_delta_string, entities::revision::RevisionState};
+use flowy_collaboration::{client_document::default::initial_quill_delta_string, entities::revision::RevisionState};
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
@@ -175,7 +175,7 @@ async fn open_document_view() {
 
     test.run_scripts(vec![OpenDocument]).await;
     let document_info = test.document_info.unwrap();
-    assert_eq!(document_info.text, initial_delta_string());
+    assert_eq!(document_info.text, initial_quill_delta_string());
 }
 
 #[tokio::test]

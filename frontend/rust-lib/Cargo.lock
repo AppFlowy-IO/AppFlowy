@@ -1071,6 +1071,7 @@ dependencies = [
  "rusty-money",
  "strum",
  "strum_macros",
+ "tokio",
  "tracing",
  "uuid",
 ]

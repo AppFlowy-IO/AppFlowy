@@ -26,11 +26,26 @@ pub struct FieldOrder {
     pub visibility: bool,
 }
 
+impl std::convert::From<&Field> for FieldOrder {
+    fn from(field: &Field) -> Self {
+        Self {
+            field_id: field.id.clone(),
+            visibility: true,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct RepeatedFieldOrder {
     #[pb(index = 1)]
     #[serde(rename(serialize = "field_orders", deserialize = "field_orders"))]
     pub items: Vec<FieldOrder>,
+}
+
+impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
+    fn from(items: Vec<FieldOrder>) -> Self {
+        Self { items }
+    }
 }
 
 impl std::ops::Deref for RepeatedFieldOrder {
@@ -75,6 +90,18 @@ pub struct Field {
 pub struct RepeatedField {
     #[pb(index = 1)]
     pub items: Vec<Field>,
+}
+impl std::ops::Deref for RepeatedField {
+    type Target = Vec<Field>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedField {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display, Serialize, Deserialize)]
@@ -156,6 +183,16 @@ pub struct RowOrder {
     pub visibility: bool,
 }
 
+impl std::convert::From<&RawRow> for RowOrder {
+    fn from(row: &RawRow) -> Self {
+        Self {
+            grid_id: row.grid_id.clone(),
+            row_id: row.id.clone(),
+            visibility: true,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct RepeatedRowOrder {
     #[pb(index = 1)]
@@ -163,9 +200,14 @@ pub struct RepeatedRowOrder {
     pub items: Vec<RowOrder>,
 }
 
+impl std::convert::From<Vec<RowOrder>> for RepeatedRowOrder {
+    fn from(items: Vec<RowOrder>) -> Self {
+        Self { items }
+    }
+}
+
 impl std::ops::Deref for RepeatedRowOrder {
     type Target = Vec<RowOrder>;
-
     fn deref(&self) -> &Self::Target {
         &self.items
     }
@@ -208,6 +250,19 @@ pub struct RawCell {
 pub struct RepeatedRow {
     #[pb(index = 1)]
     pub items: Vec<Row>,
+}
+
+impl std::ops::Deref for RepeatedRow {
+    type Target = Vec<Row>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedRow {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]

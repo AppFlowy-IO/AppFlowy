@@ -47,7 +47,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => "Doc";
 
   @override
-  PluginType get pluginType => DefaultPlugin.quillEditor.type();
+  PluginType get pluginType => DefaultPlugin.quill.type();
 
   @override
   ViewDataType get dataType => ViewDataType.RichText;

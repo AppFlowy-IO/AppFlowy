@@ -82,12 +82,6 @@ impl Revision {
     }
 }
 
-impl std::convert::From<Revision> for RepeatedRevision {
-    fn from(revision: Revision) -> Self {
-        RepeatedRevision { items: vec![revision] }
-    }
-}
-
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
@@ -122,6 +116,12 @@ impl std::ops::Deref for RepeatedRevision {
 impl std::ops::DerefMut for RepeatedRevision {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
+    }
+}
+
+impl std::convert::From<Revision> for RepeatedRevision {
+    fn from(revision: Revision) -> Self {
+        Self { items: vec![revision] }
     }
 }
 

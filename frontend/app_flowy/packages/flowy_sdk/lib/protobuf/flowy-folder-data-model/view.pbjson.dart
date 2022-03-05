@@ -14,11 +14,12 @@ const ViewDataType$json = const {
   '2': const [
     const {'1': 'RichText', '2': 0},
     const {'1': 'PlainText', '2': 1},
+    const {'1': 'Grid', '2': 2},
   ],
 };
 
 /// Descriptor for `ViewDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List viewDataTypeDescriptor = $convert.base64Decode('CgxWaWV3RGF0YVR5cGUSDAoIUmljaFRleHQQABINCglQbGFpblRleHQQAQ==');
+final $typed_data.Uint8List viewDataTypeDescriptor = $convert.base64Decode('CgxWaWV3RGF0YVR5cGUSDAoIUmljaFRleHQQABINCglQbGFpblRleHQQARIICgRHcmlkEAI=');
 @$core.Deprecated('Use viewDescriptor instead')
 const View$json = const {
   '1': 'View',

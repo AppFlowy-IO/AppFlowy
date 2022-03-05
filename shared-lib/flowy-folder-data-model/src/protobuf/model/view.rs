@@ -2823,6 +2823,7 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
 pub enum ViewDataType {
     RichText = 0,
     PlainText = 1,
+    Grid = 2,
 }
 
 impl ::protobuf::ProtobufEnum for ViewDataType {
@@ -2834,6 +2835,7 @@ impl ::protobuf::ProtobufEnum for ViewDataType {
         match value {
             0 => ::std::option::Option::Some(ViewDataType::RichText),
             1 => ::std::option::Option::Some(ViewDataType::PlainText),
+            2 => ::std::option::Option::Some(ViewDataType::Grid),
             _ => ::std::option::Option::None
         }
     }
@@ -2842,6 +2844,7 @@ impl ::protobuf::ProtobufEnum for ViewDataType {
         static values: &'static [ViewDataType] = &[
             ViewDataType::RichText,
             ViewDataType::PlainText,
+            ViewDataType::Grid,
         ];
         values
     }
@@ -2904,9 +2907,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\
     \x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\
     \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\
-    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*+\n\x0cVi\
-    ewDataType\x12\x0c\n\x08RichText\x10\0\x12\r\n\tPlainText\x10\x01b\x06pr\
-    oto3\
+    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*5\n\x0cVi\
+    ewDataType\x12\x0c\n\x08RichText\x10\0\x12\r\n\tPlainText\x10\x01\x12\
+    \x08\n\x04Grid\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

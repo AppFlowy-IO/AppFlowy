@@ -85,7 +85,7 @@ impl BlockManager {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.block_user.db_pool()?;
         // Maybe we could save the block to disk without creating the RevisionManager
-        let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
+        let rev_manager = self.make_block_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -125,7 +125,7 @@ impl BlockManager {
     ) -> Result<Arc<ClientBlockEditor>, FlowyError> {
         let user = self.block_user.clone();
         let token = self.block_user.token()?;
-        let rev_manager = self.make_rev_manager(block_id, pool.clone())?;
+        let rev_manager = self.make_block_rev_manager(block_id, pool.clone())?;
         let cloud_service = Arc::new(BlockRevisionCloudService {
             token,
             server: self.cloud_service.clone(),
@@ -136,7 +136,7 @@ impl BlockManager {
         Ok(doc_editor)
     }
 
-    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
+    fn make_block_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         let user_id = self.block_user.user_id()?;
         let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, rev_persistence))

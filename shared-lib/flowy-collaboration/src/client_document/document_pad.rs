@@ -1,6 +1,6 @@
 use crate::{
     client_document::{
-        default::initial_delta,
+        default::initial_quill_delta,
         history::{History, UndoResult},
         view::{ViewExtensions, RECORD_THRESHOLD},
     },
@@ -26,7 +26,7 @@ impl InitialDocumentText for PlainDoc {
 pub struct NewlineDoc();
 impl InitialDocumentText for NewlineDoc {
     fn initial_delta() -> RichTextDelta {
-        initial_delta()
+        initial_quill_delta()
     }
 }
 

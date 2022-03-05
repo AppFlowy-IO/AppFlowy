@@ -2,7 +2,7 @@ use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
-    client_document::default::initial_delta_string,
+    client_document::default::initial_quill_delta_string,
     entities::{
         document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
@@ -420,7 +420,7 @@ impl BlockCloudService for LocalServer {
     fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
         let doc = BlockInfo {
             block_id: params.value,
-            text: initial_delta_string(),
+            text: initial_quill_delta_string(),
             rev_id: 0,
             base_rev_id: 0,
         };

@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 export "./src/sandbox.dart";
 
 enum DefaultPlugin {
-  quillEditor,
+  quill,
   blank,
   trash,
   grid,
@@ -19,7 +19,7 @@ enum DefaultPlugin {
 extension FlowyDefaultPluginExt on DefaultPlugin {
   int type() {
     switch (this) {
-      case DefaultPlugin.quillEditor:
+      case DefaultPlugin.quill:
         return 0;
       case DefaultPlugin.blank:
         return 1;

@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use chrono::Utc;
-use flowy_collaboration::client_document::default::{initial_delta, initial_read_me};
+use flowy_collaboration::client_document::default::{initial_quill_delta, initial_quill_delta_string, initial_read_me};
 use flowy_folder_data_model::user_default;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
@@ -199,13 +199,10 @@ impl DefaultFolderBuilder {
                 let view_data = if index == 0 {
                     initial_read_me().to_delta_json()
                 } else {
-                    initial_delta().to_delta_json()
+                    initial_quill_delta_string()
                 };
                 view_controller.set_latest_view(view);
-                let delta_data = Bytes::from(view_data);
-                let repeated_revision: RepeatedRevision =
-                    Revision::initial_revision(user_id, &view.id, delta_data).into();
-                let _ = view_controller.create_view(&view.id, repeated_revision).await?;
+                let _ = view_controller.create_view(&view.id, Bytes::from(view_data)).await?;
             }
         }
         let folder = FolderPad::new(vec![workspace.clone()], vec![])?;

@@ -86,6 +86,7 @@ impl ViewTable {
         let data_type = match view.data_type {
             ViewDataType::RichText => SqlViewDataType::RichText,
             ViewDataType::PlainText => SqlViewDataType::PlainText,
+            ViewDataType::Grid => SqlViewDataType::Grid,
         };
 
         ViewTable {
@@ -108,6 +109,7 @@ impl std::convert::From<ViewTable> for View {
         let data_type = match table.view_type {
             SqlViewDataType::RichText => ViewDataType::RichText,
             SqlViewDataType::PlainText => ViewDataType::PlainText,
+            SqlViewDataType::Grid => ViewDataType::Grid,
         };
 
         View {
@@ -179,6 +181,7 @@ impl ViewChangeset {
 pub enum SqlViewDataType {
     RichText = 0,
     PlainText = 1,
+    Grid = 2,
 }
 
 impl std::default::Default for SqlViewDataType {
@@ -192,6 +195,7 @@ impl std::convert::From<i32> for SqlViewDataType {
         match value {
             0 => SqlViewDataType::RichText,
             1 => SqlViewDataType::PlainText,
+            2 => SqlViewDataType::Grid,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
                 SqlViewDataType::PlainText

@@ -85,6 +85,7 @@ impl std::convert::From<View> for Trash {
 pub enum ViewDataType {
     RichText = 0,
     PlainText = 1,
+    Grid = 2,
 }
 
 impl std::default::Default for ViewDataType {
@@ -98,6 +99,7 @@ impl std::convert::From<i32> for ViewDataType {
         match val {
             0 => ViewDataType::RichText,
             1 => ViewDataType::PlainText,
+            2 => ViewDataType::Grid,
             _ => {
                 log::error!("Invalid view type: {}", val);
                 ViewDataType::PlainText

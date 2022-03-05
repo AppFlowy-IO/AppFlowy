@@ -1,60 +1,64 @@
+use crate::manager::GridUser;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use flowy_collaboration::client_grid::{GridChange, GridPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, GridId, RawRow};
+use flowy_grid_data_model::entities::{Field, Grid, GridId, RawRow};
 use flowy_sync::{
     RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
     RevisionWebSocket, RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
+use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
 use lib_sqlite::ConnectionPool;
-use parking_lot::RwLock;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct ClientGridEditor {
-    user_id: String,
     grid_id: String,
-    grid: Arc<RwLock<GridPad>>,
+    user: Arc<dyn GridUser>,
+    grid_pad: Arc<RwLock<GridPad>>,
     rev_manager: Arc<RevisionManager>,
-    kv: Arc<GridKVPersistence>,
+    kv_persistence: Arc<GridKVPersistence>,
 }
 
 impl ClientGridEditor {
     pub async fn new(
-        user_id: &str,
         grid_id: &str,
-        token: &str,
-        pool: Arc<ConnectionPool>,
-        _web_socket: Arc<dyn RevisionWebSocket>,
+        user: Arc<dyn GridUser>,
+        mut rev_manager: RevisionManager,
+        kv_persistence: Arc<GridKVPersistence>,
     ) -> FlowyResult<Arc<Self>> {
-        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, grid_id, pool.clone()));
-        let mut rev_manager = RevisionManager::new(user_id, grid_id, rev_persistence);
-        let cloud = Arc::new(GridRevisionCloudService {
-            token: token.to_string(),
-        });
-        let grid = Arc::new(RwLock::new(
+        let token = user.token()?;
+        let cloud = Arc::new(GridRevisionCloudService { token });
+        let grid_pad = Arc::new(RwLock::new(
             rev_manager.load::<GridPadBuilder, GridRevisionCompact>(cloud).await?,
         ));
         let rev_manager = Arc::new(rev_manager);
-        let kv = Arc::new(GridKVPersistence::new(pool));
-
-        let user_id = user_id.to_owned();
-        let grid_id = grid_id.to_owned();
         Ok(Arc::new(Self {
-            user_id,
-            grid_id,
-            grid,
+            grid_id: grid_id.to_owned(),
+            user,
+            grid_pad,
             rev_manager,
-            kv,
+            kv_persistence,
         }))
     }
 
-    pub async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
+    pub async fn create_empty_row(&self) -> FlowyResult<()> {
+        let row = RawRow {
+            id: uuid(),
+            grid_id: self.grid_id.clone(),
+            cell_by_field_id: Default::default(),
+        };
+        self.create_row(row).await?;
+        Ok(())
+    }
+
+    async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_row(&row)?)).await?;
-        let _ = self.kv.set(row)?;
+        let _ = self.kv_persistence.set(row)?;
         Ok(())
     }
 
@@ -66,7 +70,7 @@ impl ClientGridEditor {
 
     pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_field(&field)?)).await?;
-        let _ = self.kv.set(field)?;
+        let _ = self.kv_persistence.set(field)?;
         Ok(())
     }
 
@@ -76,11 +80,15 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn grid_data(&self) -> Grid {
+        self.grid_pad.read().await.grid_data()
+    }
+
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: FnOnce(&mut GridPad) -> FlowyResult<Option<GridChange>>,
+        F: for<'a> FnOnce(&'a mut GridPad) -> FlowyResult<Option<GridChange>>,
     {
-        let mut write_guard = self.grid.write();
+        let mut write_guard = self.grid_pad.write().await;
         match f(&mut *write_guard)? {
             None => {}
             Some(change) => {
@@ -92,6 +100,7 @@ impl ClientGridEditor {
 
     async fn apply_change(&self, change: GridChange) -> FlowyResult<()> {
         let GridChange { delta, md5 } = change;
+        let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.to_bytes();
         let revision = Revision::new(
@@ -99,7 +108,7 @@ impl ClientGridEditor {
             base_rev_id,
             rev_id,
             delta_data,
-            &self.user_id,
+            &user_id,
             md5,
         );
         let _ = self
@@ -114,8 +123,8 @@ struct GridPadBuilder();
 impl RevisionObjectBuilder for GridPadBuilder {
     type Output = GridPad;
 
-    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridPad::from_revisions(revisions)?;
+    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+        let pad = GridPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
 }

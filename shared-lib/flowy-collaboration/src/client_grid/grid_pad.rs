@@ -1,4 +1,4 @@
-use crate::entities::revision::{md5, Revision};
+use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::entities::{CellChangeset, Field, FieldOrder, Grid, RawRow, RowOrder};
@@ -26,7 +26,7 @@ impl GridPad {
         })
     }
 
-    pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
+    pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let folder_delta: GridDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(folder_delta)
     }
@@ -81,6 +81,11 @@ impl GridPad {
         md5(&self.delta.to_bytes())
     }
 
+    pub fn grid_data(&self) -> Grid {
+        let grid_ref: &Grid = &self.grid;
+        grid_ref.clone()
+    }
+
     pub fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChange>>
     where
         F: FnOnce(&mut Grid) -> CollaborateResult<Option<()>>,
@@ -115,9 +120,16 @@ pub struct GridChange {
     pub md5: String,
 }
 
-pub fn default_grid_delta(grid: &Grid) -> GridDelta {
+pub fn make_grid_delta(grid: &Grid) -> GridDelta {
     let json = serde_json::to_string(&grid).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
+}
+
+pub fn make_grid_revisions(user_id: &str, grid: &Grid) -> RepeatedRevision {
+    let delta = make_grid_delta(grid);
+    let bytes = delta.to_bytes();
+    let revision = Revision::initial_revision(user_id, &grid.id, bytes);
+    revision.into()
 }
 
 impl std::default::Default for GridPad {
@@ -127,7 +139,7 @@ impl std::default::Default for GridPad {
             field_orders: Default::default(),
             row_orders: Default::default(),
         };
-        let delta = default_grid_delta(&grid);
+        let delta = make_grid_delta(&grid);
         GridPad {
             grid: Arc::new(grid),
             delta,

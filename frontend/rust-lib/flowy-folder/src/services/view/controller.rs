@@ -4,7 +4,7 @@ use flowy_collaboration::entities::{
     revision::{RepeatedRevision, Revision},
 };
 
-use flowy_collaboration::client_document::default::initial_delta_string;
+use flowy_collaboration::client_document::default::initial_quill_delta_string;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -63,30 +63,24 @@ impl ViewController {
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let view_data = if params.data.is_empty() {
-            initial_delta_string()
+            initial_quill_delta_string()
         } else {
             params.data.clone()
         };
 
-        let delta_data = Bytes::from(view_data);
-        let user_id = self.user.user_id()?;
-        let repeated_revision: RepeatedRevision =
-            Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
-        let _ = self.create_view(&params.view_id, repeated_revision).await?;
+        let _ = self.create_view(&params.view_id, Bytes::from(view_data)).await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
         Ok(view)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, repeated_revision), err)]
-    pub(crate) async fn create_view(
-        &self,
-        view_id: &str,
-        repeated_revision: RepeatedRevision,
-    ) -> Result<(), FlowyError> {
-        if repeated_revision.is_empty() {
+    #[tracing::instrument(level = "debug", skip(self, view_id, delta_data), err)]
+    pub(crate) async fn create_view(&self, view_id: &str, delta_data: Bytes) -> Result<(), FlowyError> {
+        if delta_data.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
+        let user_id = self.user.user_id()?;
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
         let _ = self.block_manager.create_block(view_id, repeated_revision).await?;
         Ok(())
     }
@@ -304,7 +298,7 @@ impl ViewController {
     fn listen_trash_can_event(&self) {
         let mut rx = self.trash_controller.subscribe();
         let persistence = self.persistence.clone();
-        let document_manager = self.block_manager.clone();
+        let block_manager = self.block_manager.clone();
         let trash_controller = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
@@ -318,7 +312,7 @@ impl ViewController {
                 if let Some(event) = stream.next().await {
                     handle_trash_event(
                         persistence.clone(),
-                        document_manager.clone(),
+                        block_manager.clone(),
                         trash_controller.clone(),
                         event,
                     )
