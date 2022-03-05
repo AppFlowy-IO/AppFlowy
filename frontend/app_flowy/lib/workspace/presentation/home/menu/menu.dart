@@ -27,7 +27,7 @@ import 'app/menu_app.dart';
 import 'app/create_button.dart';
 import 'menu_user.dart';
 
-class HomeMenu extends StatelessWidget {
+class HomeMenu extends StatefulWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
@@ -41,12 +41,19 @@ class HomeMenu extends StatelessWidget {
         super(key: key);
 
   @override
+  State<HomeMenu> createState() => _HomeMenuState();
+}
+
+class _HomeMenuState extends State<HomeMenu> {
+  final List<Widget> _menuItems = List.empty(growable: true);
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceSetting.workspace.id);
+            final menuBloc = getIt<MenuBloc>(param1: widget.user, param2: widget.workspaceSetting.workspace.id);
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -63,7 +70,7 @@ class HomeMenu extends StatelessWidget {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
             listener: (context, state) {
-              _collapsedNotifier.value = state.isCollapse;
+              widget._collapsedNotifier.value = state.isCollapse;
             },
           )
         ],
@@ -80,7 +87,8 @@ class HomeMenu extends StatelessWidget {
     return Container(
       color: theme.bg1,
       child: ChangeNotifierProvider(
-        create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
+        create: (_) =>
+            MenuSharedState(view: widget.workspaceSetting.hasLatestView() ? widget.workspaceSetting.latestView : null),
         child: Consumer(builder: (context, MenuSharedState sharedState, child) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -114,27 +122,70 @@ class HomeMenu extends StatelessWidget {
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
             selector: (state) {
-              List<Widget> menuItems = [];
-              menuItems.add(MenuUser(user));
+              // List<Widget> menuItems = [];
+              // menuItems.add(MenuUser(user));
               List<MenuApp> appWidgets =
                   state.apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-              menuItems.addAll(appWidgets);
-              return menuItems;
-            },
-            builder: (context, menuItems) => ListView.separated(
-              itemCount: menuItems.length,
-              separatorBuilder: (context, index) {
-                if (index == 0) {
-                  return const VSpace(20);
-                } else {
-                  return VSpace(MenuAppSizes.appVPadding);
+
+              for (var app in appWidgets) {
+                if (!_menuItems.any((oldElement) => oldElement.key == app.key)) {
+                  _menuItems.add(app);
                 }
-              },
-              physics: StyledScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return menuItems[index];
-              },
-            ),
+              }
+              // TODO @gaganyadav: fix: concurrent modification exception
+              // Unhandled Exception: Concurrent modification during iteration: Instance(length:3) of '_GrowableList'.
+              for (var item in _menuItems) {
+                if (!appWidgets.any((oldElement) => oldElement.key == item.key)) {
+                  _menuItems.remove(item);
+                }
+              }
+
+              // menuItems.addAll(appWidgets);
+              return _menuItems;
+            },
+            builder: (context, menuItems) {
+              return ReorderableListView.builder(
+                itemCount: menuItems.length,
+                buildDefaultDragHandles: false,
+                header: Padding(
+                  padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
+                  child: MenuUser(widget.user),
+                ),
+                onReorder: (oldIndex, newIndex) {
+                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+
+                  Widget menu = menuItems.removeAt(oldIndex);
+                  menuItems.insert(index, menu);
+
+                  final menuBloc = context.read<MenuBloc>();
+                  menuBloc.state.apps.forEach((a) {
+                    var app = a.removeAt(oldIndex);
+                    a.insert(index, app);
+                  });
+                },
+                physics: StyledScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  //? To mimic the ListView.separated behavior, we need to add a padding.
+                  // EdgeInsets padding = EdgeInsets.zero;
+                  // if (index == 0) {
+                  //   padding = EdgeInsets.only(bottom: MenuAppSizes.appVPadding / 2);
+                  // } else if (index == menuItems.length - 1) {
+                  //   padding = EdgeInsets.only(top: MenuAppSizes.appVPadding / 2);
+                  // } else {
+                  //   padding = EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2);
+                  // }
+
+                  return ReorderableDragStartListener(
+                    key: ValueKey(menuItems[index].hashCode),
+                    index: index,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2),
+                      child: menuItems[index],
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ),
       ),
