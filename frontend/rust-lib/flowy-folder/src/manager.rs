@@ -72,7 +72,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
-        document_manager: Arc<BlockManager>,
+        block_manager: Arc<BlockManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(user_id) = user.user_id() {
@@ -95,7 +95,7 @@ impl FolderManager {
             persistence.clone(),
             cloud_service.clone(),
             trash_controller.clone(),
-            document_manager,
+            block_manager,
         ));
 
         let app_controller = Arc::new(AppController::new(

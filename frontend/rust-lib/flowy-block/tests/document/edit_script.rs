@@ -27,7 +27,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.document_manager.open_block(&test.view.id).await.unwrap();
+        let editor = sdk.block_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 

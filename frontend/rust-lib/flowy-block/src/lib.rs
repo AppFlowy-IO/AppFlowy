@@ -1,8 +1,12 @@
 pub mod block_editor;
+mod entities;
+mod event_handler;
+pub mod event_map;
 pub mod manager;
 mod queue;
 mod web_socket;
 
+pub mod protobuf;
 pub use manager::*;
 pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};

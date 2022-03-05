@@ -1,5 +1,4 @@
 use crate::{
-    controller::FolderManager,
     entities::{
         app::{App, AppId, CreateAppParams, UpdateAppParams},
         trash::{RepeatedTrash, RepeatedTrashId},
@@ -7,6 +6,7 @@ use crate::{
         workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
     },
     errors::FlowyError,
+    manager::FolderManager,
     services::{app::event_handler::*, trash::event_handler::*, view::event_handler::*, workspace::event_handler::*},
 };
 use flowy_database::DBConnection;
@@ -64,8 +64,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
         .event(FolderEvent::OpenView, open_view_handler)
-        .event(FolderEvent::CloseView, close_view_handler)
-        .event(FolderEvent::ApplyDocDelta, block_delta_handler);
+        .event(FolderEvent::CloseView, close_view_handler);
 
     module = module
         .event(FolderEvent::ReadTrash, read_trash_handler)
@@ -73,8 +72,6 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::DeleteTrash, delete_trash_handler)
         .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
         .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler);
-
-    module = module.event(FolderEvent::ExportDocument, export_handler);
 
     module
 }

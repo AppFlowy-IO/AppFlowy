@@ -9,7 +9,6 @@ use crate::{
     services::{TrashController, ViewController},
 };
 use flowy_collaboration::entities::document_info::BlockDelta;
-use flowy_folder_data_model::entities::share::{ExportData, ExportParams, ExportPayload};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -44,14 +43,6 @@ pub(crate) async fn update_view_handler(
     let _ = controller.update_view(params).await?;
 
     Ok(())
-}
-
-pub(crate) async fn block_delta_handler(
-    data: Data<BlockDelta>,
-    controller: AppData<Arc<ViewController>>,
-) -> DataResult<BlockDelta, FlowyError> {
-    let block_delta = controller.receive_delta(data.into_inner()).await?;
-    data_result(block_delta)
 }
 
 pub(crate) async fn delete_view_handler(
@@ -101,14 +92,4 @@ pub(crate) async fn duplicate_view_handler(
     let view_id: ViewId = data.into_inner();
     let _ = controller.duplicate_view(&view_id.value).await?;
     Ok(())
-}
-
-#[tracing::instrument(skip(data, controller), err)]
-pub(crate) async fn export_handler(
-    data: Data<ExportPayload>,
-    controller: AppData<Arc<ViewController>>,
-) -> DataResult<ExportData, FlowyError> {
-    let params: ExportParams = data.into_inner().try_into()?;
-    let data = controller.export_view(params).await?;
-    data_result(data)
 }

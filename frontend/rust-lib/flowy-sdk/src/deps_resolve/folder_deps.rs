@@ -3,9 +3,9 @@ use flowy_block::BlockManager;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_folder::{
-    controller::FolderManager,
     errors::{internal_error, FlowyError},
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
+    manager::FolderManager,
 };
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -24,7 +24,7 @@ impl FolderDepsResolver {
         local_server: Option<Arc<LocalServer>>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-        document_manager: &Arc<BlockManager>,
+        block_manager: &Arc<BlockManager>,
         ws_conn: Arc<FlowyWebSocketConnect>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
@@ -36,14 +36,7 @@ impl FolderDepsResolver {
         };
 
         let folder_manager = Arc::new(
-            FolderManager::new(
-                user.clone(),
-                cloud_service,
-                database,
-                document_manager.clone(),
-                web_socket,
-            )
-            .await,
+            FolderManager::new(user.clone(), cloud_service, database, block_manager.clone(), web_socket).await,
         );
 
         if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {

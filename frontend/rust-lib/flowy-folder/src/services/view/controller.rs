@@ -23,8 +23,6 @@ use crate::{
 };
 use flowy_block::BlockManager;
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::share::{ExportData, ExportParams};
-
 use lib_infra::uuid;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -177,16 +175,6 @@ impl ViewController {
 
         let _ = self.create_view_from_params(duplicate_params).await?;
         Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn export_view(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let editor = self.block_manager.open_block(&params.view_id).await?;
-        let delta_json = editor.block_json().await?;
-        Ok(ExportData {
-            data: delta_json,
-            export_type: params.export_type,
-        })
     }
 
     // belong_to_id will be the app_id or view_id.

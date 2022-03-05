@@ -21,6 +21,7 @@ import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-block/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 
@@ -33,6 +34,7 @@ part 'dart_event/flowy-folder/dart_event.dart';
 part 'dart_event/flowy-net/dart_event.dart';
 part 'dart_event/flowy-user/dart_event.dart';
 part 'dart_event/flowy-grid/dart_event.dart';
+part 'dart_event/flowy-block/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,

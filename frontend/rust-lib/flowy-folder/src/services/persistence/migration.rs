@@ -1,4 +1,4 @@
-use crate::controller::FolderId;
+use crate::manager::FolderId;
 use crate::{
     event_map::WorkspaceDatabase,
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},

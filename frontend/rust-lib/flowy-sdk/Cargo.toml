@@ -13,7 +13,7 @@ flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
 flowy-database = { path = "../flowy-database" }
-flowy-block = { path = "../flowy-block" }
+flowy-block = { path = "../flowy-block", default-features = false }
 flowy-sync = { path = "../flowy-sync" }
 
 tracing = { version = "0.1" }
@@ -40,4 +40,4 @@ futures-util = "0.3.15"
 [features]
 http_server = ["flowy-user/http_server", "flowy-folder/http_server", "flowy-block/http_server"]
 use_bunyan = ["lib-log/use_bunyan"]
-dart = ["flowy-user/dart", "flowy-net/dart", "flowy-folder/dart", "flowy-collaboration/dart", "flowy-grid/dart"]
+dart = ["flowy-user/dart", "flowy-net/dart", "flowy-folder/dart", "flowy-collaboration/dart", "flowy-grid/dart", "flowy-block/dart"]
