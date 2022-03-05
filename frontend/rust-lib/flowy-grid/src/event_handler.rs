@@ -1,7 +1,8 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    CreateGridPayload, Grid, GridId, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
+    CreateGridPayload, Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField, RepeatedFieldOrder,
+    RepeatedRow, RepeatedRowOrder,
 };
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
@@ -19,21 +20,23 @@ pub(crate) async fn open_grid_handler(
 
 #[tracing::instrument(skip(data, manager), err)]
 pub(crate) async fn get_rows_handler(
-    data: Data<RepeatedRowOrder>,
+    data: Data<QueryRowPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedRow, FlowyError> {
-    let row_orders: RepeatedRowOrder = data.into_inner();
-    let repeated_row = manager.get_rows(row_orders).await;
+    let payload: QueryRowPayload = data.into_inner();
+    let editor = manager.get_grid_editor(&payload.grid_id)?;
+    let repeated_row = editor.get_rows(payload.row_orders).await?;
     data_result(repeated_row)
 }
 
 #[tracing::instrument(skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
-    data: Data<RepeatedFieldOrder>,
+    data: Data<QueryFieldPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedField, FlowyError> {
-    let field_orders: RepeatedFieldOrder = data.into_inner();
-    let repeated_field = manager.get_fields(field_orders).await;
+    let payload: QueryFieldPayload = data.into_inner();
+    let editor = manager.get_grid_editor(&payload.grid_id)?;
+    let repeated_field = editor.get_fields(payload.field_orders).await?;
     data_result(repeated_field)
 }
 

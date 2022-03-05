@@ -45,7 +45,7 @@ message RawCell {
     string id = 1;
     string row_id = 2;
     string field_id = 3;
-    string data = 4;
+    AnyData data = 4;
 }
 message RepeatedRow {
     repeated Row items = 1;
@@ -70,6 +70,14 @@ message CreateGridPayload {
 }
 message GridId {
     string value = 1;
+}
+message QueryFieldPayload {
+    string grid_id = 1;
+    RepeatedFieldOrder field_orders = 2;
+}
+message QueryRowPayload {
+    string grid_id = 1;
+    RepeatedRowOrder row_orders = 2;
 }
 enum FieldType {
     RichText = 0;

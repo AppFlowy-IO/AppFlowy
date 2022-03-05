@@ -56,7 +56,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   Future<void> _loadFields(Emitter<GridState> emit) async {
     if (_grid != null) {
-      final result = await service.getFields(fieldOrders: _grid!.fieldOrders);
+      final result = await service.getFields(gridId: _grid!.id, fieldOrders: _grid!.fieldOrders);
       result.fold(
         (fields) {
           _fields = fields.items;
@@ -70,7 +70,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   Future<void> _loadGridInfo(Emitter<GridState> emit) async {
     if (_grid != null && _fields != null) {
-      final result = await service.getRows(rowOrders: _grid!.rowOrders);
+      final result = await service.getRows(gridId: _grid!.id, rowOrders: _grid!.rowOrders);
       result.fold((repeatedRow) {
         final rows = repeatedRow.items;
         final gridInfo = GridInfo(rows: rows, fields: _fields!);

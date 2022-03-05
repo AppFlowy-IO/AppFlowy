@@ -145,12 +145,12 @@ const RawCell$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'data', '3': 4, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.AnyData', '10': 'data'},
   ],
 };
 
 /// Descriptor for `RawCell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhIKBGRhdGEYBCABKAlSBGRhdGE=');
+final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhwKBGRhdGEYBCABKAsyCC5BbnlEYXRhUgRkYXRh');
 @$core.Deprecated('Use repeatedRowDescriptor instead')
 const RepeatedRow$json = const {
   '1': 'RepeatedRow',
@@ -228,3 +228,25 @@ const GridId$json = const {
 
 /// Descriptor for `GridId`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridIdDescriptor = $convert.base64Decode('CgZHcmlkSWQSFAoFdmFsdWUYASABKAlSBXZhbHVl');
+@$core.Deprecated('Use queryFieldPayloadDescriptor instead')
+const QueryFieldPayload$json = const {
+  '1': 'QueryFieldPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_orders', '3': 2, '4': 1, '5': 11, '6': '.RepeatedFieldOrder', '10': 'fieldOrders'},
+  ],
+};
+
+/// Descriptor for `QueryFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List queryFieldPayloadDescriptor = $convert.base64Decode('ChFRdWVyeUZpZWxkUGF5bG9hZBIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSNgoMZmllbGRfb3JkZXJzGAIgASgLMhMuUmVwZWF0ZWRGaWVsZE9yZGVyUgtmaWVsZE9yZGVycw==');
+@$core.Deprecated('Use queryRowPayloadDescriptor instead')
+const QueryRowPayload$json = const {
+  '1': 'QueryRowPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'row_orders', '3': 2, '4': 1, '5': 11, '6': '.RepeatedRowOrder', '10': 'rowOrders'},
+  ],
+};
+
+/// Descriptor for `QueryRowPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List queryRowPayloadDescriptor = $convert.base64Decode('Cg9RdWVyeVJvd1BheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEjAKCnJvd19vcmRlcnMYAiABKAsyES5SZXBlYXRlZFJvd09yZGVyUglyb3dPcmRlcnM=');

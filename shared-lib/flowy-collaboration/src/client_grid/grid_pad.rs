@@ -1,7 +1,7 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{CellChangeset, Field, FieldOrder, Grid, RawRow, RowOrder};
+use flowy_grid_data_model::entities::{CellChangeset, Field, FieldOrder, Grid, RawRow, RepeatedFieldOrder, RowOrder};
 use lib_infra::uuid;
 use lib_ot::core::{FlowyStr, OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::sync::Arc;
@@ -84,6 +84,10 @@ impl GridPad {
     pub fn grid_data(&self) -> Grid {
         let grid_ref: &Grid = &self.grid;
         grid_ref.clone()
+    }
+
+    pub fn field_orders(&self) -> &RepeatedFieldOrder {
+        &self.grid.field_orders
     }
 
     pub fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChange>>

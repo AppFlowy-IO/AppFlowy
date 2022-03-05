@@ -4,11 +4,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class GridService {
-  Future<Either<Grid, FlowyError>> createGrid({required String name}) {
-    final payload = CreateGridPayload()..name = name;
-    return GridEventCreateGrid(payload).send();
-  }
-
   Future<Either<Grid, FlowyError>> openGrid({required String gridId}) {
     final payload = GridId(value: gridId);
     return GridEventOpenGrid(payload).send();
@@ -18,11 +13,18 @@ class GridService {
     return GridEventCreateRow(GridId(value: gridId)).send();
   }
 
-  Future<Either<RepeatedRow, FlowyError>> getRows({required RepeatedRowOrder rowOrders}) {
-    return GridEventGetRows(rowOrders).send();
+  Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required RepeatedRowOrder rowOrders}) {
+    final payload = QueryRowPayload.create()
+      ..gridId = gridId
+      ..rowOrders = rowOrders;
+    return GridEventGetRows(payload).send();
   }
 
-  Future<Either<RepeatedField, FlowyError>> getFields({required RepeatedFieldOrder fieldOrders}) {
-    return GridEventGetFields(fieldOrders).send();
+  Future<Either<RepeatedField, FlowyError>> getFields(
+      {required String gridId, required RepeatedFieldOrder fieldOrders}) {
+    final payload = QueryFieldPayload.create()
+      ..gridId = gridId
+      ..fieldOrders = fieldOrders;
+    return GridEventGetFields(payload).send();
   }
 }

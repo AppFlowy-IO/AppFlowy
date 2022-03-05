@@ -1067,6 +1067,7 @@ dependencies = [
  "lib-sqlite",
  "parking_lot",
  "protobuf",
+ "rayon",
  "rust_decimal",
  "rusty-money",
  "strum",

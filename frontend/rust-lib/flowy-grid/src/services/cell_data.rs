@@ -17,7 +17,7 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 pub trait StringifyAnyData {
-    fn stringify_any_data(&self, data: &AnyData) -> String;
+    fn stringify_any_data(&self, data: AnyData) -> String;
     fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError>;
 }
 
@@ -33,7 +33,7 @@ pub struct RichTextDescription {
 impl_any_data!(RichTextDescription, FieldType::RichText);
 
 impl StringifyAnyData for RichTextDescription {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
@@ -57,7 +57,7 @@ pub struct CheckboxDescription {
 impl_any_data!(CheckboxDescription, FieldType::Checkbox);
 
 impl StringifyAnyData for CheckboxDescription {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
@@ -133,7 +133,7 @@ impl DisplayCell for DateDescription {
 }
 
 impl StringifyAnyData for DateDescription {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         match String::from_utf8(data.value.clone()) {
             Ok(s) => match s.parse::<i64>() {
                 Ok(timestamp) => {
@@ -257,7 +257,7 @@ pub struct SingleSelect {
 impl_any_data!(SingleSelect, FieldType::SingleSelect);
 
 impl StringifyAnyData for SingleSelect {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
@@ -283,7 +283,7 @@ pub struct MultiSelect {
 }
 impl_any_data!(MultiSelect, FieldType::MultiSelect);
 impl StringifyAnyData for MultiSelect {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
@@ -388,7 +388,7 @@ impl DisplayCell for NumberDescription {
 }
 
 impl StringifyAnyData for NumberDescription {
-    fn stringify_any_data(&self, data: &AnyData) -> String {
+    fn stringify_any_data(&self, data: AnyData) -> String {
         match String::from_utf8(data.value.clone()) {
             Ok(s) => match self.money_from_str(&s) {
                 Some(money_str) => money_str,

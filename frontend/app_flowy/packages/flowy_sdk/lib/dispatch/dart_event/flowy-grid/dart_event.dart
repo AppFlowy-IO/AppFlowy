@@ -19,7 +19,7 @@ class GridEventOpenGrid {
 }
 
 class GridEventGetRows {
-     RepeatedRowOrder request;
+     QueryRowPayload request;
      GridEventGetRows(this.request);
 
     Future<Either<RepeatedRow, FlowyError>> send() {
@@ -36,7 +36,7 @@ class GridEventGetRows {
 }
 
 class GridEventGetFields {
-     RepeatedFieldOrder request;
+     QueryFieldPayload request;
      GridEventGetFields(this.request);
 
     Future<Either<RepeatedField, FlowyError>> send() {

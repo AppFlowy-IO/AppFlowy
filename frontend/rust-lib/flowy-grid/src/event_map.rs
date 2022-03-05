@@ -22,10 +22,10 @@ pub enum GridEvent {
     #[event(input = "GridId", output = "Grid")]
     OpenGrid = 0,
 
-    #[event(input = "RepeatedRowOrder", output = "RepeatedRow")]
+    #[event(input = "QueryRowPayload", output = "RepeatedRow")]
     GetRows = 1,
 
-    #[event(input = "RepeatedFieldOrder", output = "RepeatedField")]
+    #[event(input = "QueryFieldPayload", output = "RepeatedField")]
     GetFields = 2,
 
     #[event(input = "GridId")]

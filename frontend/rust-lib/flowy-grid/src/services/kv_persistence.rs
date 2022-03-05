@@ -6,7 +6,7 @@ use flowy_database::{
     schema::{kv_table, kv_table::dsl},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, RawRow};
+use flowy_grid_data_model::entities::{Field, GridIdentifiable, RawRow};
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_sqlite::{ConnectionManager, ConnectionPool};
 use std::sync::Arc;
@@ -20,11 +20,12 @@ pub struct KeyValue {
 }
 
 pub trait KVTransaction {
-    fn get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, key: &str) -> FlowyResult<Option<T>>;
+    fn get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(&self, key: &str) -> FlowyResult<Option<T>>;
     fn set<T: Into<KeyValue>>(&self, value: T) -> FlowyResult<()>;
     fn remove(&self, key: &str) -> FlowyResult<()>;
 
-    fn batch_get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, keys: Vec<String>) -> FlowyResult<Vec<T>>;
+    fn batch_get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(&self, keys: Vec<String>)
+        -> FlowyResult<Vec<T>>;
     fn batch_set<T: Into<KeyValue>>(&self, values: Vec<T>) -> FlowyResult<()>;
     fn batch_remove(&self, keys: Vec<String>) -> FlowyResult<()>;
 }
@@ -51,7 +52,7 @@ impl GridKVPersistence {
 }
 
 impl KVTransaction for GridKVPersistence {
-    fn get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, key: &str) -> FlowyResult<Option<T>> {
+    fn get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(&self, key: &str) -> FlowyResult<Option<T>> {
         self.begin_transaction(|transaction| transaction.get(key))
     }
 
@@ -63,7 +64,10 @@ impl KVTransaction for GridKVPersistence {
         self.begin_transaction(|transaction| transaction.remove(key))
     }
 
-    fn batch_get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, keys: Vec<String>) -> FlowyResult<Vec<T>> {
+    fn batch_get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(
+        &self,
+        keys: Vec<String>,
+    ) -> FlowyResult<Vec<T>> {
         self.begin_transaction(|transaction| transaction.batch_get(keys))
     }
 
@@ -81,11 +85,11 @@ pub struct SqliteTransaction<'a> {
 }
 
 impl<'a> KVTransaction for SqliteTransaction<'a> {
-    fn get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, key: &str) -> FlowyResult<Option<T>> {
+    fn get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(&self, key: &str) -> FlowyResult<Option<T>> {
         let item = dsl::kv_table
             .filter(kv_table::key.eq(key))
             .first::<KeyValue>(self.conn)?;
-        let value: T = item.try_into()?;
+        let value = T::try_from(Bytes::from(item.value)).unwrap();
         Ok(Some(value))
     }
 
@@ -101,13 +105,16 @@ impl<'a> KVTransaction for SqliteTransaction<'a> {
         Ok(())
     }
 
-    fn batch_get<T: TryFrom<KeyValue, Error = FlowyError>>(&self, keys: Vec<String>) -> FlowyResult<Vec<T>> {
+    fn batch_get<T: TryFrom<Bytes, Error = ::protobuf::ProtobufError>>(
+        &self,
+        keys: Vec<String>,
+    ) -> FlowyResult<Vec<T>> {
         let items = dsl::kv_table
             .filter(kv_table::key.eq_any(&keys))
             .load::<KeyValue>(self.conn)?;
         let mut values = vec![];
         for item in items {
-            let value: T = item.try_into()?;
+            let value = T::try_from(Bytes::from(item.value)).unwrap();
             values.push(value);
         }
         Ok(values)
@@ -128,40 +135,33 @@ impl<'a> KVTransaction for SqliteTransaction<'a> {
     }
 }
 
-impl std::convert::From<RawRow> for KeyValue {
-    fn from(row: RawRow) -> Self {
-        let key = row.id.clone();
-        let bytes: Bytes = row.try_into().unwrap();
+impl<T: TryInto<Bytes, Error = ::protobuf::ProtobufError> + GridIdentifiable> std::convert::From<T> for KeyValue {
+    fn from(value: T) -> Self {
+        let key = value.id().to_string();
+        let bytes: Bytes = value.try_into().unwrap();
         let value = bytes.to_vec();
         KeyValue { key, value }
     }
 }
 
-impl std::convert::TryInto<RawRow> for KeyValue {
-    type Error = FlowyError;
+//
+// impl std::convert::TryInto<RawRow> for KeyValue {
 
-    fn try_into(self) -> Result<RawRow, Self::Error> {
-        let bytes = Bytes::from(self.value);
-        RawRow::try_from(bytes)
-            .map_err(|e| FlowyError::internal().context(format!("Deserialize into raw row failed: {:?}", e)))
-    }
-}
-
-impl std::convert::From<Field> for KeyValue {
-    fn from(field: Field) -> Self {
-        let key = field.id.clone();
-        let bytes: Bytes = field.try_into().unwrap();
-        let value = bytes.to_vec();
-        KeyValue { key, value }
-    }
-}
-
-impl std::convert::TryInto<Field> for KeyValue {
-    type Error = FlowyError;
-
-    fn try_into(self) -> Result<Field, Self::Error> {
-        let bytes = Bytes::from(self.value);
-        Field::try_from(bytes)
-            .map_err(|e| FlowyError::internal().context(format!("Deserialize into field failed: {:?}", e)))
-    }
-}
+//     type Error = FlowyError;
+//
+//     fn try_into(self) -> Result<RawRow, Self::Error> {
+//         let bytes = Bytes::from(self.value);
+//         RawRow::try_from(bytes)
+//             .map_err(|e| FlowyError::internal().context(format!("Deserialize into raw row failed: {:?}", e)))
+//     }
+// }
+//
+// impl std::convert::TryInto<Field> for KeyValue {
+//     type Error = FlowyError;
+//
+//     fn try_into(self) -> Result<Field, Self::Error> {
+//         let bytes = Bytes::from(self.value);
+//         Field::try_from(bytes)
+//             .map_err(|e| FlowyError::internal().context(format!("Deserialize into field failed: {:?}", e)))
+//     }
+// }

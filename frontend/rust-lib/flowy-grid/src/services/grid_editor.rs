@@ -1,10 +1,15 @@
 use crate::manager::GridUser;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
+use crate::services::stringify::stringify_deserialize;
+use dashmap::mapref::one::Ref;
+use dashmap::DashMap;
 use flowy_collaboration::client_grid::{GridChange, GridPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, Grid, GridId, RawRow};
+use flowy_grid_data_model::entities::{
+    Cell, Field, Grid, GridId, RawCell, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row,
+};
 use flowy_sync::{
     RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
     RevisionWebSocket, RevisionWebSocketManager,
@@ -13,6 +18,8 @@ use lib_infra::future::FutureResult;
 use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
 use lib_sqlite::ConnectionPool;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -22,6 +29,8 @@ pub struct ClientGridEditor {
     grid_pad: Arc<RwLock<GridPad>>,
     rev_manager: Arc<RevisionManager>,
     kv_persistence: Arc<GridKVPersistence>,
+
+    field_map: DashMap<String, Field>,
 }
 
 impl ClientGridEditor {
@@ -33,16 +42,19 @@ impl ClientGridEditor {
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = Arc::new(RwLock::new(
-            rev_manager.load::<GridPadBuilder, GridRevisionCompact>(cloud).await?,
-        ));
+        let grid_pad = rev_manager.load::<GridPadBuilder, GridRevisionCompact>(cloud).await?;
+
         let rev_manager = Arc::new(rev_manager);
+        let field_map = load_all_fields(&grid_pad, &kv_persistence).await?;
+        let grid_pad = Arc::new(RwLock::new(grid_pad));
+
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
             grid_pad,
             rev_manager,
             kv_persistence,
+            field_map,
         }))
     }
 
@@ -78,6 +90,65 @@ impl ClientGridEditor {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
         // let _ = self.kv.remove(field_id)?;
         Ok(())
+    }
+
+    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
+        let ids = row_orders
+            .items
+            .into_iter()
+            .map(|row_order| row_order.row_id)
+            .collect::<Vec<_>>();
+        let raw_rows: Vec<RawRow> = self.kv_persistence.batch_get(ids)?;
+
+        let make_cell = |field_id: String, raw_cell: RawCell| {
+            let some_field = self.field_map.get(&field_id);
+            if some_field.is_none() {
+                tracing::error!("Can't find the field with {}", field_id);
+                return None;
+            }
+
+            let field = some_field.unwrap();
+            match stringify_deserialize(raw_cell.data, field.value()) {
+                Ok(content) => {
+                    let cell = Cell {
+                        id: raw_cell.id,
+                        field_id: field_id.clone(),
+                        content,
+                    };
+                    Some((field_id, cell))
+                }
+                Err(_) => None,
+            }
+        };
+
+        let rows = raw_rows
+            .into_par_iter()
+            .map(|raw_row| {
+                let mut row = Row::new(&raw_row.id);
+                row.cell_by_field_id = raw_row
+                    .cell_by_field_id
+                    .into_par_iter()
+                    .flat_map(|(field_id, raw_cell)| make_cell(field_id, raw_cell))
+                    .collect::<HashMap<String, Cell>>();
+                row
+            })
+            .collect::<Vec<Row>>();
+
+        Ok(rows.into())
+    }
+
+    pub async fn get_fields(&self, field_orders: RepeatedFieldOrder) -> FlowyResult<RepeatedField> {
+        let fields = field_orders
+            .iter()
+            .flat_map(|field_order| match self.field_map.get(&field_order.field_id) {
+                None => {
+                    tracing::error!("Can't find the field with {}", field_order.field_id);
+                    None
+                }
+                Some(field) => Some(field.value().clone()),
+            })
+            .collect::<Vec<Field>>();
+        Ok(fields.into())
     }
 
     pub async fn grid_data(&self) -> Grid {
@@ -117,6 +188,24 @@ impl ClientGridEditor {
             .await?;
         Ok(())
     }
+}
+
+async fn load_all_fields(
+    grid_pad: &GridPad,
+    kv_persistence: &Arc<GridKVPersistence>,
+) -> FlowyResult<DashMap<String, Field>> {
+    let field_ids = grid_pad
+        .field_orders()
+        .iter()
+        .map(|field_order| field_order.field_id.clone())
+        .collect::<Vec<_>>();
+
+    let fields = kv_persistence.batch_get::<Field>(field_ids)?;
+    let map = DashMap::new();
+    for field in fields {
+        map.insert(field.id.clone(), field);
+    }
+    Ok(map)
 }
 
 struct GridPadBuilder();

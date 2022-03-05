@@ -3,6 +3,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use strum_macros::{Display, EnumIter, EnumString};
 
+pub trait GridIdentifiable {
+    fn id(&self) -> &str;
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]
@@ -62,7 +66,7 @@ impl std::ops::DerefMut for RepeatedFieldOrder {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Field {
     #[pb(index = 1)]
     pub id: String,
@@ -86,6 +90,12 @@ pub struct Field {
     pub type_options: AnyData,
 }
 
+impl GridIdentifiable for Field {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedField {
     #[pb(index = 1)]
@@ -101,6 +111,12 @@ impl std::ops::Deref for RepeatedField {
 impl std::ops::DerefMut for RepeatedField {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
+    }
+}
+
+impl std::convert::From<Vec<Field>> for RepeatedField {
+    fn from(items: Vec<Field>) -> Self {
+        Self { items }
     }
 }
 
@@ -140,7 +156,7 @@ impl FieldType {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct AnyData {
     #[pb(index = 1)]
     pub type_id: String,
@@ -231,6 +247,12 @@ pub struct RawRow {
     pub cell_by_field_id: HashMap<String, RawCell>,
 }
 
+impl GridIdentifiable for RawRow {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RawCell {
     #[pb(index = 1)]
@@ -243,7 +265,7 @@ pub struct RawCell {
     pub field_id: String,
 
     #[pb(index = 4)]
-    pub data: String,
+    pub data: AnyData,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -265,6 +287,12 @@ impl std::ops::DerefMut for RepeatedRow {
     }
 }
 
+impl std::convert::From<Vec<Row>> for RepeatedRow {
+    fn from(items: Vec<Row>) -> Self {
+        Self { items }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Row {
     #[pb(index = 1)]
@@ -272,6 +300,15 @@ pub struct Row {
 
     #[pb(index = 2)]
     pub cell_by_field_id: HashMap<String, Cell>,
+}
+
+impl Row {
+    pub fn new(row_id: &str) -> Self {
+        Self {
+            id: row_id.to_owned(),
+            cell_by_field_id: HashMap::new(),
+        }
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -317,4 +354,22 @@ impl AsRef<str> for GridId {
     fn as_ref(&self) -> &str {
         &self.value
     }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct QueryFieldPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_orders: RepeatedFieldOrder,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct QueryRowPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub row_orders: RepeatedRowOrder,
 }

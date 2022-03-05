@@ -1,11 +1,11 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::GridKVPersistence;
+use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use dashmap::DashMap;
 use flowy_collaboration::client_grid::{make_grid_delta, make_grid_revisions};
 use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Field, FieldOrder, Grid, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, RowOrder,
+    Field, FieldOrder, Grid, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row, RowOrder,
 };
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lib_sqlite::ConnectionPool;
@@ -91,14 +91,6 @@ impl GridManager {
         tracing::Span::current().record("grid_id", &grid_id);
         self.grid_editors.remove(grid_id);
         Ok(())
-    }
-
-    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> RepeatedRow {
-        todo!()
-    }
-
-    pub async fn get_fields(&self, field_orders: RepeatedFieldOrder) -> RepeatedField {
-        todo!()
     }
 
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
