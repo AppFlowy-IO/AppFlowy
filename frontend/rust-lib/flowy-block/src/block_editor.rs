@@ -140,9 +140,9 @@ impl ClientBlockEditor {
         Ok(())
     }
 
-    pub async fn block_json(&self) -> FlowyResult<String> {
+    pub async fn delta_str(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadBlockJson { ret };
+        let msg = EditorCommand::ReadDeltaStr { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let json = rx.await.map_err(internal_error)??;
         Ok(json)
@@ -196,7 +196,7 @@ fn spawn_edit_queue(
 impl ClientBlockEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadBlockJson { ret };
+        let msg = EditorCommand::ReadDeltaStr { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let s = rx.await.map_err(internal_error)??;
         Ok(s)
@@ -226,7 +226,7 @@ impl RevisionObjectBuilder for BlockInfoBuilder {
 
         Result::<BlockInfo, FlowyError>::Ok(BlockInfo {
             block_id: object_id.to_owned(),
-            text: delta.to_delta_json(),
+            text: delta.to_delta_str(),
             rev_id,
             base_rev_id,
         })

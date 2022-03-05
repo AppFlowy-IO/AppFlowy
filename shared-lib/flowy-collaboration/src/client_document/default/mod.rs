@@ -7,7 +7,7 @@ pub fn initial_quill_delta() -> RichTextDelta {
 
 #[inline]
 pub fn initial_quill_delta_string() -> String {
-    initial_quill_delta().to_delta_json()
+    initial_quill_delta().to_delta_str()
 }
 
 #[inline]
@@ -22,6 +22,6 @@ mod tests {
 
     #[test]
     fn load_read_me() {
-        println!("{}", initial_read_me().to_delta_json());
+        println!("{}", initial_read_me().to_delta_str());
     }
 }

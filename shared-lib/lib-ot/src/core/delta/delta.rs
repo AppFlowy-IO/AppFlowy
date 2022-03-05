@@ -521,7 +521,7 @@ impl<T> Delta<T>
 where
     T: Attributes + serde::Serialize,
 {
-    pub fn to_delta_json(&self) -> String {
+    pub fn to_delta_str(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
@@ -530,7 +530,7 @@ where
     }
 
     pub fn to_bytes(&self) -> Bytes {
-        let json = self.to_delta_json();
+        let json = self.to_delta_str();
         Bytes::from(json.into_bytes())
     }
 }

@@ -730,7 +730,7 @@ impl ::protobuf::reflect::ProtobufValue for ResetBlockParams {
 pub struct BlockDelta {
     // message fields
     pub block_id: ::std::string::String,
-    pub delta_json: ::std::string::String,
+    pub delta_str: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -773,30 +773,30 @@ impl BlockDelta {
         ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
-    // string delta_json = 2;
+    // string delta_str = 2;
 
 
-    pub fn get_delta_json(&self) -> &str {
-        &self.delta_json
+    pub fn get_delta_str(&self) -> &str {
+        &self.delta_str
     }
-    pub fn clear_delta_json(&mut self) {
-        self.delta_json.clear();
+    pub fn clear_delta_str(&mut self) {
+        self.delta_str.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_delta_json(&mut self, v: ::std::string::String) {
-        self.delta_json = v;
+    pub fn set_delta_str(&mut self, v: ::std::string::String) {
+        self.delta_str = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_delta_json(&mut self) -> &mut ::std::string::String {
-        &mut self.delta_json
+    pub fn mut_delta_str(&mut self) -> &mut ::std::string::String {
+        &mut self.delta_str
     }
 
     // Take field
-    pub fn take_delta_json(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.delta_json, ::std::string::String::new())
+    pub fn take_delta_str(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.delta_str, ::std::string::String::new())
     }
 }
 
@@ -813,7 +813,7 @@ impl ::protobuf::Message for BlockDelta {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.delta_json)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.delta_str)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -830,8 +830,8 @@ impl ::protobuf::Message for BlockDelta {
         if !self.block_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.block_id);
         }
-        if !self.delta_json.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.delta_json);
+        if !self.delta_str.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.delta_str);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -842,8 +842,8 @@ impl ::protobuf::Message for BlockDelta {
         if !self.block_id.is_empty() {
             os.write_string(1, &self.block_id)?;
         }
-        if !self.delta_json.is_empty() {
-            os.write_string(2, &self.delta_json)?;
+        if !self.delta_str.is_empty() {
+            os.write_string(2, &self.delta_str)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -889,9 +889,9 @@ impl ::protobuf::Message for BlockDelta {
                 |m: &mut BlockDelta| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "delta_json",
-                |m: &BlockDelta| { &m.delta_json },
-                |m: &mut BlockDelta| { &mut m.delta_json },
+                "delta_str",
+                |m: &BlockDelta| { &m.delta_str },
+                |m: &mut BlockDelta| { &mut m.delta_str },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<BlockDelta>(
                 "BlockDelta",
@@ -910,7 +910,7 @@ impl ::protobuf::Message for BlockDelta {
 impl ::protobuf::Clear for BlockDelta {
     fn clear(&mut self) {
         self.block_id.clear();
-        self.delta_json.clear();
+        self.delta_str.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1330,9 +1330,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x20\x01(\tR\x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\
     \x12\x1e\n\x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"^\n\x10Reset\
     BlockParams\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12/\n\
-    \trevisions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"F\n\
+    \trevisions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"D\n\
     \nBlockDelta\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\
-    \x1d\n\ndelta_json\x18\x02\x20\x01(\tR\tdeltaJson\"S\n\nNewDocUser\x12\
+    \x1b\n\tdelta_str\x18\x02\x20\x01(\tR\x08deltaStr\"S\n\nNewDocUser\x12\
     \x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\
     \x02\x20\x01(\x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05d\
     ocId\"\x1f\n\x07BlockId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05valueb\

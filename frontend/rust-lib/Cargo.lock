@@ -986,6 +986,7 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bincode",
  "bytes",
  "chrono",
@@ -1133,6 +1134,7 @@ dependencies = [
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bincode",
  "bytes",
  "claim 0.5.0",

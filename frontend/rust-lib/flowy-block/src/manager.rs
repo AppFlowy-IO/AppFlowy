@@ -63,7 +63,7 @@ impl BlockManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
-    pub fn delete<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
+    pub fn delete_block<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
         self.block_editors.remove(doc_id);
@@ -73,11 +73,11 @@ impl BlockManager {
     #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.block_id), err)]
     pub async fn receive_local_delta(&self, delta: BlockDelta) -> Result<BlockDelta, FlowyError> {
         let editor = self.get_block_editor(&delta.block_id).await?;
-        let _ = editor.compose_local_delta(Bytes::from(delta.delta_json)).await?;
-        let document_json = editor.block_json().await?;
+        let _ = editor.compose_local_delta(Bytes::from(delta.delta_str)).await?;
+        let document_json = editor.delta_str().await?;
         Ok(BlockDelta {
             block_id: delta.block_id.clone(),
-            delta_json: document_json,
+            delta_str: document_json,
         })
     }
 

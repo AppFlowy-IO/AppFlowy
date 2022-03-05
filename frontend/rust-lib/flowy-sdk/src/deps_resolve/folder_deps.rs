@@ -1,12 +1,17 @@
+use async_trait::async_trait;
 use bytes::Bytes;
 use flowy_block::BlockManager;
+use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
+use flowy_folder::manager::{DataProcessorMap, ViewDataProcessor};
+use flowy_folder::prelude::{FlowyResult, ViewDataType};
 use flowy_folder::{
     errors::{internal_error, FlowyError},
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
+use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -16,6 +21,7 @@ use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
+use std::collections::HashMap;
 use std::{convert::TryInto, sync::Arc};
 
 pub struct FolderDepsResolver();
@@ -24,8 +30,9 @@ impl FolderDepsResolver {
         local_server: Option<Arc<LocalServer>>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
+        ws_conn: &Arc<FlowyWebSocketConnect>,
         block_manager: &Arc<BlockManager>,
-        ws_conn: Arc<FlowyWebSocketConnect>,
+        grid_manager: &Arc<GridManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
@@ -35,8 +42,17 @@ impl FolderDepsResolver {
             Some(local_server) => local_server,
         };
 
+        let view_data_processor = make_view_data_processor(block_manager.clone(), grid_manager.clone());
         let folder_manager = Arc::new(
-            FolderManager::new(user.clone(), cloud_service, database, block_manager.clone(), web_socket).await,
+            FolderManager::new(
+                user.clone(),
+                cloud_service,
+                database,
+                view_data_processor,
+                block_manager.clone(),
+                web_socket,
+            )
+            .await,
         );
 
         if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
@@ -51,6 +67,18 @@ impl FolderDepsResolver {
 
         folder_manager
     }
+}
+
+fn make_view_data_processor(block_manager: Arc<BlockManager>, grid_manager: Arc<GridManager>) -> DataProcessorMap {
+    let mut map: HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
+
+    let block_data_impl = BlockManagerViewDataImpl(block_manager);
+    map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
+
+    let grid_data_impl = GridManagerViewDataImpl(grid_manager);
+    map.insert(grid_data_impl.data_type(), Arc::new(grid_data_impl));
+
+    Arc::new(map)
 }
 
 struct WorkspaceDatabaseImpl(Arc<UserSession>);
@@ -108,5 +136,63 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
         tokio::spawn(async move {
             handler.did_receive_ws_data(Bytes::from(msg.data)).await;
         });
+    }
+}
+
+struct BlockManagerViewDataImpl(Arc<BlockManager>);
+#[async_trait]
+impl ViewDataProcessor for BlockManagerViewDataImpl {
+    async fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FlowyResult<()> {
+        let _ = self.0.create_block(view_id, repeated_revision).await?;
+        Ok(())
+    }
+
+    async fn delete_container(&self, view_id: &str) -> FlowyResult<()> {
+        let _ = self.0.delete_block(view_id)?;
+        Ok(())
+    }
+
+    async fn close_container(&self, view_id: &str) -> FlowyResult<()> {
+        let _ = self.0.close_block(view_id)?;
+        Ok(())
+    }
+
+    async fn delta_str(&self, view_id: &str) -> FlowyResult<String> {
+        let editor = self.0.open_block(view_id).await?;
+        let delta_str = editor.delta_str().await?;
+        Ok(delta_str)
+    }
+
+    fn data_type(&self) -> ViewDataType {
+        ViewDataType::RichText
+    }
+}
+
+struct GridManagerViewDataImpl(Arc<GridManager>);
+#[async_trait]
+impl ViewDataProcessor for GridManagerViewDataImpl {
+    async fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FlowyResult<()> {
+        let _ = self.0.create_grid(view_id, repeated_revision).await?;
+        Ok(())
+    }
+
+    async fn delete_container(&self, view_id: &str) -> FlowyResult<()> {
+        let _ = self.0.delete_grid(view_id)?;
+        Ok(())
+    }
+
+    async fn close_container(&self, view_id: &str) -> FlowyResult<()> {
+        let _ = self.0.close_grid(view_id)?;
+        Ok(())
+    }
+
+    async fn delta_str(&self, view_id: &str) -> FlowyResult<String> {
+        let editor = self.0.open_grid(view_id).await?;
+        let delta_str = editor.delta_str().await;
+        Ok(delta_str)
+    }
+
+    fn data_type(&self) -> ViewDataType {
+        ViewDataType::Grid
     }
 }

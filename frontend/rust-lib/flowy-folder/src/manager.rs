@@ -1,17 +1,3 @@
-use bytes::Bytes;
-use chrono::Utc;
-use flowy_collaboration::client_document::default::{initial_quill_delta, initial_quill_delta_string, initial_read_me};
-use flowy_folder_data_model::user_default;
-use flowy_sync::RevisionWebSocket;
-use lazy_static::lazy_static;
-
-use flowy_block::BlockManager;
-use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
-
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
-use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
-use tokio::sync::RwLock as TokioRwLock;
-
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspace,
@@ -22,11 +8,22 @@ use crate::{
         TrashController, ViewController, WorkspaceController,
     },
 };
-
+use async_trait::async_trait;
+use bytes::Bytes;
+use chrono::Utc;
+use flowy_block::BlockManager;
+use flowy_collaboration::client_document::default::{initial_quill_delta, initial_quill_delta_string, initial_read_me};
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
+use flowy_folder_data_model::entities::view::ViewDataType;
+use flowy_folder_data_model::user_default;
+use flowy_sync::RevisionWebSocket;
+use lazy_static::lazy_static;
+use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
+use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
     static ref INIT_FOLDER_FLAG: TokioRwLock<HashMap<String, bool>> = TokioRwLock::new(HashMap::new());
 }
-
 const FOLDER_ID: &str = "folder";
 const FOLDER_ID_SPLIT: &str = ":";
 #[derive(Clone)]
@@ -72,6 +69,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
+        data_processors: DataProcessorMap,
         block_manager: Arc<BlockManager>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
@@ -95,6 +93,7 @@ impl FolderManager {
             persistence.clone(),
             cloud_service.clone(),
             trash_controller.clone(),
+            data_processors,
             block_manager,
         ));
 
@@ -197,7 +196,7 @@ impl DefaultFolderBuilder {
         for app in workspace.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
-                    initial_read_me().to_delta_json()
+                    initial_read_me().to_delta_str()
                 } else {
                     initial_quill_delta_string()
                 };
@@ -222,3 +221,14 @@ impl FolderManager {
         self.folder_editor.read().await.clone().unwrap()
     }
 }
+
+#[async_trait]
+pub trait ViewDataProcessor {
+    async fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FlowyResult<()>;
+    async fn delete_container(&self, view_id: &str) -> FlowyResult<()>;
+    async fn close_container(&self, view_id: &str) -> FlowyResult<()>;
+    async fn delta_str(&self, view_id: &str) -> FlowyResult<String>;
+    fn data_type(&self) -> ViewDataType;
+}
+
+pub type DataProcessorMap = Arc<HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>>>;

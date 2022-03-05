@@ -48,12 +48,12 @@ const BlockDelta$json = const {
   '1': 'BlockDelta',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
-    const {'1': 'delta_json', '3': 2, '4': 1, '5': 9, '10': 'deltaJson'},
+    const {'1': 'delta_str', '3': 2, '4': 1, '5': 9, '10': 'deltaStr'},
   ],
 };
 
 /// Descriptor for `BlockDelta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List blockDeltaDescriptor = $convert.base64Decode('CgpCbG9ja0RlbHRhEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEh0KCmRlbHRhX2pzb24YAiABKAlSCWRlbHRhSnNvbg==');
+final $typed_data.Uint8List blockDeltaDescriptor = $convert.base64Decode('CgpCbG9ja0RlbHRhEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEhsKCWRlbHRhX3N0chgCIAEoCVIIZGVsdGFTdHI=');
 @$core.Deprecated('Use newDocUserDescriptor instead')
 const NewDocUser$json = const {
   '1': 'NewDocUser',

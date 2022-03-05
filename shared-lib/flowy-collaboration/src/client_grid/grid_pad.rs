@@ -86,6 +86,10 @@ impl GridPad {
         grid_ref.clone()
     }
 
+    pub fn delta_str(&self) -> String {
+        self.delta.to_delta_str()
+    }
+
     pub fn field_orders(&self) -> &RepeatedFieldOrder {
         &self.grid.field_orders
     }

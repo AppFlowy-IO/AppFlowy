@@ -111,16 +111,17 @@ impl FlowySDK {
                 &config.server_config,
             );
 
+            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone());
+
             let folder_manager = FolderDepsResolver::resolve(
                 local_server.clone(),
                 user_session.clone(),
                 &config.server_config,
+                &ws_conn,
                 &block_manager,
-                ws_conn.clone(),
+                &grid_manager,
             )
             .await;
-
-            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone());
 
             if let Some(local_server) = local_server.as_ref() {
                 local_server.run();

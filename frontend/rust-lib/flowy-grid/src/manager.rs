@@ -41,29 +41,8 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn create_grid<T: AsRef<str>>(
-        &self,
-        grid_id: T,
-        fields: Option<Vec<Field>>,
-        rows: Option<Vec<RawRow>>,
-    ) -> FlowyResult<()> {
+    pub async fn create_grid<T: AsRef<str>>(&self, grid_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
-        let user_id = self.grid_user.user_id()?;
-        let mut field_orders = vec![];
-        let mut row_orders = vec![];
-        if let Some(fields) = fields {
-            field_orders = fields.iter().map(|field| FieldOrder::from(field)).collect::<Vec<_>>();
-        }
-        if let Some(rows) = rows {
-            row_orders = rows.iter().map(|row| RowOrder::from(row)).collect::<Vec<_>>();
-        }
-
-        let grid = Grid {
-            id: grid_id.to_owned(),
-            field_orders: field_orders.into(),
-            row_orders: row_orders.into(),
-        };
-        let revisions = make_grid_revisions(&user_id, &grid);
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_rev_manager(grid_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
@@ -142,6 +121,30 @@ impl GridManager {
         *self.kv_persistence.write() = Some(kv_persistence.clone());
         Ok(kv_persistence)
     }
+}
+
+pub fn make_grid(
+    user_id: &str,
+    grid_id: &str,
+    fields: Option<Vec<Field>>,
+    rows: Option<Vec<RawRow>>,
+) -> RepeatedRevision {
+    let mut field_orders = vec![];
+    let mut row_orders = vec![];
+    if let Some(fields) = fields {
+        field_orders = fields.iter().map(|field| FieldOrder::from(field)).collect::<Vec<_>>();
+    }
+    if let Some(rows) = rows {
+        row_orders = rows.iter().map(|row| RowOrder::from(row)).collect::<Vec<_>>();
+    }
+
+    let grid = Grid {
+        id: grid_id.to_owned(),
+        field_orders: field_orders.into(),
+        row_orders: row_orders.into(),
+    };
+
+    make_grid_revisions(user_id, &grid)
 }
 
 pub struct GridEditors {

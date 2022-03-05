@@ -21,7 +21,7 @@ pub(crate) async fn export_handler(
 ) -> DataResult<ExportData, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager.open_block(&params.view_id).await?;
-    let delta_json = editor.block_json().await?;
+    let delta_json = editor.delta_str().await?;
     data_result(ExportData {
         data: delta_json,
         export_type: params.export_type,

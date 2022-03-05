@@ -42,6 +42,7 @@ bytes = { version = "1.0" }
 crossbeam = "0.8"
 crossbeam-utils = "0.8"
 chrono = "0.4"
+async-trait = "0.1.52"
 
 [dev-dependencies]
 serial_test = "0.5.1"

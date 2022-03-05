@@ -230,21 +230,21 @@ class ResetBlockParams extends $pb.GeneratedMessage {
 class BlockDelta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BlockDelta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaJson')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaStr')
     ..hasRequiredFields = false
   ;
 
   BlockDelta._() : super();
   factory BlockDelta({
     $core.String? blockId,
-    $core.String? deltaJson,
+    $core.String? deltaStr,
   }) {
     final _result = create();
     if (blockId != null) {
       _result.blockId = blockId;
     }
-    if (deltaJson != null) {
-      _result.deltaJson = deltaJson;
+    if (deltaStr != null) {
+      _result.deltaStr = deltaStr;
     }
     return _result;
   }
@@ -279,13 +279,13 @@ class BlockDelta extends $pb.GeneratedMessage {
   void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get deltaJson => $_getSZ(1);
+  $core.String get deltaStr => $_getSZ(1);
   @$pb.TagNumber(2)
-  set deltaJson($core.String v) { $_setString(1, v); }
+  set deltaStr($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasDeltaJson() => $_has(1);
+  $core.bool hasDeltaStr() => $_has(1);
   @$pb.TagNumber(2)
-  void clearDeltaJson() => clearField(2);
+  void clearDeltaStr() => clearField(2);
 }
 
 class NewDocUser extends $pb.GeneratedMessage {

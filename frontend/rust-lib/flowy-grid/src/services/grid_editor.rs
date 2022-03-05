@@ -155,6 +155,10 @@ impl ClientGridEditor {
         self.grid_pad.read().await.grid_data()
     }
 
+    pub async fn delta_str(&self) -> String {
+        self.grid_pad.read().await.delta_str()
+    }
+
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridPad) -> FlowyResult<Option<GridChange>>,

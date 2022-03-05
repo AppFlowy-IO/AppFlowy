@@ -6,8 +6,10 @@ use flowy_collaboration::entities::{
 
 use flowy_collaboration::client_document::default::initial_quill_delta_string;
 use futures::{FutureExt, StreamExt};
+use std::collections::HashMap;
 use std::{collections::HashSet, sync::Arc};
 
+use crate::manager::DataProcessorMap;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::{
@@ -23,6 +25,7 @@ use crate::{
 };
 use flowy_block::BlockManager;
 use flowy_database::kv::KV;
+use flowy_folder_data_model::entities::view::ViewDataType;
 use lib_infra::uuid;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -32,6 +35,7 @@ pub(crate) struct ViewController {
     cloud_service: Arc<dyn FolderCouldServiceV1>,
     persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
+    data_processors: DataProcessorMap,
     block_manager: Arc<BlockManager>,
 }
 
@@ -40,15 +44,17 @@ impl ViewController {
         user: Arc<dyn WorkspaceUser>,
         persistence: Arc<FolderPersistence>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
-        trash_can: Arc<TrashController>,
-        document_manager: Arc<BlockManager>,
+        trash_controller: Arc<TrashController>,
+        data_processors: DataProcessorMap,
+        block_manager: Arc<BlockManager>,
     ) -> Self {
         Self {
             user,
             cloud_service,
             persistence,
-            trash_controller: trash_can,
-            block_manager: document_manager,
+            trash_controller,
+            data_processors,
+            block_manager,
         }
     }
 
@@ -127,11 +133,11 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn open_view(&self, view_id: &str) -> Result<BlockDelta, FlowyError> {
         let editor = self.block_manager.open_block(view_id).await?;
+        let delta_str = editor.delta_str().await?;
         KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
-        let document_json = editor.block_json().await?;
         Ok(BlockDelta {
             block_id: view_id.to_string(),
-            delta_json: document_json,
+            delta_str,
         })
     }
 
@@ -160,14 +166,14 @@ impl ViewController {
             .await?;
 
         let editor = self.block_manager.open_block(view_id).await?;
-        let document_json = editor.block_json().await?;
+        let delta_str = editor.delta_str().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
             desc: view.desc,
             thumbnail: view.thumbnail,
             data_type: view.data_type,
-            data: document_json,
+            data: delta_str,
             view_id: uuid(),
             ext_data: view.ext_data,
             plugin_type: view.plugin_type,
@@ -206,11 +212,6 @@ impl ViewController {
 
         let _ = self.update_view_on_server(params);
         Ok(view)
-    }
-
-    pub(crate) async fn receive_delta(&self, params: BlockDelta) -> Result<BlockDelta, FlowyError> {
-        let doc = self.block_manager.receive_local_delta(params).await?;
-        Ok(doc)
     }
 
     pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<View>> {
@@ -311,10 +312,10 @@ impl ViewController {
     }
 }
 
-#[tracing::instrument(level = "trace", skip(persistence, document_manager, trash_can))]
+#[tracing::instrument(level = "trace", skip(persistence, block_manager, trash_can))]
 async fn handle_trash_event(
     persistence: Arc<FolderPersistence>,
-    document_manager: Arc<BlockManager>,
+    block_manager: Arc<BlockManager>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -352,7 +353,7 @@ async fn handle_trash_event(
                     for identifier in identifiers.items {
                         let view = transaction.read_view(&identifier.id)?;
                         let _ = transaction.delete_view(&identifier.id)?;
-                        let _ = document_manager.delete(&identifier.id)?;
+                        let _ = block_manager.delete_block(&identifier.id)?;
                         notify_ids.insert(view.belong_to_id);
                     }
 

@@ -17,7 +17,7 @@ message ResetBlockParams {
 }
 message BlockDelta {
     string block_id = 1;
-    string delta_json = 2;
+    string delta_str = 2;
 }
 message NewDocUser {
     string user_id = 1;

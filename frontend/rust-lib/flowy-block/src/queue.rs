@@ -161,8 +161,8 @@ impl EditBlockQueue {
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
-            EditorCommand::ReadBlockJson { ret } => {
-                let data = self.document.read().await.to_json();
+            EditorCommand::ReadDeltaStr { ret } => {
+                let data = self.document.read().await.delta_str();
                 let _ = ret.send(Ok(data));
             }
             EditorCommand::ReadBlockDelta { ret } => {
@@ -265,7 +265,7 @@ pub(crate) enum EditorCommand {
     Redo {
         ret: Ret<()>,
     },
-    ReadBlockJson {
+    ReadDeltaStr {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
@@ -289,7 +289,7 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::CanRedo { .. } => "CanRedo",
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
-            EditorCommand::ReadBlockJson { .. } => "ReadDocumentAsJson",
+            EditorCommand::ReadDeltaStr { .. } => "ReadDeltaStr",
             EditorCommand::ReadBlockDelta { .. } => "ReadDocumentAsDelta",
         };
         f.write_str(s)

@@ -80,7 +80,7 @@ impl std::convert::From<View> for Trash {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataType {
     RichText = 0,

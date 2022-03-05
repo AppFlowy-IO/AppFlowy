@@ -46,7 +46,7 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
         }
 
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-        let doc_json = delta.to_delta_json();
+        let doc_json = delta.to_delta_str();
 
         Ok(BlockInfo {
             block_id: revision.object_id,
@@ -72,7 +72,7 @@ pub struct BlockDelta {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub delta_json: String,
+    pub delta_str: String,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
