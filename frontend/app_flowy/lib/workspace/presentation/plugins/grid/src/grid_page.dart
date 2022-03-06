@@ -31,7 +31,9 @@ class _GridPageState extends State<GridPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GridBloc>(create: (context) => getIt<GridBloc>()),
+        BlocProvider<GridBloc>(
+          create: (context) => getIt<GridBloc>(param1: widget.view)..add(const GridEvent.initial()),
+        ),
       ],
       child: BlocBuilder<GridBloc, GridState>(
         builder: (context, state) {

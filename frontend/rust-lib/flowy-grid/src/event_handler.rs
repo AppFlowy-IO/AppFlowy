@@ -4,7 +4,7 @@ use flowy_grid_data_model::entities::{Grid, GridId, QueryFieldPayload, QueryRowP
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
-#[tracing::instrument(skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn open_grid_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
@@ -15,7 +15,7 @@ pub(crate) async fn open_grid_handler(
     data_result(grid)
 }
 
-#[tracing::instrument(skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_rows_handler(
     data: Data<QueryRowPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -26,7 +26,7 @@ pub(crate) async fn get_rows_handler(
     data_result(repeated_row)
 }
 
-#[tracing::instrument(skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
     data: Data<QueryFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -37,7 +37,7 @@ pub(crate) async fn get_fields_handler(
     data_result(repeated_field)
 }
 
-#[tracing::instrument(skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_row_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,

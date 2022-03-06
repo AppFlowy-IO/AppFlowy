@@ -7,6 +7,8 @@ import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
+import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
@@ -94,6 +96,14 @@ class HomeDepsResolver {
         service: DocumentService(),
         listener: getIt<ViewListener>(param1: view),
         trashService: getIt<TrashService>(),
+      ),
+    );
+
+    // Grid
+    getIt.registerFactoryParam<GridBloc, View, void>(
+      (view, _) => GridBloc(
+        view: view,
+        service: GridService(),
       ),
     );
 

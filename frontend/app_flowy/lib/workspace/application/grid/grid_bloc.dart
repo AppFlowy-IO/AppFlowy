@@ -14,8 +14,8 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService service;
   final View view;
-  late Grid? _grid;
-  late List<Field>? _fields;
+  Grid? _grid;
+  List<Field>? _fields;
 
   GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
     on<GridEvent>(

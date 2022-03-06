@@ -241,7 +241,7 @@ pub trait ViewDataProcessor {
 
     fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError>;
 
-    fn default_view_data(&self) -> String;
+    fn default_view_data(&self, view_id: &str) -> String;
 
     fn data_type(&self) -> ViewDataType;
 }

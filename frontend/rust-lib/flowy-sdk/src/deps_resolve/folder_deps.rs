@@ -173,7 +173,7 @@ impl ViewDataProcessor for BlockManagerViewDataImpl {
         })
     }
 
-    fn default_view_data(&self) -> String {
+    fn default_view_data(&self, _view_id: &str) -> String {
         initial_quill_delta_string()
     }
 
@@ -225,8 +225,8 @@ impl ViewDataProcessor for GridManagerViewDataImpl {
         })
     }
 
-    fn default_view_data(&self) -> String {
-        default_grid()
+    fn default_view_data(&self, view_id: &str) -> String {
+        default_grid(view_id)
     }
 
     fn data_type(&self) -> ViewDataType {

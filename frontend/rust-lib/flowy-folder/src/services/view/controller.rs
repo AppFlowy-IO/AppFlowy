@@ -59,7 +59,7 @@ impl ViewController {
     pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
         let processor = self.get_data_processor(&params.data_type)?;
         let content = if params.data.is_empty() {
-            let default_view_data = processor.default_view_data();
+            let default_view_data = processor.default_view_data(&params.view_id);
             params.data = default_view_data.clone();
             default_view_data
         } else {

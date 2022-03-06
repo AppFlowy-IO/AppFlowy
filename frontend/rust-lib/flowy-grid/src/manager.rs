@@ -17,20 +17,20 @@ pub trait GridUser: Send + Sync {
 }
 
 pub struct GridManager {
-    grid_editors: Arc<GridEditors>,
+    editor_map: Arc<GridEditorMap>,
     grid_user: Arc<dyn GridUser>,
     kv_persistence: Arc<RwLock<Option<Arc<GridKVPersistence>>>>,
 }
 
 impl GridManager {
     pub fn new(grid_user: Arc<dyn GridUser>, _rev_web_socket: Arc<dyn RevisionWebSocket>) -> Self {
-        let grid_editors = Arc::new(GridEditors::new());
+        let grid_editors = Arc::new(GridEditorMap::new());
 
         // kv_persistence will be initialized after first access.
         // See get_kv_persistence function below
         let kv_persistence = Arc::new(RwLock::new(None));
         Self {
-            grid_editors,
+            editor_map: grid_editors,
             grid_user,
             kv_persistence,
         }
@@ -56,7 +56,7 @@ impl GridManager {
     pub fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
+        self.editor_map.remove(grid_id);
         Ok(())
     }
 
@@ -64,22 +64,26 @@ impl GridManager {
     pub fn delete_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
+        self.editor_map.remove(grid_id);
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
-        match self.grid_editors.get(grid_id) {
+        match self.editor_map.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
             Some(editor) => Ok(editor),
         }
     }
 
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
-        match self.grid_editors.get(grid_id) {
+        match self.editor_map.get(grid_id) {
             None => {
+                tracing::trace!("Create grid editor with id: {}", grid_id);
                 let db_pool = self.grid_user.db_pool()?;
-                self.make_grid_editor(grid_id, db_pool).await
+                let editor = self.make_grid_editor(grid_id, db_pool).await?;
+                self.editor_map.insert(grid_id, &editor);
+                Ok(editor)
             }
             Some(editor) => Ok(editor),
         }
@@ -94,7 +98,6 @@ impl GridManager {
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
         let kv_persistence = self.get_kv_persistence()?;
         let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager, kv_persistence).await?;
-        self.grid_editors.insert(grid_id, &grid_editor);
         Ok(grid_editor)
     }
 
@@ -120,8 +123,7 @@ impl GridManager {
 }
 
 use lib_infra::uuid;
-pub fn default_grid() -> String {
-    let grid_id = uuid();
+pub fn default_grid(grid_id: &str) -> String {
     let fields = vec![
         Field {
             id: uuid(),
@@ -146,12 +148,12 @@ pub fn default_grid() -> String {
     let rows = vec![
         RawRow {
             id: uuid(),
-            grid_id: grid_id.clone(),
+            grid_id: grid_id.to_string(),
             cell_by_field_id: Default::default(),
         },
         RawRow {
             id: uuid(),
-            grid_id: grid_id.clone(),
+            grid_id: grid_id.to_string(),
             cell_by_field_id: Default::default(),
         },
     ];
@@ -172,11 +174,11 @@ pub fn make_grid(grid_id: &str, fields: Vec<Field>, rows: Vec<RawRow>) -> String
     delta.to_delta_str()
 }
 
-pub struct GridEditors {
+pub struct GridEditorMap {
     inner: DashMap<String, Arc<ClientGridEditor>>,
 }
 
-impl GridEditors {
+impl GridEditorMap {
     fn new() -> Self {
         Self { inner: DashMap::new() }
     }
@@ -188,16 +190,8 @@ impl GridEditors {
         self.inner.insert(grid_id.to_string(), grid_editor.clone());
     }
 
-    pub(crate) fn contains(&self, grid_id: &str) -> bool {
-        self.inner.get(grid_id).is_some()
-    }
-
     pub(crate) fn get(&self, grid_id: &str) -> Option<Arc<ClientGridEditor>> {
-        if !self.contains(grid_id) {
-            return None;
-        }
-        let opened_grid = self.inner.get(grid_id).unwrap();
-        Some(opened_grid.clone())
+        Some(self.inner.get(grid_id)?.clone())
     }
 
     pub(crate) fn remove(&self, grid_id: &str) {
