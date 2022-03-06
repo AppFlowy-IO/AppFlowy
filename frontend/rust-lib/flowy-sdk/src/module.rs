@@ -17,7 +17,8 @@ pub fn mk_modules(
     let folder_module = mk_folder_module(folder_manager.clone());
     let network_module = mk_network_module(ws_conn.clone());
     let grid_module = mk_grid_module(grid_manager.clone());
-    vec![user_module, folder_module, network_module, grid_module]
+    let block_module = mk_block_module(block_manager.clone());
+    vec![user_module, folder_module, network_module, grid_module, block_module]
 }
 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module {

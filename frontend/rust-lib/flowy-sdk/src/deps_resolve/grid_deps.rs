@@ -17,9 +17,8 @@ pub struct GridDepsResolver();
 impl GridDepsResolver {
     pub fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
         let user = Arc::new(GridUserImpl(user_session));
-        let rev_web_socket = Arc::new(GridWebSocket(ws_conn.clone()));
-        let manager = Arc::new(GridManager::new(user, rev_web_socket));
-        manager
+        let rev_web_socket = Arc::new(GridWebSocket(ws_conn));
+        Arc::new(GridManager::new(user, rev_web_socket))
     }
 }
 

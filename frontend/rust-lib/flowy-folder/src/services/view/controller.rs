@@ -1,15 +1,4 @@
-use bytes::Bytes;
-use flowy_collaboration::entities::{
-    document_info::{BlockDelta, BlockId},
-    revision::{RepeatedRevision, Revision},
-};
-
-use flowy_collaboration::client_document::default::initial_quill_delta_string;
-use futures::{FutureExt, StreamExt};
-use std::collections::HashMap;
-use std::{collections::HashSet, sync::Arc};
-
-use crate::manager::DataProcessorMap;
+use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::{
@@ -23,10 +12,16 @@ use crate::{
         TrashController, TrashEvent,
     },
 };
-use flowy_block::BlockManager;
+use bytes::Bytes;
+use flowy_collaboration::entities::{
+    document_info::{BlockDelta, BlockId},
+    revision::{RepeatedRevision, Revision},
+};
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::ViewDataType;
+use futures::{FutureExt, StreamExt};
 use lib_infra::uuid;
+use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
@@ -35,8 +30,7 @@ pub(crate) struct ViewController {
     cloud_service: Arc<dyn FolderCouldServiceV1>,
     persistence: Arc<FolderPersistence>,
     trash_controller: Arc<TrashController>,
-    data_processors: DataProcessorMap,
-    block_manager: Arc<BlockManager>,
+    data_processors: ViewDataProcessorMap,
 }
 
 impl ViewController {
@@ -45,8 +39,7 @@ impl ViewController {
         persistence: Arc<FolderPersistence>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         trash_controller: Arc<TrashController>,
-        data_processors: DataProcessorMap,
-        block_manager: Arc<BlockManager>,
+        data_processors: ViewDataProcessorMap,
     ) -> Self {
         Self {
             user,
@@ -54,38 +47,48 @@ impl ViewController {
             persistence,
             trash_controller,
             data_processors,
-            block_manager,
         }
     }
 
     pub(crate) fn initialize(&self) -> Result<(), FlowyError> {
-        let _ = self.block_manager.init()?;
         self.listen_trash_can_event();
         Ok(())
     }
 
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
-    pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let view_data = if params.data.is_empty() {
-            initial_quill_delta_string()
+    pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
+        let processor = self.get_data_processor(&params.data_type)?;
+        let content = if params.data.is_empty() {
+            let default_view_data = processor.default_view_data();
+            params.data = default_view_data.clone();
+            default_view_data
         } else {
             params.data.clone()
         };
 
-        let _ = self.create_view(&params.view_id, Bytes::from(view_data)).await?;
+        let delta_data = Bytes::from(content);
+        let _ = self
+            .create_view(&params.view_id, params.data_type.clone(), delta_data)
+            .await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
         Ok(view)
     }
 
     #[tracing::instrument(level = "debug", skip(self, view_id, delta_data), err)]
-    pub(crate) async fn create_view(&self, view_id: &str, delta_data: Bytes) -> Result<(), FlowyError> {
+    pub(crate) async fn create_view(
+        &self,
+        view_id: &str,
+        data_type: ViewDataType,
+        delta_data: Bytes,
+    ) -> Result<(), FlowyError> {
         if delta_data.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
-        let _ = self.block_manager.create_block(view_id, repeated_revision).await?;
+        let processor = self.get_data_processor(&data_type)?;
+        let _ = processor.create_container(view_id, repeated_revision).await?;
         Ok(())
     }
 
@@ -132,8 +135,8 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn open_view(&self, view_id: &str) -> Result<BlockDelta, FlowyError> {
-        let editor = self.block_manager.open_block(view_id).await?;
-        let delta_str = editor.delta_str().await?;
+        let processor = self.get_data_processor_from_view_id(view_id).await?;
+        let delta_str = processor.delta_str(view_id).await?;
         KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
         Ok(BlockDelta {
             block_id: view_id.to_string(),
@@ -142,8 +145,9 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn close_view(&self, doc_id: &str) -> Result<(), FlowyError> {
-        let _ = self.block_manager.close_block(doc_id)?;
+    pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
+        let processor = self.get_data_processor_from_view_id(view_id).await?;
+        let _ = processor.close_container(view_id).await?;
         Ok(())
     }
 
@@ -154,7 +158,8 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.block_manager.close_block(&params.value)?;
+        let processor = self.get_data_processor_from_view_id(&params.value).await?;
+        let _ = processor.close_container(&params.value).await?;
         Ok(())
     }
 
@@ -165,8 +170,8 @@ impl ViewController {
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
 
-        let editor = self.block_manager.open_block(view_id).await?;
-        let delta_str = editor.delta_str().await?;
+        let processor = self.get_data_processor(&view.data_type)?;
+        let delta_str = processor.delta_str(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
@@ -287,7 +292,7 @@ impl ViewController {
     fn listen_trash_can_event(&self) {
         let mut rx = self.trash_controller.subscribe();
         let persistence = self.persistence.clone();
-        let block_manager = self.block_manager.clone();
+        let data_processors = self.data_processors.clone();
         let trash_controller = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
@@ -301,7 +306,7 @@ impl ViewController {
                 if let Some(event) = stream.next().await {
                     handle_trash_event(
                         persistence.clone(),
-                        block_manager.clone(),
+                        data_processors.clone(),
                         trash_controller.clone(),
                         event,
                     )
@@ -310,12 +315,34 @@ impl ViewController {
             }
         });
     }
+
+    async fn get_data_processor_from_view_id(
+        &self,
+        view_id: &str,
+    ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
+        let view = self
+            .persistence
+            .begin_transaction(|transaction| transaction.read_view(view_id))
+            .await?;
+        self.get_data_processor(&view.data_type)
+    }
+
+    #[inline]
+    fn get_data_processor(&self, data_type: &ViewDataType) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
+        match self.data_processors.get(data_type) {
+            None => Err(FlowyError::internal().context(format!(
+                "Get data processor failed. Unknown view data type: {:?}",
+                data_type
+            ))),
+            Some(processor) => Ok(processor.clone()),
+        }
+    }
 }
 
-#[tracing::instrument(level = "trace", skip(persistence, block_manager, trash_can))]
+#[tracing::instrument(level = "trace", skip(persistence, data_processors, trash_can))]
 async fn handle_trash_event(
     persistence: Arc<FolderPersistence>,
-    block_manager: Arc<BlockManager>,
+    data_processors: ViewDataProcessorMap,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -347,25 +374,51 @@ async fn handle_trash_event(
             let _ = ret.send(result).await;
         }
         TrashEvent::Delete(identifiers, ret) => {
-            let result = persistence
-                .begin_transaction(|transaction| {
-                    let mut notify_ids = HashSet::new();
-                    for identifier in identifiers.items {
-                        let view = transaction.read_view(&identifier.id)?;
-                        let _ = transaction.delete_view(&identifier.id)?;
-                        let _ = block_manager.delete_block(&identifier.id)?;
-                        notify_ids.insert(view.belong_to_id);
-                    }
+            let result = || async {
+                let views = persistence
+                    .begin_transaction(|transaction| {
+                        let mut notify_ids = HashSet::new();
+                        let mut views = vec![];
+                        for identifier in identifiers.items {
+                            let view = transaction.read_view(&identifier.id)?;
+                            let _ = transaction.delete_view(&view.id)?;
+                            notify_ids.insert(view.belong_to_id.clone());
+                            views.push(view);
+                        }
+                        for notify_id in notify_ids {
+                            let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
+                        }
+                        Ok(views)
+                    })
+                    .await?;
 
-                    for notify_id in notify_ids {
-                        let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
+                for view in views {
+                    match get_data_processor(data_processors.clone(), &view.data_type) {
+                        Ok(processor) => {
+                            let _ = processor.close_container(&view.id).await?;
+                        }
+                        Err(e) => {
+                            tracing::error!("{}", e)
+                        }
                     }
-
-                    Ok(())
-                })
-                .await;
-            let _ = ret.send(result).await;
+                }
+                Ok(())
+            };
+            let _ = ret.send(result().await).await;
         }
+    }
+}
+
+fn get_data_processor(
+    data_processors: ViewDataProcessorMap,
+    data_type: &ViewDataType,
+) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
+    match data_processors.get(data_type) {
+        None => Err(FlowyError::internal().context(format!(
+            "Get data processor failed. Unknown view data type: {:?}",
+            data_type
+        ))),
+        Some(processor) => Ok(processor.clone()),
     }
 }
 

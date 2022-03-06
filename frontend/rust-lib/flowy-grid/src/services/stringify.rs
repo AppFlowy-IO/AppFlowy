@@ -3,6 +3,7 @@ use crate::services::util::*;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
 
+#[allow(dead_code)]
 pub fn stringify_serialize(field: &Field, s: &str) -> Result<AnyData, FlowyError> {
     match field.field_type {
         FieldType::RichText => RichTextDescription::from(field).str_to_any_data(s),

@@ -1,3 +1,4 @@
+#![allow(clippy::upper_case_acronyms)]
 use crate::impl_any_data;
 use crate::services::util::*;
 use bytes::Bytes;
@@ -12,8 +13,6 @@ use rusty_money::{
     Money,
 };
 use std::str::FromStr;
-
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 pub trait StringifyAnyData {
@@ -77,7 +76,7 @@ impl DisplayCell for CheckboxDescription {
 }
 
 // Date
-#[derive(Clone, Debug, ProtoBuf)]
+#[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct DateDescription {
     #[pb(index = 1)]
     pub date_format: DateFormat,
@@ -86,15 +85,6 @@ pub struct DateDescription {
     pub time_format: TimeFormat,
 }
 impl_any_data!(DateDescription, FieldType::DateTime);
-
-impl std::default::Default for DateDescription {
-    fn default() -> Self {
-        DateDescription {
-            date_format: DateFormat::default(),
-            time_format: TimeFormat::default(),
-        }
-    }
-}
 
 impl DateDescription {
     fn date_time_format_str(&self) -> String {
@@ -134,7 +124,7 @@ impl DisplayCell for DateDescription {
 
 impl StringifyAnyData for DateDescription {
     fn stringify_any_data(&self, data: AnyData) -> String {
-        match String::from_utf8(data.value.clone()) {
+        match String::from_utf8(data.value) {
             Ok(s) => match s.parse::<i64>() {
                 Ok(timestamp) => {
                     let native = NaiveDateTime::from_timestamp(timestamp, 0);
@@ -380,7 +370,7 @@ impl NumberDescription {
 
 impl DisplayCell for NumberDescription {
     fn display_content(&self, s: &str) -> String {
-        match self.money_from_str(&s) {
+        match self.money_from_str(s) {
             Some(money_str) => money_str,
             None => String::default(),
         }
@@ -389,7 +379,7 @@ impl DisplayCell for NumberDescription {
 
 impl StringifyAnyData for NumberDescription {
     fn stringify_any_data(&self, data: AnyData) -> String {
-        match String::from_utf8(data.value.clone()) {
+        match String::from_utf8(data.value) {
             Ok(s) => match self.money_from_str(&s) {
                 Some(money_str) => money_str,
                 None => String::default(),

@@ -1,9 +1,9 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{CellChangeset, Field, FieldOrder, Grid, RawRow, RepeatedFieldOrder, RowOrder};
+use flowy_grid_data_model::entities::{Field, FieldOrder, Grid, RawRow, RepeatedFieldOrder, RowOrder};
 use lib_infra::uuid;
-use lib_ot::core::{FlowyStr, OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::sync::Arc;
 
 pub type GridDelta = PlainTextDelta;
@@ -54,7 +54,7 @@ impl GridPad {
         })
     }
 
-    pub fn delete_rows(&mut self, row_ids: &Vec<String>) -> CollaborateResult<Option<GridChange>> {
+    pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
             grid.row_orders.retain(|row_order| !row_ids.contains(&row_order.row_id));
             Ok(Some(()))
@@ -99,7 +99,7 @@ impl GridPad {
         F: FnOnce(&mut Grid) -> CollaborateResult<Option<()>>,
     {
         let cloned_grid = self.grid.clone();
-        match f(&mut Arc::make_mut(&mut self.grid))? {
+        match f(Arc::make_mut(&mut self.grid))? {
             None => Ok(None),
             Some(_) => {
                 let old = json_from_grid(&cloned_grid)?;

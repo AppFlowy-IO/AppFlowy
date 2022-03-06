@@ -8,17 +8,18 @@ use crate::{
         TrashController, ViewController, WorkspaceController,
     },
 };
-use async_trait::async_trait;
 use bytes::Bytes;
 use chrono::Utc;
-use flowy_block::BlockManager;
-use flowy_collaboration::client_document::default::{initial_quill_delta, initial_quill_delta_string, initial_read_me};
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+
+use flowy_collaboration::client_document::default::{initial_quill_delta_string, initial_read_me};
+use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
+use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
 use flowy_sync::RevisionWebSocket;
 use lazy_static::lazy_static;
+use lib_infra::future::FutureResult;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
@@ -62,6 +63,7 @@ pub struct FolderManager {
     pub(crate) trash_controller: Arc<TrashController>,
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_editor: Arc<TokioRwLock<Option<Arc<ClientFolderEditor>>>>,
+    data_processors: ViewDataProcessorMap,
 }
 
 impl FolderManager {
@@ -69,8 +71,7 @@ impl FolderManager {
         user: Arc<dyn WorkspaceUser>,
         cloud_service: Arc<dyn FolderCouldServiceV1>,
         database: Arc<dyn WorkspaceDatabase>,
-        data_processors: DataProcessorMap,
-        block_manager: Arc<BlockManager>,
+        data_processors: ViewDataProcessorMap,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> Self {
         if let Ok(user_id) = user.user_id() {
@@ -93,8 +94,7 @@ impl FolderManager {
             persistence.clone(),
             cloud_service.clone(),
             trash_controller.clone(),
-            data_processors,
-            block_manager,
+            data_processors.clone(),
         ));
 
         let app_controller = Arc::new(AppController::new(
@@ -121,6 +121,7 @@ impl FolderManager {
             trash_controller,
             web_socket,
             folder_editor,
+            data_processors,
         }
     }
 
@@ -167,6 +168,11 @@ impl FolderManager {
 
         let _ = self.app_controller.initialize()?;
         let _ = self.view_controller.initialize()?;
+
+        self.data_processors.iter().for_each(|(_, processor)| {
+            processor.initialize();
+        });
+
         write_guard.insert(user_id.to_owned(), true);
         Ok(())
     }
@@ -201,7 +207,9 @@ impl DefaultFolderBuilder {
                     initial_quill_delta_string()
                 };
                 view_controller.set_latest_view(view);
-                let _ = view_controller.create_view(&view.id, Bytes::from(view_data)).await?;
+                let _ = view_controller
+                    .create_view(&view.id, ViewDataType::RichText, Bytes::from(view_data))
+                    .await?;
             }
         }
         let folder = FolderPad::new(vec![workspace.clone()], vec![])?;
@@ -222,13 +230,20 @@ impl FolderManager {
     }
 }
 
-#[async_trait]
 pub trait ViewDataProcessor {
-    async fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FlowyResult<()>;
-    async fn delete_container(&self, view_id: &str) -> FlowyResult<()>;
-    async fn close_container(&self, view_id: &str) -> FlowyResult<()>;
-    async fn delta_str(&self, view_id: &str) -> FlowyResult<String>;
+    fn initialize(&self) -> FutureResult<(), FlowyError>;
+
+    fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError>;
+
+    fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+
+    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+
+    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError>;
+
+    fn default_view_data(&self) -> String;
+
     fn data_type(&self) -> ViewDataType;
 }
 
-pub type DataProcessorMap = Arc<HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>>>;
+pub type ViewDataProcessorMap = Arc<HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>>>;

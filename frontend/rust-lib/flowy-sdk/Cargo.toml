@@ -23,7 +23,6 @@ color-eyre = { version = "0.5", default-features = false }
 bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.11"
-async-trait = "0.1.52"
 
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }

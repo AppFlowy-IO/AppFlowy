@@ -6,9 +6,9 @@ use flowy_database::{
     schema::{kv_table, kv_table::dsl},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, GridIdentifiable, RawRow};
-use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_sqlite::{ConnectionManager, ConnectionPool};
+use flowy_grid_data_model::entities::GridIdentifiable;
+
+use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

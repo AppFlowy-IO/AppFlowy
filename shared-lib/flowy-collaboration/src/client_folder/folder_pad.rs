@@ -9,7 +9,7 @@ use crate::{
 };
 use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
 use lib_ot::core::*;
-use lib_ot::rich_text::RichTextAttributes;
+
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 

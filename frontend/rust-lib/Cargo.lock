@@ -986,13 +986,13 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "bincode",
  "bytes",
  "chrono",
  "crossbeam",
  "crossbeam-utils",
  "dart-notify",
+ "dashmap",
  "derive_more",
  "diesel",
  "diesel_derives",
@@ -1134,7 +1134,6 @@ dependencies = [
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "bincode",
  "bytes",
  "claim 0.5.0",

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'src/grid_page.dart';
 
-class GridPluginBuilder extends PluginBuilder {
+class GridPluginBuilder implements PluginBuilder {
   @override
   Plugin build(dynamic data) {
     if (data is View) {
@@ -21,6 +21,9 @@ class GridPluginBuilder extends PluginBuilder {
 
   @override
   PluginType get pluginType => DefaultPlugin.grid.type();
+
+  @override
+  ViewDataType get dataType => ViewDataType.Grid;
 }
 
 class GridPluginConfig implements PluginConfig {

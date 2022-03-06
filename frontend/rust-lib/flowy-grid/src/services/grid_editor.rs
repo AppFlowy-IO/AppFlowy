@@ -1,23 +1,20 @@
 use crate::manager::GridUser;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use crate::services::stringify::stringify_deserialize;
-use dashmap::mapref::one::Ref;
+
 use dashmap::DashMap;
 use flowy_collaboration::client_grid::{GridChange, GridPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Cell, Field, Grid, GridId, RawCell, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row,
+    Cell, Field, Grid, RawCell, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row,
 };
-use flowy_sync::{
-    RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
-    RevisionWebSocket, RevisionWebSocketManager,
-};
+use flowy_sync::{RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
-use lib_sqlite::ConnectionPool;
+
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 use std::sync::Arc;

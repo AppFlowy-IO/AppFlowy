@@ -1,12 +1,10 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
+use crate::services::kv_persistence::GridKVPersistence;
 use dashmap::DashMap;
-use flowy_collaboration::client_grid::{make_grid_delta, make_grid_revisions};
+use flowy_collaboration::client_grid::make_grid_delta;
 use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    Field, FieldOrder, Grid, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row, RowOrder,
-};
+use flowy_grid_data_model::entities::{Field, FieldOrder, FieldType, Grid, RawRow, RowOrder};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
@@ -21,12 +19,11 @@ pub trait GridUser: Send + Sync {
 pub struct GridManager {
     grid_editors: Arc<GridEditors>,
     grid_user: Arc<dyn GridUser>,
-    rev_web_socket: Arc<dyn RevisionWebSocket>,
     kv_persistence: Arc<RwLock<Option<Arc<GridKVPersistence>>>>,
 }
 
 impl GridManager {
-    pub fn new(grid_user: Arc<dyn GridUser>, rev_web_socket: Arc<dyn RevisionWebSocket>) -> Self {
+    pub fn new(grid_user: Arc<dyn GridUser>, _rev_web_socket: Arc<dyn RevisionWebSocket>) -> Self {
         let grid_editors = Arc::new(GridEditors::new());
 
         // kv_persistence will be initialized after first access.
@@ -35,7 +32,6 @@ impl GridManager {
         Self {
             grid_editors,
             grid_user,
-            rev_web_socket,
             kv_persistence,
         }
     }
@@ -123,28 +119,57 @@ impl GridManager {
     }
 }
 
-pub fn make_grid(
-    user_id: &str,
-    grid_id: &str,
-    fields: Option<Vec<Field>>,
-    rows: Option<Vec<RawRow>>,
-) -> RepeatedRevision {
-    let mut field_orders = vec![];
-    let mut row_orders = vec![];
-    if let Some(fields) = fields {
-        field_orders = fields.iter().map(|field| FieldOrder::from(field)).collect::<Vec<_>>();
-    }
-    if let Some(rows) = rows {
-        row_orders = rows.iter().map(|row| RowOrder::from(row)).collect::<Vec<_>>();
-    }
+use lib_infra::uuid;
+pub fn default_grid() -> String {
+    let grid_id = uuid();
+    let fields = vec![
+        Field {
+            id: uuid(),
+            name: "".to_string(),
+            desc: "".to_string(),
+            field_type: FieldType::RichText,
+            frozen: false,
+            width: 100,
+            type_options: Default::default(),
+        },
+        Field {
+            id: uuid(),
+            name: "".to_string(),
+            desc: "".to_string(),
+            field_type: FieldType::RichText,
+            frozen: false,
+            width: 100,
+            type_options: Default::default(),
+        },
+    ];
+
+    let rows = vec![
+        RawRow {
+            id: uuid(),
+            grid_id: grid_id.clone(),
+            cell_by_field_id: Default::default(),
+        },
+        RawRow {
+            id: uuid(),
+            grid_id: grid_id.clone(),
+            cell_by_field_id: Default::default(),
+        },
+    ];
+
+    make_grid(&grid_id, fields, rows)
+}
+
+pub fn make_grid(grid_id: &str, fields: Vec<Field>, rows: Vec<RawRow>) -> String {
+    let field_orders = fields.iter().map(FieldOrder::from).collect::<Vec<_>>();
+    let row_orders = rows.iter().map(RowOrder::from).collect::<Vec<_>>();
 
     let grid = Grid {
         id: grid_id.to_owned(),
         field_orders: field_orders.into(),
         row_orders: row_orders.into(),
     };
-
-    make_grid_revisions(user_id, &grid)
+    let delta = make_grid_delta(&grid);
+    delta.to_delta_str()
 }
 
 pub struct GridEditors {

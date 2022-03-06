@@ -53,6 +53,7 @@ fn create_row_order(grid_id: &str, row_id: &str) -> RowOrder {
     }
 }
 
+#[allow(dead_code)]
 fn uuid() -> String {
     uuid::Uuid::new_v4().to_string()
 }
