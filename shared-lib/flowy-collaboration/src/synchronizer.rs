@@ -83,7 +83,7 @@ where
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self, user, repeated_revision), err)]
+    #[tracing::instrument(level = "trace", skip(self, user, repeated_revision), err)]
     pub async fn sync_revisions(
         &self,
         user: Arc<dyn RevisionUser>,

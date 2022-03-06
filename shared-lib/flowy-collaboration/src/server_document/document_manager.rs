@@ -206,7 +206,7 @@ struct OpenDocumentHandler {
 
 impl OpenDocumentHandler {
     fn new(doc: BlockInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
-        let doc_id = doc.doc_id.clone();
+        let doc_id = doc.block_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
@@ -214,7 +214,7 @@ impl OpenDocumentHandler {
         let sync_object = ServerDocument::from_delta(&doc_id, delta);
         let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 
-        let queue = DocumentCommandRunner::new(&doc.doc_id, receiver, synchronizer);
+        let queue = DocumentCommandRunner::new(&doc.block_id, receiver, synchronizer);
         tokio::task::spawn(queue.run());
         Ok(Self { doc_id, sender, users })
     }

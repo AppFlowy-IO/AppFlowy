@@ -12,8 +12,8 @@ use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 use crate::{
-    controller::FolderId,
     event_map::WorkspaceDatabase,
+    manager::FolderId,
     services::{folder_editor::ClientFolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_error::{FlowyError, FlowyResult};

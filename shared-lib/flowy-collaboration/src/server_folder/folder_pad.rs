@@ -32,7 +32,7 @@ impl RevisionSyncObject<PlainTextAttributes> for ServerFolder {
     }
 
     fn to_json(&self) -> String {
-        self.delta.to_delta_json()
+        self.delta.to_delta_str()
     }
 
     fn set_delta(&mut self, new_delta: PlainTextDelta) {

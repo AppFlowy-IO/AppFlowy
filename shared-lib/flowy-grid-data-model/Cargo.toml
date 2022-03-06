@@ -1,0 +1,25 @@
+[package]
+name = "flowy-grid-data-model"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive = { path = "../flowy-derive" }
+protobuf = {version = "2.18.0"}
+bytes = "1.0"
+strum = "0.21"
+strum_macros = "0.21"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+uuid = { version = "0.8", features = ["serde", "v4"] }
+
+[build-dependencies]
+lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
+
+[features]
+default = []
+backend = []
+frontend = []
+dart = ["lib-infra/dart"]

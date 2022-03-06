@@ -43,7 +43,7 @@ pub(crate) async fn make_folder_ws_manager(
 }
 
 pub(crate) struct FolderWSDataSink(Arc<WSDataProvider>);
-impl RevisionWSDataIterator for FolderWSDataSink {
+impl RevisionWebSocketSink for FolderWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })

@@ -2,9 +2,9 @@ use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
-    client_document::default::initial_delta_string,
+    client_document::default::initial_quill_delta_string,
     entities::{
-        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams},
+        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -121,6 +121,9 @@ impl LocalWebSocketRunner {
             WSChannel::Folder => {
                 let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
+            }
+            WSChannel::Grid => {
+                todo!("Implement grid web socket channel")
             }
         }
     }
@@ -259,7 +262,7 @@ use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
-use lib_infra::{future::FutureResult, timestamp, uuid_string};
+use lib_infra::{future::FutureResult, timestamp, uuid};
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
@@ -267,7 +270,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
         let time = timestamp();
         let workspace = Workspace {
-            id: uuid_string(),
+            id: uuid(),
             name: params.name,
             desc: params.desc,
             apps: RepeatedApp::default(),
@@ -327,7 +330,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
         let time = timestamp();
         let app = App {
-            id: uuid_string(),
+            id: uuid(),
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
@@ -369,7 +372,7 @@ impl FolderCouldServiceV1 for LocalServer {
 
 impl UserCloudService for LocalServer {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-        let uid = uuid_string();
+        let uid = uuid();
         FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
@@ -381,7 +384,7 @@ impl UserCloudService for LocalServer {
     }
 
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-        let user_id = uuid_string();
+        let user_id = uuid();
         FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),
@@ -416,15 +419,15 @@ impl BlockCloudService for LocalServer {
 
     fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
         let doc = BlockInfo {
-            doc_id: params.value,
-            text: initial_delta_string(),
+            block_id: params.value,
+            text: initial_quill_delta_string(),
             rev_id: 0,
             base_rev_id: 0,
         };
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_block(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, _token: &str, _params: ResetBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

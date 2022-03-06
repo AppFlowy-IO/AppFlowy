@@ -6,18 +6,18 @@ message CreateBlockParams {
     RepeatedRevision revisions = 2;
 }
 message BlockInfo {
-    string doc_id = 1;
+    string block_id = 1;
     string text = 2;
     int64 rev_id = 3;
     int64 base_rev_id = 4;
 }
-message ResetDocumentParams {
-    string doc_id = 1;
+message ResetBlockParams {
+    string block_id = 1;
     RepeatedRevision revisions = 2;
 }
 message BlockDelta {
     string block_id = 1;
-    string delta_json = 2;
+    string delta_str = 2;
 }
 message NewDocUser {
     string user_id = 1;

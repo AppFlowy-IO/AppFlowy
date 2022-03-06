@@ -4,7 +4,8 @@ pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
 use flowy_block::BlockManager;
-use flowy_folder::{controller::FolderManager, errors::FlowyError};
+use flowy_folder::{errors::FlowyError, manager::FolderManager};
+use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     entities::NetworkType,
@@ -66,7 +67,8 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_sdk={}", level));
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
-    filters.push(format!("flowy_document={}", level));
+    filters.push(format!("flowy_block={}", level));
+    filters.push(format!("flowy_grid={}", level));
     filters.push(format!("flowy_collaboration={}", "debug"));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
@@ -76,7 +78,8 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("dart_ffi={}", "info"));
     filters.push(format!("flowy_database={}", "info"));
     filters.push(format!("flowy_net={}", "info"));
-    filters.push(format!("flowy_sync={}", "trace"));
+    filters.push(format!("flowy_sync={}", "info"));
+
     filters.join(",")
 }
 
@@ -85,8 +88,9 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub document_manager: Arc<BlockManager>,
+    pub block_manager: Arc<BlockManager>,
     pub folder_manager: Arc<FolderManager>,
+    pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
@@ -99,21 +103,24 @@ impl FlowySDK {
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
-        let (user_session, document_manager, folder_manager, local_server) = runtime.block_on(async {
+        let (user_session, block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
-            let document_manager = BlockDepsResolver::resolve(
+            let block_manager = BlockDepsResolver::resolve(
                 local_server.clone(),
                 ws_conn.clone(),
                 user_session.clone(),
                 &config.server_config,
             );
 
+            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone());
+
             let folder_manager = FolderDepsResolver::resolve(
                 local_server.clone(),
                 user_session.clone(),
                 &config.server_config,
-                &document_manager,
-                ws_conn.clone(),
+                &ws_conn,
+                &block_manager,
+                &grid_manager,
             )
             .await;
 
@@ -121,11 +128,11 @@ impl FlowySDK {
                 local_server.run();
             }
             ws_conn.init().await;
-            (user_session, document_manager, folder_manager, local_server)
+            (user_session, block_manager, folder_manager, local_server, grid_manager)
         });
 
         let dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
-            mk_modules(&ws_conn, &folder_manager, &user_session)
+            mk_modules(&ws_conn, &folder_manager, &grid_manager, &user_session, &block_manager)
         }));
 
         _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager);
@@ -133,8 +140,9 @@ impl FlowySDK {
         Self {
             config,
             user_session,
-            document_manager,
+            block_manager,
             folder_manager,
+            grid_manager,
             dispatcher,
             ws_conn,
             local_server,

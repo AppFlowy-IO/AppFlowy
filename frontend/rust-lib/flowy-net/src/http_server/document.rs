@@ -3,7 +3,7 @@ use crate::{
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
 use flowy_block::BlockCloudService;
-use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams};
+use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams};
 use flowy_error::FlowyError;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
@@ -33,7 +33,7 @@ impl BlockCloudService for BlockHttpCloudService {
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
     }
 
-    fn update_block(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, token: &str, params: ResetBlockParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
@@ -61,7 +61,7 @@ pub async fn read_document_request(token: &str, params: BlockId, url: &str) -> R
     Ok(doc)
 }
 
-pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
+pub async fn reset_doc_request(token: &str, params: ResetBlockParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

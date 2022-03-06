@@ -27,7 +27,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.document_manager.open_block(&test.view.id).await.unwrap();
+        let editor = sdk.block_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 
@@ -77,7 +77,7 @@ impl EditorTest {
                 let delta = self.editor.doc_delta().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);
-                    eprintln!("❌ receive: {}", delta.to_delta_json());
+                    eprintln!("❌ receive: {}", delta.to_delta_str());
                 }
                 assert_eq!(expected_delta, delta);
             }

@@ -7,7 +7,6 @@ export './src/widget/toolbar/tool_bar.dart';
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
@@ -16,12 +15,13 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/share.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-block/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
@@ -47,16 +47,15 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => "Doc";
 
   @override
-  PluginType get pluginType => DefaultPlugin.quillEditor.type();
+  PluginType get pluginType => DefaultPlugin.quill.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.RichText;
+  ViewDataType get dataType => ViewDataType.Block;
 }
 
 class DocumentPlugin implements Plugin {
   late View _view;
   ViewListener? _listener;
-  final ValueNotifier<int> _displayNotifier = ValueNotifier<int>(0);
   late PluginType _pluginType;
 
   DocumentPlugin({required PluginType pluginType, required View view, Key? key}) : _view = view {
@@ -66,7 +65,7 @@ class DocumentPlugin implements Plugin {
       result.fold(
         (newView) {
           _view = newView;
-          _displayNotifier.value = _view.hashCode;
+          display.notifier!.value = _view.hashCode;
         },
         (error) {},
       );
@@ -81,19 +80,17 @@ class DocumentPlugin implements Plugin {
   }
 
   @override
-  PluginDisplay get pluginDisplay => DocumentPluginDisplay(view: _view);
+  PluginDisplay<int> get display => DocumentPluginDisplay(view: _view);
 
   @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 
   @override
-  PluginId get pluginId => _view.id;
-
-  @override
-  ChangeNotifier? get displayNotifier => _displayNotifier;
+  PluginId get id => _view.id;
 }
 
-class DocumentPluginDisplay extends PluginDisplay {
+class DocumentPluginDisplay extends PluginDisplay<int> {
+  final PublishNotifier<int> _displayNotifier = PublishNotifier<int>();
   final View _view;
 
   DocumentPluginDisplay({required View view, Key? key}) : _view = view;
@@ -109,6 +106,9 @@ class DocumentPluginDisplay extends PluginDisplay {
 
   @override
   List<NavigationItem> get navigationItems => _makeNavigationItems();
+
+  @override
+  PublishNotifier<int>? get notifier => _displayNotifier;
 
   List<NavigationItem> _makeNavigationItems() {
     return [
@@ -257,7 +257,7 @@ class DocumentShareButton extends StatelessWidget {
             context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
             break;
           case ShareAction.copyLink:
-            showWorkInProgressDialog(context);
+            FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
             break;
         }
       });
@@ -268,10 +268,6 @@ class DocumentShareButton extends StatelessWidget {
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
       anchorOffset: offset,
     );
-  }
-
-  void showWorkInProgressDialog(BuildContext context) {
-    FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
   }
 }
 

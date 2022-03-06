@@ -17,7 +17,7 @@ enum FolderEvent {
     DeleteView = 204;
     DuplicateView = 205;
     CopyLink = 206;
-    OpenView = 207;
+    SetLatestView = 207;
     CloseView = 208;
     ReadTrash = 300;
     PutbackTrash = 301;

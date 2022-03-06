@@ -22,6 +22,13 @@ table! {
 }
 
 table! {
+    kv_table (key) {
+        key -> Text,
+        value -> Binary,
+    }
+}
+
+table! {
     rev_table (id) {
         id -> Integer,
         doc_id -> Text,
@@ -84,6 +91,7 @@ table! {
 allow_tables_to_appear_in_same_query!(
     app_table,
     doc_table,
+    kv_table,
     rev_table,
     trash_table,
     user_table,

@@ -56,6 +56,6 @@ message UpdateViewParams {
     oneof one_of_thumbnail { string thumbnail = 4; };
 }
 enum ViewDataType {
-    RichText = 0;
-    PlainText = 1;
+    Block = 0;
+    Grid = 1;
 }

@@ -14,7 +14,7 @@ use flowy_user::{
     event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
-use lib_infra::uuid_string;
+use lib_infra::uuid;
 use std::{fs, path::PathBuf, sync::Arc};
 
 pub struct ViewTest {
@@ -88,7 +88,7 @@ async fn create_view(sdk: &FlowySDKTest, app_id: &str) -> View {
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
-        data_type: ViewDataType::RichText,
+        data_type: ViewDataType::Block,
         ext_data: "".to_string(),
         plugin_type: 0,
     };
@@ -118,7 +118,7 @@ pub fn root_dir() -> String {
 }
 
 pub fn random_email() -> String {
-    format!("{}@appflowy.io", uuid_string())
+    format!("{}@appflowy.io", uuid())
 }
 
 pub fn login_email() -> String {

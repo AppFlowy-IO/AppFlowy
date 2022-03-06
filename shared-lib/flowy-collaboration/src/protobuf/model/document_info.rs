@@ -242,7 +242,7 @@ impl ::protobuf::reflect::ProtobufValue for CreateBlockParams {
 #[derive(PartialEq,Clone,Default)]
 pub struct BlockInfo {
     // message fields
-    pub doc_id: ::std::string::String,
+    pub block_id: ::std::string::String,
     pub text: ::std::string::String,
     pub rev_id: i64,
     pub base_rev_id: i64,
@@ -262,30 +262,30 @@ impl BlockInfo {
         ::std::default::Default::default()
     }
 
-    // string doc_id = 1;
+    // string block_id = 1;
 
 
-    pub fn get_doc_id(&self) -> &str {
-        &self.doc_id
+    pub fn get_block_id(&self) -> &str {
+        &self.block_id
     }
-    pub fn clear_doc_id(&mut self) {
-        self.doc_id.clear();
+    pub fn clear_block_id(&mut self) {
+        self.block_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_doc_id(&mut self, v: ::std::string::String) {
-        self.doc_id = v;
+    pub fn set_block_id(&mut self, v: ::std::string::String) {
+        self.block_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_doc_id(&mut self) -> &mut ::std::string::String {
-        &mut self.doc_id
+    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
+        &mut self.block_id
     }
 
     // Take field
-    pub fn take_doc_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
+    pub fn take_block_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
     // string text = 2;
@@ -355,7 +355,7 @@ impl ::protobuf::Message for BlockInfo {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.text)?;
@@ -386,8 +386,8 @@ impl ::protobuf::Message for BlockInfo {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.doc_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.doc_id);
+        if !self.block_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.block_id);
         }
         if !self.text.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.text);
@@ -404,8 +404,8 @@ impl ::protobuf::Message for BlockInfo {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.doc_id.is_empty() {
-            os.write_string(1, &self.doc_id)?;
+        if !self.block_id.is_empty() {
+            os.write_string(1, &self.block_id)?;
         }
         if !self.text.is_empty() {
             os.write_string(2, &self.text)?;
@@ -455,9 +455,9 @@ impl ::protobuf::Message for BlockInfo {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "doc_id",
-                |m: &BlockInfo| { &m.doc_id },
-                |m: &mut BlockInfo| { &mut m.doc_id },
+                "block_id",
+                |m: &BlockInfo| { &m.block_id },
+                |m: &mut BlockInfo| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "text",
@@ -490,7 +490,7 @@ impl ::protobuf::Message for BlockInfo {
 
 impl ::protobuf::Clear for BlockInfo {
     fn clear(&mut self) {
-        self.doc_id.clear();
+        self.block_id.clear();
         self.text.clear();
         self.rev_id = 0;
         self.base_rev_id = 0;
@@ -511,50 +511,50 @@ impl ::protobuf::reflect::ProtobufValue for BlockInfo {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct ResetDocumentParams {
+pub struct ResetBlockParams {
     // message fields
-    pub doc_id: ::std::string::String,
+    pub block_id: ::std::string::String,
     pub revisions: ::protobuf::SingularPtrField<super::revision::RepeatedRevision>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a ResetDocumentParams {
-    fn default() -> &'a ResetDocumentParams {
-        <ResetDocumentParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a ResetBlockParams {
+    fn default() -> &'a ResetBlockParams {
+        <ResetBlockParams as ::protobuf::Message>::default_instance()
     }
 }
 
-impl ResetDocumentParams {
-    pub fn new() -> ResetDocumentParams {
+impl ResetBlockParams {
+    pub fn new() -> ResetBlockParams {
         ::std::default::Default::default()
     }
 
-    // string doc_id = 1;
+    // string block_id = 1;
 
 
-    pub fn get_doc_id(&self) -> &str {
-        &self.doc_id
+    pub fn get_block_id(&self) -> &str {
+        &self.block_id
     }
-    pub fn clear_doc_id(&mut self) {
-        self.doc_id.clear();
+    pub fn clear_block_id(&mut self) {
+        self.block_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_doc_id(&mut self, v: ::std::string::String) {
-        self.doc_id = v;
+    pub fn set_block_id(&mut self, v: ::std::string::String) {
+        self.block_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_doc_id(&mut self) -> &mut ::std::string::String {
-        &mut self.doc_id
+    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
+        &mut self.block_id
     }
 
     // Take field
-    pub fn take_doc_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
+    pub fn take_block_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
     // .RepeatedRevision revisions = 2;
@@ -591,7 +591,7 @@ impl ResetDocumentParams {
     }
 }
 
-impl ::protobuf::Message for ResetDocumentParams {
+impl ::protobuf::Message for ResetBlockParams {
     fn is_initialized(&self) -> bool {
         for v in &self.revisions {
             if !v.is_initialized() {
@@ -606,7 +606,7 @@ impl ::protobuf::Message for ResetDocumentParams {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.revisions)?;
@@ -623,8 +623,8 @@ impl ::protobuf::Message for ResetDocumentParams {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.doc_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.doc_id);
+        if !self.block_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.block_id);
         }
         if let Some(ref v) = self.revisions.as_ref() {
             let len = v.compute_size();
@@ -636,8 +636,8 @@ impl ::protobuf::Message for ResetDocumentParams {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.doc_id.is_empty() {
-            os.write_string(1, &self.doc_id)?;
+        if !self.block_id.is_empty() {
+            os.write_string(1, &self.block_id)?;
         }
         if let Some(ref v) = self.revisions.as_ref() {
             os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
@@ -674,8 +674,8 @@ impl ::protobuf::Message for ResetDocumentParams {
         Self::descriptor_static()
     }
 
-    fn new() -> ResetDocumentParams {
-        ResetDocumentParams::new()
+    fn new() -> ResetBlockParams {
+        ResetBlockParams::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -683,44 +683,44 @@ impl ::protobuf::Message for ResetDocumentParams {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "doc_id",
-                |m: &ResetDocumentParams| { &m.doc_id },
-                |m: &mut ResetDocumentParams| { &mut m.doc_id },
+                "block_id",
+                |m: &ResetBlockParams| { &m.block_id },
+                |m: &mut ResetBlockParams| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::revision::RepeatedRevision>>(
                 "revisions",
-                |m: &ResetDocumentParams| { &m.revisions },
-                |m: &mut ResetDocumentParams| { &mut m.revisions },
+                |m: &ResetBlockParams| { &m.revisions },
+                |m: &mut ResetBlockParams| { &mut m.revisions },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ResetDocumentParams>(
-                "ResetDocumentParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ResetBlockParams>(
+                "ResetBlockParams",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static ResetDocumentParams {
-        static instance: ::protobuf::rt::LazyV2<ResetDocumentParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(ResetDocumentParams::new)
+    fn default_instance() -> &'static ResetBlockParams {
+        static instance: ::protobuf::rt::LazyV2<ResetBlockParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ResetBlockParams::new)
     }
 }
 
-impl ::protobuf::Clear for ResetDocumentParams {
+impl ::protobuf::Clear for ResetBlockParams {
     fn clear(&mut self) {
-        self.doc_id.clear();
+        self.block_id.clear();
         self.revisions.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for ResetDocumentParams {
+impl ::std::fmt::Debug for ResetBlockParams {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ResetDocumentParams {
+impl ::protobuf::reflect::ProtobufValue for ResetBlockParams {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -730,7 +730,7 @@ impl ::protobuf::reflect::ProtobufValue for ResetDocumentParams {
 pub struct BlockDelta {
     // message fields
     pub block_id: ::std::string::String,
-    pub delta_json: ::std::string::String,
+    pub delta_str: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -773,30 +773,30 @@ impl BlockDelta {
         ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
-    // string delta_json = 2;
+    // string delta_str = 2;
 
 
-    pub fn get_delta_json(&self) -> &str {
-        &self.delta_json
+    pub fn get_delta_str(&self) -> &str {
+        &self.delta_str
     }
-    pub fn clear_delta_json(&mut self) {
-        self.delta_json.clear();
+    pub fn clear_delta_str(&mut self) {
+        self.delta_str.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_delta_json(&mut self, v: ::std::string::String) {
-        self.delta_json = v;
+    pub fn set_delta_str(&mut self, v: ::std::string::String) {
+        self.delta_str = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_delta_json(&mut self) -> &mut ::std::string::String {
-        &mut self.delta_json
+    pub fn mut_delta_str(&mut self) -> &mut ::std::string::String {
+        &mut self.delta_str
     }
 
     // Take field
-    pub fn take_delta_json(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.delta_json, ::std::string::String::new())
+    pub fn take_delta_str(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.delta_str, ::std::string::String::new())
     }
 }
 
@@ -813,7 +813,7 @@ impl ::protobuf::Message for BlockDelta {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.delta_json)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.delta_str)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -830,8 +830,8 @@ impl ::protobuf::Message for BlockDelta {
         if !self.block_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.block_id);
         }
-        if !self.delta_json.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.delta_json);
+        if !self.delta_str.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.delta_str);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -842,8 +842,8 @@ impl ::protobuf::Message for BlockDelta {
         if !self.block_id.is_empty() {
             os.write_string(1, &self.block_id)?;
         }
-        if !self.delta_json.is_empty() {
-            os.write_string(2, &self.delta_json)?;
+        if !self.delta_str.is_empty() {
+            os.write_string(2, &self.delta_str)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -889,9 +889,9 @@ impl ::protobuf::Message for BlockDelta {
                 |m: &mut BlockDelta| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "delta_json",
-                |m: &BlockDelta| { &m.delta_json },
-                |m: &mut BlockDelta| { &mut m.delta_json },
+                "delta_str",
+                |m: &BlockDelta| { &m.delta_str },
+                |m: &mut BlockDelta| { &mut m.delta_str },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<BlockDelta>(
                 "BlockDelta",
@@ -910,7 +910,7 @@ impl ::protobuf::Message for BlockDelta {
 impl ::protobuf::Clear for BlockDelta {
     fn clear(&mut self) {
         self.block_id.clear();
-        self.delta_json.clear();
+        self.delta_str.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1325,17 +1325,18 @@ impl ::protobuf::reflect::ProtobufValue for BlockId {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x13document_info.proto\x1a\x0erevision.proto\"T\n\x11CreateBlockParam\
     s\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12/\n\trevisions\x18\x02\
-    \x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"m\n\tBlockInfo\x12\x15\
-    \n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\x12\n\x04text\x18\x02\x20\
-    \x01(\tR\x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\x12\
-    \x1e\n\x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"]\n\x13ResetDocu\
-    mentParams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12/\n\trevi\
-    sions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"F\n\nBlock\
-    Delta\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\x1d\n\nde\
-    lta_json\x18\x02\x20\x01(\tR\tdeltaJson\"S\n\nNewDocUser\x12\x17\n\x07us\
-    er_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\
-    \x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05docId\"\x1f\n\
-    \x07BlockId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05valueb\x06proto3\
+    \x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"q\n\tBlockInfo\x12\x19\
+    \n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\x12\n\x04text\x18\x02\
+    \x20\x01(\tR\x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\
+    \x12\x1e\n\x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"^\n\x10Reset\
+    BlockParams\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12/\n\
+    \trevisions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"D\n\
+    \nBlockDelta\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\
+    \x1b\n\tdelta_str\x18\x02\x20\x01(\tR\x08deltaStr\"S\n\nNewDocUser\x12\
+    \x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\
+    \x02\x20\x01(\x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05d\
+    ocId\"\x1f\n\x07BlockId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05valueb\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

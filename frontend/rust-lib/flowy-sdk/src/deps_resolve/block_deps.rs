@@ -25,13 +25,13 @@ impl BlockDepsResolver {
         server_config: &ClientServerConfiguration,
     ) -> Arc<BlockManager> {
         let user = Arc::new(BlockUserImpl(user_session));
-        let ws_sender = Arc::new(BlockWebSocket(ws_conn.clone()));
+        let rev_web_socket = Arc::new(BlockWebSocket(ws_conn.clone()));
         let cloud_service: Arc<dyn BlockCloudService> = match local_server {
             None => Arc::new(BlockHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
         };
 
-        let manager = Arc::new(BlockManager::new(cloud_service, user, ws_sender));
+        let manager = Arc::new(BlockManager::new(cloud_service, user, rev_web_socket));
         let receiver = Arc::new(DocumentWSMessageReceiverImpl(manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
 

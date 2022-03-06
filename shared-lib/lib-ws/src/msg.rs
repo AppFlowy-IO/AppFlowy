@@ -12,10 +12,12 @@ pub struct WebSocketRawMessage {
     pub data: Vec<u8>,
 }
 
+// The lib-ws crate should not contain business logic.So WSChannel should be removed into another place.
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum WSChannel {
     Document = 0,
     Folder = 1,
+    Grid = 2,
 }
 
 impl std::default::Default for WSChannel {
@@ -29,6 +31,7 @@ impl ToString for WSChannel {
         match self {
             WSChannel::Document => "0".to_string(),
             WSChannel::Folder => "1".to_string(),
+            WSChannel::Grid => "2".to_string(),
         }
     }
 }

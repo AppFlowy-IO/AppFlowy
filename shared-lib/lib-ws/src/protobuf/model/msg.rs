@@ -217,6 +217,7 @@ impl ::protobuf::reflect::ProtobufValue for WebSocketRawMessage {
 pub enum WSChannel {
     Document = 0,
     Folder = 1,
+    Grid = 2,
 }
 
 impl ::protobuf::ProtobufEnum for WSChannel {
@@ -228,6 +229,7 @@ impl ::protobuf::ProtobufEnum for WSChannel {
         match value {
             0 => ::std::option::Option::Some(WSChannel::Document),
             1 => ::std::option::Option::Some(WSChannel::Folder),
+            2 => ::std::option::Option::Some(WSChannel::Grid),
             _ => ::std::option::Option::None
         }
     }
@@ -236,6 +238,7 @@ impl ::protobuf::ProtobufEnum for WSChannel {
         static values: &'static [WSChannel] = &[
             WSChannel::Document,
             WSChannel::Folder,
+            WSChannel::Grid,
         ];
         values
     }
@@ -266,8 +269,8 @@ impl ::protobuf::reflect::ProtobufValue for WSChannel {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\tmsg.proto\"O\n\x13WebSocketRawMessage\x12$\n\x07channel\x18\x01\x20\
     \x01(\x0e2\n.WSChannelR\x07channel\x12\x12\n\x04data\x18\x02\x20\x01(\
-    \x0cR\x04data*%\n\tWSChannel\x12\x0c\n\x08Document\x10\0\x12\n\n\x06Fold\
-    er\x10\x01b\x06proto3\
+    \x0cR\x04data*/\n\tWSChannel\x12\x0c\n\x08Document\x10\0\x12\n\n\x06Fold\
+    er\x10\x01\x12\x08\n\x04Grid\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

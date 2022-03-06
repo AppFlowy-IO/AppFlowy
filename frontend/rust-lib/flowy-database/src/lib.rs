@@ -6,12 +6,10 @@ pub mod kv;
 
 use lib_sqlite::PoolConfig;
 pub use lib_sqlite::{ConnectionPool, DBConnection, Database};
-
 pub mod schema;
 
 #[macro_use]
 pub mod macros;
-
 #[macro_use]
 extern crate diesel;
 #[macro_use]
@@ -20,11 +18,11 @@ extern crate diesel_derives;
 extern crate diesel_migrations;
 
 pub type Error = diesel::result::Error;
-
 pub mod prelude {
-    pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
-
     pub use super::UserDatabaseConnection;
+    pub use crate::*;
+    pub use diesel::SqliteConnection;
+    pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
 }
 
 embed_migrations!("../flowy-database/migrations/");

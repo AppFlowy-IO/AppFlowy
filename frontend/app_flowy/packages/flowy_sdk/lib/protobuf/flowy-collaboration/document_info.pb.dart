@@ -77,7 +77,7 @@ class CreateBlockParams extends $pb.GeneratedMessage {
 
 class BlockInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BlockInfo', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
@@ -86,14 +86,14 @@ class BlockInfo extends $pb.GeneratedMessage {
 
   BlockInfo._() : super();
   factory BlockInfo({
-    $core.String? docId,
+    $core.String? blockId,
     $core.String? text,
     $fixnum.Int64? revId,
     $fixnum.Int64? baseRevId,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (blockId != null) {
+      _result.blockId = blockId;
     }
     if (text != null) {
       _result.text = text;
@@ -128,13 +128,13 @@ class BlockInfo extends $pb.GeneratedMessage {
   static BlockInfo? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get blockId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set blockId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasBlockId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get text => $_getSZ(1);
@@ -164,56 +164,56 @@ class BlockInfo extends $pb.GeneratedMessage {
   void clearBaseRevId() => clearField(4);
 }
 
-class ResetDocumentParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ResetDocumentParams', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+class ResetBlockParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ResetBlockParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..aOM<$0.RepeatedRevision>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisions', subBuilder: $0.RepeatedRevision.create)
     ..hasRequiredFields = false
   ;
 
-  ResetDocumentParams._() : super();
-  factory ResetDocumentParams({
-    $core.String? docId,
+  ResetBlockParams._() : super();
+  factory ResetBlockParams({
+    $core.String? blockId,
     $0.RepeatedRevision? revisions,
   }) {
     final _result = create();
-    if (docId != null) {
-      _result.docId = docId;
+    if (blockId != null) {
+      _result.blockId = blockId;
     }
     if (revisions != null) {
       _result.revisions = revisions;
     }
     return _result;
   }
-  factory ResetDocumentParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ResetDocumentParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ResetBlockParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ResetBlockParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ResetDocumentParams clone() => ResetDocumentParams()..mergeFromMessage(this);
+  ResetBlockParams clone() => ResetBlockParams()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ResetDocumentParams copyWith(void Function(ResetDocumentParams) updates) => super.copyWith((message) => updates(message as ResetDocumentParams)) as ResetDocumentParams; // ignore: deprecated_member_use
+  ResetBlockParams copyWith(void Function(ResetBlockParams) updates) => super.copyWith((message) => updates(message as ResetBlockParams)) as ResetBlockParams; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ResetDocumentParams create() => ResetDocumentParams._();
-  ResetDocumentParams createEmptyInstance() => create();
-  static $pb.PbList<ResetDocumentParams> createRepeated() => $pb.PbList<ResetDocumentParams>();
+  static ResetBlockParams create() => ResetBlockParams._();
+  ResetBlockParams createEmptyInstance() => create();
+  static $pb.PbList<ResetBlockParams> createRepeated() => $pb.PbList<ResetBlockParams>();
   @$core.pragma('dart2js:noInline')
-  static ResetDocumentParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResetDocumentParams>(create);
-  static ResetDocumentParams? _defaultInstance;
+  static ResetBlockParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResetBlockParams>(create);
+  static ResetBlockParams? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get docId => $_getSZ(0);
+  $core.String get blockId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set docId($core.String v) { $_setString(0, v); }
+  set blockId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasDocId() => $_has(0);
+  $core.bool hasBlockId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearDocId() => clearField(1);
+  void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
   $0.RepeatedRevision get revisions => $_getN(1);
@@ -230,21 +230,21 @@ class ResetDocumentParams extends $pb.GeneratedMessage {
 class BlockDelta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BlockDelta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaJson')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaStr')
     ..hasRequiredFields = false
   ;
 
   BlockDelta._() : super();
   factory BlockDelta({
     $core.String? blockId,
-    $core.String? deltaJson,
+    $core.String? deltaStr,
   }) {
     final _result = create();
     if (blockId != null) {
       _result.blockId = blockId;
     }
-    if (deltaJson != null) {
-      _result.deltaJson = deltaJson;
+    if (deltaStr != null) {
+      _result.deltaStr = deltaStr;
     }
     return _result;
   }
@@ -279,13 +279,13 @@ class BlockDelta extends $pb.GeneratedMessage {
   void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get deltaJson => $_getSZ(1);
+  $core.String get deltaStr => $_getSZ(1);
   @$pb.TagNumber(2)
-  set deltaJson($core.String v) { $_setString(1, v); }
+  set deltaStr($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasDeltaJson() => $_has(1);
+  $core.bool hasDeltaStr() => $_has(1);
   @$pb.TagNumber(2)
-  void clearDeltaJson() => clearField(2);
+  void clearDeltaStr() => clearField(2);
 }
 
 class NewDocUser extends $pb.GeneratedMessage {

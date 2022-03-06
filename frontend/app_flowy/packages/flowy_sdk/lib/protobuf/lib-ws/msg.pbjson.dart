@@ -14,11 +14,12 @@ const WSChannel$json = const {
   '2': const [
     const {'1': 'Document', '2': 0},
     const {'1': 'Folder', '2': 1},
+    const {'1': 'Grid', '2': 2},
   ],
 };
 
 /// Descriptor for `WSChannel`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wSChannelDescriptor = $convert.base64Decode('CglXU0NoYW5uZWwSDAoIRG9jdW1lbnQQABIKCgZGb2xkZXIQAQ==');
+final $typed_data.Uint8List wSChannelDescriptor = $convert.base64Decode('CglXU0NoYW5uZWwSDAoIRG9jdW1lbnQQABIKCgZGb2xkZXIQARIICgRHcmlkEAI=');
 @$core.Deprecated('Use webSocketRawMessageDescriptor instead')
 const WebSocketRawMessage$json = const {
   '1': 'WebSocketRawMessage',

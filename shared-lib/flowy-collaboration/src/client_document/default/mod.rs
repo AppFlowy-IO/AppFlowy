@@ -1,13 +1,13 @@
 use lib_ot::{core::DeltaBuilder, rich_text::RichTextDelta};
 
 #[inline]
-pub fn initial_delta() -> RichTextDelta {
+pub fn initial_quill_delta() -> RichTextDelta {
     DeltaBuilder::new().insert("\n").build()
 }
 
 #[inline]
-pub fn initial_delta_string() -> String {
-    initial_delta().to_delta_json()
+pub fn initial_quill_delta_string() -> String {
+    initial_quill_delta().to_delta_str()
 }
 
 #[inline]
@@ -22,6 +22,6 @@ mod tests {
 
     #[test]
     fn load_read_me() {
-        println!("{}", initial_read_me().to_delta_json());
+        println!("{}", initial_read_me().to_delta_str());
     }
 }

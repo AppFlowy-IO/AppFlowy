@@ -4,7 +4,7 @@ use flowy_collaboration::{
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
 };
 
-use crate::controller::FolderId;
+use crate::manager::FolderId;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{

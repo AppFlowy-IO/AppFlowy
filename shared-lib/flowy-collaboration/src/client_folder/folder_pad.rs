@@ -1,3 +1,4 @@
+use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
     entities::{
@@ -6,9 +7,9 @@ use crate::{
     },
     errors::{CollaborateError, CollaborateResult},
 };
-use dissimilar::*;
 use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-use lib_ot::core::{FlowyStr, OperationTransformable, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::*;
+
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -17,35 +18,7 @@ pub struct FolderPad {
     pub(crate) workspaces: Vec<Arc<Workspace>>,
     pub(crate) trash: Vec<Arc<Trash>>,
     #[serde(skip)]
-    pub(crate) root: FolderDelta,
-}
-
-pub fn default_folder_delta() -> FolderDelta {
-    PlainTextDeltaBuilder::new()
-        .insert(r#"{"workspaces":[],"trash":[]}"#)
-        .build()
-}
-
-pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderDelta> {
-    let json = folder_pad.to_json()?;
-    let delta = PlainTextDeltaBuilder::new().insert(&json).build();
-    Ok(delta)
-}
-
-impl std::default::Default for FolderPad {
-    fn default() -> Self {
-        FolderPad {
-            workspaces: vec![],
-            trash: vec![],
-            root: default_folder_delta(),
-        }
-    }
-}
-
-pub struct FolderChange {
-    pub delta: FolderDelta,
-    /// md5: the md5 of the FolderPad's delta after applying the change.
-    pub md5: String,
+    pub(crate) delta: FolderDelta,
 }
 
 impl FolderPad {
@@ -65,20 +38,20 @@ impl FolderPad {
     }
 
     pub fn delta(&self) -> &FolderDelta {
-        &self.root
+        &self.delta
     }
 
     pub fn reset_folder(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
         let folder = FolderPad::from_delta(delta)?;
         self.workspaces = folder.workspaces;
         self.trash = folder.trash;
-        self.root = folder.root;
+        self.delta = folder.delta;
 
         Ok(self.md5())
     }
 
     pub fn compose_remote_delta(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
-        let composed_delta = self.root.compose(&delta)?;
+        let composed_delta = self.delta.compose(&delta)?;
         self.reset_folder(composed_delta)
     }
 
@@ -295,7 +268,7 @@ impl FolderPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.root.to_bytes())
+        md5(&self.delta.to_bytes())
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
@@ -315,9 +288,13 @@ impl FolderPad {
             Some(_) => {
                 let old = cloned_self.to_json()?;
                 let new = self.to_json()?;
-                let delta = cal_diff(old, new);
-                self.root = self.root.compose(&delta)?;
-                Ok(Some(FolderChange { delta, md5: self.md5() }))
+                match cal_diff::<PlainTextAttributes>(old, new) {
+                    None => Ok(None),
+                    Some(delta) => {
+                        self.delta = self.delta.compose(&delta)?;
+                        Ok(Some(FolderChange { delta, md5: self.md5() }))
+                    }
+                }
             }
         }
     }
@@ -346,9 +323,13 @@ impl FolderPad {
             Some(_) => {
                 let old = cloned_self.to_json()?;
                 let new = self.to_json()?;
-                let delta = cal_diff(old, new);
-                self.root = self.root.compose(&delta)?;
-                Ok(Some(FolderChange { delta, md5: self.md5() }))
+                match cal_diff::<PlainTextAttributes>(old, new) {
+                    None => Ok(None),
+                    Some(delta) => {
+                        self.delta = self.delta.compose(&delta)?;
+                        Ok(Some(FolderChange { delta, md5: self.md5() }))
+                    }
+                }
             }
         }
     }
@@ -391,23 +372,32 @@ impl FolderPad {
     }
 }
 
-fn cal_diff(old: String, new: String) -> PlainTextDelta {
-    let chunks = dissimilar::diff(&old, &new);
-    let mut delta_builder = PlainTextDeltaBuilder::new();
-    for chunk in &chunks {
-        match chunk {
-            Chunk::Equal(s) => {
-                delta_builder = delta_builder.retain(FlowyStr::from(*s).utf16_size());
-            }
-            Chunk::Delete(s) => {
-                delta_builder = delta_builder.delete(FlowyStr::from(*s).utf16_size());
-            }
-            Chunk::Insert(s) => {
-                delta_builder = delta_builder.insert(*s);
-            }
+pub fn default_folder_delta() -> FolderDelta {
+    PlainTextDeltaBuilder::new()
+        .insert(r#"{"workspaces":[],"trash":[]}"#)
+        .build()
+}
+
+pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderDelta> {
+    let json = folder_pad.to_json()?;
+    let delta = PlainTextDeltaBuilder::new().insert(&json).build();
+    Ok(delta)
+}
+
+impl std::default::Default for FolderPad {
+    fn default() -> Self {
+        FolderPad {
+            workspaces: vec![],
+            trash: vec![],
+            delta: default_folder_delta(),
         }
     }
-    delta_builder.build()
+}
+
+pub struct FolderChange {
+    pub delta: FolderDelta,
+    /// md5: the md5 of the FolderPad's delta after applying the change.
+    pub md5: String,
 }
 
 #[cfg(test)]

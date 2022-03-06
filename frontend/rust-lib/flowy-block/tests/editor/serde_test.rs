@@ -92,7 +92,7 @@ fn delta_deserialize_null_test() {
     attribute.value = RichTextAttributeValue(None);
     let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
 
-    assert_eq!(delta2.to_delta_json(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    assert_eq!(delta2.to_delta_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     assert_eq!(delta1, delta2);
 }
 
@@ -108,10 +108,10 @@ fn document_insert_serde_test() {
     let mut document = ClientDocument::new::<PlainDoc>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
-    let json = document.to_json();
+    let json = document.delta_str();
     assert_eq!(r#"[{"insert":"123\n"}]"#, json);
     assert_eq!(
         r#"[{"insert":"123\n"}]"#,
-        ClientDocument::from_json(&json).unwrap().to_json()
+        ClientDocument::from_json(&json).unwrap().delta_str()
     );
 }

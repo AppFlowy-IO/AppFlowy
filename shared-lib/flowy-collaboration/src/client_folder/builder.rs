@@ -41,10 +41,9 @@ impl FolderPadBuilder {
 
         // TODO: Reconvert from history if delta.to_str() failed.
         let folder_json = delta.to_str()?;
-        let mut folder: FolderPad = serde_json::from_str(&folder_json).map_err(|e| {
-            CollaborateError::internal().context(format!("Deserialize json to root folder failed: {}", e))
-        })?;
-        folder.root = delta;
+        let mut folder: FolderPad = serde_json::from_str(&folder_json)
+            .map_err(|e| CollaborateError::internal().context(format!("Deserialize delta to folder failed: {}", e)))?;
+        folder.delta = delta;
         Ok(folder)
     }
 
@@ -55,11 +54,11 @@ impl FolderPadBuilder {
 
     pub(crate) fn build(self) -> CollaborateResult<FolderPad> {
         let json = serde_json::to_string(&self)
-            .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))?;
+            .map_err(|e| CollaborateError::internal().context(format!("Serialize to folder json str failed: {}", e)))?;
         Ok(FolderPad {
             workspaces: self.workspaces,
             trash: self.trash,
-            root: PlainTextDeltaBuilder::new().insert(&json).build(),
+            delta: PlainTextDeltaBuilder::new().insert(&json).build(),
         })
     }
 }

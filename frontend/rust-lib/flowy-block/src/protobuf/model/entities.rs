@@ -17,7 +17,7 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `share.proto`
+//! Generated file from `entities.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -457,12 +457,12 @@ impl ::protobuf::reflect::ProtobufValue for ExportType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bshare.proto\"V\n\rExportPayload\x12\x17\n\x07view_id\x18\x01\x20\
-    \x01(\tR\x06viewId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.Expor\
-    tTypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\t\
-    R\x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportTypeR\ne\
-    xportType*.\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08Markdown\
-    \x10\x01\x12\x08\n\x04Link\x10\x02b\x06proto3\
+    \n\x0eentities.proto\"V\n\rExportPayload\x12\x17\n\x07view_id\x18\x01\
+    \x20\x01(\tR\x06viewId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.E\
+    xportTypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\
+    \x01(\tR\x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportT\
+    ypeR\nexportType*.\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08Ma\
+    rkdown\x10\x01\x12\x08\n\x04Link\x10\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

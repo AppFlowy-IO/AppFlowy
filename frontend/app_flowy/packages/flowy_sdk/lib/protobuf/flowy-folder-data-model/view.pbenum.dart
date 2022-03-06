@@ -10,12 +10,12 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class ViewDataType extends $pb.ProtobufEnum {
-  static const ViewDataType RichText = ViewDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RichText');
-  static const ViewDataType PlainText = ViewDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PlainText');
+  static const ViewDataType Block = ViewDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Block');
+  static const ViewDataType Grid = ViewDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Grid');
 
   static const $core.List<ViewDataType> values = <ViewDataType> [
-    RichText,
-    PlainText,
+    Block,
+    Grid,
   ];
 
   static final $core.Map<$core.int, ViewDataType> _byValue = $pb.ProtobufEnum.initByValue(values);

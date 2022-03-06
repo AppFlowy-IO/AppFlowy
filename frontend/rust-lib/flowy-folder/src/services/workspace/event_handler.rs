@@ -1,7 +1,7 @@
 use crate::{
-    controller::FolderManager,
     dart_notification::{send_dart_notification, FolderNotification},
     errors::FlowyError,
+    manager::FolderManager,
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
 };
 use flowy_folder_data_model::entities::{

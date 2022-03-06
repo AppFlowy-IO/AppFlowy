@@ -17,7 +17,7 @@ pub struct CreateBlockParams {
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
 pub struct BlockInfo {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub text: String,
@@ -46,10 +46,10 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
         }
 
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-        let doc_json = delta.to_delta_json();
+        let doc_json = delta.to_delta_str();
 
         Ok(BlockInfo {
-            doc_id: revision.object_id,
+            block_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,
@@ -58,9 +58,9 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct ResetDocumentParams {
+pub struct ResetBlockParams {
     #[pb(index = 1)]
-    pub doc_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub revisions: RepeatedRevision,
@@ -72,7 +72,7 @@ pub struct BlockDelta {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub delta_json: String,
+    pub delta_str: String,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -92,6 +92,11 @@ pub struct BlockId {
     #[pb(index = 1)]
     pub value: String,
 }
+impl AsRef<str> for BlockId {
+    fn as_ref(&self) -> &str {
+        &self.value
+    }
+}
 
 impl std::convert::From<String> for BlockId {
     fn from(value: String) -> Self {
@@ -99,10 +104,14 @@ impl std::convert::From<String> for BlockId {
     }
 }
 
+impl std::convert::From<BlockId> for String {
+    fn from(block_id: BlockId) -> Self {
+        block_id.value
+    }
+}
+
 impl std::convert::From<&String> for BlockId {
-    fn from(doc_id: &String) -> Self {
-        BlockId {
-            value: doc_id.to_owned(),
-        }
+    fn from(s: &String) -> Self {
+        BlockId { value: s.to_owned() }
     }
 }
