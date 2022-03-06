@@ -25,8 +25,9 @@
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum BlockEvent {
-    ApplyDocDelta = 0,
-    ExportDocument = 1,
+    GetBlockData = 0,
+    ApplyDelta = 1,
+    ExportDocument = 2,
 }
 
 impl ::protobuf::ProtobufEnum for BlockEvent {
@@ -36,15 +37,17 @@ impl ::protobuf::ProtobufEnum for BlockEvent {
 
     fn from_i32(value: i32) -> ::std::option::Option<BlockEvent> {
         match value {
-            0 => ::std::option::Option::Some(BlockEvent::ApplyDocDelta),
-            1 => ::std::option::Option::Some(BlockEvent::ExportDocument),
+            0 => ::std::option::Option::Some(BlockEvent::GetBlockData),
+            1 => ::std::option::Option::Some(BlockEvent::ApplyDelta),
+            2 => ::std::option::Option::Some(BlockEvent::ExportDocument),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
         static values: &'static [BlockEvent] = &[
-            BlockEvent::ApplyDocDelta,
+            BlockEvent::GetBlockData,
+            BlockEvent::ApplyDelta,
             BlockEvent::ExportDocument,
         ];
         values
@@ -63,7 +66,7 @@ impl ::std::marker::Copy for BlockEvent {
 
 impl ::std::default::Default for BlockEvent {
     fn default() -> Self {
-        BlockEvent::ApplyDocDelta
+        BlockEvent::GetBlockData
     }
 }
 
@@ -74,8 +77,9 @@ impl ::protobuf::reflect::ProtobufValue for BlockEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*3\n\nBlockEvent\x12\x11\n\rApplyDocDelta\x10\0\x12\
-    \x12\n\x0eExportDocument\x10\x01b\x06proto3\
+    \n\x0fevent_map.proto*B\n\nBlockEvent\x12\x10\n\x0cGetBlockData\x10\0\
+    \x12\x0e\n\nApplyDelta\x10\x01\x12\x12\n\x0eExportDocument\x10\x02b\x06p\
+    roto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

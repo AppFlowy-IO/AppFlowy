@@ -414,7 +414,7 @@ impl std::default::Default for FlowyMoney {
 
 impl FlowyMoney {
     // Currency list https://docs.rs/rusty-money/0.4.0/rusty_money/iso/index.html
-    pub fn from_str(s: &str) -> FlowyMoney {
+    pub fn from_symbol_str(s: &str) -> FlowyMoney {
         match s {
             "CNY" => FlowyMoney::CNY,
             "EUR" => FlowyMoney::EUR,
@@ -424,7 +424,7 @@ impl FlowyMoney {
     }
 
     pub fn from_money(money: &rusty_money::Money<Currency>) -> FlowyMoney {
-        FlowyMoney::from_str(&money.currency().symbol.to_string())
+        FlowyMoney::from_symbol_str(&money.currency().symbol.to_string())
     }
 
     pub fn currency(&self) -> &'static Currency {

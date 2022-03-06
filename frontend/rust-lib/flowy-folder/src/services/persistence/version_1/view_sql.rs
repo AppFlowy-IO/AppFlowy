@@ -84,8 +84,7 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view: View) -> Self {
         let data_type = match view.data_type {
-            ViewDataType::RichText => SqlViewDataType::RichText,
-            ViewDataType::PlainText => SqlViewDataType::PlainText,
+            ViewDataType::Block => SqlViewDataType::Block,
             ViewDataType::Grid => SqlViewDataType::Grid,
         };
 
@@ -107,8 +106,7 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for View {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::RichText => ViewDataType::RichText,
-            SqlViewDataType::PlainText => ViewDataType::PlainText,
+            SqlViewDataType::Block => ViewDataType::Block,
             SqlViewDataType::Grid => ViewDataType::Grid,
         };
 
@@ -179,26 +177,24 @@ impl ViewChangeset {
 #[repr(i32)]
 #[sql_type = "Integer"]
 pub enum SqlViewDataType {
-    RichText = 0,
-    PlainText = 1,
-    Grid = 2,
+    Block = 0,
+    Grid = 1,
 }
 
 impl std::default::Default for SqlViewDataType {
     fn default() -> Self {
-        SqlViewDataType::RichText
+        SqlViewDataType::Block
     }
 }
 
 impl std::convert::From<i32> for SqlViewDataType {
     fn from(value: i32) -> Self {
         match value {
-            0 => SqlViewDataType::RichText,
-            1 => SqlViewDataType::PlainText,
-            2 => SqlViewDataType::Grid,
+            0 => SqlViewDataType::Block,
+            1 => SqlViewDataType::Grid,
             o => {
-                log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
-                SqlViewDataType::PlainText
+                log::error!("Unsupported view type {}, fallback to ViewType::Block", o);
+                SqlViewDataType::Block
             }
         }
     }

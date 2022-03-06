@@ -8,7 +8,7 @@ use strum_macros::Display;
 pub fn create(grid_manager: Arc<GridManager>) -> Module {
     let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(grid_manager);
     module = module
-        .event(GridEvent::OpenGrid, open_grid_handler)
+        .event(GridEvent::GetGridData, get_grid_data_handler)
         .event(GridEvent::GetRows, get_rows_handler)
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::CreateRow, create_row_handler);
@@ -20,7 +20,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
 #[event_err = "FlowyError"]
 pub enum GridEvent {
     #[event(input = "GridId", output = "Grid")]
-    OpenGrid = 0,
+    GetGridData = 0,
 
     #[event(input = "QueryRowPayload", output = "RepeatedRow")]
     GetRows = 1,

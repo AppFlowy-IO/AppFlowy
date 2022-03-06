@@ -14,7 +14,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    document_info::{BlockDelta, BlockId},
+    document_info::BlockId,
     revision::{RepeatedRevision, Revision},
 };
 use flowy_database::kv::KV;
@@ -134,14 +134,9 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn open_view(&self, view_id: &str) -> Result<BlockDelta, FlowyError> {
-        let processor = self.get_data_processor_from_view_id(view_id).await?;
-        let delta_str = processor.delta_str(view_id).await?;
+    pub(crate) fn set_latest_view(&self, view_id: &str) -> Result<(), FlowyError> {
         KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
-        Ok(BlockDelta {
-            block_id: view_id.to_string(),
-            delta_str,
-        })
+        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -230,10 +225,6 @@ impl ViewController {
                 Ok(Some(view))
             }
         }
-    }
-
-    pub(crate) fn set_latest_view(&self, view: &View) {
-        KV::set_str(LATEST_VIEW_ID, view.id.clone());
     }
 }
 

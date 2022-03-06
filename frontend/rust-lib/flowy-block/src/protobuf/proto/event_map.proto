@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 enum BlockEvent {
-    ApplyDocDelta = 0;
-    ExportDocument = 1;
+    GetBlockData = 0;
+    ApplyDelta = 1;
+    ExportDocument = 2;
 }

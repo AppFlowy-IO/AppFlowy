@@ -11,7 +11,8 @@ use flowy_folder::{
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
-use flowy_grid::manager::{default_grid, GridManager};
+use flowy_grid::manager::GridManager;
+use flowy_grid::services::grid_builder::make_default_grid;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -178,7 +179,7 @@ impl ViewDataProcessor for BlockManagerViewDataImpl {
     }
 
     fn data_type(&self) -> ViewDataType {
-        ViewDataType::RichText
+        ViewDataType::Block
     }
 }
 
@@ -226,7 +227,7 @@ impl ViewDataProcessor for GridManagerViewDataImpl {
     }
 
     fn default_view_data(&self, view_id: &str) -> String {
-        default_grid(view_id)
+        make_default_grid(view_id, self.0.clone())
     }
 
     fn data_type(&self) -> ViewDataType {

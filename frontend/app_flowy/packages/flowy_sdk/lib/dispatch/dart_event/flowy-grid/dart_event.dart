@@ -1,13 +1,13 @@
 
 /// Auto generate. Do not edit
 part of '../../dispatch.dart';
-class GridEventOpenGrid {
+class GridEventGetGridData {
      GridId request;
-     GridEventOpenGrid(this.request);
+     GridEventGetGridData(this.request);
 
     Future<Either<Grid, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.OpenGrid.toString()
+          ..event = GridEvent.GetGridData.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

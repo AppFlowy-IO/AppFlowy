@@ -10,11 +10,13 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class BlockEvent extends $pb.ProtobufEnum {
-  static const BlockEvent ApplyDocDelta = BlockEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
-  static const BlockEvent ExportDocument = BlockEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
+  static const BlockEvent GetBlockData = BlockEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetBlockData');
+  static const BlockEvent ApplyDelta = BlockEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDelta');
+  static const BlockEvent ExportDocument = BlockEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
 
   static const $core.List<BlockEvent> values = <BlockEvent> [
-    ApplyDocDelta,
+    GetBlockData,
+    ApplyDelta,
     ExportDocument,
   ];
 

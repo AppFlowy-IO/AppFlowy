@@ -17,7 +17,7 @@ class GridPluginBuilder implements PluginBuilder {
   }
 
   @override
-  String get menuName => "Table";
+  String get menuName => "Grid";
 
   @override
   PluginType get pluginType => DefaultPlugin.grid.type();

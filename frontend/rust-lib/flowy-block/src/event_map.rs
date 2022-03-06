@@ -9,7 +9,8 @@ pub fn create(block_manager: Arc<BlockManager>) -> Module {
     let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(block_manager);
 
     module = module
-        .event(BlockEvent::ApplyDocDelta, apply_delta_handler)
+        .event(BlockEvent::GetBlockData, get_block_data_handler)
+        .event(BlockEvent::ApplyDelta, apply_delta_handler)
         .event(BlockEvent::ExportDocument, export_handler);
 
     module
@@ -18,9 +19,12 @@ pub fn create(block_manager: Arc<BlockManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum BlockEvent {
+    #[event(input = "BlockId", output = "BlockDelta")]
+    GetBlockData = 0,
+
     #[event(input = "BlockDelta", output = "BlockDelta")]
-    ApplyDocDelta = 0,
+    ApplyDelta = 1,
 
     #[event(input = "ExportPayload", output = "ExportData")]
-    ExportDocument = 1,
+    ExportDocument = 2,
 }

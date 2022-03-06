@@ -165,7 +165,7 @@ impl View {
         self.data_type
     }
     pub fn clear_data_type(&mut self) {
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
     }
 
     // Param is passed by value, moved
@@ -409,7 +409,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.desc);
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
         if self.version != 0 {
@@ -452,7 +452,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             os.write_string(4, &self.desc)?;
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
         if self.version != 0 {
@@ -596,7 +596,7 @@ impl ::protobuf::Clear for View {
         self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
         self.version = 0;
         self.belongings.clear();
         self.modified_time = 0;
@@ -952,7 +952,7 @@ impl CreateViewPayload {
         self.data_type
     }
     pub fn clear_data_type(&mut self) {
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
     }
 
     // Param is passed by value, moved
@@ -1060,7 +1060,7 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
         if !self.ext_data.is_empty() {
@@ -1091,7 +1091,7 @@ impl ::protobuf::Message for CreateViewPayload {
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
         if !self.ext_data.is_empty() {
@@ -1200,7 +1200,7 @@ impl ::protobuf::Clear for CreateViewPayload {
         self.name.clear();
         self.desc.clear();
         self.one_of_thumbnail = ::std::option::Option::None;
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
         self.ext_data.clear();
         self.plugin_type = 0;
         self.unknown_fields.clear();
@@ -1358,7 +1358,7 @@ impl CreateViewParams {
         self.data_type
     }
     pub fn clear_data_type(&mut self) {
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
     }
 
     // Param is passed by value, moved
@@ -1524,7 +1524,7 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.thumbnail);
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
         if !self.ext_data.is_empty() {
@@ -1557,7 +1557,7 @@ impl ::protobuf::Message for CreateViewParams {
         if !self.thumbnail.is_empty() {
             os.write_string(4, &self.thumbnail)?;
         }
-        if self.data_type != ViewDataType::RichText {
+        if self.data_type != ViewDataType::Block {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
         if !self.ext_data.is_empty() {
@@ -1675,7 +1675,7 @@ impl ::protobuf::Clear for CreateViewParams {
         self.name.clear();
         self.desc.clear();
         self.thumbnail.clear();
-        self.data_type = ViewDataType::RichText;
+        self.data_type = ViewDataType::Block;
         self.ext_data.clear();
         self.view_id.clear();
         self.data.clear();
@@ -2821,9 +2821,8 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ViewDataType {
-    RichText = 0,
-    PlainText = 1,
-    Grid = 2,
+    Block = 0,
+    Grid = 1,
 }
 
 impl ::protobuf::ProtobufEnum for ViewDataType {
@@ -2833,17 +2832,15 @@ impl ::protobuf::ProtobufEnum for ViewDataType {
 
     fn from_i32(value: i32) -> ::std::option::Option<ViewDataType> {
         match value {
-            0 => ::std::option::Option::Some(ViewDataType::RichText),
-            1 => ::std::option::Option::Some(ViewDataType::PlainText),
-            2 => ::std::option::Option::Some(ViewDataType::Grid),
+            0 => ::std::option::Option::Some(ViewDataType::Block),
+            1 => ::std::option::Option::Some(ViewDataType::Grid),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
         static values: &'static [ViewDataType] = &[
-            ViewDataType::RichText,
-            ViewDataType::PlainText,
+            ViewDataType::Block,
             ViewDataType::Grid,
         ];
         values
@@ -2862,7 +2859,7 @@ impl ::std::marker::Copy for ViewDataType {
 
 impl ::std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewDataType::RichText
+        ViewDataType::Block
     }
 }
 
@@ -2907,9 +2904,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\
     \x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\
     \x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\
-    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*5\n\x0cVi\
-    ewDataType\x12\x0c\n\x08RichText\x10\0\x12\r\n\tPlainText\x10\x01\x12\
-    \x08\n\x04Grid\x10\x02b\x06proto3\
+    \x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail*#\n\x0cVi\
+    ewDataType\x12\t\n\x05Block\x10\0\x12\x08\n\x04Grid\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

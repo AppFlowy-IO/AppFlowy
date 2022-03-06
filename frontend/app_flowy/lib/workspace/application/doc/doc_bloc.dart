@@ -85,7 +85,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     });
 
     listener.start();
-    final result = await service.openDocument(docId: view.id, dataType: view.dataType);
+    final result = await service.openDocument(docId: view.id);
     result.fold(
       (block) {
         document = _decodeJsonToDocument(block.deltaStr);

@@ -12,10 +12,11 @@ import 'dart:typed_data' as $typed_data;
 const BlockEvent$json = const {
   '1': 'BlockEvent',
   '2': const [
-    const {'1': 'ApplyDocDelta', '2': 0},
-    const {'1': 'ExportDocument', '2': 1},
+    const {'1': 'GetBlockData', '2': 0},
+    const {'1': 'ApplyDelta', '2': 1},
+    const {'1': 'ExportDocument', '2': 2},
   ],
 };
 
 /// Descriptor for `BlockEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List blockEventDescriptor = $convert.base64Decode('CgpCbG9ja0V2ZW50EhEKDUFwcGx5RG9jRGVsdGEQABISCg5FeHBvcnREb2N1bWVudBAB');
+final $typed_data.Uint8List blockEventDescriptor = $convert.base64Decode('CgpCbG9ja0V2ZW50EhAKDEdldEJsb2NrRGF0YRAAEg4KCkFwcGx5RGVsdGEQARISCg5FeHBvcnREb2N1bWVudBAC');

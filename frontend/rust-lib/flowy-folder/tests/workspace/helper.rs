@@ -164,7 +164,7 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
 pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> BlockInfo {
     let view_id: ViewId = view_id.into();
     FolderEventBuilder::new(sdk.clone())
-        .event(OpenView)
+        .event(SetLatestView)
         .payload(view_id)
         .async_send()
         .await

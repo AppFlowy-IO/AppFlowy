@@ -206,9 +206,9 @@ impl DefaultFolderBuilder {
                 } else {
                     initial_quill_delta_string()
                 };
-                view_controller.set_latest_view(view);
+                let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataType::RichText, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataType::Block, Bytes::from(view_data))
                     .await?;
             }
         }

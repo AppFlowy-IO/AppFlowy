@@ -92,6 +92,11 @@ pub struct BlockId {
     #[pb(index = 1)]
     pub value: String,
 }
+impl AsRef<str> for BlockId {
+    fn as_ref(&self) -> &str {
+        &self.value
+    }
+}
 
 impl std::convert::From<String> for BlockId {
     fn from(value: String) -> Self {
@@ -99,10 +104,14 @@ impl std::convert::From<String> for BlockId {
     }
 }
 
+impl std::convert::From<BlockId> for String {
+    fn from(block_id: BlockId) -> Self {
+        block_id.value
+    }
+}
+
 impl std::convert::From<&String> for BlockId {
-    fn from(doc_id: &String) -> Self {
-        BlockId {
-            value: doc_id.to_owned(),
-        }
+    fn from(s: &String) -> Self {
+        BlockId { value: s.to_owned() }
     }
 }

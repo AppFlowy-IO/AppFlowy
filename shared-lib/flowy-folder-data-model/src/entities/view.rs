@@ -83,26 +83,24 @@ impl std::convert::From<View> for Trash {
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataType {
-    RichText = 0,
-    PlainText = 1,
-    Grid = 2,
+    Block = 0,
+    Grid = 1,
 }
 
 impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewDataType::RichText
+        ViewDataType::Block
     }
 }
 
 impl std::convert::From<i32> for ViewDataType {
     fn from(val: i32) -> Self {
         match val {
-            0 => ViewDataType::RichText,
-            1 => ViewDataType::PlainText,
-            2 => ViewDataType::Grid,
+            0 => ViewDataType::Block,
+            1 => ViewDataType::Grid,
             _ => {
                 log::error!("Invalid view type: {}", val);
-                ViewDataType::PlainText
+                ViewDataType::Block
             }
         }
     }

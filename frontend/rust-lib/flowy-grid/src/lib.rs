@@ -6,4 +6,4 @@ pub mod event_map;
 pub mod manager;
 
 mod protobuf;
-mod services;
+pub mod services;

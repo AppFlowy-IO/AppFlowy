@@ -63,7 +63,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::UpdateView, update_view_handler)
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
-        .event(FolderEvent::OpenView, open_view_handler)
+        .event(FolderEvent::SetLatestView, set_latest_view_handler)
         .event(FolderEvent::CloseView, close_view_handler);
 
     module = module
@@ -127,8 +127,8 @@ pub enum FolderEvent {
     #[event()]
     CopyLink = 206,
 
-    #[event(input = "ViewId", output = "BlockDelta")]
-    OpenView = 207,
+    #[event(input = "ViewId")]
+    SetLatestView = 207,
 
     #[event(input = "ViewId")]
     CloseView = 208,

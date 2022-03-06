@@ -1,10 +1,23 @@
 use crate::entities::{ExportData, ExportParams, ExportPayload};
 use crate::BlockManager;
-use flowy_collaboration::entities::document_info::BlockDelta;
+use flowy_collaboration::entities::document_info::{BlockDelta, BlockId};
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
+
+pub(crate) async fn get_block_data_handler(
+    data: Data<BlockId>,
+    manager: AppData<Arc<BlockManager>>,
+) -> DataResult<BlockDelta, FlowyError> {
+    let block_id: BlockId = data.into_inner();
+    let editor = manager.open_block(&block_id).await?;
+    let delta_str = editor.delta_str().await?;
+    data_result(BlockDelta {
+        block_id: block_id.into(),
+        delta_str,
+    })
+}
 
 pub(crate) async fn apply_delta_handler(
     data: Data<BlockDelta>,

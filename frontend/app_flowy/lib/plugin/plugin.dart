@@ -52,7 +52,7 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataType get dataType => ViewDataType.PlainText;
+  ViewDataType get dataType => ViewDataType.Block;
 }
 
 abstract class PluginConfig {

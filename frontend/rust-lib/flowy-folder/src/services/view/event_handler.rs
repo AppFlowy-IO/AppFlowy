@@ -8,7 +8,6 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_collaboration::entities::document_info::BlockDelta;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -66,13 +65,13 @@ pub(crate) async fn delete_view_handler(
     Ok(())
 }
 
-pub(crate) async fn open_view_handler(
+pub(crate) async fn set_latest_view_handler(
     data: Data<ViewId>,
     controller: AppData<Arc<ViewController>>,
-) -> DataResult<BlockDelta, FlowyError> {
+) -> Result<(), FlowyError> {
     let view_id: ViewId = data.into_inner();
-    let doc = controller.open_view(&view_id.value).await?;
-    data_result(doc)
+    let _ = controller.set_latest_view(&view_id.value)?;
+    Ok(())
 }
 
 pub(crate) async fn close_view_handler(

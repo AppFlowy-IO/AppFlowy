@@ -5,7 +5,7 @@ use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn open_grid_handler(
+pub(crate) async fn get_grid_data_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<Grid, FlowyError> {

@@ -267,18 +267,18 @@ class FolderEventCopyLink {
     }
 }
 
-class FolderEventOpenView {
+class FolderEventSetLatestView {
      ViewId request;
-     FolderEventOpenView(this.request);
+     FolderEventSetLatestView(this.request);
 
-    Future<Either<BlockDelta, FlowyError>> send() {
+    Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = FolderEvent.OpenView.toString()
+          ..event = FolderEvent.SetLatestView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(BlockDelta.fromBuffer(okBytes)),
+           (bytes) => left(unit),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

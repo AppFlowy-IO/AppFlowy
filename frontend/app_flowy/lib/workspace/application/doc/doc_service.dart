@@ -7,17 +7,18 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 class DocumentService {
   Future<Either<BlockDelta, FlowyError>> openDocument({
     required String docId,
-    required ViewDataType dataType,
-  }) {
-    final request = ViewId(value: docId);
-    return FolderEventOpenView(request).send();
+  }) async {
+    await FolderEventSetLatestView(ViewId(value: docId)).send();
+
+    final payload = BlockId(value: docId);
+    return BlockEventGetBlockData(payload).send();
   }
 
   Future<Either<BlockDelta, FlowyError>> composeDelta({required String docId, required String data}) {
-    final request = BlockDelta.create()
+    final payload = BlockDelta.create()
       ..blockId = docId
       ..deltaStr = data;
-    return FolderEventApplyDocDelta(request).send();
+    return FolderEventApplyDocDelta(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {

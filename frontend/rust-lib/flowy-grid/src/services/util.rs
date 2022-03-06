@@ -25,7 +25,7 @@ fn generate_currency_by_symbol() -> HashMap<String, &'static Currency> {
 #[allow(dead_code)]
 pub fn string_to_money(money_str: &str) -> Option<Money<Currency>> {
     let mut process_money_str = String::from(money_str);
-    let default_currency = FlowyMoney::from_str("CNY").currency();
+    let default_currency = FlowyMoney::from_symbol_str("CNY").currency();
 
     if process_money_str.is_empty() {
         return None;
