@@ -10,7 +10,7 @@ class GridSize {
 
   static double get scrollBarSize => 12 * scale;
   static double get headerHeight => 50 * scale;
-  static double get rowHeight => 50 * scale;
+  static double get rowHeight => 36 * scale;
   static double get footerHeight => 40 * scale;
   static double get firstHeaderPadding => 20 * scale;
 }
