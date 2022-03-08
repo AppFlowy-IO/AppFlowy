@@ -40,9 +40,7 @@ class GridHeader extends StatelessWidget {
     fields.asMap().forEach((index, field) {
       final header = HeaderCellContainer(
         width: field.width.toDouble(),
-        child: HeaderCell(
-          field,
-        ),
+        child: HeaderCell(field),
       );
 
       //

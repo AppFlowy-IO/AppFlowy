@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,7 +42,7 @@ class GridRowWidget extends StatelessWidget {
 
   List<Widget> _buildCells() {
     return [
-      RowLeading(rowId: data.row.id),
+      SizedBox(width: GridSize.startHeaderPadding, child: RowLeading(rowId: data.row.id)),
       ...data.fields.map(
         (field) {
           final cellData = data.cellMap[field.id];

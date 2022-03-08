@@ -102,27 +102,14 @@ class RowLeading extends StatelessWidget {
           return Row(
             children: const [
               CreateRowButton(),
+              DrawRowButton(),
             ],
           );
         }
 
-        return const Spacer();
+        return const SizedBox.expand();
       },
     );
-
-    // return GestureDetector(
-    //   behavior: HitTestBehavior.translucent,
-    //   onTap: () {},
-    //   child: MouseHoverBuilder(
-    //     builder: (_, isHovered) => Container(
-    //       width: GridSize.startHeaderPadding,
-    //       decoration: CellDecoration.box(
-    //         color: isHovered ? Colors.red.withOpacity(.1) : Colors.white,
-    //       ),
-    //       padding: EdgeInsets.symmetric(vertical: GridInsets.vertical, horizontal: GridInsets.horizontal),
-    //     ),
-    //   ),
-    // );
   }
 }
 
