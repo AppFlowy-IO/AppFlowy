@@ -1,8 +1,8 @@
 class GridInsets {
   static double scale = 1;
 
-  static double get horizontal => 6 * scale;
-  static double get vertical => 6 * scale;
+  static double get horizontal => 8 * scale;
+  static double get vertical => 8 * scale;
 }
 
 class GridSize {
@@ -10,7 +10,6 @@ class GridSize {
 
   static double get scrollBarSize => 12 * scale;
   static double get headerHeight => 50 * scale;
-  static double get rowHeight => 36 * scale;
   static double get footerHeight => 40 * scale;
-  static double get firstHeaderPadding => 20 * scale;
+  static double get startHeaderPadding => 30 * scale;
 }

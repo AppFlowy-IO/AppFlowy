@@ -1,62 +1,56 @@
-import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 import 'cell_container.dart';
 import 'grid_cell.dart';
-
-class GridRowContext {
-  final RepeatedFieldOrder fieldOrders;
-  final Map<String, Field> fieldById;
-  final Map<String, Cell> cellByFieldId;
-  GridRowContext(this.fieldOrders, this.fieldById, this.cellByFieldId);
-}
+import 'package:dartz/dartz.dart';
 
 class GridRowWidget extends StatelessWidget {
-  final RowInfo rowInfo;
+  final GridRowData data;
   final Function(bool)? onHoverChange;
-  const GridRowWidget(this.rowInfo, {Key? key, this.onHoverChange}) : super(key: key);
+  const GridRowWidget(this.data, {Key? key, this.onHoverChange}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.rowHeight,
-      child: _buildRowBody(),
+    return BlocProvider(
+      create: (context) => getIt<RowBloc>(param1: data),
+      child: BlocBuilder<RowBloc, RowState>(
+        builder: (context, state) {
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              onEnter: (p) => context.read<RowBloc>().add(RowEvent.highlightRow(some(data.row.id))),
+              onExit: (p) => context.read<RowBloc>().add(RowEvent.highlightRow(none())),
+              child: SizedBox(
+                height: data.row.height.toDouble(),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _buildCells(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
-  }
-
-  Widget _buildRowBody() {
-    Widget rowWidget = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: _buildCells(),
-    );
-
-    if (onHoverChange != null) {
-      rowWidget = MouseRegion(
-        onEnter: (event) => onHoverChange!(true),
-        onExit: (event) => onHoverChange!(false),
-        cursor: MouseCursor.uncontrolled,
-        child: rowWidget,
-      );
-    }
-
-    return rowWidget;
   }
 
   List<Widget> _buildCells() {
-    var cells = List<Widget>.empty(growable: true);
-    cells.add(const RowLeading());
-
-    for (var field in rowInfo.fields) {
-      final data = rowInfo.cellMap[field.id];
-      final cell = CellContainer(
-        width: field.width.toDouble(),
-        child: GridCellBuilder.buildCell(field, data),
-      );
-
-      cells.add(cell);
-    }
-    return cells;
+    return [
+      RowLeading(rowId: data.row.id),
+      ...data.fields.map(
+        (field) {
+          final cellData = data.cellMap[field.id];
+          return CellContainer(
+            width: field.width.toDouble(),
+            child: GridCellBuilder.buildCell(field, cellData),
+          );
+        },
+      )
+    ].toList();
   }
 }

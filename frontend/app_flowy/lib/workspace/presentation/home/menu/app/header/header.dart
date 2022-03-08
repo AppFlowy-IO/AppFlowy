@@ -37,7 +37,7 @@ class MenuAppHeader extends StatelessWidget {
           _renderExpandedIcon(context, theme),
           // HSpace(MenuAppSizes.iconPadding),
           _renderTitle(context, theme),
-          _renderAddButton(context),
+          _renderCreateViewButton(context),
         ],
       ),
     );
@@ -99,7 +99,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderAddButton(BuildContext context) {
+  Widget _renderCreateViewButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(

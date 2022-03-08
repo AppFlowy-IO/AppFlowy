@@ -122,6 +122,7 @@ const RawRow$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'cell_by_field_id', '3': 3, '4': 3, '5': 11, '6': '.RawRow.CellByFieldIdEntry', '10': 'cellByFieldId'},
+    const {'1': 'height', '3': 4, '4': 1, '5': 5, '10': 'height'},
   ],
   '3': const [RawRow_CellByFieldIdEntry$json],
 };
@@ -137,7 +138,7 @@ const RawRow_CellByFieldIdEntry$json = const {
 };
 
 /// Descriptor for `RawRow`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rawRowDescriptor = $convert.base64Decode('CgZSYXdSb3cSDgoCaWQYASABKAlSAmlkEhcKB2dyaWRfaWQYAiABKAlSBmdyaWRJZBJDChBjZWxsX2J5X2ZpZWxkX2lkGAMgAygLMhouUmF3Um93LkNlbGxCeUZpZWxkSWRFbnRyeVINY2VsbEJ5RmllbGRJZBpKChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHgoFdmFsdWUYAiABKAsyCC5SYXdDZWxsUgV2YWx1ZToCOAE=');
+final $typed_data.Uint8List rawRowDescriptor = $convert.base64Decode('CgZSYXdSb3cSDgoCaWQYASABKAlSAmlkEhcKB2dyaWRfaWQYAiABKAlSBmdyaWRJZBJDChBjZWxsX2J5X2ZpZWxkX2lkGAMgAygLMhouUmF3Um93LkNlbGxCeUZpZWxkSWRFbnRyeVINY2VsbEJ5RmllbGRJZBIWCgZoZWlnaHQYBCABKAVSBmhlaWdodBpKChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHgoFdmFsdWUYAiABKAsyCC5SYXdDZWxsUgV2YWx1ZToCOAE=');
 @$core.Deprecated('Use rawCellDescriptor instead')
 const RawCell$json = const {
   '1': 'RawCell',
@@ -146,11 +147,12 @@ const RawCell$json = const {
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
     const {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.AnyData', '10': 'data'},
+    const {'1': 'height', '3': 5, '4': 1, '5': 5, '10': 'height'},
   ],
 };
 
 /// Descriptor for `RawCell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhwKBGRhdGEYBCABKAsyCC5BbnlEYXRhUgRkYXRh');
+final $typed_data.Uint8List rawCellDescriptor = $convert.base64Decode('CgdSYXdDZWxsEg4KAmlkGAEgASgJUgJpZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhwKBGRhdGEYBCABKAsyCC5BbnlEYXRhUgRkYXRhEhYKBmhlaWdodBgFIAEoBVIGaGVpZ2h0');
 @$core.Deprecated('Use repeatedRowDescriptor instead')
 const RepeatedRow$json = const {
   '1': 'RepeatedRow',
@@ -167,6 +169,7 @@ const Row$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'cell_by_field_id', '3': 2, '4': 3, '5': 11, '6': '.Row.CellByFieldIdEntry', '10': 'cellByFieldId'},
+    const {'1': 'height', '3': 3, '4': 1, '5': 5, '10': 'height'},
   ],
   '3': const [Row_CellByFieldIdEntry$json],
 };
@@ -182,7 +185,7 @@ const Row_CellByFieldIdEntry$json = const {
 };
 
 /// Descriptor for `Row`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rowDescriptor = $convert.base64Decode('CgNSb3cSDgoCaWQYASABKAlSAmlkEkAKEGNlbGxfYnlfZmllbGRfaWQYAiADKAsyFy5Sb3cuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkGkcKEkNlbGxCeUZpZWxkSWRFbnRyeRIQCgNrZXkYASABKAlSA2tleRIbCgV2YWx1ZRgCIAEoCzIFLkNlbGxSBXZhbHVlOgI4AQ==');
+final $typed_data.Uint8List rowDescriptor = $convert.base64Decode('CgNSb3cSDgoCaWQYASABKAlSAmlkEkAKEGNlbGxfYnlfZmllbGRfaWQYAiADKAsyFy5Sb3cuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkEhYKBmhlaWdodBgDIAEoBVIGaGVpZ2h0GkcKEkNlbGxCeUZpZWxkSWRFbnRyeRIQCgNrZXkYASABKAlSA2tleRIbCgV2YWx1ZRgCIAEoCzIFLkNlbGxSBXZhbHVlOgI4AQ==');
 @$core.Deprecated('Use cellDescriptor instead')
 const Cell$json = const {
   '1': 'Cell',

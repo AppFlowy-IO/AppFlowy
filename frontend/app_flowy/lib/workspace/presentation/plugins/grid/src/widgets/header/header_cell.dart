@@ -45,7 +45,7 @@ class HeaderCellLeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: GridSize.firstHeaderPadding,
+      width: GridSize.startHeaderPadding,
       color: GridHeaderConstants.backgroundColor,
     );
   }

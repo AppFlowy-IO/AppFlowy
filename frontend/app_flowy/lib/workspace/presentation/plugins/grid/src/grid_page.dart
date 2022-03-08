@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/grid/data.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -135,10 +136,13 @@ class _GridBodyState extends State<GridBody> {
 
   Widget _buildRows(GridInfo gridInfo) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        final rowInfo = gridInfo.rowInfoAtIndex(index);
-        return RepaintBoundary(child: GridRowWidget(rowInfo));
-      }, childCount: gridInfo.numberOfRows()),
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final data = gridInfo.rowAtIndex(index);
+          return RepaintBoundary(child: GridRowWidget(data));
+        },
+        childCount: gridInfo.numberOfRows(),
+      ),
     );
   }
 

@@ -40,12 +40,14 @@ message RawRow {
     string id = 1;
     string grid_id = 2;
     map<string, RawCell> cell_by_field_id = 3;
+    int32 height = 4;
 }
 message RawCell {
     string id = 1;
     string row_id = 2;
     string field_id = 3;
     AnyData data = 4;
+    int32 height = 5;
 }
 message RepeatedRow {
     repeated Row items = 1;
@@ -53,6 +55,7 @@ message RepeatedRow {
 message Row {
     string id = 1;
     map<string, Cell> cell_by_field_id = 2;
+    int32 height = 3;
 }
 message Cell {
     string id = 1;

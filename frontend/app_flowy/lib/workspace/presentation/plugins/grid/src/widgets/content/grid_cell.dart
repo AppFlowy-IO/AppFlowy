@@ -1,6 +1,12 @@
+import 'package:app_flowy/workspace/application/grid/row_bloc.dart';
+import 'package:app_flowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_decoration.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -13,12 +19,25 @@ abstract class GridCellWidget extends StatelessWidget {
 }
 
 class GridTextCell extends GridCellWidget {
-  final String content;
-  const GridTextCell(this.content, {Key? key}) : super(key: key);
+  late final TextEditingController _controller;
+
+  GridTextCell(String content, {Key? key}) : super(key: key) {
+    _controller = TextEditingController(text: content);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Text(content);
+    return TextField(
+      controller: _controller,
+      onChanged: (value) {},
+      maxLines: 1,
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.zero,
+        border: InputBorder.none,
+        isDense: true,
+      ),
+    );
   }
 }
 
@@ -72,29 +91,64 @@ class BlankCell extends GridCellWidget {
 }
 
 class RowLeading extends StatelessWidget {
-  const RowLeading({Key? key}) : super(key: key);
+  final String rowId;
+  const RowLeading({required this.rowId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // return Expanded(
-    //   child: Container(
-    //     color: Colors.white10,
-    //     width: GridSize.firstHeaderPadding,
+    return BlocBuilder<RowBloc, RowState>(
+      builder: (context, state) {
+        if (state.isHighlight) {
+          return Row(
+            children: const [
+              CreateRowButton(),
+            ],
+          );
+        }
+
+        return const Spacer();
+      },
+    );
+
+    // return GestureDetector(
+    //   behavior: HitTestBehavior.translucent,
+    //   onTap: () {},
+    //   child: MouseHoverBuilder(
+    //     builder: (_, isHovered) => Container(
+    //       width: GridSize.startHeaderPadding,
+    //       decoration: CellDecoration.box(
+    //         color: isHovered ? Colors.red.withOpacity(.1) : Colors.white,
+    //       ),
+    //       padding: EdgeInsets.symmetric(vertical: GridInsets.vertical, horizontal: GridInsets.horizontal),
+    //     ),
     //   ),
     // );
+  }
+}
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {},
-      child: MouseHoverBuilder(
-        builder: (_, isHovered) => Container(
-          width: GridSize.firstHeaderPadding,
-          decoration: CellDecoration.box(
-            color: isHovered ? Colors.red.withOpacity(.1) : Colors.white,
-          ),
-          padding: EdgeInsets.symmetric(vertical: GridInsets.vertical, horizontal: GridInsets.horizontal),
-        ),
+class CreateRowButton extends StatelessWidget {
+  const CreateRowButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return Tooltip(
+      message: '',
+      child: FlowyIconButton(
+        hoverColor: theme.hover,
+        width: 22,
+        onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
+        icon: svg("home/add"),
       ),
     );
+  }
+}
+
+class DrawRowButton extends StatelessWidget {
+  const DrawRowButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

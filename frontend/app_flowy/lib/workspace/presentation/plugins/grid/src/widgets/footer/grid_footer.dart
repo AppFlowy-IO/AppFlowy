@@ -34,7 +34,7 @@ class AddRowButton extends StatelessWidget {
       onTap: onTap,
       child: MouseHoverBuilder(
         builder: (_, isHovered) => Container(
-          width: GridSize.firstHeaderPadding,
+          width: GridSize.startHeaderPadding,
           height: GridSize.footerHeight,
           decoration: CellDecoration.box(
             color: isHovered ? Colors.red.withOpacity(.1) : Colors.white,

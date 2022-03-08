@@ -3,6 +3,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use strum_macros::{Display, EnumIter, EnumString};
 
+pub const DEFAULT_ROW_HEIGHT: i32 = 36;
+pub const DEFAULT_FIELD_WIDTH: i32 = 150;
+
 pub trait GridIdentifiable {
     fn id(&self) -> &str;
 }
@@ -88,6 +91,20 @@ pub struct Field {
 
     #[pb(index = 7)]
     pub type_options: AnyData,
+}
+
+impl Field {
+    pub fn new(id: &str, name: &str, desc: &str, field_type: FieldType) -> Self {
+        Self {
+            id: id.to_owned(),
+            name: name.to_string(),
+            desc: desc.to_string(),
+            field_type,
+            frozen: false,
+            width: DEFAULT_FIELD_WIDTH,
+            type_options: Default::default(),
+        }
+    }
 }
 
 impl GridIdentifiable for Field {
@@ -245,6 +262,25 @@ pub struct RawRow {
 
     #[pb(index = 3)]
     pub cell_by_field_id: HashMap<String, RawCell>,
+
+    #[pb(index = 4)]
+    pub height: i32,
+}
+
+impl RawRow {
+    pub fn new(id: &str, grid_id: &str, cells: Vec<RawCell>) -> Self {
+        let cell_by_field_id = cells
+            .into_iter()
+            .map(|cell| (cell.id.clone(), cell))
+            .collect::<HashMap<String, RawCell>>();
+
+        Self {
+            id: id.to_owned(),
+            grid_id: grid_id.to_owned(),
+            cell_by_field_id,
+            height: DEFAULT_ROW_HEIGHT,
+        }
+    }
 }
 
 impl GridIdentifiable for RawRow {
@@ -266,6 +302,9 @@ pub struct RawCell {
 
     #[pb(index = 4)]
     pub data: AnyData,
+
+    #[pb(index = 5)]
+    pub height: i32,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -300,15 +339,9 @@ pub struct Row {
 
     #[pb(index = 2)]
     pub cell_by_field_id: HashMap<String, Cell>,
-}
 
-impl Row {
-    pub fn new(row_id: &str) -> Self {
-        Self {
-            id: row_id.to_owned(),
-            cell_by_field_id: HashMap::new(),
-        }
-    }
+    #[pb(index = 3)]
+    pub height: i32,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

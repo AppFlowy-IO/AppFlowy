@@ -1,26 +1,14 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
-import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_listener.dart';
-import 'package:app_flowy/workspace/application/app/app_service.dart';
-import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
-import 'package:app_flowy/workspace/application/doc/doc_service.dart';
-import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
-import 'package:app_flowy/workspace/application/doc/share_service.dart';
-import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/grid_service.dart';
-import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
-import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
-import 'package:app_flowy/workspace/application/trash/trash_service.dart';
-import 'package:app_flowy/workspace/application/view/view_bloc.dart';
-import 'package:app_flowy/workspace/application/view/view_listener.dart';
-import 'package:app_flowy/workspace/application/view/view_service.dart';
-import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
-import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
-import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
+import 'package:app_flowy/workspace/application/app/prelude.dart';
+import 'package:app_flowy/workspace/application/doc/prelude.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/application/trash/prelude.dart';
+import 'package:app_flowy/workspace/application/workspace/prelude.dart';
+import 'package:app_flowy/workspace/application/view/prelude.dart';
+import 'package:app_flowy/workspace/application/home/prelude.dart';
+import 'package:app_flowy/workspace/application/menu/prelude.dart';
+
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
@@ -104,6 +92,13 @@ class HomeDepsResolver {
       (view, _) => GridBloc(
         view: view,
         service: GridService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<RowBloc, GridRowData, void>(
+      (data, _) => RowBloc(
+        data: data,
+        service: RowService(),
       ),
     );
 

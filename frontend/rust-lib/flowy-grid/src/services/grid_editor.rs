@@ -56,11 +56,7 @@ impl ClientGridEditor {
     }
 
     pub async fn create_empty_row(&self) -> FlowyResult<()> {
-        let row = RawRow {
-            id: uuid(),
-            grid_id: self.grid_id.clone(),
-            cell_by_field_id: Default::default(),
-        };
+        let row = RawRow::new(&uuid(), &self.grid_id, vec![]);
         self.create_row(row).await?;
         Ok(())
     }
@@ -121,7 +117,11 @@ impl ClientGridEditor {
         let rows = raw_rows
             .into_par_iter()
             .map(|raw_row| {
-                let mut row = Row::new(&raw_row.id);
+                let mut row = Row {
+                    id: raw_row.id.clone(),
+                    cell_by_field_id: Default::default(),
+                    height: raw_row.height,
+                };
                 row.cell_by_field_id = raw_row
                     .cell_by_field_id
                     .into_par_iter()

@@ -7,6 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'data.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
@@ -21,7 +22,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
-          initial: (Initial value) async {
+          initial: (InitialGrid value) async {
             await _loadGrid(emit);
             await _loadFields(emit);
             await _loadGridInfo(emit);
@@ -88,7 +89,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
 @freezed
 abstract class GridEvent with _$GridEvent {
-  const factory GridEvent.initial() = Initial;
+  const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.rename(String gridId, String name) = _Rename;
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
@@ -112,35 +113,4 @@ abstract class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
-}
-
-class GridInfo {
-  List<Row> rows;
-  List<Field> fields;
-
-  GridInfo({
-    required this.rows,
-    required this.fields,
-  });
-
-  RowInfo rowInfoAtIndex(int index) {
-    final row = rows[index];
-    return RowInfo(
-      fields: fields,
-      cellMap: row.cellByFieldId,
-    );
-  }
-
-  int numberOfRows() {
-    return rows.length;
-  }
-}
-
-class RowInfo {
-  List<Field> fields;
-  Map<String, Cell> cellMap;
-  RowInfo({
-    required this.fields,
-    required this.cellMap,
-  });
 }

@@ -1832,6 +1832,7 @@ pub struct RawRow {
     pub id: ::std::string::String,
     pub grid_id: ::std::string::String,
     pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, RawCell>,
+    pub height: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1924,6 +1925,21 @@ impl RawRow {
     pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, RawCell> {
         ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
     }
+
+    // int32 height = 4;
+
+
+    pub fn get_height(&self) -> i32 {
+        self.height
+    }
+    pub fn clear_height(&mut self) {
+        self.height = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_height(&mut self, v: i32) {
+        self.height = v;
+    }
 }
 
 impl ::protobuf::Message for RawRow {
@@ -1944,6 +1960,13 @@ impl ::protobuf::Message for RawRow {
                 3 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(wire_type, is, &mut self.cell_by_field_id)?;
                 },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.height = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1963,6 +1986,9 @@ impl ::protobuf::Message for RawRow {
             my_size += ::protobuf::rt::string_size(2, &self.grid_id);
         }
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(3, &self.cell_by_field_id);
+        if self.height != 0 {
+            my_size += ::protobuf::rt::value_size(4, self.height, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -1976,6 +2002,9 @@ impl ::protobuf::Message for RawRow {
             os.write_string(2, &self.grid_id)?;
         }
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<RawCell>>(3, &self.cell_by_field_id, os)?;
+        if self.height != 0 {
+            os.write_int32(4, self.height)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -2029,6 +2058,11 @@ impl ::protobuf::Message for RawRow {
                 |m: &RawRow| { &m.cell_by_field_id },
                 |m: &mut RawRow| { &mut m.cell_by_field_id },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "height",
+                |m: &RawRow| { &m.height },
+                |m: &mut RawRow| { &mut m.height },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RawRow>(
                 "RawRow",
                 fields,
@@ -2048,6 +2082,7 @@ impl ::protobuf::Clear for RawRow {
         self.id.clear();
         self.grid_id.clear();
         self.cell_by_field_id.clear();
+        self.height = 0;
         self.unknown_fields.clear();
     }
 }
@@ -2071,6 +2106,7 @@ pub struct RawCell {
     pub row_id: ::std::string::String,
     pub field_id: ::std::string::String,
     pub data: ::protobuf::SingularPtrField<AnyData>,
+    pub height: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2197,6 +2233,21 @@ impl RawCell {
     pub fn take_data(&mut self) -> AnyData {
         self.data.take().unwrap_or_else(|| AnyData::new())
     }
+
+    // int32 height = 5;
+
+
+    pub fn get_height(&self) -> i32 {
+        self.height
+    }
+    pub fn clear_height(&mut self) {
+        self.height = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_height(&mut self, v: i32) {
+        self.height = v;
+    }
 }
 
 impl ::protobuf::Message for RawCell {
@@ -2225,6 +2276,13 @@ impl ::protobuf::Message for RawCell {
                 4 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.data)?;
                 },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.height = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -2250,6 +2308,9 @@ impl ::protobuf::Message for RawCell {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
+        if self.height != 0 {
+            my_size += ::protobuf::rt::value_size(5, self.height, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -2269,6 +2330,9 @@ impl ::protobuf::Message for RawCell {
             os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
+        }
+        if self.height != 0 {
+            os.write_int32(5, self.height)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -2328,6 +2392,11 @@ impl ::protobuf::Message for RawCell {
                 |m: &RawCell| { &m.data },
                 |m: &mut RawCell| { &mut m.data },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "height",
+                |m: &RawCell| { &m.height },
+                |m: &mut RawCell| { &mut m.height },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RawCell>(
                 "RawCell",
                 fields,
@@ -2348,6 +2417,7 @@ impl ::protobuf::Clear for RawCell {
         self.row_id.clear();
         self.field_id.clear();
         self.data.clear();
+        self.height = 0;
         self.unknown_fields.clear();
     }
 }
@@ -2535,6 +2605,7 @@ pub struct Row {
     // message fields
     pub id: ::std::string::String,
     pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, Cell>,
+    pub height: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2601,6 +2672,21 @@ impl Row {
     pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, Cell> {
         ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
     }
+
+    // int32 height = 3;
+
+
+    pub fn get_height(&self) -> i32 {
+        self.height
+    }
+    pub fn clear_height(&mut self) {
+        self.height = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_height(&mut self, v: i32) {
+        self.height = v;
+    }
 }
 
 impl ::protobuf::Message for Row {
@@ -2618,6 +2704,13 @@ impl ::protobuf::Message for Row {
                 2 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(wire_type, is, &mut self.cell_by_field_id)?;
                 },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.height = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -2634,6 +2727,9 @@ impl ::protobuf::Message for Row {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(2, &self.cell_by_field_id);
+        if self.height != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.height, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -2644,6 +2740,9 @@ impl ::protobuf::Message for Row {
             os.write_string(1, &self.id)?;
         }
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Cell>>(2, &self.cell_by_field_id, os)?;
+        if self.height != 0 {
+            os.write_int32(3, self.height)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -2692,6 +2791,11 @@ impl ::protobuf::Message for Row {
                 |m: &Row| { &m.cell_by_field_id },
                 |m: &mut Row| { &mut m.cell_by_field_id },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "height",
+                |m: &Row| { &m.height },
+                |m: &mut Row| { &mut m.height },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Row>(
                 "Row",
                 fields,
@@ -2710,6 +2814,7 @@ impl ::protobuf::Clear for Row {
     fn clear(&mut self) {
         self.id.clear();
         self.cell_by_field_id.clear();
+        self.height = 0;
         self.unknown_fields.clear();
     }
 }
@@ -4085,35 +4190,37 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\
     \x20\x01(\tR\x05rowId\x12\x1e\n\nvisibility\x18\x03\x20\x01(\x08R\nvisib\
     ility\"3\n\x10RepeatedRowOrder\x12\x1f\n\x05items\x18\x01\x20\x03(\x0b2\
-    \t.RowOrderR\x05items\"\xc2\x01\n\x06RawRow\x12\x0e\n\x02id\x18\x01\x20\
+    \t.RowOrderR\x05items\"\xda\x01\n\x06RawRow\x12\x0e\n\x02id\x18\x01\x20\
     \x01(\tR\x02id\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12C\n\
     \x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1a.RawRow.CellByFieldIdEntry\
-    R\rcellByFieldId\x1aJ\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\
-    \x20\x01(\tR\x03key\x12\x1e\n\x05value\x18\x02\x20\x01(\x0b2\x08.RawCell\
-    R\x05value:\x028\x01\"i\n\x07RawCell\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
-    \x02id\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08fie\
-    ld_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x1c\n\x04data\x18\x04\x20\x01(\
-    \x0b2\x08.AnyDataR\x04data\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x04.RowR\x05items\"\xa0\x01\n\x03Row\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\tR\x02id\x12@\n\x10cell_by_field_id\x18\x02\x20\x03(\
-    \x0b2\x17.Row.CellByFieldIdEntryR\rcellByFieldId\x1aG\n\x12CellByFieldId\
-    Entry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\x18\
-    \x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\"K\n\x04Cell\x12\x0e\n\
-    \x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08field_id\x18\x02\x20\x01(\
-    \tR\x07fieldId\x12\x18\n\x07content\x18\x03\x20\x01(\tR\x07content\"e\n\
-    \rCellChangeset\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06r\
-    ow_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01\
-    (\tR\x07fieldId\x12\x12\n\x04data\x18\x04\x20\x01(\tR\x04data\"'\n\x11Cr\
-    eateGridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\
-    \x06GridId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"d\n\x11Query\
-    FieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x126\n\
-    \x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFieldOrderR\x0bfieldO\
-    rders\"\\\n\x0fQueryRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
-    \x06gridId\x120\n\nrow_orders\x18\x02\x20\x01(\x0b2\x11.RepeatedRowOrder\
-    R\trowOrders*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Numbe\
-    r\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\
-    \x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06\
-    proto3\
+    R\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\x01(\x05R\x06height\x1a\
+    J\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\
+    \x12\x1e\n\x05value\x18\x02\x20\x01(\x0b2\x08.RawCellR\x05value:\x028\
+    \x01\"\x81\x01\n\x07RawCell\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
+    \x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\
+    \x18\x03\x20\x01(\tR\x07fieldId\x12\x1c\n\x04data\x18\x04\x20\x01(\x0b2\
+    \x08.AnyDataR\x04data\x12\x16\n\x06height\x18\x05\x20\x01(\x05R\x06heigh\
+    t\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\x04.RowR\
+    \x05items\"\xb8\x01\n\x03Row\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
+    \x12@\n\x10cell_by_field_id\x18\x02\x20\x03(\x0b2\x17.Row.CellByFieldIdE\
+    ntryR\rcellByFieldId\x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\
+    \x1aG\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03ke\
+    y\x12\x1b\n\x05value\x18\x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\
+    \"K\n\x04Cell\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08fie\
+    ld_id\x18\x02\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x03\x20\
+    \x01(\tR\x07content\"e\n\rCellChangeset\x12\x0e\n\x02id\x18\x01\x20\x01(\
+    \tR\x02id\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08\
+    field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x12\n\x04data\x18\x04\x20\
+    \x01(\tR\x04data\"'\n\x11CreateGridPayload\x12\x12\n\x04name\x18\x01\x20\
+    \x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05value\x18\x01\x20\x01(\t\
+    R\x05value\"d\n\x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\
+    \x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.Repe\
+    atedFieldOrderR\x0bfieldOrders\"\\\n\x0fQueryRowPayload\x12\x17\n\x07gri\
+    d_id\x18\x01\x20\x01(\tR\x06gridId\x120\n\nrow_orders\x18\x02\x20\x01(\
+    \x0b2\x11.RepeatedRowOrderR\trowOrders*d\n\tFieldType\x12\x0c\n\x08RichT\
+    ext\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\
+    \x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\
+    \n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -550,6 +550,7 @@ class RawRow extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..m<$core.String, RawCell>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'RawRow.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: RawCell.create)
+    ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -558,6 +559,7 @@ class RawRow extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? gridId,
     $core.Map<$core.String, RawCell>? cellByFieldId,
+    $core.int? height,
   }) {
     final _result = create();
     if (id != null) {
@@ -568,6 +570,9 @@ class RawRow extends $pb.GeneratedMessage {
     }
     if (cellByFieldId != null) {
       _result.cellByFieldId.addAll(cellByFieldId);
+    }
+    if (height != null) {
+      _result.height = height;
     }
     return _result;
   }
@@ -612,6 +617,15 @@ class RawRow extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.Map<$core.String, RawCell> get cellByFieldId => $_getMap(2);
+
+  @$pb.TagNumber(4)
+  $core.int get height => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set height($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasHeight() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeight() => clearField(4);
 }
 
 class RawCell extends $pb.GeneratedMessage {
@@ -620,6 +634,7 @@ class RawCell extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..aOM<AnyData>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: AnyData.create)
+    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -629,6 +644,7 @@ class RawCell extends $pb.GeneratedMessage {
     $core.String? rowId,
     $core.String? fieldId,
     AnyData? data,
+    $core.int? height,
   }) {
     final _result = create();
     if (id != null) {
@@ -642,6 +658,9 @@ class RawCell extends $pb.GeneratedMessage {
     }
     if (data != null) {
       _result.data = data;
+    }
+    if (height != null) {
+      _result.height = height;
     }
     return _result;
   }
@@ -703,6 +722,15 @@ class RawCell extends $pb.GeneratedMessage {
   void clearData() => clearField(4);
   @$pb.TagNumber(4)
   AnyData ensureData() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  $core.int get height => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set height($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasHeight() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearHeight() => clearField(5);
 }
 
 class RepeatedRow extends $pb.GeneratedMessage {
@@ -750,6 +778,7 @@ class Row extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Row', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..m<$core.String, Cell>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'Row.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: Cell.create)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -757,6 +786,7 @@ class Row extends $pb.GeneratedMessage {
   factory Row({
     $core.String? id,
     $core.Map<$core.String, Cell>? cellByFieldId,
+    $core.int? height,
   }) {
     final _result = create();
     if (id != null) {
@@ -764,6 +794,9 @@ class Row extends $pb.GeneratedMessage {
     }
     if (cellByFieldId != null) {
       _result.cellByFieldId.addAll(cellByFieldId);
+    }
+    if (height != null) {
+      _result.height = height;
     }
     return _result;
   }
@@ -799,6 +832,15 @@ class Row extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(2)
   $core.Map<$core.String, Cell> get cellByFieldId => $_getMap(1);
+
+  @$pb.TagNumber(3)
+  $core.int get height => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set height($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasHeight() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHeight() => clearField(3);
 }
 
 class Cell extends $pb.GeneratedMessage {

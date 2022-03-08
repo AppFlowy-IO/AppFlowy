@@ -4,7 +4,7 @@ import 'grid_cell.dart';
 class GridCellBuilder {
   static GridCellWidget buildCell(Field? field, Cell? cell) {
     if (field == null || cell == null) {
-      return const BlankCell();
+      return GridTextCell("123123123");
     }
 
     switch (field.fieldType) {

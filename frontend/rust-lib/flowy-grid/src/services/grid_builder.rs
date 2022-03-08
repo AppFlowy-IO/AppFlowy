@@ -3,7 +3,6 @@ use flowy_collaboration::client_grid::make_grid_delta;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{Field, FieldOrder, FieldType, Grid, RawCell, RawRow, RowOrder};
 use lib_infra::uuid;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct GridBuilder {
@@ -24,40 +23,19 @@ impl GridBuilder {
     }
 
     pub fn add_field(mut self, name: &str, desc: &str, field_type: FieldType) -> Self {
-        let field = Field {
-            id: uuid(),
-            name: name.to_string(),
-            desc: desc.to_string(),
-            field_type,
-            frozen: false,
-            width: 100,
-            type_options: Default::default(),
-        };
+        let field = Field::new(&uuid(), name, desc, field_type);
         self.fields.push(field);
         self
     }
 
     pub fn add_empty_row(mut self) -> Self {
-        let row = RawRow {
-            id: uuid(),
-            grid_id: self.grid_id.clone(),
-            cell_by_field_id: Default::default(),
-        };
+        let row = RawRow::new(&uuid(), &self.grid_id, vec![]);
         self.rows.push(row);
         self
     }
 
     pub fn add_row(mut self, cells: Vec<RawCell>) -> Self {
-        let cell_by_field_id = cells
-            .into_iter()
-            .map(|cell| (cell.id.clone(), cell))
-            .collect::<HashMap<String, RawCell>>();
-
-        let row = RawRow {
-            id: uuid(),
-            grid_id: self.grid_id.clone(),
-            cell_by_field_id,
-        };
+        let row = RawRow::new(&uuid(), &self.grid_id, cells);
         self.rows.push(row);
         self
     }
