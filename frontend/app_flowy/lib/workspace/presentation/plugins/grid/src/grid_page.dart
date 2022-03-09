@@ -139,7 +139,7 @@ class _GridBodyState extends State<GridBody> {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           final data = gridInfo.rowAtIndex(index);
-          return RepaintBoundary(child: GridRowWidget(data));
+          return RepaintBoundary(child: GridRowWidget(data: data));
         },
         childCount: gridInfo.numberOfRows(),
       ),

@@ -18,10 +18,6 @@ class HeaderCell extends StatelessWidget {
       hoverColor: theme.hover,
       onTap: () {},
     );
-    // return Text(
-    //   field.name,
-    //   style: const TextStyle(fontSize: 15.0, color: Colors.black),
-    // );
   }
 }
 

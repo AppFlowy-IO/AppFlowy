@@ -1,4 +1,5 @@
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:equatable/equatable.dart';
 
 class GridInfo {
   List<Row> rows;
@@ -23,15 +24,18 @@ class GridInfo {
   }
 }
 
-class GridRowData {
-  Row row;
-  List<Field> fields;
-  Map<String, Cell> cellMap;
-  GridRowData({
+class GridRowData extends Equatable {
+  final Row row;
+  final List<Field> fields;
+  final Map<String, Cell> cellMap;
+  const GridRowData({
     required this.row,
     required this.fields,
     required this.cellMap,
   });
+
+  @override
+  List<Object> get props => [row.hashCode, cellMap];
 }
 
 class GridColumnData {
