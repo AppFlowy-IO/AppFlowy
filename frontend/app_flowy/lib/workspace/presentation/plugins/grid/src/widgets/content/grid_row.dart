@@ -1,7 +1,9 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
@@ -42,7 +44,10 @@ class GridRowWidget extends StatelessWidget {
 
   List<Widget> _buildCells() {
     return [
-      SizedBox(width: GridSize.startHeaderPadding, child: RowLeading(rowId: data.row.id)),
+      SizedBox(
+        width: GridSize.leadingHeaderPadding,
+        child: LeadingRow(rowId: data.row.id),
+      ),
       ...data.fields.map(
         (field) {
           final cellData = data.cellMap[field.id];
@@ -51,7 +56,72 @@ class GridRowWidget extends StatelessWidget {
             child: GridCellBuilder.buildCell(field, cellData),
           );
         },
+      ),
+      SizedBox(
+        width: GridSize.trailHeaderPadding,
+        child: TrailingRow(rowId: data.row.id),
       )
     ].toList();
+  }
+}
+
+class LeadingRow extends StatelessWidget {
+  final String rowId;
+  const LeadingRow({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RowBloc, RowState>(
+      builder: (context, state) {
+        if (state.isHighlight) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              CreateRowButton(),
+            ],
+          );
+        }
+        return const SizedBox.expand();
+      },
+    );
+  }
+}
+
+class TrailingRow extends StatelessWidget {
+  final String rowId;
+  const TrailingRow({required this.rowId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader4, width: 0.4);
+
+    return BlocBuilder<RowBloc, RowState>(
+      builder: (context, state) {
+        return Container(
+          width: GridSize.trailHeaderPadding,
+          decoration: BoxDecoration(
+            border: Border(bottom: borderSide),
+          ),
+          padding: GridSize.cellContentInsets,
+        );
+      },
+    );
+  }
+}
+
+class CreateRowButton extends StatelessWidget {
+  const CreateRowButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return FlowyIconButton(
+      hoverColor: theme.hover,
+      width: 22,
+      onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
+      iconPadding: const EdgeInsets.all(3),
+      icon: svg("home/add"),
+    );
   }
 }

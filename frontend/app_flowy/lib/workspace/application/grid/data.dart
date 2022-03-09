@@ -33,3 +33,9 @@ class GridRowData {
     required this.cellMap,
   });
 }
+
+class GridColumnData {
+  final List<Field> fields;
+
+  GridColumnData({required this.fields});
+}

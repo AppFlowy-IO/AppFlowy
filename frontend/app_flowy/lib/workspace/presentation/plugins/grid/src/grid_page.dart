@@ -111,7 +111,7 @@ class _GridBodyState extends State<GridBody> {
               slivers: <Widget>[
                 _buildHeader(gridInfo.fields),
                 _buildRows(gridInfo),
-                _builderFooter(context),
+                const GridFooter(),
               ],
             ),
           ),
@@ -143,14 +143,6 @@ class _GridBodyState extends State<GridBody> {
         },
         childCount: gridInfo.numberOfRows(),
       ),
-    );
-  }
-
-  Widget _builderFooter(BuildContext context) {
-    return GridFooter(
-      onAddRow: () {
-        context.read<GridBloc>().add(const GridEvent.createRow());
-      },
     );
   }
 }

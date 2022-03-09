@@ -1,22 +1,28 @@
+import 'package:app_flowy/workspace/application/grid/row_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-
-import '../content/cell_decoration.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridFooter extends StatelessWidget {
-  final VoidCallback? onAddRow;
-  const GridFooter({Key? key, required this.onAddRow}) : super(key: key);
+  const GridFooter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: SizedBox(
         height: GridSize.footerHeight,
-        child: Row(
-          children: [
-            AddRowButton(onTap: onAddRow),
-          ],
+        child: Padding(
+          padding: GridSize.headerContentInsets,
+          child: Row(
+            children: [
+              SizedBox(width: GridSize.leadingHeaderPadding),
+              const SizedBox(width: 120, child: AddRowButton()),
+            ],
+          ),
         ),
       ),
     );
@@ -24,24 +30,16 @@ class GridFooter extends StatelessWidget {
 }
 
 class AddRowButton extends StatelessWidget {
-  final VoidCallback? onTap;
-  const AddRowButton({Key? key, required this.onTap}) : super(key: key);
+  const AddRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: MouseHoverBuilder(
-        builder: (_, isHovered) => Container(
-          width: GridSize.startHeaderPadding,
-          height: GridSize.footerHeight,
-          decoration: CellDecoration.box(
-            color: isHovered ? Colors.red.withOpacity(.1) : Colors.white,
-          ),
-          child: const Icon(Icons.add, size: 16),
-        ),
-      ),
+    final theme = context.watch<AppTheme>();
+    return FlowyButton(
+      text: const FlowyText.medium('New row', fontSize: 12),
+      hoverColor: theme.hover,
+      onTap: () => context.read<RowBloc>().add(const RowEvent.createRow()),
+      icon: svg("home/add"),
     );
   }
 }

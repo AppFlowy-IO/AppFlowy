@@ -12,6 +12,7 @@ import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -99,6 +100,13 @@ class HomeDepsResolver {
       (data, _) => RowBloc(
         data: data,
         service: RowService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<ColumnBloc, List<Field>, void>(
+      (data, _) => ColumnBloc(
+        data: GridColumnData(fields: data),
+        service: ColumnService(),
       ),
     );
 

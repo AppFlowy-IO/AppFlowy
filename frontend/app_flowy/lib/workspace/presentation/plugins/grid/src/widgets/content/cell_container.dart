@@ -27,7 +27,7 @@ class CellContainer extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(right: borderSide, bottom: borderSide),
         ),
-        padding: EdgeInsets.symmetric(vertical: GridInsets.vertical, horizontal: GridInsets.horizontal),
+        padding: GridSize.cellContentInsets,
         child: Center(child: IntrinsicHeight(child: child)),
       ),
     );
