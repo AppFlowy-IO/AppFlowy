@@ -34,7 +34,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
 @freezed
 abstract class RowEvent with _$RowEvent {
-  const factory RowEvent.initial(GridRowData data) = _InitialRow;
+  const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.activeRow() = _ActiveRow;
   const factory RowEvent.disactiveRow() = _DisactiveRow;

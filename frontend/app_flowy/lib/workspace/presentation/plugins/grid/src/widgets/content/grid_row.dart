@@ -22,7 +22,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   @override
   void initState() {
-    _rowBloc = getIt<RowBloc>(param1: widget.data);
+    _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
     super.initState();
   }
 
@@ -54,7 +54,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   @override
   Future<void> dispose() async {
-    _rowBloc.close();
+    await _rowBloc.close();
     super.dispose();
   }
 
@@ -69,7 +69,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
               final cellData = state.data.cellMap[field.id];
               return CellContainer(
                 width: field.width.toDouble(),
-                child: GridCellBuilder.buildCell(field, cellData),
+                child: buildGridCell(field, cellData),
               );
             },
           ).toList(),

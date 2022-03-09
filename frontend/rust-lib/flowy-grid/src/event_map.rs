@@ -11,7 +11,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetGridData, get_grid_data_handler)
         .event(GridEvent::GetRows, get_rows_handler)
         .event(GridEvent::GetFields, get_fields_handler)
-        .event(GridEvent::CreateRow, create_row_handler);
+        .event(GridEvent::CreateRow, create_row_handler)
+        .event(GridEvent::UpdateCell, update_cell_handler);
 
     module
 }
@@ -30,4 +31,7 @@ pub enum GridEvent {
 
     #[event(input = "GridId")]
     CreateRow = 3,
+
+    #[event(input = "Cell")]
+    UpdateCell = 4,
 }

@@ -1,6 +1,8 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField, RepeatedRow};
+use flowy_grid_data_model::entities::{
+    Cell, Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField, RepeatedRow,
+};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -43,6 +45,17 @@ pub(crate) async fn create_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let id: GridId = data.into_inner();
+    let editor = manager.get_grid_editor(id.as_ref())?;
+    let _ = editor.create_empty_row().await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn update_cell_handler(
+    data: Data<Cell>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let cell: Cell = data.into_inner();
     let editor = manager.get_grid_editor(id.as_ref())?;
     let _ = editor.create_empty_row().await?;
     Ok(())

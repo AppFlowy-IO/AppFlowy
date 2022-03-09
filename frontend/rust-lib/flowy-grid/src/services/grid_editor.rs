@@ -15,6 +15,7 @@ use lib_infra::future::FutureResult;
 use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
 
+use dashmap::mapref::one::Ref;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -28,6 +29,7 @@ pub struct ClientGridEditor {
     kv_persistence: Arc<GridKVPersistence>,
 
     field_map: DashMap<String, Field>,
+    cell_map: DashMap<String, RawCell>,
 }
 
 impl ClientGridEditor {
@@ -44,6 +46,7 @@ impl ClientGridEditor {
         let rev_manager = Arc::new(rev_manager);
         let field_map = load_all_fields(&grid_pad, &kv_persistence).await?;
         let grid_pad = Arc::new(RwLock::new(grid_pad));
+        let cell_map = DashMap::new();
 
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
@@ -52,17 +55,20 @@ impl ClientGridEditor {
             rev_manager,
             kv_persistence,
             field_map,
+            cell_map,
         }))
     }
 
     pub async fn create_empty_row(&self) -> FlowyResult<()> {
         let row = RawRow::new(&uuid(), &self.grid_id, vec![]);
+        self.cell_map.insert(row.id.clone(), row.clone());
         self.create_row(row).await?;
         Ok(())
     }
 
     async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_row(&row)?)).await?;
+        self.cell_map.insert(row.id.clone(), row.clone());
         let _ = self.kv_persistence.set(row)?;
         Ok(())
     }
@@ -72,6 +78,13 @@ impl ClientGridEditor {
         // let _ = self.kv.batch_delete(ids)?;
         Ok(())
     }
+
+    // pub async fn update_row(&self, cell: Cell) -> FlowyResult<()> {
+    //     match self.cell_map.get(&cell.id) {
+    //         None => Err(FlowyError::internal().context(format!("Can't find cell with id: {}", cell.id))),
+    //         Some(raw_cell) => {}
+    //     }
+    // }
 
     pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_field(&field)?)).await?;
@@ -99,6 +112,7 @@ impl ClientGridEditor {
                 tracing::error!("Can't find the field with {}", field_id);
                 return None;
             }
+            self.cell_map.insert(raw_cell.id.clone(), raw_cell.clone());
 
             let field = some_field.unwrap();
             match stringify_deserialize(raw_cell.data, field.value()) {

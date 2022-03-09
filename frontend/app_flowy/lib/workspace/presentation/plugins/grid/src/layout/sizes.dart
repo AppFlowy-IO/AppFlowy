@@ -10,6 +10,7 @@ class GridSize {
   static double get trailHeaderPadding => 140 * scale;
   static double get headerContentPadding => 8 * scale;
   static double get cellContentPadding => 8 * scale;
+
   //
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(
         horizontal: GridSize.headerContentPadding,

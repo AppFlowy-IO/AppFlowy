@@ -43,7 +43,7 @@ class GridHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<ColumnBloc>(param1: fields),
+      create: (context) => getIt<ColumnBloc>(param1: fields)..add(const ColumnEvent.initial()),
       child: BlocBuilder<ColumnBloc, ColumnState>(
         builder: (context, state) {
           final headers = state.fields

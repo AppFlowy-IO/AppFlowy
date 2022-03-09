@@ -110,6 +110,46 @@ class HomeDepsResolver {
       ),
     );
 
+    getIt.registerFactoryParam<TextCellBloc, Field, Cell?>(
+      (field, cell) => TextCellBloc(
+        field: field,
+        cell: cell,
+        service: CellService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<SelectionCellBloc, Field, Cell?>(
+      (field, cell) => SelectionCellBloc(
+        field: field,
+        cell: cell,
+        service: CellService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<NumberCellBloc, Field, Cell?>(
+      (field, cell) => NumberCellBloc(
+        field: field,
+        cell: cell,
+        service: CellService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<DateCellBloc, Field, Cell?>(
+      (field, cell) => DateCellBloc(
+        field: field,
+        cell: cell,
+        service: CellService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<CheckboxCellBloc, Field, Cell?>(
+      (field, cell) => CheckboxCellBloc(
+        field: field,
+        cell: cell,
+        service: CellService(),
+      ),
+    );
+
     // trash
     getIt.registerLazySingleton<TrashService>(() => TrashService());
     getIt.registerLazySingleton<TrashListener>(() => TrashListener());

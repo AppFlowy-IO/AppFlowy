@@ -141,6 +141,7 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.removeListener(_handleFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }
