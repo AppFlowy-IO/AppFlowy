@@ -5,4 +5,5 @@ enum GridEvent {
     GetRows = 1;
     GetFields = 2;
     CreateRow = 3;
+    UpdateCell = 4;
 }

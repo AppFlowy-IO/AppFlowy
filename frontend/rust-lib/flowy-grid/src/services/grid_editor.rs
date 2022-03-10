@@ -3,19 +3,17 @@ use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use crate::services::stringify::stringify_deserialize;
 
 use dashmap::DashMap;
-use flowy_collaboration::client_grid::{GridChange, GridPad};
+use flowy_collaboration::client_grid::{GridChange, GridMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Cell, Field, Grid, RawCell, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row,
+    Cell, CellMeta, Field, Grid, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row, RowMeta,
 };
 use flowy_sync::{RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
-
-use dashmap::mapref::one::Ref;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -24,12 +22,12 @@ use tokio::sync::RwLock;
 pub struct ClientGridEditor {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    grid_pad: Arc<RwLock<GridPad>>,
+    grid_meta_pad: Arc<RwLock<GridMetaPad>>,
     rev_manager: Arc<RevisionManager>,
     kv_persistence: Arc<GridKVPersistence>,
 
     field_map: DashMap<String, Field>,
-    cell_map: DashMap<String, RawCell>,
+    cell_map: DashMap<String, CellMeta>,
 }
 
 impl ClientGridEditor {
@@ -45,13 +43,13 @@ impl ClientGridEditor {
 
         let rev_manager = Arc::new(rev_manager);
         let field_map = load_all_fields(&grid_pad, &kv_persistence).await?;
-        let grid_pad = Arc::new(RwLock::new(grid_pad));
+        let grid_meta_pad = Arc::new(RwLock::new(grid_pad));
         let cell_map = DashMap::new();
 
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
-            grid_pad,
+            grid_meta_pad,
             rev_manager,
             kv_persistence,
             field_map,
@@ -60,16 +58,15 @@ impl ClientGridEditor {
     }
 
     pub async fn create_empty_row(&self) -> FlowyResult<()> {
-        let row = RawRow::new(&uuid(), &self.grid_id, vec![]);
-        self.cell_map.insert(row.id.clone(), row.clone());
+        let row = RowMeta::new(&uuid(), &self.grid_id, vec![]);
         self.create_row(row).await?;
         Ok(())
     }
 
-    async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_row(&row)?)).await?;
-        self.cell_map.insert(row.id.clone(), row.clone());
-        let _ = self.kv_persistence.set(row)?;
+    async fn create_row(&self, row: RowMeta) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_row(row)?)).await?;
+        // self.cell_map.insert(row.id.clone(), row.clone());
+        // let _ = self.kv_persistence.set(row)?;
         Ok(())
     }
 
@@ -87,8 +84,7 @@ impl ClientGridEditor {
     // }
 
     pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_field(&field)?)).await?;
-        let _ = self.kv_persistence.set(field)?;
+        let _ = self.modify(|grid| Ok(grid.create_field(field)?)).await?;
         Ok(())
     }
 
@@ -104,9 +100,9 @@ impl ClientGridEditor {
             .into_iter()
             .map(|row_order| row_order.row_id)
             .collect::<Vec<_>>();
-        let raw_rows: Vec<RawRow> = self.kv_persistence.batch_get(ids)?;
+        let row_metas: Vec<RowMeta> = self.kv_persistence.batch_get(ids)?;
 
-        let make_cell = |field_id: String, raw_cell: RawCell| {
+        let make_cell = |field_id: String, raw_cell: CellMeta| {
             let some_field = self.field_map.get(&field_id);
             if some_field.is_none() {
                 tracing::error!("Can't find the field with {}", field_id);
@@ -128,15 +124,15 @@ impl ClientGridEditor {
             }
         };
 
-        let rows = raw_rows
+        let rows = row_metas
             .into_par_iter()
-            .map(|raw_row| {
+            .map(|row_meta| {
                 let mut row = Row {
-                    id: raw_row.id.clone(),
+                    id: row_meta.id.clone(),
                     cell_by_field_id: Default::default(),
-                    height: raw_row.height,
+                    height: row_meta.height,
                 };
-                row.cell_by_field_id = raw_row
+                row.cell_by_field_id = row_meta
                     .cell_by_field_id
                     .into_par_iter()
                     .flat_map(|(field_id, raw_cell)| make_cell(field_id, raw_cell))
@@ -163,18 +159,18 @@ impl ClientGridEditor {
     }
 
     pub async fn grid_data(&self) -> Grid {
-        self.grid_pad.read().await.grid_data()
+        self.grid_meta_pad.read().await.grid_data()
     }
 
     pub async fn delta_str(&self) -> String {
-        self.grid_pad.read().await.delta_str()
+        self.grid_meta_pad.read().await.delta_str()
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: for<'a> FnOnce(&'a mut GridPad) -> FlowyResult<Option<GridChange>>,
+        F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChange>>,
     {
-        let mut write_guard = self.grid_pad.write().await;
+        let mut write_guard = self.grid_meta_pad.write().await;
         match f(&mut *write_guard)? {
             None => {}
             Some(change) => {
@@ -206,13 +202,13 @@ impl ClientGridEditor {
 }
 
 async fn load_all_fields(
-    grid_pad: &GridPad,
+    grid_pad: &GridMetaPad,
     kv_persistence: &Arc<GridKVPersistence>,
 ) -> FlowyResult<DashMap<String, Field>> {
     let field_ids = grid_pad
-        .field_orders()
+        .fields()
         .iter()
-        .map(|field_order| field_order.field_id.clone())
+        .map(|field| field.id.clone())
         .collect::<Vec<_>>();
 
     let fields = kv_persistence.batch_get::<Field>(field_ids)?;
@@ -225,10 +221,10 @@ async fn load_all_fields(
 
 struct GridPadBuilder();
 impl RevisionObjectBuilder for GridPadBuilder {
-    type Output = GridPad;
+    type Output = GridMetaPad;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridPad::from_revisions(object_id, revisions)?;
+        let pad = GridMetaPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
 }

@@ -14,12 +14,14 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent GetRows = GridEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRows');
   static const GridEvent GetFields = GridEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetFields');
   static const GridEvent CreateRow = GridEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
+  static const GridEvent UpdateCell = GridEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
 
   static const $core.List<GridEvent> values = <GridEvent> [
     GetGridData,
     GetRows,
     GetFields,
     CreateRow,
+    UpdateCell,
   ];
 
   static final $core.Map<$core.int, GridEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

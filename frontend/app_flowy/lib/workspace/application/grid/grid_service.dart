@@ -16,18 +16,17 @@ class GridService {
     return GridEventCreateRow(GridId(value: gridId)).send();
   }
 
-  Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required RepeatedRowOrder rowOrders}) {
+  Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required List<RowOrder> rowOrders}) {
     final payload = QueryRowPayload.create()
       ..gridId = gridId
-      ..rowOrders = rowOrders;
+      ..rowOrders = RepeatedRowOrder(items: rowOrders);
     return GridEventGetRows(payload).send();
   }
 
-  Future<Either<RepeatedField, FlowyError>> getFields(
-      {required String gridId, required RepeatedFieldOrder fieldOrders}) {
+  Future<Either<RepeatedField, FlowyError>> getFields({required String gridId, required List<FieldOrder> fieldOrders}) {
     final payload = QueryFieldPayload.create()
       ..gridId = gridId
-      ..fieldOrders = fieldOrders;
+      ..fieldOrders = RepeatedFieldOrder(items: fieldOrders);
     return GridEventGetFields(payload).send();
   }
 }
