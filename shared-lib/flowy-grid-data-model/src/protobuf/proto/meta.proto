@@ -33,10 +33,16 @@ message AnyData {
 }
 message RowMeta {
     string id = 1;
-    string grid_id = 2;
+    string block_id = 2;
     map<string, CellMeta> cell_by_field_id = 3;
     int32 height = 4;
     bool visibility = 5;
+}
+message RowMetaChangeset {
+    string row_id = 1;
+    oneof one_of_height { int32 height = 2; };
+    oneof one_of_visibility { bool visibility = 3; };
+    map<string, CellMeta> cell_by_field_id = 4;
 }
 message CellMeta {
     string id = 1;

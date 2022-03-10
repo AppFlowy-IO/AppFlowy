@@ -121,6 +121,34 @@ const RowMeta_CellByFieldIdEntry$json = const {
 
 /// Descriptor for `RowMeta`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List rowMetaDescriptor = $convert.base64Decode('CgdSb3dNZXRhEg4KAmlkGAEgASgJUgJpZBIXCgdncmlkX2lkGAIgASgJUgZncmlkSWQSRAoQY2VsbF9ieV9maWVsZF9pZBgDIAMoCzIbLlJvd01ldGEuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkEhYKBmhlaWdodBgEIAEoBVIGaGVpZ2h0Eh4KCnZpc2liaWxpdHkYBSABKAhSCnZpc2liaWxpdHkaSwoSQ2VsbEJ5RmllbGRJZEVudHJ5EhAKA2tleRgBIAEoCVIDa2V5Eh8KBXZhbHVlGAIgASgLMgkuQ2VsbE1ldGFSBXZhbHVlOgI4AQ==');
+@$core.Deprecated('Use rowMetaChangesetDescriptor instead')
+const RowMetaChangeset$json = const {
+  '1': 'RowMetaChangeset',
+  '2': const [
+    const {'1': 'row_id', '3': 1, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'height', '3': 2, '4': 1, '5': 5, '9': 0, '10': 'height'},
+    const {'1': 'visibility', '3': 3, '4': 1, '5': 8, '9': 1, '10': 'visibility'},
+    const {'1': 'cell_by_field_id', '3': 4, '4': 3, '5': 11, '6': '.RowMetaChangeset.CellByFieldIdEntry', '10': 'cellByFieldId'},
+  ],
+  '3': const [RowMetaChangeset_CellByFieldIdEntry$json],
+  '8': const [
+    const {'1': 'one_of_height'},
+    const {'1': 'one_of_visibility'},
+  ],
+};
+
+@$core.Deprecated('Use rowMetaChangesetDescriptor instead')
+const RowMetaChangeset_CellByFieldIdEntry$json = const {
+  '1': 'CellByFieldIdEntry',
+  '2': const [
+    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 11, '6': '.CellMeta', '10': 'value'},
+  ],
+  '7': const {'7': true},
+};
+
+/// Descriptor for `RowMetaChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rowMetaChangesetDescriptor = $convert.base64Decode('ChBSb3dNZXRhQ2hhbmdlc2V0EhUKBnJvd19pZBgBIAEoCVIFcm93SWQSGAoGaGVpZ2h0GAIgASgFSABSBmhlaWdodBIgCgp2aXNpYmlsaXR5GAMgASgISAFSCnZpc2liaWxpdHkSTQoQY2VsbF9ieV9maWVsZF9pZBgEIAMoCzIkLlJvd01ldGFDaGFuZ2VzZXQuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkGksKEkNlbGxCeUZpZWxkSWRFbnRyeRIQCgNrZXkYASABKAlSA2tleRIfCgV2YWx1ZRgCIAEoCzIJLkNlbGxNZXRhUgV2YWx1ZToCOAFCDwoNb25lX29mX2hlaWdodEITChFvbmVfb2ZfdmlzaWJpbGl0eQ==');
 @$core.Deprecated('Use cellMetaDescriptor instead')
 const CellMeta$json = const {
   '1': 'CellMeta',

@@ -54,7 +54,7 @@ impl ClientDocument {
     }
 
     pub fn from_json(json: &str) -> Result<Self, CollaborateError> {
-        let delta = RichTextDelta::from_json(json)?;
+        let delta = RichTextDelta::from_delta_str(json)?;
         Ok(Self::from_delta(delta))
     }
 

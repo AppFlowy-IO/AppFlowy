@@ -1524,7 +1524,7 @@ impl ::protobuf::reflect::ProtobufValue for AnyData {
 pub struct RowMeta {
     // message fields
     pub id: ::std::string::String,
-    pub grid_id: ::std::string::String,
+    pub block_id: ::std::string::String,
     pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, CellMeta>,
     pub height: i32,
     pub visibility: bool,
@@ -1570,30 +1570,30 @@ impl RowMeta {
         ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // string grid_id = 2;
+    // string block_id = 2;
 
 
-    pub fn get_grid_id(&self) -> &str {
-        &self.grid_id
+    pub fn get_block_id(&self) -> &str {
+        &self.block_id
     }
-    pub fn clear_grid_id(&mut self) {
-        self.grid_id.clear();
+    pub fn clear_block_id(&mut self) {
+        self.block_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_grid_id(&mut self, v: ::std::string::String) {
-        self.grid_id = v;
+    pub fn set_block_id(&mut self, v: ::std::string::String) {
+        self.block_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
-        &mut self.grid_id
+    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
+        &mut self.block_id
     }
 
     // Take field
-    pub fn take_grid_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    pub fn take_block_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
     // repeated .RowMeta.CellByFieldIdEntry cell_by_field_id = 3;
@@ -1665,7 +1665,7 @@ impl ::protobuf::Message for RowMeta {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 3 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(wire_type, is, &mut self.cell_by_field_id)?;
@@ -1699,8 +1699,8 @@ impl ::protobuf::Message for RowMeta {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if !self.grid_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.grid_id);
+        if !self.block_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.block_id);
         }
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cell_by_field_id);
         if self.height != 0 {
@@ -1718,8 +1718,8 @@ impl ::protobuf::Message for RowMeta {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if !self.grid_id.is_empty() {
-            os.write_string(2, &self.grid_id)?;
+        if !self.block_id.is_empty() {
+            os.write_string(2, &self.block_id)?;
         }
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cell_by_field_id, os)?;
         if self.height != 0 {
@@ -1772,9 +1772,9 @@ impl ::protobuf::Message for RowMeta {
                 |m: &mut RowMeta| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "grid_id",
-                |m: &RowMeta| { &m.grid_id },
-                |m: &mut RowMeta| { &mut m.grid_id },
+                "block_id",
+                |m: &RowMeta| { &m.block_id },
+                |m: &mut RowMeta| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(
                 "cell_by_field_id",
@@ -1808,7 +1808,7 @@ impl ::protobuf::Message for RowMeta {
 impl ::protobuf::Clear for RowMeta {
     fn clear(&mut self) {
         self.id.clear();
-        self.grid_id.clear();
+        self.block_id.clear();
         self.cell_by_field_id.clear();
         self.height = 0;
         self.visibility = false;
@@ -1823,6 +1823,317 @@ impl ::std::fmt::Debug for RowMeta {
 }
 
 impl ::protobuf::reflect::ProtobufValue for RowMeta {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct RowMetaChangeset {
+    // message fields
+    pub row_id: ::std::string::String,
+    pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, CellMeta>,
+    // message oneof groups
+    pub one_of_height: ::std::option::Option<RowMetaChangeset_oneof_one_of_height>,
+    pub one_of_visibility: ::std::option::Option<RowMetaChangeset_oneof_one_of_visibility>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RowMetaChangeset {
+    fn default() -> &'a RowMetaChangeset {
+        <RowMetaChangeset as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum RowMetaChangeset_oneof_one_of_height {
+    height(i32),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum RowMetaChangeset_oneof_one_of_visibility {
+    visibility(bool),
+}
+
+impl RowMetaChangeset {
+    pub fn new() -> RowMetaChangeset {
+        ::std::default::Default::default()
+    }
+
+    // string row_id = 1;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+
+    // int32 height = 2;
+
+
+    pub fn get_height(&self) -> i32 {
+        match self.one_of_height {
+            ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_height::height(v)) => v,
+            _ => 0,
+        }
+    }
+    pub fn clear_height(&mut self) {
+        self.one_of_height = ::std::option::Option::None;
+    }
+
+    pub fn has_height(&self) -> bool {
+        match self.one_of_height {
+            ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_height::height(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_height(&mut self, v: i32) {
+        self.one_of_height = ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_height::height(v))
+    }
+
+    // bool visibility = 3;
+
+
+    pub fn get_visibility(&self) -> bool {
+        match self.one_of_visibility {
+            ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_visibility::visibility(v)) => v,
+            _ => false,
+        }
+    }
+    pub fn clear_visibility(&mut self) {
+        self.one_of_visibility = ::std::option::Option::None;
+    }
+
+    pub fn has_visibility(&self) -> bool {
+        match self.one_of_visibility {
+            ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_visibility::visibility(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_visibility(&mut self, v: bool) {
+        self.one_of_visibility = ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_visibility::visibility(v))
+    }
+
+    // repeated .RowMetaChangeset.CellByFieldIdEntry cell_by_field_id = 4;
+
+
+    pub fn get_cell_by_field_id(&self) -> &::std::collections::HashMap<::std::string::String, CellMeta> {
+        &self.cell_by_field_id
+    }
+    pub fn clear_cell_by_field_id(&mut self) {
+        self.cell_by_field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_cell_by_field_id(&mut self, v: ::std::collections::HashMap<::std::string::String, CellMeta>) {
+        self.cell_by_field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_cell_by_field_id(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, CellMeta> {
+        &mut self.cell_by_field_id
+    }
+
+    // Take field
+    pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, CellMeta> {
+        ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
+    }
+}
+
+impl ::protobuf::Message for RowMetaChangeset {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_height = ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_height::height(is.read_int32()?));
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_visibility = ::std::option::Option::Some(RowMetaChangeset_oneof_one_of_visibility::visibility(is.read_bool()?));
+                },
+                4 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(wire_type, is, &mut self.cell_by_field_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.row_id);
+        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(4, &self.cell_by_field_id);
+        if let ::std::option::Option::Some(ref v) = self.one_of_height {
+            match v {
+                &RowMetaChangeset_oneof_one_of_height::height(v) => {
+                    my_size += ::protobuf::rt::value_size(2, v, ::protobuf::wire_format::WireTypeVarint);
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_visibility {
+            match v {
+                &RowMetaChangeset_oneof_one_of_visibility::visibility(v) => {
+                    my_size += 2;
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.row_id.is_empty() {
+            os.write_string(1, &self.row_id)?;
+        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(4, &self.cell_by_field_id, os)?;
+        if let ::std::option::Option::Some(ref v) = self.one_of_height {
+            match v {
+                &RowMetaChangeset_oneof_one_of_height::height(v) => {
+                    os.write_int32(2, v)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_visibility {
+            match v {
+                &RowMetaChangeset_oneof_one_of_visibility::visibility(v) => {
+                    os.write_bool(3, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RowMetaChangeset {
+        RowMetaChangeset::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &RowMetaChangeset| { &m.row_id },
+                |m: &mut RowMetaChangeset| { &mut m.row_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_i32_accessor::<_>(
+                "height",
+                RowMetaChangeset::has_height,
+                RowMetaChangeset::get_height,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_bool_accessor::<_>(
+                "visibility",
+                RowMetaChangeset::has_visibility,
+                RowMetaChangeset::get_visibility,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(
+                "cell_by_field_id",
+                |m: &RowMetaChangeset| { &m.cell_by_field_id },
+                |m: &mut RowMetaChangeset| { &mut m.cell_by_field_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RowMetaChangeset>(
+                "RowMetaChangeset",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RowMetaChangeset {
+        static instance: ::protobuf::rt::LazyV2<RowMetaChangeset> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RowMetaChangeset::new)
+    }
+}
+
+impl ::protobuf::Clear for RowMetaChangeset {
+    fn clear(&mut self) {
+        self.row_id.clear();
+        self.one_of_height = ::std::option::Option::None;
+        self.one_of_visibility = ::std::option::Option::None;
+        self.cell_by_field_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RowMetaChangeset {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RowMetaChangeset {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2242,20 +2553,27 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\x0b2\x08.AnyDataR\x0btypeOptions\"-\n\rRepeatedField\x12\x1c\n\x05\
     items\x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"8\n\x07AnyData\x12\x17\
     \n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\x05value\x18\x02\
-    \x20\x01(\x0cR\x05value\"\xfd\x01\n\x07RowMeta\x12\x0e\n\x02id\x18\x01\
-    \x20\x01(\tR\x02id\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\
+    \x20\x01(\x0cR\x05value\"\xff\x01\n\x07RowMeta\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\
     \x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1b.RowMeta.CellByFiel\
     dIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\x01(\x05R\x06he\
     ight\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\nvisibility\x1aK\n\x12C\
     ellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\
-    \x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01\"\x82\x01\
-    \n\x08CellMeta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06ro\
-    w_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\
-    \tR\x07fieldId\x12\x1c\n\x04data\x18\x04\x20\x01(\x0b2\x08.AnyDataR\x04d\
-    ata\x12\x16\n\x06height\x18\x05\x20\x01(\x05R\x06height*d\n\tFieldType\
-    \x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08Date\
-    Time\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\
-    \x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    \x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01\"\xa7\x02\
+    \n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\
+    \x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06height\x12\x20\n\nvisib\
+    ility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\x10cell_by_field_id\
+    \x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByFieldIdEntryR\rcellByFiel\
+    dId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\
+    \x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\
+    \x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"\x82\x01\n\
+    \x08CellMeta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06row_\
+    id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\t\
+    R\x07fieldId\x12\x1c\n\x04data\x18\x04\x20\x01(\x0b2\x08.AnyDataR\x04dat\
+    a\x12\x16\n\x06height\x18\x05\x20\x01(\x05R\x06height*d\n\tFieldType\x12\
+    \x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\
+    \x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\
+    \x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

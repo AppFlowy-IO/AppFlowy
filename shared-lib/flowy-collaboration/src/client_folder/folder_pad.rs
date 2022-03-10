@@ -307,7 +307,7 @@ impl FolderPad {
             if let Some(workspace) = workspaces.iter_mut().find(|workspace| workspace_id == workspace.id) {
                 f(Arc::make_mut(workspace))
             } else {
-                tracing::warn!("[RootFolder]: Can't find any workspace with id: {}", workspace_id);
+                tracing::warn!("[FolderPad]: Can't find any workspace with id: {}", workspace_id);
                 Ok(None)
             }
         })
@@ -344,7 +344,7 @@ impl FolderPad {
             .find(|workspace| workspace.apps.iter().any(|app| app.id == app_id))
         {
             None => {
-                tracing::warn!("[RootFolder]: Can't find any app with id: {}", app_id);
+                tracing::warn!("[FolderPad]: Can't find any app with id: {}", app_id);
                 return Ok(None);
             }
             Some(workspace) => workspace.id.clone(),
@@ -363,7 +363,7 @@ impl FolderPad {
         self.with_app(belong_to_id, |app| {
             match app.belongings.iter_mut().find(|view| view_id == view.id) {
                 None => {
-                    tracing::warn!("[RootFolder]: Can't find any view with id: {}", view_id);
+                    tracing::warn!("[FolderPad]: Can't find any view with id: {}", view_id);
                     Ok(None)
                 }
                 Some(view) => f(view),

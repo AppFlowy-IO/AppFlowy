@@ -501,7 +501,7 @@ impl<T> Delta<T>
 where
     T: Attributes + DeserializeOwned,
 {
-    pub fn from_json(json: &str) -> Result<Self, OTError> {
+    pub fn from_delta_str(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {
             tracing::trace!("Deserialize failed: {:?}", e);
             tracing::trace!("{:?}", json);
@@ -512,7 +512,7 @@ where
 
     pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, OTError> {
         let json = str::from_utf8(bytes.as_ref())?.to_owned();
-        let val = Self::from_json(&json)?;
+        let val = Self::from_delta_str(&json)?;
         Ok(val)
     }
 }

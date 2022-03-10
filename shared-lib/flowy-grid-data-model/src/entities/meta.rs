@@ -178,7 +178,7 @@ pub struct RowMeta {
     pub id: String,
 
     #[pb(index = 2)]
-    pub grid_id: String,
+    pub block_id: String,
 
     #[pb(index = 3)]
     pub cell_by_field_id: HashMap<String, CellMeta>,
@@ -199,12 +199,27 @@ impl RowMeta {
 
         Self {
             id: id.to_owned(),
-            grid_id: grid_id.to_owned(),
+            block_id: grid_id.to_owned(),
             cell_by_field_id,
             height: DEFAULT_ROW_HEIGHT,
             visibility: true,
         }
     }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RowMetaChangeset {
+    #[pb(index = 1)]
+    pub row_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub height: Option<i32>,
+
+    #[pb(index = 3, one_of)]
+    pub visibility: Option<bool>,
+
+    #[pb(index = 4)]
+    pub cell_by_field_id: HashMap<String, CellMeta>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]

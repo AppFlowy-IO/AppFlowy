@@ -552,6 +552,115 @@ class RowMeta extends $pb.GeneratedMessage {
   void clearVisibility() => clearField(5);
 }
 
+enum RowMetaChangeset_OneOfHeight {
+  height, 
+  notSet
+}
+
+enum RowMetaChangeset_OneOfVisibility {
+  visibility, 
+  notSet
+}
+
+class RowMetaChangeset extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, RowMetaChangeset_OneOfHeight> _RowMetaChangeset_OneOfHeightByTag = {
+    2 : RowMetaChangeset_OneOfHeight.height,
+    0 : RowMetaChangeset_OneOfHeight.notSet
+  };
+  static const $core.Map<$core.int, RowMetaChangeset_OneOfVisibility> _RowMetaChangeset_OneOfVisibilityByTag = {
+    3 : RowMetaChangeset_OneOfVisibility.visibility,
+    0 : RowMetaChangeset_OneOfVisibility.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RowMetaChangeset', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..oo(1, [3])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
+    ..m<$core.String, CellMeta>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'RowMetaChangeset.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: CellMeta.create)
+    ..hasRequiredFields = false
+  ;
+
+  RowMetaChangeset._() : super();
+  factory RowMetaChangeset({
+    $core.String? rowId,
+    $core.int? height,
+    $core.bool? visibility,
+    $core.Map<$core.String, CellMeta>? cellByFieldId,
+  }) {
+    final _result = create();
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    if (height != null) {
+      _result.height = height;
+    }
+    if (visibility != null) {
+      _result.visibility = visibility;
+    }
+    if (cellByFieldId != null) {
+      _result.cellByFieldId.addAll(cellByFieldId);
+    }
+    return _result;
+  }
+  factory RowMetaChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RowMetaChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RowMetaChangeset clone() => RowMetaChangeset()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RowMetaChangeset copyWith(void Function(RowMetaChangeset) updates) => super.copyWith((message) => updates(message as RowMetaChangeset)) as RowMetaChangeset; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RowMetaChangeset create() => RowMetaChangeset._();
+  RowMetaChangeset createEmptyInstance() => create();
+  static $pb.PbList<RowMetaChangeset> createRepeated() => $pb.PbList<RowMetaChangeset>();
+  @$core.pragma('dart2js:noInline')
+  static RowMetaChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RowMetaChangeset>(create);
+  static RowMetaChangeset? _defaultInstance;
+
+  RowMetaChangeset_OneOfHeight whichOneOfHeight() => _RowMetaChangeset_OneOfHeightByTag[$_whichOneof(0)]!;
+  void clearOneOfHeight() => clearField($_whichOneof(0));
+
+  RowMetaChangeset_OneOfVisibility whichOneOfVisibility() => _RowMetaChangeset_OneOfVisibilityByTag[$_whichOneof(1)]!;
+  void clearOneOfVisibility() => clearField($_whichOneof(1));
+
+  @$pb.TagNumber(1)
+  $core.String get rowId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set rowId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRowId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRowId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get height => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set height($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasHeight() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearHeight() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get visibility => $_getBF(2);
+  @$pb.TagNumber(3)
+  set visibility($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasVisibility() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearVisibility() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.Map<$core.String, CellMeta> get cellByFieldId => $_getMap(3);
+}
+
 class CellMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
