@@ -1,4 +1,3 @@
-use crate::entities::Row;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -16,13 +15,25 @@ pub struct GridMeta {
     pub fields: Vec<Field>,
 
     #[pb(index = 3)]
-    pub rows: Vec<RowMeta>,
+    pub blocks: Vec<Block>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct GridBlock {
+pub struct Block {
     #[pb(index = 1)]
     pub id: String,
+
+    #[pb(index = 2)]
+    pub start_row_index: i32,
+
+    #[pb(index = 3)]
+    pub row_count: i32,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+pub struct BlockMeta {
+    #[pb(index = 1)]
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub rows: Vec<RowMeta>,

@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use flowy_block::BlockManager;
+use flowy_block::TextBlockManager;
 use flowy_collaboration::client_document::default::initial_quill_delta_string;
 use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
@@ -32,7 +32,7 @@ impl FolderDepsResolver {
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
         ws_conn: &Arc<FlowyWebSocketConnect>,
-        block_manager: &Arc<BlockManager>,
+        text_block_manager: &Arc<TextBlockManager>,
         grid_manager: &Arc<GridManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
@@ -43,7 +43,7 @@ impl FolderDepsResolver {
             Some(local_server) => local_server,
         };
 
-        let view_data_processor = make_view_data_processor(block_manager.clone(), grid_manager.clone());
+        let view_data_processor = make_view_data_processor(text_block_manager.clone(), grid_manager.clone());
         let folder_manager =
             Arc::new(FolderManager::new(user.clone(), cloud_service, database, view_data_processor, web_socket).await);
 
@@ -60,10 +60,13 @@ impl FolderDepsResolver {
     }
 }
 
-fn make_view_data_processor(block_manager: Arc<BlockManager>, grid_manager: Arc<GridManager>) -> ViewDataProcessorMap {
+fn make_view_data_processor(
+    text_block_manager: Arc<TextBlockManager>,
+    grid_manager: Arc<GridManager>,
+) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = BlockManagerViewDataImpl(block_manager);
+    let block_data_impl = BlockManagerViewDataImpl(text_block_manager);
     map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
 
     let grid_data_impl = GridManagerViewDataImpl(grid_manager);
@@ -130,45 +133,45 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
     }
 }
 
-struct BlockManagerViewDataImpl(Arc<BlockManager>);
+struct BlockManagerViewDataImpl(Arc<TextBlockManager>);
 impl ViewDataProcessor for BlockManagerViewDataImpl {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
-        FutureResult::new(async move { block_manager.init() })
+        let manager = self.0.clone();
+        FutureResult::new(async move { manager.init() })
     }
 
     fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = block_manager.create_block(view_id, repeated_revision).await?;
+            let _ = manager.create_block(view_id, repeated_revision).await?;
             Ok(())
         })
     }
 
     fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = block_manager.delete_block(view_id)?;
+            let _ = manager.delete_block(view_id)?;
             Ok(())
         })
     }
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = block_manager.close_block(view_id)?;
+            let _ = manager.close_block(view_id)?;
             Ok(())
         })
     }
 
     fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError> {
         let view_id = view_id.to_string();
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         FutureResult::new(async move {
-            let editor = block_manager.open_block(view_id).await?;
+            let editor = manager.open_block(view_id).await?;
             let delta_str = editor.delta_str().await?;
             Ok(delta_str)
         })

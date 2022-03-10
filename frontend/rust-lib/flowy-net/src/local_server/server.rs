@@ -4,7 +4,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     client_document::default::initial_quill_delta_string,
     entities::{
-        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams},
+        text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -413,12 +413,12 @@ impl UserCloudService for LocalServer {
 }
 
 impl BlockCloudService for LocalServer {
-    fn create_block(&self, _token: &str, _params: CreateBlockParams) -> FutureResult<(), FlowyError> {
+    fn create_block(&self, _token: &str, _params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
-        let doc = BlockInfo {
+    fn read_block(&self, _token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError> {
+        let doc = TextBlockInfo {
             block_id: params.value,
             text: initial_quill_delta_string(),
             rev_id: 0,
@@ -427,7 +427,7 @@ impl BlockCloudService for LocalServer {
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_block(&self, _token: &str, _params: ResetBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, _token: &str, _params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

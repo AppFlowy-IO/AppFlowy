@@ -3,10 +3,15 @@ syntax = "proto3";
 message GridMeta {
     string grid_id = 1;
     repeated Field fields = 2;
-    repeated RowMeta rows = 3;
+    repeated Block blocks = 3;
 }
-message GridBlock {
+message Block {
     string id = 1;
+    int32 start_row_index = 2;
+    int32 row_count = 3;
+}
+message BlockMeta {
+    string block_id = 1;
     repeated RowMeta rows = 2;
 }
 message Field {

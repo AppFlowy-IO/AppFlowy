@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_collaboration::entities::{document_info::BlockInfo, revision::RevisionState};
+use flowy_collaboration::entities::{revision::RevisionState, text_block_info::TextBlockInfo};
 use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
@@ -58,7 +58,7 @@ pub struct FolderTest {
     pub app: App,
     pub view: View,
     pub trash: Vec<Trash>,
-    pub document_info: Option<BlockInfo>,
+    pub document_info: Option<TextBlockInfo>,
     // pub folder_editor:
 }
 

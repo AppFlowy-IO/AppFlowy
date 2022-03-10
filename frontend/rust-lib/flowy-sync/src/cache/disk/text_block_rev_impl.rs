@@ -14,12 +14,12 @@ use flowy_database::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use std::sync::Arc;
 
-pub struct SQLitePersistence {
+pub struct SQLiteTextBlockRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache for SQLitePersistence {
+impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(
@@ -83,7 +83,7 @@ impl RevisionDiskCache for SQLitePersistence {
     }
 }
 
-impl SQLitePersistence {
+impl SQLiteTextBlockRevisionPersistence {
     pub(crate) fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),

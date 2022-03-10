@@ -33,7 +33,7 @@ impl GridMetaPad {
 
     pub fn create_row(&mut self, row: RowMeta) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            grid.rows.push(row);
+            // grid.rows.push(row);
             Ok(Some(()))
         })
     }
@@ -47,7 +47,7 @@ impl GridMetaPad {
 
     pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            grid.rows.retain(|row| !row_ids.contains(&row.id));
+            // grid.rows.retain(|row| !row_ids.contains(&row.id));
             Ok(Some(()))
         })
     }
@@ -74,17 +74,17 @@ impl GridMetaPad {
             .map(FieldOrder::from)
             .collect::<Vec<FieldOrder>>();
 
-        let row_orders = self
-            .grid_meta
-            .rows
-            .iter()
-            .map(RowOrder::from)
-            .collect::<Vec<RowOrder>>();
+        // let row_orders = self
+        //     .grid_meta
+        //     .rows
+        //     .iter()
+        //     .map(RowOrder::from)
+        //     .collect::<Vec<RowOrder>>();
 
         Grid {
             id: "".to_string(),
             field_orders,
-            row_orders,
+            row_orders: vec![],
         }
     }
 
@@ -147,7 +147,7 @@ impl std::default::Default for GridMetaPad {
         let grid = GridMeta {
             grid_id: uuid(),
             fields: vec![],
-            rows: vec![],
+            blocks: vec![],
         };
         let delta = make_grid_delta(&grid);
         GridMetaPad {

@@ -29,23 +29,35 @@ const GridMeta$json = const {
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'fields', '3': 2, '4': 3, '5': 11, '6': '.Field', '10': 'fields'},
-    const {'1': 'rows', '3': 3, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rows'},
+    const {'1': 'blocks', '3': 3, '4': 3, '5': 11, '6': '.Block', '10': 'blocks'},
   ],
 };
 
 /// Descriptor for `GridMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSHgoGZmllbGRzGAIgAygLMgYuRmllbGRSBmZpZWxkcxIcCgRyb3dzGAMgAygLMgguUm93TWV0YVIEcm93cw==');
-@$core.Deprecated('Use gridBlockDescriptor instead')
-const GridBlock$json = const {
-  '1': 'GridBlock',
+final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSHgoGZmllbGRzGAIgAygLMgYuRmllbGRSBmZpZWxkcxIeCgZibG9ja3MYAyADKAsyBi5CbG9ja1IGYmxvY2tz');
+@$core.Deprecated('Use blockDescriptor instead')
+const Block$json = const {
+  '1': 'Block',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'start_row_index', '3': 2, '4': 1, '5': 5, '10': 'startRowIndex'},
+    const {'1': 'row_count', '3': 3, '4': 1, '5': 5, '10': 'rowCount'},
+  ],
+};
+
+/// Descriptor for `Block`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List blockDescriptor = $convert.base64Decode('CgVCbG9jaxIOCgJpZBgBIAEoCVICaWQSJgoPc3RhcnRfcm93X2luZGV4GAIgASgFUg1zdGFydFJvd0luZGV4EhsKCXJvd19jb3VudBgDIAEoBVIIcm93Q291bnQ=');
+@$core.Deprecated('Use blockMetaDescriptor instead')
+const BlockMeta$json = const {
+  '1': 'BlockMeta',
+  '2': const [
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'rows', '3': 2, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rows'},
   ],
 };
 
-/// Descriptor for `GridBlock`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSDgoCaWQYASABKAlSAmlkEhwKBHJvd3MYAiADKAsyCC5Sb3dNZXRhUgRyb3dz');
+/// Descriptor for `BlockMeta`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List blockMetaDescriptor = $convert.base64Decode('CglCbG9ja01ldGESGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSHAoEcm93cxgCIAMoCzIILlJvd01ldGFSBHJvd3M=');
 @$core.Deprecated('Use fieldDescriptor instead')
 const Field$json = const {
   '1': 'Field',

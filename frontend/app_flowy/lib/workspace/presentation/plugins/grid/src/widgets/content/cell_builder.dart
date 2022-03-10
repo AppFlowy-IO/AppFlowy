@@ -1,4 +1,5 @@
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
 import 'date_cell.dart';

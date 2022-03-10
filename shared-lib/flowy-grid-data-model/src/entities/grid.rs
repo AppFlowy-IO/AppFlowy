@@ -1,8 +1,6 @@
 use crate::entities::{Field, RowMeta};
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::{Deserialize, Serialize};
+use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
-use strum_macros::{Display, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
 pub const DEFAULT_FIELD_WIDTH: i32 = 150;

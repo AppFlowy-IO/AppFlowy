@@ -14,8 +14,8 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    document_info::BlockId,
     revision::{RepeatedRevision, Revision},
+    text_block_info::TextBlockId,
 };
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::ViewDataType;
@@ -147,7 +147,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: BlockId) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: TextBlockId) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);

@@ -3,7 +3,9 @@ use crate::{
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
 use flowy_block::BlockCloudService;
-use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams};
+use flowy_collaboration::entities::text_block_info::{
+    CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo,
+};
 use flowy_error::FlowyError;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
@@ -21,26 +23,26 @@ impl BlockHttpCloudService {
 }
 
 impl BlockCloudService for BlockHttpCloudService {
-    fn create_block(&self, token: &str, params: CreateBlockParams) -> FutureResult<(), FlowyError> {
+    fn create_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    fn read_block(&self, token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
+    fn read_block(&self, token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
     }
 
-    fn update_block(&self, token: &str, params: ResetBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
     }
 }
 
-pub async fn create_document_request(token: &str, params: CreateBlockParams, url: &str) -> Result<(), FlowyError> {
+pub async fn create_document_request(token: &str, params: CreateTextBlockParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -50,7 +52,11 @@ pub async fn create_document_request(token: &str, params: CreateBlockParams, url
     Ok(())
 }
 
-pub async fn read_document_request(token: &str, params: BlockId, url: &str) -> Result<Option<BlockInfo>, FlowyError> {
+pub async fn read_document_request(
+    token: &str,
+    params: TextBlockId,
+    url: &str,
+) -> Result<Option<TextBlockInfo>, FlowyError> {
     let doc = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -61,7 +67,7 @@ pub async fn read_document_request(token: &str, params: BlockId, url: &str) -> R
     Ok(doc)
 }
 
-pub async fn reset_doc_request(token: &str, params: ResetBlockParams, url: &str) -> Result<(), FlowyError> {
+pub async fn reset_doc_request(token: &str, params: ResetTextBlockParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

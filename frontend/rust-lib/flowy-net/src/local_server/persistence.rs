@@ -1,5 +1,5 @@
 use flowy_collaboration::{
-    entities::{document_info::BlockInfo, folder_info::FolderInfo},
+    entities::{folder_info::FolderInfo, text_block_info::TextBlockInfo},
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::*,
@@ -111,7 +111,7 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
 }
 
 impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<BlockInfo, CollaborateError> {
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfo, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
@@ -127,7 +127,7 @@ impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<BlockInfo>, CollaborateError> {
+    ) -> BoxResultFuture<Option<TextBlockInfo>, CollaborateError> {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {

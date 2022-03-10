@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_block::{
     errors::{internal_error, FlowyError},
-    BlockCloudService, BlockManager, BlockUser,
+    BlockCloudService, TextBlockManager, TextBlockUser,
 };
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
@@ -16,22 +16,22 @@ use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct BlockDepsResolver();
-impl BlockDepsResolver {
+pub struct TextBlockDepsResolver();
+impl TextBlockDepsResolver {
     pub fn resolve(
         local_server: Option<Arc<LocalServer>>,
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-    ) -> Arc<BlockManager> {
+    ) -> Arc<TextBlockManager> {
         let user = Arc::new(BlockUserImpl(user_session));
-        let rev_web_socket = Arc::new(BlockWebSocket(ws_conn.clone()));
+        let rev_web_socket = Arc::new(TextBlockWebSocket(ws_conn.clone()));
         let cloud_service: Arc<dyn BlockCloudService> = match local_server {
             None => Arc::new(BlockHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
         };
 
-        let manager = Arc::new(BlockManager::new(cloud_service, user, rev_web_socket));
+        let manager = Arc::new(TextBlockManager::new(cloud_service, user, rev_web_socket));
         let receiver = Arc::new(DocumentWSMessageReceiverImpl(manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
 
@@ -40,7 +40,7 @@ impl BlockDepsResolver {
 }
 
 struct BlockUserImpl(Arc<UserSession>);
-impl BlockUser for BlockUserImpl {
+impl TextBlockUser for BlockUserImpl {
     fn user_dir(&self) -> Result<String, FlowyError> {
         let dir = self.0.user_dir().map_err(|e| FlowyError::unauthorized().context(e))?;
 
@@ -64,8 +64,8 @@ impl BlockUser for BlockUserImpl {
     }
 }
 
-struct BlockWebSocket(Arc<FlowyWebSocketConnect>);
-impl RevisionWebSocket for BlockWebSocket {
+struct TextBlockWebSocket(Arc<FlowyWebSocketConnect>);
+impl RevisionWebSocket for TextBlockWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
@@ -90,7 +90,7 @@ impl RevisionWebSocket for BlockWebSocket {
     }
 }
 
-struct DocumentWSMessageReceiverImpl(Arc<BlockManager>);
+struct DocumentWSMessageReceiverImpl(Arc<TextBlockManager>);
 impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
     fn source(&self) -> WSChannel {
         WSChannel::Document

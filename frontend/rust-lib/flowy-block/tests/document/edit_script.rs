@@ -1,4 +1,4 @@
-use flowy_block::block_editor::ClientBlockEditor;
+use flowy_block::editor::ClientTextBlockEditor;
 use flowy_block::DOCUMENT_SYNC_INTERVAL_IN_MILLIS;
 use flowy_collaboration::entities::revision::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
@@ -19,7 +19,7 @@ pub enum EditorScript {
 
 pub struct EditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<ClientBlockEditor>,
+    pub editor: Arc<ClientTextBlockEditor>,
 }
 
 impl EditorTest {
@@ -27,7 +27,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let editor = sdk.block_manager.open_block(&test.view.id).await.unwrap();
+        let editor = sdk.text_block_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 

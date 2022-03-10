@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_block::BlockManager;
+use flowy_block::TextBlockManager;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -88,7 +88,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub block_manager: Arc<BlockManager>,
+    pub text_block_manager: Arc<TextBlockManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,
@@ -103,9 +103,9 @@ impl FlowySDK {
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
-        let (user_session, block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
+        let (user_session, text_block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
-            let block_manager = BlockDepsResolver::resolve(
+            let text_block_manager = TextBlockDepsResolver::resolve(
                 local_server.clone(),
                 ws_conn.clone(),
                 user_session.clone(),
@@ -119,7 +119,7 @@ impl FlowySDK {
                 user_session.clone(),
                 &config.server_config,
                 &ws_conn,
-                &block_manager,
+                &text_block_manager,
                 &grid_manager,
             )
             .await;
@@ -128,11 +128,23 @@ impl FlowySDK {
                 local_server.run();
             }
             ws_conn.init().await;
-            (user_session, block_manager, folder_manager, local_server, grid_manager)
+            (
+                user_session,
+                text_block_manager,
+                folder_manager,
+                local_server,
+                grid_manager,
+            )
         });
 
         let dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
-            mk_modules(&ws_conn, &folder_manager, &grid_manager, &user_session, &block_manager)
+            mk_modules(
+                &ws_conn,
+                &folder_manager,
+                &grid_manager,
+                &user_session,
+                &text_block_manager,
+            )
         }));
 
         _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager);
@@ -140,7 +152,7 @@ impl FlowySDK {
         Self {
             config,
             user_session,
-            block_manager,
+            text_block_manager,
             folder_manager,
             grid_manager,
             dispatcher,

@@ -1,5 +1,5 @@
 use crate::web_socket::EditorCommandReceiver;
-use crate::BlockUser;
+use crate::TextBlockUser;
 use async_stream::stream;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{
@@ -21,14 +21,14 @@ use tokio::sync::{oneshot, RwLock};
 // serial.
 pub(crate) struct EditBlockQueue {
     document: Arc<RwLock<ClientDocument>>,
-    user: Arc<dyn BlockUser>,
+    user: Arc<dyn TextBlockUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditBlockQueue {
     pub(crate) fn new(
-        user: Arc<dyn BlockUser>,
+        user: Arc<dyn TextBlockUser>,
         rev_manager: Arc<RevisionManager>,
         delta: RichTextDelta,
         receiver: EditorCommandReceiver,

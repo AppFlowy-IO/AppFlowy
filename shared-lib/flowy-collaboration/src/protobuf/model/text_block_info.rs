@@ -17,14 +17,14 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `document_info.proto`
+//! Generated file from `text_block_info.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateBlockParams {
+pub struct CreateTextBlockParams {
     // message fields
     pub id: ::std::string::String,
     pub revisions: ::protobuf::SingularPtrField<super::revision::RepeatedRevision>,
@@ -33,14 +33,14 @@ pub struct CreateBlockParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CreateBlockParams {
-    fn default() -> &'a CreateBlockParams {
-        <CreateBlockParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a CreateTextBlockParams {
+    fn default() -> &'a CreateTextBlockParams {
+        <CreateTextBlockParams as ::protobuf::Message>::default_instance()
     }
 }
 
-impl CreateBlockParams {
-    pub fn new() -> CreateBlockParams {
+impl CreateTextBlockParams {
+    pub fn new() -> CreateTextBlockParams {
         ::std::default::Default::default()
     }
 
@@ -104,7 +104,7 @@ impl CreateBlockParams {
     }
 }
 
-impl ::protobuf::Message for CreateBlockParams {
+impl ::protobuf::Message for CreateTextBlockParams {
     fn is_initialized(&self) -> bool {
         for v in &self.revisions {
             if !v.is_initialized() {
@@ -187,8 +187,8 @@ impl ::protobuf::Message for CreateBlockParams {
         Self::descriptor_static()
     }
 
-    fn new() -> CreateBlockParams {
-        CreateBlockParams::new()
+    fn new() -> CreateTextBlockParams {
+        CreateTextBlockParams::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -197,29 +197,29 @@ impl ::protobuf::Message for CreateBlockParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &CreateBlockParams| { &m.id },
-                |m: &mut CreateBlockParams| { &mut m.id },
+                |m: &CreateTextBlockParams| { &m.id },
+                |m: &mut CreateTextBlockParams| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::revision::RepeatedRevision>>(
                 "revisions",
-                |m: &CreateBlockParams| { &m.revisions },
-                |m: &mut CreateBlockParams| { &mut m.revisions },
+                |m: &CreateTextBlockParams| { &m.revisions },
+                |m: &mut CreateTextBlockParams| { &mut m.revisions },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateBlockParams>(
-                "CreateBlockParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateTextBlockParams>(
+                "CreateTextBlockParams",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CreateBlockParams {
-        static instance: ::protobuf::rt::LazyV2<CreateBlockParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateBlockParams::new)
+    fn default_instance() -> &'static CreateTextBlockParams {
+        static instance: ::protobuf::rt::LazyV2<CreateTextBlockParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateTextBlockParams::new)
     }
 }
 
-impl ::protobuf::Clear for CreateBlockParams {
+impl ::protobuf::Clear for CreateTextBlockParams {
     fn clear(&mut self) {
         self.id.clear();
         self.revisions.clear();
@@ -227,20 +227,20 @@ impl ::protobuf::Clear for CreateBlockParams {
     }
 }
 
-impl ::std::fmt::Debug for CreateBlockParams {
+impl ::std::fmt::Debug for CreateTextBlockParams {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CreateBlockParams {
+impl ::protobuf::reflect::ProtobufValue for CreateTextBlockParams {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct BlockInfo {
+pub struct TextBlockInfo {
     // message fields
     pub block_id: ::std::string::String,
     pub text: ::std::string::String,
@@ -251,14 +251,14 @@ pub struct BlockInfo {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a BlockInfo {
-    fn default() -> &'a BlockInfo {
-        <BlockInfo as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a TextBlockInfo {
+    fn default() -> &'a TextBlockInfo {
+        <TextBlockInfo as ::protobuf::Message>::default_instance()
     }
 }
 
-impl BlockInfo {
-    pub fn new() -> BlockInfo {
+impl TextBlockInfo {
+    pub fn new() -> TextBlockInfo {
         ::std::default::Default::default()
     }
 
@@ -345,7 +345,7 @@ impl BlockInfo {
     }
 }
 
-impl ::protobuf::Message for BlockInfo {
+impl ::protobuf::Message for TextBlockInfo {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -446,8 +446,8 @@ impl ::protobuf::Message for BlockInfo {
         Self::descriptor_static()
     }
 
-    fn new() -> BlockInfo {
-        BlockInfo::new()
+    fn new() -> TextBlockInfo {
+        TextBlockInfo::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -456,39 +456,39 @@ impl ::protobuf::Message for BlockInfo {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "block_id",
-                |m: &BlockInfo| { &m.block_id },
-                |m: &mut BlockInfo| { &mut m.block_id },
+                |m: &TextBlockInfo| { &m.block_id },
+                |m: &mut TextBlockInfo| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "text",
-                |m: &BlockInfo| { &m.text },
-                |m: &mut BlockInfo| { &mut m.text },
+                |m: &TextBlockInfo| { &m.text },
+                |m: &mut TextBlockInfo| { &mut m.text },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
                 "rev_id",
-                |m: &BlockInfo| { &m.rev_id },
-                |m: &mut BlockInfo| { &mut m.rev_id },
+                |m: &TextBlockInfo| { &m.rev_id },
+                |m: &mut TextBlockInfo| { &mut m.rev_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
                 "base_rev_id",
-                |m: &BlockInfo| { &m.base_rev_id },
-                |m: &mut BlockInfo| { &mut m.base_rev_id },
+                |m: &TextBlockInfo| { &m.base_rev_id },
+                |m: &mut TextBlockInfo| { &mut m.base_rev_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<BlockInfo>(
-                "BlockInfo",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TextBlockInfo>(
+                "TextBlockInfo",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static BlockInfo {
-        static instance: ::protobuf::rt::LazyV2<BlockInfo> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(BlockInfo::new)
+    fn default_instance() -> &'static TextBlockInfo {
+        static instance: ::protobuf::rt::LazyV2<TextBlockInfo> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TextBlockInfo::new)
     }
 }
 
-impl ::protobuf::Clear for BlockInfo {
+impl ::protobuf::Clear for TextBlockInfo {
     fn clear(&mut self) {
         self.block_id.clear();
         self.text.clear();
@@ -498,20 +498,20 @@ impl ::protobuf::Clear for BlockInfo {
     }
 }
 
-impl ::std::fmt::Debug for BlockInfo {
+impl ::std::fmt::Debug for TextBlockInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for BlockInfo {
+impl ::protobuf::reflect::ProtobufValue for TextBlockInfo {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct ResetBlockParams {
+pub struct ResetTextBlockParams {
     // message fields
     pub block_id: ::std::string::String,
     pub revisions: ::protobuf::SingularPtrField<super::revision::RepeatedRevision>,
@@ -520,14 +520,14 @@ pub struct ResetBlockParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a ResetBlockParams {
-    fn default() -> &'a ResetBlockParams {
-        <ResetBlockParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a ResetTextBlockParams {
+    fn default() -> &'a ResetTextBlockParams {
+        <ResetTextBlockParams as ::protobuf::Message>::default_instance()
     }
 }
 
-impl ResetBlockParams {
-    pub fn new() -> ResetBlockParams {
+impl ResetTextBlockParams {
+    pub fn new() -> ResetTextBlockParams {
         ::std::default::Default::default()
     }
 
@@ -591,7 +591,7 @@ impl ResetBlockParams {
     }
 }
 
-impl ::protobuf::Message for ResetBlockParams {
+impl ::protobuf::Message for ResetTextBlockParams {
     fn is_initialized(&self) -> bool {
         for v in &self.revisions {
             if !v.is_initialized() {
@@ -674,8 +674,8 @@ impl ::protobuf::Message for ResetBlockParams {
         Self::descriptor_static()
     }
 
-    fn new() -> ResetBlockParams {
-        ResetBlockParams::new()
+    fn new() -> ResetTextBlockParams {
+        ResetTextBlockParams::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -684,29 +684,29 @@ impl ::protobuf::Message for ResetBlockParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "block_id",
-                |m: &ResetBlockParams| { &m.block_id },
-                |m: &mut ResetBlockParams| { &mut m.block_id },
+                |m: &ResetTextBlockParams| { &m.block_id },
+                |m: &mut ResetTextBlockParams| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::revision::RepeatedRevision>>(
                 "revisions",
-                |m: &ResetBlockParams| { &m.revisions },
-                |m: &mut ResetBlockParams| { &mut m.revisions },
+                |m: &ResetTextBlockParams| { &m.revisions },
+                |m: &mut ResetTextBlockParams| { &mut m.revisions },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ResetBlockParams>(
-                "ResetBlockParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ResetTextBlockParams>(
+                "ResetTextBlockParams",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static ResetBlockParams {
-        static instance: ::protobuf::rt::LazyV2<ResetBlockParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(ResetBlockParams::new)
+    fn default_instance() -> &'static ResetTextBlockParams {
+        static instance: ::protobuf::rt::LazyV2<ResetTextBlockParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ResetTextBlockParams::new)
     }
 }
 
-impl ::protobuf::Clear for ResetBlockParams {
+impl ::protobuf::Clear for ResetTextBlockParams {
     fn clear(&mut self) {
         self.block_id.clear();
         self.revisions.clear();
@@ -714,20 +714,20 @@ impl ::protobuf::Clear for ResetBlockParams {
     }
 }
 
-impl ::std::fmt::Debug for ResetBlockParams {
+impl ::std::fmt::Debug for ResetTextBlockParams {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ResetBlockParams {
+impl ::protobuf::reflect::ProtobufValue for ResetTextBlockParams {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct BlockDelta {
+pub struct TextBlockDelta {
     // message fields
     pub block_id: ::std::string::String,
     pub delta_str: ::std::string::String,
@@ -736,14 +736,14 @@ pub struct BlockDelta {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a BlockDelta {
-    fn default() -> &'a BlockDelta {
-        <BlockDelta as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a TextBlockDelta {
+    fn default() -> &'a TextBlockDelta {
+        <TextBlockDelta as ::protobuf::Message>::default_instance()
     }
 }
 
-impl BlockDelta {
-    pub fn new() -> BlockDelta {
+impl TextBlockDelta {
+    pub fn new() -> TextBlockDelta {
         ::std::default::Default::default()
     }
 
@@ -800,7 +800,7 @@ impl BlockDelta {
     }
 }
 
-impl ::protobuf::Message for BlockDelta {
+impl ::protobuf::Message for TextBlockDelta {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -875,8 +875,8 @@ impl ::protobuf::Message for BlockDelta {
         Self::descriptor_static()
     }
 
-    fn new() -> BlockDelta {
-        BlockDelta::new()
+    fn new() -> TextBlockDelta {
+        TextBlockDelta::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -885,29 +885,29 @@ impl ::protobuf::Message for BlockDelta {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "block_id",
-                |m: &BlockDelta| { &m.block_id },
-                |m: &mut BlockDelta| { &mut m.block_id },
+                |m: &TextBlockDelta| { &m.block_id },
+                |m: &mut TextBlockDelta| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "delta_str",
-                |m: &BlockDelta| { &m.delta_str },
-                |m: &mut BlockDelta| { &mut m.delta_str },
+                |m: &TextBlockDelta| { &m.delta_str },
+                |m: &mut TextBlockDelta| { &mut m.delta_str },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<BlockDelta>(
-                "BlockDelta",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TextBlockDelta>(
+                "TextBlockDelta",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static BlockDelta {
-        static instance: ::protobuf::rt::LazyV2<BlockDelta> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(BlockDelta::new)
+    fn default_instance() -> &'static TextBlockDelta {
+        static instance: ::protobuf::rt::LazyV2<TextBlockDelta> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TextBlockDelta::new)
     }
 }
 
-impl ::protobuf::Clear for BlockDelta {
+impl ::protobuf::Clear for TextBlockDelta {
     fn clear(&mut self) {
         self.block_id.clear();
         self.delta_str.clear();
@@ -915,13 +915,13 @@ impl ::protobuf::Clear for BlockDelta {
     }
 }
 
-impl ::std::fmt::Debug for BlockDelta {
+impl ::std::fmt::Debug for TextBlockDelta {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for BlockDelta {
+impl ::protobuf::reflect::ProtobufValue for TextBlockDelta {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1164,7 +1164,7 @@ impl ::protobuf::reflect::ProtobufValue for NewDocUser {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct BlockId {
+pub struct TextBlockId {
     // message fields
     pub value: ::std::string::String,
     // special fields
@@ -1172,14 +1172,14 @@ pub struct BlockId {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a BlockId {
-    fn default() -> &'a BlockId {
-        <BlockId as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a TextBlockId {
+    fn default() -> &'a TextBlockId {
+        <TextBlockId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl BlockId {
-    pub fn new() -> BlockId {
+impl TextBlockId {
+    pub fn new() -> TextBlockId {
         ::std::default::Default::default()
     }
 
@@ -1210,7 +1210,7 @@ impl BlockId {
     }
 }
 
-impl ::protobuf::Message for BlockId {
+impl ::protobuf::Message for TextBlockId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -1276,8 +1276,8 @@ impl ::protobuf::Message for BlockId {
         Self::descriptor_static()
     }
 
-    fn new() -> BlockId {
-        BlockId::new()
+    fn new() -> TextBlockId {
+        TextBlockId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -1286,57 +1286,57 @@ impl ::protobuf::Message for BlockId {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "value",
-                |m: &BlockId| { &m.value },
-                |m: &mut BlockId| { &mut m.value },
+                |m: &TextBlockId| { &m.value },
+                |m: &mut TextBlockId| { &mut m.value },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<BlockId>(
-                "BlockId",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TextBlockId>(
+                "TextBlockId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static BlockId {
-        static instance: ::protobuf::rt::LazyV2<BlockId> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(BlockId::new)
+    fn default_instance() -> &'static TextBlockId {
+        static instance: ::protobuf::rt::LazyV2<TextBlockId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TextBlockId::new)
     }
 }
 
-impl ::protobuf::Clear for BlockId {
+impl ::protobuf::Clear for TextBlockId {
     fn clear(&mut self) {
         self.value.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for BlockId {
+impl ::std::fmt::Debug for TextBlockId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for BlockId {
+impl ::protobuf::reflect::ProtobufValue for TextBlockId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x13document_info.proto\x1a\x0erevision.proto\"T\n\x11CreateBlockParam\
-    s\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12/\n\trevisions\x18\x02\
-    \x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"q\n\tBlockInfo\x12\x19\
-    \n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\x12\n\x04text\x18\x02\
-    \x20\x01(\tR\x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\
-    \x12\x1e\n\x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"^\n\x10Reset\
-    BlockParams\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12/\n\
-    \trevisions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"D\n\
-    \nBlockDelta\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\
-    \x1b\n\tdelta_str\x18\x02\x20\x01(\tR\x08deltaStr\"S\n\nNewDocUser\x12\
-    \x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\
-    \x02\x20\x01(\x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05d\
-    ocId\"\x1f\n\x07BlockId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05valueb\
-    \x06proto3\
+    \n\x15text_block_info.proto\x1a\x0erevision.proto\"X\n\x15CreateTextBloc\
+    kParams\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12/\n\trevisions\x18\
+    \x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"u\n\rTextBlockInfo\
+    \x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\x12\n\x04text\
+    \x18\x02\x20\x01(\tR\x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\
+    \x05revId\x12\x1e\n\x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"b\n\
+    \x14ResetTextBlockParams\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07bl\
+    ockId\x12/\n\trevisions\x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trev\
+    isions\"H\n\x0eTextBlockDelta\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\
+    \x07blockId\x12\x1b\n\tdelta_str\x18\x02\x20\x01(\tR\x08deltaStr\"S\n\nN\
+    ewDocUser\x12\x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\
+    \x06rev_id\x18\x02\x20\x01(\x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\
+    \x20\x01(\tR\x05docId\"#\n\x0bTextBlockId\x12\x14\n\x05value\x18\x01\x20\
+    \x01(\tR\x05valueb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

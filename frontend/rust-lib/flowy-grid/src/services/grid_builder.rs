@@ -44,7 +44,7 @@ impl GridBuilder {
         let grid_meta = GridMeta {
             grid_id: self.grid_id,
             fields: self.fields,
-            rows: self.rows,
+            blocks: vec![],
         };
 
         // let _ = check_rows(&self.fields, &self.rows)?;

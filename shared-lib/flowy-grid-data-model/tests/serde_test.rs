@@ -7,14 +7,14 @@ fn grid_serde_test() {
     let grid = GridMeta {
         grid_id,
         fields,
-        rows: vec![],
+        blocks: vec![],
     };
 
     let grid_1_json = serde_json::to_string(&grid).unwrap();
-    let _: Grid = serde_json::from_str(&grid_1_json).unwrap();
+    let _: GridMeta = serde_json::from_str(&grid_1_json).unwrap();
     assert_eq!(
         grid_1_json,
-        r#"{"id":"1","fields":[{"id":"1","name":"Text Field","desc":"","field_type":"RichText","frozen":false,"visibility":true,"width":150,"type_options":{"type_id":"","value":[]}}],"rows":[]}"#
+        r#"{"id":"1","fields":[{"id":"1","name":"Text Field","desc":"","field_type":"RichText","frozen":false,"visibility":true,"width":150,"type_options":{"type_id":"","value":[]}}],"blocks":[]}"#
     )
 }
 
@@ -24,11 +24,11 @@ fn grid_default_serde_test() {
     let grid = GridMeta {
         grid_id,
         fields: vec![],
-        rows: vec![],
+        blocks: vec![],
     };
 
     let json = serde_json::to_string(&grid).unwrap();
-    assert_eq!(json, r#"{"id":"1","fields":[],"row_orders":[]}"#)
+    assert_eq!(json, r#"{"id":"1","fields":[],"blocks":[]}"#)
 }
 
 fn create_field(field_id: &str) -> Field {

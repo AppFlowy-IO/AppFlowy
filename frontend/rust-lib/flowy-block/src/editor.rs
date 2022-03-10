@@ -3,12 +3,12 @@ use crate::web_socket::{make_block_ws_manager, EditorCommandSender};
 use crate::{
     errors::FlowyError,
     queue::{EditBlockQueue, EditorCommand},
-    BlockUser,
+    TextBlockUser,
 };
 use bytes::Bytes;
 use flowy_collaboration::entities::ws_data::ServerRevisionWSData;
 use flowy_collaboration::{
-    entities::{document_info::BlockInfo, revision::Revision},
+    entities::{revision::Revision, text_block_info::TextBlockInfo},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
@@ -24,7 +24,7 @@ use lib_ws::WSConnectState;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct ClientBlockEditor {
+pub struct ClientTextBlockEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -32,10 +32,10 @@ pub struct ClientBlockEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ClientBlockEditor {
+impl ClientTextBlockEditor {
     pub(crate) async fn new(
         doc_id: &str,
-        user: Arc<dyn BlockUser>,
+        user: Arc<dyn TextBlockUser>,
         mut rev_manager: RevisionManager,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
@@ -174,7 +174,7 @@ impl ClientBlockEditor {
     }
 }
 
-impl std::ops::Drop for ClientBlockEditor {
+impl std::ops::Drop for ClientTextBlockEditor {
     fn drop(&mut self) {
         tracing::trace!("{} ClientBlockEditor was dropped", self.doc_id)
     }
@@ -182,7 +182,7 @@ impl std::ops::Drop for ClientBlockEditor {
 
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
-    user: Arc<dyn BlockUser>,
+    user: Arc<dyn TextBlockUser>,
     rev_manager: Arc<RevisionManager>,
     delta: RichTextDelta,
 ) -> EditorCommandSender {
@@ -193,7 +193,7 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl ClientBlockEditor {
+impl ClientTextBlockEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditorCommand::ReadDeltaStr { ret };
@@ -217,14 +217,14 @@ impl ClientBlockEditor {
 
 struct BlockInfoBuilder();
 impl RevisionObjectBuilder for BlockInfoBuilder {
-    type Output = BlockInfo;
+    type Output = TextBlockInfo;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_delta_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<BlockInfo, FlowyError>::Ok(BlockInfo {
+        Result::<TextBlockInfo, FlowyError>::Ok(TextBlockInfo {
             block_id: object_id.to_owned(),
             text: delta.to_delta_str(),
             rev_id,

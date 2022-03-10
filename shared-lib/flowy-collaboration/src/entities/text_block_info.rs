@@ -6,7 +6,7 @@ use flowy_derive::ProtoBuf;
 use lib_ot::{errors::OTError, rich_text::RichTextDelta};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct CreateBlockParams {
+pub struct CreateTextBlockParams {
     #[pb(index = 1)]
     pub id: String,
 
@@ -15,7 +15,7 @@ pub struct CreateBlockParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct BlockInfo {
+pub struct TextBlockInfo {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -29,14 +29,14 @@ pub struct BlockInfo {
     pub base_rev_id: i64,
 }
 
-impl BlockInfo {
+impl TextBlockInfo {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Revision> for BlockInfo {
+impl std::convert::TryFrom<Revision> for TextBlockInfo {
     type Error = CollaborateError;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -48,7 +48,7 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let doc_json = delta.to_delta_str();
 
-        Ok(BlockInfo {
+        Ok(TextBlockInfo {
             block_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
@@ -58,7 +58,7 @@ impl std::convert::TryFrom<Revision> for BlockInfo {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct ResetBlockParams {
+pub struct ResetTextBlockParams {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -67,7 +67,7 @@ pub struct ResetBlockParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct BlockDelta {
+pub struct TextBlockDelta {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -88,30 +88,30 @@ pub struct NewDocUser {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct BlockId {
+pub struct TextBlockId {
     #[pb(index = 1)]
     pub value: String,
 }
-impl AsRef<str> for BlockId {
+impl AsRef<str> for TextBlockId {
     fn as_ref(&self) -> &str {
         &self.value
     }
 }
 
-impl std::convert::From<String> for BlockId {
+impl std::convert::From<String> for TextBlockId {
     fn from(value: String) -> Self {
-        BlockId { value }
+        TextBlockId { value }
     }
 }
 
-impl std::convert::From<BlockId> for String {
-    fn from(block_id: BlockId) -> Self {
+impl std::convert::From<TextBlockId> for String {
+    fn from(block_id: TextBlockId) -> Self {
         block_id.value
     }
 }
 
-impl std::convert::From<&String> for BlockId {
+impl std::convert::From<&String> for TextBlockId {
     fn from(s: &String) -> Self {
-        BlockId { value: s.to_owned() }
+        TextBlockId { value: s.to_owned() }
     }
 }

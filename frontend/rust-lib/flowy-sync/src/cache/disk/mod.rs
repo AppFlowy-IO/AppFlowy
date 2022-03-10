@@ -1,9 +1,14 @@
-mod sql_impl;
+mod folder_rev_impl;
+mod grid_rev_impl;
+mod text_block_rev_impl;
+
+pub use folder_rev_impl::*;
+pub use grid_rev_impl::*;
+pub use text_block_rev_impl::*;
+
 use crate::RevisionRecord;
 use diesel::SqliteConnection;
 use flowy_collaboration::entities::revision::RevisionRange;
-pub use sql_impl::*;
-
 use flowy_error::FlowyResult;
 use std::fmt::Debug;
 
