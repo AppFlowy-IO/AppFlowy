@@ -19,10 +19,6 @@ message RevisionRange {
     int64 start = 1;
     int64 end = 2;
 }
-enum RevisionState {
-    Sync = 0;
-    Ack = 1;
-}
 enum RevType {
     DeprecatedLocal = 0;
     DeprecatedRemote = 1;

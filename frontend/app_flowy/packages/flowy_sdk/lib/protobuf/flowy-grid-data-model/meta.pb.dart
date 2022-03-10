@@ -458,7 +458,7 @@ class AnyData extends $pb.GeneratedMessage {
 class RowMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RowMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..m<$core.String, CellMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'RowMeta.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: CellMeta.create)
     ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
@@ -468,7 +468,7 @@ class RowMeta extends $pb.GeneratedMessage {
   RowMeta._() : super();
   factory RowMeta({
     $core.String? id,
-    $core.String? gridId,
+    $core.String? blockId,
     $core.Map<$core.String, CellMeta>? cellByFieldId,
     $core.int? height,
     $core.bool? visibility,
@@ -477,8 +477,8 @@ class RowMeta extends $pb.GeneratedMessage {
     if (id != null) {
       _result.id = id;
     }
-    if (gridId != null) {
-      _result.gridId = gridId;
+    if (blockId != null) {
+      _result.blockId = blockId;
     }
     if (cellByFieldId != null) {
       _result.cellByFieldId.addAll(cellByFieldId);
@@ -522,13 +522,13 @@ class RowMeta extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gridId => $_getSZ(1);
+  $core.String get blockId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gridId($core.String v) { $_setString(1, v); }
+  set blockId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGridId() => $_has(1);
+  $core.bool hasBlockId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGridId() => clearField(2);
+  void clearBlockId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.Map<$core.String, CellMeta> get cellByFieldId => $_getMap(2);

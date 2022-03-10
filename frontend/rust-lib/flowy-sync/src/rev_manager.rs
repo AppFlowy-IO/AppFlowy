@@ -1,6 +1,7 @@
+use crate::disk::RevisionState;
 use crate::{RevisionPersistence, WSDataProviderDataSource};
 use flowy_collaboration::{
-    entities::revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
+    entities::revision::{RepeatedRevision, Revision, RevisionRange},
     util::{pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::{FlowyError, FlowyResult};

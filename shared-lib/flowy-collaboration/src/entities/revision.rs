@@ -215,27 +215,6 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
     md5
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum RevisionState {
-    Sync = 0,
-    Ack = 1,
-}
-
-impl RevisionState {
-    pub fn is_need_sync(&self) -> bool {
-        match self {
-            RevisionState::Sync => true,
-            RevisionState::Ack => false,
-        }
-    }
-}
-
-impl AsRef<RevisionState> for RevisionState {
-    fn as_ref(&self) -> &RevisionState {
-        self
-    }
-}
-
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
     DeprecatedLocal = 0,

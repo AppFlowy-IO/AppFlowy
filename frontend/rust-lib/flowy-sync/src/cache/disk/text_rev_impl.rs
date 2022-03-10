@@ -1,8 +1,9 @@
-use crate::{cache::disk::RevisionDiskCache, RevisionRecord};
+use crate::cache::disk::RevisionDiskCache;
+use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_collaboration::{
-    entities::revision::{RevId, RevType, Revision, RevisionRange, RevisionState},
+    entities::revision::{RevId, RevType, Revision, RevisionRange},
     util::md5,
 };
 use flowy_database::{
@@ -27,7 +28,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
         revision_records: Vec<RevisionRecord>,
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error> {
-        let _ = RevisionTableSql::create(revision_records, conn)?;
+        let _ = TextRevisionSql::create(revision_records, conn)?;
         Ok(())
     }
 
@@ -37,7 +38,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = RevisionTableSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = TextRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
         Ok(records)
     }
 
@@ -47,7 +48,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let revisions = RevisionTableSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+        let revisions = TextRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
@@ -55,7 +56,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
         let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = RevisionTableSql::update(changeset, conn)?;
+                let _ = TextRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -64,7 +65,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = RevisionTableSql::delete(object_id, rev_ids, conn)?;
+        let _ = TextRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -76,7 +77,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = RevisionTableSql::delete(object_id, deleted_rev_ids, &*conn)?;
+            let _ = TextRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
             let _ = self.create_revision_records(inserted_records, &*conn)?;
             Ok(())
         })
@@ -92,21 +93,21 @@ impl SQLiteTextBlockRevisionPersistence {
     }
 }
 
-pub struct RevisionTableSql {}
+struct TextRevisionSql {}
 
-impl RevisionTableSql {
-    pub(crate) fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
+impl TextRevisionSql {
+    fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
 
         let records = revision_records
             .into_iter()
             .map(|record| {
                 tracing::trace!(
-                    "[RevisionTable] create revision: {}:{:?}",
+                    "[TextRevisionSql] create revision: {}:{:?}",
                     record.revision.object_id,
                     record.revision.rev_id
                 );
-                let rev_state: RevisionTableState = record.state.into();
+                let rev_state: TextRevisionState = record.state.into();
                 (
                     dsl::doc_id.eq(record.revision.object_id),
                     dsl::base_rev_id.eq(record.revision.base_rev_id),
@@ -122,20 +123,21 @@ impl RevisionTableSql {
         Ok(())
     }
 
-    pub(crate) fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        let state: TextRevisionState = changeset.state.clone().into();
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
             .filter(dsl::doc_id.eq(changeset.object_id));
-        let _ = update(filter).set(dsl::state.eq(changeset.state)).execute(conn)?;
+        let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
         tracing::debug!(
-            "[RevisionTable] update revision:{} state:to {:?}",
+            "[TextRevisionSql] update revision:{} state:to {:?}",
             changeset.rev_id,
             changeset.state
         );
         Ok(())
     }
 
-    pub(crate) fn read(
+    fn read(
         user_id: &str,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
@@ -154,7 +156,7 @@ impl RevisionTableSql {
         Ok(records)
     }
 
-    pub(crate) fn read_with_range(
+    fn read_with_range(
         user_id: &str,
         object_id: &str,
         range: RevisionRange,
@@ -174,90 +176,86 @@ impl RevisionTableSql {
         Ok(revisions)
     }
 
-    pub(crate) fn delete(
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-        conn: &SqliteConnection,
-    ) -> Result<(), FlowyError> {
+    fn delete(object_id: &str, rev_ids: Option<Vec<i64>>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let mut sql = diesel::delete(dsl::rev_table).into_boxed();
         sql = sql.filter(dsl::doc_id.eq(object_id));
 
         if let Some(rev_ids) = rev_ids {
-            tracing::trace!("[RevisionTable] Delete revision: {}:{:?}", object_id, rev_ids);
+            tracing::trace!("[TextRevisionSql] Delete revision: {}:{:?}", object_id, rev_ids);
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
 
         let affected_row = sql.execute(conn)?;
-        tracing::trace!("[RevisionTable] Delete {} rows", affected_row);
+        tracing::trace!("[TextRevisionSql] Delete {} rows", affected_row);
         Ok(())
     }
 }
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]
-pub(crate) struct RevisionTable {
+struct RevisionTable {
     id: i32,
-    pub(crate) doc_id: String,
-    pub(crate) base_rev_id: i64,
-    pub(crate) rev_id: i64,
-    pub(crate) data: Vec<u8>,
-    pub(crate) state: RevisionTableState,
-    pub(crate) ty: RevTableType, // Deprecated
+    doc_id: String,
+    base_rev_id: i64,
+    rev_id: i64,
+    data: Vec<u8>,
+    state: TextRevisionState,
+    ty: RevTableType, // Deprecated
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum RevisionTableState {
+enum TextRevisionState {
     Sync = 0,
     Ack = 1,
 }
 
-impl std::default::Default for RevisionTableState {
+impl std::default::Default for TextRevisionState {
     fn default() -> Self {
-        RevisionTableState::Sync
+        TextRevisionState::Sync
     }
 }
 
-impl std::convert::From<i32> for RevisionTableState {
+impl std::convert::From<i32> for TextRevisionState {
     fn from(value: i32) -> Self {
         match value {
-            0 => RevisionTableState::Sync,
-            1 => RevisionTableState::Ack,
+            0 => TextRevisionState::Sync,
+            1 => TextRevisionState::Ack,
             o => {
                 tracing::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                RevisionTableState::Sync
+                TextRevisionState::Sync
             }
         }
     }
 }
 
-impl RevisionTableState {
+impl TextRevisionState {
     pub fn value(&self) -> i32 {
         *self as i32
     }
 }
-impl_sql_integer_expression!(RevisionTableState);
+impl_sql_integer_expression!(TextRevisionState);
 
-impl std::convert::From<RevisionTableState> for RevisionState {
-    fn from(s: RevisionTableState) -> Self {
+impl std::convert::From<TextRevisionState> for RevisionState {
+    fn from(s: TextRevisionState) -> Self {
         match s {
-            RevisionTableState::Sync => RevisionState::Sync,
-            RevisionTableState::Ack => RevisionState::Ack,
+            TextRevisionState::Sync => RevisionState::Sync,
+            TextRevisionState::Ack => RevisionState::Ack,
         }
     }
 }
 
-impl std::convert::From<RevisionState> for RevisionTableState {
+impl std::convert::From<RevisionState> for TextRevisionState {
     fn from(s: RevisionState) -> Self {
         match s {
-            RevisionState::Sync => RevisionTableState::Sync,
-            RevisionState::Ack => RevisionTableState::Ack,
+            RevisionState::Sync => TextRevisionState::Sync,
+            RevisionState::Ack => TextRevisionState::Ack,
         }
     }
 }
 
-pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevisionTable) -> RevisionRecord {
+fn mk_revision_record_from_table(user_id: &str, table: RevisionTable) -> RevisionRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.doc_id,
@@ -323,10 +321,4 @@ impl std::convert::From<RevTableType> for RevType {
             RevTableType::Remote => RevType::DeprecatedRemote,
         }
     }
-}
-
-pub struct RevisionChangeset {
-    pub(crate) object_id: String,
-    pub(crate) rev_id: RevId,
-    pub(crate) state: RevisionTableState,
 }

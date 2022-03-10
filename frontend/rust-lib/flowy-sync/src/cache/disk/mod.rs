@@ -1,14 +1,13 @@
 mod folder_rev_impl;
 mod grid_rev_impl;
-mod text_block_rev_impl;
+mod text_rev_impl;
 
 pub use folder_rev_impl::*;
 pub use grid_rev_impl::*;
-pub use text_block_rev_impl::*;
+pub use text_rev_impl::*;
 
-use crate::RevisionRecord;
 use diesel::SqliteConnection;
-use flowy_collaboration::entities::revision::RevisionRange;
+use flowy_collaboration::entities::revision::{RevId, Revision, RevisionRange};
 use flowy_error::FlowyResult;
 use std::fmt::Debug;
 
@@ -47,4 +46,44 @@ pub trait RevisionDiskCache: Sync + Send {
         deleted_rev_ids: Option<Vec<i64>>,
         inserted_records: Vec<RevisionRecord>,
     ) -> Result<(), Self::Error>;
+}
+
+#[derive(Clone, Debug)]
+pub struct RevisionRecord {
+    pub revision: Revision,
+    pub state: RevisionState,
+    pub write_to_disk: bool,
+}
+
+impl RevisionRecord {
+    pub fn ack(&mut self) {
+        self.state = RevisionState::Ack;
+    }
+}
+
+pub struct RevisionChangeset {
+    pub(crate) object_id: String,
+    pub(crate) rev_id: RevId,
+    pub(crate) state: RevisionState,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum RevisionState {
+    Sync = 0,
+    Ack = 1,
+}
+
+impl RevisionState {
+    pub fn is_need_sync(&self) -> bool {
+        match self {
+            RevisionState::Sync => true,
+            RevisionState::Ack => false,
+        }
+    }
+}
+
+impl AsRef<RevisionState> for RevisionState {
+    fn as_ref(&self) -> &RevisionState {
+        self
+    }
 }

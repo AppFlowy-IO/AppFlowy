@@ -101,7 +101,7 @@ const RowMeta$json = const {
   '1': 'RowMeta',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'block_id', '3': 2, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'cell_by_field_id', '3': 3, '4': 3, '5': 11, '6': '.RowMeta.CellByFieldIdEntry', '10': 'cellByFieldId'},
     const {'1': 'height', '3': 4, '4': 1, '5': 5, '10': 'height'},
     const {'1': 'visibility', '3': 5, '4': 1, '5': 8, '10': 'visibility'},
@@ -120,7 +120,7 @@ const RowMeta_CellByFieldIdEntry$json = const {
 };
 
 /// Descriptor for `RowMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rowMetaDescriptor = $convert.base64Decode('CgdSb3dNZXRhEg4KAmlkGAEgASgJUgJpZBIXCgdncmlkX2lkGAIgASgJUgZncmlkSWQSRAoQY2VsbF9ieV9maWVsZF9pZBgDIAMoCzIbLlJvd01ldGEuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkEhYKBmhlaWdodBgEIAEoBVIGaGVpZ2h0Eh4KCnZpc2liaWxpdHkYBSABKAhSCnZpc2liaWxpdHkaSwoSQ2VsbEJ5RmllbGRJZEVudHJ5EhAKA2tleRgBIAEoCVIDa2V5Eh8KBXZhbHVlGAIgASgLMgkuQ2VsbE1ldGFSBXZhbHVlOgI4AQ==');
+final $typed_data.Uint8List rowMetaDescriptor = $convert.base64Decode('CgdSb3dNZXRhEg4KAmlkGAEgASgJUgJpZBIZCghibG9ja19pZBgCIAEoCVIHYmxvY2tJZBJEChBjZWxsX2J5X2ZpZWxkX2lkGAMgAygLMhsuUm93TWV0YS5DZWxsQnlGaWVsZElkRW50cnlSDWNlbGxCeUZpZWxkSWQSFgoGaGVpZ2h0GAQgASgFUgZoZWlnaHQSHgoKdmlzaWJpbGl0eRgFIAEoCFIKdmlzaWJpbGl0eRpLChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHwoFdmFsdWUYAiABKAsyCS5DZWxsTWV0YVIFdmFsdWU6AjgB');
 @$core.Deprecated('Use rowMetaChangesetDescriptor instead')
 const RowMetaChangeset$json = const {
   '1': 'RowMetaChangeset',

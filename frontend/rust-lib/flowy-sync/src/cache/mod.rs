@@ -1,2 +1,2 @@
-pub(crate) mod disk;
+pub mod disk;
 pub(crate) mod memory;

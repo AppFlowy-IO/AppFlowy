@@ -1,13 +1,12 @@
 use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache, RevisionTableState, SQLiteTextBlockRevisionPersistence},
+    disk::{RevisionChangeset, RevisionDiskCache, SQLiteTextBlockRevisionPersistence},
     memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
 };
-
-use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
+use crate::disk::{RevisionRecord, RevisionState};
+use crate::RevisionCompact;
+use flowy_collaboration::entities::revision::{Revision, RevisionRange};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-
-use crate::RevisionCompact;
 use std::collections::VecDeque;
 use std::{borrow::Cow, sync::Arc};
 use tokio::sync::RwLock;
@@ -235,25 +234,12 @@ impl RevisionMemoryCacheDelegate for Arc<SQLiteTextBlockRevisionPersistence> {
         let changeset = RevisionChangeset {
             object_id: object_id.to_string(),
             rev_id: rev_id.into(),
-            state: RevisionTableState::Ack,
+            state: RevisionState::Ack,
         };
         match self.update_revision_record(vec![changeset]) {
             Ok(_) => {}
             Err(e) => tracing::error!("{}", e),
         }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct RevisionRecord {
-    pub revision: Revision,
-    pub state: RevisionState,
-    pub write_to_disk: bool,
-}
-
-impl RevisionRecord {
-    pub fn ack(&mut self) {
-        self.state = RevisionState::Ack;
     }
 }
 

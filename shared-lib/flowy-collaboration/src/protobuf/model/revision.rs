@@ -915,56 +915,6 @@ impl ::protobuf::reflect::ProtobufValue for RevisionRange {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum RevisionState {
-    Sync = 0,
-    Ack = 1,
-}
-
-impl ::protobuf::ProtobufEnum for RevisionState {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<RevisionState> {
-        match value {
-            0 => ::std::option::Option::Some(RevisionState::Sync),
-            1 => ::std::option::Option::Some(RevisionState::Ack),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [RevisionState] = &[
-            RevisionState::Sync,
-            RevisionState::Ack,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<RevisionState>("RevisionState", file_descriptor_proto())
-        })
-    }
-}
-
-impl ::std::marker::Copy for RevisionState {
-}
-
-impl ::std::default::Default for RevisionState {
-    fn default() -> Self {
-        RevisionState::Sync
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for RevisionState {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
-    }
-}
-
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum RevType {
     DeprecatedLocal = 0,
     DeprecatedRemote = 1,
@@ -1024,8 +974,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x10RepeatedRevision\x12\x1f\n\x05items\x18\x01\x20\x03(\x0b2\t.Revision\
     R\x05items\"\x1d\n\x05RevId\x12\x14\n\x05value\x18\x01\x20\x01(\x03R\x05\
     value\"7\n\rRevisionRange\x12\x14\n\x05start\x18\x01\x20\x01(\x03R\x05st\
-    art\x12\x10\n\x03end\x18\x02\x20\x01(\x03R\x03end*\"\n\rRevisionState\
-    \x12\x08\n\x04Sync\x10\0\x12\x07\n\x03Ack\x10\x01*4\n\x07RevType\x12\x13\
+    art\x12\x10\n\x03end\x18\x02\x20\x01(\x03R\x03end*4\n\x07RevType\x12\x13\
     \n\x0fDeprecatedLocal\x10\0\x12\x14\n\x10DeprecatedRemote\x10\x01b\x06pr\
     oto3\
 ";
