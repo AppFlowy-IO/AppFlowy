@@ -15,11 +15,11 @@ pub struct GridMeta {
     pub fields: Vec<Field>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<GridBlock>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct Block {
+pub struct GridBlock {
     #[pb(index = 1)]
     pub id: String,
 
@@ -30,8 +30,14 @@ pub struct Block {
     pub row_count: i32,
 }
 
+pub struct GridBlockChangeset {
+    pub block_id: String,
+    pub start_row_index: Option<i32>,
+    pub row_count: Option<i32>,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct BlockMeta {
+pub struct GridBlockMeta {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -79,6 +85,33 @@ impl Field {
             type_options: Default::default(),
         }
     }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldChangeset {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub name: Option<String>,
+
+    #[pb(index = 3, one_of)]
+    pub desc: Option<String>,
+
+    #[pb(index = 4, one_of)]
+    pub field_type: Option<FieldType>,
+
+    #[pb(index = 5, one_of)]
+    pub frozen: Option<bool>,
+
+    #[pb(index = 6, one_of)]
+    pub visibility: Option<bool>,
+
+    #[pb(index = 7, one_of)]
+    pub width: Option<i32>,
+
+    #[pb(index = 8, one_of)]
+    pub type_options: Option<AnyData>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -191,7 +224,7 @@ pub struct RowMeta {
 }
 
 impl RowMeta {
-    pub fn new(id: &str, grid_id: &str, cells: Vec<CellMeta>) -> Self {
+    pub fn new(id: &str, block_id: &str, cells: Vec<CellMeta>) -> Self {
         let cell_by_field_id = cells
             .into_iter()
             .map(|cell| (cell.id.clone(), cell))
@@ -199,7 +232,7 @@ impl RowMeta {
 
         Self {
             id: id.to_owned(),
-            block_id: grid_id.to_owned(),
+            block_id: block_id.to_owned(),
             cell_by_field_id,
             height: DEFAULT_ROW_HEIGHT,
             visibility: true,

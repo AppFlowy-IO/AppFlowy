@@ -17,7 +17,8 @@ use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRev
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
-use flowy_sync::RevisionWebSocket;
+use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
+use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
@@ -163,7 +164,12 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let folder_editor = ClientFolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
+        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
+        let rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
+
+        let folder_editor =
+            ClientFolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;

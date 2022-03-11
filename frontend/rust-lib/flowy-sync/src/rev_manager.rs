@@ -1,11 +1,13 @@
 use crate::disk::RevisionState;
 use crate::{RevisionPersistence, WSDataProviderDataSource};
+use bytes::Bytes;
 use flowy_collaboration::{
     entities::revision::{RepeatedRevision, Revision, RevisionRange},
     util::{pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
+use lib_ot::core::{Attributes, Delta};
 use std::sync::Arc;
 
 pub trait RevisionCloudService: Send + Sync {
@@ -17,8 +19,26 @@ pub trait RevisionObjectBuilder: Send + Sync {
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output>;
 }
 
-pub trait RevisionCompact: Send + Sync {
-    fn compact_revisions(user_id: &str, object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Revision>;
+pub trait RevisionCompactor: Send + Sync {
+    fn compact(&self, user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
+        if revisions.is_empty() {
+            return Err(FlowyError::internal().context("Can't compact the empty folder's revisions"));
+        }
+
+        if revisions.len() == 1 {
+            return Ok(revisions.pop().unwrap());
+        }
+
+        let first_revision = revisions.first().unwrap();
+        let last_revision = revisions.last().unwrap();
+
+        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
+        let md5 = last_revision.md5.clone();
+        let delta_data = self.bytes_from_revisions(revisions)?;
+        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
+    }
+
+    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 }
 
 pub struct RevisionManager {
@@ -48,10 +68,9 @@ impl RevisionManager {
         }
     }
 
-    pub async fn load<B, C>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<B::Output>
+    pub async fn load<B>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectBuilder,
-        C: RevisionCompact,
     {
         let (revisions, rev_id) = RevisionLoader {
             object_id: self.object_id.clone(),
@@ -84,15 +103,16 @@ impl RevisionManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn add_local_revision<C>(&self, revision: &Revision) -> Result<(), FlowyError>
-    where
-        C: RevisionCompact,
-    {
+    #[tracing::instrument(level = "debug", skip_all, err)]
+    pub async fn add_local_revision<'a>(
+        &'a self,
+        revision: &Revision,
+        compactor: Box<dyn RevisionCompactor + 'a>,
+    ) -> Result<(), FlowyError> {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        let rev_id = self.rev_persistence.add_sync_revision::<C>(revision).await?;
+        let rev_id = self.rev_persistence.add_sync_revision(revision, compactor).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }

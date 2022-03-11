@@ -7,6 +7,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{Field, RowMeta};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 
+use flowy_sync::disk::SQLiteGridRevisionPersistence;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -104,7 +105,9 @@ impl GridManager {
 
     fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
         let user_id = self.grid_user.user_id()?;
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, pool));
+
+        let disk_cache = Arc::new(SQLiteGridRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, disk_cache));
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence);
         Ok(rev_manager)
     }

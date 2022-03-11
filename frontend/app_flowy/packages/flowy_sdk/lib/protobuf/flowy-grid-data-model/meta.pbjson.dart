@@ -29,15 +29,15 @@ const GridMeta$json = const {
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'fields', '3': 2, '4': 3, '5': 11, '6': '.Field', '10': 'fields'},
-    const {'1': 'blocks', '3': 3, '4': 3, '5': 11, '6': '.Block', '10': 'blocks'},
+    const {'1': 'blocks', '3': 3, '4': 3, '5': 11, '6': '.GridBlock', '10': 'blocks'},
   ],
 };
 
 /// Descriptor for `GridMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSHgoGZmllbGRzGAIgAygLMgYuRmllbGRSBmZpZWxkcxIeCgZibG9ja3MYAyADKAsyBi5CbG9ja1IGYmxvY2tz');
-@$core.Deprecated('Use blockDescriptor instead')
-const Block$json = const {
-  '1': 'Block',
+final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSHgoGZmllbGRzGAIgAygLMgYuRmllbGRSBmZpZWxkcxIiCgZibG9ja3MYAyADKAsyCi5HcmlkQmxvY2tSBmJsb2Nrcw==');
+@$core.Deprecated('Use gridBlockDescriptor instead')
+const GridBlock$json = const {
+  '1': 'GridBlock',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'start_row_index', '3': 2, '4': 1, '5': 5, '10': 'startRowIndex'},
@@ -45,19 +45,19 @@ const Block$json = const {
   ],
 };
 
-/// Descriptor for `Block`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List blockDescriptor = $convert.base64Decode('CgVCbG9jaxIOCgJpZBgBIAEoCVICaWQSJgoPc3RhcnRfcm93X2luZGV4GAIgASgFUg1zdGFydFJvd0luZGV4EhsKCXJvd19jb3VudBgDIAEoBVIIcm93Q291bnQ=');
-@$core.Deprecated('Use blockMetaDescriptor instead')
-const BlockMeta$json = const {
-  '1': 'BlockMeta',
+/// Descriptor for `GridBlock`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSDgoCaWQYASABKAlSAmlkEiYKD3N0YXJ0X3Jvd19pbmRleBgCIAEoBVINc3RhcnRSb3dJbmRleBIbCglyb3dfY291bnQYAyABKAVSCHJvd0NvdW50');
+@$core.Deprecated('Use gridBlockMetaDescriptor instead')
+const GridBlockMeta$json = const {
+  '1': 'GridBlockMeta',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'rows', '3': 2, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rows'},
   ],
 };
 
-/// Descriptor for `BlockMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List blockMetaDescriptor = $convert.base64Decode('CglCbG9ja01ldGESGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSHAoEcm93cxgCIAMoCzIILlJvd01ldGFSBHJvd3M=');
+/// Descriptor for `GridBlockMeta`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockMetaDescriptor = $convert.base64Decode('Cg1HcmlkQmxvY2tNZXRhEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEhwKBHJvd3MYAiADKAsyCC5Sb3dNZXRhUgRyb3dz');
 @$core.Deprecated('Use fieldDescriptor instead')
 const Field$json = const {
   '1': 'Field',
@@ -85,6 +85,32 @@ const RepeatedField$json = const {
 
 /// Descriptor for `RepeatedField`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List repeatedFieldDescriptor = $convert.base64Decode('Cg1SZXBlYXRlZEZpZWxkEhwKBWl0ZW1zGAEgAygLMgYuRmllbGRSBWl0ZW1z');
+@$core.Deprecated('Use fieldChangesetDescriptor instead')
+const FieldChangeset$json = const {
+  '1': 'FieldChangeset',
+  '2': const [
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'desc'},
+    const {'1': 'field_type', '3': 4, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
+    const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
+    const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
+    const {'1': 'width', '3': 7, '4': 1, '5': 5, '9': 5, '10': 'width'},
+    const {'1': 'type_options', '3': 8, '4': 1, '5': 11, '6': '.AnyData', '9': 6, '10': 'typeOptions'},
+  ],
+  '8': const [
+    const {'1': 'one_of_name'},
+    const {'1': 'one_of_desc'},
+    const {'1': 'one_of_field_type'},
+    const {'1': 'one_of_frozen'},
+    const {'1': 'one_of_visibility'},
+    const {'1': 'one_of_width'},
+    const {'1': 'one_of_type_options'},
+  ],
+};
+
+/// Descriptor for `FieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEi0KDHR5cGVfb3B0aW9ucxgIIAEoCzIILkFueURhdGFIBlILdHlwZU9wdGlvbnNCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEwoRb25lX29mX2ZpZWxkX3R5cGVCDwoNb25lX29mX2Zyb3plbkITChFvbmVfb2ZfdmlzaWJpbGl0eUIOCgxvbmVfb2Zfd2lkdGhCFQoTb25lX29mX3R5cGVfb3B0aW9ucw==');
 @$core.Deprecated('Use anyDataDescriptor instead')
 const AnyData$json = const {
   '1': 'AnyData',

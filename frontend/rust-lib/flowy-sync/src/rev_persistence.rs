@@ -1,9 +1,10 @@
 use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache, SQLiteTextBlockRevisionPersistence},
-    memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
+    memory::RevisionMemoryCacheDelegate,
 };
 use crate::disk::{RevisionRecord, RevisionState};
-use crate::RevisionCompact;
+use crate::memory::RevisionMemoryCache;
+use crate::RevisionCompactor;
 use flowy_collaboration::entities::revision::{Revision, RevisionRange};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -21,13 +22,17 @@ pub struct RevisionPersistence {
     memory_cache: Arc<RevisionMemoryCache>,
     sync_seq: RwLock<RevisionSyncSequence>,
 }
+
 impl RevisionPersistence {
-    pub fn new(user_id: &str, object_id: &str, pool: Arc<ConnectionPool>) -> RevisionPersistence {
-        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
-        let memory_cache = Arc::new(RevisionMemoryCache::new(object_id, Arc::new(disk_cache.clone())));
+    pub fn new(
+        user_id: &str,
+        object_id: &str,
+        disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    ) -> RevisionPersistence {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
         let sync_seq = RwLock::new(RevisionSyncSequence::new());
+        let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {
             user_id,
             object_id,
@@ -54,11 +59,12 @@ impl RevisionPersistence {
     }
 
     /// Save the revision to disk and append it to the end of the sync sequence.
-    #[tracing::instrument(level = "trace", skip(self, revision), fields(rev_id, compact_range, object_id=%self.object_id), err)]
-    pub(crate) async fn add_sync_revision<C>(&self, revision: &Revision) -> FlowyResult<i64>
-    where
-        C: RevisionCompact,
-    {
+    #[tracing::instrument(level = "trace", skip_all, fields(rev_id, compact_range, object_id=%self.object_id), err)]
+    pub(crate) async fn add_sync_revision<'a>(
+        &'a self,
+        revision: &'a Revision,
+        compactor: Box<dyn RevisionCompactor + 'a>,
+    ) -> FlowyResult<i64> {
         let result = self.sync_seq.read().await.compact();
         match result {
             None => {
@@ -78,7 +84,7 @@ impl RevisionPersistence {
                 revisions.push(revision.clone());
 
                 // compact multiple revisions into one
-                let compact_revision = C::compact_revisions(&self.user_id, &self.object_id, revisions)?;
+                let compact_revision = compactor.compact(&self.user_id, &self.object_id, revisions)?;
                 let rev_id = compact_revision.rev_id;
                 tracing::Span::current().record("rev_id", &rev_id);
 
@@ -215,17 +221,15 @@ pub fn mk_revision_disk_cache(
     Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool))
 }
 
-impl RevisionMemoryCacheDelegate for Arc<SQLiteTextBlockRevisionPersistence> {
-    #[tracing::instrument(level = "trace", skip(self, records), fields(checkpoint_result), err)]
+impl RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<Error = FlowyError>> {
     fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
-        let conn = &*self.pool.get().map_err(internal_error)?;
         records.retain(|record| record.write_to_disk);
         if !records.is_empty() {
             tracing::Span::current().record(
                 "checkpoint_result",
                 &format!("{} records were saved", records.len()).as_str(),
             );
-            let _ = self.create_revision_records(records, conn)?;
+            let _ = self.create_revision_records(records)?;
         }
         Ok(())
     }

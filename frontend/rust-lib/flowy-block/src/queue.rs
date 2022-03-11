@@ -1,6 +1,7 @@
 use crate::web_socket::EditorCommandReceiver;
 use crate::TextBlockUser;
 use async_stream::stream;
+use bytes::Bytes;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{
     client_document::{history::UndoResult, ClientDocument},
@@ -8,8 +9,9 @@ use flowy_collaboration::{
     errors::CollaborateError,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, RichTextTransformDeltas, TransformDeltas};
+use flowy_sync::{DeltaMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
 use futures::stream::StreamExt;
+use lib_ot::core::{Attributes, Delta};
 use lib_ot::{
     core::{Interval, OperationTransformable},
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
@@ -187,31 +189,17 @@ impl EditBlockQueue {
         );
         let _ = self
             .rev_manager
-            .add_local_revision::<BlockRevisionCompact>(&revision)
+            .add_local_revision(&revision, Box::new(TextBlockRevisionCompactor()))
             .await?;
         Ok(rev_id.into())
     }
 }
 
-pub(crate) struct BlockRevisionCompact();
-impl RevisionCompact for BlockRevisionCompact {
-    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
-        if revisions.is_empty() {
-            return Err(FlowyError::internal().context("Can't compact the empty block's revisions"));
-        }
-
-        if revisions.len() == 1 {
-            return Ok(revisions.pop().unwrap());
-        }
-
-        let first_revision = revisions.first().unwrap();
-        let last_revision = revisions.last().unwrap();
-
-        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
-        let md5 = last_revision.md5.clone();
+pub(crate) struct TextBlockRevisionCompactor();
+impl RevisionCompactor for TextBlockRevisionCompactor {
+    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
-        let delta_data = delta.to_bytes();
-        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
+        Ok(delta.to_bytes())
     }
 }
 

@@ -3,14 +3,14 @@ syntax = "proto3";
 message GridMeta {
     string grid_id = 1;
     repeated Field fields = 2;
-    repeated Block blocks = 3;
+    repeated GridBlock blocks = 3;
 }
-message Block {
+message GridBlock {
     string id = 1;
     int32 start_row_index = 2;
     int32 row_count = 3;
 }
-message BlockMeta {
+message GridBlockMeta {
     string block_id = 1;
     repeated RowMeta rows = 2;
 }
@@ -26,6 +26,16 @@ message Field {
 }
 message RepeatedField {
     repeated Field items = 1;
+}
+message FieldChangeset {
+    string field_id = 1;
+    oneof one_of_name { string name = 2; };
+    oneof one_of_desc { string desc = 3; };
+    oneof one_of_field_type { FieldType field_type = 4; };
+    oneof one_of_frozen { bool frozen = 5; };
+    oneof one_of_visibility { bool visibility = 6; };
+    oneof one_of_width { int32 width = 7; };
+    oneof one_of_type_options { AnyData type_options = 8; };
 }
 message AnyData {
     string type_id = 1;

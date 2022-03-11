@@ -8,6 +8,7 @@ use flowy_collaboration::entities::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
+use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_sync::{RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lib_infra::future::FutureResult;
 use std::{convert::TryInto, sync::Arc};
@@ -84,7 +85,7 @@ impl TextBlockManager {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.user.db_pool()?;
         // Maybe we could save the block to disk without creating the RevisionManager
-        let rev_manager = self.make_block_rev_manager(&doc_id, db_pool)?;
+        let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -111,20 +112,20 @@ impl TextBlockManager {
         match self.editor_map.get(block_id) {
             None => {
                 let db_pool = self.user.db_pool()?;
-                self.make_block_editor(block_id, db_pool).await
+                self.make_text_block_editor(block_id, db_pool).await
             }
             Some(editor) => Ok(editor),
         }
     }
 
-    async fn make_block_editor(
+    async fn make_text_block_editor(
         &self,
         block_id: &str,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientTextBlockEditor>, FlowyError> {
         let user = self.user.clone();
         let token = self.user.token()?;
-        let rev_manager = self.make_block_rev_manager(block_id, pool.clone())?;
+        let rev_manager = self.make_rev_manager(block_id, pool.clone())?;
         let cloud_service = Arc::new(TextBlockRevisionCloudService {
             token,
             server: self.cloud_service.clone(),
@@ -135,9 +136,10 @@ impl TextBlockManager {
         Ok(doc_editor)
     }
 
-    fn make_block_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         let user_id = self.user.user_id()?;
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, pool));
+        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, disk_cache));
         Ok(RevisionManager::new(&user_id, doc_id, rev_persistence))
     }
 }

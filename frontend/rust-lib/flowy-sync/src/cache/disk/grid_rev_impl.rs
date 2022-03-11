@@ -1,5 +1,6 @@
 use crate::cache::disk::RevisionDiskCache;
 use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
+use crate::memory::RevisionMemoryCacheDelegate;
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_collaboration::{
@@ -23,12 +24,9 @@ pub struct SQLiteGridRevisionPersistence {
 impl RevisionDiskCache for SQLiteGridRevisionPersistence {
     type Error = FlowyError;
 
-    fn create_revision_records(
-        &self,
-        revision_records: Vec<RevisionRecord>,
-        conn: &SqliteConnection,
-    ) -> Result<(), Self::Error> {
-        let _ = GridRevisionSql::create(revision_records, conn)?;
+    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+        let conn = self.pool.get().map_err(internal_error)?;
+        let _ = GridRevisionSql::create(revision_records, &*conn)?;
         Ok(())
     }
 
@@ -78,14 +76,14 @@ impl RevisionDiskCache for SQLiteGridRevisionPersistence {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             let _ = GridRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = self.create_revision_records(inserted_records, &*conn)?;
+            let _ = GridRevisionSql::create(inserted_records, &*conn)?;
             Ok(())
         })
     }
 }
 
 impl SQLiteGridRevisionPersistence {
-    pub(crate) fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
+    pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),
             pool,
@@ -193,13 +191,13 @@ impl GridRevisionSql {
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "grid_rev_table"]
-pub(crate) struct GridRevisionTable {
+struct GridRevisionTable {
     id: i32,
-    pub(crate) object_id: String,
-    pub(crate) base_rev_id: i64,
-    pub(crate) rev_id: i64,
-    pub(crate) data: Vec<u8>,
-    pub(crate) state: GridRevisionState,
+    object_id: String,
+    base_rev_id: i64,
+    rev_id: i64,
+    data: Vec<u8>,
+    state: GridRevisionState,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
@@ -209,48 +207,12 @@ pub enum GridRevisionState {
     Sync = 0,
     Ack = 1,
 }
+impl_sql_integer_expression!(GridRevisionState);
+impl_rev_state_map!(GridRevisionState);
 
 impl std::default::Default for GridRevisionState {
     fn default() -> Self {
         GridRevisionState::Sync
-    }
-}
-
-impl std::convert::From<i32> for GridRevisionState {
-    fn from(value: i32) -> Self {
-        match value {
-            0 => GridRevisionState::Sync,
-            1 => GridRevisionState::Ack,
-            o => {
-                tracing::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                GridRevisionState::Sync
-            }
-        }
-    }
-}
-
-impl GridRevisionState {
-    pub fn value(&self) -> i32 {
-        *self as i32
-    }
-}
-impl_sql_integer_expression!(GridRevisionState);
-
-impl std::convert::From<GridRevisionState> for RevisionState {
-    fn from(s: GridRevisionState) -> Self {
-        match s {
-            GridRevisionState::Sync => RevisionState::Sync,
-            GridRevisionState::Ack => RevisionState::Ack,
-        }
-    }
-}
-
-impl std::convert::From<RevisionState> for GridRevisionState {
-    fn from(s: RevisionState) -> Self {
-        match s {
-            RevisionState::Sync => GridRevisionState::Sync,
-            RevisionState::Ack => GridRevisionState::Ack,
-        }
     }
 }
 

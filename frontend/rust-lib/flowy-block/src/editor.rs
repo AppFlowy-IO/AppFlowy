@@ -1,4 +1,4 @@
-use crate::queue::BlockRevisionCompact;
+use crate::queue::TextBlockRevisionCompactor;
 use crate::web_socket::{make_block_ws_manager, EditorCommandSender};
 use crate::{
     errors::FlowyError,
@@ -40,9 +40,7 @@ impl ClientTextBlockEditor {
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager
-            .load::<BlockInfoBuilder, BlockRevisionCompact>(cloud_service)
-            .await?;
+        let document_info = rev_manager.load::<BlockInfoBuilder>(cloud_service).await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();

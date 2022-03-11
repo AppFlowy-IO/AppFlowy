@@ -1,9 +1,13 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{Field, FieldOrder, Grid, GridMeta, RowMeta, RowOrder};
+use flowy_grid_data_model::entities::{
+    Field, FieldChangeset, FieldOrder, Grid, GridBlock, GridBlockChangeset, GridMeta, RepeatedField,
+    RepeatedFieldOrder, RowMeta, RowOrder,
+};
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type GridDelta = PlainTextDelta;
@@ -31,23 +35,9 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_row(&mut self, row: RowMeta) -> CollaborateResult<Option<GridChange>> {
-        self.modify_grid(|grid| {
-            // grid.rows.push(row);
-            Ok(Some(()))
-        })
-    }
-
     pub fn create_field(&mut self, field: Field) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
             grid.fields.push(field);
-            Ok(Some(()))
-        })
-    }
-
-    pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<GridChange>> {
-        self.modify_grid(|grid| {
-            // grid.rows.retain(|row| !row_ids.contains(&row.id));
             Ok(Some(()))
         })
     }
@@ -62,30 +52,93 @@ impl GridMetaPad {
         })
     }
 
-    pub fn md5(&self) -> String {
-        md5(&self.delta.to_bytes())
-    }
-
-    pub fn grid_data(&self) -> Grid {
-        let field_orders = self
+    pub fn get_fields(&self, field_orders: RepeatedFieldOrder) -> CollaborateResult<RepeatedField> {
+        let field_by_field_id = self
             .grid_meta
             .fields
             .iter()
-            .map(FieldOrder::from)
-            .collect::<Vec<FieldOrder>>();
+            .map(|field| (&field.id, field))
+            .collect::<HashMap<&String, &Field>>();
 
-        // let row_orders = self
-        //     .grid_meta
-        //     .rows
-        //     .iter()
-        //     .map(RowOrder::from)
-        //     .collect::<Vec<RowOrder>>();
+        let fields = field_orders
+            .iter()
+            .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                None => {
+                    tracing::error!("Can't find the field with {}", field_order.field_id);
+                    None
+                }
+                Some(field) => Some((*field).clone()),
+            })
+            .collect::<Vec<Field>>();
+        Ok(fields.into())
+    }
 
-        Grid {
-            id: "".to_string(),
-            field_orders,
-            row_orders: vec![],
-        }
+    pub fn update_field(&mut self, change: FieldChangeset) -> CollaborateResult<Option<GridChange>> {
+        let field_id = change.field_id.clone();
+        self.modify_field(&field_id, |field| {
+            let mut is_changed = None;
+            if let Some(name) = change.name {
+                field.name = name;
+                is_changed = Some(())
+            }
+
+            if let Some(desc) = change.desc {
+                field.desc = desc;
+                is_changed = Some(())
+            }
+
+            if let Some(field_type) = change.field_type {
+                field.field_type = field_type;
+                is_changed = Some(())
+            }
+
+            if let Some(frozen) = change.frozen {
+                field.frozen = frozen;
+                is_changed = Some(())
+            }
+
+            if let Some(visibility) = change.visibility {
+                field.visibility = visibility;
+                is_changed = Some(())
+            }
+
+            if let Some(width) = change.width {
+                field.width = width;
+                is_changed = Some(())
+            }
+
+            if let Some(type_options) = change.type_options {
+                field.type_options = type_options;
+                is_changed = Some(())
+            }
+
+            Ok(is_changed)
+        })
+    }
+
+    pub fn create_block(&mut self, block: GridBlock) -> CollaborateResult<Option<GridChange>> {
+        self.modify_grid(|grid| {
+            grid.blocks.push(block);
+            Ok(Some(()))
+        })
+    }
+
+    pub fn update_block(&mut self, change: GridBlockChangeset) -> CollaborateResult<Option<GridChange>> {
+        let block_id = change.block_id.clone();
+        self.modify_block(&block_id, |block| {
+            let mut is_changed = None;
+
+            if let Some(row_count) = change.row_count {
+                block.row_count = row_count;
+                is_changed = Some(());
+            }
+
+            Ok(is_changed)
+        })
+    }
+
+    pub fn md5(&self) -> String {
+        md5(&self.delta.to_bytes())
     }
 
     pub fn delta_str(&self) -> String {
@@ -96,7 +149,7 @@ impl GridMetaPad {
         &self.grid_meta.fields
     }
 
-    pub fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChange>>
+    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChange>>
     where
         F: FnOnce(&mut GridMeta) -> CollaborateResult<Option<()>>,
     {
@@ -115,6 +168,32 @@ impl GridMetaPad {
                 }
             }
         }
+    }
+
+    pub fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChange>>
+    where
+        F: FnOnce(&mut GridBlock) -> CollaborateResult<Option<()>>,
+    {
+        self.modify_grid(|grid| match grid.blocks.iter().position(|block| block.id == block_id) {
+            None => {
+                tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
+                Ok(None)
+            }
+            Some(index) => f(&mut grid.blocks[index]),
+        })
+    }
+
+    pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChange>>
+    where
+        F: FnOnce(&mut Field) -> CollaborateResult<Option<()>>,
+    {
+        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
+            None => {
+                tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
+                Ok(None)
+            }
+            Some(index) => f(&mut grid.fields[index]),
+        })
     }
 }
 

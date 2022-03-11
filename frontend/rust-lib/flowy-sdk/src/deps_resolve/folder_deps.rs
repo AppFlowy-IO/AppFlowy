@@ -66,10 +66,10 @@ fn make_view_data_processor(
 ) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = BlockManagerViewDataImpl(text_block_manager);
+    let block_data_impl = TextBlockViewDataProcessor(text_block_manager);
     map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
 
-    let grid_data_impl = GridManagerViewDataImpl(grid_manager);
+    let grid_data_impl = GridViewDataProcessor(grid_manager);
     map.insert(grid_data_impl.data_type(), Arc::new(grid_data_impl));
 
     Arc::new(map)
@@ -133,8 +133,8 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
     }
 }
 
-struct BlockManagerViewDataImpl(Arc<TextBlockManager>);
-impl ViewDataProcessor for BlockManagerViewDataImpl {
+struct TextBlockViewDataProcessor(Arc<TextBlockManager>);
+impl ViewDataProcessor for TextBlockViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
         FutureResult::new(async move { manager.init() })
@@ -186,8 +186,8 @@ impl ViewDataProcessor for BlockManagerViewDataImpl {
     }
 }
 
-struct GridManagerViewDataImpl(Arc<GridManager>);
-impl ViewDataProcessor for GridManagerViewDataImpl {
+struct GridViewDataProcessor(Arc<GridManager>);
+impl ViewDataProcessor for GridViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }

@@ -1,11 +1,14 @@
 mod folder_rev_impl;
+mod grid_meta_rev_impl;
 mod grid_rev_impl;
 mod text_rev_impl;
 
 pub use folder_rev_impl::*;
+pub use grid_meta_rev_impl::*;
 pub use grid_rev_impl::*;
 pub use text_rev_impl::*;
 
+use crate::memory::RevisionMemoryCacheDelegate;
 use diesel::SqliteConnection;
 use flowy_collaboration::entities::revision::{RevId, Revision, RevisionRange};
 use flowy_error::FlowyResult;
@@ -13,11 +16,7 @@ use std::fmt::Debug;
 
 pub trait RevisionDiskCache: Sync + Send {
     type Error: Debug;
-    fn create_revision_records(
-        &self,
-        revision_records: Vec<RevisionRecord>,
-        conn: &SqliteConnection,
-    ) -> Result<(), Self::Error>;
+    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error>;
 
     // Read all the records if the rev_ids is None
     fn read_revision_records(

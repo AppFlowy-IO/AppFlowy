@@ -2,9 +2,6 @@ use crate::entities::{Field, RowMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
 
-pub const DEFAULT_ROW_HEIGHT: i32 = 36;
-pub const DEFAULT_FIELD_WIDTH: i32 = 150;
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]

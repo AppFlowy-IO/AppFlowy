@@ -1,28 +1,28 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{BlockMeta, RowMeta, RowMetaChangeset, RowOrder};
+use flowy_grid_data_model::entities::{GridBlockMeta, RowMeta, RowMetaChangeset, RowOrder};
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-pub type BlockMetaDelta = PlainTextDelta;
-pub type BlockDeltaBuilder = PlainTextDeltaBuilder;
+pub type GridBlockMetaDelta = PlainTextDelta;
+pub type GridBlockMetaDeltaBuilder = PlainTextDeltaBuilder;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct BlockMetaPad {
+pub struct GridBlockMetaPad {
     block_id: String,
     rows: Vec<Arc<RowMeta>>,
 
     #[serde(skip)]
-    pub(crate) delta: BlockMetaDelta,
+    pub(crate) delta: GridBlockMetaDelta,
 }
 
-impl BlockMetaPad {
-    pub fn from_delta(delta: BlockMetaDelta) -> CollaborateResult<Self> {
+impl GridBlockMetaPad {
+    pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        let block_meta: BlockMeta = serde_json::from_str(&s).map_err(|e| {
+        let block_meta: GridBlockMeta = serde_json::from_str(&s).map_err(|e| {
             CollaborateError::internal().context(format!("Deserialize delta to block meta failed: {}", e))
         })?;
         let block_id = block_meta.block_id;
@@ -31,25 +31,25 @@ impl BlockMetaPad {
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let block_delta: BlockMetaDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
+        let block_delta: GridBlockMetaDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(block_delta)
     }
 
-    pub fn add_row(&mut self, row: RowMeta) -> CollaborateResult<Option<BlockMetaChange>> {
+    pub fn add_row(&mut self, row: RowMeta) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
             rows.push(Arc::new(row));
             Ok(Some(()))
         })
     }
 
-    pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<BlockMetaChange>> {
+    pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
             rows.retain(|row| !row_ids.contains(&row.id));
             Ok(Some(()))
         })
     }
 
-    pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<BlockMetaChange>> {
+    pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {
         let row_id = changeset.row_id.clone();
         self.modify_row(&row_id, |row| {
             let mut is_changed = None;
@@ -74,7 +74,7 @@ impl BlockMetaPad {
         })
     }
 
-    pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<BlockMetaChange>>
+    pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
     where
         F: for<'a> FnOnce(&'a mut Vec<Arc<RowMeta>>) -> CollaborateResult<Option<()>>,
     {
@@ -88,14 +88,14 @@ impl BlockMetaPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(BlockMetaChange { delta, md5: self.md5() }))
+                        Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn modify_row<F>(&mut self, row_id: &str, f: F) -> CollaborateResult<Option<BlockMetaChange>>
+    fn modify_row<F>(&mut self, row_id: &str, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
     where
         F: FnOnce(&mut RowMeta) -> CollaborateResult<Option<()>>,
     {
@@ -123,39 +123,39 @@ impl BlockMetaPad {
     }
 }
 
-fn json_from_grid(block_meta: &Arc<BlockMeta>) -> CollaborateResult<String> {
+fn json_from_grid(block_meta: &Arc<GridBlockMeta>) -> CollaborateResult<String> {
     let json = serde_json::to_string(block_meta)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)
 }
 
-pub struct BlockMetaChange {
-    pub delta: BlockMetaDelta,
+pub struct GridBlockMetaChange {
+    pub delta: GridBlockMetaDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(block_meta: &BlockMeta) -> BlockMetaDelta {
+pub fn make_block_meta_delta(block_meta: &GridBlockMeta) -> GridBlockMetaDelta {
     let json = serde_json::to_string(&block_meta).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, block_meta: &BlockMeta) -> RepeatedRevision {
+pub fn make_block_meta_revisions(user_id: &str, block_meta: &GridBlockMeta) -> RepeatedRevision {
     let delta = make_block_meta_delta(block_meta);
     let bytes = delta.to_bytes();
     let revision = Revision::initial_revision(user_id, &block_meta.block_id, bytes);
     revision.into()
 }
 
-impl std::default::Default for BlockMetaPad {
+impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
-        let block_meta = BlockMeta {
+        let block_meta = GridBlockMeta {
             block_id: uuid(),
             rows: vec![],
         };
 
         let delta = make_block_meta_delta(&block_meta);
-        BlockMetaPad {
+        GridBlockMetaPad {
             block_id: block_meta.block_id,
             rows: block_meta.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
             delta,
@@ -165,7 +165,7 @@ impl std::default::Default for BlockMetaPad {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_grid::{BlockMetaDelta, BlockMetaPad};
+    use crate::client_grid::{GridBlockMetaDelta, GridMetaPad};
     use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
     use std::str::FromStr;
 
@@ -241,8 +241,8 @@ mod tests {
         );
     }
 
-    fn test_pad() -> BlockMetaPad {
-        let delta = BlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
-        BlockMetaPad::from_delta(delta).unwrap()
+    fn test_pad() -> GridMetaPad {
+        let delta = GridBlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
+        GridMetaPad::from_delta(delta).unwrap()
     }
 }
