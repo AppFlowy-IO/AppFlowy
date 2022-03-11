@@ -71,6 +71,12 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                 None => {}
             }
         }),
+        TypeCategory::Enum => Some(quote! {
+            match self.#member {
+                Some(s) => { pb.#set_func(s.try_into().unwrap()) }
+                None => {}
+            }
+        }),
         _ => Some(quote! {
             match self.#member {
                 Some(ref s) => { pb.#set_func(s.clone()) }

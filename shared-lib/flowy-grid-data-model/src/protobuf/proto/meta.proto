@@ -24,9 +24,6 @@ message Field {
     int32 width = 7;
     AnyData type_options = 8;
 }
-message RepeatedField {
-    repeated Field items = 1;
-}
 message FieldChangeset {
     string field_id = 1;
     oneof one_of_name { string name = 2; };
@@ -36,6 +33,9 @@ message FieldChangeset {
     oneof one_of_visibility { bool visibility = 6; };
     oneof one_of_width { int32 width = 7; };
     oneof one_of_type_options { AnyData type_options = 8; };
+}
+message RepeatedField {
+    repeated Field items = 1;
 }
 message AnyData {
     string type_id = 1;

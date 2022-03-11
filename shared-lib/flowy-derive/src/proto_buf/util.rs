@@ -74,14 +74,14 @@ pub fn category_from_str(type_str: String) -> TypeCategory {
         }
     }
 
-    if let Some(protobuf) = CACHE_INFO.get(&TypeCategory::Protobuf) {
-        if protobuf.contains(&type_str) {
+    if let Some(protobuf_tys) = CACHE_INFO.get(&TypeCategory::Protobuf) {
+        if protobuf_tys.contains(&type_str) {
             return TypeCategory::Protobuf;
         }
     }
 
-    if let Some(protobuf) = CACHE_INFO.get(&TypeCategory::Enum) {
-        if protobuf.contains(&type_str) {
+    if let Some(enum_tys) = CACHE_INFO.get(&TypeCategory::Enum) {
+        if enum_tys.contains(&type_str) {
             return TypeCategory::Enum;
         }
     }

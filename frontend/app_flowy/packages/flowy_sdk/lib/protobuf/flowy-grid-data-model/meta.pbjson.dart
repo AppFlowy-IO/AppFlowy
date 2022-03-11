@@ -75,16 +75,6 @@ const Field$json = const {
 
 /// Descriptor for `Field`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldDescriptor = $convert.base64Decode('CgVGaWVsZBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEikKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZRIWCgZmcm96ZW4YBSABKAhSBmZyb3plbhIeCgp2aXNpYmlsaXR5GAYgASgIUgp2aXNpYmlsaXR5EhQKBXdpZHRoGAcgASgFUgV3aWR0aBIrCgx0eXBlX29wdGlvbnMYCCABKAsyCC5BbnlEYXRhUgt0eXBlT3B0aW9ucw==');
-@$core.Deprecated('Use repeatedFieldDescriptor instead')
-const RepeatedField$json = const {
-  '1': 'RepeatedField',
-  '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Field', '10': 'items'},
-  ],
-};
-
-/// Descriptor for `RepeatedField`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List repeatedFieldDescriptor = $convert.base64Decode('Cg1SZXBlYXRlZEZpZWxkEhwKBWl0ZW1zGAEgAygLMgYuRmllbGRSBWl0ZW1z');
 @$core.Deprecated('Use fieldChangesetDescriptor instead')
 const FieldChangeset$json = const {
   '1': 'FieldChangeset',
@@ -111,6 +101,16 @@ const FieldChangeset$json = const {
 
 /// Descriptor for `FieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEi0KDHR5cGVfb3B0aW9ucxgIIAEoCzIILkFueURhdGFIBlILdHlwZU9wdGlvbnNCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEwoRb25lX29mX2ZpZWxkX3R5cGVCDwoNb25lX29mX2Zyb3plbkITChFvbmVfb2ZfdmlzaWJpbGl0eUIOCgxvbmVfb2Zfd2lkdGhCFQoTb25lX29mX3R5cGVfb3B0aW9ucw==');
+@$core.Deprecated('Use repeatedFieldDescriptor instead')
+const RepeatedField$json = const {
+  '1': 'RepeatedField',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Field', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedField`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedFieldDescriptor = $convert.base64Decode('Cg1SZXBlYXRlZEZpZWxkEhwKBWl0ZW1zGAEgAygLMgYuRmllbGRSBWl0ZW1z');
 @$core.Deprecated('Use anyDataDescriptor instead')
 const AnyData$json = const {
   '1': 'AnyData',

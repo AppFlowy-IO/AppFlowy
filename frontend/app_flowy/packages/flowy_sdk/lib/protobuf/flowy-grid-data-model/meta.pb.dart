@@ -353,47 +353,6 @@ class Field extends $pb.GeneratedMessage {
   AnyData ensureTypeOptions() => $_ensure(7);
 }
 
-class RepeatedField extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedField', createEmptyInstance: create)
-    ..pc<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Field.create)
-    ..hasRequiredFields = false
-  ;
-
-  RepeatedField._() : super();
-  factory RepeatedField({
-    $core.Iterable<Field>? items,
-  }) {
-    final _result = create();
-    if (items != null) {
-      _result.items.addAll(items);
-    }
-    return _result;
-  }
-  factory RepeatedField.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedField.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RepeatedField clone() => RepeatedField()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedField copyWith(void Function(RepeatedField) updates) => super.copyWith((message) => updates(message as RepeatedField)) as RepeatedField; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RepeatedField create() => RepeatedField._();
-  RepeatedField createEmptyInstance() => create();
-  static $pb.PbList<RepeatedField> createRepeated() => $pb.PbList<RepeatedField>();
-  @$core.pragma('dart2js:noInline')
-  static RepeatedField getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedField>(create);
-  static RepeatedField? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<Field> get items => $_getList(0);
-}
-
 enum FieldChangeset_OneOfName {
   name, 
   notSet
@@ -630,6 +589,47 @@ class FieldChangeset extends $pb.GeneratedMessage {
   void clearTypeOptions() => clearField(8);
   @$pb.TagNumber(8)
   AnyData ensureTypeOptions() => $_ensure(7);
+}
+
+class RepeatedField extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedField', createEmptyInstance: create)
+    ..pc<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Field.create)
+    ..hasRequiredFields = false
+  ;
+
+  RepeatedField._() : super();
+  factory RepeatedField({
+    $core.Iterable<Field>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory RepeatedField.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedField.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RepeatedField clone() => RepeatedField()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RepeatedField copyWith(void Function(RepeatedField) updates) => super.copyWith((message) => updates(message as RepeatedField)) as RepeatedField; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RepeatedField create() => RepeatedField._();
+  RepeatedField createEmptyInstance() => create();
+  static $pb.PbList<RepeatedField> createRepeated() => $pb.PbList<RepeatedField>();
+  @$core.pragma('dart2js:noInline')
+  static RepeatedField getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedField>(create);
+  static RepeatedField? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Field> get items => $_getList(0);
 }
 
 class AnyData extends $pb.GeneratedMessage {
