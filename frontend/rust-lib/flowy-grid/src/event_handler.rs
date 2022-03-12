@@ -35,7 +35,7 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedField, FlowyError> {
     let payload: QueryFieldPayload = data.into_inner();
     let editor = manager.get_grid_editor(&payload.grid_id)?;
-    let repeated_field = editor.get_fields(payload.field_orders).await?;
+    let repeated_field = editor.get_fields(Some(payload.field_orders)).await?;
     data_result(repeated_field)
 }
 

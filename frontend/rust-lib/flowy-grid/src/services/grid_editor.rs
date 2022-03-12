@@ -9,7 +9,7 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Field, Grid, GridBlock, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
+    Field, FieldChangeset, Grid, GridBlock, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
 };
 use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_sync::{
@@ -60,6 +60,11 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn update_field(&self, change: FieldChangeset) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.update_field(change)?)).await?;
+        Ok(())
+    }
+
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
         Ok(())
@@ -81,7 +86,7 @@ impl ClientGridEditor {
         todo!()
     }
 
-    pub async fn get_fields(&self, field_orders: RepeatedFieldOrder) -> FlowyResult<RepeatedField> {
+    pub async fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<RepeatedField> {
         let fields = self.grid_meta_pad.read().await.get_fields(field_orders)?;
         Ok(fields)
     }

@@ -1073,6 +1073,8 @@ dependencies = [
  "rayon",
  "rust_decimal",
  "rusty-money",
+ "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "tokio",

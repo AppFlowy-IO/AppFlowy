@@ -12,7 +12,7 @@ pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }
 
-pub const DOCUMENT_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
+pub const TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
 use flowy_collaboration::entities::text_block_info::{

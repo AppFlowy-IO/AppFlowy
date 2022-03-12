@@ -54,7 +54,7 @@ pub struct GridBlockMeta {
     pub rows: Vec<RowMeta>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, PartialEq, Eq)]
 pub struct Field {
     #[pb(index = 1)]
     pub id: String,
@@ -78,7 +78,7 @@ pub struct Field {
     pub width: i32,
 
     #[pb(index = 8)]
-    pub type_options: AnyData,
+    pub type_options: String,
 }
 
 impl Field {
@@ -120,7 +120,7 @@ pub struct FieldChangeset {
     pub width: Option<i32>,
 
     #[pb(index = 8, one_of)]
-    pub type_options: Option<AnyData>,
+    pub type_options: Option<String>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

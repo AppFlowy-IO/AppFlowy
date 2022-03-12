@@ -51,25 +51,30 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_fields(&self, field_orders: RepeatedFieldOrder) -> CollaborateResult<RepeatedField> {
-        let field_by_field_id = self
-            .grid_meta
-            .fields
-            .iter()
-            .map(|field| (&field.id, field))
-            .collect::<HashMap<&String, &Field>>();
+    pub fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<RepeatedField> {
+        match field_orders {
+            None => Ok(self.grid_meta.fields.clone().into()),
+            Some(field_orders) => {
+                let field_by_field_id = self
+                    .grid_meta
+                    .fields
+                    .iter()
+                    .map(|field| (&field.id, field))
+                    .collect::<HashMap<&String, &Field>>();
 
-        let fields = field_orders
-            .iter()
-            .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
-                None => {
-                    tracing::error!("Can't find the field with id: {}", field_order.field_id);
-                    None
-                }
-                Some(field) => Some((*field).clone()),
-            })
-            .collect::<Vec<Field>>();
-        Ok(fields.into())
+                let fields = field_orders
+                    .iter()
+                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                        None => {
+                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
+                            None
+                        }
+                        Some(field) => Some((*field).clone()),
+                    })
+                    .collect::<Vec<Field>>();
+                Ok(fields.into())
+            }
+        }
     }
 
     pub fn update_field(&mut self, change: FieldChangeset) -> CollaborateResult<Option<GridChange>> {

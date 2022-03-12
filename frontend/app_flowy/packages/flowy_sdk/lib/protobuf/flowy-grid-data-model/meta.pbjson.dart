@@ -69,12 +69,12 @@ const Field$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 11, '6': '.AnyData', '10': 'typeOptions'},
+    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '10': 'typeOptions'},
   ],
 };
 
 /// Descriptor for `Field`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldDescriptor = $convert.base64Decode('CgVGaWVsZBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEikKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZRIWCgZmcm96ZW4YBSABKAhSBmZyb3plbhIeCgp2aXNpYmlsaXR5GAYgASgIUgp2aXNpYmlsaXR5EhQKBXdpZHRoGAcgASgFUgV3aWR0aBIrCgx0eXBlX29wdGlvbnMYCCABKAsyCC5BbnlEYXRhUgt0eXBlT3B0aW9ucw==');
+final $typed_data.Uint8List fieldDescriptor = $convert.base64Decode('CgVGaWVsZBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEikKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZRIWCgZmcm96ZW4YBSABKAhSBmZyb3plbhIeCgp2aXNpYmlsaXR5GAYgASgIUgp2aXNpYmlsaXR5EhQKBXdpZHRoGAcgASgFUgV3aWR0aBIhCgx0eXBlX29wdGlvbnMYCCABKAlSC3R5cGVPcHRpb25z');
 @$core.Deprecated('Use fieldChangesetDescriptor instead')
 const FieldChangeset$json = const {
   '1': 'FieldChangeset',
@@ -86,7 +86,7 @@ const FieldChangeset$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '9': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 11, '6': '.AnyData', '9': 6, '10': 'typeOptions'},
+    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '9': 6, '10': 'typeOptions'},
   ],
   '8': const [
     const {'1': 'one_of_name'},
@@ -100,7 +100,7 @@ const FieldChangeset$json = const {
 };
 
 /// Descriptor for `FieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEi0KDHR5cGVfb3B0aW9ucxgIIAEoCzIILkFueURhdGFIBlILdHlwZU9wdGlvbnNCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEwoRb25lX29mX2ZpZWxkX3R5cGVCDwoNb25lX29mX2Zyb3plbkITChFvbmVfb2ZfdmlzaWJpbGl0eUIOCgxvbmVfb2Zfd2lkdGhCFQoTb25lX29mX3R5cGVfb3B0aW9ucw==');
+final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEiMKDHR5cGVfb3B0aW9ucxgIIAEoCUgGUgt0eXBlT3B0aW9uc0INCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIVChNvbmVfb2ZfdHlwZV9vcHRpb25z');
 @$core.Deprecated('Use repeatedFieldDescriptor instead')
 const RepeatedField$json = const {
   '1': 'RepeatedField',

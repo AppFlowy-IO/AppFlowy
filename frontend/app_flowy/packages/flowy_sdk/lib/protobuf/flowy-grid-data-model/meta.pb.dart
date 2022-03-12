@@ -215,7 +215,7 @@ class Field extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOM<AnyData>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions', subBuilder: AnyData.create)
+    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
     ..hasRequiredFields = false
   ;
 
@@ -228,7 +228,7 @@ class Field extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    AnyData? typeOptions,
+    $core.String? typeOptions,
   }) {
     final _result = create();
     if (id != null) {
@@ -342,15 +342,13 @@ class Field extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 
   @$pb.TagNumber(8)
-  AnyData get typeOptions => $_getN(7);
+  $core.String get typeOptions => $_getSZ(7);
   @$pb.TagNumber(8)
-  set typeOptions(AnyData v) { setField(8, v); }
+  set typeOptions($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
   $core.bool hasTypeOptions() => $_has(7);
   @$pb.TagNumber(8)
   void clearTypeOptions() => clearField(8);
-  @$pb.TagNumber(8)
-  AnyData ensureTypeOptions() => $_ensure(7);
 }
 
 enum FieldChangeset_OneOfName {
@@ -432,7 +430,7 @@ class FieldChangeset extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOM<AnyData>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions', subBuilder: AnyData.create)
+    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
     ..hasRequiredFields = false
   ;
 
@@ -445,7 +443,7 @@ class FieldChangeset extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    AnyData? typeOptions,
+    $core.String? typeOptions,
   }) {
     final _result = create();
     if (fieldId != null) {
@@ -580,15 +578,13 @@ class FieldChangeset extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 
   @$pb.TagNumber(8)
-  AnyData get typeOptions => $_getN(7);
+  $core.String get typeOptions => $_getSZ(7);
   @$pb.TagNumber(8)
-  set typeOptions(AnyData v) { setField(8, v); }
+  set typeOptions($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
   $core.bool hasTypeOptions() => $_has(7);
   @$pb.TagNumber(8)
   void clearTypeOptions() => clearField(8);
-  @$pb.TagNumber(8)
-  AnyData ensureTypeOptions() => $_ensure(7);
 }
 
 class RepeatedField extends $pb.GeneratedMessage {

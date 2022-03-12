@@ -13,10 +13,11 @@ use rusty_money::{
     iso::{Currency, CNY, EUR, USD},
     Money,
 };
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use strum_macros::EnumIter;
 
-#[derive(Debug, Clone, ProtoBuf, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct RichTextDescription {
     #[pb(index = 1)]
     pub format: String,
@@ -34,7 +35,7 @@ impl StringifyCellData for RichTextDescription {
 }
 
 // Checkbox
-#[derive(Debug, Clone, ProtoBuf, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
 pub struct CheckboxDescription {
     #[pb(index = 1)]
     pub is_selected: bool,
@@ -56,7 +57,7 @@ impl StringifyCellData for CheckboxDescription {
 }
 
 // Date
-#[derive(Clone, Debug, ProtoBuf, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct DateDescription {
     #[pb(index = 1)]
     pub date_format: DateFormat,
@@ -115,7 +116,7 @@ impl StringifyCellData for DateDescription {
     }
 }
 
-#[derive(Clone, Debug, Copy, ProtoBuf_Enum)]
+#[derive(Clone, Debug, Copy, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum DateFormat {
     Local = 0,
     US = 1,
@@ -158,7 +159,7 @@ impl DateFormat {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, ProtoBuf_Enum)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum TimeFormat {
     TwelveHour = 0,
     TwentyFourHour = 1,
@@ -198,7 +199,7 @@ impl std::default::Default for TimeFormat {
 }
 
 // Single select
-#[derive(Clone, Debug, ProtoBuf, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct SingleSelectDescription {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
@@ -219,7 +220,7 @@ impl StringifyCellData for SingleSelectDescription {
 }
 
 // Multiple select
-#[derive(Clone, Debug, ProtoBuf, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct MultiSelectDescription {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
@@ -238,7 +239,7 @@ impl StringifyCellData for MultiSelectDescription {
     }
 }
 
-#[derive(Clone, Debug, ProtoBuf, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOption {
     #[pb(index = 1)]
     pub id: String,
@@ -261,7 +262,7 @@ impl SelectOption {
 }
 
 // Number
-#[derive(Clone, Debug, ProtoBuf)]
+#[derive(Clone, Debug, Serialize, Deserialize, ProtoBuf)]
 pub struct NumberDescription {
     #[pb(index = 1)]
     pub money: MoneySymbol,
@@ -342,7 +343,7 @@ impl StringifyCellData for NumberDescription {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumIter, ProtoBuf_Enum)]
+#[derive(Clone, Copy, Debug, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum MoneySymbol {
     CNY = 0,
     EUR = 1,

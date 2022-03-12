@@ -22,7 +22,7 @@ message Field {
     bool frozen = 5;
     bool visibility = 6;
     int32 width = 7;
-    AnyData type_options = 8;
+    string type_options = 8;
 }
 message FieldChangeset {
     string field_id = 1;
@@ -32,7 +32,7 @@ message FieldChangeset {
     oneof one_of_frozen { bool frozen = 5; };
     oneof one_of_visibility { bool visibility = 6; };
     oneof one_of_width { int32 width = 7; };
-    oneof one_of_type_options { AnyData type_options = 8; };
+    oneof one_of_type_options { string type_options = 8; };
 }
 message RepeatedField {
     repeated Field items = 1;

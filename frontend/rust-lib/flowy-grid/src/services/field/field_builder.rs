@@ -59,7 +59,7 @@ impl FieldBuilder {
 
 pub trait TypeOptionsBuilder {
     fn field_type(&self) -> FieldType;
-    fn build(&self) -> AnyData;
+    fn build(&self) -> String;
 }
 
 // Text
@@ -76,7 +76,7 @@ impl TypeOptionsBuilder for RichTextTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }
@@ -115,7 +115,7 @@ impl TypeOptionsBuilder for NumberTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }
@@ -142,7 +142,7 @@ impl TypeOptionsBuilder for DateTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }
@@ -165,7 +165,7 @@ impl TypeOptionsBuilder for SingleSelectTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }
@@ -189,7 +189,7 @@ impl TypeOptionsBuilder for MultiSelectTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }
@@ -211,7 +211,7 @@ impl TypeOptionsBuilder for CheckboxTypeOptionsBuilder {
         self.0.field_type()
     }
 
-    fn build(&self) -> AnyData {
+    fn build(&self) -> String {
         self.0.clone().into()
     }
 }

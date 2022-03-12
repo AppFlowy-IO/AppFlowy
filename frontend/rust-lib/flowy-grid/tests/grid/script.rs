@@ -1,15 +1,21 @@
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
-use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
+use flowy_grid_data_model::entities::{AnyData, Field, FieldChangeset, FieldType};
+use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::event_builder::FolderEventBuilder;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::time::sleep;
 
 pub enum EditorScript {
     CreateField { field: Field },
-    CreateRow,
+    UpdateField { change: FieldChangeset },
+    AssertFieldCount(usize),
+    AssertFieldEqual { field_index: usize, field: Field },
     AssertGridMetaPad,
+    CreateRow,
 }
 
 pub struct GridEditorTest {
@@ -44,12 +50,24 @@ impl GridEditorTest {
             EditorScript::CreateField { field } => {
                 self.editor.create_field(field).await.unwrap();
             }
-            EditorScript::CreateRow => {}
+            EditorScript::UpdateField { change } => {
+                self.editor.update_field(change).await.unwrap();
+            }
+            EditorScript::AssertFieldCount(count) => {
+                assert_eq!(self.editor.get_fields(None).await.unwrap().len(), count);
+            }
+            EditorScript::AssertFieldEqual { field_index, field } => {
+                let repeated_fields = self.editor.get_fields(None).await.unwrap();
+                let compared_field = repeated_fields[field_index].clone();
+                assert_eq!(compared_field, field);
+            }
             EditorScript::AssertGridMetaPad => {
+                sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
                 let mut grid_rev_manager = grid_manager.make_grid_rev_manager(&self.grid_id, pool.clone()).unwrap();
                 let grid_pad = grid_rev_manager.load::<GridPadBuilder>(None).await.unwrap();
                 println!("{}", grid_pad.delta_str());
             }
+            EditorScript::CreateRow => {}
         }
     }
 }

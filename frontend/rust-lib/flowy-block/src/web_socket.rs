@@ -1,4 +1,4 @@
-use crate::{queue::EditorCommand, DOCUMENT_SYNC_INTERVAL_IN_MILLIS};
+use crate::{queue::EditorCommand, TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS};
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
@@ -36,7 +36,7 @@ pub(crate) async fn make_block_ws_manager(
         RichTextConflictController::new(&user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
     let ws_data_stream = Arc::new(TextBlockRevisionWSDataStream::new(conflict_controller));
     let ws_data_sink = Arc::new(TextBlockWSDataSink(ws_data_provider));
-    let ping_duration = Duration::from_millis(DOCUMENT_SYNC_INTERVAL_IN_MILLIS);
+    let ping_duration = Duration::from_millis(TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
         "Block",
         &doc_id,
