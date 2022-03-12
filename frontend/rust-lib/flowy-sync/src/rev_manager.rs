@@ -67,14 +67,14 @@ impl RevisionManager {
         }
     }
 
-    pub async fn load<B>(&mut self, cloud: Arc<dyn RevisionCloudService>) -> FlowyResult<B::Output>
+    pub async fn load<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectBuilder,
     {
         let (revisions, rev_id) = RevisionLoader {
             object_id: self.object_id.clone(),
             user_id: self.user_id.clone(),
-            cloud: Some(cloud),
+            cloud,
             rev_persistence: self.rev_persistence.clone(),
         }
         .load()

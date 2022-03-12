@@ -113,7 +113,7 @@ impl GridManager {
         Ok(grid_editor)
     }
 
-    fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    pub fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
         let user_id = self.grid_user.user_id()?;
 
         let disk_cache = Arc::new(SQLiteGridRevisionPersistence::new(&user_id, pool));

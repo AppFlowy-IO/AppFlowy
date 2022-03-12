@@ -39,7 +39,7 @@ impl ClientTextBlockEditor {
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<TextBlockInfoBuilder>(cloud_service).await?;
+        let document_info = rev_manager.load::<TextBlockInfoBuilder>(Some(cloud_service)).await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
@@ -191,17 +191,9 @@ fn spawn_edit_queue(
 
 #[cfg(feature = "flowy_unit_test")]
 impl ClientTextBlockEditor {
-    pub async fn doc_json(&self) -> FlowyResult<String> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadDeltaStr { ret };
-        let _ = self.edit_cmd_tx.send(msg).await;
-        let s = rx.await.map_err(internal_error)??;
-        Ok(s)
-    }
-
-    pub async fn doc_delta(&self) -> FlowyResult<RichTextDelta> {
+    pub async fn text_block_delta(&self) -> FlowyResult<RichTextDelta> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
-        let msg = EditorCommand::ReadBlockDelta { ret };
+        let msg = EditorCommand::ReadDelta { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)

@@ -7,3 +7,4 @@ pub mod manager;
 
 mod protobuf;
 pub mod services;
+pub mod util;

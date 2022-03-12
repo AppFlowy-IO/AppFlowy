@@ -1,6 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
 
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
+use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_sync::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
@@ -136,10 +137,12 @@ async fn app_create_with_view() {
         CreateView {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
+            data_type: ViewDataType::TextBlock,
         },
         CreateView {
-            name: "View B".to_owned(),
-            desc: "View B description".to_owned(),
+            name: "Grid".to_owned(),
+            desc: "Grid description".to_owned(),
+            data_type: ViewDataType::Grid,
         },
         ReadApp(app.id),
     ])
@@ -148,7 +151,7 @@ async fn app_create_with_view() {
     app = test.app.clone();
     assert_eq!(app.belongings.len(), 3);
     assert_eq!(app.belongings[1].name, "View A");
-    assert_eq!(app.belongings[2].name, "View B")
+    assert_eq!(app.belongings[2].name, "Grid")
 }
 
 #[tokio::test]
@@ -198,10 +201,12 @@ async fn view_delete_all() {
         CreateView {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
+            data_type: ViewDataType::TextBlock,
         },
         CreateView {
-            name: "View B".to_owned(),
-            desc: "View B description".to_owned(),
+            name: "Grid".to_owned(),
+            desc: "Grid description".to_owned(),
+            data_type: ViewDataType::Grid,
         },
         ReadApp(app.id.clone()),
     ])
@@ -229,6 +234,7 @@ async fn view_delete_all_permanent() {
         CreateView {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
+            data_type: ViewDataType::TextBlock,
         },
         ReadApp(app.id.clone()),
     ])
@@ -327,6 +333,7 @@ async fn folder_sync_revision_with_new_view() {
         CreateView {
             name: view_name.clone(),
             desc: view_desc.clone(),
+            data_type: ViewDataType::TextBlock,
         },
         AssertCurrentRevId(3),
         AssertNextSyncRevId(Some(3)),

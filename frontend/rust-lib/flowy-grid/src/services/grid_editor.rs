@@ -38,7 +38,7 @@ impl ClientGridEditor {
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridPadBuilder>(cloud).await?;
+        let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_meta_pad = Arc::new(RwLock::new(grid_pad));
 
@@ -55,12 +55,12 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
+    pub async fn create_field(&self, field: Field) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_field(field)?)).await?;
         Ok(())
     }
 
-    pub async fn delete_field(&mut self, field_id: &str) -> FlowyResult<()> {
+    pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
         Ok(())
     }
@@ -125,6 +125,13 @@ impl ClientGridEditor {
     }
 }
 
+#[cfg(feature = "flowy_unit_test")]
+impl ClientGridEditor {
+    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+        self.rev_manager.clone()
+    }
+}
+
 async fn load_all_fields(
     grid_pad: &GridMetaPad,
     kv_persistence: &Arc<GridKVPersistence>,
@@ -143,7 +150,7 @@ async fn load_all_fields(
     Ok(map)
 }
 
-struct GridPadBuilder();
+pub struct GridPadBuilder();
 impl RevisionObjectBuilder for GridPadBuilder {
     type Output = GridMetaPad;
 

@@ -17,16 +17,16 @@ pub enum EditorScript {
     AssertJson(&'static str),
 }
 
-pub struct EditorTest {
+pub struct TextBlockEditorTest {
     pub sdk: FlowySDKTest,
     pub editor: Arc<ClientTextBlockEditor>,
 }
 
-impl EditorTest {
+impl TextBlockEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let test = ViewTest::new(&sdk).await;
+        let test = ViewTest::new_grid_view(&sdk).await;
         let editor = sdk.text_block_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
@@ -41,8 +41,6 @@ impl EditorTest {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache().await;
         let _user_id = self.sdk.user_session.user_id().unwrap();
-        // let ws_manager = self.sdk.ws_conn.clone();
-        // let token = self.sdk.user_session.token().unwrap();
 
         match script {
             EditorScript::InsertText(s, offset) => {
@@ -74,7 +72,7 @@ impl EditorTest {
             }
             EditorScript::AssertJson(expected) => {
                 let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();
-                let delta = self.editor.doc_delta().await.unwrap();
+                let delta = self.editor.text_block_delta().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);
                     eprintln!("❌ receive: {}", delta.to_delta_str());

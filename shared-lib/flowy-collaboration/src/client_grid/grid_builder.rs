@@ -25,8 +25,7 @@ impl GridBuilder {
         }
     }
 
-    pub fn add_field(mut self, name: &str, desc: &str, field_type: FieldType) -> Self {
-        let field = Field::new(name, desc, field_type);
+    pub fn add_field(mut self, field: Field) -> Self {
         self.fields.push(field);
         self
     }
@@ -74,27 +73,16 @@ fn check_rows(fields: &[Field], rows: &[RowMeta]) -> CollaborateResult<()> {
     Ok(())
 }
 
-pub fn make_default_grid(grid_id: &str) -> BuildGridInfo {
-    GridBuilder::new(grid_id)
-        .add_field("Name", "", FieldType::RichText)
-        .add_field("Tags", "", FieldType::SingleSelect)
-        .add_empty_row()
-        .add_empty_row()
-        .add_empty_row()
-        .build()
-        .unwrap()
-}
-
 #[cfg(test)]
 mod tests {
     use crate::client_grid::GridBuilder;
-    use flowy_grid_data_model::entities::{FieldType, GridBlockMeta, GridMeta};
+    use flowy_grid_data_model::entities::{Field, FieldType, GridBlockMeta, GridMeta};
 
     #[test]
     fn create_default_grid_test() {
         let info = GridBuilder::new("1")
-            .add_field("Name", "", FieldType::RichText)
-            .add_field("Tags", "", FieldType::SingleSelect)
+            .add_field(Field::new("Name", "", FieldType::RichText))
+            .add_field(Field::new("Tags", "", FieldType::SingleSelect))
             .add_empty_row()
             .add_empty_row()
             .add_empty_row()

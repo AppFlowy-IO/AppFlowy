@@ -163,8 +163,19 @@ impl std::default::Default for FieldType {
     }
 }
 
+impl AsRef<FieldType> for FieldType {
+    fn as_ref(&self) -> &FieldType {
+        &self
+    }
+}
+
+impl Into<FieldType> for &FieldType {
+    fn into(self) -> FieldType {
+        self.clone()
+    }
+}
+
 impl FieldType {
-    #[allow(dead_code)]
     pub fn type_id(&self) -> String {
         let ty = self.clone();
         format!("{}", ty as u8)
@@ -193,13 +204,13 @@ pub struct AnyData {
 }
 
 impl AnyData {
-    pub fn from_str(field_type: &FieldType, s: &str) -> AnyData {
+    pub fn from_str<F: Into<FieldType>>(field_type: F, s: &str) -> AnyData {
         Self::from_bytes(field_type, s.as_bytes().to_vec())
     }
 
-    pub fn from_bytes<T: AsRef<[u8]>>(field_type: &FieldType, bytes: T) -> AnyData {
+    pub fn from_bytes<T: AsRef<[u8]>, F: Into<FieldType>>(field_type: F, bytes: T) -> AnyData {
         AnyData {
-            type_id: field_type.type_id(),
+            type_id: field_type.into().type_id(),
             value: bytes.as_ref().to_vec(),
         }
     }

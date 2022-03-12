@@ -17,7 +17,7 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `cell_data.proto`
+//! Generated file from `type_options.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -514,7 +514,7 @@ impl ::protobuf::reflect::ProtobufValue for DateDescription {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SingleSelect {
+pub struct SingleSelectDescription {
     // message fields
     pub options: ::protobuf::RepeatedField<SelectOption>,
     pub disable_color: bool,
@@ -523,14 +523,14 @@ pub struct SingleSelect {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SingleSelect {
-    fn default() -> &'a SingleSelect {
-        <SingleSelect as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SingleSelectDescription {
+    fn default() -> &'a SingleSelectDescription {
+        <SingleSelectDescription as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SingleSelect {
-    pub fn new() -> SingleSelect {
+impl SingleSelectDescription {
+    pub fn new() -> SingleSelectDescription {
         ::std::default::Default::default()
     }
 
@@ -575,7 +575,7 @@ impl SingleSelect {
     }
 }
 
-impl ::protobuf::Message for SingleSelect {
+impl ::protobuf::Message for SingleSelectDescription {
     fn is_initialized(&self) -> bool {
         for v in &self.options {
             if !v.is_initialized() {
@@ -662,8 +662,8 @@ impl ::protobuf::Message for SingleSelect {
         Self::descriptor_static()
     }
 
-    fn new() -> SingleSelect {
-        SingleSelect::new()
+    fn new() -> SingleSelectDescription {
+        SingleSelectDescription::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -672,29 +672,29 @@ impl ::protobuf::Message for SingleSelect {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "options",
-                |m: &SingleSelect| { &m.options },
-                |m: &mut SingleSelect| { &mut m.options },
+                |m: &SingleSelectDescription| { &m.options },
+                |m: &mut SingleSelectDescription| { &mut m.options },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "disable_color",
-                |m: &SingleSelect| { &m.disable_color },
-                |m: &mut SingleSelect| { &mut m.disable_color },
+                |m: &SingleSelectDescription| { &m.disable_color },
+                |m: &mut SingleSelectDescription| { &mut m.disable_color },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SingleSelect>(
-                "SingleSelect",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SingleSelectDescription>(
+                "SingleSelectDescription",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SingleSelect {
-        static instance: ::protobuf::rt::LazyV2<SingleSelect> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SingleSelect::new)
+    fn default_instance() -> &'static SingleSelectDescription {
+        static instance: ::protobuf::rt::LazyV2<SingleSelectDescription> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SingleSelectDescription::new)
     }
 }
 
-impl ::protobuf::Clear for SingleSelect {
+impl ::protobuf::Clear for SingleSelectDescription {
     fn clear(&mut self) {
         self.options.clear();
         self.disable_color = false;
@@ -702,20 +702,20 @@ impl ::protobuf::Clear for SingleSelect {
     }
 }
 
-impl ::std::fmt::Debug for SingleSelect {
+impl ::std::fmt::Debug for SingleSelectDescription {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SingleSelect {
+impl ::protobuf::reflect::ProtobufValue for SingleSelectDescription {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct MultiSelect {
+pub struct MultiSelectDescription {
     // message fields
     pub options: ::protobuf::RepeatedField<SelectOption>,
     pub disable_color: bool,
@@ -724,14 +724,14 @@ pub struct MultiSelect {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a MultiSelect {
-    fn default() -> &'a MultiSelect {
-        <MultiSelect as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a MultiSelectDescription {
+    fn default() -> &'a MultiSelectDescription {
+        <MultiSelectDescription as ::protobuf::Message>::default_instance()
     }
 }
 
-impl MultiSelect {
-    pub fn new() -> MultiSelect {
+impl MultiSelectDescription {
+    pub fn new() -> MultiSelectDescription {
         ::std::default::Default::default()
     }
 
@@ -776,7 +776,7 @@ impl MultiSelect {
     }
 }
 
-impl ::protobuf::Message for MultiSelect {
+impl ::protobuf::Message for MultiSelectDescription {
     fn is_initialized(&self) -> bool {
         for v in &self.options {
             if !v.is_initialized() {
@@ -863,8 +863,8 @@ impl ::protobuf::Message for MultiSelect {
         Self::descriptor_static()
     }
 
-    fn new() -> MultiSelect {
-        MultiSelect::new()
+    fn new() -> MultiSelectDescription {
+        MultiSelectDescription::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -873,29 +873,29 @@ impl ::protobuf::Message for MultiSelect {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "options",
-                |m: &MultiSelect| { &m.options },
-                |m: &mut MultiSelect| { &mut m.options },
+                |m: &MultiSelectDescription| { &m.options },
+                |m: &mut MultiSelectDescription| { &mut m.options },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "disable_color",
-                |m: &MultiSelect| { &m.disable_color },
-                |m: &mut MultiSelect| { &mut m.disable_color },
+                |m: &MultiSelectDescription| { &m.disable_color },
+                |m: &mut MultiSelectDescription| { &mut m.disable_color },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MultiSelect>(
-                "MultiSelect",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MultiSelectDescription>(
+                "MultiSelectDescription",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static MultiSelect {
-        static instance: ::protobuf::rt::LazyV2<MultiSelect> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(MultiSelect::new)
+    fn default_instance() -> &'static MultiSelectDescription {
+        static instance: ::protobuf::rt::LazyV2<MultiSelectDescription> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MultiSelectDescription::new)
     }
 }
 
-impl ::protobuf::Clear for MultiSelect {
+impl ::protobuf::Clear for MultiSelectDescription {
     fn clear(&mut self) {
         self.options.clear();
         self.disable_color = false;
@@ -903,13 +903,13 @@ impl ::protobuf::Clear for MultiSelect {
     }
 }
 
-impl ::std::fmt::Debug for MultiSelect {
+impl ::std::fmt::Debug for MultiSelectDescription {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for MultiSelect {
+impl ::protobuf::reflect::ProtobufValue for MultiSelectDescription {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1161,7 +1161,7 @@ impl ::protobuf::reflect::ProtobufValue for SelectOption {
 #[derive(PartialEq,Clone,Default)]
 pub struct NumberDescription {
     // message fields
-    pub money: FlowyMoney,
+    pub money: MoneySymbol,
     pub scale: u32,
     pub symbol: ::std::string::String,
     pub sign_positive: bool,
@@ -1182,18 +1182,18 @@ impl NumberDescription {
         ::std::default::Default::default()
     }
 
-    // .FlowyMoney money = 1;
+    // .MoneySymbol money = 1;
 
 
-    pub fn get_money(&self) -> FlowyMoney {
+    pub fn get_money(&self) -> MoneySymbol {
         self.money
     }
     pub fn clear_money(&mut self) {
-        self.money = FlowyMoney::CNY;
+        self.money = MoneySymbol::CNY;
     }
 
     // Param is passed by value, moved
-    pub fn set_money(&mut self, v: FlowyMoney) {
+    pub fn set_money(&mut self, v: MoneySymbol) {
         self.money = v;
     }
 
@@ -1324,7 +1324,7 @@ impl ::protobuf::Message for NumberDescription {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.money != FlowyMoney::CNY {
+        if self.money != MoneySymbol::CNY {
             my_size += ::protobuf::rt::enum_size(1, self.money);
         }
         if self.scale != 0 {
@@ -1345,7 +1345,7 @@ impl ::protobuf::Message for NumberDescription {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.money != FlowyMoney::CNY {
+        if self.money != MoneySymbol::CNY {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.money))?;
         }
         if self.scale != 0 {
@@ -1398,7 +1398,7 @@ impl ::protobuf::Message for NumberDescription {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<FlowyMoney>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<MoneySymbol>>(
                 "money",
                 |m: &NumberDescription| { &m.money },
                 |m: &mut NumberDescription| { &mut m.money },
@@ -1439,7 +1439,7 @@ impl ::protobuf::Message for NumberDescription {
 
 impl ::protobuf::Clear for NumberDescription {
     fn clear(&mut self) {
-        self.money = FlowyMoney::CNY;
+        self.money = MoneySymbol::CNY;
         self.scale = 0;
         self.symbol.clear();
         self.sign_positive = false;
@@ -1567,31 +1567,31 @@ impl ::protobuf::reflect::ProtobufValue for TimeFormat {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum FlowyMoney {
+pub enum MoneySymbol {
     CNY = 0,
     EUR = 1,
     USD = 2,
 }
 
-impl ::protobuf::ProtobufEnum for FlowyMoney {
+impl ::protobuf::ProtobufEnum for MoneySymbol {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<FlowyMoney> {
+    fn from_i32(value: i32) -> ::std::option::Option<MoneySymbol> {
         match value {
-            0 => ::std::option::Option::Some(FlowyMoney::CNY),
-            1 => ::std::option::Option::Some(FlowyMoney::EUR),
-            2 => ::std::option::Option::Some(FlowyMoney::USD),
+            0 => ::std::option::Option::Some(MoneySymbol::CNY),
+            1 => ::std::option::Option::Some(MoneySymbol::EUR),
+            2 => ::std::option::Option::Some(MoneySymbol::USD),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [FlowyMoney] = &[
-            FlowyMoney::CNY,
-            FlowyMoney::EUR,
-            FlowyMoney::USD,
+        static values: &'static [MoneySymbol] = &[
+            MoneySymbol::CNY,
+            MoneySymbol::EUR,
+            MoneySymbol::USD,
         ];
         values
     }
@@ -1599,47 +1599,48 @@ impl ::protobuf::ProtobufEnum for FlowyMoney {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<FlowyMoney>("FlowyMoney", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<MoneySymbol>("MoneySymbol", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for FlowyMoney {
+impl ::std::marker::Copy for MoneySymbol {
 }
 
-impl ::std::default::Default for FlowyMoney {
+impl ::std::default::Default for MoneySymbol {
     fn default() -> Self {
-        FlowyMoney::CNY
+        MoneySymbol::CNY
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for FlowyMoney {
+impl ::protobuf::reflect::ProtobufValue for MoneySymbol {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fcell_data.proto\"-\n\x13RichTextDescription\x12\x16\n\x06format\
+    \n\x12type_options.proto\"-\n\x13RichTextDescription\x12\x16\n\x06format\
     \x18\x01\x20\x01(\tR\x06format\"6\n\x13CheckboxDescription\x12\x1f\n\x0b\
     is_selected\x18\x01\x20\x01(\x08R\nisSelected\"m\n\x0fDateDescription\
     \x12,\n\x0bdate_format\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\
     \x12,\n\x0btime_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat\
-    \"\\\n\x0cSingleSelect\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.SelectO\
-    ptionR\x07options\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisable\
-    Color\"[\n\x0bMultiSelect\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.Sele\
-    ctOptionR\x07options\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisa\
-    bleColor\"H\n\x0cSelectOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
-    \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x14\n\x05color\x18\
-    \x03\x20\x01(\tR\x05color\"\x9d\x01\n\x11NumberDescription\x12!\n\x05mon\
-    ey\x18\x01\x20\x01(\x0e2\x0b.FlowyMoneyR\x05money\x12\x14\n\x05scale\x18\
-    \x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\x18\x03\x20\x01(\tR\x06sym\
-    bol\x12#\n\rsign_positive\x18\x04\x20\x01(\x08R\x0csignPositive\x12\x12\
-    \n\x04name\x18\x05\x20\x01(\tR\x04name*6\n\nDateFormat\x12\t\n\x05Local\
-    \x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\x0c\n\x08Fri\
-    endly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\x12\x12\n\x0eT\
-    wentyFourHour\x10\x01*'\n\nFlowyMoney\x12\x07\n\x03CNY\x10\0\x12\x07\n\
-    \x03EUR\x10\x01\x12\x07\n\x03USD\x10\x02b\x06proto3\
+    \"g\n\x17SingleSelectDescription\x12'\n\x07options\x18\x01\x20\x03(\x0b2\
+    \r.SelectOptionR\x07options\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\
+    \x0cdisableColor\"f\n\x16MultiSelectDescription\x12'\n\x07options\x18\
+    \x01\x20\x03(\x0b2\r.SelectOptionR\x07options\x12#\n\rdisable_color\x18\
+    \x02\x20\x01(\x08R\x0cdisableColor\"H\n\x0cSelectOption\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\
+    \x12\x14\n\x05color\x18\x03\x20\x01(\tR\x05color\"\x9e\x01\n\x11NumberDe\
+    scription\x12\"\n\x05money\x18\x01\x20\x01(\x0e2\x0c.MoneySymbolR\x05mon\
+    ey\x12\x14\n\x05scale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\
+    \x18\x03\x20\x01(\tR\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\
+    \x08R\x0csignPositive\x12\x12\n\x04name\x18\x05\x20\x01(\tR\x04name*6\n\
+    \nDateFormat\x12\t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\
+    \x03ISO\x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\
+    \nTwelveHour\x10\0\x12\x12\n\x0eTwentyFourHour\x10\x01*(\n\x0bMoneySymbo\
+    l\x12\x07\n\x03CNY\x10\0\x12\x07\n\x03EUR\x10\x01\x12\x07\n\x03USD\x10\
+    \x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

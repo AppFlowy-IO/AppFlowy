@@ -1,9 +1,9 @@
-use crate::document::edit_script::{EditorScript::*, *};
+use crate::document::script::{EditorScript::*, *};
 use flowy_sync::disk::RevisionState;
 use lib_ot::core::{count_utf16_code_units, Interval};
 
 #[tokio::test]
-async fn document_sync_current_rev_id_check() {
+async fn text_block_sync_current_rev_id_check() {
     let scripts = vec![
         InsertText("1", 0),
         AssertCurrentRevId(1),
@@ -14,11 +14,11 @@ async fn document_sync_current_rev_id_check() {
         AssertNextSyncRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_state_check() {
+async fn text_block_sync_state_check() {
     let scripts = vec![
         InsertText("1", 0),
         InsertText("2", 1),
@@ -28,11 +28,11 @@ async fn document_sync_state_check() {
         AssertRevisionState(3, RevisionState::Ack),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_insert_test() {
+async fn text_block_sync_insert_test() {
     let scripts = vec![
         InsertText("1", 0),
         InsertText("2", 1),
@@ -40,11 +40,11 @@ async fn document_sync_insert_test() {
         AssertJson(r#"[{"insert":"123\n"}]"#),
         AssertNextSyncRevId(None),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_insert_in_chinese() {
+async fn text_block_sync_insert_in_chinese() {
     let s = "好".to_owned();
     let offset = count_utf16_code_units(&s);
     let scripts = vec![
@@ -52,11 +52,11 @@ async fn document_sync_insert_in_chinese() {
         InsertText("好", offset),
         AssertJson(r#"[{"insert":"你好\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_insert_with_emoji() {
+async fn text_block_sync_insert_with_emoji() {
     let s = "😁".to_owned();
     let offset = count_utf16_code_units(&s);
     let scripts = vec![
@@ -64,11 +64,11 @@ async fn document_sync_insert_with_emoji() {
         InsertText("☺️", offset),
         AssertJson(r#"[{"insert":"😁☺️\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_delete_in_english() {
+async fn text_block_sync_delete_in_english() {
     let scripts = vec![
         InsertText("1", 0),
         InsertText("2", 1),
@@ -76,11 +76,11 @@ async fn document_sync_delete_in_english() {
         Delete(Interval::new(0, 2)),
         AssertJson(r#"[{"insert":"3\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_delete_in_chinese() {
+async fn text_block_sync_delete_in_chinese() {
     let s = "好".to_owned();
     let offset = count_utf16_code_units(&s);
     let scripts = vec![
@@ -89,11 +89,11 @@ async fn document_sync_delete_in_chinese() {
         Delete(Interval::new(0, offset)),
         AssertJson(r#"[{"insert":"好\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn document_sync_replace_test() {
+async fn text_block_sync_replace_test() {
     let scripts = vec![
         InsertText("1", 0),
         InsertText("2", 1),
@@ -101,5 +101,5 @@ async fn document_sync_replace_test() {
         Replace(Interval::new(0, 3), "abc"),
         AssertJson(r#"[{"insert":"abc\n"}]"#),
     ];
-    EditorTest::new().await.run_scripts(scripts).await;
+    TextBlockEditorTest::new().await.run_scripts(scripts).await;
 }

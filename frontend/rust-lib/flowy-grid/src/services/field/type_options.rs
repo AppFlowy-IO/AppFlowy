@@ -1,5 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
-use crate::impl_any_data;
+use crate::impl_from_and_to_type_option;
+use crate::services::field::StringifyCellData;
 use crate::services::util::*;
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -15,63 +16,42 @@ use rusty_money::{
 use std::str::FromStr;
 use strum_macros::EnumIter;
 
-pub trait StringifyAnyData {
-    fn stringify_any_data(&self, data: AnyData) -> String;
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError>;
-}
-
-pub trait DisplayCell {
-    fn display_content(&self, s: &str) -> String;
-}
-
 #[derive(Debug, Clone, ProtoBuf, Default)]
 pub struct RichTextDescription {
     #[pb(index = 1)]
     pub format: String,
 }
-impl_any_data!(RichTextDescription, FieldType::RichText);
+impl_from_and_to_type_option!(RichTextDescription, FieldType::RichText);
 
-impl StringifyAnyData for RichTextDescription {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl StringifyCellData for RichTextDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(&RichTextDescription::field_type(), s))
-    }
-}
-
-impl DisplayCell for RichTextDescription {
-    fn display_content(&self, s: &str) -> String {
-        s.to_string()
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+        Ok(AnyData::from_str(self.field_type(), s))
     }
 }
 
 // Checkbox
-#[derive(Debug, ProtoBuf, Default)]
+#[derive(Debug, Clone, ProtoBuf, Default)]
 pub struct CheckboxDescription {
     #[pb(index = 1)]
     pub is_selected: bool,
 }
-impl_any_data!(CheckboxDescription, FieldType::Checkbox);
+impl_from_and_to_type_option!(CheckboxDescription, FieldType::Checkbox);
 
-impl StringifyAnyData for CheckboxDescription {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl StringifyCellData for CheckboxDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
         let s = match string_to_bool(s) {
             true => "1",
             false => "0",
         };
-        Ok(AnyData::from_str(&CheckboxDescription::field_type(), s))
-    }
-}
-
-impl DisplayCell for CheckboxDescription {
-    fn display_content(&self, s: &str) -> String {
-        s.to_string()
+        Ok(AnyData::from_str(self.field_type(), s))
     }
 }
 
@@ -84,7 +64,7 @@ pub struct DateDescription {
     #[pb(index = 2)]
     pub time_format: TimeFormat,
 }
-impl_any_data!(DateDescription, FieldType::DateTime);
+impl_from_and_to_type_option!(DateDescription, FieldType::DateTime);
 
 impl DateDescription {
     fn date_time_format_str(&self) -> String {
@@ -107,23 +87,8 @@ impl DateDescription {
     }
 }
 
-impl DisplayCell for DateDescription {
-    fn display_content(&self, s: &str) -> String {
-        match s.parse::<i64>() {
-            Ok(timestamp) => {
-                let native = NaiveDateTime::from_timestamp(timestamp, 0);
-                self.today_from_native(native)
-            }
-            Err(e) => {
-                tracing::debug!("DateDescription format {} fail. error: {:?}", s, e);
-                String::new()
-            }
-        }
-    }
-}
-
-impl StringifyAnyData for DateDescription {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl StringifyCellData for DateDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         match String::from_utf8(data.value) {
             Ok(s) => match s.parse::<i64>() {
                 Ok(timestamp) => {
@@ -142,14 +107,11 @@ impl StringifyAnyData for DateDescription {
         }
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
         let timestamp = s
             .parse::<i64>()
             .map_err(|e| FlowyError::internal().context(format!("Parse {} to i64 failed: {}", s, e)))?;
-        Ok(AnyData::from_str(
-            &DateDescription::field_type(),
-            &format!("{}", timestamp),
-        ))
+        Ok(AnyData::from_str(self.field_type(), &format!("{}", timestamp)))
     }
 }
 
@@ -237,54 +199,42 @@ impl std::default::Default for TimeFormat {
 
 // Single select
 #[derive(Clone, Debug, ProtoBuf, Default)]
-pub struct SingleSelect {
+pub struct SingleSelectDescription {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_any_data!(SingleSelect, FieldType::SingleSelect);
+impl_from_and_to_type_option!(SingleSelectDescription, FieldType::SingleSelect);
 
-impl StringifyAnyData for SingleSelect {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl StringifyCellData for SingleSelectDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(&SingleSelect::field_type(), s))
-    }
-}
-
-impl DisplayCell for SingleSelect {
-    fn display_content(&self, s: &str) -> String {
-        s.to_string()
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+        Ok(AnyData::from_str(self.field_type(), s))
     }
 }
 
 // Multiple select
 #[derive(Clone, Debug, ProtoBuf, Default)]
-pub struct MultiSelect {
+pub struct MultiSelectDescription {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_any_data!(MultiSelect, FieldType::MultiSelect);
-impl StringifyAnyData for MultiSelect {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl_from_and_to_type_option!(MultiSelectDescription, FieldType::MultiSelect);
+impl StringifyCellData for MultiSelectDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         data.to_string()
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(&MultiSelect::field_type(), s))
-    }
-}
-
-impl DisplayCell for MultiSelect {
-    fn display_content(&self, s: &str) -> String {
-        s.to_string()
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+        Ok(AnyData::from_str(self.field_type(), s))
     }
 }
 
@@ -314,7 +264,7 @@ impl SelectOption {
 #[derive(Clone, Debug, ProtoBuf)]
 pub struct NumberDescription {
     #[pb(index = 1)]
-    pub money: FlowyMoney,
+    pub money: MoneySymbol,
 
     #[pb(index = 2)]
     pub scale: u32,
@@ -328,24 +278,26 @@ pub struct NumberDescription {
     #[pb(index = 5)]
     pub name: String,
 }
-impl_any_data!(NumberDescription, FieldType::Number);
+impl_from_and_to_type_option!(NumberDescription, FieldType::Number);
 
 impl std::default::Default for NumberDescription {
     fn default() -> Self {
+        let money = MoneySymbol::default();
+        let symbol = money.symbol_str();
         NumberDescription {
-            money: FlowyMoney::default(),
+            money,
             scale: 0,
-            symbol: String::new(),
+            symbol,
             sign_positive: true,
-            name: String::new(),
+            name: "Number".to_string(),
         }
     }
 }
 
 impl NumberDescription {
-    pub fn set_money(&mut self, money: FlowyMoney) {
-        self.money = money;
-        self.symbol = money.symbol();
+    pub fn set_money_symbol(&mut self, money_symbol: MoneySymbol) {
+        self.money = money_symbol;
+        self.symbol = money_symbol.symbol_str();
     }
 
     fn money_from_str(&self, s: &str) -> Option<String> {
@@ -368,17 +320,8 @@ impl NumberDescription {
     }
 }
 
-impl DisplayCell for NumberDescription {
-    fn display_content(&self, s: &str) -> String {
-        match self.money_from_str(s) {
-            Some(money_str) => money_str,
-            None => String::default(),
-        }
-    }
-}
-
-impl StringifyAnyData for NumberDescription {
-    fn stringify_any_data(&self, data: AnyData) -> String {
+impl StringifyCellData for NumberDescription {
+    fn str_from_cell_data(&self, data: AnyData) -> String {
         match String::from_utf8(data.value) {
             Ok(s) => match self.money_from_str(&s) {
                 Some(money_str) => money_str,
@@ -391,47 +334,47 @@ impl StringifyAnyData for NumberDescription {
         }
     }
 
-    fn str_to_any_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
         let strip_symbol_money = strip_money_symbol(s);
         let decimal = Decimal::from_str(&strip_symbol_money).map_err(|err| FlowyError::internal().context(err))?;
         let money_str = decimal.to_string();
-        Ok(AnyData::from_str(&NumberDescription::field_type(), &money_str))
+        Ok(AnyData::from_str(self.field_type(), &money_str))
     }
 }
 
 #[derive(Clone, Copy, Debug, EnumIter, ProtoBuf_Enum)]
-pub enum FlowyMoney {
+pub enum MoneySymbol {
     CNY = 0,
     EUR = 1,
     USD = 2,
 }
 
-impl std::default::Default for FlowyMoney {
+impl std::default::Default for MoneySymbol {
     fn default() -> Self {
-        FlowyMoney::USD
+        MoneySymbol::USD
     }
 }
 
-impl FlowyMoney {
+impl MoneySymbol {
     // Currency list https://docs.rs/rusty-money/0.4.0/rusty_money/iso/index.html
-    pub fn from_symbol_str(s: &str) -> FlowyMoney {
+    pub fn from_symbol_str(s: &str) -> MoneySymbol {
         match s {
-            "CNY" => FlowyMoney::CNY,
-            "EUR" => FlowyMoney::EUR,
-            "USD" => FlowyMoney::USD,
-            _ => FlowyMoney::CNY,
+            "CNY" => MoneySymbol::CNY,
+            "EUR" => MoneySymbol::EUR,
+            "USD" => MoneySymbol::USD,
+            _ => MoneySymbol::CNY,
         }
     }
 
-    pub fn from_money(money: &rusty_money::Money<Currency>) -> FlowyMoney {
-        FlowyMoney::from_symbol_str(&money.currency().symbol.to_string())
+    pub fn from_money(money: &rusty_money::Money<Currency>) -> MoneySymbol {
+        MoneySymbol::from_symbol_str(&money.currency().symbol.to_string())
     }
 
     pub fn currency(&self) -> &'static Currency {
         match self {
-            FlowyMoney::CNY => CNY,
-            FlowyMoney::EUR => EUR,
-            FlowyMoney::USD => USD,
+            MoneySymbol::CNY => CNY,
+            MoneySymbol::EUR => EUR,
+            MoneySymbol::USD => USD,
         }
     }
 
@@ -442,7 +385,7 @@ impl FlowyMoney {
         self.currency().iso_alpha_code.to_string()
     }
 
-    pub fn symbol(&self) -> String {
+    pub fn symbol_str(&self) -> String {
         self.currency().symbol.to_string()
     }
 

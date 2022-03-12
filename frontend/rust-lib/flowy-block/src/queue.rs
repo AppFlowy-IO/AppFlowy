@@ -166,7 +166,7 @@ impl EditBlockQueue {
                 let data = self.document.read().await.delta_str();
                 let _ = ret.send(Ok(data));
             }
-            EditorCommand::ReadBlockDelta { ret } => {
+            EditorCommand::ReadDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
             }
@@ -256,7 +256,7 @@ pub(crate) enum EditorCommand {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadBlockDelta {
+    ReadDelta {
         ret: Ret<RichTextDelta>,
     },
 }
@@ -277,7 +277,7 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
             EditorCommand::ReadDeltaStr { .. } => "ReadDeltaStr",
-            EditorCommand::ReadBlockDelta { .. } => "ReadDocumentAsDelta",
+            EditorCommand::ReadDelta { .. } => "ReadDocumentAsDelta",
         };
         f.write_str(s)
     }

@@ -1,7 +1,6 @@
 use bytes::Bytes;
 use flowy_block::TextBlockManager;
 use flowy_collaboration::client_document::default::initial_quill_delta_string;
-use flowy_collaboration::client_grid::make_default_grid;
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
@@ -13,6 +12,7 @@ use flowy_folder::{
     manager::FolderManager,
 };
 use flowy_grid::manager::GridManager;
+use flowy_grid::util::make_default_grid;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,

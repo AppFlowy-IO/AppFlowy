@@ -1,39 +1,63 @@
-use crate::helper::*;
-
+use flowy_collaboration::entities::text_block_info::TextBlockInfo;
+use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
+use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
+use flowy_folder_data_model::entities::workspace::WorkspaceId;
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
     trash::Trash,
     view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
+use flowy_folder_data_model::entities::{
+    app::{AppId, CreateAppPayload, UpdateAppPayload},
+    trash::{RepeatedTrash, TrashId, TrashType},
+    view::{CreateViewPayload, UpdateViewPayload},
+    workspace::{CreateWorkspacePayload, RepeatedWorkspace},
+};
 use flowy_sync::disk::RevisionState;
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_test::FlowySDKTest;
+use flowy_test::{event_builder::*, FlowySDKTest};
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 pub enum FolderScript {
     // Workspace
     ReadAllWorkspaces,
-    CreateWorkspace { name: String, desc: String },
+    CreateWorkspace {
+        name: String,
+        desc: String,
+    },
     AssertWorkspaceJson(String),
     AssertWorkspace(Workspace),
     ReadWorkspace(Option<String>),
 
     // App
-    CreateApp { name: String, desc: String },
+    CreateApp {
+        name: String,
+        desc: String,
+    },
     AssertAppJson(String),
     AssertApp(App),
     ReadApp(String),
-    UpdateApp { name: Option<String>, desc: Option<String> },
+    UpdateApp {
+        name: Option<String>,
+        desc: Option<String>,
+    },
     DeleteApp,
 
     // View
-    CreateView { name: String, desc: String },
+    CreateView {
+        name: String,
+        desc: String,
+        data_type: ViewDataType,
+    },
     AssertView(View),
     ReadView(String),
-    UpdateView { name: Option<String>, desc: Option<String> },
+    UpdateView {
+        name: Option<String>,
+        desc: Option<String>,
+    },
     DeleteView,
     DeleteViews(Vec<String>),
 
@@ -46,7 +70,10 @@ pub enum FolderScript {
     // Sync
     AssertCurrentRevId(i64),
     AssertNextSyncRevId(Option<i64>),
-    AssertRevisionState { rev_id: i64, state: RevisionState },
+    AssertRevisionState {
+        rev_id: i64,
+        state: RevisionState,
+    },
 }
 
 pub struct FolderTest {
@@ -148,8 +175,8 @@ impl FolderTest {
                 delete_app(sdk, &self.app.id).await;
             }
 
-            FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, ViewDataType::TextBlock).await;
+            FolderScript::CreateView { name, desc, data_type } => {
+                let view = create_view(sdk, &self.app.id, &name, &desc, data_type).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
@@ -215,4 +242,205 @@ pub fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
         ("".to_owned(), ErrorCode::WorkspaceNameInvalid),
         ("1234".repeat(100), ErrorCode::WorkspaceNameTooLong),
     ]
+}
+
+pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspace {
+    let request = CreateWorkspacePayload {
+        name: name.to_owned(),
+        desc: desc.to_owned(),
+    };
+
+    let workspace = FolderEventBuilder::new(sdk.clone())
+        .event(CreateWorkspace)
+        .payload(request)
+        .async_send()
+        .await
+        .parse::<Workspace>();
+    workspace
+}
+
+pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) -> Vec<Workspace> {
+    let request = WorkspaceId { value: workspace_id };
+    let repeated_workspace = FolderEventBuilder::new(sdk.clone())
+        .event(ReadWorkspaces)
+        .payload(request.clone())
+        .async_send()
+        .await
+        .parse::<RepeatedWorkspace>();
+
+    let workspaces;
+    if let Some(workspace_id) = &request.value {
+        workspaces = repeated_workspace
+            .into_inner()
+            .into_iter()
+            .filter(|workspace| &workspace.id == workspace_id)
+            .collect::<Vec<Workspace>>();
+        debug_assert_eq!(workspaces.len(), 1);
+    } else {
+        workspaces = repeated_workspace.items;
+    }
+
+    workspaces
+}
+
+pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc: &str) -> App {
+    let create_app_request = CreateAppPayload {
+        workspace_id: workspace_id.to_owned(),
+        name: name.to_string(),
+        desc: desc.to_string(),
+        color_style: Default::default(),
+    };
+
+    let app = FolderEventBuilder::new(sdk.clone())
+        .event(CreateApp)
+        .payload(create_app_request)
+        .async_send()
+        .await
+        .parse::<App>();
+    app
+}
+
+pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> App {
+    let request = AppId {
+        value: app_id.to_owned(),
+    };
+
+    let app = FolderEventBuilder::new(sdk.clone())
+        .event(ReadApp)
+        .payload(request)
+        .async_send()
+        .await
+        .parse::<App>();
+
+    app
+}
+
+pub async fn update_app(sdk: &FlowySDKTest, app_id: &str, name: Option<String>, desc: Option<String>) {
+    let request = UpdateAppPayload {
+        app_id: app_id.to_string(),
+        name,
+        desc,
+        color_style: None,
+        is_trash: None,
+    };
+
+    FolderEventBuilder::new(sdk.clone())
+        .event(UpdateApp)
+        .payload(request)
+        .async_send()
+        .await;
+}
+
+pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
+    let request = AppId {
+        value: app_id.to_string(),
+    };
+
+    FolderEventBuilder::new(sdk.clone())
+        .event(DeleteApp)
+        .payload(request)
+        .async_send()
+        .await;
+}
+
+pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> View {
+    let request = CreateViewPayload {
+        belong_to_id: app_id.to_string(),
+        name: name.to_string(),
+        desc: desc.to_string(),
+        thumbnail: None,
+        data_type,
+        ext_data: "".to_string(),
+        plugin_type: 0,
+    };
+    let view = FolderEventBuilder::new(sdk.clone())
+        .event(CreateView)
+        .payload(request)
+        .async_send()
+        .await
+        .parse::<View>();
+    view
+}
+
+pub async fn read_view(sdk: &FlowySDKTest, view_id: &str) -> View {
+    let view_id: ViewId = view_id.into();
+    FolderEventBuilder::new(sdk.clone())
+        .event(ReadView)
+        .payload(view_id)
+        .async_send()
+        .await
+        .parse::<View>()
+}
+
+pub async fn update_view(sdk: &FlowySDKTest, view_id: &str, name: Option<String>, desc: Option<String>) {
+    let request = UpdateViewPayload {
+        view_id: view_id.to_string(),
+        name,
+        desc,
+        thumbnail: None,
+    };
+    FolderEventBuilder::new(sdk.clone())
+        .event(UpdateView)
+        .payload(request)
+        .async_send()
+        .await;
+}
+
+pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
+    let request = RepeatedViewId { items: view_ids };
+    FolderEventBuilder::new(sdk.clone())
+        .event(DeleteView)
+        .payload(request)
+        .async_send()
+        .await;
+}
+
+#[allow(dead_code)]
+pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> TextBlockInfo {
+    let view_id: ViewId = view_id.into();
+    FolderEventBuilder::new(sdk.clone())
+        .event(SetLatestView)
+        .payload(view_id)
+        .async_send()
+        .await
+        .parse::<TextBlockInfo>()
+}
+
+pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {
+    FolderEventBuilder::new(sdk.clone())
+        .event(ReadTrash)
+        .async_send()
+        .await
+        .parse::<RepeatedTrash>()
+}
+
+pub async fn restore_app_from_trash(sdk: &FlowySDKTest, app_id: &str) {
+    let id = TrashId {
+        id: app_id.to_owned(),
+        ty: TrashType::TrashApp,
+    };
+    FolderEventBuilder::new(sdk.clone())
+        .event(PutbackTrash)
+        .payload(id)
+        .async_send()
+        .await;
+}
+
+pub async fn restore_view_from_trash(sdk: &FlowySDKTest, view_id: &str) {
+    let id = TrashId {
+        id: view_id.to_owned(),
+        ty: TrashType::TrashView,
+    };
+    FolderEventBuilder::new(sdk.clone())
+        .event(PutbackTrash)
+        .payload(id)
+        .async_send()
+        .await;
+}
+
+pub async fn delete_all_trash(sdk: &FlowySDKTest) {
+    FolderEventBuilder::new(sdk.clone())
+        .event(DeleteAllTrash)
+        .async_send()
+        .await;
 }

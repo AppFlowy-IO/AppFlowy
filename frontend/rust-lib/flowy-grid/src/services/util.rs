@@ -1,4 +1,4 @@
-use crate::services::cell_data::FlowyMoney;
+use crate::services::field::MoneySymbol;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
 use lazy_static::lazy_static;
@@ -16,8 +16,8 @@ lazy_static! {
 fn generate_currency_by_symbol() -> HashMap<String, &'static Currency> {
     let mut map: HashMap<String, &'static Currency> = HashMap::new();
 
-    for money in FlowyMoney::iter() {
-        map.insert(money.symbol(), money.currency());
+    for money in MoneySymbol::iter() {
+        map.insert(money.symbol_str(), money.currency());
     }
     map
 }
@@ -25,7 +25,7 @@ fn generate_currency_by_symbol() -> HashMap<String, &'static Currency> {
 #[allow(dead_code)]
 pub fn string_to_money(money_str: &str) -> Option<Money<Currency>> {
     let mut process_money_str = String::from(money_str);
-    let default_currency = FlowyMoney::from_symbol_str("CNY").currency();
+    let default_currency = MoneySymbol::from_symbol_str("CNY").currency();
 
     if process_money_str.is_empty() {
         return None;
@@ -65,7 +65,7 @@ pub fn money_from_str(s: &str) -> Option<String> {
                 }
             }
             decimal.set_sign_positive(true);
-            Some(FlowyMoney::USD.with_decimal(decimal).to_string())
+            Some(MoneySymbol::USD.with_decimal(decimal).to_string())
         }
         Err(e) => {
             tracing::debug!("Format {} to money failed, {:?}", s, e);

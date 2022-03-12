@@ -1,8 +1,8 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 // Auto-generated, do not edit
 
-mod cell_data;
-pub use cell_data::*;
+mod type_options;
+pub use type_options::*;
 
 mod event_map;
 pub use event_map::*;
