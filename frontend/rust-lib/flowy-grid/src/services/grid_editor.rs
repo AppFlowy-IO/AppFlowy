@@ -1,6 +1,5 @@
 use crate::manager::GridUser;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
-use crate::services::stringify::stringify_deserialize;
 
 use crate::services::grid_meta_editor::ClientGridBlockMetaEditor;
 use bytes::Bytes;
@@ -10,14 +9,14 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Cell, CellMeta, Field, Grid, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row, RowMeta,
+    Field, Grid, GridBlock, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder,
 };
-use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
+use flowy_sync::{
+    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
+};
 use lib_infra::future::FutureResult;
-use lib_infra::uuid;
-use lib_ot::core::{Delta, PlainTextAttributes};
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use std::collections::HashMap;
+use lib_ot::core::PlainTextAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -40,10 +39,11 @@ impl ClientGridEditor {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
         let grid_pad = rev_manager.load::<GridPadBuilder>(cloud).await?;
-
         let rev_manager = Arc::new(rev_manager);
         let grid_meta_pad = Arc::new(RwLock::new(grid_pad));
-        let block_meta_manager = Arc::new(GridBlockMetaEditorManager::new());
+
+        let block_meta_manager =
+            Arc::new(GridBlockMetaEditorManager::new(&user, grid_meta_pad.read().await.get_blocks()).await?);
 
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
@@ -65,25 +65,15 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn create_empty_row(&self) -> FlowyResult<()> {
-        // let _ = self.modify(|grid| {
-        //
-        //
-        //     grid.blocks
-        //
-        // }).await?;
+    pub async fn create_row(&self) -> FlowyResult<()> {
         todo!()
     }
 
-    async fn create_row(&self, row: RowMeta) -> FlowyResult<()> {
+    pub async fn get_rows(&self, _row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
         todo!()
     }
 
-    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
-        todo!()
-    }
-
-    pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<()> {
+    pub async fn delete_rows(&self, _ids: Vec<String>) -> FlowyResult<()> {
         todo!()
     }
 
@@ -188,13 +178,17 @@ struct GridBlockMetaEditorManager {
 }
 
 impl GridBlockMetaEditorManager {
-    fn new() -> Self {
-        Self {
-            editor_map: DashMap::new(),
-        }
+    async fn new(user: &Arc<dyn GridUser>, blocks: Vec<GridBlock>) -> FlowyResult<Self> {
+        let editor_map = make_block_meta_editor_map(user, blocks).await?;
+        let manager = Self { editor_map };
+        Ok(manager)
     }
 
-    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
+    async fn get_editor(&self, _block_id: &str) -> Arc<ClientGridBlockMetaEditor> {
+        todo!()
+    }
+
+    pub async fn get_rows(&self, _row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
         // let ids = row_orders
         //     .items
         //     .into_iter()
@@ -244,4 +238,24 @@ impl GridBlockMetaEditorManager {
         // Ok(rows.into())
         todo!()
     }
+}
+
+async fn make_block_meta_editor_map(
+    user: &Arc<dyn GridUser>,
+    blocks: Vec<GridBlock>,
+) -> FlowyResult<DashMap<String, Arc<ClientGridBlockMetaEditor>>> {
+    let token = user.token()?;
+    let user_id = user.user_id()?;
+    let pool = user.db_pool()?;
+
+    let editor_map = DashMap::new();
+    for block in blocks {
+        let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool.clone()));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, &block.id, disk_cache));
+        let rev_manager = RevisionManager::new(&user_id, &block.id, rev_persistence);
+        let editor = ClientGridBlockMetaEditor::new(&user_id, &token, &block.id, rev_manager).await?;
+        editor_map.insert(block.id, Arc::new(editor));
+    }
+
+    Ok(editor_map)
 }

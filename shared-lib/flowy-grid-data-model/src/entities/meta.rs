@@ -30,6 +30,15 @@ pub struct GridBlock {
     pub row_count: i32,
 }
 
+impl GridBlock {
+    pub fn new() -> Self {
+        GridBlock {
+            id: uuid::Uuid::new_v4().to_string(),
+            ..Default::default()
+        }
+    }
+}
+
 pub struct GridBlockChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
@@ -73,9 +82,9 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn new(id: &str, name: &str, desc: &str, field_type: FieldType) -> Self {
+    pub fn new(name: &str, desc: &str, field_type: FieldType) -> Self {
         Self {
-            id: id.to_owned(),
+            id: uuid::Uuid::new_v4().to_string(),
             name: name.to_string(),
             desc: desc.to_string(),
             field_type,
@@ -224,14 +233,14 @@ pub struct RowMeta {
 }
 
 impl RowMeta {
-    pub fn new(id: &str, block_id: &str, cells: Vec<CellMeta>) -> Self {
+    pub fn new(block_id: &str, cells: Vec<CellMeta>) -> Self {
         let cell_by_field_id = cells
             .into_iter()
             .map(|cell| (cell.id.clone(), cell))
             .collect::<HashMap<String, CellMeta>>();
 
         Self {
-            id: id.to_owned(),
+            id: uuid::Uuid::new_v4().to_string(),
             block_id: block_id.to_owned(),
             cell_by_field_id,
             height: DEFAULT_ROW_HEIGHT,

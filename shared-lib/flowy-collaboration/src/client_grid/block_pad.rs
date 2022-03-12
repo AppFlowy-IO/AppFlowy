@@ -1,10 +1,11 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{GridBlockMeta, RowMeta, RowMetaChangeset, RowOrder};
+use flowy_grid_data_model::entities::{GridBlockMeta, RowMeta, RowMetaChangeset};
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type GridBlockMetaDelta = PlainTextDelta;
@@ -47,6 +48,25 @@ impl GridBlockMetaPad {
             rows.retain(|row| !row_ids.contains(&row.id));
             Ok(Some(()))
         })
+    }
+
+    pub fn get_rows(&self, row_ids: Vec<String>) -> CollaborateResult<Vec<RowMeta>> {
+        let row_map = self
+            .rows
+            .iter()
+            .map(|row| (&row.id, row.clone()))
+            .collect::<HashMap<&String, Arc<RowMeta>>>();
+
+        Ok(row_ids
+            .iter()
+            .flat_map(|row_id| match row_map.get(row_id) {
+                None => {
+                    tracing::error!("Can't find the row with id: {}", row_id);
+                    None
+                }
+                Some(row) => Some((**row).clone()),
+            })
+            .collect::<Vec<RowMeta>>())
     }
 
     pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {
@@ -123,12 +143,6 @@ impl GridBlockMetaPad {
     }
 }
 
-fn json_from_grid(block_meta: &Arc<GridBlockMeta>) -> CollaborateResult<String> {
-    let json = serde_json::to_string(block_meta)
-        .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
-    Ok(json)
-}
-
 pub struct GridBlockMetaChange {
     pub delta: GridBlockMetaDelta,
     /// md5: the md5 of the grid after applying the change.
@@ -165,9 +179,8 @@ impl std::default::Default for GridBlockMetaPad {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_grid::{GridBlockMetaDelta, GridMetaPad};
+    use crate::client_grid::{GridBlockMetaDelta, GridBlockMetaPad};
     use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
-    use std::str::FromStr;
 
     #[test]
     fn block_meta_add_row() {
@@ -227,7 +240,7 @@ mod tests {
             cell_by_field_id: Default::default(),
         };
 
-        let _ = pad.add_row(row.clone()).unwrap().unwrap();
+        let _ = pad.add_row(row).unwrap().unwrap();
         let change = pad.update_row(changeset).unwrap().unwrap();
 
         assert_eq!(
@@ -241,8 +254,8 @@ mod tests {
         );
     }
 
-    fn test_pad() -> GridMetaPad {
+    fn test_pad() -> GridBlockMetaPad {
         let delta = GridBlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
-        GridMetaPad::from_delta(delta).unwrap()
+        GridBlockMetaPad::from_delta(delta).unwrap()
     }
 }

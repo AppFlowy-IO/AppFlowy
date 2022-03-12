@@ -7,7 +7,6 @@ use flowy_collaboration::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::core::{Attributes, Delta};
 use std::sync::Arc;
 
 pub trait RevisionCloudService: Send + Sync {

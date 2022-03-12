@@ -12,7 +12,7 @@ use bytes::Bytes;
 use chrono::Utc;
 
 use flowy_collaboration::client_document::default::{initial_quill_delta_string, initial_read_me};
-use flowy_collaboration::entities::revision::RepeatedRevision;
+
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
@@ -164,7 +164,7 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(&user_id, pool));
+        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
         let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
         let rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
 
@@ -214,7 +214,7 @@ impl DefaultFolderBuilder {
                 };
                 let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataType::Block, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataType::TextBlock, Bytes::from(view_data))
                     .await?;
             }
         }
@@ -239,7 +239,7 @@ impl FolderManager {
 pub trait ViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError>;
 
-    fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError>;
+    fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError>;
 
     fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
@@ -247,7 +247,7 @@ pub trait ViewDataProcessor {
 
     fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError>;
 
-    fn default_view_data(&self, view_id: &str) -> String;
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<String, FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

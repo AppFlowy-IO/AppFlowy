@@ -161,7 +161,8 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
         .await;
 }
 
-pub async fn open_document(sdk: &FlowySDKTest, view_id: &str) -> TextBlockInfo {
+#[allow(dead_code)]
+pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> TextBlockInfo {
     let view_id: ViewId = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(SetLatestView)

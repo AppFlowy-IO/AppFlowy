@@ -56,6 +56,6 @@ message UpdateViewParams {
     oneof one_of_thumbnail { string thumbnail = 4; };
 }
 enum ViewDataType {
-    Block = 0;
+    TextBlock = 0;
     Grid = 1;
 }

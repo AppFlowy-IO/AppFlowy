@@ -46,7 +46,7 @@ pub(crate) async fn create_row_handler(
 ) -> Result<(), FlowyError> {
     let id: GridId = data.into_inner();
     let editor = manager.get_grid_editor(id.as_ref())?;
-    let _ = editor.create_empty_row().await?;
+    let _ = editor.create_row().await?;
     Ok(())
 }
 
@@ -55,7 +55,7 @@ pub(crate) async fn update_cell_handler(
     data: Data<Cell>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let cell: Cell = data.into_inner();
+    let _cell: Cell = data.into_inner();
     // let editor = manager.get_grid_editor(id.as_ref())?;
     // let _ = editor.create_empty_row().await?;
     Ok(())

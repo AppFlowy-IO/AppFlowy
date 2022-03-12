@@ -32,7 +32,9 @@ fn grid_default_serde_test() {
 }
 
 fn create_field(field_id: &str) -> Field {
-    Field::new(field_id, "Text Field", "", FieldType::RichText)
+    let mut field = Field::new("Text Field", "", FieldType::RichText);
+    field.id = field_id.to_string();
+    field
 }
 
 #[allow(dead_code)]

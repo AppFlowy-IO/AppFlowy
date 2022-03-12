@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_collaboration::entities::{revision::RevisionState, text_block_info::TextBlockInfo};
+
 use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
 use flowy_folder_data_model::entities::{
     app::{App, RepeatedApp},
@@ -7,6 +7,7 @@ use flowy_folder_data_model::entities::{
     view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
+use flowy_sync::disk::RevisionState;
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::FlowySDKTest;
 use std::{sync::Arc, time::Duration};
@@ -42,9 +43,6 @@ pub enum FolderScript {
     ReadTrash,
     DeleteAllTrash,
 
-    // Document
-    OpenDocument,
-
     // Sync
     AssertCurrentRevId(i64),
     AssertNextSyncRevId(Option<i64>),
@@ -58,7 +56,6 @@ pub struct FolderTest {
     pub app: App,
     pub view: View,
     pub trash: Vec<Trash>,
-    pub document_info: Option<TextBlockInfo>,
     // pub folder_editor:
 }
 
@@ -68,7 +65,14 @@ impl FolderTest {
         let _ = sdk.init_user().await;
         let mut workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
         let mut app = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
-        let view = create_view(&sdk, &app.id, "Folder View", "Folder test view", ViewDataType::Block).await;
+        let view = create_view(
+            &sdk,
+            &app.id,
+            "Folder View",
+            "Folder test view",
+            ViewDataType::TextBlock,
+        )
+        .await;
         app.belongings = RepeatedView {
             items: vec![view.clone()],
         };
@@ -83,7 +87,6 @@ impl FolderTest {
             app,
             view,
             trash: vec![],
-            document_info: None,
         }
     }
 
@@ -146,7 +149,7 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, ViewDataType::Block).await;
+                let view = create_view(sdk, &self.app.id, &name, &desc, ViewDataType::TextBlock).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
@@ -178,10 +181,6 @@ impl FolderTest {
             FolderScript::DeleteAllTrash => {
                 delete_all_trash(sdk).await;
                 self.trash = vec![];
-            }
-            FolderScript::OpenDocument => {
-                let document_info = open_document(sdk, &self.view.id).await;
-                self.document_info = Some(document_info);
             }
             FolderScript::AssertRevisionState { rev_id, state } => {
                 let record = cache.get(rev_id).await.unwrap();

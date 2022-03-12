@@ -1,6 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
-use flowy_collaboration::{client_document::default::initial_quill_delta_string, entities::revision::RevisionState};
+
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
+use flowy_sync::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
 #[tokio::test]
@@ -166,16 +167,6 @@ async fn view_update() {
     ])
     .await;
     assert_eq!(test.view.name, new_name);
-}
-
-#[tokio::test]
-async fn open_document_view() {
-    let mut test = FolderTest::new().await;
-    assert_eq!(test.document_info, None);
-
-    test.run_scripts(vec![OpenDocument]).await;
-    let document_info = test.document_info.unwrap();
-    assert_eq!(document_info.text, initial_quill_delta_string());
 }
 
 #[tokio::test]

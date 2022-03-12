@@ -3,17 +3,16 @@ use flowy_collaboration::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::RowMeta;
+use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
 use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
-use lib_infra::uuid;
 use lib_ot::core::PlainTextAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct ClientGridBlockMetaEditor {
     user_id: String,
-    block_id: String,
+    pub block_id: String,
     meta_pad: Arc<RwLock<GridBlockMetaPad>>,
     rev_manager: Arc<RevisionManager>,
 }
@@ -22,7 +21,7 @@ impl ClientGridBlockMetaEditor {
     pub async fn new(
         user_id: &str,
         token: &str,
-        block_id: String,
+        block_id: &str,
         mut rev_manager: RevisionManager,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridBlockMetaRevisionCloudService {
@@ -32,6 +31,7 @@ impl ClientGridBlockMetaEditor {
         let meta_pad = Arc::new(RwLock::new(block_meta_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();
+        let block_id = block_id.to_owned();
         Ok(Self {
             user_id,
             block_id,
@@ -40,23 +40,25 @@ impl ClientGridBlockMetaEditor {
         })
     }
 
-    pub async fn create_empty_row(&self) -> FlowyResult<()> {
-        let row = RowMeta::new(&uuid(), &self.block_id, vec![]);
-        self.create_row(row).await?;
-        Ok(())
-    }
-
-    async fn create_row(&self, row: RowMeta) -> FlowyResult<()> {
-        // let _ = self.modify(|grid| Ok(grid.create_row(row)?)).await?;
-        // self.cell_map.insert(row.id.clone(), row.clone());
-        // let _ = self.kv_persistence.set(row)?;
+    async fn create_row(&self) -> FlowyResult<()> {
+        let row = RowMeta::new(&self.block_id, vec![]);
+        let _ = self.modify(|pad| Ok(pad.add_row(row)?)).await?;
         Ok(())
     }
 
     pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<()> {
-        // let _ = self.modify(|grid| Ok(grid.delete_rows(&ids)?)).await?;
-        // let _ = self.kv.batch_delete(ids)?;
+        let _ = self.modify(|pad| Ok(pad.delete_rows(&ids)?)).await?;
         Ok(())
+    }
+
+    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+        let _ = self.modify(|pad| Ok(pad.update_row(changeset)?)).await?;
+        Ok(())
+    }
+
+    pub async fn get_rows(&self, row_ids: Vec<String>) -> FlowyResult<Vec<RowMeta>> {
+        let rows = self.meta_pad.read().await.get_rows(row_ids)?;
+        Ok(rows)
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

@@ -11,7 +11,6 @@ use flowy_collaboration::{
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{DeltaMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
 use futures::stream::StreamExt;
-use lib_ot::core::{Attributes, Delta};
 use lib_ot::{
     core::{Interval, OperationTransformable},
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},

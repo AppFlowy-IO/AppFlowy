@@ -8,8 +8,6 @@ pub use grid_meta_rev_impl::*;
 pub use grid_rev_impl::*;
 pub use text_rev_impl::*;
 
-use crate::memory::RevisionMemoryCacheDelegate;
-use diesel::SqliteConnection;
 use flowy_collaboration::entities::revision::{RevId, Revision, RevisionRange};
 use flowy_error::FlowyResult;
 use std::fmt::Debug;

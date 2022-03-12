@@ -1,6 +1,6 @@
 use flowy_block::editor::ClientTextBlockEditor;
 use flowy_block::DOCUMENT_SYNC_INTERVAL_IN_MILLIS;
-use flowy_collaboration::entities::revision::RevisionState;
+use flowy_sync::disk::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;

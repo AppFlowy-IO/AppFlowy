@@ -1,5 +1,5 @@
 use crate::document::edit_script::{EditorScript::*, *};
-use flowy_collaboration::entities::revision::RevisionState;
+use flowy_sync::disk::RevisionState;
 use lib_ot::core::{count_utf16_code_units, Interval};
 
 #[tokio::test]

@@ -13,10 +13,7 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_collaboration::entities::{
-    revision::{RepeatedRevision, Revision},
-    text_block_info::TextBlockId,
-};
+use flowy_collaboration::entities::text_block_info::TextBlockId;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use futures::{FutureExt, StreamExt};
@@ -58,18 +55,18 @@ impl ViewController {
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
         let processor = self.get_data_processor(&params.data_type)?;
-        let content = if params.data.is_empty() {
-            let default_view_data = processor.default_view_data(&params.view_id);
-            params.data = default_view_data.clone();
-            default_view_data
+
+        if params.data.is_empty() {
+            let user_id = self.user.user_id()?;
+            let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
+            params.data = view_data;
         } else {
-            params.data.clone()
+            let delta_data = Bytes::from(params.data.clone());
+            let _ = self
+                .create_view(&params.view_id, params.data_type.clone(), delta_data)
+                .await?;
         };
 
-        let delta_data = Bytes::from(content);
-        let _ = self
-            .create_view(&params.view_id, params.data_type.clone(), delta_data)
-            .await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
         Ok(view)
@@ -86,9 +83,8 @@ impl ViewController {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
         let processor = self.get_data_processor(&data_type)?;
-        let _ = processor.create_container(view_id, repeated_revision).await?;
+        let _ = processor.create_container(&user_id, view_id, delta_data).await?;
         Ok(())
     }
 

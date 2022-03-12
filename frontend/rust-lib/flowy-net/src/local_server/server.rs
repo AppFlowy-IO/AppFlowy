@@ -1,4 +1,4 @@
-use crate::local_server::persistence::LocalDocumentCloudPersistence;
+use crate::local_server::persistence::LocalTextBlockCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
@@ -38,7 +38,7 @@ impl LocalServer {
         client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
-        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
+        let persistence = Arc::new(LocalTextBlockCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
         let folder_manager = Arc::new(ServerFolderManager::new(persistence));
         let stop_tx = RwLock::new(None);

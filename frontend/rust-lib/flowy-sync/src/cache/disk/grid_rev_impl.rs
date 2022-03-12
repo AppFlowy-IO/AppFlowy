@@ -1,10 +1,10 @@
 use crate::cache::disk::RevisionDiskCache;
 use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
-use crate::memory::RevisionMemoryCacheDelegate;
+
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_collaboration::{
-    entities::revision::{RevId, RevType, Revision, RevisionRange},
+    entities::revision::{Revision, RevisionRange},
     util::md5,
 };
 use flowy_database::{

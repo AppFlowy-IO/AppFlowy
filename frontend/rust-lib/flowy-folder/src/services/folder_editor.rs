@@ -8,14 +8,14 @@ use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::disk::RevisionDiskCache;
+
 use flowy_sync::{
-    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
-    RevisionWebSocket, RevisionWebSocketManager,
+    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
+    RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
-use lib_ot::core::{Delta, PlainTextAttributes};
-use lib_sqlite::ConnectionPool;
+use lib_ot::core::PlainTextAttributes;
+
 use parking_lot::RwLock;
 use std::sync::Arc;
 

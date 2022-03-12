@@ -84,7 +84,7 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view: View) -> Self {
         let data_type = match view.data_type {
-            ViewDataType::Block => SqlViewDataType::Block,
+            ViewDataType::TextBlock => SqlViewDataType::Block,
             ViewDataType::Grid => SqlViewDataType::Grid,
         };
 
@@ -106,7 +106,7 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for View {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::Block => ViewDataType::Block,
+            SqlViewDataType::Block => ViewDataType::TextBlock,
             SqlViewDataType::Grid => ViewDataType::Grid,
         };
 

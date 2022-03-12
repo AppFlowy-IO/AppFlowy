@@ -10,11 +10,11 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class ViewDataType extends $pb.ProtobufEnum {
-  static const ViewDataType Block = ViewDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Block');
+  static const ViewDataType TextBlock = ViewDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TextBlock');
   static const ViewDataType Grid = ViewDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Grid');
 
   static const $core.List<ViewDataType> values = <ViewDataType> [
-    Block,
+    TextBlock,
     Grid,
   ];
 

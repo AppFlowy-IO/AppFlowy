@@ -2,24 +2,23 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::entities::{
-    Field, FieldChangeset, FieldOrder, Grid, GridBlock, GridBlockChangeset, GridMeta, RepeatedField,
-    RepeatedFieldOrder, RowMeta, RowOrder,
+    Field, FieldChangeset, GridBlock, GridBlockChangeset, GridMeta, RepeatedField, RepeatedFieldOrder,
 };
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridDelta = PlainTextDelta;
+pub type GridMetaDelta = PlainTextDelta;
 pub type GridDeltaBuilder = PlainTextDeltaBuilder;
 
 pub struct GridMetaPad {
     pub(crate) grid_meta: Arc<GridMeta>,
-    pub(crate) delta: GridDelta,
+    pub(crate) delta: GridMetaDelta,
 }
 
 impl GridMetaPad {
-    pub fn from_delta(delta: GridDelta) -> CollaborateResult<Self> {
+    pub fn from_delta(delta: GridMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
         let grid: GridMeta = serde_json::from_str(&s)
             .map_err(|e| CollaborateError::internal().context(format!("Deserialize delta to grid failed: {}", e)))?;
@@ -31,7 +30,7 @@ impl GridMetaPad {
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let grid_delta: GridDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
+        let grid_delta: GridMetaDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(grid_delta)
     }
 
@@ -64,7 +63,7 @@ impl GridMetaPad {
             .iter()
             .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
                 None => {
-                    tracing::error!("Can't find the field with {}", field_order.field_id);
+                    tracing::error!("Can't find the field with id: {}", field_order.field_id);
                     None
                 }
                 Some(field) => Some((*field).clone()),
@@ -121,6 +120,10 @@ impl GridMetaPad {
             grid.blocks.push(block);
             Ok(Some(()))
         })
+    }
+
+    pub fn get_blocks(&self) -> Vec<GridBlock> {
+        self.grid_meta.blocks.clone()
     }
 
     pub fn update_block(&mut self, change: GridBlockChangeset) -> CollaborateResult<Option<GridChange>> {
@@ -204,12 +207,12 @@ fn json_from_grid(grid: &Arc<GridMeta>) -> CollaborateResult<String> {
 }
 
 pub struct GridChange {
-    pub delta: GridDelta,
+    pub delta: GridMetaDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_grid_delta(grid_meta: &GridMeta) -> GridDelta {
+pub fn make_grid_delta(grid_meta: &GridMeta) -> GridMetaDelta {
     let json = serde_json::to_string(&grid_meta).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }

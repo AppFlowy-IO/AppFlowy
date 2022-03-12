@@ -1,13 +1,10 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
+use crate::services::kv_persistence::GridKVPersistence;
 use dashmap::DashMap;
-
 use flowy_collaboration::entities::revision::RepeatedRevision;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, RowMeta};
+use flowy_sync::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
-
-use flowy_sync::disk::SQLiteGridRevisionPersistence;
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -43,6 +40,19 @@ impl GridManager {
         let grid_id = grid_id.as_ref();
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_rev_manager(grid_id, db_pool)?;
+        let _ = rev_manager.reset_object(revisions).await?;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip_all, err)]
+    pub async fn create_grid_block_meta<T: AsRef<str>>(
+        &self,
+        block_id: T,
+        revisions: RepeatedRevision,
+    ) -> FlowyResult<()> {
+        let block_id = block_id.as_ref();
+        let db_pool = self.grid_user.db_pool()?;
+        let rev_manager = self.make_grid_block_meta_rev_manager(block_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -109,6 +119,18 @@ impl GridManager {
         let disk_cache = Arc::new(SQLiteGridRevisionPersistence::new(&user_id, pool));
         let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, disk_cache));
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence);
+        Ok(rev_manager)
+    }
+
+    fn make_grid_block_meta_rev_manager(
+        &self,
+        block_d: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager> {
+        let user_id = self.grid_user.user_id()?;
+        let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_d, disk_cache));
+        let rev_manager = RevisionManager::new(&user_id, block_d, rev_persistence);
         Ok(rev_manager)
     }
 
