@@ -24,7 +24,7 @@ pub(crate) async fn get_rows_handler(
 ) -> DataResult<RepeatedRow, FlowyError> {
     let payload: QueryRowPayload = data.into_inner();
     let editor = manager.get_grid_editor(&payload.grid_id)?;
-    let repeated_row: RepeatedRow = editor.get_rows(Some(payload.row_orders)).await?.into();
+    let repeated_row: RepeatedRow = editor.get_rows(payload.row_orders).await?.into();
     data_result(repeated_row)
 }
 
@@ -50,10 +50,10 @@ pub(crate) async fn create_row_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_cell_handler(
     data: Data<Cell>,
-    manager: AppData<Arc<GridManager>>,
+    _manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let _cell: Cell = data.into_inner();
     // let editor = manager.get_grid_editor(id.as_ref())?;

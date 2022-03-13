@@ -1,7 +1,7 @@
 use crate::manager::GridUser;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 
-use crate::services::grid_meta_editor::{ClientGridBlockMetaEditor, GridBlockMetaEditorManager};
+use crate::services::grid_meta_editor::GridBlockMetaEditorManager;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::client_grid::{GridChange, GridMetaPad};
@@ -9,13 +9,10 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Field, FieldChangeset, Grid, GridBlock, GridBlockChangeset, RepeatedField, RepeatedFieldOrder, RepeatedRow,
-    RepeatedRowOrder, Row,
+    Field, FieldChangeset, Grid, GridBlock, GridBlockChangeset, RepeatedFieldOrder, RepeatedRowOrder, Row,
 };
-use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
-use flowy_sync::{
-    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
-};
+
+use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
 use std::sync::Arc;
@@ -83,21 +80,27 @@ impl ClientGridEditor {
 
     pub async fn create_row(&self) -> FlowyResult<()> {
         let fields = self.grid_meta_pad.read().await.get_fields(None)?;
-        match self.grid_meta_pad.read().await.get_blocks().last() {
+        let grid_block = match self.grid_meta_pad.read().await.get_blocks().last() {
             None => Err(FlowyError::internal().context("There is no grid block in this grid")),
-            Some(grid_block) => {
-                let row_count = self.block_meta_manager.create_row(fields, grid_block).await?;
-                let change = GridBlockChangeset::from_row_count(&grid_block.id, row_count);
-                let _ = self.update_block(change).await?;
-                Ok(())
-            }
-        }
+            Some(grid_block) => Ok(grid_block.clone()),
+        }?;
+
+        let row_count = self.block_meta_manager.create_row(fields, &grid_block).await?;
+        let change = GridBlockChangeset::from_row_count(&grid_block.id, row_count);
+        let _ = self.update_block(change).await?;
+        Ok(())
     }
 
-    pub async fn get_rows(&self, row_orders: Option<RepeatedRowOrder>) -> FlowyResult<Vec<Row>> {
+    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> FlowyResult<Vec<Row>> {
         let fields = self.grid_meta_pad.read().await.get_fields(None)?;
         let rows = self.block_meta_manager.get_rows(fields, row_orders).await?;
         Ok(rows)
+    }
+
+    pub async fn get_all_rows(&self) -> FlowyResult<Vec<Row>> {
+        let fields = self.grid_meta_pad.read().await.get_fields(None)?;
+        let grid_blocks = self.grid_meta_pad.read().await.get_blocks();
+        self.block_meta_manager.get_all_rows(grid_blocks, fields).await
     }
 
     pub async fn delete_rows(&self, row_orders: Option<RepeatedRowOrder>) -> FlowyResult<()> {

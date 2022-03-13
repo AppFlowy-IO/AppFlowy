@@ -1,4 +1,6 @@
-use flowy_grid_data_model::entities::{Field, RepeatedRowOrder, Row, RowMeta};
+use crate::services::row::stringify_deserialize;
+use flowy_grid_data_model::entities::{Cell, CellMeta, Field, RepeatedRowOrder, Row, RowMeta};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 
 pub(crate) struct RowIdsPerBlock {
@@ -19,50 +21,67 @@ pub(crate) fn make_row_ids_per_block(row_orders: &RepeatedRowOrder) -> Vec<RowId
     map.into_values().collect::<Vec<_>>()
 }
 
-pub(crate) fn sort_rows(rows: &mut Vec<Row>, row_orders: RepeatedRowOrder) {
-    todo!()
+pub(crate) fn make_rows(fields: &Vec<Field>, row_metas: Vec<RowMeta>) -> Vec<Row> {
+    let field_map = fields
+        .iter()
+        .map(|field| (&field.id, field))
+        .collect::<HashMap<&String, &Field>>();
+
+    let make_row = |row_meta: RowMeta| {
+        let cell_by_field_id = row_meta
+            .cell_by_field_id
+            .into_par_iter()
+            .flat_map(|(field_id, raw_cell)| make_cell(&field_map, field_id, raw_cell))
+            .collect::<HashMap<String, Cell>>();
+
+        Row {
+            id: row_meta.id.clone(),
+            cell_by_field_id,
+            height: row_meta.height,
+        }
+    };
+
+    row_metas.into_iter().map(make_row).collect::<Vec<Row>>()
 }
 
-pub(crate) fn make_rows(fields: &Vec<Field>, rows: Vec<RowMeta>) -> Vec<Row> {
-    // let make_cell = |field_id: String, raw_cell: CellMeta| {
-    //     let some_field = self.field_map.get(&field_id);
-    //     if some_field.is_none() {
-    //         tracing::error!("Can't find the field with {}", field_id);
-    //         return None;
-    //     }
-    //     self.cell_map.insert(raw_cell.id.clone(), raw_cell.clone());
-    //
-    //     let field = some_field.unwrap();
-    //     match stringify_deserialize(raw_cell.data, field.value()) {
-    //         Ok(content) => {
-    //             let cell = Cell {
-    //                 id: raw_cell.id,
-    //                 field_id: field_id.clone(),
-    //                 content,
-    //             };
-    //             Some((field_id, cell))
-    //         }
-    //         Err(_) => None,
-    //     }
-    // };
-    //
-    // let rows = row_metas
-    //     .into_par_iter()
-    //     .map(|row_meta| {
-    //         let mut row = Row {
-    //             id: row_meta.id.clone(),
-    //             cell_by_field_id: Default::default(),
-    //             height: row_meta.height,
-    //         };
-    //         row.cell_by_field_id = row_meta
-    //             .cell_by_field_id
-    //             .into_par_iter()
-    //             .flat_map(|(field_id, raw_cell)| make_cell(field_id, raw_cell))
-    //             .collect::<HashMap<String, Cell>>();
-    //         row
-    //     })
-    //     .collect::<Vec<Row>>();
-    //
-    // Ok(rows.into())
-    todo!()
+#[inline(always)]
+fn make_cell(field_map: &HashMap<&String, &Field>, field_id: String, raw_cell: CellMeta) -> Option<(String, Cell)> {
+    let field = field_map.get(&field_id)?;
+    match stringify_deserialize(raw_cell.data, field) {
+        Ok(content) => {
+            let cell = Cell::new(&field_id, content);
+            Some((field_id, cell))
+        }
+        Err(e) => {
+            tracing::error!("{}", e);
+            None
+        }
+    }
+}
+
+pub(crate) fn make_row_by_row_id(fields: &Vec<Field>, row_metas: Vec<RowMeta>) -> HashMap<String, Row> {
+    let field_map = fields
+        .iter()
+        .map(|field| (&field.id, field))
+        .collect::<HashMap<&String, &Field>>();
+
+    let make_row = |row_meta: RowMeta| {
+        let cell_by_field_id = row_meta
+            .cell_by_field_id
+            .into_par_iter()
+            .flat_map(|(field_id, raw_cell)| make_cell(&field_map, field_id, raw_cell))
+            .collect::<HashMap<String, Cell>>();
+
+        let row = Row {
+            id: row_meta.id.clone(),
+            cell_by_field_id,
+            height: row_meta.height,
+        };
+        (row.id.clone(), row)
+    };
+
+    row_metas
+        .into_par_iter()
+        .map(make_row)
+        .collect::<HashMap<String, Row>>()
 }

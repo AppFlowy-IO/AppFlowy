@@ -2,7 +2,7 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::entities::{
-    Field, FieldChangeset, GridBlock, GridBlockChangeset, GridMeta, RepeatedField, RepeatedFieldOrder,
+    Field, FieldChangeset, GridBlock, GridBlockChangeset, GridMeta, RepeatedFieldOrder,
 };
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -58,7 +58,7 @@ impl GridMetaPad {
 
     pub fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<Field>> {
         match field_orders {
-            None => Ok(self.grid_meta.fields.clone().into()),
+            None => Ok(self.grid_meta.fields.clone()),
             Some(field_orders) => {
                 let field_by_field_id = self
                     .grid_meta
@@ -127,7 +127,7 @@ impl GridMetaPad {
 
     pub fn create_block(&mut self, block: GridBlock) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            if grid.blocks.iter().find(|b| b.id == block.id).is_some() {
+            if grid.blocks.iter().any(|b| b.id == block.id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {

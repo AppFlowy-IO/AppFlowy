@@ -169,6 +169,6 @@ async fn grid_update_block() {
 
 #[tokio::test]
 async fn grid_create_row() {
-    let scripts = vec![AssertRowCount(2), CreateRow, CreateRow, CreateRow, AssertRowCount(5)];
+    let scripts = vec![AssertRowCount(3), CreateRow, CreateRow, AssertRowCount(5)];
     GridEditorTest::new().await.run_scripts(scripts).await;
 }

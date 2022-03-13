@@ -1,8 +1,8 @@
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
-use flowy_grid_data_model::entities::{AnyData, Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset};
+use flowy_grid_data_model::entities::{Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset};
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_test::event_builder::FolderEventBuilder;
+
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;
@@ -89,7 +89,7 @@ impl GridEditorTest {
                 self.editor.create_row().await.unwrap();
             }
             EditorScript::AssertRowCount(count) => {
-                assert_eq!(self.editor.get_rows(None).await.unwrap().len(), count);
+                assert_eq!(self.editor.get_all_rows().await.unwrap().len(), count);
             }
             EditorScript::AssertGridMetaPad => {
                 sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;

@@ -1,6 +1,6 @@
 use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBlockMetaDelta, GridMetaDelta};
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{Field, FieldType, GridBlock, GridBlockMeta, GridMeta, RowMeta};
+use flowy_grid_data_model::entities::{Field, GridBlock, GridBlockMeta, GridMeta, RowMeta};
 
 pub struct GridBuilder {
     grid_id: String,

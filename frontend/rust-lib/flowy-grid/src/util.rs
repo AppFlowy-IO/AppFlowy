@@ -1,6 +1,6 @@
 use crate::services::field::*;
 use flowy_collaboration::client_grid::{BuildGridInfo, GridBuilder};
-use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::entities::FieldType;
 
 pub fn make_default_grid(grid_id: &str) -> BuildGridInfo {
     let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::new())

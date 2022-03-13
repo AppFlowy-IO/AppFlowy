@@ -2,12 +2,12 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
 use crate::services::util::*;
-use bytes::Bytes;
+
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
+use flowy_grid_data_model::entities::{Field, FieldType};
 use rust_decimal::Decimal;
 use rusty_money::{
     iso::{Currency, CNY, EUR, USD},
@@ -25,12 +25,12 @@ pub struct RichTextDescription {
 impl_from_and_to_type_option!(RichTextDescription, FieldType::RichText);
 
 impl StringifyCellData for RichTextDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        data.to_string()
+    fn str_from_cell_data(&self, data: String) -> String {
+        data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(self.field_type(), s))
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
+        Ok(s.to_owned())
     }
 }
 
@@ -43,16 +43,16 @@ pub struct CheckboxDescription {
 impl_from_and_to_type_option!(CheckboxDescription, FieldType::Checkbox);
 
 impl StringifyCellData for CheckboxDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        data.to_string()
+    fn str_from_cell_data(&self, data: String) -> String {
+        data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
         let s = match string_to_bool(s) {
             true => "1",
             false => "0",
         };
-        Ok(AnyData::from_str(self.field_type(), s))
+        Ok(s.to_owned())
     }
 }
 
@@ -89,30 +89,24 @@ impl DateDescription {
 }
 
 impl StringifyCellData for DateDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        match String::from_utf8(data.value) {
-            Ok(s) => match s.parse::<i64>() {
-                Ok(timestamp) => {
-                    let native = NaiveDateTime::from_timestamp(timestamp, 0);
-                    self.today_from_native(native)
-                }
-                Err(e) => {
-                    tracing::debug!("DateDescription format {} fail. error: {:?}", s, e);
-                    String::new()
-                }
-            },
+    fn str_from_cell_data(&self, data: String) -> String {
+        match data.parse::<i64>() {
+            Ok(timestamp) => {
+                let native = NaiveDateTime::from_timestamp(timestamp, 0);
+                self.today_from_native(native)
+            }
             Err(e) => {
-                tracing::error!("DateDescription stringify any_data failed. {:?}", e);
+                tracing::debug!("DateDescription format {} fail. error: {:?}", data, e);
                 String::new()
             }
         }
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
         let timestamp = s
             .parse::<i64>()
             .map_err(|e| FlowyError::internal().context(format!("Parse {} to i64 failed: {}", s, e)))?;
-        Ok(AnyData::from_str(self.field_type(), &format!("{}", timestamp)))
+        Ok(format!("{}", timestamp))
     }
 }
 
@@ -210,12 +204,12 @@ pub struct SingleSelectDescription {
 impl_from_and_to_type_option!(SingleSelectDescription, FieldType::SingleSelect);
 
 impl StringifyCellData for SingleSelectDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        data.to_string()
+    fn str_from_cell_data(&self, data: String) -> String {
+        data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(self.field_type(), s))
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
+        Ok(s.to_owned())
     }
 }
 
@@ -230,12 +224,12 @@ pub struct MultiSelectDescription {
 }
 impl_from_and_to_type_option!(MultiSelectDescription, FieldType::MultiSelect);
 impl StringifyCellData for MultiSelectDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        data.to_string()
+    fn str_from_cell_data(&self, data: String) -> String {
+        data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
-        Ok(AnyData::from_str(self.field_type(), s))
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
+        Ok(s.to_owned())
     }
 }
 
@@ -322,24 +316,17 @@ impl NumberDescription {
 }
 
 impl StringifyCellData for NumberDescription {
-    fn str_from_cell_data(&self, data: AnyData) -> String {
-        match String::from_utf8(data.value) {
-            Ok(s) => match self.money_from_str(&s) {
-                Some(money_str) => money_str,
-                None => String::default(),
-            },
-            Err(e) => {
-                tracing::error!("NumberDescription stringify any_data failed. {:?}", e);
-                String::new()
-            }
+    fn str_from_cell_data(&self, data: String) -> String {
+        match self.money_from_str(&data) {
+            Some(money_str) => money_str,
+            None => String::default(),
         }
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<AnyData, FlowyError> {
+    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
         let strip_symbol_money = strip_money_symbol(s);
         let decimal = Decimal::from_str(&strip_symbol_money).map_err(|err| FlowyError::internal().context(err))?;
-        let money_str = decimal.to_string();
-        Ok(AnyData::from_str(self.field_type(), &money_str))
+        Ok(decimal.to_string())
     }
 }
 

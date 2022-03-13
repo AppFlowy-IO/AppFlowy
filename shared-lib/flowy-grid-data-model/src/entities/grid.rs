@@ -123,6 +123,15 @@ pub struct Cell {
     pub content: String,
 }
 
+impl Cell {
+    pub fn new(field_id: &str, content: String) -> Self {
+        Self {
+            field_id: field_id.to_owned(),
+            content,
+        }
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct CreateGridPayload {
     #[pb(index = 1)]

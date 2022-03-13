@@ -175,13 +175,13 @@ impl std::default::Default for FieldType {
 
 impl AsRef<FieldType> for FieldType {
     fn as_ref(&self) -> &FieldType {
-        &self
+        self
     }
 }
 
-impl Into<FieldType> for &FieldType {
-    fn into(self) -> FieldType {
-        self.clone()
+impl From<&FieldType> for FieldType {
+    fn from(field: &FieldType) -> Self {
+        field.clone()
     }
 }
 

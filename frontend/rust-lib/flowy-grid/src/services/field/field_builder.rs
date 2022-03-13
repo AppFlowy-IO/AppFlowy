@@ -2,7 +2,7 @@ use crate::services::field::{
     CheckboxDescription, DateDescription, DateFormat, MoneySymbol, MultiSelectDescription, NumberDescription,
     RichTextDescription, SelectOption, SingleSelectDescription, TimeFormat,
 };
-use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
+use flowy_grid_data_model::entities::{Field, FieldType};
 
 pub struct FieldBuilder {
     field: Field,

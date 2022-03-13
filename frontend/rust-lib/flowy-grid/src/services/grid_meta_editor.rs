@@ -1,22 +1,20 @@
 use crate::manager::GridUser;
-use crate::services::row::{make_row_ids_per_block, make_rows, sort_rows, RowBuilder};
+use crate::services::row::{make_row_by_row_id, make_row_ids_per_block, make_rows, RowBuilder};
 use bytes::Bytes;
-use dashmap::mapref::one::Ref;
+
 use dashmap::DashMap;
 use flowy_collaboration::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    Field, GridBlock, RepeatedRow, RepeatedRowOrder, Row, RowMeta, RowMetaChangeset,
-};
+use flowy_grid_data_model::entities::{Field, GridBlock, RepeatedRowOrder, Row, RowMeta, RowMetaChangeset};
 use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_sync::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
 };
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
-use lib_sqlite::ConnectionPool;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -52,32 +50,34 @@ impl GridBlockMetaEditorManager {
         editor.create_row(row).await
     }
 
-    pub(crate) async fn delete_rows(&self, row_orders: Option<RepeatedRowOrder>) -> FlowyResult<Vec<(String, i32)>> {
+    pub(crate) async fn delete_rows(&self, _row_orders: Option<RepeatedRowOrder>) -> FlowyResult<Vec<(String, i32)>> {
         Ok(vec![("".to_owned(), 2)])
     }
 
-    pub(crate) async fn get_rows(
-        &self,
-        fields: Vec<Field>,
-        row_orders: Option<RepeatedRowOrder>,
-    ) -> FlowyResult<Vec<Row>> {
-        match row_orders {
-            None => {
-                let rows = vec![];
-                Ok(rows)
-            }
-            Some(row_orders) => {
-                let row_ids_per_blocks = make_row_ids_per_block(&row_orders);
-                let mut rows = vec![];
-                for row_ids_per_block in row_ids_per_blocks {
-                    let editor = self.get_editor(&row_ids_per_block.block_id).await?;
-                    let row_metas = editor.get_rows(row_ids_per_block.row_ids).await?;
-                    rows.extend(make_rows(&fields, row_metas));
-                }
-                sort_rows(&mut rows, row_orders);
-                Ok(rows)
-            }
+    pub(crate) async fn get_all_rows(&self, grid_blocks: Vec<GridBlock>, fields: Vec<Field>) -> FlowyResult<Vec<Row>> {
+        let mut rows = vec![];
+        for grid_block in grid_blocks {
+            let editor = self.get_editor(&grid_block.id).await?;
+            let row_metas = editor.get_rows(None).await?;
+            rows.extend(make_rows(&fields, row_metas));
         }
+        Ok(rows)
+    }
+
+    pub(crate) async fn get_rows(&self, fields: Vec<Field>, row_orders: RepeatedRowOrder) -> FlowyResult<Vec<Row>> {
+        let row_ids_per_blocks = make_row_ids_per_block(&row_orders);
+        let mut row_map: HashMap<String, Row> = HashMap::new();
+        for row_ids_per_block in row_ids_per_blocks {
+            let editor = self.get_editor(&row_ids_per_block.block_id).await?;
+            let row_metas = editor.get_rows(Some(row_ids_per_block.row_ids)).await?;
+            row_map.extend(make_row_by_row_id(&fields, row_metas));
+        }
+
+        let rows = row_orders
+            .iter()
+            .flat_map(|row_order| row_map.remove(&row_order.row_id))
+            .collect::<Vec<_>>();
+        Ok(rows)
     }
 }
 
@@ -158,9 +158,14 @@ impl ClientGridBlockMetaEditor {
         Ok(())
     }
 
-    pub async fn get_rows(&self, row_ids: Vec<String>) -> FlowyResult<Vec<RowMeta>> {
-        let rows = self.meta_pad.read().await.get_rows(row_ids)?;
-        Ok(rows)
+    pub async fn get_rows(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<RowMeta>> {
+        match row_ids {
+            None => Ok(self.meta_pad.read().await.all_rows()),
+            Some(row_ids) => {
+                let rows = self.meta_pad.read().await.get_rows(row_ids)?;
+                Ok(rows)
+            }
+        }
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

@@ -1,5 +1,5 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
-use crate::errors::{internal_error, CollaborateError, CollaborateResult};
+use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::entities::{GridBlockMeta, RowMeta, RowMetaChangeset};
 use lib_infra::uuid;
@@ -67,6 +67,10 @@ impl GridBlockMetaPad {
                 Some(row) => Some((**row).clone()),
             })
             .collect::<Vec<RowMeta>>())
+    }
+
+    pub fn all_rows(&self) -> Vec<RowMeta> {
+        self.rows.iter().map(|row| (**row).clone()).collect::<Vec<_>>()
     }
 
     pub fn number_of_rows(&self) -> i32 {
