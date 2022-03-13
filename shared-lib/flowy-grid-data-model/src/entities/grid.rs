@@ -45,11 +45,17 @@ impl std::ops::Deref for RepeatedFieldOrder {
 pub struct RowOrder {
     #[pb(index = 1)]
     pub row_id: String,
+
+    #[pb(index = 2)]
+    pub block_id: String,
 }
 
 impl std::convert::From<&RowMeta> for RowOrder {
     fn from(row: &RowMeta) -> Self {
-        Self { row_id: row.id.clone() }
+        Self {
+            row_id: row.id.clone(),
+            block_id: row.block_id.clone(),
+        }
     }
 }
 
@@ -111,12 +117,9 @@ impl std::convert::From<Vec<Row>> for RepeatedRow {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Cell {
     #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
     pub field_id: String,
 
-    #[pb(index = 3)]
+    #[pb(index = 2)]
     pub content: String,
 }
 

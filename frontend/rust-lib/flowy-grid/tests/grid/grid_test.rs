@@ -1,7 +1,7 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use flowy_grid::services::field::{SelectOption, SingleSelectDescription};
-use flowy_grid_data_model::entities::FieldChangeset;
+use flowy_grid_data_model::entities::{FieldChangeset, GridBlock, GridBlockChangeset};
 
 #[tokio::test]
 async fn default_grid_test() {
@@ -31,6 +31,23 @@ async fn grid_create_field() {
             field: single_select_field,
         },
         AssertFieldCount(4),
+    ];
+    GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_create_duplicate_field() {
+    let text_field = create_text_field();
+    let scripts = vec![
+        AssertFieldCount(2),
+        CreateField {
+            field: text_field.clone(),
+        },
+        AssertFieldCount(3),
+        CreateField {
+            field: text_field.clone(),
+        },
+        AssertFieldCount(3),
     ];
     GridEditorTest::new().await.run_scripts(scripts).await;
 }
@@ -96,5 +113,62 @@ async fn grid_update_field() {
         },
         AssertGridMetaPad,
     ];
+    GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_delete_field() {
+    let text_field = create_text_field();
+    let scripts = vec![
+        CreateField {
+            field: text_field.clone(),
+        },
+        AssertFieldCount(3),
+        DeleteField { field: text_field },
+        AssertFieldCount(2),
+    ];
+    GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_create_block() {
+    let grid_block = GridBlock::new();
+    let scripts = vec![
+        AssertBlockCount(1),
+        CreateBlock { block: grid_block },
+        AssertBlockCount(2),
+    ];
+    GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_update_block() {
+    let grid_block = GridBlock::new();
+    let mut cloned_grid_block = grid_block.clone();
+    let change = GridBlockChangeset {
+        block_id: grid_block.id.clone(),
+        start_row_index: Some(2),
+        row_count: Some(10),
+    };
+
+    cloned_grid_block.start_row_index = 2;
+    cloned_grid_block.row_count = 10;
+
+    let scripts = vec![
+        AssertBlockCount(1),
+        CreateBlock { block: grid_block },
+        UpdateBlock { change },
+        AssertBlockCount(2),
+        AssertBlockEqual {
+            block_index: 1,
+            block: cloned_grid_block,
+        },
+    ];
+    GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_create_row() {
+    let scripts = vec![AssertRowCount(2), CreateRow, CreateRow, CreateRow, AssertRowCount(5)];
     GridEditorTest::new().await.run_scripts(scripts).await;
 }

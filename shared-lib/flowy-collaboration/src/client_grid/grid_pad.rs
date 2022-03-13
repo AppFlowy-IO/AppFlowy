@@ -36,8 +36,13 @@ impl GridMetaPad {
 
     pub fn create_field(&mut self, field: Field) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            grid.fields.push(field);
-            Ok(Some(()))
+            if grid.fields.contains(&field) {
+                tracing::warn!("Duplicate grid field");
+                Ok(None)
+            } else {
+                grid.fields.push(field);
+                Ok(Some(()))
+            }
         })
     }
 
@@ -51,7 +56,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<RepeatedField> {
+    pub fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<Field>> {
         match field_orders {
             None => Ok(self.grid_meta.fields.clone().into()),
             Some(field_orders) => {
@@ -72,7 +77,7 @@ impl GridMetaPad {
                         Some(field) => Some((*field).clone()),
                     })
                     .collect::<Vec<Field>>();
-                Ok(fields.into())
+                Ok(fields)
             }
         }
     }
@@ -122,8 +127,13 @@ impl GridMetaPad {
 
     pub fn create_block(&mut self, block: GridBlock) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            grid.blocks.push(block);
-            Ok(Some(()))
+            if grid.blocks.iter().find(|b| b.id == block.id).is_some() {
+                tracing::warn!("Duplicate grid block");
+                Ok(None)
+            } else {
+                grid.blocks.push(block);
+                Ok(Some(()))
+            }
         })
     }
 
@@ -138,6 +148,11 @@ impl GridMetaPad {
 
             if let Some(row_count) = change.row_count {
                 block.row_count = row_count;
+                is_changed = Some(());
+            }
+
+            if let Some(start_row_index) = change.start_row_index {
+                block.start_row_index = start_row_index;
                 is_changed = Some(());
             }
 

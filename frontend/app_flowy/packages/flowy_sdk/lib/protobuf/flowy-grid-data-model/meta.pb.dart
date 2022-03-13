@@ -897,37 +897,22 @@ class RowMetaChangeset extends $pb.GeneratedMessage {
 
 class CellMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellMeta', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOM<AnyData>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: AnyData.create)
-    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..hasRequiredFields = false
   ;
 
   CellMeta._() : super();
   factory CellMeta({
-    $core.String? id,
-    $core.String? rowId,
     $core.String? fieldId,
-    AnyData? data,
-    $core.int? height,
+    $core.String? data,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (rowId != null) {
-      _result.rowId = rowId;
-    }
     if (fieldId != null) {
       _result.fieldId = fieldId;
     }
     if (data != null) {
       _result.data = data;
-    }
-    if (height != null) {
-      _result.height = height;
     }
     return _result;
   }
@@ -953,50 +938,21 @@ class CellMeta extends $pb.GeneratedMessage {
   static CellMeta? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get fieldId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set fieldId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasFieldId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearFieldId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get rowId => $_getSZ(1);
+  $core.String get data => $_getSZ(1);
   @$pb.TagNumber(2)
-  set rowId($core.String v) { $_setString(1, v); }
+  set data($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasRowId() => $_has(1);
+  $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
-  void clearRowId() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get fieldId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set fieldId($core.String v) { $_setString(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasFieldId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearFieldId() => clearField(3);
-
-  @$pb.TagNumber(4)
-  AnyData get data => $_getN(3);
-  @$pb.TagNumber(4)
-  set data(AnyData v) { setField(4, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearData() => clearField(4);
-  @$pb.TagNumber(4)
-  AnyData ensureData() => $_ensure(3);
-
-  @$pb.TagNumber(5)
-  $core.int get height => $_getIZ(4);
-  @$pb.TagNumber(5)
-  set height($core.int v) { $_setSignedInt32(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasHeight() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearHeight() => clearField(5);
+  void clearData() => clearField(2);
 }
 

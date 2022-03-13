@@ -55,11 +55,8 @@ message RowMetaChangeset {
     map<string, CellMeta> cell_by_field_id = 4;
 }
 message CellMeta {
-    string id = 1;
-    string row_id = 2;
-    string field_id = 3;
-    AnyData data = 4;
-    int32 height = 5;
+    string field_id = 1;
+    string data = 2;
 }
 enum FieldType {
     RichText = 0;

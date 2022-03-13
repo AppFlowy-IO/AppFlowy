@@ -31,7 +31,7 @@ impl GridBuilder {
     }
 
     pub fn add_empty_row(mut self) -> Self {
-        let row = RowMeta::new(&self.grid_block.id, vec![]);
+        let row = RowMeta::new(&self.grid_block.id);
         self.grid_block_meta.rows.push(row);
         self
     }

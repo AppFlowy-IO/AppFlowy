@@ -69,6 +69,10 @@ impl GridBlockMetaPad {
             .collect::<Vec<RowMeta>>())
     }
 
+    pub fn number_of_rows(&self) -> i32 {
+        self.rows.len() as i32
+    }
+
     pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {
         let row_id = changeset.row_id.clone();
         self.modify_row(&row_id, |row| {

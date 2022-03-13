@@ -18,7 +18,7 @@ pub struct GridMeta {
     pub blocks: Vec<GridBlock>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
     pub id: String,
@@ -43,6 +43,16 @@ pub struct GridBlockChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
     pub row_count: Option<i32>,
+}
+
+impl GridBlockChangeset {
+    pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
+        Self {
+            block_id: block_id.to_string(),
+            start_row_index: None,
+            row_count: Some(row_count),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
@@ -225,7 +235,7 @@ impl ToString for AnyData {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct RowMeta {
     #[pb(index = 1)]
     pub id: String,
@@ -244,16 +254,11 @@ pub struct RowMeta {
 }
 
 impl RowMeta {
-    pub fn new(block_id: &str, cells: Vec<CellMeta>) -> Self {
-        let cell_by_field_id = cells
-            .into_iter()
-            .map(|cell| (cell.id.clone(), cell))
-            .collect::<HashMap<String, CellMeta>>();
-
+    pub fn new(block_id: &str) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             block_id: block_id.to_owned(),
-            cell_by_field_id,
+            cell_by_field_id: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
             visibility: true,
         }
@@ -275,20 +280,20 @@ pub struct RowMetaChangeset {
     pub cell_by_field_id: HashMap<String, CellMeta>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct CellMeta {
     #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub row_id: String,
-
-    #[pb(index = 3)]
     pub field_id: String,
 
-    #[pb(index = 4)]
-    pub data: AnyData,
+    #[pb(index = 2)]
+    pub data: String,
+}
 
-    #[pb(index = 5)]
-    pub height: i32,
+impl CellMeta {
+    pub fn new(field_id: &str, data: String) -> Self {
+        Self {
+            field_id: field_id.to_string(),
+            data,
+        }
+    }
 }

@@ -13,6 +13,7 @@ message RepeatedFieldOrder {
 }
 message RowOrder {
     string row_id = 1;
+    string block_id = 2;
 }
 message RepeatedRowOrder {
     repeated RowOrder items = 1;
@@ -26,9 +27,8 @@ message RepeatedRow {
     repeated Row items = 1;
 }
 message Cell {
-    string id = 1;
-    string field_id = 2;
-    string content = 3;
+    string field_id = 1;
+    string content = 2;
 }
 message CreateGridPayload {
     string name = 1;

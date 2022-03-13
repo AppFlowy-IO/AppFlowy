@@ -45,11 +45,12 @@ const RowOrder$json = const {
   '1': 'RowOrder',
   '2': const [
     const {'1': 'row_id', '3': 1, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'block_id', '3': 2, '4': 1, '5': 9, '10': 'blockId'},
   ],
 };
 
 /// Descriptor for `RowOrder`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rowOrderDescriptor = $convert.base64Decode('CghSb3dPcmRlchIVCgZyb3dfaWQYASABKAlSBXJvd0lk');
+final $typed_data.Uint8List rowOrderDescriptor = $convert.base64Decode('CghSb3dPcmRlchIVCgZyb3dfaWQYASABKAlSBXJvd0lkEhkKCGJsb2NrX2lkGAIgASgJUgdibG9ja0lk');
 @$core.Deprecated('Use repeatedRowOrderDescriptor instead')
 const RepeatedRowOrder$json = const {
   '1': 'RepeatedRowOrder',
@@ -97,14 +98,13 @@ final $typed_data.Uint8List repeatedRowDescriptor = $convert.base64Decode('CgtSZ
 const Cell$json = const {
   '1': 'Cell',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'content', '3': 3, '4': 1, '5': 9, '10': 'content'},
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
   ],
 };
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEg4KAmlkGAEgASgJUgJpZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIYCgdjb250ZW50GAMgASgJUgdjb250ZW50');
+final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQ=');
 @$core.Deprecated('Use createGridPayloadDescriptor instead')
 const CreateGridPayload$json = const {
   '1': 'CreateGridPayload',

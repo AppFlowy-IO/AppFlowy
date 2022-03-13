@@ -179,13 +179,10 @@ final $typed_data.Uint8List rowMetaChangesetDescriptor = $convert.base64Decode('
 const CellMeta$json = const {
   '1': 'CellMeta',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
-    const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'data', '3': 4, '4': 1, '5': 11, '6': '.AnyData', '10': 'data'},
-    const {'1': 'height', '3': 5, '4': 1, '5': 5, '10': 'height'},
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `CellMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellMetaDescriptor = $convert.base64Decode('CghDZWxsTWV0YRIOCgJpZBgBIAEoCVICaWQSFQoGcm93X2lkGAIgASgJUgVyb3dJZBIZCghmaWVsZF9pZBgDIAEoCVIHZmllbGRJZBIcCgRkYXRhGAQgASgLMgguQW55RGF0YVIEZGF0YRIWCgZoZWlnaHQYBSABKAVSBmhlaWdodA==');
+final $typed_data.Uint8List cellMetaDescriptor = $convert.base64Decode('CghDZWxsTWV0YRIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBISCgRkYXRhGAIgASgJUgRkYXRh');

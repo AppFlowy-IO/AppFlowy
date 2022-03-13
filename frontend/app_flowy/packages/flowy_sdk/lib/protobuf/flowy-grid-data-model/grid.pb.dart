@@ -163,16 +163,21 @@ class RepeatedFieldOrder extends $pb.GeneratedMessage {
 class RowOrder extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RowOrder', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..hasRequiredFields = false
   ;
 
   RowOrder._() : super();
   factory RowOrder({
     $core.String? rowId,
+    $core.String? blockId,
   }) {
     final _result = create();
     if (rowId != null) {
       _result.rowId = rowId;
+    }
+    if (blockId != null) {
+      _result.blockId = blockId;
     }
     return _result;
   }
@@ -205,6 +210,15 @@ class RowOrder extends $pb.GeneratedMessage {
   $core.bool hasRowId() => $_has(0);
   @$pb.TagNumber(1)
   void clearRowId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get blockId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set blockId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBlockId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBlockId() => clearField(2);
 }
 
 class RepeatedRowOrder extends $pb.GeneratedMessage {
@@ -360,22 +374,17 @@ class RepeatedRow extends $pb.GeneratedMessage {
 
 class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
     ..hasRequiredFields = false
   ;
 
   Cell._() : super();
   factory Cell({
-    $core.String? id,
     $core.String? fieldId,
     $core.String? content,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
     if (fieldId != null) {
       _result.fieldId = fieldId;
     }
@@ -406,31 +415,22 @@ class Cell extends $pb.GeneratedMessage {
   static Cell? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get fieldId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set fieldId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasFieldId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearFieldId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get fieldId => $_getSZ(1);
+  $core.String get content => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fieldId($core.String v) { $_setString(1, v); }
+  set content($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasFieldId() => $_has(1);
+  $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
-  void clearFieldId() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get content => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set content($core.String v) { $_setString(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasContent() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearContent() => clearField(3);
+  void clearContent() => clearField(2);
 }
 
 class CreateGridPayload extends $pb.GeneratedMessage {

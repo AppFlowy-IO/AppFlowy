@@ -1,6 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 use crate::impl_from_and_to_type_option;
-use crate::services::field::StringifyCellData;
+use crate::services::row::StringifyCellData;
 use crate::services::util::*;
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;

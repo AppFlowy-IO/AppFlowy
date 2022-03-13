@@ -1,14 +1,109 @@
+use crate::manager::GridUser;
+use crate::services::row::{make_row_ids_per_block, make_rows, sort_rows, RowBuilder};
 use bytes::Bytes;
+use dashmap::mapref::one::Ref;
+use dashmap::DashMap;
 use flowy_collaboration::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
-use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use flowy_grid_data_model::entities::{
+    Field, GridBlock, RepeatedRow, RepeatedRowOrder, Row, RowMeta, RowMetaChangeset,
+};
+use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
+use flowy_sync::{
+    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
+};
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
+use lib_sqlite::ConnectionPool;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+
+pub(crate) struct GridBlockMetaEditorManager {
+    user: Arc<dyn GridUser>,
+    editor_map: DashMap<String, Arc<ClientGridBlockMetaEditor>>,
+}
+
+impl GridBlockMetaEditorManager {
+    pub(crate) async fn new(user: &Arc<dyn GridUser>, blocks: Vec<GridBlock>) -> FlowyResult<Self> {
+        let editor_map = make_block_meta_editor_map(user, blocks).await?;
+        let user = user.clone();
+        let manager = Self { user, editor_map };
+        Ok(manager)
+    }
+
+    pub(crate) async fn get_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
+        match self.editor_map.get(block_id) {
+            None => {
+                tracing::error!("The is a fatal error, block is not exist");
+                let editor = Arc::new(make_block_meta_editor(&self.user, block_id).await?);
+                self.editor_map.insert(block_id.to_owned(), editor.clone());
+                Ok(editor)
+            }
+            Some(editor) => Ok(editor.clone()),
+        }
+    }
+
+    pub(crate) async fn create_row(&self, fields: Vec<Field>, grid_block: &GridBlock) -> FlowyResult<i32> {
+        let row = RowBuilder::new(&fields, &grid_block.id).build();
+        let editor = self.get_editor(&grid_block.id).await?;
+        editor.create_row(row).await
+    }
+
+    pub(crate) async fn delete_rows(&self, row_orders: Option<RepeatedRowOrder>) -> FlowyResult<Vec<(String, i32)>> {
+        Ok(vec![("".to_owned(), 2)])
+    }
+
+    pub(crate) async fn get_rows(
+        &self,
+        fields: Vec<Field>,
+        row_orders: Option<RepeatedRowOrder>,
+    ) -> FlowyResult<Vec<Row>> {
+        match row_orders {
+            None => {
+                let rows = vec![];
+                Ok(rows)
+            }
+            Some(row_orders) => {
+                let row_ids_per_blocks = make_row_ids_per_block(&row_orders);
+                let mut rows = vec![];
+                for row_ids_per_block in row_ids_per_blocks {
+                    let editor = self.get_editor(&row_ids_per_block.block_id).await?;
+                    let row_metas = editor.get_rows(row_ids_per_block.row_ids).await?;
+                    rows.extend(make_rows(&fields, row_metas));
+                }
+                sort_rows(&mut rows, row_orders);
+                Ok(rows)
+            }
+        }
+    }
+}
+
+async fn make_block_meta_editor_map(
+    user: &Arc<dyn GridUser>,
+    blocks: Vec<GridBlock>,
+) -> FlowyResult<DashMap<String, Arc<ClientGridBlockMetaEditor>>> {
+    let editor_map = DashMap::new();
+    for block in blocks {
+        let editor = make_block_meta_editor(user, &block.id).await?;
+        editor_map.insert(block.id, Arc::new(editor));
+    }
+
+    Ok(editor_map)
+}
+
+async fn make_block_meta_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<ClientGridBlockMetaEditor> {
+    let token = user.token()?;
+    let user_id = user.user_id()?;
+    let pool = user.db_pool()?;
+
+    let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
+    let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_id, disk_cache));
+    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence);
+    ClientGridBlockMetaEditor::new(&user_id, &token, block_id, rev_manager).await
+}
 
 pub struct ClientGridBlockMetaEditor {
     user_id: String,
@@ -40,10 +135,17 @@ impl ClientGridBlockMetaEditor {
         })
     }
 
-    async fn create_row(&self) -> FlowyResult<()> {
-        let row = RowMeta::new(&self.block_id, vec![]);
-        let _ = self.modify(|pad| Ok(pad.add_row(row)?)).await?;
-        Ok(())
+    async fn create_row(&self, row: RowMeta) -> FlowyResult<i32> {
+        let mut row_count = 0;
+        let _ = self
+            .modify(|pad| {
+                let change = pad.add_row(row)?;
+                row_count = pad.number_of_rows();
+                Ok(change)
+            })
+            .await?;
+
+        Ok(row_count)
     }
 
     pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<()> {
