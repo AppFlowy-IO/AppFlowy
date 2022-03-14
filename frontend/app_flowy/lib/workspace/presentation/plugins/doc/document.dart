@@ -50,7 +50,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   PluginType get pluginType => DefaultPlugin.quill.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.Block;
+  ViewDataType get dataType => ViewDataType.TextBlock;
 }
 
 class DocumentPlugin implements Plugin {

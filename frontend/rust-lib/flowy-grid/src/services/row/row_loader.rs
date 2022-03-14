@@ -1,5 +1,5 @@
 use crate::services::row::stringify_deserialize;
-use flowy_grid_data_model::entities::{Cell, CellMeta, Field, RepeatedRowOrder, Row, RowMeta};
+use flowy_grid_data_model::entities::{Cell, CellMeta, Field, RepeatedRowOrder, Row, RowMeta, RowOrder};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 
@@ -8,7 +8,7 @@ pub(crate) struct RowIdsPerBlock {
     pub(crate) row_ids: Vec<String>,
 }
 
-pub(crate) fn make_row_ids_per_block(row_orders: &RepeatedRowOrder) -> Vec<RowIdsPerBlock> {
+pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBlock> {
     let mut map: HashMap<String, RowIdsPerBlock> = HashMap::new();
     row_orders.iter().for_each(|row_order| {
         let block_id = row_order.block_id.clone();
@@ -21,7 +21,7 @@ pub(crate) fn make_row_ids_per_block(row_orders: &RepeatedRowOrder) -> Vec<RowId
     map.into_values().collect::<Vec<_>>()
 }
 
-pub(crate) fn make_rows(fields: &Vec<Field>, row_metas: Vec<RowMeta>) -> Vec<Row> {
+pub(crate) fn make_rows(fields: &[Field], row_metas: Vec<RowMeta>) -> Vec<Row> {
     let field_map = fields
         .iter()
         .map(|field| (&field.id, field))
@@ -59,7 +59,7 @@ fn make_cell(field_map: &HashMap<&String, &Field>, field_id: String, raw_cell: C
     }
 }
 
-pub(crate) fn make_row_by_row_id(fields: &Vec<Field>, row_metas: Vec<RowMeta>) -> HashMap<String, Row> {
+pub(crate) fn make_row_by_row_id(fields: &[Field], row_metas: Vec<RowMeta>) -> HashMap<String, Row> {
     let field_map = fields
         .iter()
         .map(|field| (&field.id, field))

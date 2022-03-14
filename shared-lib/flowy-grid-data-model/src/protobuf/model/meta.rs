@@ -2956,6 +2956,289 @@ impl ::protobuf::reflect::ProtobufValue for CellMeta {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct CellMetaChangeset {
+    // message fields
+    pub row_id: ::std::string::String,
+    pub field_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_data: ::std::option::Option<CellMetaChangeset_oneof_one_of_data>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CellMetaChangeset {
+    fn default() -> &'a CellMetaChangeset {
+        <CellMetaChangeset as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum CellMetaChangeset_oneof_one_of_data {
+    data(::std::string::String),
+}
+
+impl CellMetaChangeset {
+    pub fn new() -> CellMetaChangeset {
+        ::std::default::Default::default()
+    }
+
+    // string row_id = 1;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+
+    // string field_id = 2;
+
+
+    pub fn get_field_id(&self) -> &str {
+        &self.field_id
+    }
+    pub fn clear_field_id(&mut self) {
+        self.field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_id(&mut self, v: ::std::string::String) {
+        self.field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.field_id
+    }
+
+    // Take field
+    pub fn take_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    }
+
+    // string data = 3;
+
+
+    pub fn get_data(&self) -> &str {
+        match self.one_of_data {
+            ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_data(&mut self) {
+        self.one_of_data = ::std::option::Option::None;
+    }
+
+    pub fn has_data(&self) -> bool {
+        match self.one_of_data {
+            ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.one_of_data = ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(_)) = self.one_of_data {
+        } else {
+            self.one_of_data = ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(::std::string::String::new()));
+        }
+        match self.one_of_data {
+            ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_data(&mut self) -> ::std::string::String {
+        if self.has_data() {
+            match self.one_of_data.take() {
+                ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for CellMetaChangeset {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_data = ::std::option::Option::Some(CellMetaChangeset_oneof_one_of_data::data(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.row_id);
+        }
+        if !self.field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.field_id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+            match v {
+                &CellMetaChangeset_oneof_one_of_data::data(ref v) => {
+                    my_size += ::protobuf::rt::string_size(3, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.row_id.is_empty() {
+            os.write_string(1, &self.row_id)?;
+        }
+        if !self.field_id.is_empty() {
+            os.write_string(2, &self.field_id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+            match v {
+                &CellMetaChangeset_oneof_one_of_data::data(ref v) => {
+                    os.write_string(3, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CellMetaChangeset {
+        CellMetaChangeset::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &CellMetaChangeset| { &m.row_id },
+                |m: &mut CellMetaChangeset| { &mut m.row_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "field_id",
+                |m: &CellMetaChangeset| { &m.field_id },
+                |m: &mut CellMetaChangeset| { &mut m.field_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "data",
+                CellMetaChangeset::has_data,
+                CellMetaChangeset::get_data,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CellMetaChangeset>(
+                "CellMetaChangeset",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CellMetaChangeset {
+        static instance: ::protobuf::rt::LazyV2<CellMetaChangeset> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CellMetaChangeset::new)
+    }
+}
+
+impl ::protobuf::Clear for CellMetaChangeset {
+    fn clear(&mut self) {
+        self.row_id.clear();
+        self.field_id.clear();
+        self.one_of_data = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CellMetaChangeset {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CellMetaChangeset {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum FieldType {
     RichText = 0,
@@ -3059,10 +3342,13 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05\
     value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"9\n\
     \x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\
-    \x12\n\x04data\x18\x02\x20\x01(\tR\x04data*d\n\tFieldType\x12\x0c\n\x08R\
-    ichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\
-    \x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\
-    \x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    \x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"j\n\x11CellMetaChangeset\x12\
+    \x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\
+    \x02\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x03\x20\x01(\tH\0R\x04\
+    dataB\r\n\x0bone_of_data*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\
+    \n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingle\
+    Select\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\
+    \x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

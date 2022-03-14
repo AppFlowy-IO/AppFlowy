@@ -82,41 +82,41 @@ impl GridMetaPad {
         }
     }
 
-    pub fn update_field(&mut self, change: FieldChangeset) -> CollaborateResult<Option<GridChange>> {
-        let field_id = change.field_id.clone();
+    pub fn update_field(&mut self, changeset: FieldChangeset) -> CollaborateResult<Option<GridChange>> {
+        let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
-            if let Some(name) = change.name {
+            if let Some(name) = changeset.name {
                 field.name = name;
                 is_changed = Some(())
             }
 
-            if let Some(desc) = change.desc {
+            if let Some(desc) = changeset.desc {
                 field.desc = desc;
                 is_changed = Some(())
             }
 
-            if let Some(field_type) = change.field_type {
+            if let Some(field_type) = changeset.field_type {
                 field.field_type = field_type;
                 is_changed = Some(())
             }
 
-            if let Some(frozen) = change.frozen {
+            if let Some(frozen) = changeset.frozen {
                 field.frozen = frozen;
                 is_changed = Some(())
             }
 
-            if let Some(visibility) = change.visibility {
+            if let Some(visibility) = changeset.visibility {
                 field.visibility = visibility;
                 is_changed = Some(())
             }
 
-            if let Some(width) = change.width {
+            if let Some(width) = changeset.width {
                 field.width = width;
                 is_changed = Some(())
             }
 
-            if let Some(type_options) = change.type_options {
+            if let Some(type_options) = changeset.type_options {
                 field.type_options = type_options;
                 is_changed = Some(())
             }
@@ -141,17 +141,17 @@ impl GridMetaPad {
         self.grid_meta.blocks.clone()
     }
 
-    pub fn update_block(&mut self, change: GridBlockChangeset) -> CollaborateResult<Option<GridChange>> {
-        let block_id = change.block_id.clone();
+    pub fn update_block(&mut self, changeset: GridBlockChangeset) -> CollaborateResult<Option<GridChange>> {
+        let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
 
-            if let Some(row_count) = change.row_count {
+            if let Some(row_count) = changeset.row_count {
                 block.row_count = row_count;
                 is_changed = Some(());
             }
 
-            if let Some(start_row_index) = change.start_row_index {
+            if let Some(start_row_index) = changeset.start_row_index {
                 block.start_row_index = start_row_index;
                 is_changed = Some(());
             }

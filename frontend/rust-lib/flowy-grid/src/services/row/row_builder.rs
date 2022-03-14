@@ -1,24 +1,60 @@
-use flowy_grid_data_model::entities::{CellMeta, Field, RowMeta};
+use flowy_grid_data_model::entities::{CellMeta, Field, RowMeta, DEFAULT_ROW_HEIGHT};
+use std::collections::HashMap;
 
-pub struct RowBuilder<'a> {
-    fields: &'a Vec<Field>,
-    row: RowMeta,
+pub struct CreateRowContextBuilder<'a> {
+    #[allow(dead_code)]
+    fields: &'a [Field],
+    ctx: CreateRowContext,
 }
 
-impl<'a> RowBuilder<'a> {
-    pub fn new(fields: &'a Vec<Field>, block_id: &'a String) -> Self {
-        let row = RowMeta::new(block_id);
-        Self { fields, row }
+impl<'a> CreateRowContextBuilder<'a> {
+    pub fn new(fields: &'a [Field]) -> Self {
+        let ctx = CreateRowContext {
+            row_id: uuid::Uuid::new_v4().to_string(),
+            cell_by_field_id: Default::default(),
+            height: DEFAULT_ROW_HEIGHT,
+            visibility: true,
+        };
+        Self { fields, ctx }
     }
 
     #[allow(dead_code)]
     pub fn add_cell(mut self, field_id: &str, data: String) -> Self {
         let cell = CellMeta::new(field_id, data);
-        self.row.cell_by_field_id.insert(field_id.to_owned(), cell);
+        self.ctx.cell_by_field_id.insert(field_id.to_owned(), cell);
         self
     }
 
-    pub fn build(self) -> RowMeta {
-        self.row
+    #[allow(dead_code)]
+    pub fn height(mut self, height: i32) -> Self {
+        self.ctx.height = height;
+        self
     }
+
+    #[allow(dead_code)]
+    pub fn visibility(mut self, visibility: bool) -> Self {
+        self.ctx.visibility = visibility;
+        self
+    }
+
+    pub fn build(self) -> CreateRowContext {
+        self.ctx
+    }
+}
+
+pub fn row_meta_from_context(block_id: &str, ctx: CreateRowContext) -> RowMeta {
+    RowMeta {
+        id: ctx.row_id,
+        block_id: block_id.to_owned(),
+        cell_by_field_id: ctx.cell_by_field_id,
+        height: ctx.height,
+        visibility: ctx.visibility,
+    }
+}
+
+pub struct CreateRowContext {
+    pub row_id: String,
+    pub cell_by_field_id: HashMap<String, CellMeta>,
+    pub height: i32,
+    pub visibility: bool,
 }

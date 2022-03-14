@@ -1,4 +1,4 @@
-use crate::services::field::MoneySymbol;
+use crate::services::cell::MoneySymbol;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{AnyData, Field, FieldType};
 use lazy_static::lazy_static;
@@ -99,31 +99,6 @@ fn crop_letters(s: &mut String, pos: usize) {
     }
 }
 
-pub fn string_to_bool(bool_str: &str) -> bool {
-    let lower_case_str: &str = &bool_str.to_lowercase();
-    match lower_case_str {
-        "1" => true,
-        "true" => true,
-        "yes" => true,
-        "0" => false,
-        "false" => false,
-        "no" => false,
-        _ => false,
-    }
-}
-
 pub fn uuid() -> String {
     uuid::Uuid::new_v4().to_string()
-}
-
-pub fn check_type_id(data: &AnyData, field: &Field) -> Result<(), FlowyError> {
-    let field_type = FieldType::from_type_id(&data.type_id).map_err(|e| FlowyError::internal().context(e))?;
-    if field_type != field.field_type {
-        tracing::error!(
-            "expected field type: {:?} but receive {:?} ",
-            field_type,
-            field.field_type
-        );
-    }
-    Ok(())
 }

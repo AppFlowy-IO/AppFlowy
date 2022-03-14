@@ -24,7 +24,7 @@ pub(crate) async fn get_rows_handler(
 ) -> DataResult<RepeatedRow, FlowyError> {
     let payload: QueryRowPayload = data.into_inner();
     let editor = manager.get_grid_editor(&payload.grid_id)?;
-    let repeated_row: RepeatedRow = editor.get_rows(payload.row_orders).await?.into();
+    let repeated_row: RepeatedRow = editor.get_rows(Some(payload.row_orders)).await?.into();
     data_result(repeated_row)
 }
 

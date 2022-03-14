@@ -1,5 +1,6 @@
 mod util;
 
+pub mod cell;
 pub mod field;
 pub mod grid_editor;
 pub mod grid_meta_editor;

@@ -1,8 +1,11 @@
+use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
-use flowy_grid_data_model::entities::{Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset};
+use flowy_grid::services::row::CreateRowContext;
+use flowy_grid_data_model::entities::{
+    CellMetaChangeset, Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, Row, RowMeta, RowMetaChangeset,
+};
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
-
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;
@@ -10,16 +13,52 @@ use std::time::Duration;
 use tokio::time::sleep;
 
 pub enum EditorScript {
-    CreateField { field: Field },
-    UpdateField { change: FieldChangeset },
-    DeleteField { field: Field },
+    CreateField {
+        field: Field,
+    },
+    UpdateField {
+        changeset: FieldChangeset,
+    },
+    DeleteField {
+        field: Field,
+    },
     AssertFieldCount(usize),
-    AssertFieldEqual { field_index: usize, field: Field },
-    CreateBlock { block: GridBlock },
-    UpdateBlock { change: GridBlockChangeset },
+    AssertFieldEqual {
+        field_index: usize,
+        field: Field,
+    },
+    CreateBlock {
+        block: GridBlock,
+    },
+    UpdateBlock {
+        changeset: GridBlockChangeset,
+    },
     AssertBlockCount(usize),
-    AssertBlockEqual { block_index: usize, block: GridBlock },
-    CreateRow,
+    AssertBlock {
+        block_index: usize,
+        row_count: i32,
+        start_row_index: i32,
+    },
+    AssertBlockEqual {
+        block_index: usize,
+        block: GridBlock,
+    },
+    CreateEmptyRow,
+    CreateRow {
+        context: CreateRowContext,
+    },
+    UpdateRow {
+        changeset: RowMetaChangeset,
+    },
+    AssertRow {
+        changeset: RowMetaChangeset,
+    },
+    DeleteRow {
+        row_ids: Vec<String>,
+    },
+    UpdateCell {
+        changeset: CellMetaChangeset,
+    },
     AssertRowCount(usize),
     // AssertRowEqual{ row_index: usize, row: RowMeta},
     AssertGridMetaPad,
@@ -29,6 +68,9 @@ pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
     pub editor: Arc<ClientGridEditor>,
+    pub fields: Vec<Field>,
+    pub grid_blocks: Vec<GridBlock>,
+    pub row_metas: Vec<RowMeta>,
 }
 
 impl GridEditorTest {
@@ -37,8 +79,19 @@ impl GridEditorTest {
         let _ = sdk.init_user().await;
         let test = ViewTest::new_grid_view(&sdk).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
+        let fields = editor.get_fields(None).await.unwrap();
+        let grid_blocks = editor.get_blocks().await.unwrap();
+        let row_metas = editor.get_row_metas(&None).await.unwrap();
+
         let grid_id = test.view.id;
-        Self { sdk, grid_id, editor }
+        Self {
+            sdk,
+            grid_id,
+            editor,
+            fields,
+            grid_blocks,
+            row_metas,
+        }
     }
 
     pub async fn run_scripts(&mut self, scripts: Vec<EditorScript>) {
@@ -56,16 +109,20 @@ impl GridEditorTest {
         match script {
             EditorScript::CreateField { field } => {
                 self.editor.create_field(field).await.unwrap();
+                self.fields = self.editor.get_fields(None).await.unwrap();
             }
-            EditorScript::UpdateField { change } => {
+            EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
+                self.fields = self.editor.get_fields(None).await.unwrap();
             }
             EditorScript::DeleteField { field } => {
                 self.editor.delete_field(&field.id).await.unwrap();
+                self.fields = self.editor.get_fields(None).await.unwrap();
             }
             EditorScript::AssertFieldCount(count) => {
                 assert_eq!(self.editor.get_fields(None).await.unwrap().len(), count);
             }
+
             EditorScript::AssertFieldEqual { field_index, field } => {
                 let repeated_fields = self.editor.get_fields(None).await.unwrap();
                 let compared_field = repeated_fields[field_index].clone();
@@ -73,23 +130,60 @@ impl GridEditorTest {
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
+                self.grid_blocks = self.editor.get_blocks().await.unwrap();
             }
-            EditorScript::UpdateBlock { change } => {
+            EditorScript::UpdateBlock { changeset: change } => {
                 self.editor.update_block(change).await.unwrap();
             }
             EditorScript::AssertBlockCount(count) => {
                 assert_eq!(self.editor.get_blocks().await.unwrap().len(), count);
+            }
+            EditorScript::AssertBlock {
+                block_index,
+                row_count,
+                start_row_index,
+            } => {
+                assert_eq!(self.grid_blocks[block_index].row_count, row_count);
+                assert_eq!(self.grid_blocks[block_index].start_row_index, start_row_index);
             }
             EditorScript::AssertBlockEqual { block_index, block } => {
                 let blocks = self.editor.get_blocks().await.unwrap();
                 let compared_block = blocks[block_index].clone();
                 assert_eq!(compared_block, block);
             }
-            EditorScript::CreateRow => {
+            EditorScript::CreateEmptyRow => {
                 self.editor.create_row().await.unwrap();
+                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+            }
+            EditorScript::CreateRow { context } => {
+                self.editor.insert_rows(vec![context]).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+            }
+            EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
+            EditorScript::DeleteRow { row_ids } => {
+                self.editor.delete_rows(row_ids).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+            }
+            EditorScript::AssertRow { changeset } => {
+                let row = self.row_metas.iter().find(|row| row.id == changeset.row_id).unwrap();
+
+                if let Some(visibility) = changeset.visibility {
+                    assert_eq!(row.visibility, visibility);
+                }
+
+                if let Some(height) = changeset.height {
+                    assert_eq!(row.height, height);
+                }
+            }
+            EditorScript::UpdateCell { changeset } => {
+                self.editor.update_cell(changeset).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
             }
             EditorScript::AssertRowCount(count) => {
-                assert_eq!(self.editor.get_all_rows().await.unwrap().len(), count);
+                assert_eq!(self.editor.get_rows(None).await.unwrap().len(), count);
             }
             EditorScript::AssertGridMetaPad => {
                 sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
@@ -102,7 +196,7 @@ impl GridEditorTest {
 }
 
 pub fn create_text_field() -> Field {
-    FieldBuilder::new(RichTextTypeOptionsBuilder::new())
+    FieldBuilder::new(RichTextTypeOptionsBuilder::default())
         .name("Name")
         .visibility(true)
         .field_type(FieldType::RichText)
@@ -110,7 +204,7 @@ pub fn create_text_field() -> Field {
 }
 
 pub fn create_single_select_field() -> Field {
-    let single_select = SingleSelectTypeOptionsBuilder::new()
+    let single_select = SingleSelectTypeOptionsBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));
 

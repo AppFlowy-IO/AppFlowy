@@ -58,6 +58,11 @@ message CellMeta {
     string field_id = 1;
     string data = 2;
 }
+message CellMetaChangeset {
+    string row_id = 1;
+    string field_id = 2;
+    oneof one_of_data { string data = 3; };
+}
 enum FieldType {
     RichText = 0;
     Number = 1;

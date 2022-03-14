@@ -1,7 +1,10 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use flowy_grid::services::field::{SelectOption, SingleSelectDescription};
-use flowy_grid_data_model::entities::{FieldChangeset, GridBlock, GridBlockChangeset};
+use flowy_grid::services::row::CreateRowContextBuilder;
+use flowy_grid_data_model::entities::{
+    FieldChangeset, FieldType, GridBlock, GridBlockChangeset, Row, RowMetaChangeset,
+};
 
 #[tokio::test]
 async fn default_grid_test() {
@@ -55,7 +58,7 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let single_select_field = create_single_select_field();
-    let change = FieldChangeset {
+    let changeset = FieldChangeset {
         field_id: single_select_field.id.clone(),
         name: None,
         desc: None,
@@ -70,7 +73,7 @@ async fn grid_update_field_with_empty_change() {
         CreateField {
             field: single_select_field.clone(),
         },
-        UpdateField { change },
+        UpdateField { changeset },
         AssertFieldEqual {
             field_index: 2,
             field: single_select_field,
@@ -87,7 +90,7 @@ async fn grid_update_field() {
     let mut single_select_type_options = SingleSelectDescription::from(&single_select_field);
     single_select_type_options.options.push(SelectOption::new("Unknown"));
 
-    let change = FieldChangeset {
+    let changeset = FieldChangeset {
         field_id: single_select_field.id.clone(),
         name: None,
         desc: None,
@@ -106,7 +109,7 @@ async fn grid_update_field() {
         CreateField {
             field: single_select_field.clone(),
         },
-        UpdateField { change },
+        UpdateField { changeset },
         AssertFieldEqual {
             field_index: 2,
             field: cloned_field,
@@ -145,7 +148,7 @@ async fn grid_create_block() {
 async fn grid_update_block() {
     let grid_block = GridBlock::new();
     let mut cloned_grid_block = grid_block.clone();
-    let change = GridBlockChangeset {
+    let changeset = GridBlockChangeset {
         block_id: grid_block.id.clone(),
         start_row_index: Some(2),
         row_count: Some(10),
@@ -157,7 +160,7 @@ async fn grid_update_block() {
     let scripts = vec![
         AssertBlockCount(1),
         CreateBlock { block: grid_block },
-        UpdateBlock { change },
+        UpdateBlock { changeset },
         AssertBlockCount(2),
         AssertBlockEqual {
             block_index: 1,
@@ -169,6 +172,96 @@ async fn grid_update_block() {
 
 #[tokio::test]
 async fn grid_create_row() {
-    let scripts = vec![AssertRowCount(3), CreateRow, CreateRow, AssertRowCount(5)];
+    let scripts = vec![AssertRowCount(3), CreateEmptyRow, CreateEmptyRow, AssertRowCount(5)];
     GridEditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_create_row2() {
+    let mut test = GridEditorTest::new().await;
+    let create_row_context = CreateRowContextBuilder::new(&test.fields).build();
+    let scripts = vec![
+        AssertRowCount(3),
+        CreateRow {
+            context: create_row_context,
+        },
+        AssertRowCount(4),
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_update_row() {
+    let mut test = GridEditorTest::new().await;
+    let context = CreateRowContextBuilder::new(&test.fields).build();
+    let changeset = RowMetaChangeset {
+        row_id: context.row_id.clone(),
+        height: None,
+        visibility: None,
+        cell_by_field_id: Default::default(),
+    };
+
+    let scripts = vec![
+        AssertRowCount(3),
+        CreateRow { context },
+        UpdateRow {
+            changeset: changeset.clone(),
+        },
+        AssertRow { changeset },
+        AssertRowCount(4),
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_delete_row() {
+    let mut test = GridEditorTest::new().await;
+    let context_1 = CreateRowContextBuilder::new(&test.fields).build();
+    let context_2 = CreateRowContextBuilder::new(&test.fields).build();
+    let row_ids = vec![context_1.row_id.clone(), context_2.row_id.clone()];
+    let scripts = vec![
+        AssertRowCount(3),
+        CreateRow { context: context_1 },
+        CreateRow { context: context_2 },
+        AssertBlockCount(1),
+        AssertBlock {
+            block_index: 0,
+            row_count: 5,
+            start_row_index: 0,
+        },
+        DeleteRow { row_ids },
+        AssertBlock {
+            block_index: 0,
+            row_count: 3,
+            start_row_index: 0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_update_cell() {
+    let mut test = GridEditorTest::new().await;
+    let mut builder = CreateRowContextBuilder::new(&test.fields);
+    for field in &test.fields {
+        match field.field_type {
+            FieldType::RichText => {
+                builder = builder.add_cell(&field.id, "hello world".to_owned());
+            }
+            FieldType::Number => {
+                builder = builder.add_cell(&field.id, "123".to_owned());
+            }
+            FieldType::DateTime => {
+                builder = builder.add_cell(&field.id, "March 8, 2022".to_owned());
+            }
+            FieldType::SingleSelect => {}
+            FieldType::MultiSelect => {}
+            FieldType::Checkbox => {
+                builder = builder.add_cell(&field.id, "1".to_owned());
+            }
+        }
+    }
+    let context = builder.build();
+    let scripts = vec![AssertRowCount(3), CreateRow { context }];
+    test.run_scripts(scripts).await;
 }

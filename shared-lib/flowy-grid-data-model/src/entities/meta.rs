@@ -297,3 +297,36 @@ impl CellMeta {
         }
     }
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellMetaChangeset {
+    #[pb(index = 1)]
+    pub row_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3, one_of)]
+    pub data: Option<String>,
+}
+
+impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
+    fn from(changeset: CellMetaChangeset) -> Self {
+        let mut cell_by_field_id = HashMap::with_capacity(1);
+        if let Some(data) = changeset.data {
+            let field_id = changeset.field_id;
+            let cell_meta = CellMeta {
+                field_id: field_id.clone(),
+                data,
+            };
+            cell_by_field_id.insert(field_id, cell_meta);
+        }
+
+        RowMetaChangeset {
+            row_id: changeset.row_id,
+            height: None,
+            visibility: None,
+            cell_by_field_id,
+        }
+    }
+}

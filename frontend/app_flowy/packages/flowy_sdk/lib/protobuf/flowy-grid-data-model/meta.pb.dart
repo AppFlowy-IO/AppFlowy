@@ -956,3 +956,91 @@ class CellMeta extends $pb.GeneratedMessage {
   void clearData() => clearField(2);
 }
 
+enum CellMetaChangeset_OneOfData {
+  data, 
+  notSet
+}
+
+class CellMetaChangeset extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CellMetaChangeset_OneOfData> _CellMetaChangeset_OneOfDataByTag = {
+    3 : CellMetaChangeset_OneOfData.data,
+    0 : CellMetaChangeset_OneOfData.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellMetaChangeset', createEmptyInstance: create)
+    ..oo(0, [3])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..hasRequiredFields = false
+  ;
+
+  CellMetaChangeset._() : super();
+  factory CellMetaChangeset({
+    $core.String? rowId,
+    $core.String? fieldId,
+    $core.String? data,
+  }) {
+    final _result = create();
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (data != null) {
+      _result.data = data;
+    }
+    return _result;
+  }
+  factory CellMetaChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CellMetaChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CellMetaChangeset clone() => CellMetaChangeset()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CellMetaChangeset copyWith(void Function(CellMetaChangeset) updates) => super.copyWith((message) => updates(message as CellMetaChangeset)) as CellMetaChangeset; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CellMetaChangeset create() => CellMetaChangeset._();
+  CellMetaChangeset createEmptyInstance() => create();
+  static $pb.PbList<CellMetaChangeset> createRepeated() => $pb.PbList<CellMetaChangeset>();
+  @$core.pragma('dart2js:noInline')
+  static CellMetaChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellMetaChangeset>(create);
+  static CellMetaChangeset? _defaultInstance;
+
+  CellMetaChangeset_OneOfData whichOneOfData() => _CellMetaChangeset_OneOfDataByTag[$_whichOneof(0)]!;
+  void clearOneOfData() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get rowId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set rowId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRowId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRowId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get fieldId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set fieldId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get data => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set data($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearData() => clearField(3);
+}
+

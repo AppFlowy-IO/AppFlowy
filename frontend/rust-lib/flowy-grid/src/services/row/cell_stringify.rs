@@ -1,5 +1,4 @@
-use crate::services::field::*;
-
+use crate::services::cell::*;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
 

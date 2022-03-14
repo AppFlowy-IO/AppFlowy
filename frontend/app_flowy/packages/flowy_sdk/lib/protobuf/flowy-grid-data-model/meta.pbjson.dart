@@ -186,3 +186,18 @@ const CellMeta$json = const {
 
 /// Descriptor for `CellMeta`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellMetaDescriptor = $convert.base64Decode('CghDZWxsTWV0YRIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBISCgRkYXRhGAIgASgJUgRkYXRh');
+@$core.Deprecated('Use cellMetaChangesetDescriptor instead')
+const CellMetaChangeset$json = const {
+  '1': 'CellMetaChangeset',
+  '2': const [
+    const {'1': 'row_id', '3': 1, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'data', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'data'},
+  ],
+  '8': const [
+    const {'1': 'one_of_data'},
+  ],
+};
+
+/// Descriptor for `CellMetaChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cellMetaChangesetDescriptor = $convert.base64Decode('ChFDZWxsTWV0YUNoYW5nZXNldBIVCgZyb3dfaWQYASABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAIgASgJUgdmaWVsZElkEhQKBGRhdGEYAyABKAlIAFIEZGF0YUINCgtvbmVfb2ZfZGF0YQ==');
