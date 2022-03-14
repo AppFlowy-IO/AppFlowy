@@ -1,5 +1,5 @@
 use crate::manager::GridUser;
-use crate::services::grid_meta_editor::GridBlockMetaEditorManager;
+use crate::services::block_meta_editor::GridBlockMetaEditorManager;
 use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use bytes::Bytes;
 use flowy_collaboration::client_grid::{GridChange, GridMetaPad};

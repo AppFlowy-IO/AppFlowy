@@ -1,10 +1,8 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
-use flowy_grid::services::field::{SelectOption, SingleSelectDescription};
-use flowy_grid::services::row::CreateRowContextBuilder;
-use flowy_grid_data_model::entities::{
-    FieldChangeset, FieldType, GridBlock, GridBlockChangeset, Row, RowMetaChangeset,
-};
+use flowy_grid::services::cell::*;
+use flowy_grid::services::row::{CreateRowContextBuilder, StringifyCellData};
+use flowy_grid_data_model::entities::{FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset};
 
 #[tokio::test]
 async fn default_grid_test() {
@@ -249,19 +247,40 @@ async fn grid_update_cell() {
                 builder = builder.add_cell(&field.id, "hello world".to_owned());
             }
             FieldType::Number => {
-                builder = builder.add_cell(&field.id, "123".to_owned());
+                let description = NumberDescription::from(field);
+                let data = description.str_to_cell_data("¥18,443").unwrap();
+                builder = builder.add_cell(&field.id, data);
             }
             FieldType::DateTime => {
-                builder = builder.add_cell(&field.id, "March 8, 2022".to_owned());
+                let description = DateDescription::from(field);
+                let data = description.str_to_cell_data("1647251762").unwrap();
+                builder = builder.add_cell(&field.id, data);
             }
-            FieldType::SingleSelect => {}
-            FieldType::MultiSelect => {}
+            FieldType::SingleSelect => {
+                let description = SingleSelectDescription::from(field);
+                let options = description.options.first().unwrap();
+                let data = description.str_to_cell_data(&options.id).unwrap();
+                builder = builder.add_cell(&field.id, data);
+            }
+            FieldType::MultiSelect => {
+                let description = MultiSelectDescription::from(field);
+                let options = description
+                    .options
+                    .iter()
+                    .map(|option| option.id.clone())
+                    .collect::<Vec<_>>()
+                    .join(",");
+                let data = description.str_to_cell_data(&options).unwrap();
+                builder = builder.add_cell(&field.id, data);
+            }
             FieldType::Checkbox => {
-                builder = builder.add_cell(&field.id, "1".to_owned());
+                let description = CheckboxDescription::from(field);
+                let data = description.str_to_cell_data("false").unwrap();
+                builder = builder.add_cell(&field.id, data);
             }
         }
     }
     let context = builder.build();
-    let scripts = vec![AssertRowCount(3), CreateRow { context }];
+    let scripts = vec![AssertRowCount(3), CreateRow { context }, AssertGridMetaPad];
     test.run_scripts(scripts).await;
 }

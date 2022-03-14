@@ -3,7 +3,7 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowContext;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, Row, RowMeta, RowMetaChangeset,
+    CellMetaChangeset, Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMeta, RowMetaChangeset,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
@@ -104,7 +104,7 @@ impl GridEditorTest {
         let grid_manager = self.sdk.grid_manager.clone();
         let pool = self.sdk.user_session.db_pool().unwrap();
         let rev_manager = self.editor.rev_manager();
-        let cache = rev_manager.revision_cache().await;
+        let _cache = rev_manager.revision_cache().await;
 
         match script {
             EditorScript::CreateField { field } => {

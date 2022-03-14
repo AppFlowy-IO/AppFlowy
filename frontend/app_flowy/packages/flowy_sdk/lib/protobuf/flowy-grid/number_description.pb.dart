@@ -15,7 +15,7 @@ export 'number_description.pbenum.dart';
 
 class NumberDescription extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NumberDescription', createEmptyInstance: create)
-    ..e<MoneySymbol>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'money', $pb.PbFieldType.OE, defaultOrMaker: MoneySymbol.CNY, valueOf: MoneySymbol.valueOf, enumValues: MoneySymbol.values)
+    ..e<NumberFormat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'format', $pb.PbFieldType.OE, defaultOrMaker: NumberFormat.Number, valueOf: NumberFormat.valueOf, enumValues: NumberFormat.values)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'scale', $pb.PbFieldType.OU3)
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'symbol')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'signPositive')
@@ -25,15 +25,15 @@ class NumberDescription extends $pb.GeneratedMessage {
 
   NumberDescription._() : super();
   factory NumberDescription({
-    MoneySymbol? money,
+    NumberFormat? format,
     $core.int? scale,
     $core.String? symbol,
     $core.bool? signPositive,
     $core.String? name,
   }) {
     final _result = create();
-    if (money != null) {
-      _result.money = money;
+    if (format != null) {
+      _result.format = format;
     }
     if (scale != null) {
       _result.scale = scale;
@@ -71,13 +71,13 @@ class NumberDescription extends $pb.GeneratedMessage {
   static NumberDescription? _defaultInstance;
 
   @$pb.TagNumber(1)
-  MoneySymbol get money => $_getN(0);
+  NumberFormat get format => $_getN(0);
   @$pb.TagNumber(1)
-  set money(MoneySymbol v) { setField(1, v); }
+  set format(NumberFormat v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasMoney() => $_has(0);
+  $core.bool hasFormat() => $_has(0);
   @$pb.TagNumber(1)
-  void clearMoney() => clearField(1);
+  void clearFormat() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.int get scale => $_getIZ(1);

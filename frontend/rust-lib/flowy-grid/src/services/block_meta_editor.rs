@@ -19,7 +19,6 @@ use lib_ot::core::PlainTextAttributes;
 
 use std::collections::HashMap;
 
-use dashmap::mapref::one::Ref;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -84,12 +83,11 @@ impl GridBlockMetaEditorManager {
     pub(crate) async fn delete_rows(&self, row_ids: Vec<String>) -> FlowyResult<Vec<GridBlockChangeset>> {
         let row_orders = row_ids
             .into_iter()
-            .flat_map(|row_id| match self.block_id_by_row_id.get(&row_id) {
-                None => None,
-                Some(block_id) => Some(RowOrder {
+            .flat_map(|row_id| {
+                self.block_id_by_row_id.get(&row_id).map(|block_id| RowOrder {
                     row_id,
                     block_id: block_id.clone(),
-                }),
+                })
             })
             .collect::<Vec<RowOrder>>();
         let mut changesets = vec![];

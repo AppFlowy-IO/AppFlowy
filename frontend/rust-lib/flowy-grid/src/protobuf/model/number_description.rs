@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct NumberDescription {
     // message fields
-    pub money: MoneySymbol,
+    pub format: NumberFormat,
     pub scale: u32,
     pub symbol: ::std::string::String,
     pub sign_positive: bool,
@@ -47,19 +47,19 @@ impl NumberDescription {
         ::std::default::Default::default()
     }
 
-    // .MoneySymbol money = 1;
+    // .NumberFormat format = 1;
 
 
-    pub fn get_money(&self) -> MoneySymbol {
-        self.money
+    pub fn get_format(&self) -> NumberFormat {
+        self.format
     }
-    pub fn clear_money(&mut self) {
-        self.money = MoneySymbol::CNY;
+    pub fn clear_format(&mut self) {
+        self.format = NumberFormat::Number;
     }
 
     // Param is passed by value, moved
-    pub fn set_money(&mut self, v: MoneySymbol) {
-        self.money = v;
+    pub fn set_format(&mut self, v: NumberFormat) {
+        self.format = v;
     }
 
     // uint32 scale = 2;
@@ -155,7 +155,7 @@ impl ::protobuf::Message for NumberDescription {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.money, 1, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.format, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -189,8 +189,8 @@ impl ::protobuf::Message for NumberDescription {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.money != MoneySymbol::CNY {
-            my_size += ::protobuf::rt::enum_size(1, self.money);
+        if self.format != NumberFormat::Number {
+            my_size += ::protobuf::rt::enum_size(1, self.format);
         }
         if self.scale != 0 {
             my_size += ::protobuf::rt::value_size(2, self.scale, ::protobuf::wire_format::WireTypeVarint);
@@ -210,8 +210,8 @@ impl ::protobuf::Message for NumberDescription {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.money != MoneySymbol::CNY {
-            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.money))?;
+        if self.format != NumberFormat::Number {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.format))?;
         }
         if self.scale != 0 {
             os.write_uint32(2, self.scale)?;
@@ -263,10 +263,10 @@ impl ::protobuf::Message for NumberDescription {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<MoneySymbol>>(
-                "money",
-                |m: &NumberDescription| { &m.money },
-                |m: &mut NumberDescription| { &mut m.money },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<NumberFormat>>(
+                "format",
+                |m: &NumberDescription| { &m.format },
+                |m: &mut NumberDescription| { &mut m.format },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                 "scale",
@@ -304,7 +304,7 @@ impl ::protobuf::Message for NumberDescription {
 
 impl ::protobuf::Clear for NumberDescription {
     fn clear(&mut self) {
-        self.money = MoneySymbol::CNY;
+        self.format = NumberFormat::Number;
         self.scale = 0;
         self.symbol.clear();
         self.sign_positive = false;
@@ -326,31 +326,34 @@ impl ::protobuf::reflect::ProtobufValue for NumberDescription {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum MoneySymbol {
-    CNY = 0,
-    EUR = 1,
-    USD = 2,
+pub enum NumberFormat {
+    Number = 0,
+    USD = 1,
+    CNY = 2,
+    EUR = 3,
 }
 
-impl ::protobuf::ProtobufEnum for MoneySymbol {
+impl ::protobuf::ProtobufEnum for NumberFormat {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<MoneySymbol> {
+    fn from_i32(value: i32) -> ::std::option::Option<NumberFormat> {
         match value {
-            0 => ::std::option::Option::Some(MoneySymbol::CNY),
-            1 => ::std::option::Option::Some(MoneySymbol::EUR),
-            2 => ::std::option::Option::Some(MoneySymbol::USD),
+            0 => ::std::option::Option::Some(NumberFormat::Number),
+            1 => ::std::option::Option::Some(NumberFormat::USD),
+            2 => ::std::option::Option::Some(NumberFormat::CNY),
+            3 => ::std::option::Option::Some(NumberFormat::EUR),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [MoneySymbol] = &[
-            MoneySymbol::CNY,
-            MoneySymbol::EUR,
-            MoneySymbol::USD,
+        static values: &'static [NumberFormat] = &[
+            NumberFormat::Number,
+            NumberFormat::USD,
+            NumberFormat::CNY,
+            NumberFormat::EUR,
         ];
         values
     }
@@ -358,34 +361,34 @@ impl ::protobuf::ProtobufEnum for MoneySymbol {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<MoneySymbol>("MoneySymbol", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<NumberFormat>("NumberFormat", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for MoneySymbol {
+impl ::std::marker::Copy for NumberFormat {
 }
 
-impl ::std::default::Default for MoneySymbol {
+impl ::std::default::Default for NumberFormat {
     fn default() -> Self {
-        MoneySymbol::CNY
+        NumberFormat::Number
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for MoneySymbol {
+impl ::protobuf::reflect::ProtobufValue for NumberFormat {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x18number_description.proto\"\x9e\x01\n\x11NumberDescription\x12\"\n\
-    \x05money\x18\x01\x20\x01(\x0e2\x0c.MoneySymbolR\x05money\x12\x14\n\x05s\
-    cale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\x18\x03\x20\x01(\t\
-    R\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\x08R\x0csignPositive\
-    \x12\x12\n\x04name\x18\x05\x20\x01(\tR\x04name*(\n\x0bMoneySymbol\x12\
-    \x07\n\x03CNY\x10\0\x12\x07\n\x03EUR\x10\x01\x12\x07\n\x03USD\x10\x02b\
-    \x06proto3\
+    \n\x18number_description.proto\"\xa1\x01\n\x11NumberDescription\x12%\n\
+    \x06format\x18\x01\x20\x01(\x0e2\r.NumberFormatR\x06format\x12\x14\n\x05\
+    scale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\x18\x03\x20\x01(\
+    \tR\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\x08R\x0csignPositiv\
+    e\x12\x12\n\x04name\x18\x05\x20\x01(\tR\x04name*5\n\x0cNumberFormat\x12\
+    \n\n\x06Number\x10\0\x12\x07\n\x03USD\x10\x01\x12\x07\n\x03CNY\x10\x02\
+    \x12\x07\n\x03EUR\x10\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

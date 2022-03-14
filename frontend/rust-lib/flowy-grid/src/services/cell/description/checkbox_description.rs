@@ -1,6 +1,6 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
 use serde::{Deserialize, Serialize};
@@ -36,5 +36,25 @@ fn string_to_bool(bool_str: &str) -> bool {
         "false" => false,
         "no" => false,
         _ => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::services::cell::CheckboxDescription;
+    use crate::services::row::StringifyCellData;
+
+    #[test]
+    fn checkout_box_description_test() {
+        let description = CheckboxDescription::default();
+        assert_eq!(description.str_to_cell_data("true").unwrap(), "1".to_owned());
+        assert_eq!(description.str_to_cell_data("1").unwrap(), "1".to_owned());
+        assert_eq!(description.str_to_cell_data("yes").unwrap(), "1".to_owned());
+
+        assert_eq!(description.str_to_cell_data("false").unwrap(), "0".to_owned());
+        assert_eq!(description.str_to_cell_data("no").unwrap(), "0".to_owned());
+        assert_eq!(description.str_to_cell_data("123").unwrap(), "0".to_owned());
+
+        assert_eq!(description.str_from_cell_data("1".to_owned()), "1".to_owned());
     }
 }

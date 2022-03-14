@@ -26,8 +26,8 @@ impl NumberTypeOptionsBuilder {
         self
     }
 
-    pub fn set_money_symbol(mut self, money_symbol: MoneySymbol) -> Self {
-        self.0.set_money_symbol(money_symbol);
+    pub fn set_format(mut self, format: NumberFormat) -> Self {
+        self.0.set_format(format);
         self
     }
 

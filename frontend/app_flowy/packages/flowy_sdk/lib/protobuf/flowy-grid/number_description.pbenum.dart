@@ -9,20 +9,22 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class MoneySymbol extends $pb.ProtobufEnum {
-  static const MoneySymbol CNY = MoneySymbol._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CNY');
-  static const MoneySymbol EUR = MoneySymbol._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EUR');
-  static const MoneySymbol USD = MoneySymbol._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'USD');
+class NumberFormat extends $pb.ProtobufEnum {
+  static const NumberFormat Number = NumberFormat._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Number');
+  static const NumberFormat USD = NumberFormat._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'USD');
+  static const NumberFormat CNY = NumberFormat._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CNY');
+  static const NumberFormat EUR = NumberFormat._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EUR');
 
-  static const $core.List<MoneySymbol> values = <MoneySymbol> [
+  static const $core.List<NumberFormat> values = <NumberFormat> [
+    Number,
+    USD,
     CNY,
     EUR,
-    USD,
   ];
 
-  static final $core.Map<$core.int, MoneySymbol> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static MoneySymbol? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, NumberFormat> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static NumberFormat? valueOf($core.int value) => _byValue[value];
 
-  const MoneySymbol._($core.int v, $core.String n) : super(v, n);
+  const NumberFormat._($core.int v, $core.String n) : super(v, n);
 }
 

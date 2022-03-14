@@ -1,7 +1,7 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
 use crate::services::util::*;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ impl StringifyCellData for SingleSelectDescription {
     }
 
     fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        Ok(s.to_owned())
+        Ok(select_option_id_from_data(s.to_owned(), true))
     }
 }
 
@@ -43,8 +43,20 @@ impl StringifyCellData for MultiSelectDescription {
     }
 
     fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        Ok(s.to_owned())
+        Ok(select_option_id_from_data(s.to_owned(), false))
     }
+}
+
+fn select_option_id_from_data(data: String, is_single_select: bool) -> String {
+    if !is_single_select {
+        return data;
+    }
+    let select_option_ids = data.split(',').collect::<Vec<&str>>();
+    if select_option_ids.is_empty() {
+        return "".to_owned();
+    }
+
+    select_option_ids.split_first().unwrap().0.to_string()
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -66,5 +78,20 @@ impl SelectOption {
             name: name.to_owned(),
             color: "".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::services::cell::{MultiSelectDescription, SingleSelectDescription};
+    use crate::services::row::StringifyCellData;
+
+    #[test]
+    fn selection_description_test() {
+        let description = SingleSelectDescription::default();
+        assert_eq!(description.str_to_cell_data("1,2,3").unwrap(), "1".to_owned());
+
+        let description = MultiSelectDescription::default();
+        assert_eq!(description.str_to_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
     }
 }

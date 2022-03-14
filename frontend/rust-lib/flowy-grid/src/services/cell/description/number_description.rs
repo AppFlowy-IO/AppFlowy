@@ -1,25 +1,62 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
-use crate::services::util::*;
-use chrono::format::strftime::StrftimeItems;
-use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
+use lazy_static::lazy_static;
+use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
-use rusty_money::{
-    iso::{Currency, CNY, EUR, USD},
-    Money,
-};
+use rusty_money::iso::{Currency, CNY, EUR, USD};
 use serde::{Deserialize, Serialize};
+
 use std::str::FromStr;
+use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
+
+lazy_static! {
+    static ref STRIP_SYMBOL: Vec<String> = make_strip_symbol();
+}
+
+#[derive(Clone, Copy, Debug, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
+pub enum NumberFormat {
+    Number = 0,
+    USD = 1,
+    CNY = 2,
+    EUR = 3,
+}
+
+impl std::default::Default for NumberFormat {
+    fn default() -> Self {
+        NumberFormat::Number
+    }
+}
+
+impl NumberFormat {
+    pub fn symbol(&self) -> String {
+        match self {
+            NumberFormat::Number => "".to_string(),
+            NumberFormat::USD => USD.symbol.to_string(),
+            NumberFormat::CNY => CNY.symbol.to_string(),
+            NumberFormat::EUR => EUR.symbol.to_string(),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn code(&self) -> String {
+        match self {
+            NumberFormat::Number => "".to_string(),
+            NumberFormat::USD => USD.iso_alpha_code.to_string(),
+            NumberFormat::CNY => CNY.iso_alpha_code.to_string(),
+            NumberFormat::EUR => EUR.iso_alpha_code.to_string(),
+        }
+    }
+}
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize, ProtoBuf)]
 pub struct NumberDescription {
     #[pb(index = 1)]
-    pub money: MoneySymbol,
+    pub format: NumberFormat,
 
     #[pb(index = 2)]
     pub scale: u32,
@@ -37,10 +74,10 @@ impl_from_and_to_type_option!(NumberDescription, FieldType::Number);
 
 impl std::default::Default for NumberDescription {
     fn default() -> Self {
-        let money = MoneySymbol::default();
-        let symbol = money.symbol_str();
+        let format = NumberFormat::default();
+        let symbol = format.symbol();
         NumberDescription {
-            money,
+            format,
             scale: 0,
             symbol,
             sign_positive: true,
@@ -50,101 +87,156 @@ impl std::default::Default for NumberDescription {
 }
 
 impl NumberDescription {
-    pub fn set_money_symbol(&mut self, money_symbol: MoneySymbol) {
-        self.money = money_symbol;
-        self.symbol = money_symbol.symbol_str();
+    pub fn set_format(&mut self, format: NumberFormat) {
+        self.format = format;
+        self.symbol = format.symbol();
     }
 
-    fn money_from_str(&self, s: &str) -> Option<String> {
-        match Decimal::from_str(s) {
-            Ok(mut decimal) => {
-                match decimal.set_scale(self.scale) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        tracing::error!("Set decimal scale failed: {:?}", e);
-                    }
-                }
-                decimal.set_sign_positive(self.sign_positive);
-                Some(self.money.with_decimal(decimal).to_string())
-            }
+    fn decimal_from_str(&self, s: &str) -> Decimal {
+        let mut decimal = Decimal::from_str(s).unwrap_or(Decimal::zero());
+        match decimal.set_scale(self.scale) {
+            Ok(_) => {}
             Err(e) => {
-                tracing::error!("Parser money from {} failed: {:?}", s, e);
-                None
+                tracing::error!("Set decimal scale failed: {:?}", e);
             }
         }
+        decimal.set_sign_positive(self.sign_positive);
+        decimal
+    }
+
+    fn money_from_str(&self, s: &str, currency: &'static Currency) -> String {
+        let decimal = self.decimal_from_str(s);
+        let money = rusty_money::Money::from_decimal(decimal, currency);
+        money.to_string()
+    }
+
+    fn strip_symbol(&self, s: &str) -> String {
+        let mut s = String::from(s);
+        if !s.chars().all(char::is_numeric) {
+            s.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
+        }
+        s
     }
 }
 
 impl StringifyCellData for NumberDescription {
     fn str_from_cell_data(&self, data: String) -> String {
-        match self.money_from_str(&data) {
-            Some(money_str) => money_str,
-            None => String::default(),
+        match self.format {
+            NumberFormat::Number => data,
+            NumberFormat::USD => self.money_from_str(&data, USD),
+            NumberFormat::CNY => self.money_from_str(&data, CNY),
+            NumberFormat::EUR => self.money_from_str(&data, EUR),
         }
     }
 
     fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        let strip_symbol_money = strip_money_symbol(s);
-        let decimal = Decimal::from_str(&strip_symbol_money).map_err(|err| FlowyError::internal().context(err))?;
-        Ok(decimal.to_string())
+        Ok(self.strip_symbol(s))
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
-pub enum MoneySymbol {
-    CNY = 0,
-    EUR = 1,
-    USD = 2,
-}
-
-impl std::default::Default for MoneySymbol {
-    fn default() -> Self {
-        MoneySymbol::USD
+fn make_strip_symbol() -> Vec<String> {
+    let mut symbols = vec![",".to_owned(), ".".to_owned()];
+    for format in NumberFormat::iter() {
+        symbols.push(format.symbol());
     }
+    symbols
 }
 
-impl MoneySymbol {
-    // Currency list https://docs.rs/rusty-money/0.4.0/rusty_money/iso/index.html
-    pub fn from_symbol_str(s: &str) -> MoneySymbol {
-        match s {
-            "CNY" => MoneySymbol::CNY,
-            "EUR" => MoneySymbol::EUR,
-            "USD" => MoneySymbol::USD,
-            _ => MoneySymbol::CNY,
+#[cfg(test)]
+mod tests {
+    use crate::services::cell::{NumberDescription, NumberFormat};
+    use crate::services::row::StringifyCellData;
+    use strum::IntoEnumIterator;
+
+    #[test]
+    fn number_description_test() {
+        let mut description = NumberDescription::default();
+        assert_eq!(description.str_to_cell_data("¥18,443").unwrap(), "18443".to_owned());
+        assert_eq!(description.str_to_cell_data("$18,443").unwrap(), "18443".to_owned());
+        assert_eq!(description.str_to_cell_data("€18.443").unwrap(), "18443".to_owned());
+
+        for format in NumberFormat::iter() {
+            description.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                }
+                NumberFormat::USD => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "$18,443".to_owned());
+                }
+                NumberFormat::CNY => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "¥18,443".to_owned());
+                }
+                NumberFormat::EUR => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "€18.443".to_owned());
+                }
+            }
         }
     }
 
-    pub fn from_money(money: &rusty_money::Money<Currency>) -> MoneySymbol {
-        MoneySymbol::from_symbol_str(&money.currency().symbol.to_string())
-    }
+    #[test]
+    fn number_description_scale_test() {
+        let mut description = NumberDescription::default();
+        description.scale = 1;
 
-    pub fn currency(&self) -> &'static Currency {
-        match self {
-            MoneySymbol::CNY => CNY,
-            MoneySymbol::EUR => EUR,
-            MoneySymbol::USD => USD,
+        for format in NumberFormat::iter() {
+            description.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                }
+                NumberFormat::USD => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "$1,844.3".to_owned()
+                    );
+                }
+                NumberFormat::CNY => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "¥1,844.3".to_owned()
+                    );
+                }
+                NumberFormat::EUR => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "€1.844,3".to_owned()
+                    );
+                }
+            }
         }
     }
 
-    // string_to_money("¥18,443").unwrap();
-    // string_to_money("$18,443").unwrap();
-    // string_to_money("€18,443").unwrap();
-    pub fn code(&self) -> String {
-        self.currency().iso_alpha_code.to_string()
-    }
+    #[test]
+    fn number_description_sign_test() {
+        let mut description = NumberDescription::default();
+        description.sign_positive = false;
 
-    pub fn symbol_str(&self) -> String {
-        self.currency().symbol.to_string()
-    }
-
-    pub fn zero(&self) -> Money<Currency> {
-        let mut decimal = Decimal::new(0, 0);
-        decimal.set_sign_positive(true);
-        self.with_decimal(decimal)
-    }
-
-    pub fn with_decimal(&self, decimal: Decimal) -> Money<Currency> {
-        let money = rusty_money::Money::from_decimal(decimal, self.currency());
-        money
+        for format in NumberFormat::iter() {
+            description.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                }
+                NumberFormat::USD => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "-$18,443".to_owned()
+                    );
+                }
+                NumberFormat::CNY => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "-¥18,443".to_owned()
+                    );
+                }
+                NumberFormat::EUR => {
+                    assert_eq!(
+                        description.str_from_cell_data("18443".to_owned()),
+                        "-€18.443".to_owned()
+                    );
+                }
+            }
+        }
     }
 }

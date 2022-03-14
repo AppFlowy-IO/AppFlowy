@@ -1,5 +1,5 @@
 use crate::services::row::stringify_deserialize;
-use flowy_grid_data_model::entities::{Cell, CellMeta, Field, RepeatedRowOrder, Row, RowMeta, RowOrder};
+use flowy_grid_data_model::entities::{Cell, CellMeta, Field, Row, RowMeta, RowOrder};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
 

@@ -1,7 +1,7 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
-use crate::services::util::*;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+
+use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
 use serde::{Deserialize, Serialize};

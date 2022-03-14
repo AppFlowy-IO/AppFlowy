@@ -1,12 +1,14 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::StringifyCellData;
-use crate::services::util::*;
+
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{Field, FieldType};
 use serde::{Deserialize, Serialize};
+
+use strum_macros::EnumIter;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -20,10 +22,6 @@ pub struct DateDescription {
 impl_from_and_to_type_option!(DateDescription, FieldType::DateTime);
 
 impl DateDescription {
-    fn date_time_format_str(&self) -> String {
-        format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
-    }
-
     #[allow(dead_code)]
     fn today_from_timestamp(&self, timestamp: i64) -> String {
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
@@ -34,7 +32,7 @@ impl DateDescription {
         let utc: chrono::DateTime<chrono::Utc> = chrono::DateTime::from_utc(naive, chrono::Utc);
         let local: chrono::DateTime<chrono::Local> = chrono::DateTime::from(utc);
 
-        let fmt_str = self.date_time_format_str();
+        let fmt_str = format!("{} {}", self.date_format.format_str(), self.time_format.format_str());
         let output = format!("{}", local.format_with_items(StrftimeItems::new(&fmt_str)));
         output
     }
@@ -55,14 +53,18 @@ impl StringifyCellData for DateDescription {
     }
 
     fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        let timestamp = s
-            .parse::<i64>()
-            .map_err(|e| FlowyError::internal().context(format!("Parse {} to i64 failed: {}", s, e)))?;
+        let timestamp = match s.parse::<i64>() {
+            Ok(timestamp) => timestamp,
+            Err(e) => {
+                tracing::error!("Parse {} to i64 failed: {}", s, e);
+                chrono::Utc::now().timestamp()
+            }
+        };
         Ok(format!("{}", timestamp))
     }
 }
 
-#[derive(Clone, Debug, Copy, Serialize, Deserialize, ProtoBuf_Enum)]
+#[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum DateFormat {
     Local = 0,
     US = 1,
@@ -105,7 +107,7 @@ impl DateFormat {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize, ProtoBuf_Enum)]
+#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum TimeFormat {
     TwelveHour = 0,
     TwentyFourHour = 1,
@@ -141,5 +143,100 @@ impl TimeFormat {
 impl std::default::Default for TimeFormat {
     fn default() -> Self {
         TimeFormat::TwentyFourHour
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::services::cell::{DateDescription, DateFormat, TimeFormat};
+    use crate::services::row::StringifyCellData;
+    use strum::IntoEnumIterator;
+
+    #[test]
+    fn date_description_date_format_test() {
+        let mut description = DateDescription::default();
+        let _timestamp = 1647251762;
+
+        for date_format in DateFormat::iter() {
+            description.date_format = date_format;
+            match date_format {
+                DateFormat::Friendly => {
+                    assert_eq!(
+                        "Mar 14,2022 17:56".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "Mar 14,2022 17:56".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+                DateFormat::US => {
+                    assert_eq!(
+                        "2022/03/14 17:56".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "2022/03/14 17:56".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+                DateFormat::ISO => {
+                    assert_eq!(
+                        "2022-03-14 17:56".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "2022-03-14 17:56".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+                DateFormat::Local => {
+                    assert_eq!(
+                        "2022/03/14 17:56".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "2022/03/14 17:56".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn date_description_time_format_test() {
+        let mut description = DateDescription::default();
+        for time_format in TimeFormat::iter() {
+            description.time_format = time_format;
+            match time_format {
+                TimeFormat::TwentyFourHour => {
+                    assert_eq!(
+                        "Mar 14,2022 17:56".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "Mar 14,2022 17:56".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+                TimeFormat::TwelveHour => {
+                    assert_eq!(
+                        "Mar 14,2022 05:56:02 PM".to_owned(),
+                        description.today_from_timestamp(1647251762)
+                    );
+                    assert_eq!(
+                        "Mar 14,2022 05:56:02 PM".to_owned(),
+                        description.str_from_cell_data("1647251762".to_owned())
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn date_description_invalid_data_test() {
+        let description = DateDescription::default();
+        description.str_to_cell_data("he").unwrap();
     }
 }
