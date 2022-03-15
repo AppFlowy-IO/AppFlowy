@@ -1,6 +1,7 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
+use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     FieldChangeset, FieldMeta, FieldOrder, GridBlock, GridBlockChangeset, GridMeta, RepeatedFieldOrder,
 };
@@ -54,6 +55,14 @@ impl GridMetaPad {
                 Ok(Some(()))
             }
         })
+    }
+
+    pub fn contain_field(&self, field_id: &str) -> bool {
+        self.grid_meta
+            .fields
+            .iter()
+            .find(|field| &field.id == field_id)
+            .is_some()
     }
 
     pub fn get_field_orders(&self) -> Vec<FieldOrder> {
@@ -180,11 +189,15 @@ impl GridMetaPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_bytes())
+        md5(&self.delta.to_delta_bytes())
     }
 
     pub fn delta_str(&self) -> String {
         self.delta.to_delta_str()
+    }
+
+    pub fn delta_bytes(&self) -> Bytes {
+        self.delta.to_delta_bytes()
     }
 
     pub fn fields(&self) -> &[FieldMeta] {
@@ -258,7 +271,7 @@ pub fn make_grid_delta(grid_meta: &GridMeta) -> GridMetaDelta {
 
 pub fn make_grid_revisions(user_id: &str, grid_meta: &GridMeta) -> RepeatedRevision {
     let delta = make_grid_delta(grid_meta);
-    let bytes = delta.to_bytes();
+    let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_meta.grid_id, bytes);
     revision.into()
 }

@@ -55,13 +55,14 @@ impl ViewController {
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
         let processor = self.get_data_processor(&params.data_type)?;
-
+        let user_id = self.user.user_id()?;
         if params.data.is_empty() {
-            let user_id = self.user.user_id()?;
             let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
-            params.data = view_data;
+            params.data = view_data.to_vec();
         } else {
-            let delta_data = Bytes::from(params.data.clone());
+            let delta_data = processor
+                .process_create_view_data(&user_id, &params.view_id, params.data.clone())
+                .await?;
             let _ = self
                 .create_view(&params.view_id, params.data_type.clone(), delta_data)
                 .await?;
@@ -162,14 +163,14 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(&view.data_type)?;
-        let delta_str = processor.delta_str(view_id).await?;
+        let delta_bytes = processor.delta_bytes(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
             desc: view.desc,
             thumbnail: view.thumbnail,
             data_type: view.data_type,
-            data: delta_str,
+            data: delta_bytes.to_vec(),
             view_id: uuid(),
             plugin_type: view.plugin_type,
         };

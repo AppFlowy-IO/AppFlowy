@@ -1003,3 +1003,76 @@ class CellMetaChangeset extends $pb.GeneratedMessage {
   void clearData() => clearField(3);
 }
 
+class BuildGridContext extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BuildGridContext', createEmptyInstance: create)
+    ..pc<FieldMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldMetas', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
+    ..aOM<GridBlock>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridBlock', subBuilder: GridBlock.create)
+    ..aOM<GridBlockMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridBlockMeta', subBuilder: GridBlockMeta.create)
+    ..hasRequiredFields = false
+  ;
+
+  BuildGridContext._() : super();
+  factory BuildGridContext({
+    $core.Iterable<FieldMeta>? fieldMetas,
+    GridBlock? gridBlock,
+    GridBlockMeta? gridBlockMeta,
+  }) {
+    final _result = create();
+    if (fieldMetas != null) {
+      _result.fieldMetas.addAll(fieldMetas);
+    }
+    if (gridBlock != null) {
+      _result.gridBlock = gridBlock;
+    }
+    if (gridBlockMeta != null) {
+      _result.gridBlockMeta = gridBlockMeta;
+    }
+    return _result;
+  }
+  factory BuildGridContext.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BuildGridContext.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  BuildGridContext clone() => BuildGridContext()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  BuildGridContext copyWith(void Function(BuildGridContext) updates) => super.copyWith((message) => updates(message as BuildGridContext)) as BuildGridContext; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static BuildGridContext create() => BuildGridContext._();
+  BuildGridContext createEmptyInstance() => create();
+  static $pb.PbList<BuildGridContext> createRepeated() => $pb.PbList<BuildGridContext>();
+  @$core.pragma('dart2js:noInline')
+  static BuildGridContext getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BuildGridContext>(create);
+  static BuildGridContext? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<FieldMeta> get fieldMetas => $_getList(0);
+
+  @$pb.TagNumber(2)
+  GridBlock get gridBlock => $_getN(1);
+  @$pb.TagNumber(2)
+  set gridBlock(GridBlock v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGridBlock() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGridBlock() => clearField(2);
+  @$pb.TagNumber(2)
+  GridBlock ensureGridBlock() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  GridBlockMeta get gridBlockMeta => $_getN(2);
+  @$pb.TagNumber(3)
+  set gridBlockMeta(GridBlockMeta v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasGridBlockMeta() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearGridBlockMeta() => clearField(3);
+  @$pb.TagNumber(3)
+  GridBlockMeta ensureGridBlockMeta() => $_ensure(2);
+}
+

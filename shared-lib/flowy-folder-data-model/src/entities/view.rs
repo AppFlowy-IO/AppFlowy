@@ -127,7 +127,7 @@ pub struct CreateViewPayload {
     pub plugin_type: i32,
 
     #[pb(index = 7)]
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -151,7 +151,7 @@ pub struct CreateViewParams {
     pub view_id: String,
 
     #[pb(index = 7)]
-    pub data: String,
+    pub data: Vec<u8>,
 
     #[pb(index = 8)]
     pub plugin_type: i32,

@@ -1,9 +1,9 @@
 use crate::services::cell::*;
 use crate::services::field::*;
-use flowy_collaboration::client_grid::{BuildGridInfo, GridBuilder};
-use flowy_grid_data_model::entities::FieldType;
+use flowy_collaboration::client_grid::GridBuilder;
+use flowy_grid_data_model::entities::{BuildGridContext, FieldType};
 
-pub fn make_default_grid(grid_id: &str) -> BuildGridInfo {
+pub fn make_default_grid() -> BuildGridContext {
     let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
         .name("Name")
         .visibility(true)
@@ -20,12 +20,11 @@ pub fn make_default_grid(grid_id: &str) -> BuildGridInfo {
         .field_type(FieldType::SingleSelect)
         .build();
 
-    GridBuilder::new(grid_id)
+    GridBuilder::default()
         .add_field(text_field)
         .add_field(single_select_field)
         .add_empty_row()
         .add_empty_row()
         .add_empty_row()
         .build()
-        .unwrap()
 }

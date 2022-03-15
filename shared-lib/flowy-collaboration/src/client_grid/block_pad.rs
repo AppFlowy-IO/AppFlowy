@@ -144,7 +144,7 @@ impl GridBlockMetaPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_bytes())
+        md5(&self.delta.to_delta_bytes())
     }
 
     pub fn delta_str(&self) -> String {
@@ -165,7 +165,7 @@ pub fn make_block_meta_delta(block_meta: &GridBlockMeta) -> GridBlockMetaDelta {
 
 pub fn make_block_meta_revisions(user_id: &str, block_meta: &GridBlockMeta) -> RepeatedRevision {
     let delta = make_block_meta_delta(block_meta);
-    let bytes = delta.to_bytes();
+    let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &block_meta.block_id, bytes);
     revision.into()
 }

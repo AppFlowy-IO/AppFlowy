@@ -1,8 +1,11 @@
 use crate::services::grid_editor::ClientGridEditor;
 use crate::services::kv_persistence::GridKVPersistence;
+use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::entities::revision::RepeatedRevision;
+use flowy_collaboration::client_grid::{make_block_meta_delta, make_grid_delta};
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
 use flowy_sync::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lib_sqlite::ConnectionPool;
@@ -171,4 +174,34 @@ impl GridEditorMap {
     pub(crate) fn remove(&self, grid_id: &str) {
         self.inner.remove(grid_id);
     }
+}
+
+pub async fn make_grid_view_data(
+    user_id: &str,
+    view_id: &str,
+    grid_manager: Arc<GridManager>,
+    build_context: BuildGridContext,
+) -> FlowyResult<Bytes> {
+    let block_id = build_context.grid_block.id.clone();
+    let grid_meta = GridMeta {
+        grid_id: view_id.to_string(),
+        fields: build_context.field_metas,
+        blocks: vec![build_context.grid_block],
+    };
+
+    let grid_meta_delta = make_grid_delta(&grid_meta);
+    let grid_delta_data = grid_meta_delta.to_delta_bytes();
+    let repeated_revision: RepeatedRevision =
+        Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
+    let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
+
+    let grid_block_meta_delta = make_block_meta_delta(&build_context.grid_block_meta);
+    let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
+    let repeated_revision: RepeatedRevision =
+        Revision::initial_revision(&user_id, &block_id, block_meta_delta_data).into();
+    let _ = grid_manager
+        .create_grid_block_meta(&block_id, repeated_revision)
+        .await?;
+
+    Ok(grid_delta_data)
 }

@@ -5,56 +5,55 @@ use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, Cell
 use flowy_grid_data_model::entities::{FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset};
 
 #[tokio::test]
-async fn default_grid_test() {
-    let scripts = vec![AssertFieldCount(2), AssertGridMetaPad];
-    GridEditorTest::new().await.run_scripts(scripts).await;
-}
-
-#[tokio::test]
 async fn grid_create_field() {
+    let mut test = GridEditorTest::new().await;
     let text_field = create_text_field();
     let single_select_field = create_single_select_field();
+
     let scripts = vec![
-        AssertFieldCount(2),
         CreateField {
             field_meta: text_field.clone(),
         },
         AssertFieldEqual {
-            field_index: 2,
+            field_index: test.field_count,
             field_meta: text_field,
         },
-        AssertFieldCount(3),
+    ];
+    test.run_scripts(scripts).await;
+
+    let scripts = vec![
         CreateField {
             field_meta: single_select_field.clone(),
         },
         AssertFieldEqual {
-            field_index: 3,
+            field_index: test.field_count,
             field_meta: single_select_field,
         },
-        AssertFieldCount(4),
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_create_duplicate_field() {
+    let mut test = GridEditorTest::new().await;
     let text_field = create_text_field();
+    let field_count = test.field_count;
+    let expected_field_count = field_count + 1;
     let scripts = vec![
-        AssertFieldCount(2),
         CreateField {
             field_meta: text_field.clone(),
         },
-        AssertFieldCount(3),
         CreateField {
             field_meta: text_field.clone(),
         },
-        AssertFieldCount(3),
+        AssertFieldCount(expected_field_count),
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
+    let mut test = GridEditorTest::new().await;
     let single_select_field = create_single_select_field();
     let changeset = FieldChangeset {
         field_id: single_select_field.id.clone(),
@@ -73,21 +72,21 @@ async fn grid_update_field_with_empty_change() {
         },
         UpdateField { changeset },
         AssertFieldEqual {
-            field_index: 2,
+            field_index: test.field_count,
             field_meta: single_select_field,
         },
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_update_field() {
+    let mut test = GridEditorTest::new().await;
     let single_select_field = create_single_select_field();
     let mut cloned_field = single_select_field.clone();
 
     let mut single_select_type_options = SingleSelectDescription::from(&single_select_field);
     single_select_type_options.options.push(SelectOption::new("Unknown"));
-
     let changeset = FieldChangeset {
         field_id: single_select_field.id.clone(),
         name: None,
@@ -109,26 +108,26 @@ async fn grid_update_field() {
         },
         UpdateField { changeset },
         AssertFieldEqual {
-            field_index: 2,
+            field_index: test.field_count,
             field_meta: cloned_field,
         },
-        AssertGridMetaPad,
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_delete_field() {
+    let mut test = GridEditorTest::new().await;
+    let expected_field_count = test.field_count;
     let text_field = create_text_field();
     let scripts = vec![
         CreateField {
             field_meta: text_field.clone(),
         },
-        AssertFieldCount(3),
         DeleteField { field_meta: text_field },
-        AssertFieldCount(2),
+        AssertFieldCount(expected_field_count),
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]

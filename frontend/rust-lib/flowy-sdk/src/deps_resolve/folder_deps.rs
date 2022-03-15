@@ -4,6 +4,7 @@ use flowy_collaboration::client_document::default::initial_quill_delta_string;
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
+use flowy_folder::errors::FlowyResult;
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
@@ -11,8 +12,9 @@ use flowy_folder::{
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
-use flowy_grid::manager::GridManager;
+use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::util::make_default_grid;
+use flowy_grid_data_model::entities::BuildGridContext;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -23,6 +25,7 @@ use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
 pub struct FolderDepsResolver();
@@ -168,27 +171,37 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError> {
+    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
             let editor = manager.open_block(view_id).await?;
-            let delta_str = editor.delta_str().await?;
-            Ok(delta_str)
+            let delta_bytes = Bytes::from(editor.delta_str().await?);
+            Ok(delta_bytes)
         })
     }
 
-    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<String, FlowyError> {
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
             let view_data = initial_quill_delta_string();
-            let delta_data = Bytes::from(view_data.clone());
-            let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, &view_id, delta_data).into();
+            let delta_data = Bytes::from(view_data);
+            let repeated_revision: RepeatedRevision =
+                Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
             let _ = manager.create_block(view_id, repeated_revision).await?;
-            Ok(view_data)
+            Ok(delta_data)
         })
+    }
+
+    fn process_create_view_data(
+        &self,
+        _user_id: &str,
+        _view_id: &str,
+        data: Vec<u8>,
+    ) -> FutureResult<Bytes, FlowyError> {
+        FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
     fn data_type(&self) -> ViewDataType {
@@ -230,36 +243,34 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError> {
+    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
             let editor = grid_manager.open_grid(view_id).await?;
-            let delta_str = editor.delta_str().await;
-            Ok(delta_str)
+            let delta_bytes = editor.delta_bytes().await;
+            Ok(delta_bytes)
         })
     }
 
-    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<String, FlowyError> {
-        let info = make_default_grid(view_id);
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+        let build_context = make_default_grid();
+        let user_id = user_id.to_string();
+        let view_id = view_id.to_string();
+        let grid_manager = self.0.clone();
+
+        FutureResult::new(async move { make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await })
+    }
+
+    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
 
         FutureResult::new(async move {
-            let grid_delta_data = Bytes::from(info.grid_delta.to_delta_str());
-            let repeated_revision: RepeatedRevision =
-                Revision::initial_revision(&user_id, &view_id, grid_delta_data).into();
-            let _ = grid_manager.create_grid(&view_id, repeated_revision).await?;
-
-            let block_meta_delta_data = Bytes::from(info.grid_block_meta_delta.to_delta_str());
-            let repeated_revision: RepeatedRevision =
-                Revision::initial_revision(&user_id, &info.block_id, block_meta_delta_data).into();
-            let _ = grid_manager
-                .create_grid_block_meta(&info.block_id, repeated_revision)
-                .await?;
-
-            Ok(info.grid_delta.to_delta_str())
+            let bytes = Bytes::from(data);
+            let build_context = BuildGridContext::try_from(bytes)?;
+            make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await
         })
     }
 

@@ -26,7 +26,7 @@ pub struct ViewTest {
 
 impl ViewTest {
     #[allow(dead_code)]
-    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataType, data: String) -> Self {
+    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataType, data: Vec<u8>) -> Self {
         let workspace = create_workspace(sdk, "Workspace", "").await;
         open_workspace(sdk, &workspace.id).await;
         let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
@@ -39,12 +39,12 @@ impl ViewTest {
         }
     }
 
-    pub async fn new_grid_view(sdk: &FlowySDKTest, data: String) -> Self {
+    pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
         Self::new(sdk, ViewDataType::Grid, data).await
     }
 
     pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
-        Self::new(sdk, ViewDataType::TextBlock, "".to_owned()).await
+        Self::new(sdk, ViewDataType::TextBlock, vec![]).await
     }
 }
 
@@ -91,7 +91,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     app
 }
 
-async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, data: String) -> View {
+async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, data: Vec<u8>) -> View {
     let request = CreateViewPayload {
         belong_to_id: app_id.to_string(),
         name: "View A".to_string(),

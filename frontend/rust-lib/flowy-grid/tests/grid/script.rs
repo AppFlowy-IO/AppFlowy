@@ -1,15 +1,22 @@
+use bytes::Bytes;
+use flowy_collaboration::client_grid::GridBuilder;
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+use flowy_error::FlowyResult;
+use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowContext;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlock, GridBlockChangeset, RowMeta, RowMetaChangeset,
+    BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlock, GridBlockChangeset, RowMeta,
+    RowMetaChangeset,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;
 use std::time::Duration;
+use strum::{EnumCount, IntoEnumIterator};
 use tokio::time::sleep;
 
 pub enum EditorScript {
@@ -71,19 +78,18 @@ pub struct GridEditorTest {
     pub field_metas: Vec<FieldMeta>,
     pub grid_blocks: Vec<GridBlock>,
     pub row_metas: Vec<Arc<RowMeta>>,
+    pub field_count: usize,
 }
 
 impl GridEditorTest {
     pub async fn new() -> Self {
-        Self::with_data("".to_owned()).await
-    }
-
-    pub async fn with_data(data: String) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let test = ViewTest::new_grid_view(&sdk, data).await;
+        let build_context = make_template_1_grid();
+        let view_data: Bytes = build_context.try_into().unwrap();
+        let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
-        let fields = editor.get_field_metas(None).await.unwrap();
+        let field_metas = editor.get_field_metas(None).await.unwrap();
         let grid_blocks = editor.get_blocks().await.unwrap();
         let row_metas = editor.get_row_metas(None).await.unwrap();
 
@@ -92,9 +98,10 @@ impl GridEditorTest {
             sdk,
             grid_id,
             editor,
-            field_metas: fields,
+            field_metas,
             grid_blocks,
             row_metas,
+            field_count: FieldType::COUNT,
         }
     }
 
@@ -111,22 +118,30 @@ impl GridEditorTest {
         let _cache = rev_manager.revision_cache().await;
 
         match script {
-            EditorScript::CreateField { field_meta: field } => {
-                self.editor.create_field(field).await.unwrap();
+            EditorScript::CreateField { field_meta } => {
+                if !self.editor.contain_field(&field_meta).await {
+                    self.field_count += 1;
+                }
+                self.editor.create_field(field_meta).await.unwrap();
                 self.field_metas = self.editor.get_field_metas(None).await.unwrap();
+                assert_eq!(self.field_count, self.field_metas.len());
             }
             EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
                 self.field_metas = self.editor.get_field_metas(None).await.unwrap();
             }
-            EditorScript::DeleteField { field_meta: field } => {
-                self.editor.delete_field(&field.id).await.unwrap();
+            EditorScript::DeleteField { field_meta } => {
+                if self.editor.contain_field(&field_meta).await {
+                    self.field_count -= 1;
+                }
+
+                self.editor.delete_field(&field_meta.id).await.unwrap();
                 self.field_metas = self.editor.get_field_metas(None).await.unwrap();
+                assert_eq!(self.field_count, self.field_metas.len());
             }
             EditorScript::AssertFieldCount(count) => {
                 assert_eq!(self.editor.get_field_metas(None).await.unwrap().len(), count);
             }
-
             EditorScript::AssertFieldEqual {
                 field_index,
                 field_meta,
@@ -218,5 +233,74 @@ pub fn create_single_select_field() -> FieldMeta {
         .name("Name")
         .visibility(true)
         .field_type(FieldType::SingleSelect)
+        .build()
+}
+
+fn make_template_1_grid() -> BuildGridContext {
+    let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+        .name("Name")
+        .visibility(true)
+        .field_type(FieldType::RichText)
+        .build();
+
+    // Single Select
+    let single_select = SingleSelectTypeOptionsBuilder::default()
+        .option(SelectOption::new("Live"))
+        .option(SelectOption::new("Completed"))
+        .option(SelectOption::new("Planned"))
+        .option(SelectOption::new("Paused"));
+    let single_select_field = FieldBuilder::new(single_select)
+        .name("Status")
+        .visibility(true)
+        .field_type(FieldType::SingleSelect)
+        .build();
+
+    // MultiSelect
+    let multi_select = MultiSelectTypeOptionsBuilder::default()
+        .option(SelectOption::new("Google"))
+        .option(SelectOption::new("Facebook"))
+        .option(SelectOption::new("Twitter"));
+    let multi_select_field = FieldBuilder::new(multi_select)
+        .name("Platform")
+        .visibility(true)
+        .field_type(FieldType::MultiSelect)
+        .build();
+
+    // Number
+    let number = NumberTypeOptionsBuilder::default().set_format(NumberFormat::USD);
+    let number_field = FieldBuilder::new(number)
+        .name("Price")
+        .visibility(true)
+        .field_type(FieldType::Number)
+        .build();
+
+    // Date
+    let date = DateTypeOptionsBuilder::default()
+        .date_format(DateFormat::US)
+        .time_format(TimeFormat::TwentyFourHour);
+    let date_field = FieldBuilder::new(date)
+        .name("Time")
+        .visibility(true)
+        .field_type(FieldType::DateTime)
+        .build();
+
+    // Checkbox
+    let checkbox = CheckboxTypeOptionsBuilder::default();
+    let checkbox_field = FieldBuilder::new(checkbox)
+        .name("is done")
+        .visibility(true)
+        .field_type(FieldType::Checkbox)
+        .build();
+
+    GridBuilder::default()
+        .add_field(text_field)
+        .add_field(single_select_field)
+        .add_field(multi_select_field)
+        .add_field(number_field)
+        .add_field(date_field)
+        .add_field(checkbox_field)
+        .add_empty_row()
+        .add_empty_row()
+        .add_empty_row()
         .build()
 }

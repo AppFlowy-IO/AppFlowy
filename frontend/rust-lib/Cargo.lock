@@ -1147,6 +1147,7 @@ dependencies = [
  "flowy-database",
  "flowy-folder",
  "flowy-grid",
+ "flowy-grid-data-model",
  "flowy-net",
  "flowy-sync",
  "flowy-user",

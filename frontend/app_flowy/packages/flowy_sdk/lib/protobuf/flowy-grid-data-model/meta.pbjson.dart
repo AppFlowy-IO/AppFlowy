@@ -191,3 +191,15 @@ const CellMetaChangeset$json = const {
 
 /// Descriptor for `CellMetaChangeset`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellMetaChangesetDescriptor = $convert.base64Decode('ChFDZWxsTWV0YUNoYW5nZXNldBIVCgZyb3dfaWQYASABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAIgASgJUgdmaWVsZElkEhQKBGRhdGEYAyABKAlIAFIEZGF0YUINCgtvbmVfb2ZfZGF0YQ==');
+@$core.Deprecated('Use buildGridContextDescriptor instead')
+const BuildGridContext$json = const {
+  '1': 'BuildGridContext',
+  '2': const [
+    const {'1': 'field_metas', '3': 1, '4': 3, '5': 11, '6': '.FieldMeta', '10': 'fieldMetas'},
+    const {'1': 'grid_block', '3': 2, '4': 1, '5': 11, '6': '.GridBlock', '10': 'gridBlock'},
+    const {'1': 'grid_block_meta', '3': 3, '4': 1, '5': 11, '6': '.GridBlockMeta', '10': 'gridBlockMeta'},
+  ],
+};
+
+/// Descriptor for `BuildGridContext`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List buildGridContextDescriptor = $convert.base64Decode('ChBCdWlsZEdyaWRDb250ZXh0EisKC2ZpZWxkX21ldGFzGAEgAygLMgouRmllbGRNZXRhUgpmaWVsZE1ldGFzEikKCmdyaWRfYmxvY2sYAiABKAsyCi5HcmlkQmxvY2tSCWdyaWRCbG9jaxI2Cg9ncmlkX2Jsb2NrX21ldGEYAyABKAsyDi5HcmlkQmxvY2tNZXRhUg1ncmlkQmxvY2tNZXRh');

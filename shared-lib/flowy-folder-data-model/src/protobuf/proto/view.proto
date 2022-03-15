@@ -24,7 +24,7 @@ message CreateViewPayload {
     oneof one_of_thumbnail { string thumbnail = 4; };
     ViewDataType data_type = 5;
     int32 plugin_type = 6;
-    string data = 7;
+    bytes data = 7;
 }
 message CreateViewParams {
     string belong_to_id = 1;
@@ -33,7 +33,7 @@ message CreateViewParams {
     string thumbnail = 4;
     ViewDataType data_type = 5;
     string view_id = 6;
-    string data = 7;
+    bytes data = 7;
     int32 plugin_type = 8;
 }
 message ViewId {

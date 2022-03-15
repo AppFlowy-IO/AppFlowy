@@ -60,7 +60,7 @@ const CreateViewPayload$json = const {
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'thumbnail'},
     const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
     const {'1': 'plugin_type', '3': 6, '4': 1, '5': 5, '10': 'pluginType'},
-    const {'1': 'data', '3': 7, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 7, '4': 1, '5': 12, '10': 'data'},
   ],
   '8': const [
     const {'1': 'one_of_thumbnail'},
@@ -68,7 +68,7 @@ const CreateViewPayload$json = const {
 };
 
 /// Descriptor for `CreateViewPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIfCgtwbHVnaW5fdHlwZRgGIAEoBVIKcGx1Z2luVHlwZRISCgRkYXRhGAcgASgJUgRkYXRhQhIKEG9uZV9vZl90aHVtYm5haWw=');
+final $typed_data.Uint8List createViewPayloadDescriptor = $convert.base64Decode('ChFDcmVhdGVWaWV3UGF5bG9hZBIgCgxiZWxvbmdfdG9faWQYASABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgAUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIfCgtwbHVnaW5fdHlwZRgGIAEoBVIKcGx1Z2luVHlwZRISCgRkYXRhGAcgASgMUgRkYXRhQhIKEG9uZV9vZl90aHVtYm5haWw=');
 @$core.Deprecated('Use createViewParamsDescriptor instead')
 const CreateViewParams$json = const {
   '1': 'CreateViewParams',
@@ -79,13 +79,13 @@ const CreateViewParams$json = const {
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '10': 'thumbnail'},
     const {'1': 'data_type', '3': 5, '4': 1, '5': 14, '6': '.ViewDataType', '10': 'dataType'},
     const {'1': 'view_id', '3': 6, '4': 1, '5': 9, '10': 'viewId'},
-    const {'1': 'data', '3': 7, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 7, '4': 1, '5': 12, '10': 'data'},
     const {'1': 'plugin_type', '3': 8, '4': 1, '5': 5, '10': 'pluginType'},
   ],
 };
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIXCgd2aWV3X2lkGAYgASgJUgZ2aWV3SWQSEgoEZGF0YRgHIAEoCVIEZGF0YRIfCgtwbHVnaW5fdHlwZRgIIAEoBVIKcGx1Z2luVHlwZQ==');
+final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSKgoJZGF0YV90eXBlGAUgASgOMg0uVmlld0RhdGFUeXBlUghkYXRhVHlwZRIXCgd2aWV3X2lkGAYgASgJUgZ2aWV3SWQSEgoEZGF0YRgHIAEoDFIEZGF0YRIfCgtwbHVnaW5fdHlwZRgIIAEoBVIKcGx1Z2luVHlwZQ==');
 @$core.Deprecated('Use viewIdDescriptor instead')
 const ViewId$json = const {
   '1': 'ViewId',

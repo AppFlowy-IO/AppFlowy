@@ -61,6 +61,10 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn contain_field(&self, field_meta: &FieldMeta) -> bool {
+        self.grid_meta_pad.read().await.contain_field(&field_meta.id)
+    }
+
     pub async fn update_field(&self, change: FieldChangeset) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.update_field(change)?)).await?;
         Ok(())
@@ -177,8 +181,8 @@ impl ClientGridEditor {
         Ok(grid_blocks)
     }
 
-    pub async fn delta_str(&self) -> String {
-        self.grid_meta_pad.read().await.delta_str()
+    pub async fn delta_bytes(&self) -> Bytes {
+        self.grid_meta_pad.read().await.delta_bytes()
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
@@ -199,7 +203,7 @@ impl ClientGridEditor {
         let GridChange { delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.to_bytes();
+        let delta_data = delta.to_delta_bytes();
         let revision = Revision::new(
             &self.rev_manager.object_id,
             base_rev_id,
@@ -256,6 +260,6 @@ struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
-        Ok(delta.to_bytes())
+        Ok(delta.to_delta_bytes())
     }
 }

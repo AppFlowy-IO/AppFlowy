@@ -6,6 +6,7 @@ use crate::{
     },
     errors::CollaborateError,
 };
+use bytes::Bytes;
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextDelta},
@@ -62,8 +63,8 @@ impl ClientDocument {
         self.delta.to_delta_str()
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        self.delta.clone().to_bytes().to_vec()
+    pub fn to_bytes(&self) -> Bytes {
+        self.delta.to_delta_bytes()
     }
 
     pub fn to_plain_string(&self) -> String {

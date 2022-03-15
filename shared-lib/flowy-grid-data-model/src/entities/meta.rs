@@ -1,7 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use strum_macros::{Display, EnumIter, EnumString};
+use strum::{EnumCount, IntoEnumIterator};
+use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
 pub const DEFAULT_FIELD_WIDTH: i32 = 150;
@@ -139,7 +140,9 @@ pub struct FieldChangeset {
     pub type_options: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumCountMacro, EnumString, EnumIter, Display, Serialize, Deserialize,
+)]
 pub enum FieldType {
     RichText = 0,
     Number = 1,
@@ -309,6 +312,34 @@ impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
             height: None,
             visibility: None,
             cell_by_field_id,
+        }
+    }
+}
+
+#[derive(Clone, ProtoBuf)]
+pub struct BuildGridContext {
+    #[pb(index = 1)]
+    pub field_metas: Vec<FieldMeta>,
+
+    #[pb(index = 2)]
+    pub grid_block: GridBlock,
+
+    #[pb(index = 3)]
+    pub grid_block_meta: GridBlockMeta,
+}
+
+impl std::default::Default for BuildGridContext {
+    fn default() -> Self {
+        let grid_block = GridBlock::new();
+        let grid_block_meta = GridBlockMeta {
+            block_id: grid_block.id.clone(),
+            rows: vec![],
+        };
+
+        Self {
+            field_metas: vec![],
+            grid_block,
+            grid_block_meta,
         }
     }
 }

@@ -276,7 +276,7 @@ class CreateViewPayload extends $pb.GeneratedMessage {
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
     ..e<ViewDataType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dataType', $pb.PbFieldType.OE, defaultOrMaker: ViewDataType.TextBlock, valueOf: ViewDataType.valueOf, enumValues: ViewDataType.values)
     ..a<$core.int>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pluginType', $pb.PbFieldType.O3)
-    ..aOS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -288,7 +288,7 @@ class CreateViewPayload extends $pb.GeneratedMessage {
     $core.String? thumbnail,
     ViewDataType? dataType,
     $core.int? pluginType,
-    $core.String? data,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (belongToId != null) {
@@ -393,9 +393,9 @@ class CreateViewPayload extends $pb.GeneratedMessage {
   void clearPluginType() => clearField(6);
 
   @$pb.TagNumber(7)
-  $core.String get data => $_getSZ(6);
+  $core.List<$core.int> get data => $_getN(6);
   @$pb.TagNumber(7)
-  set data($core.String v) { $_setString(6, v); }
+  set data($core.List<$core.int> v) { $_setBytes(6, v); }
   @$pb.TagNumber(7)
   $core.bool hasData() => $_has(6);
   @$pb.TagNumber(7)
@@ -410,7 +410,7 @@ class CreateViewParams extends $pb.GeneratedMessage {
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
     ..e<ViewDataType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dataType', $pb.PbFieldType.OE, defaultOrMaker: ViewDataType.TextBlock, valueOf: ViewDataType.valueOf, enumValues: ViewDataType.values)
     ..aOS(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
-    ..aOS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pluginType', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
@@ -423,7 +423,7 @@ class CreateViewParams extends $pb.GeneratedMessage {
     $core.String? thumbnail,
     ViewDataType? dataType,
     $core.String? viewId,
-    $core.String? data,
+    $core.List<$core.int>? data,
     $core.int? pluginType,
   }) {
     final _result = create();
@@ -529,9 +529,9 @@ class CreateViewParams extends $pb.GeneratedMessage {
   void clearViewId() => clearField(6);
 
   @$pb.TagNumber(7)
-  $core.String get data => $_getSZ(6);
+  $core.List<$core.int> get data => $_getN(6);
   @$pb.TagNumber(7)
-  set data($core.String v) { $_setString(6, v); }
+  set data($core.List<$core.int> v) { $_setBytes(6, v); }
   @$pb.TagNumber(7)
   $core.bool hasData() => $_has(6);
   @$pb.TagNumber(7)

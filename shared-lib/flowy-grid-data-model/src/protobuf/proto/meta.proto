@@ -60,6 +60,11 @@ message CellMetaChangeset {
     string field_id = 2;
     oneof one_of_data { string data = 3; };
 }
+message BuildGridContext {
+    repeated FieldMeta field_metas = 1;
+    GridBlock grid_block = 2;
+    GridBlockMeta grid_block_meta = 3;
+}
 enum FieldType {
     RichText = 0;
     Number = 1;

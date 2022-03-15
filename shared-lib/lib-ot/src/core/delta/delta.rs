@@ -529,7 +529,7 @@ where
         self.apply("")
     }
 
-    pub fn to_bytes(&self) -> Bytes {
+    pub fn to_delta_bytes(&self) -> Bytes {
         let json = self.to_delta_str();
         Bytes::from(json.into_bytes())
     }

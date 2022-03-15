@@ -115,7 +115,7 @@ impl FolderPersistence {
 
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
-        let delta_data = initial_folder_delta(&folder)?.to_bytes();
+        let delta_data = initial_folder_delta(&folder)?.to_delta_bytes();
         let md5 = folder.md5();
         let revision = Revision::new(folder_id.as_ref(), 0, 0, delta_data, user_id, md5);
         let record = RevisionRecord {

@@ -794,7 +794,7 @@ pub struct CreateViewPayload {
     pub desc: ::std::string::String,
     pub data_type: ViewDataType,
     pub plugin_type: i32,
-    pub data: ::std::string::String,
+    pub data: ::std::vec::Vec<u8>,
     // message oneof groups
     pub one_of_thumbnail: ::std::option::Option<CreateViewPayload_oneof_one_of_thumbnail>,
     // special fields
@@ -975,10 +975,10 @@ impl CreateViewPayload {
         self.plugin_type = v;
     }
 
-    // string data = 7;
+    // bytes data = 7;
 
 
-    pub fn get_data(&self) -> &str {
+    pub fn get_data(&self) -> &[u8] {
         &self.data
     }
     pub fn clear_data(&mut self) {
@@ -986,19 +986,19 @@ impl CreateViewPayload {
     }
 
     // Param is passed by value, moved
-    pub fn set_data(&mut self, v: ::std::string::String) {
+    pub fn set_data(&mut self, v: ::std::vec::Vec<u8>) {
         self.data = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+    pub fn mut_data(&mut self) -> &mut ::std::vec::Vec<u8> {
         &mut self.data
     }
 
     // Take field
-    pub fn take_data(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.data, ::std::string::String::new())
+    pub fn take_data(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
     }
 }
 
@@ -1037,7 +1037,7 @@ impl ::protobuf::Message for CreateViewPayload {
                     self.plugin_type = tmp;
                 },
                 7 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1067,7 +1067,7 @@ impl ::protobuf::Message for CreateViewPayload {
             my_size += ::protobuf::rt::value_size(6, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
         }
         if !self.data.is_empty() {
-            my_size += ::protobuf::rt::string_size(7, &self.data);
+            my_size += ::protobuf::rt::bytes_size(7, &self.data);
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -1098,7 +1098,7 @@ impl ::protobuf::Message for CreateViewPayload {
             os.write_int32(6, self.plugin_type)?;
         }
         if !self.data.is_empty() {
-            os.write_string(7, &self.data)?;
+            os.write_bytes(7, &self.data)?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
             match v {
@@ -1175,7 +1175,7 @@ impl ::protobuf::Message for CreateViewPayload {
                 |m: &CreateViewPayload| { &m.plugin_type },
                 |m: &mut CreateViewPayload| { &mut m.plugin_type },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
                 |m: &CreateViewPayload| { &m.data },
                 |m: &mut CreateViewPayload| { &mut m.data },
@@ -1228,7 +1228,7 @@ pub struct CreateViewParams {
     pub thumbnail: ::std::string::String,
     pub data_type: ViewDataType,
     pub view_id: ::std::string::String,
-    pub data: ::std::string::String,
+    pub data: ::std::vec::Vec<u8>,
     pub plugin_type: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -1391,10 +1391,10 @@ impl CreateViewParams {
         ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
     }
 
-    // string data = 7;
+    // bytes data = 7;
 
 
-    pub fn get_data(&self) -> &str {
+    pub fn get_data(&self) -> &[u8] {
         &self.data
     }
     pub fn clear_data(&mut self) {
@@ -1402,19 +1402,19 @@ impl CreateViewParams {
     }
 
     // Param is passed by value, moved
-    pub fn set_data(&mut self, v: ::std::string::String) {
+    pub fn set_data(&mut self, v: ::std::vec::Vec<u8>) {
         self.data = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+    pub fn mut_data(&mut self) -> &mut ::std::vec::Vec<u8> {
         &mut self.data
     }
 
     // Take field
-    pub fn take_data(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.data, ::std::string::String::new())
+    pub fn take_data(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
     }
 
     // int32 plugin_type = 8;
@@ -1461,7 +1461,7 @@ impl ::protobuf::Message for CreateViewParams {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
                 },
                 7 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
                 },
                 8 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -1501,7 +1501,7 @@ impl ::protobuf::Message for CreateViewParams {
             my_size += ::protobuf::rt::string_size(6, &self.view_id);
         }
         if !self.data.is_empty() {
-            my_size += ::protobuf::rt::string_size(7, &self.data);
+            my_size += ::protobuf::rt::bytes_size(7, &self.data);
         }
         if self.plugin_type != 0 {
             my_size += ::protobuf::rt::value_size(8, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
@@ -1531,7 +1531,7 @@ impl ::protobuf::Message for CreateViewParams {
             os.write_string(6, &self.view_id)?;
         }
         if !self.data.is_empty() {
-            os.write_string(7, &self.data)?;
+            os.write_bytes(7, &self.data)?;
         }
         if self.plugin_type != 0 {
             os.write_int32(8, self.plugin_type)?;
@@ -1604,7 +1604,7 @@ impl ::protobuf::Message for CreateViewParams {
                 |m: &CreateViewParams| { &m.view_id },
                 |m: &mut CreateViewParams| { &mut m.view_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
                 |m: &CreateViewParams| { &m.data },
                 |m: &mut CreateViewParams| { &mut m.data },
@@ -2844,22 +2844,22 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\
     \tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08d\
     ataType\x12\x1f\n\x0bplugin_type\x18\x06\x20\x01(\x05R\npluginType\x12\
-    \x12\n\x04data\x18\x07\x20\x01(\tR\x04dataB\x12\n\x10one_of_thumbnail\"\
-    \xf4\x01\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01\
-    (\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\
-    \x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\x20\
-    \x01(\tR\tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTy\
-    peR\x08dataType\x12\x17\n\x07view_id\x18\x06\x20\x01(\tR\x06viewId\x12\
-    \x12\n\x04data\x18\x07\x20\x01(\tR\x04data\x12\x1f\n\x0bplugin_type\x18\
-    \x08\x20\x01(\x05R\npluginType\"\x1e\n\x06ViewId\x12\x14\n\x05value\x18\
-    \x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\x18\
-    \x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\x07\
-    view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\
-    \tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\
-    \x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nam\
-    eB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10UpdateVi\
-    ewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\
-    \x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
+    \x12\n\x04data\x18\x07\x20\x01(\x0cR\x04dataB\x12\n\x10one_of_thumbnail\
+    \"\xf4\x01\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\x01\x20\
+    \x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
+    \x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\
+    \x20\x01(\tR\tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDa\
+    taTypeR\x08dataType\x12\x17\n\x07view_id\x18\x06\x20\x01(\tR\x06viewId\
+    \x12\x12\n\x04data\x18\x07\x20\x01(\x0cR\x04data\x12\x1f\n\x0bplugin_typ\
+    e\x18\x08\x20\x01(\x05R\npluginType\"\x1e\n\x06ViewId\x12\x14\n\x05value\
+    \x18\x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\
+    \x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\
+    \x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\
+    \x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\
+    \x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of\
+    _nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10Upda\
+    teViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\
+    \n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
     \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
     mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
     l*'\n\x0cViewDataType\x12\r\n\tTextBlock\x10\0\x12\x08\n\x04Grid\x10\x01\
