@@ -31,8 +31,8 @@ fn grid_default_serde_test() {
     assert_eq!(json, r#"{"id":"1","fields":[],"blocks":[]}"#)
 }
 
-fn create_field(field_id: &str) -> Field {
-    let mut field = Field::new("Text Field", "", FieldType::RichText);
+fn create_field(field_id: &str) -> FieldMeta {
+    let mut field = FieldMeta::new("Text Field", "", FieldType::RichText);
     field.id = field_id.to_string();
     field
 }

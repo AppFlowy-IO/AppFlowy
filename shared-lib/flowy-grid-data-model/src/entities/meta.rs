@@ -12,7 +12,7 @@ pub struct GridMeta {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub fields: Vec<Field>,
+    pub fields: Vec<FieldMeta>,
 
     #[pb(index = 3)]
     pub blocks: Vec<GridBlock>,
@@ -28,6 +28,12 @@ pub struct GridBlock {
 
     #[pb(index = 3)]
     pub row_count: i32,
+}
+
+impl GridBlock {
+    pub fn len(&self) -> i32 {
+        self.start_row_index + self.row_count
+    }
 }
 
 impl GridBlock {
@@ -65,7 +71,7 @@ pub struct GridBlockMeta {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, PartialEq, Eq)]
-pub struct Field {
+pub struct FieldMeta {
     #[pb(index = 1)]
     pub id: String,
 
@@ -91,7 +97,7 @@ pub struct Field {
     pub type_options: String,
 }
 
-impl Field {
+impl FieldMeta {
     pub fn new(name: &str, desc: &str, field_type: FieldType) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -133,30 +139,6 @@ pub struct FieldChangeset {
     pub type_options: Option<String>,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedField {
-    #[pb(index = 1)]
-    pub items: Vec<Field>,
-}
-impl std::ops::Deref for RepeatedField {
-    type Target = Vec<Field>;
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedField {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-impl std::convert::From<Vec<Field>> for RepeatedField {
-    fn from(items: Vec<Field>) -> Self {
-        Self { items }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display, Serialize, Deserialize)]
 pub enum FieldType {
     RichText = 0,
@@ -180,8 +162,8 @@ impl AsRef<FieldType> for FieldType {
 }
 
 impl From<&FieldType> for FieldType {
-    fn from(field: &FieldType) -> Self {
-        field.clone()
+    fn from(field_type: &FieldType) -> Self {
+        field_type.clone()
     }
 }
 

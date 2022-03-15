@@ -16,7 +16,7 @@ export 'meta.pbenum.dart';
 class GridMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..pc<Field>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fields', $pb.PbFieldType.PM, subBuilder: Field.create)
+    ..pc<FieldMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fields', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
     ..pc<GridBlock>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blocks', $pb.PbFieldType.PM, subBuilder: GridBlock.create)
     ..hasRequiredFields = false
   ;
@@ -24,7 +24,7 @@ class GridMeta extends $pb.GeneratedMessage {
   GridMeta._() : super();
   factory GridMeta({
     $core.String? gridId,
-    $core.Iterable<Field>? fields,
+    $core.Iterable<FieldMeta>? fields,
     $core.Iterable<GridBlock>? blocks,
   }) {
     final _result = create();
@@ -70,7 +70,7 @@ class GridMeta extends $pb.GeneratedMessage {
   void clearGridId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<Field> get fields => $_getList(1);
+  $core.List<FieldMeta> get fields => $_getList(1);
 
   @$pb.TagNumber(3)
   $core.List<GridBlock> get blocks => $_getList(2);
@@ -206,8 +206,8 @@ class GridBlockMeta extends $pb.GeneratedMessage {
   $core.List<RowMeta> get rows => $_getList(1);
 }
 
-class Field extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Field', createEmptyInstance: create)
+class FieldMeta extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
@@ -219,8 +219,8 @@ class Field extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  Field._() : super();
-  factory Field({
+  FieldMeta._() : super();
+  factory FieldMeta({
     $core.String? id,
     $core.String? name,
     $core.String? desc,
@@ -257,26 +257,26 @@ class Field extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory Field.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Field.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldMeta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldMeta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Field clone() => Field()..mergeFromMessage(this);
+  FieldMeta clone() => FieldMeta()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Field copyWith(void Function(Field) updates) => super.copyWith((message) => updates(message as Field)) as Field; // ignore: deprecated_member_use
+  FieldMeta copyWith(void Function(FieldMeta) updates) => super.copyWith((message) => updates(message as FieldMeta)) as FieldMeta; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Field create() => Field._();
-  Field createEmptyInstance() => create();
-  static $pb.PbList<Field> createRepeated() => $pb.PbList<Field>();
+  static FieldMeta create() => FieldMeta._();
+  FieldMeta createEmptyInstance() => create();
+  static $pb.PbList<FieldMeta> createRepeated() => $pb.PbList<FieldMeta>();
   @$core.pragma('dart2js:noInline')
-  static Field getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Field>(create);
-  static Field? _defaultInstance;
+  static FieldMeta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldMeta>(create);
+  static FieldMeta? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -585,47 +585,6 @@ class FieldChangeset extends $pb.GeneratedMessage {
   $core.bool hasTypeOptions() => $_has(7);
   @$pb.TagNumber(8)
   void clearTypeOptions() => clearField(8);
-}
-
-class RepeatedField extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedField', createEmptyInstance: create)
-    ..pc<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Field.create)
-    ..hasRequiredFields = false
-  ;
-
-  RepeatedField._() : super();
-  factory RepeatedField({
-    $core.Iterable<Field>? items,
-  }) {
-    final _result = create();
-    if (items != null) {
-      _result.items.addAll(items);
-    }
-    return _result;
-  }
-  factory RepeatedField.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedField.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RepeatedField clone() => RepeatedField()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedField copyWith(void Function(RepeatedField) updates) => super.copyWith((message) => updates(message as RepeatedField)) as RepeatedField; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RepeatedField create() => RepeatedField._();
-  RepeatedField createEmptyInstance() => create();
-  static $pb.PbList<RepeatedField> createRepeated() => $pb.PbList<RepeatedField>();
-  @$core.pragma('dart2js:noInline')
-  static RepeatedField getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedField>(create);
-  static RepeatedField? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<Field> get items => $_getList(0);
 }
 
 class AnyData extends $pb.GeneratedMessage {

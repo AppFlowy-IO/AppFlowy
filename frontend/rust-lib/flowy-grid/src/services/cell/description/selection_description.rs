@@ -1,9 +1,9 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::row::StringifyCellData;
+use crate::services::row::CellDataSerde;
 use crate::services::util::*;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -17,13 +17,13 @@ pub struct SingleSelectDescription {
 }
 impl_from_and_to_type_option!(SingleSelectDescription, FieldType::SingleSelect);
 
-impl StringifyCellData for SingleSelectDescription {
-    fn str_from_cell_data(&self, data: String) -> String {
+impl CellDataSerde for SingleSelectDescription {
+    fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        Ok(select_option_id_from_data(s.to_owned(), true))
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        Ok(select_option_id_from_data(data.to_owned(), true))
     }
 }
 
@@ -37,13 +37,13 @@ pub struct MultiSelectDescription {
     pub disable_color: bool,
 }
 impl_from_and_to_type_option!(MultiSelectDescription, FieldType::MultiSelect);
-impl StringifyCellData for MultiSelectDescription {
-    fn str_from_cell_data(&self, data: String) -> String {
+impl CellDataSerde for MultiSelectDescription {
+    fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        Ok(select_option_id_from_data(s.to_owned(), false))
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        Ok(select_option_id_from_data(data.to_owned(), false))
     }
 }
 
@@ -84,14 +84,14 @@ impl SelectOption {
 #[cfg(test)]
 mod tests {
     use crate::services::cell::{MultiSelectDescription, SingleSelectDescription};
-    use crate::services::row::StringifyCellData;
+    use crate::services::row::CellDataSerde;
 
     #[test]
     fn selection_description_test() {
         let description = SingleSelectDescription::default();
-        assert_eq!(description.str_to_cell_data("1,2,3").unwrap(), "1".to_owned());
+        assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
 
         let description = MultiSelectDescription::default();
-        assert_eq!(description.str_to_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
+        assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
     }
 }

@@ -350,8 +350,8 @@ pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &st
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        ext_data: "".to_string(),
         plugin_type: 0,
+        data: "".to_string(),
     };
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)

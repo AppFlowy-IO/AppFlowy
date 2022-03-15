@@ -3,7 +3,7 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowContext;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, Field, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMeta, RowMetaChangeset,
+    CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlock, GridBlockChangeset, RowMeta, RowMetaChangeset,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
@@ -14,18 +14,18 @@ use tokio::time::sleep;
 
 pub enum EditorScript {
     CreateField {
-        field: Field,
+        field_meta: FieldMeta,
     },
     UpdateField {
         changeset: FieldChangeset,
     },
     DeleteField {
-        field: Field,
+        field_meta: FieldMeta,
     },
     AssertFieldCount(usize),
     AssertFieldEqual {
         field_index: usize,
-        field: Field,
+        field_meta: FieldMeta,
     },
     CreateBlock {
         block: GridBlock,
@@ -68,27 +68,31 @@ pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
     pub editor: Arc<ClientGridEditor>,
-    pub fields: Vec<Field>,
+    pub field_metas: Vec<FieldMeta>,
     pub grid_blocks: Vec<GridBlock>,
-    pub row_metas: Vec<RowMeta>,
+    pub row_metas: Vec<Arc<RowMeta>>,
 }
 
 impl GridEditorTest {
     pub async fn new() -> Self {
+        Self::with_data("".to_owned()).await
+    }
+
+    pub async fn with_data(data: String) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let test = ViewTest::new_grid_view(&sdk).await;
+        let test = ViewTest::new_grid_view(&sdk, data).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
-        let fields = editor.get_fields(None).await.unwrap();
+        let fields = editor.get_field_metas(None).await.unwrap();
         let grid_blocks = editor.get_blocks().await.unwrap();
-        let row_metas = editor.get_row_metas(&None).await.unwrap();
+        let row_metas = editor.get_row_metas(None).await.unwrap();
 
         let grid_id = test.view.id;
         Self {
             sdk,
             grid_id,
             editor,
-            fields,
+            field_metas: fields,
             grid_blocks,
             row_metas,
         }
@@ -107,26 +111,28 @@ impl GridEditorTest {
         let _cache = rev_manager.revision_cache().await;
 
         match script {
-            EditorScript::CreateField { field } => {
+            EditorScript::CreateField { field_meta: field } => {
                 self.editor.create_field(field).await.unwrap();
-                self.fields = self.editor.get_fields(None).await.unwrap();
+                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
             }
             EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
-                self.fields = self.editor.get_fields(None).await.unwrap();
+                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
             }
-            EditorScript::DeleteField { field } => {
+            EditorScript::DeleteField { field_meta: field } => {
                 self.editor.delete_field(&field.id).await.unwrap();
-                self.fields = self.editor.get_fields(None).await.unwrap();
+                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
             }
             EditorScript::AssertFieldCount(count) => {
-                assert_eq!(self.editor.get_fields(None).await.unwrap().len(), count);
+                assert_eq!(self.editor.get_field_metas(None).await.unwrap().len(), count);
             }
 
-            EditorScript::AssertFieldEqual { field_index, field } => {
-                let repeated_fields = self.editor.get_fields(None).await.unwrap();
-                let compared_field = repeated_fields[field_index].clone();
-                assert_eq!(compared_field, field);
+            EditorScript::AssertFieldEqual {
+                field_index,
+                field_meta,
+            } => {
+                let field_metas = self.editor.get_field_metas(None).await.unwrap();
+                assert_eq!(field_metas[field_index].clone(), field_meta);
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
@@ -153,18 +159,18 @@ impl GridEditorTest {
             }
             EditorScript::CreateEmptyRow => {
                 self.editor.create_row().await.unwrap();
-                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(None).await.unwrap();
                 self.grid_blocks = self.editor.get_blocks().await.unwrap();
             }
             EditorScript::CreateRow { context } => {
                 self.editor.insert_rows(vec![context]).await.unwrap();
-                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(None).await.unwrap();
                 self.grid_blocks = self.editor.get_blocks().await.unwrap();
             }
             EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             EditorScript::DeleteRow { row_ids } => {
                 self.editor.delete_rows(row_ids).await.unwrap();
-                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(None).await.unwrap();
                 self.grid_blocks = self.editor.get_blocks().await.unwrap();
             }
             EditorScript::AssertRow { changeset } => {
@@ -180,7 +186,7 @@ impl GridEditorTest {
             }
             EditorScript::UpdateCell { changeset } => {
                 self.editor.update_cell(changeset).await.unwrap();
-                self.row_metas = self.editor.get_row_metas(&None).await.unwrap();
+                self.row_metas = self.editor.get_row_metas(None).await.unwrap();
             }
             EditorScript::AssertRowCount(count) => {
                 assert_eq!(self.editor.get_rows(None).await.unwrap().len(), count);
@@ -195,7 +201,7 @@ impl GridEditorTest {
     }
 }
 
-pub fn create_text_field() -> Field {
+pub fn create_text_field() -> FieldMeta {
     FieldBuilder::new(RichTextTypeOptionsBuilder::default())
         .name("Name")
         .visibility(true)
@@ -203,7 +209,7 @@ pub fn create_text_field() -> Field {
         .build()
 }
 
-pub fn create_single_select_field() -> Field {
+pub fn create_single_select_field() -> FieldMeta {
     let single_select = SingleSelectTypeOptionsBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));

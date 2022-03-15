@@ -1,6 +1,5 @@
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 
 class GridInfo {
   List<Row> rows;

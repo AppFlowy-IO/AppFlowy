@@ -308,7 +308,7 @@ impl FolderCouldServiceV1 for LocalServer {
             belongings: RepeatedView::default(),
             modified_time: time,
             create_time: time,
-            ext_data: params.ext_data,
+            ext_data: "".to_string(),
             thumbnail: params.thumbnail,
             plugin_type: params.plugin_type,
         };

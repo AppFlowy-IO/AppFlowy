@@ -1,6 +1,7 @@
-use crate::entities::{Field, RowMeta};
+use crate::entities::{FieldMeta, FieldType, RowMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Grid {
@@ -15,16 +16,78 @@ pub struct Grid {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct Field {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub desc: String,
+
+    #[pb(index = 4)]
+    pub field_type: FieldType,
+
+    #[pb(index = 5)]
+    pub frozen: bool,
+
+    #[pb(index = 6)]
+    pub visibility: bool,
+
+    #[pb(index = 7)]
+    pub width: i32,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
     pub field_id: String,
 }
 
-impl std::convert::From<&Field> for FieldOrder {
-    fn from(field: &Field) -> Self {
+impl std::convert::From<&FieldMeta> for FieldOrder {
+    fn from(field_meta: &FieldMeta) -> Self {
         Self {
-            field_id: field.id.clone(),
+            field_id: field_meta.id.clone(),
         }
+    }
+}
+
+impl std::convert::From<FieldMeta> for Field {
+    fn from(field_meta: FieldMeta) -> Self {
+        Self {
+            id: field_meta.id,
+            name: field_meta.name,
+            desc: field_meta.desc,
+            field_type: field_meta.field_type,
+            frozen: field_meta.frozen,
+            visibility: field_meta.visibility,
+            width: field_meta.width,
+        }
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedField {
+    #[pb(index = 1)]
+    pub items: Vec<Field>,
+}
+impl std::ops::Deref for RepeatedField {
+    type Target = Vec<Field>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedField {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
+}
+
+impl std::convert::From<Vec<Field>> for RepeatedField {
+    fn from(items: Vec<Field>) -> Self {
+        Self { items }
     }
 }
 
@@ -52,6 +115,15 @@ pub struct RowOrder {
 
 impl std::convert::From<&RowMeta> for RowOrder {
     fn from(row: &RowMeta) -> Self {
+        Self {
+            row_id: row.id.clone(),
+            block_id: row.block_id.clone(),
+        }
+    }
+}
+
+impl std::convert::From<&Arc<RowMeta>> for RowOrder {
+    fn from(row: &Arc<RowMeta>) -> Self {
         Self {
             row_id: row.id.clone(),
             block_id: row.block_id.clone(),

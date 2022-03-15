@@ -50,27 +50,28 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn get_rows(&self, row_ids: Vec<String>) -> CollaborateResult<Vec<RowMeta>> {
-        let row_map = self
-            .rows
-            .iter()
-            .map(|row| (&row.id, row.clone()))
-            .collect::<HashMap<&String, Arc<RowMeta>>>();
+    pub fn get_rows(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
+        match row_ids {
+            None => Ok(self.rows.iter().map(|row| row.clone()).collect::<Vec<_>>()),
+            Some(row_ids) => {
+                let row_map = self
+                    .rows
+                    .iter()
+                    .map(|row| (&row.id, row.clone()))
+                    .collect::<HashMap<&String, Arc<RowMeta>>>();
 
-        Ok(row_ids
-            .iter()
-            .flat_map(|row_id| match row_map.get(row_id) {
-                None => {
-                    tracing::error!("Can't find the row with id: {}", row_id);
-                    None
-                }
-                Some(row) => Some((**row).clone()),
-            })
-            .collect::<Vec<RowMeta>>())
-    }
-
-    pub fn all_rows(&self) -> Vec<RowMeta> {
-        self.rows.iter().map(|row| (**row).clone()).collect::<Vec<_>>()
+                Ok(row_ids
+                    .iter()
+                    .flat_map(|row_id| match row_map.get(row_id) {
+                        None => {
+                            tracing::error!("Can't find the row with id: {}", row_id);
+                            None
+                        }
+                        Some(row) => Some(row.clone()),
+                    })
+                    .collect::<Vec<_>>())
+            }
+        }
     }
 
     pub fn number_of_rows(&self) -> i32 {

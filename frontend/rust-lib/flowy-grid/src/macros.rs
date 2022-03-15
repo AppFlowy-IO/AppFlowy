@@ -9,9 +9,9 @@ macro_rules! impl_from_and_to_type_option {
 #[macro_export]
 macro_rules! impl_from_field_type_option {
     ($target: ident) => {
-        impl std::convert::From<&Field> for $target {
-            fn from(field: &Field) -> $target {
-                match serde_json::from_str(&field.type_options) {
+        impl std::convert::From<&FieldMeta> for $target {
+            fn from(field_meta: &FieldMeta) -> $target {
+                match serde_json::from_str(&field_meta.type_options) {
                     Ok(obj) => obj,
                     Err(err) => {
                         tracing::error!("{} convert from any data failed, {:?}", stringify!($target), err);

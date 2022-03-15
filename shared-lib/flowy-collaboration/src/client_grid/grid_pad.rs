@@ -2,7 +2,7 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::entities::{
-    Field, FieldChangeset, GridBlock, GridBlockChangeset, GridMeta, RepeatedFieldOrder,
+    FieldChangeset, FieldMeta, FieldOrder, GridBlock, GridBlockChangeset, GridMeta, RepeatedFieldOrder,
 };
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -34,13 +34,13 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_field(&mut self, field: Field) -> CollaborateResult<Option<GridChange>> {
+    pub fn create_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChange>> {
         self.modify_grid(|grid| {
-            if grid.fields.contains(&field) {
+            if grid.fields.contains(&field_meta) {
                 tracing::warn!("Duplicate grid field");
                 Ok(None)
             } else {
-                grid.fields.push(field);
+                grid.fields.push(field_meta);
                 Ok(Some(()))
             }
         })
@@ -56,7 +56,15 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<Field>> {
+    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
+        self.grid_meta
+            .fields
+            .iter()
+            .map(|field_meta| FieldOrder::from(field_meta))
+            .collect()
+    }
+
+    pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
         match field_orders {
             None => Ok(self.grid_meta.fields.clone()),
             Some(field_orders) => {
@@ -65,7 +73,7 @@ impl GridMetaPad {
                     .fields
                     .iter()
                     .map(|field| (&field.id, field))
-                    .collect::<HashMap<&String, &Field>>();
+                    .collect::<HashMap<&String, &FieldMeta>>();
 
                 let fields = field_orders
                     .iter()
@@ -76,7 +84,7 @@ impl GridMetaPad {
                         }
                         Some(field) => Some((*field).clone()),
                     })
-                    .collect::<Vec<Field>>();
+                    .collect::<Vec<FieldMeta>>();
                 Ok(fields)
             }
         }
@@ -131,7 +139,18 @@ impl GridMetaPad {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
-                grid.blocks.push(block);
+                match grid.blocks.last() {
+                    None => grid.blocks.push(block),
+                    Some(last_block) => {
+                        if last_block.start_row_index > block.start_row_index
+                            && last_block.len() > block.start_row_index
+                        {
+                            let msg = format!("GridBlock's start_row_index should be greater than the last_block's start_row_index and its len");
+                            return Err(CollaborateError::internal().context(msg))
+                        }
+                        grid.blocks.push(block);
+                    }
+                }
                 Ok(Some(()))
             }
         })
@@ -168,7 +187,7 @@ impl GridMetaPad {
         self.delta.to_delta_str()
     }
 
-    pub fn fields(&self) -> &[Field] {
+    pub fn fields(&self) -> &[FieldMeta] {
         &self.grid_meta.fields
     }
 
@@ -208,7 +227,7 @@ impl GridMetaPad {
 
     pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChange>>
     where
-        F: FnOnce(&mut Field) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut FieldMeta) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
             None => {

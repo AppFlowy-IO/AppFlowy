@@ -7,7 +7,7 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, Field, FieldChangeset, Grid, GridBlock, GridBlockChangeset, RepeatedFieldOrder,
+    CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlock, GridBlockChangeset, RepeatedFieldOrder,
     RepeatedRowOrder, Row, RowMeta, RowMetaChangeset,
 };
 use std::collections::HashMap;
@@ -56,8 +56,8 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&self, field: Field) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_field(field)?)).await?;
+    pub async fn create_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_field(field_meta)?)).await?;
         Ok(())
     }
 
@@ -82,9 +82,9 @@ impl ClientGridEditor {
     }
 
     pub async fn create_row(&self) -> FlowyResult<()> {
-        let fields = self.grid_meta_pad.read().await.get_fields(None)?;
+        let field_metas = self.grid_meta_pad.read().await.get_field_metas(None)?;
         let block_id = self.last_block_id().await?;
-        let row = row_meta_from_context(&block_id, CreateRowContextBuilder::new(&fields).build());
+        let row = row_meta_from_context(&block_id, CreateRowContextBuilder::new(&field_metas).build());
         let row_count = self.block_meta_manager.create_row(row).await?;
         let changeset = GridBlockChangeset::from_row_count(&block_id, row_count);
         let _ = self.update_block(changeset).await?;
@@ -119,12 +119,12 @@ impl ClientGridEditor {
     }
 
     pub async fn get_rows(&self, row_orders: Option<RepeatedRowOrder>) -> FlowyResult<Vec<Row>> {
-        let row_metas = self.get_row_metas(&row_orders).await?;
-        let fields = self.grid_meta_pad.read().await.get_fields(None)?;
+        let row_metas = self.get_row_metas(row_orders.as_ref()).await?;
+        let field_meta = self.grid_meta_pad.read().await.get_field_metas(None)?;
         match row_orders {
-            None => Ok(make_rows(&fields, row_metas)),
+            None => Ok(make_rows(&field_meta, row_metas)),
             Some(row_orders) => {
-                let mut row_map: HashMap<String, Row> = make_row_by_row_id(&fields, row_metas);
+                let mut row_map: HashMap<String, Row> = make_row_by_row_id(&field_meta, row_metas);
                 let rows = row_orders
                     .iter()
                     .flat_map(|row_order| row_map.remove(&row_order.row_id))
@@ -134,7 +134,7 @@ impl ClientGridEditor {
         }
     }
 
-    pub async fn get_row_metas(&self, row_orders: &Option<RepeatedRowOrder>) -> FlowyResult<Vec<RowMeta>> {
+    pub async fn get_row_metas(&self, row_orders: Option<&RepeatedRowOrder>) -> FlowyResult<Vec<Arc<RowMeta>>> {
         match row_orders {
             None => {
                 let grid_blocks = self.grid_meta_pad.read().await.get_blocks();
@@ -156,13 +156,20 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn grid_data(&self) -> Grid {
-        todo!()
+    pub async fn grid_data(&self) -> FlowyResult<Grid> {
+        let field_orders = self.grid_meta_pad.read().await.get_field_orders();
+        let grid_blocks = self.grid_meta_pad.read().await.get_blocks();
+        let row_orders = self.block_meta_manager.get_row_orders(grid_blocks).await?;
+        Ok(Grid {
+            id: self.grid_id.clone(),
+            field_orders,
+            row_orders,
+        })
     }
 
-    pub async fn get_fields(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<Field>> {
-        let fields = self.grid_meta_pad.read().await.get_fields(field_orders)?;
-        Ok(fields)
+    pub async fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<FieldMeta>> {
+        let field_meta = self.grid_meta_pad.read().await.get_field_metas(field_orders)?;
+        Ok(field_meta)
     }
 
     pub async fn get_blocks(&self) -> FlowyResult<Vec<GridBlock>> {

@@ -20,6 +20,22 @@ const Grid$json = const {
 
 /// Descriptor for `Grid`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridDescriptor = $convert.base64Decode('CgRHcmlkEg4KAmlkGAEgASgJUgJpZBIuCgxmaWVsZF9vcmRlcnMYAiADKAsyCy5GaWVsZE9yZGVyUgtmaWVsZE9yZGVycxIoCgpyb3dfb3JkZXJzGAMgAygLMgkuUm93T3JkZXJSCXJvd09yZGVycw==');
+@$core.Deprecated('Use fieldDescriptor instead')
+const Field$json = const {
+  '1': 'Field',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'field_type', '3': 4, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
+    const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
+    const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
+    const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
+  ],
+};
+
+/// Descriptor for `Field`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldDescriptor = $convert.base64Decode('CgVGaWVsZBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEikKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZRIWCgZmcm96ZW4YBSABKAhSBmZyb3plbhIeCgp2aXNpYmlsaXR5GAYgASgIUgp2aXNpYmlsaXR5EhQKBXdpZHRoGAcgASgFUgV3aWR0aA==');
 @$core.Deprecated('Use fieldOrderDescriptor instead')
 const FieldOrder$json = const {
   '1': 'FieldOrder',
@@ -30,6 +46,16 @@ const FieldOrder$json = const {
 
 /// Descriptor for `FieldOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldOrderDescriptor = $convert.base64Decode('CgpGaWVsZE9yZGVyEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElk');
+@$core.Deprecated('Use repeatedFieldDescriptor instead')
+const RepeatedField$json = const {
+  '1': 'RepeatedField',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Field', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedField`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedFieldDescriptor = $convert.base64Decode('Cg1SZXBlYXRlZEZpZWxkEhwKBWl0ZW1zGAEgAygLMgYuRmllbGRSBWl0ZW1z');
 @$core.Deprecated('Use repeatedFieldOrderDescriptor instead')
 const RepeatedFieldOrder$json = const {
   '1': 'RepeatedFieldOrder',

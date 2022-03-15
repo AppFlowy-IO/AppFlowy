@@ -1,10 +1,10 @@
 use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBlockMetaDelta, GridMetaDelta};
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{Field, GridBlock, GridBlockMeta, GridMeta, RowMeta};
+use flowy_grid_data_model::entities::{FieldMeta, GridBlock, GridBlockMeta, GridMeta, RowMeta};
 
 pub struct GridBuilder {
     grid_id: String,
-    fields: Vec<Field>,
+    fields: Vec<FieldMeta>,
     grid_block: GridBlock,
     grid_block_meta: GridBlockMeta,
 }
@@ -25,7 +25,7 @@ impl GridBuilder {
         }
     }
 
-    pub fn add_field(mut self, field: Field) -> Self {
+    pub fn add_field(mut self, field: FieldMeta) -> Self {
         self.fields.push(field);
         self
     }
@@ -62,7 +62,7 @@ pub struct BuildGridInfo {
 }
 
 #[allow(dead_code)]
-fn check_rows(fields: &[Field], rows: &[RowMeta]) -> CollaborateResult<()> {
+fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
     let field_ids = fields.iter().map(|field| &field.id).collect::<Vec<&String>>();
     for row in rows {
         let cell_field_ids = row.cell_by_field_id.keys().into_iter().collect::<Vec<&String>>();
@@ -77,13 +77,13 @@ fn check_rows(fields: &[Field], rows: &[RowMeta]) -> CollaborateResult<()> {
 #[cfg(test)]
 mod tests {
     use crate::client_grid::GridBuilder;
-    use flowy_grid_data_model::entities::{Field, FieldType, GridBlockMeta, GridMeta};
+    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMeta, GridMeta};
 
     #[test]
     fn create_default_grid_test() {
         let info = GridBuilder::new("1")
-            .add_field(Field::new("Name", "", FieldType::RichText))
-            .add_field(Field::new("Tags", "", FieldType::SingleSelect))
+            .add_field(FieldMeta::new("Name", "", FieldType::RichText))
+            .add_field(FieldMeta::new("Tags", "", FieldType::SingleSelect))
             .add_empty_row()
             .add_empty_row()
             .add_empty_row()

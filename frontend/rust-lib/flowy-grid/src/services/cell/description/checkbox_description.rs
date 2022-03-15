@@ -1,8 +1,8 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::row::StringifyCellData;
+use crate::services::row::CellDataSerde;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
@@ -12,13 +12,13 @@ pub struct CheckboxDescription {
 }
 impl_from_and_to_type_option!(CheckboxDescription, FieldType::Checkbox);
 
-impl StringifyCellData for CheckboxDescription {
-    fn str_from_cell_data(&self, data: String) -> String {
+impl CellDataSerde for CheckboxDescription {
+    fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        let s = match string_to_bool(s) {
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        let s = match string_to_bool(data) {
             true => "1",
             false => "0",
         };
@@ -42,19 +42,19 @@ fn string_to_bool(bool_str: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::services::cell::CheckboxDescription;
-    use crate::services::row::StringifyCellData;
+    use crate::services::row::CellDataSerde;
 
     #[test]
     fn checkout_box_description_test() {
         let description = CheckboxDescription::default();
-        assert_eq!(description.str_to_cell_data("true").unwrap(), "1".to_owned());
-        assert_eq!(description.str_to_cell_data("1").unwrap(), "1".to_owned());
-        assert_eq!(description.str_to_cell_data("yes").unwrap(), "1".to_owned());
+        assert_eq!(description.serialize_cell_data("true").unwrap(), "1".to_owned());
+        assert_eq!(description.serialize_cell_data("1").unwrap(), "1".to_owned());
+        assert_eq!(description.serialize_cell_data("yes").unwrap(), "1".to_owned());
 
-        assert_eq!(description.str_to_cell_data("false").unwrap(), "0".to_owned());
-        assert_eq!(description.str_to_cell_data("no").unwrap(), "0".to_owned());
-        assert_eq!(description.str_to_cell_data("123").unwrap(), "0".to_owned());
+        assert_eq!(description.serialize_cell_data("false").unwrap(), "0".to_owned());
+        assert_eq!(description.serialize_cell_data("no").unwrap(), "0".to_owned());
+        assert_eq!(description.serialize_cell_data("123").unwrap(), "0".to_owned());
 
-        assert_eq!(description.str_from_cell_data("1".to_owned()), "1".to_owned());
+        assert_eq!(description.deserialize_cell_data("1".to_owned()), "1".to_owned());
     }
 }

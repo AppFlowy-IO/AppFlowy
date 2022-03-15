@@ -1,11 +1,11 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::row::StringifyCellData;
+use crate::services::row::CellDataSerde;
 
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 use strum_macros::EnumIter;
@@ -38,8 +38,8 @@ impl DateDescription {
     }
 }
 
-impl StringifyCellData for DateDescription {
-    fn str_from_cell_data(&self, data: String) -> String {
+impl CellDataSerde for DateDescription {
+    fn deserialize_cell_data(&self, data: String) -> String {
         match data.parse::<i64>() {
             Ok(timestamp) => {
                 let native = NaiveDateTime::from_timestamp(timestamp, 0);
@@ -52,11 +52,11 @@ impl StringifyCellData for DateDescription {
         }
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        let timestamp = match s.parse::<i64>() {
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        let timestamp = match data.parse::<i64>() {
             Ok(timestamp) => timestamp,
             Err(e) => {
-                tracing::error!("Parse {} to i64 failed: {}", s, e);
+                tracing::error!("Parse {} to i64 failed: {}", data, e);
                 chrono::Utc::now().timestamp()
             }
         };
@@ -149,7 +149,7 @@ impl std::default::Default for TimeFormat {
 #[cfg(test)]
 mod tests {
     use crate::services::cell::{DateDescription, DateFormat, TimeFormat};
-    use crate::services::row::StringifyCellData;
+    use crate::services::row::CellDataSerde;
     use strum::IntoEnumIterator;
 
     #[test]
@@ -167,7 +167,7 @@ mod tests {
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
                 DateFormat::US => {
@@ -177,7 +177,7 @@ mod tests {
                     );
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
                 DateFormat::ISO => {
@@ -187,7 +187,7 @@ mod tests {
                     );
                     assert_eq!(
                         "2022-03-14 17:56".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
                 DateFormat::Local => {
@@ -197,7 +197,7 @@ mod tests {
                     );
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
             }
@@ -217,7 +217,7 @@ mod tests {
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
                 TimeFormat::TwelveHour => {
@@ -227,7 +227,7 @@ mod tests {
                     );
                     assert_eq!(
                         "Mar 14,2022 05:56:02 PM".to_owned(),
-                        description.str_from_cell_data("1647251762".to_owned())
+                        description.deserialize_cell_data("1647251762".to_owned())
                     );
                 }
             }
@@ -237,6 +237,6 @@ mod tests {
     #[test]
     fn date_description_invalid_data_test() {
         let description = DateDescription::default();
-        description.str_to_cell_data("he").unwrap();
+        description.serialize_cell_data("he").unwrap();
     }
 }

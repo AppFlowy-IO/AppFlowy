@@ -1,7 +1,7 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use flowy_grid::services::cell::*;
-use flowy_grid::services::row::{CreateRowContextBuilder, StringifyCellData};
+use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowContextBuilder};
 use flowy_grid_data_model::entities::{FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset};
 
 #[tokio::test]
@@ -17,19 +17,19 @@ async fn grid_create_field() {
     let scripts = vec![
         AssertFieldCount(2),
         CreateField {
-            field: text_field.clone(),
+            field_meta: text_field.clone(),
         },
         AssertFieldEqual {
             field_index: 2,
-            field: text_field,
+            field_meta: text_field,
         },
         AssertFieldCount(3),
         CreateField {
-            field: single_select_field.clone(),
+            field_meta: single_select_field.clone(),
         },
         AssertFieldEqual {
             field_index: 3,
-            field: single_select_field,
+            field_meta: single_select_field,
         },
         AssertFieldCount(4),
     ];
@@ -42,11 +42,11 @@ async fn grid_create_duplicate_field() {
     let scripts = vec![
         AssertFieldCount(2),
         CreateField {
-            field: text_field.clone(),
+            field_meta: text_field.clone(),
         },
         AssertFieldCount(3),
         CreateField {
-            field: text_field.clone(),
+            field_meta: text_field.clone(),
         },
         AssertFieldCount(3),
     ];
@@ -69,12 +69,12 @@ async fn grid_update_field_with_empty_change() {
 
     let scripts = vec![
         CreateField {
-            field: single_select_field.clone(),
+            field_meta: single_select_field.clone(),
         },
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: 2,
-            field: single_select_field,
+            field_meta: single_select_field,
         },
     ];
     GridEditorTest::new().await.run_scripts(scripts).await;
@@ -105,12 +105,12 @@ async fn grid_update_field() {
 
     let scripts = vec![
         CreateField {
-            field: single_select_field.clone(),
+            field_meta: single_select_field.clone(),
         },
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: 2,
-            field: cloned_field,
+            field_meta: cloned_field,
         },
         AssertGridMetaPad,
     ];
@@ -122,10 +122,10 @@ async fn grid_delete_field() {
     let text_field = create_text_field();
     let scripts = vec![
         CreateField {
-            field: text_field.clone(),
+            field_meta: text_field.clone(),
         },
         AssertFieldCount(3),
-        DeleteField { field: text_field },
+        DeleteField { field_meta: text_field },
         AssertFieldCount(2),
     ];
     GridEditorTest::new().await.run_scripts(scripts).await;
@@ -177,7 +177,7 @@ async fn grid_create_row() {
 #[tokio::test]
 async fn grid_create_row2() {
     let mut test = GridEditorTest::new().await;
-    let create_row_context = CreateRowContextBuilder::new(&test.fields).build();
+    let create_row_context = CreateRowContextBuilder::new(&test.field_metas).build();
     let scripts = vec![
         AssertRowCount(3),
         CreateRow {
@@ -191,7 +191,7 @@ async fn grid_create_row2() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridEditorTest::new().await;
-    let context = CreateRowContextBuilder::new(&test.fields).build();
+    let context = CreateRowContextBuilder::new(&test.field_metas).build();
     let changeset = RowMetaChangeset {
         row_id: context.row_id.clone(),
         height: None,
@@ -214,8 +214,8 @@ async fn grid_update_row() {
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridEditorTest::new().await;
-    let context_1 = CreateRowContextBuilder::new(&test.fields).build();
-    let context_2 = CreateRowContextBuilder::new(&test.fields).build();
+    let context_1 = CreateRowContextBuilder::new(&test.field_metas).build();
+    let context_2 = CreateRowContextBuilder::new(&test.field_metas).build();
     let row_ids = vec![context_1.row_id.clone(), context_2.row_id.clone()];
     let scripts = vec![
         AssertRowCount(3),
@@ -240,26 +240,26 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_update_cell() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowContextBuilder::new(&test.fields);
-    for field in &test.fields {
+    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
-                builder = builder.add_cell(&field.id, "hello world".to_owned());
+                let data = serialize_cell_data("hello world", field).unwrap();
+                builder = builder.add_cell(&field.id, data);
             }
             FieldType::Number => {
-                let description = NumberDescription::from(field);
-                let data = description.str_to_cell_data("¥18,443").unwrap();
+                let data = serialize_cell_data("¥18,443", field).unwrap();
                 builder = builder.add_cell(&field.id, data);
             }
             FieldType::DateTime => {
-                let description = DateDescription::from(field);
-                let data = description.str_to_cell_data("1647251762").unwrap();
+                let data = serialize_cell_data("1647251762", field).unwrap();
                 builder = builder.add_cell(&field.id, data);
             }
             FieldType::SingleSelect => {
                 let description = SingleSelectDescription::from(field);
                 let options = description.options.first().unwrap();
-                let data = description.str_to_cell_data(&options.id).unwrap();
+
+                let data = description.serialize_cell_data(&options.id).unwrap();
                 builder = builder.add_cell(&field.id, data);
             }
             FieldType::MultiSelect => {
@@ -270,12 +270,11 @@ async fn grid_update_cell() {
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
                     .join(",");
-                let data = description.str_to_cell_data(&options).unwrap();
+                let data = description.serialize_cell_data(&options).unwrap();
                 builder = builder.add_cell(&field.id, data);
             }
             FieldType::Checkbox => {
-                let description = CheckboxDescription::from(field);
-                let data = description.str_to_cell_data("false").unwrap();
+                let data = serialize_cell_data("false", field).unwrap();
                 builder = builder.add_cell(&field.id, data);
             }
         }

@@ -1,8 +1,8 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::row::StringifyCellData;
+use crate::services::row::CellDataSerde;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use lazy_static::lazy_static;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
@@ -119,8 +119,8 @@ impl NumberDescription {
     }
 }
 
-impl StringifyCellData for NumberDescription {
-    fn str_from_cell_data(&self, data: String) -> String {
+impl CellDataSerde for NumberDescription {
+    fn deserialize_cell_data(&self, data: String) -> String {
         match self.format {
             NumberFormat::Number => data,
             NumberFormat::USD => self.money_from_str(&data, USD),
@@ -129,8 +129,8 @@ impl StringifyCellData for NumberDescription {
         }
     }
 
-    fn str_to_cell_data(&self, s: &str) -> Result<String, FlowyError> {
-        Ok(self.strip_symbol(s))
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        Ok(self.strip_symbol(data))
     }
 }
 
@@ -145,30 +145,42 @@ fn make_strip_symbol() -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use crate::services::cell::{NumberDescription, NumberFormat};
-    use crate::services::row::StringifyCellData;
+    use crate::services::row::CellDataSerde;
     use strum::IntoEnumIterator;
 
     #[test]
     fn number_description_test() {
         let mut description = NumberDescription::default();
-        assert_eq!(description.str_to_cell_data("¥18,443").unwrap(), "18443".to_owned());
-        assert_eq!(description.str_to_cell_data("$18,443").unwrap(), "18443".to_owned());
-        assert_eq!(description.str_to_cell_data("€18.443").unwrap(), "18443".to_owned());
+        assert_eq!(description.serialize_cell_data("¥18,443").unwrap(), "18443".to_owned());
+        assert_eq!(description.serialize_cell_data("$18,443").unwrap(), "18443".to_owned());
+        assert_eq!(description.serialize_cell_data("€18.443").unwrap(), "18443".to_owned());
 
         for format in NumberFormat::iter() {
             description.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "18443".to_owned()
+                    );
                 }
                 NumberFormat::USD => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "$18,443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "$18,443".to_owned()
+                    );
                 }
                 NumberFormat::CNY => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "¥18,443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "¥18,443".to_owned()
+                    );
                 }
                 NumberFormat::EUR => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "€18.443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "€18.443".to_owned()
+                    );
                 }
             }
         }
@@ -183,23 +195,26 @@ mod tests {
             description.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "18443".to_owned()
+                    );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "$1,844.3".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "¥1,844.3".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "€1.844,3".to_owned()
                     );
                 }
@@ -216,23 +231,26 @@ mod tests {
             description.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_eq!(description.str_from_cell_data("18443".to_owned()), "18443".to_owned());
+                    assert_eq!(
+                        description.deserialize_cell_data("18443".to_owned()),
+                        "18443".to_owned()
+                    );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "-$18,443".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "-¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        description.str_from_cell_data("18443".to_owned()),
+                        description.deserialize_cell_data("18443".to_owned()),
                         "-€18.443".to_owned()
                     );
                 }

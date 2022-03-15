@@ -1,7 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/text_cell_bloc.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

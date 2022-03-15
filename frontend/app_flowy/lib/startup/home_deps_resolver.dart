@@ -13,7 +13,6 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 

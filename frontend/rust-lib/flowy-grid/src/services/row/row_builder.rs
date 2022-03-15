@@ -1,14 +1,14 @@
-use flowy_grid_data_model::entities::{CellMeta, Field, RowMeta, DEFAULT_ROW_HEIGHT};
+use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
 use std::collections::HashMap;
 
 pub struct CreateRowContextBuilder<'a> {
     #[allow(dead_code)]
-    fields: &'a [Field],
+    fields: &'a [FieldMeta],
     ctx: CreateRowContext,
 }
 
 impl<'a> CreateRowContextBuilder<'a> {
-    pub fn new(fields: &'a [Field]) -> Self {
+    pub fn new(fields: &'a [FieldMeta]) -> Self {
         let ctx = CreateRowContext {
             row_id: uuid::Uuid::new_v4().to_string(),
             cell_by_field_id: Default::default(),

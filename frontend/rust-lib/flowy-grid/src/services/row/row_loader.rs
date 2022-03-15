@@ -1,7 +1,8 @@
-use crate::services::row::stringify_deserialize;
-use flowy_grid_data_model::entities::{Cell, CellMeta, Field, Row, RowMeta, RowOrder};
+use crate::services::row::deserialize_cell_data;
+use flowy_grid_data_model::entities::{Cell, CellMeta, FieldMeta, Row, RowMeta, RowOrder};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub(crate) struct RowIdsPerBlock {
     pub(crate) block_id: String,
@@ -21,15 +22,16 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
     map.into_values().collect::<Vec<_>>()
 }
 
-pub(crate) fn make_rows(fields: &[Field], row_metas: Vec<RowMeta>) -> Vec<Row> {
+pub(crate) fn make_rows(fields: &[FieldMeta], row_metas: Vec<Arc<RowMeta>>) -> Vec<Row> {
     let field_map = fields
         .iter()
         .map(|field| (&field.id, field))
-        .collect::<HashMap<&String, &Field>>();
+        .collect::<HashMap<&String, &FieldMeta>>();
 
-    let make_row = |row_meta: RowMeta| {
+    let make_row = |row_meta: Arc<RowMeta>| {
         let cell_by_field_id = row_meta
             .cell_by_field_id
+            .clone()
             .into_par_iter()
             .flat_map(|(field_id, raw_cell)| make_cell(&field_map, field_id, raw_cell))
             .collect::<HashMap<String, Cell>>();
@@ -45,9 +47,9 @@ pub(crate) fn make_rows(fields: &[Field], row_metas: Vec<RowMeta>) -> Vec<Row> {
 }
 
 #[inline(always)]
-fn make_cell(field_map: &HashMap<&String, &Field>, field_id: String, raw_cell: CellMeta) -> Option<(String, Cell)> {
-    let field = field_map.get(&field_id)?;
-    match stringify_deserialize(raw_cell.data, field) {
+fn make_cell(field_map: &HashMap<&String, &FieldMeta>, field_id: String, raw_cell: CellMeta) -> Option<(String, Cell)> {
+    let field_meta = field_map.get(&field_id)?;
+    match deserialize_cell_data(raw_cell.data, field_meta) {
         Ok(content) => {
             let cell = Cell::new(&field_id, content);
             Some((field_id, cell))
@@ -59,15 +61,16 @@ fn make_cell(field_map: &HashMap<&String, &Field>, field_id: String, raw_cell: C
     }
 }
 
-pub(crate) fn make_row_by_row_id(fields: &[Field], row_metas: Vec<RowMeta>) -> HashMap<String, Row> {
+pub(crate) fn make_row_by_row_id(fields: &[FieldMeta], row_metas: Vec<Arc<RowMeta>>) -> HashMap<String, Row> {
     let field_map = fields
         .iter()
         .map(|field| (&field.id, field))
-        .collect::<HashMap<&String, &Field>>();
+        .collect::<HashMap<&String, &FieldMeta>>();
 
-    let make_row = |row_meta: RowMeta| {
+    let make_row = |row_meta: Arc<RowMeta>| {
         let cell_by_field_id = row_meta
             .cell_by_field_id
+            .clone()
             .into_par_iter()
             .flat_map(|(field_id, raw_cell)| make_cell(&field_map, field_id, raw_cell))
             .collect::<HashMap<String, Cell>>();

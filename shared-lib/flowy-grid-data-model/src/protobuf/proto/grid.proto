@@ -1,12 +1,25 @@
 syntax = "proto3";
+import "meta.proto";
 
 message Grid {
     string id = 1;
     repeated FieldOrder field_orders = 2;
     repeated RowOrder row_orders = 3;
 }
+message Field {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+    FieldType field_type = 4;
+    bool frozen = 5;
+    bool visibility = 6;
+    int32 width = 7;
+}
 message FieldOrder {
     string field_id = 1;
+}
+message RepeatedField {
+    repeated Field items = 1;
 }
 message RepeatedFieldOrder {
     repeated FieldOrder items = 1;

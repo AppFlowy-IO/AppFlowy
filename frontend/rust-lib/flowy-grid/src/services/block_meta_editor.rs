@@ -119,11 +119,11 @@ impl GridBlockMetaEditorManager {
         }
     }
 
-    pub(crate) async fn get_all_rows(&self, grid_blocks: Vec<GridBlock>) -> FlowyResult<Vec<RowMeta>> {
+    pub(crate) async fn get_all_rows(&self, grid_blocks: Vec<GridBlock>) -> FlowyResult<Vec<Arc<RowMeta>>> {
         let mut row_metas = vec![];
         for grid_block in grid_blocks {
             let editor = self.get_editor(&grid_block.id).await?;
-            let new_row_metas = editor.get_rows(None).await?;
+            let new_row_metas = editor.get_row_metas(None).await?;
             new_row_metas.iter().for_each(|row_meta| {
                 self.block_id_by_row_id
                     .insert(row_meta.id.clone(), row_meta.block_id.clone());
@@ -134,12 +134,23 @@ impl GridBlockMetaEditorManager {
         Ok(row_metas)
     }
 
-    pub(crate) async fn get_rows(&self, row_orders: &RepeatedRowOrder) -> FlowyResult<Vec<RowMeta>> {
+    pub(crate) async fn get_row_orders(&self, grid_blocks: Vec<GridBlock>) -> FlowyResult<Vec<RowOrder>> {
+        let mut row_orders = vec![];
+        for grid_block in grid_blocks {
+            let editor = self.get_editor(&grid_block.id).await?;
+            let row_metas = editor.get_row_metas(None).await?;
+            let block_row_orders = row_metas.iter().map(|row_meta| RowOrder::from(row_meta));
+            row_orders.extend(block_row_orders);
+        }
+        Ok(row_orders)
+    }
+
+    pub(crate) async fn get_rows(&self, row_orders: &RepeatedRowOrder) -> FlowyResult<Vec<Arc<RowMeta>>> {
         let row_ids_per_blocks = make_row_ids_per_block(row_orders);
         let mut row_metas = vec![];
         for row_ids_per_block in row_ids_per_blocks {
             let editor = self.get_editor(&row_ids_per_block.block_id).await?;
-            let new_row_metas = editor.get_rows(Some(row_ids_per_block.row_ids)).await?;
+            let new_row_metas = editor.get_row_metas(Some(row_ids_per_block.row_ids)).await?;
             new_row_metas.iter().for_each(|row_meta| {
                 self.block_id_by_row_id
                     .insert(row_meta.id.clone(), row_meta.block_id.clone());
@@ -234,14 +245,21 @@ impl ClientGridBlockMetaEditor {
         Ok(())
     }
 
-    pub async fn get_rows(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<RowMeta>> {
-        match row_ids {
-            None => Ok(self.meta_pad.read().await.all_rows()),
-            Some(row_ids) => {
-                let rows = self.meta_pad.read().await.get_rows(row_ids)?;
-                Ok(rows)
-            }
-        }
+    pub async fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
+        let row_metas = self.meta_pad.read().await.get_rows(row_ids)?;
+        Ok(row_metas)
+    }
+
+    pub async fn get_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
+        let row_orders = self
+            .meta_pad
+            .read()
+            .await
+            .get_rows(None)?
+            .iter()
+            .map(|row_meta| RowOrder::from(row_meta))
+            .collect::<Vec<RowOrder>>();
+        Ok(row_orders)
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

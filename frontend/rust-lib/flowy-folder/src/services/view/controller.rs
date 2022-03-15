@@ -171,7 +171,6 @@ impl ViewController {
             data_type: view.data_type,
             data: delta_str,
             view_id: uuid(),
-            ext_data: view.ext_data,
             plugin_type: view.plugin_type,
         };
 

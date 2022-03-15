@@ -26,7 +26,7 @@ impl TextBlockEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let test = ViewTest::new_grid_view(&sdk).await;
+        let test = ViewTest::new_text_block_view(&sdk).await;
         let editor = sdk.text_block_manager.open_block(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }

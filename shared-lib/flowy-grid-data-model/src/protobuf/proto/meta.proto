@@ -2,7 +2,7 @@ syntax = "proto3";
 
 message GridMeta {
     string grid_id = 1;
-    repeated Field fields = 2;
+    repeated FieldMeta fields = 2;
     repeated GridBlock blocks = 3;
 }
 message GridBlock {
@@ -14,7 +14,7 @@ message GridBlockMeta {
     string block_id = 1;
     repeated RowMeta rows = 2;
 }
-message Field {
+message FieldMeta {
     string id = 1;
     string name = 2;
     string desc = 3;
@@ -33,9 +33,6 @@ message FieldChangeset {
     oneof one_of_visibility { bool visibility = 6; };
     oneof one_of_width { int32 width = 7; };
     oneof one_of_type_options { string type_options = 8; };
-}
-message RepeatedField {
-    repeated Field items = 1;
 }
 message AnyData {
     string type_id = 1;
