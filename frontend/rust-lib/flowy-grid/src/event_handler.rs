@@ -36,11 +36,7 @@ pub(crate) async fn get_fields_handler(
     let payload: QueryFieldPayload = data.into_inner();
     let editor = manager.get_grid_editor(&payload.grid_id)?;
     let field_metas = editor.get_field_metas(Some(payload.field_orders)).await?;
-    let repeated_field: RepeatedField = field_metas
-        .into_iter()
-        .map(|field_meta| Field::from(field_meta))
-        .collect::<Vec<_>>()
-        .into();
+    let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
 

@@ -1,8 +1,11 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
+use chrono::NaiveDateTime;
 use flowy_grid::services::cell::*;
 use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowContextBuilder};
-use flowy_grid_data_model::entities::{FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset};
+use flowy_grid_data_model::entities::{
+    CellMetaChangeset, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset,
+};
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -237,29 +240,28 @@ async fn grid_delete_row() {
 }
 
 #[tokio::test]
-async fn grid_update_cell() {
+async fn grid_row_add_cells_test() {
     let mut test = GridEditorTest::new().await;
     let mut builder = CreateRowContextBuilder::new(&test.field_metas);
     for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
                 let data = serialize_cell_data("hello world", field).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::Number => {
                 let data = serialize_cell_data("¥18,443", field).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::DateTime => {
                 let data = serialize_cell_data("1647251762", field).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::SingleSelect => {
                 let description = SingleSelectDescription::from(field);
                 let options = description.options.first().unwrap();
-
                 let data = description.serialize_cell_data(&options.id).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::MultiSelect => {
                 let description = MultiSelectDescription::from(field);
@@ -268,17 +270,161 @@ async fn grid_update_cell() {
                     .iter()
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
-                    .join(",");
+                    .join(SELECTION_IDS_SEPARATOR);
                 let data = description.serialize_cell_data(&options).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::Checkbox => {
                 let data = serialize_cell_data("false", field).unwrap();
-                builder = builder.add_cell(&field.id, data);
+                builder.add_cell(&field.id, data).unwrap();
             }
         }
     }
     let context = builder.build();
-    let scripts = vec![AssertRowCount(3), CreateRow { context }, AssertGridMetaPad];
+    let scripts = vec![CreateRow { context }, AssertGridMetaPad];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_row_add_selection_cell_test() {
+    let mut test = GridEditorTest::new().await;
+    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    let uuid = uuid::Uuid::new_v4().to_string();
+    let mut single_select_field_id = "".to_string();
+    let mut multi_select_field_id = "".to_string();
+    for field in &test.field_metas {
+        match field.field_type {
+            FieldType::SingleSelect => {
+                single_select_field_id = field.id.clone();
+                // The element must be parsed as uuid
+                assert!(builder.add_cell(&field.id, "data".to_owned()).is_err());
+                // // The data should not be empty
+                assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
+                // The element must be parsed as uuid
+                assert!(builder.add_cell(&field.id, "1,2,3".to_owned()).is_err(),);
+                // The separator must be comma
+                assert!(builder.add_cell(&field.id, format!("{}. {}", &uuid, &uuid),).is_err());
+                //
+
+                assert!(builder.add_cell(&field.id, uuid.clone()).is_ok());
+                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
+            }
+            FieldType::MultiSelect => {
+                multi_select_field_id = field.id.clone();
+                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
+            }
+            _ => {}
+        }
+    }
+    let context = builder.build();
+    assert_eq!(
+        &context
+            .cell_by_field_id
+            .get(&single_select_field_id)
+            .as_ref()
+            .unwrap()
+            .data,
+        &uuid
+    );
+    assert_eq!(
+        context
+            .cell_by_field_id
+            .get(&multi_select_field_id)
+            .as_ref()
+            .unwrap()
+            .data,
+        format!("{},{}", &uuid, &uuid)
+    );
+
+    let scripts = vec![CreateRow { context }];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_row_add_date_cell_test() {
+    let mut test = GridEditorTest::new().await;
+    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    let mut date_field = None;
+    let timestamp = 1647390674;
+    for field in &test.field_metas {
+        if field.field_type == FieldType::DateTime {
+            date_field = Some(field.clone());
+            NaiveDateTime::from_timestamp(123, 0);
+            // The data should not be empty
+            assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
+
+            assert!(builder.add_cell(&field.id, "123".to_owned()).is_ok());
+            assert!(builder.add_cell(&field.id, format!("{}", timestamp)).is_ok());
+        }
+    }
+    let context = builder.build();
+    let date_field = date_field.unwrap();
+    let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
+    assert_eq!(
+        deserialize_cell_data(cell_data.data.clone(), &date_field).unwrap(),
+        "2022/03/16 08:31",
+    );
+    let scripts = vec![CreateRow { context }];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_cell_update() {
+    let mut test = GridEditorTest::new().await;
+    let field_metas = &test.field_metas;
+    let row_metas = &test.row_metas;
+    assert_eq!(row_metas.len(), 3);
+
+    let mut scripts = vec![];
+    for (index, row_meta) in row_metas.iter().enumerate() {
+        for field_meta in field_metas {
+            if index == 0 {
+                let data = match field_meta.field_type {
+                    FieldType::RichText => "".to_string(),
+                    FieldType::Number => "123".to_string(),
+                    FieldType::DateTime => "123".to_string(),
+                    FieldType::SingleSelect => {
+                        let description = SingleSelectDescription::from(field_meta);
+                        description.options.first().unwrap().id.clone()
+                    }
+                    FieldType::MultiSelect => {
+                        let description = MultiSelectDescription::from(field_meta);
+                        description.options.first().unwrap().id.clone()
+                    }
+                    FieldType::Checkbox => "1".to_string(),
+                };
+
+                scripts.push(UpdateCell {
+                    changeset: CellMetaChangeset {
+                        row_id: row_meta.id.clone(),
+                        field_id: field_meta.id.clone(),
+                        data: Some(data),
+                    },
+                    is_err: false,
+                });
+            }
+
+            if index == 1 {
+                let (data, is_err) = match field_meta.field_type {
+                    FieldType::RichText => ("1".to_string().repeat(10001), true),
+                    FieldType::Number => ("abc".to_string(), true),
+                    FieldType::DateTime => ("abc".to_string(), true),
+                    FieldType::SingleSelect => ("abc".to_string(), true),
+                    FieldType::MultiSelect => ("abc".to_string(), true),
+                    FieldType::Checkbox => ("2".to_string(), false),
+                };
+
+                scripts.push(UpdateCell {
+                    changeset: CellMetaChangeset {
+                        row_id: row_meta.id.clone(),
+                        field_id: field_meta.id.clone(),
+                        data: Some(data),
+                    },
+                    is_err,
+                });
+            }
+        }
+    }
+
     test.run_scripts(scripts).await;
 }

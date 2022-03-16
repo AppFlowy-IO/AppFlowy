@@ -111,8 +111,7 @@ impl GridManager {
     ) -> Result<Arc<ClientGridEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let kv_persistence = self.get_kv_persistence()?;
-        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager, kv_persistence).await?;
+        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager).await?;
         Ok(grid_editor)
     }
 
@@ -137,6 +136,7 @@ impl GridManager {
         Ok(rev_manager)
     }
 
+    #[allow(dead_code)]
     fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
         let read_guard = self.kv_persistence.read();
         if read_guard.is_some() {
@@ -198,7 +198,7 @@ pub async fn make_grid_view_data(
     let grid_block_meta_delta = make_block_meta_delta(&build_context.grid_block_meta);
     let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =
-        Revision::initial_revision(&user_id, &block_id, block_meta_delta_data).into();
+        Revision::initial_revision(user_id, &block_id, block_meta_delta_data).into();
     let _ = grid_manager
         .create_grid_block_meta(&block_id, repeated_revision)
         .await?;

@@ -93,7 +93,7 @@ impl NumberDescription {
     }
 
     fn decimal_from_str(&self, s: &str) -> Decimal {
-        let mut decimal = Decimal::from_str(s).unwrap_or(Decimal::zero());
+        let mut decimal = Decimal::from_str(s).unwrap_or_else(|_| Decimal::zero());
         match decimal.set_scale(self.scale) {
             Ok(_) => {}
             Err(e) => {
@@ -130,7 +130,12 @@ impl CellDataSerde for NumberDescription {
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        Ok(self.strip_symbol(data))
+        let data = self.strip_symbol(data);
+
+        if !data.chars().all(char::is_numeric) {
+            return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+        }
+        Ok(data)
     }
 }
 
@@ -188,8 +193,10 @@ mod tests {
 
     #[test]
     fn number_description_scale_test() {
-        let mut description = NumberDescription::default();
-        description.scale = 1;
+        let mut description = NumberDescription {
+            scale: 1,
+            ..Default::default()
+        };
 
         for format in NumberFormat::iter() {
             description.format = format;
@@ -224,8 +231,10 @@ mod tests {
 
     #[test]
     fn number_description_sign_test() {
-        let mut description = NumberDescription::default();
-        description.sign_positive = false;
+        let mut description = NumberDescription {
+            sign_positive: false,
+            ..Default::default()
+        };
 
         for format in NumberFormat::iter() {
             description.format = format;

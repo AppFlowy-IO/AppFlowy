@@ -139,7 +139,7 @@ impl GridBlockMetaEditorManager {
         for grid_block in grid_blocks {
             let editor = self.get_editor(&grid_block.id).await?;
             let row_metas = editor.get_row_metas(None).await?;
-            let block_row_orders = row_metas.iter().map(|row_meta| RowOrder::from(row_meta));
+            let block_row_orders = row_metas.iter().map(RowOrder::from);
             row_orders.extend(block_row_orders);
         }
         Ok(row_orders)
@@ -257,7 +257,7 @@ impl ClientGridBlockMetaEditor {
             .await
             .get_rows(None)?
             .iter()
-            .map(|row_meta| RowOrder::from(row_meta))
+            .map(RowOrder::from)
             .collect::<Vec<RowOrder>>();
         Ok(row_orders)
     }

@@ -31,4 +31,6 @@ enum ErrorCode {
     UserNameIsEmpty = 310;
     UserIdInvalid = 311;
     UserNotExist = 312;
+    TextTooLong = 400;
+    InvalidData = 401;
 }

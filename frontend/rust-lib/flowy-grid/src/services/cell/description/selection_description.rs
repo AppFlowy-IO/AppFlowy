@@ -2,9 +2,13 @@ use crate::impl_from_and_to_type_option;
 use crate::services::row::CellDataSerde;
 use crate::services::util::*;
 use flowy_derive::ProtoBuf;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
 // Single select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -23,7 +27,7 @@ impl CellDataSerde for SingleSelectDescription {
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        Ok(select_option_id_from_data(data.to_owned(), true))
+        single_select_option_id_from_data(data.to_owned())
     }
 }
 
@@ -43,20 +47,45 @@ impl CellDataSerde for MultiSelectDescription {
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        Ok(select_option_id_from_data(data.to_owned(), false))
+        multi_select_option_id_from_data(data.to_owned())
     }
 }
 
-fn select_option_id_from_data(data: String, is_single_select: bool) -> String {
-    if !is_single_select {
-        return data;
-    }
-    let select_option_ids = data.split(',').collect::<Vec<&str>>();
+fn single_select_option_id_from_data(data: String) -> FlowyResult<String> {
+    let select_option_ids = select_option_ids(data)?;
     if select_option_ids.is_empty() {
-        return "".to_owned();
+        return Ok("".to_owned());
     }
 
-    select_option_ids.split_first().unwrap().0.to_string()
+    Ok(select_option_ids.split_first().unwrap().0.to_string())
+}
+
+fn multi_select_option_id_from_data(data: String) -> FlowyResult<String> {
+    let select_option_ids = select_option_ids(data)?;
+    Ok(select_option_ids.join(SELECTION_IDS_SEPARATOR))
+}
+
+fn select_option_ids(mut data: String) -> FlowyResult<Vec<String>> {
+    data.retain(|c| !c.is_whitespace());
+    let select_option_ids = data.split(SELECTION_IDS_SEPARATOR).collect::<Vec<&str>>();
+    if select_option_ids
+        .par_iter()
+        .find_first(|option_id| match Uuid::parse_str(option_id) {
+            Ok(_) => false,
+            Err(e) => {
+                tracing::error!("{}", e);
+                true
+            }
+        })
+        .is_some()
+    {
+        let msg = format!(
+            "Invalid selection id string: {}. It should consist of the uuid string and separated by comma",
+            data
+        );
+        return Err(FlowyError::internal().context(msg));
+    }
+    Ok(select_option_ids.iter().map(|id| id.to_string()).collect::<Vec<_>>())
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]

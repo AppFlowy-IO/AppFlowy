@@ -53,14 +53,11 @@ impl CellDataSerde for DateDescription {
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let timestamp = match data.parse::<i64>() {
-            Ok(timestamp) => timestamp,
-            Err(e) => {
-                tracing::error!("Parse {} to i64 failed: {}", data, e);
-                chrono::Utc::now().timestamp()
-            }
+        if let Err(e) = data.parse::<i64>() {
+            tracing::error!("Parse {} to i64 failed: {}", data, e);
+            return Err(FlowyError::internal().context(e));
         };
-        Ok(format!("{}", timestamp))
+        Ok(data.to_owned())
     }
 }
 

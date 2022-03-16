@@ -1,7 +1,7 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use strum::{EnumCount, IntoEnumIterator};
+
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
@@ -34,6 +34,10 @@ pub struct GridBlock {
 impl GridBlock {
     pub fn len(&self) -> i32 {
         self.start_row_index + self.row_count
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.row_count == 0
     }
 }
 

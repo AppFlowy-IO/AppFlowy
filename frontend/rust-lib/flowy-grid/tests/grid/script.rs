@@ -1,8 +1,6 @@
 use bytes::Bytes;
 use flowy_collaboration::client_grid::GridBuilder;
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
-use flowy_error::FlowyResult;
-use flowy_grid::manager::{make_grid_view_data, GridManager};
+
 use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
@@ -16,7 +14,7 @@ use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;
 use std::time::Duration;
-use strum::{EnumCount, IntoEnumIterator};
+use strum::EnumCount;
 use tokio::time::sleep;
 
 pub enum EditorScript {
@@ -65,6 +63,7 @@ pub enum EditorScript {
     },
     UpdateCell {
         changeset: CellMetaChangeset,
+        is_err: bool,
     },
     AssertRowCount(usize),
     // AssertRowEqual{ row_index: usize, row: RowMeta},
@@ -199,9 +198,14 @@ impl GridEditorTest {
                     assert_eq!(row.height, height);
                 }
             }
-            EditorScript::UpdateCell { changeset } => {
-                self.editor.update_cell(changeset).await.unwrap();
-                self.row_metas = self.editor.get_row_metas(None).await.unwrap();
+            EditorScript::UpdateCell { changeset, is_err } => {
+                let result = self.editor.update_cell(changeset).await;
+                if is_err {
+                    assert!(result.is_err())
+                } else {
+                    let _ = result.unwrap();
+                    self.row_metas = self.editor.get_row_metas(None).await.unwrap();
+                }
             }
             EditorScript::AssertRowCount(count) => {
                 assert_eq!(self.editor.get_rows(None).await.unwrap().len(), count);

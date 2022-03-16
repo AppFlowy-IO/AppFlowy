@@ -58,19 +58,15 @@ impl GridMetaPad {
     }
 
     pub fn contain_field(&self, field_id: &str) -> bool {
-        self.grid_meta
-            .fields
-            .iter()
-            .find(|field| &field.id == field_id)
-            .is_some()
+        self.grid_meta.fields.iter().any(|field| field.id == field_id)
+    }
+
+    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
+        self.grid_meta.fields.iter().find(|field| field.id == field_id)
     }
 
     pub fn get_field_orders(&self) -> Vec<FieldOrder> {
-        self.grid_meta
-            .fields
-            .iter()
-            .map(|field_meta| FieldOrder::from(field_meta))
-            .collect()
+        self.grid_meta.fields.iter().map(FieldOrder::from).collect()
     }
 
     pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
@@ -154,7 +150,7 @@ impl GridMetaPad {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
                         {
-                            let msg = format!("GridBlock's start_row_index should be greater than the last_block's start_row_index and its len");
+                            let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
                         grid.blocks.push(block);

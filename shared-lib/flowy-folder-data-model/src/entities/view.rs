@@ -4,7 +4,7 @@ use crate::{
     impl_def_and_def_mut,
     parser::{
         app::AppIdentify,
-        view::{ViewDesc, ViewExtensionData, ViewIdentify, ViewName, ViewThumbnail},
+        view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};

@@ -4,7 +4,7 @@ use flowy_collaboration::client_document::default::initial_quill_delta_string;
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
-use flowy_folder::errors::FlowyResult;
+
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{

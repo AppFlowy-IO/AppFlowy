@@ -1,17 +1,9 @@
-use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBlockMetaDelta, GridMetaDelta};
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, GridBlock, GridBlockMeta, GridMeta, RowMeta};
+use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, RowMeta};
 
+#[derive(Default)]
 pub struct GridBuilder {
     build_context: BuildGridContext,
-}
-
-impl std::default::Default for GridBuilder {
-    fn default() -> Self {
-        Self {
-            build_context: Default::default(),
-        }
-    }
 }
 
 impl GridBuilder {
@@ -63,7 +55,7 @@ mod tests {
             .build();
 
         let grid_meta = GridMeta {
-            grid_id: grid_id.clone(),
+            grid_id,
             fields: build_context.field_metas,
             blocks: vec![build_context.grid_block],
         };

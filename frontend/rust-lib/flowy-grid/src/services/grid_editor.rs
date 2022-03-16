@@ -1,19 +1,19 @@
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
 use bytes::Bytes;
 use flowy_collaboration::client_grid::{GridChange, GridMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlock, GridBlockChangeset, RepeatedFieldOrder,
+    CellMetaChangeset, FieldChangeset, FieldMeta, Grid, GridBlock, GridBlockChangeset, RepeatedFieldOrder,
     RepeatedRowOrder, Row, RowMeta, RowMetaChangeset,
 };
 use std::collections::HashMap;
 
 use crate::services::row::{
-    make_row_by_row_id, make_rows, row_meta_from_context, CreateRowContext, CreateRowContextBuilder,
+    make_row_by_row_id, make_rows, row_meta_from_context, serialize_cell_data, CreateRowContext,
+    CreateRowContextBuilder,
 };
 use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
@@ -27,7 +27,6 @@ pub struct ClientGridEditor {
     grid_meta_pad: Arc<RwLock<GridMetaPad>>,
     rev_manager: Arc<RevisionManager>,
     block_meta_manager: Arc<GridBlockMetaEditorManager>,
-    kv_persistence: Arc<GridKVPersistence>,
 }
 
 impl ClientGridEditor {
@@ -35,7 +34,6 @@ impl ClientGridEditor {
         grid_id: &str,
         user: Arc<dyn GridUser>,
         mut rev_manager: RevisionManager,
-        kv_persistence: Arc<GridKVPersistence>,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
@@ -52,7 +50,6 @@ impl ClientGridEditor {
             grid_meta_pad,
             rev_manager,
             block_meta_manager,
-            kv_persistence,
         }))
     }
 
@@ -88,7 +85,8 @@ impl ClientGridEditor {
     pub async fn create_row(&self) -> FlowyResult<()> {
         let field_metas = self.grid_meta_pad.read().await.get_field_metas(None)?;
         let block_id = self.last_block_id().await?;
-        let row = row_meta_from_context(&block_id, CreateRowContextBuilder::new(&field_metas).build());
+        let create_row_ctx = CreateRowContextBuilder::new(&field_metas).build();
+        let row = row_meta_from_context(&block_id, create_row_ctx);
         let row_count = self.block_meta_manager.create_row(row).await?;
         let changeset = GridBlockChangeset::from_row_count(&block_id, row_count);
         let _ = self.update_block(changeset).await?;
@@ -98,12 +96,11 @@ impl ClientGridEditor {
     pub async fn insert_rows(&self, contexts: Vec<CreateRowContext>) -> FlowyResult<()> {
         let block_id = self.last_block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowMeta>> = HashMap::new();
-
         for ctx in contexts {
             let row_meta = row_meta_from_context(&block_id, ctx);
             rows_by_block_id
                 .entry(block_id.clone())
-                .or_insert(Vec::new())
+                .or_insert_with(Vec::new)
                 .push(row_meta);
         }
         let changesets = self.block_meta_manager.insert_row(rows_by_block_id).await?;
@@ -118,6 +115,18 @@ impl ClientGridEditor {
     }
 
     pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
+        if let Some(cell_data) = changeset.data.as_ref() {
+            match self.grid_meta_pad.read().await.get_field(&changeset.field_id) {
+                None => {
+                    return Err(FlowyError::internal()
+                        .context(format!("Can not find the field with id: {}", &changeset.field_id)));
+                }
+                Some(field_meta) => {
+                    let _ = serialize_cell_data(cell_data, field_meta)?;
+                }
+            }
+        }
+
         let row_changeset: RowMetaChangeset = changeset.into();
         self.update_row(row_changeset).await
     }

@@ -52,7 +52,7 @@ impl GridBlockMetaPad {
 
     pub fn get_rows(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
         match row_ids {
-            None => Ok(self.rows.iter().map(|row| row.clone()).collect::<Vec<_>>()),
+            None => Ok(self.rows.to_vec()),
             Some(row_ids) => {
                 let row_map = self
                     .rows

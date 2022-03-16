@@ -83,6 +83,10 @@ pub enum ErrorCode {
     UserIdInvalid = 311,
     #[display(fmt = "User not exist")]
     UserNotExist = 312,
+    #[display(fmt = "Text is too long")]
+    TextTooLong = 400,
+    #[display(fmt = "Invalid data")]
+    InvalidData = 401,
 }
 
 impl ErrorCode {

@@ -19,6 +19,11 @@ impl CellDataSerde for RichTextDescription {
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        Ok(data.to_owned())
+        let data = data.to_owned();
+        if data.len() > 10000 {
+            Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
+        } else {
+            Ok(data)
+        }
     }
 }
