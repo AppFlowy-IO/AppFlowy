@@ -18,7 +18,7 @@ class DocumentService {
     final payload = BlockDelta.create()
       ..blockId = docId
       ..deltaStr = data;
-    return FolderEventApplyDocDelta(payload).send();
+    return BlockEventApplyDelta(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {

@@ -24,6 +24,4 @@ enum FolderEvent {
     DeleteTrash = 302;
     RestoreAllTrash = 303;
     DeleteAllTrash = 304;
-    ApplyDocDelta = 400;
-    ExportDocument = 500;
 }

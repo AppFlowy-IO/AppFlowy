@@ -33,8 +33,6 @@ class FolderEvent extends $pb.ProtobufEnum {
   static const FolderEvent DeleteTrash = FolderEvent._(302, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteTrash');
   static const FolderEvent RestoreAllTrash = FolderEvent._(303, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RestoreAllTrash');
   static const FolderEvent DeleteAllTrash = FolderEvent._(304, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteAllTrash');
-  static const FolderEvent ApplyDocDelta = FolderEvent._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
-  static const FolderEvent ExportDocument = FolderEvent._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
 
   static const $core.List<FolderEvent> values = <FolderEvent> [
     CreateWorkspace,
@@ -60,8 +58,6 @@ class FolderEvent extends $pb.ProtobufEnum {
     DeleteTrash,
     RestoreAllTrash,
     DeleteAllTrash,
-    ApplyDocDelta,
-    ExportDocument,
   ];
 
   static final $core.Map<$core.int, FolderEvent> _byValue = $pb.ProtobufEnum.initByValue(values);
