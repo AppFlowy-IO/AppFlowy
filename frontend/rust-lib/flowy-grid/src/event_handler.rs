@@ -45,11 +45,11 @@ pub(crate) async fn get_fields_handler(
 pub(crate) async fn create_row_handler(
     data: Data<CreateRowPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<Row, FlowyError> {
+) -> Result<(), FlowyError> {
     let payload: CreateRowPayload = data.into_inner();
     let editor = manager.get_grid_editor(payload.grid_id.as_ref())?;
-    let row = editor.create_row(payload.upper_row_id).await?;
-    data_result(row)
+    let _ = editor.create_row(payload.upper_row_id).await?;
+    Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

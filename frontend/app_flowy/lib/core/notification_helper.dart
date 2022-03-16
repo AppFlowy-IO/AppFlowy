@@ -4,7 +4,9 @@ import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 
+// User
 typedef UserNotificationCallback = void Function(UserNotification, Either<Uint8List, FlowyError>);
 
 class UserNotificationParser extends NotificationParser<UserNotification, FlowyError> {
@@ -17,14 +19,28 @@ class UserNotificationParser extends NotificationParser<UserNotification, FlowyE
         );
 }
 
-typedef NotificationCallback = void Function(FolderNotification, Either<Uint8List, FlowyError>);
+// Folder
+typedef FolderNotificationCallback = void Function(FolderNotification, Either<Uint8List, FlowyError>);
 
 class FolderNotificationParser extends NotificationParser<FolderNotification, FlowyError> {
-  FolderNotificationParser({String? id, required NotificationCallback callback})
+  FolderNotificationParser({String? id, required FolderNotificationCallback callback})
       : super(
           id: id,
           callback: callback,
           tyParser: (ty) => FolderNotification.valueOf(ty),
+          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
+        );
+}
+
+// Grid
+typedef GridNotificationCallback = void Function(GridNotification, Either<Uint8List, FlowyError>);
+
+class GridNotificationParser extends NotificationParser<GridNotification, FlowyError> {
+  GridNotificationParser({String? id, required GridNotificationCallback callback})
+      : super(
+          id: id,
+          callback: callback,
+          tyParser: (ty) => GridNotification.valueOf(ty),
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }

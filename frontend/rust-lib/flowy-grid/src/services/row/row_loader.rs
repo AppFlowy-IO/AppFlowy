@@ -48,7 +48,11 @@ pub(crate) fn make_rows(fields: &[FieldMeta], row_metas: Vec<Arc<RowMeta>>) -> V
 }
 
 #[inline(always)]
-fn make_cell(field_map: &HashMap<&String, &FieldMeta>, field_id: String, raw_cell: CellMeta) -> Option<(String, Cell)> {
+pub fn make_cell(
+    field_map: &HashMap<&String, &FieldMeta>,
+    field_id: String,
+    raw_cell: CellMeta,
+) -> Option<(String, Cell)> {
     let field_meta = field_map.get(&field_id)?;
     match deserialize_cell_data(raw_cell.data, field_meta) {
         Ok(content) => {
@@ -63,9 +67,9 @@ fn make_cell(field_map: &HashMap<&String, &FieldMeta>, field_id: String, raw_cel
 }
 
 pub(crate) fn make_row_by_row_id(fields: &[FieldMeta], row_metas: Vec<Arc<RowMeta>>) -> HashMap<String, Row> {
-    let field_map = fields
+    let field_meta_map = fields
         .iter()
-        .map(|field| (&field.id, field))
+        .map(|field_meta| (&field_meta.id, field_meta))
         .collect::<HashMap<&String, &FieldMeta>>();
 
     let make_row = |row_meta: Arc<RowMeta>| {
@@ -73,7 +77,7 @@ pub(crate) fn make_row_by_row_id(fields: &[FieldMeta], row_metas: Vec<Arc<RowMet
             .cell_by_field_id
             .clone()
             .into_par_iter()
-            .flat_map(|(field_id, raw_cell)| make_cell(&field_map, field_id, raw_cell))
+            .flat_map(|(field_id, raw_cell)| make_cell(&field_meta_map, field_id, raw_cell))
             .collect::<HashMap<String, Cell>>();
 
         let row = Row {

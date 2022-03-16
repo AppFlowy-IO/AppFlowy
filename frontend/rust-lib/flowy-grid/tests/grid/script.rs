@@ -172,7 +172,7 @@ impl GridEditorTest {
                 assert_eq!(compared_block, block);
             }
             EditorScript::CreateEmptyRow => {
-                self.editor.create_row().await.unwrap();
+                self.editor.create_row(None).await.unwrap();
                 self.row_metas = self.editor.get_row_metas(None).await.unwrap();
                 self.grid_blocks = self.editor.get_blocks().await.unwrap();
             }

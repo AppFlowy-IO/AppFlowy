@@ -35,7 +35,7 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChange>> {
+    pub fn create_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
             if grid.fields.contains(&field_meta) {
                 tracing::warn!("Duplicate grid field");
@@ -47,7 +47,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChange>> {
+    pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
             None => Ok(None),
             Some(index) => {
@@ -95,7 +95,7 @@ impl GridMetaPad {
         }
     }
 
-    pub fn update_field(&mut self, changeset: FieldChangeset) -> CollaborateResult<Option<GridChange>> {
+    pub fn update_field(&mut self, changeset: FieldChangeset) -> CollaborateResult<Option<GridChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -138,7 +138,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn create_block(&mut self, block: GridBlock) -> CollaborateResult<Option<GridChange>> {
+    pub fn create_block(&mut self, block: GridBlock) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
             if grid.blocks.iter().any(|b| b.id == block.id) {
                 tracing::warn!("Duplicate grid block");
@@ -165,7 +165,7 @@ impl GridMetaPad {
         self.grid_meta.blocks.clone()
     }
 
-    pub fn update_block(&mut self, changeset: GridBlockChangeset) -> CollaborateResult<Option<GridChange>> {
+    pub fn update_block(&mut self, changeset: GridBlockChangeset) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
@@ -200,7 +200,7 @@ impl GridMetaPad {
         &self.grid_meta.fields
     }
 
-    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChange>>
+    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut GridMeta) -> CollaborateResult<Option<()>>,
     {
@@ -214,14 +214,14 @@ impl GridMetaPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(GridChange { delta, md5: self.md5() }))
+                        Ok(Some(GridChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    pub fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChange>>
+    pub fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut GridBlock) -> CollaborateResult<Option<()>>,
     {
@@ -234,7 +234,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChange>>
+    pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut FieldMeta) -> CollaborateResult<Option<()>>,
     {
@@ -254,7 +254,7 @@ fn json_from_grid(grid: &Arc<GridMeta>) -> CollaborateResult<String> {
     Ok(json)
 }
 
-pub struct GridChange {
+pub struct GridChangeset {
     pub delta: GridMetaDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,

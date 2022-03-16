@@ -16,6 +16,8 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
+import '../workspace/application/grid/grid_listener.dart';
+
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
     getIt.registerFactoryParam<UserListener, UserProfile, void>(
@@ -90,10 +92,7 @@ class HomeDepsResolver {
 
     // Grid
     getIt.registerFactoryParam<GridBloc, View, void>(
-      (view, _) => GridBloc(
-        view: view,
-        service: GridService(),
-      ),
+      (view, _) => GridBloc(view: view, service: GridService(), listener: GridListener(gridId: view.id)),
     );
 
     getIt.registerFactoryParam<RowBloc, GridRowData, void>(

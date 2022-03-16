@@ -204,6 +204,31 @@ impl Cell {
     }
 }
 
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedCell {
+    #[pb(index = 1)]
+    pub items: Vec<Cell>,
+}
+
+impl std::ops::Deref for RepeatedCell {
+    type Target = Vec<Cell>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedCell {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
+}
+
+impl std::convert::From<Vec<Cell>> for RepeatedCell {
+    fn from(items: Vec<Cell>) -> Self {
+        Self { items }
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct CreateGridPayload {
     #[pb(index = 1)]

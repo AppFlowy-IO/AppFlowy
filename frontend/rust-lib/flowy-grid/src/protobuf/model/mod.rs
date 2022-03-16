@@ -7,6 +7,9 @@ pub use date_description::*;
 mod text_description;
 pub use text_description::*;
 
+mod dart_notification;
+pub use dart_notification::*;
+
 mod checkbox_description;
 pub use checkbox_description::*;
 

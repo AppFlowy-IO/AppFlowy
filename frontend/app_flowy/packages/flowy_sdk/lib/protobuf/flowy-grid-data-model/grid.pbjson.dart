@@ -131,6 +131,16 @@ const Cell$json = const {
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQ=');
+@$core.Deprecated('Use repeatedCellDescriptor instead')
+const RepeatedCell$json = const {
+  '1': 'RepeatedCell',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Cell', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedCell`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedCellDescriptor = $convert.base64Decode('CgxSZXBlYXRlZENlbGwSGwoFaXRlbXMYASADKAsyBS5DZWxsUgVpdGVtcw==');
 @$core.Deprecated('Use createGridPayloadDescriptor instead')
 const CreateGridPayload$json = const {
   '1': 'CreateGridPayload',

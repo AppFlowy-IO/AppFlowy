@@ -43,6 +43,9 @@ message Cell {
     string field_id = 1;
     string content = 2;
 }
+message RepeatedCell {
+    repeated Cell items = 1;
+}
 message CreateGridPayload {
     string name = 1;
 }

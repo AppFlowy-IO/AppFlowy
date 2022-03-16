@@ -607,6 +607,47 @@ class Cell extends $pb.GeneratedMessage {
   void clearContent() => clearField(2);
 }
 
+class RepeatedCell extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedCell', createEmptyInstance: create)
+    ..pc<Cell>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Cell.create)
+    ..hasRequiredFields = false
+  ;
+
+  RepeatedCell._() : super();
+  factory RepeatedCell({
+    $core.Iterable<Cell>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory RepeatedCell.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedCell.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RepeatedCell clone() => RepeatedCell()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RepeatedCell copyWith(void Function(RepeatedCell) updates) => super.copyWith((message) => updates(message as RepeatedCell)) as RepeatedCell; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RepeatedCell create() => RepeatedCell._();
+  RepeatedCell createEmptyInstance() => create();
+  static $pb.PbList<RepeatedCell> createRepeated() => $pb.PbList<RepeatedCell>();
+  @$core.pragma('dart2js:noInline')
+  static RepeatedCell getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedCell>(create);
+  static RepeatedCell? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Cell> get items => $_getList(0);
+}
+
 class CreateGridPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateGridPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')

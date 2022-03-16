@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'data.dart';
+import 'grid_listener.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
@@ -15,14 +16,16 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService service;
   final View view;
+  final GridListener listener;
   Grid? _grid;
   List<Field>? _fields;
 
-  GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
+  GridBloc({required this.view, required this.service, required this.listener}) : super(GridState.initial()) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (InitialGrid value) async {
+            await _startGridListening();
             await _loadGrid(emit);
             await _loadFields(emit);
             await _loadGridInfo(emit);
@@ -40,7 +43,23 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
+    await listener.close();
     return super.close();
+  }
+
+  Future<void> _startGridListening() async {
+    listener.createRowNotifier.addPublishListener((result) {
+      result.fold((row) {
+        //
+        Log.info("$row");
+      }, (err) => null);
+    });
+
+    listener.deleteRowNotifier.addPublishListener((result) {
+      result.fold((l) => null, (r) => null);
+    });
+
+    listener.start();
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
