@@ -223,6 +223,15 @@ impl AsRef<str> for GridId {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct CreateRowPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub upper_row_id: Option<String>,
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct QueryFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,

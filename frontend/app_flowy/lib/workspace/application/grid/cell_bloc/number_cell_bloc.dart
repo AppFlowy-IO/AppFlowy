@@ -7,15 +7,11 @@ import 'cell_service.dart';
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final Field field;
-  final Cell? cell;
   final CellService service;
 
   NumberCellBloc({
-    required this.field,
-    required this.cell,
     required this.service,
-  }) : super(NumberCellState.initial(cell)) {
+  }) : super(NumberCellState.initial(service.context.cell)) {
     on<NumberCellEvent>(
       (event, emit) async {
         await event.map(

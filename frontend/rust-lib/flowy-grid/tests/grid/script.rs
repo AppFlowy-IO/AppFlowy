@@ -4,7 +4,7 @@ use flowy_collaboration::client_grid::GridBuilder;
 use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
-use flowy_grid::services::row::CreateRowContext;
+use flowy_grid::services::row::RowMetaContext;
 use flowy_grid_data_model::entities::{
     BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlock, GridBlockChangeset, RowMeta,
     RowMetaChangeset,
@@ -50,7 +50,7 @@ pub enum EditorScript {
     },
     CreateEmptyRow,
     CreateRow {
-        context: CreateRowContext,
+        context: RowMetaContext,
     },
     UpdateRow {
         changeset: RowMetaChangeset,

@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/row_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -20,7 +20,7 @@ class GridFooter extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(width: GridSize.leadingHeaderPadding),
-              const SizedBox(width: 120, child: AddRowButton()),
+              const SizedBox(width: 120, child: _AddRowButton()),
             ],
           ),
         ),
@@ -29,8 +29,8 @@ class GridFooter extends StatelessWidget {
   }
 }
 
-class AddRowButton extends StatelessWidget {
-  const AddRowButton({Key? key}) : super(key: key);
+class _AddRowButton extends StatelessWidget {
+  const _AddRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class AddRowButton extends StatelessWidget {
     return FlowyButton(
       text: const FlowyText.medium('New row', fontSize: 12),
       hoverColor: theme.hover,
-      onTap: () => context.read<RowBloc>().add(const RowEvent.createRow()),
+      onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       icon: svg("home/add"),
     );
   }

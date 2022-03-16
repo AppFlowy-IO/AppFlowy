@@ -1,16 +1,14 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/date_cell_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DateCell extends StatefulWidget {
-  final Field field;
-  final Cell? cell;
+  final CellContext cellContext;
 
   const DateCell({
-    required this.field,
-    required this.cell,
+    required this.cellContext,
     Key? key,
   }) : super(key: key);
 
@@ -23,7 +21,7 @@ class _DateCellState extends State<DateCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<DateCellBloc>(param1: widget.field, param2: widget.cell);
+    _cellBloc = getIt<DateCellBloc>(param1: widget.cellContext);
     super.initState();
   }
 
@@ -41,7 +39,7 @@ class _DateCellState extends State<DateCell> {
 
   @override
   Future<void> dispose() async {
-    await _cellBloc.close();
+    _cellBloc.close();
     super.dispose();
   }
 }

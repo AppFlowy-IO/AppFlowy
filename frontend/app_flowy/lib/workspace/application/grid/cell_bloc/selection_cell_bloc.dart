@@ -7,15 +7,11 @@ import 'cell_service.dart';
 part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
-  final Field field;
-  final Cell? cell;
   final CellService service;
 
   SelectionCellBloc({
-    required this.field,
-    required this.cell,
     required this.service,
-  }) : super(SelectionCellState.initial(cell)) {
+  }) : super(SelectionCellState.initial(service.context.cell)) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(

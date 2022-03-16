@@ -7,15 +7,11 @@ import 'cell_service.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final Field field;
-  final Cell? cell;
   final CellService service;
 
   CheckboxCellBloc({
-    required this.field,
-    required this.cell,
     required this.service,
-  }) : super(CheckboxCellState.initial(cell)) {
+  }) : super(CheckboxCellState.initial(service.context.cell)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(

@@ -49,6 +49,10 @@ message CreateGridPayload {
 message GridId {
     string value = 1;
 }
+message CreateRowPayload {
+    string grid_id = 1;
+    oneof one_of_upper_row_id { string upper_row_id = 2; };
+}
 message QueryFieldPayload {
     string grid_id = 1;
     RepeatedFieldOrder field_orders = 2;

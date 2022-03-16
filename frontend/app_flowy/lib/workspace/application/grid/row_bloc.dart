@@ -9,12 +9,14 @@ part 'row_bloc.freezed.dart';
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService service;
 
-  RowBloc({required GridRowData data, required this.service}) : super(RowState.initial(data)) {
+  RowBloc({required this.service}) : super(RowState.initial(service.rowData)) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {},
-          createRow: (_CreateRow value) {},
+          createRow: (_CreateRow value) {
+            service.createRow();
+          },
           activeRow: (_ActiveRow value) {
             emit(state.copyWith(active: true));
           },

@@ -12,8 +12,10 @@ class GridService {
     return GridEventGetGridData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> createRow({required String gridId}) {
-    return GridEventCreateRow(GridId(value: gridId)).send();
+  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? upperRowId}) {
+    CreateRowPayload payload = CreateRowPayload.create()..gridId = gridId;
+    upperRowId?.fold(() => null, (id) => payload.upperRowId = id);
+    return GridEventCreateRow(payload).send();
   }
 
   Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required List<RowOrder> rowOrders}) {

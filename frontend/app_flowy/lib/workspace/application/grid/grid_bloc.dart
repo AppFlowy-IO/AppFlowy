@@ -70,11 +70,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadGridInfo(Emitter<GridState> emit) async {
-    if (_grid != null && _fields != null) {
-      final result = await service.getRows(gridId: _grid!.id, rowOrders: _grid!.rowOrders);
+    final grid = _grid;
+    if (grid != null && _fields != null) {
+      final result = await service.getRows(gridId: grid.id, rowOrders: grid.rowOrders);
       result.fold((repeatedRow) {
         final rows = repeatedRow.items;
-        final gridInfo = GridInfo(rows: rows, fields: _fields!);
+        final gridInfo = GridInfo(gridId: grid.id, rows: rows, fields: _fields!);
         emit(
           state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
         );

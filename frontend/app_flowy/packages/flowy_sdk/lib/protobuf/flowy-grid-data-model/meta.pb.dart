@@ -922,24 +922,29 @@ enum CellMetaChangeset_OneOfData {
 
 class CellMetaChangeset extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, CellMetaChangeset_OneOfData> _CellMetaChangeset_OneOfDataByTag = {
-    3 : CellMetaChangeset_OneOfData.data,
+    4 : CellMetaChangeset_OneOfData.data,
     0 : CellMetaChangeset_OneOfData.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellMetaChangeset', createEmptyInstance: create)
-    ..oo(0, [3])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..oo(0, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..hasRequiredFields = false
   ;
 
   CellMetaChangeset._() : super();
   factory CellMetaChangeset({
+    $core.String? gridId,
     $core.String? rowId,
     $core.String? fieldId,
     $core.String? data,
   }) {
     final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
     if (rowId != null) {
       _result.rowId = rowId;
     }
@@ -976,31 +981,40 @@ class CellMetaChangeset extends $pb.GeneratedMessage {
   void clearOneOfData() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $core.String get rowId => $_getSZ(0);
+  $core.String get gridId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set rowId($core.String v) { $_setString(0, v); }
+  set gridId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasRowId() => $_has(0);
+  $core.bool hasGridId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearRowId() => clearField(1);
+  void clearGridId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get fieldId => $_getSZ(1);
+  $core.String get rowId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fieldId($core.String v) { $_setString(1, v); }
+  set rowId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasFieldId() => $_has(1);
+  $core.bool hasRowId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearFieldId() => clearField(2);
+  void clearRowId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get data => $_getSZ(2);
+  $core.String get fieldId => $_getSZ(2);
   @$pb.TagNumber(3)
-  set data($core.String v) { $_setString(2, v); }
+  set fieldId($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasData() => $_has(2);
+  $core.bool hasFieldId() => $_has(2);
   @$pb.TagNumber(3)
-  void clearData() => clearField(3);
+  void clearFieldId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get data => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set data($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasData() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearData() => clearField(4);
 }
 
 class BuildGridContext extends $pb.GeneratedMessage {

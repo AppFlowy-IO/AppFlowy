@@ -3,19 +3,19 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
 use std::collections::HashMap;
 
-pub struct CreateRowContextBuilder<'a> {
+pub struct RowMetaContextBuilder<'a> {
     field_meta_map: HashMap<&'a String, &'a FieldMeta>,
-    ctx: CreateRowContext,
+    ctx: RowMetaContext,
 }
 
-impl<'a> CreateRowContextBuilder<'a> {
+impl<'a> RowMetaContextBuilder<'a> {
     pub fn new(fields: &'a [FieldMeta]) -> Self {
         let field_meta_map = fields
             .iter()
             .map(|field| (&field.id, field))
             .collect::<HashMap<&String, &FieldMeta>>();
 
-        let ctx = CreateRowContext {
+        let ctx = RowMetaContext {
             row_id: uuid::Uuid::new_v4().to_string(),
             cell_by_field_id: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
@@ -52,12 +52,12 @@ impl<'a> CreateRowContextBuilder<'a> {
         self
     }
 
-    pub fn build(self) -> CreateRowContext {
+    pub fn build(self) -> RowMetaContext {
         self.ctx
     }
 }
 
-pub fn row_meta_from_context(block_id: &str, ctx: CreateRowContext) -> RowMeta {
+pub fn row_meta_from_context(block_id: &str, ctx: RowMetaContext) -> RowMeta {
     RowMeta {
         id: ctx.row_id,
         block_id: block_id.to_owned(),
@@ -67,7 +67,7 @@ pub fn row_meta_from_context(block_id: &str, ctx: CreateRowContext) -> RowMeta {
     }
 }
 
-pub struct CreateRowContext {
+pub struct RowMetaContext {
     pub row_id: String,
     pub cell_by_field_id: HashMap<String, CellMeta>,
     pub height: i32,

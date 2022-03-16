@@ -12,10 +12,11 @@ pub fn make_default_grid() -> BuildGridContext {
 
     let single_select = SingleSelectTypeOptionsBuilder::default()
         .option(SelectOption::new("Done"))
+        .option(SelectOption::new("Unknown"))
         .option(SelectOption::new("Progress"));
 
     let single_select_field = FieldBuilder::new(single_select)
-        .name("Name")
+        .name("Status")
         .visibility(true)
         .field_type(FieldType::SingleSelect)
         .build();

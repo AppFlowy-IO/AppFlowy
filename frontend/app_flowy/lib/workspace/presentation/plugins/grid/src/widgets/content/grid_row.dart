@@ -54,7 +54,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   @override
   Future<void> dispose() async {
-    await _rowBloc.close();
+    _rowBloc.close();
     super.dispose();
   }
 
@@ -66,10 +66,17 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           key: ValueKey(state.data.row.id),
           children: state.data.fields.map(
             (field) {
-              final cellData = state.data.cellMap[field.id];
+              final cell = state.data.cellMap[field.id];
               return CellContainer(
                 width: field.width.toDouble(),
-                child: buildGridCell(field, cellData),
+                child: buildGridCell(
+                  CellContext(
+                    gridId: state.data.gridId,
+                    rowId: state.data.row.id,
+                    field: field,
+                    cell: cell,
+                  ),
+                ),
               );
             },
           ).toList(),
@@ -93,7 +100,7 @@ class LeadingRow extends StatelessWidget {
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    CreateRowButton(),
+                    AppendRowButton(),
                   ],
                 )
               : null,
@@ -125,8 +132,8 @@ class TrailingRow extends StatelessWidget {
   }
 }
 
-class CreateRowButton extends StatelessWidget {
-  const CreateRowButton({Key? key}) : super(key: key);
+class AppendRowButton extends StatelessWidget {
+  const AppendRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

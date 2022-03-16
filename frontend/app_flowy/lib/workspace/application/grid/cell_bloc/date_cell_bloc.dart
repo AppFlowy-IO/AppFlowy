@@ -7,15 +7,11 @@ import 'cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final Field field;
-  final Cell? cell;
   final CellService service;
 
   DateCellBloc({
-    required this.field,
-    required this.cell,
     required this.service,
-  }) : super(DateCellState.initial(cell)) {
+  }) : super(DateCellState.initial(service.context.cell)) {
     on<DateCellEvent>(
       (event, emit) async {
         await event.map(

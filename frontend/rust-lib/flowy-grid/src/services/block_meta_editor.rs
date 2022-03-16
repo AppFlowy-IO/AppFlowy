@@ -56,10 +56,10 @@ impl GridBlockMetaEditorManager {
         }
     }
 
-    pub(crate) async fn create_row(&self, row: RowMeta) -> FlowyResult<i32> {
+    pub(crate) async fn create_row(&self, row: RowMeta, upper_row_id: Option<String>) -> FlowyResult<i32> {
         self.block_id_by_row_id.insert(row.id.clone(), row.block_id.clone());
         let editor = self.get_editor(&row.block_id).await?;
-        editor.create_row(row).await
+        editor.create_row(row, upper_row_id).await
     }
 
     pub(crate) async fn insert_row(
@@ -72,7 +72,7 @@ impl GridBlockMetaEditorManager {
             let mut row_count = 0;
             for row in rows {
                 self.block_id_by_row_id.insert(row.id.clone(), row.block_id.clone());
-                row_count = editor.create_row(row).await?;
+                row_count = editor.create_row(row, None).await?;
             }
             changesets.push(GridBlockChangeset::from_row_count(&block_id, row_count));
         }
@@ -215,11 +215,11 @@ impl ClientGridBlockMetaEditor {
         })
     }
 
-    async fn create_row(&self, row: RowMeta) -> FlowyResult<i32> {
+    async fn create_row(&self, row: RowMeta, upper_row_id: Option<String>) -> FlowyResult<i32> {
         let mut row_count = 0;
         let _ = self
             .modify(|pad| {
-                let change = pad.add_row(row)?;
+                let change = pad.add_row(row, upper_row_id)?;
                 row_count = pad.number_of_rows();
                 Ok(change)
             })

@@ -2,7 +2,7 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::cell::*;
-use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowContextBuilder};
+use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, RowMetaContextBuilder};
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset,
 };
@@ -179,7 +179,7 @@ async fn grid_create_row() {
 #[tokio::test]
 async fn grid_create_row2() {
     let mut test = GridEditorTest::new().await;
-    let create_row_context = CreateRowContextBuilder::new(&test.field_metas).build();
+    let create_row_context = RowMetaContextBuilder::new(&test.field_metas).build();
     let scripts = vec![
         AssertRowCount(3),
         CreateRow {
@@ -193,7 +193,7 @@ async fn grid_create_row2() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridEditorTest::new().await;
-    let context = CreateRowContextBuilder::new(&test.field_metas).build();
+    let context = RowMetaContextBuilder::new(&test.field_metas).build();
     let changeset = RowMetaChangeset {
         row_id: context.row_id.clone(),
         height: None,
@@ -216,8 +216,8 @@ async fn grid_update_row() {
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridEditorTest::new().await;
-    let context_1 = CreateRowContextBuilder::new(&test.field_metas).build();
-    let context_2 = CreateRowContextBuilder::new(&test.field_metas).build();
+    let context_1 = RowMetaContextBuilder::new(&test.field_metas).build();
+    let context_2 = RowMetaContextBuilder::new(&test.field_metas).build();
     let row_ids = vec![context_1.row_id.clone(), context_2.row_id.clone()];
     let scripts = vec![
         AssertRowCount(3),
@@ -242,7 +242,7 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_row_add_cells_test() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    let mut builder = RowMetaContextBuilder::new(&test.field_metas);
     for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
@@ -288,7 +288,7 @@ async fn grid_row_add_cells_test() {
 #[tokio::test]
 async fn grid_row_add_selection_cell_test() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    let mut builder = RowMetaContextBuilder::new(&test.field_metas);
     let uuid = uuid::Uuid::new_v4().to_string();
     let mut single_select_field_id = "".to_string();
     let mut multi_select_field_id = "".to_string();
@@ -343,7 +343,7 @@ async fn grid_row_add_selection_cell_test() {
 #[tokio::test]
 async fn grid_row_add_date_cell_test() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowContextBuilder::new(&test.field_metas);
+    let mut builder = RowMetaContextBuilder::new(&test.field_metas);
     let mut date_field = None;
     let timestamp = 1647390674;
     for field in &test.field_metas {
@@ -373,8 +373,11 @@ async fn grid_cell_update() {
     let mut test = GridEditorTest::new().await;
     let field_metas = &test.field_metas;
     let row_metas = &test.row_metas;
+    let grid_blocks = &test.grid_blocks;
     assert_eq!(row_metas.len(), 3);
+    assert_eq!(grid_blocks.len(), 1);
 
+    let block_id = &grid_blocks.first().unwrap().id;
     let mut scripts = vec![];
     for (index, row_meta) in row_metas.iter().enumerate() {
         for field_meta in field_metas {
@@ -396,6 +399,7 @@ async fn grid_cell_update() {
 
                 scripts.push(UpdateCell {
                     changeset: CellMetaChangeset {
+                        grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
                         data: Some(data),
@@ -416,6 +420,7 @@ async fn grid_cell_update() {
 
                 scripts.push(UpdateCell {
                     changeset: CellMetaChangeset {
+                        grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
                         data: Some(data),

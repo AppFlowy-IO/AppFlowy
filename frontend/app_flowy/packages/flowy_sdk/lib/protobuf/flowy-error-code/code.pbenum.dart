@@ -40,6 +40,8 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserNameIsEmpty = ErrorCode._(310, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameIsEmpty');
   static const ErrorCode UserIdInvalid = ErrorCode._(311, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const ErrorCode UserNotExist = ErrorCode._(312, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
+  static const ErrorCode TextTooLong = ErrorCode._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TextTooLong');
+  static const ErrorCode InvalidData = ErrorCode._(401, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Internal,
@@ -72,6 +74,8 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserNameIsEmpty,
     UserIdInvalid,
     UserNotExist,
+    TextTooLong,
+    InvalidData,
   ];
 
   static final $core.Map<$core.int, ErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

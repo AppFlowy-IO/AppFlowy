@@ -2,6 +2,7 @@ use crate::services::row::deserialize_cell_data;
 use flowy_grid_data_model::entities::{Cell, CellMeta, FieldMeta, Row, RowMeta, RowOrder};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
+use std::ops::Deref;
 use std::sync::Arc;
 
 pub(crate) struct RowIdsPerBlock {

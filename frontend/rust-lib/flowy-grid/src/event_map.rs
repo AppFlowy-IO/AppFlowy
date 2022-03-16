@@ -29,9 +29,9 @@ pub enum GridEvent {
     #[event(input = "QueryFieldPayload", output = "RepeatedField")]
     GetFields = 2,
 
-    #[event(input = "GridId")]
+    #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 3,
 
-    #[event(input = "Cell")]
+    #[event(input = "CellMetaChangeset")]
     UpdateCell = 4,
 }

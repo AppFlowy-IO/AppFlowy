@@ -1,7 +1,8 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    Cell, Field, Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField, RepeatedRow,
+    CellMetaChangeset, CreateRowPayload, Field, Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField,
+    RepeatedRow, Row,
 };
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
@@ -42,22 +43,22 @@ pub(crate) async fn get_fields_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_row_handler(
-    data: Data<GridId>,
+    data: Data<CreateRowPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
-    let id: GridId = data.into_inner();
-    let editor = manager.get_grid_editor(id.as_ref())?;
-    let _ = editor.create_row().await?;
-    Ok(())
+) -> DataResult<Row, FlowyError> {
+    let payload: CreateRowPayload = data.into_inner();
+    let editor = manager.get_grid_editor(payload.grid_id.as_ref())?;
+    let row = editor.create_row(payload.upper_row_id).await?;
+    data_result(row)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_cell_handler(
-    data: Data<Cell>,
-    _manager: AppData<Arc<GridManager>>,
+    data: Data<CellMetaChangeset>,
+    manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let _cell: Cell = data.into_inner();
-    // let editor = manager.get_grid_editor(id.as_ref())?;
-    // let _ = editor.create_empty_row().await?;
+    let changeset: CellMetaChangeset = data.into_inner();
+    let editor = manager.get_grid_editor(&changeset.grid_id)?;
+    let _ = editor.update_cell(changeset).await?;
     Ok(())
 }

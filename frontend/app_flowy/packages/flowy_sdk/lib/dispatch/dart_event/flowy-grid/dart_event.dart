@@ -53,24 +53,24 @@ class GridEventGetFields {
 }
 
 class GridEventCreateRow {
-     GridId request;
+     CreateRowPayload request;
      GridEventCreateRow(this.request);
 
-    Future<Either<Unit, FlowyError>> send() {
+    Future<Either<Row, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = GridEvent.CreateRow.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (bytes) => left(unit),
+           (okBytes) => left(Row.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
 }
 
 class GridEventUpdateCell {
-     Cell request;
+     CellMetaChangeset request;
      GridEventUpdateCell(this.request);
 
     Future<Either<Unit, FlowyError>> send() {

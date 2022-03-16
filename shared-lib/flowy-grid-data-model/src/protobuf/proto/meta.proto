@@ -56,9 +56,10 @@ message CellMeta {
     string data = 2;
 }
 message CellMetaChangeset {
-    string row_id = 1;
-    string field_id = 2;
-    oneof one_of_data { string data = 3; };
+    string grid_id = 1;
+    string row_id = 2;
+    string field_id = 3;
+    oneof one_of_data { string data = 4; };
 }
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;

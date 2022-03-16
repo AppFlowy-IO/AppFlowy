@@ -151,6 +151,20 @@ const GridId$json = const {
 
 /// Descriptor for `GridId`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridIdDescriptor = $convert.base64Decode('CgZHcmlkSWQSFAoFdmFsdWUYASABKAlSBXZhbHVl');
+@$core.Deprecated('Use createRowPayloadDescriptor instead')
+const CreateRowPayload$json = const {
+  '1': 'CreateRowPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'upper_row_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'upperRowId'},
+  ],
+  '8': const [
+    const {'1': 'one_of_upper_row_id'},
+  ],
+};
+
+/// Descriptor for `CreateRowPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createRowPayloadDescriptor = $convert.base64Decode('ChBDcmVhdGVSb3dQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIiCgx1cHBlcl9yb3dfaWQYAiABKAlIAFIKdXBwZXJSb3dJZEIVChNvbmVfb2ZfdXBwZXJfcm93X2lk');
 @$core.Deprecated('Use queryFieldPayloadDescriptor instead')
 const QueryFieldPayload$json = const {
   '1': 'QueryFieldPayload',

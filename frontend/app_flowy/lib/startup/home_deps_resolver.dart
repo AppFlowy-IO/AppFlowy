@@ -98,8 +98,7 @@ class HomeDepsResolver {
 
     getIt.registerFactoryParam<RowBloc, GridRowData, void>(
       (data, _) => RowBloc(
-        data: data,
-        service: RowService(),
+        service: RowService(data),
       ),
     );
 
@@ -110,43 +109,33 @@ class HomeDepsResolver {
       ),
     );
 
-    getIt.registerFactoryParam<TextCellBloc, Field, Cell?>(
-      (field, cell) => TextCellBloc(
-        field: field,
-        cell: cell,
-        service: CellService(),
+    getIt.registerFactoryParam<TextCellBloc, CellContext, void>(
+      (context, _) => TextCellBloc(
+        service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<SelectionCellBloc, Field, Cell?>(
-      (field, cell) => SelectionCellBloc(
-        field: field,
-        cell: cell,
-        service: CellService(),
+    getIt.registerFactoryParam<SelectionCellBloc, CellContext, void>(
+      (context, _) => SelectionCellBloc(
+        service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<NumberCellBloc, Field, Cell?>(
-      (field, cell) => NumberCellBloc(
-        field: field,
-        cell: cell,
-        service: CellService(),
+    getIt.registerFactoryParam<NumberCellBloc, CellContext, void>(
+      (context, _) => NumberCellBloc(
+        service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<DateCellBloc, Field, Cell?>(
-      (field, cell) => DateCellBloc(
-        field: field,
-        cell: cell,
-        service: CellService(),
+    getIt.registerFactoryParam<DateCellBloc, CellContext, void>(
+      (context, _) => DateCellBloc(
+        service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<CheckboxCellBloc, Field, Cell?>(
-      (field, cell) => CheckboxCellBloc(
-        field: field,
-        cell: cell,
-        service: CellService(),
+    getIt.registerFactoryParam<CheckboxCellBloc, CellContext, void>(
+      (context, _) => CheckboxCellBloc(
+        service: CellService(context),
       ),
     );
 

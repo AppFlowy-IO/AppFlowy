@@ -1,18 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/text_cell_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The interface of base cell.
 
 class GridTextCell extends StatefulWidget {
-  final Field field;
-  final Cell? cell;
-
+  final CellContext cellContext;
   const GridTextCell({
-    required this.field,
-    required this.cell,
+    required this.cellContext,
     Key? key,
   }) : super(key: key);
 
@@ -27,7 +24,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<TextCellBloc>(param1: widget.field, param2: widget.cell);
+    _cellBloc = getIt<TextCellBloc>(param1: widget.cellContext);
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode.addListener(_focusChanged);
     super.initState();
@@ -58,7 +55,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    await _cellBloc.close();
+    _cellBloc.close();
     _focusNode.removeListener(_focusChanged);
     _focusNode.dispose();
     super.dispose();

@@ -1,15 +1,12 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 
 class SingleSelectCell extends StatefulWidget {
-  final Field field;
-  final Cell? cell;
+  final CellContext cellContext;
 
   const SingleSelectCell({
-    required this.field,
-    required this.cell,
+    required this.cellContext,
     Key? key,
   }) : super(key: key);
 
@@ -22,7 +19,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.field, param2: widget.cell);
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext);
     super.initState();
   }
 
@@ -33,19 +30,17 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   Future<void> dispose() async {
-    await _cellBloc.close();
+    _cellBloc.close();
     super.dispose();
   }
 }
 
 //----------------------------------------------------------------
 class MultiSelectCell extends StatefulWidget {
-  final Field field;
-  final Cell? cell;
+  final CellContext cellContext;
 
   const MultiSelectCell({
-    required this.field,
-    required this.cell,
+    required this.cellContext,
     Key? key,
   }) : super(key: key);
 
@@ -58,7 +53,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.field, param2: widget.cell);
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext);
     super.initState();
   }
 
@@ -69,7 +64,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   Future<void> dispose() async {
-    await _cellBloc.close();
+    _cellBloc.close();
     super.dispose();
   }
 }

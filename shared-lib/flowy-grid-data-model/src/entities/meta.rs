@@ -290,12 +290,15 @@ impl CellMeta {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellMetaChangeset {
     #[pb(index = 1)]
-    pub row_id: String,
+    pub grid_id: String,
 
     #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
     pub field_id: String,
 
-    #[pb(index = 3, one_of)]
+    #[pb(index = 4, one_of)]
     pub data: Option<String>,
 }
 

@@ -2793,6 +2793,7 @@ impl ::protobuf::reflect::ProtobufValue for CellMeta {
 #[derive(PartialEq,Clone,Default)]
 pub struct CellMetaChangeset {
     // message fields
+    pub grid_id: ::std::string::String,
     pub row_id: ::std::string::String,
     pub field_id: ::std::string::String,
     // message oneof groups
@@ -2818,7 +2819,33 @@ impl CellMetaChangeset {
         ::std::default::Default::default()
     }
 
-    // string row_id = 1;
+    // string grid_id = 1;
+
+
+    pub fn get_grid_id(&self) -> &str {
+        &self.grid_id
+    }
+    pub fn clear_grid_id(&mut self) {
+        self.grid_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_grid_id(&mut self, v: ::std::string::String) {
+        self.grid_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
+        &mut self.grid_id
+    }
+
+    // Take field
+    pub fn take_grid_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    }
+
+    // string row_id = 2;
 
 
     pub fn get_row_id(&self) -> &str {
@@ -2844,7 +2871,7 @@ impl CellMetaChangeset {
         ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
     }
 
-    // string field_id = 2;
+    // string field_id = 3;
 
 
     pub fn get_field_id(&self) -> &str {
@@ -2870,7 +2897,7 @@ impl CellMetaChangeset {
         ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
     }
 
-    // string data = 3;
+    // string data = 4;
 
 
     pub fn get_data(&self) -> &str {
@@ -2930,12 +2957,15 @@ impl ::protobuf::Message for CellMetaChangeset {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
                 },
                 3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -2953,16 +2983,19 @@ impl ::protobuf::Message for CellMetaChangeset {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
+        if !self.grid_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
+        }
         if !self.row_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.row_id);
+            my_size += ::protobuf::rt::string_size(2, &self.row_id);
         }
         if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.field_id);
+            my_size += ::protobuf::rt::string_size(3, &self.field_id);
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_data {
             match v {
                 &CellMetaChangeset_oneof_one_of_data::data(ref v) => {
-                    my_size += ::protobuf::rt::string_size(3, &v);
+                    my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
@@ -2972,16 +3005,19 @@ impl ::protobuf::Message for CellMetaChangeset {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.grid_id.is_empty() {
+            os.write_string(1, &self.grid_id)?;
+        }
         if !self.row_id.is_empty() {
-            os.write_string(1, &self.row_id)?;
+            os.write_string(2, &self.row_id)?;
         }
         if !self.field_id.is_empty() {
-            os.write_string(2, &self.field_id)?;
+            os.write_string(3, &self.field_id)?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_data {
             match v {
                 &CellMetaChangeset_oneof_one_of_data::data(ref v) => {
-                    os.write_string(3, v)?;
+                    os.write_string(4, v)?;
                 },
             };
         }
@@ -3024,6 +3060,11 @@ impl ::protobuf::Message for CellMetaChangeset {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "grid_id",
+                |m: &CellMetaChangeset| { &m.grid_id },
+                |m: &mut CellMetaChangeset| { &mut m.grid_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "row_id",
                 |m: &CellMetaChangeset| { &m.row_id },
                 |m: &mut CellMetaChangeset| { &mut m.row_id },
@@ -3054,6 +3095,7 @@ impl ::protobuf::Message for CellMetaChangeset {
 
 impl ::protobuf::Clear for CellMetaChangeset {
     fn clear(&mut self) {
+        self.grid_id.clear();
         self.row_id.clear();
         self.field_id.clear();
         self.one_of_data = ::std::option::Option::None;
@@ -3455,16 +3497,17 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\
     \x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"9\n\x08Cell\
     Meta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x12\n\x04d\
-    ata\x18\x02\x20\x01(\tR\x04data\"j\n\x11CellMetaChangeset\x12\x15\n\x06r\
-    ow_id\x18\x01\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x02\x20\x01\
-    (\tR\x07fieldId\x12\x14\n\x04data\x18\x03\x20\x01(\tH\0R\x04dataB\r\n\
-    \x0bone_of_data\"\xa2\x01\n\x10BuildGridContext\x12+\n\x0bfield_metas\
-    \x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12)\n\ngrid_block\x18\
-    \x02\x20\x01(\x0b2\n.GridBlockR\tgridBlock\x126\n\x0fgrid_block_meta\x18\
-    \x03\x20\x01(\x0b2\x0e.GridBlockMetaR\rgridBlockMeta*d\n\tFieldType\x12\
-    \x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\
-    \x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\
-    \x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    ata\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\x11CellMetaChangeset\x12\x17\
+    \n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\
+    \x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07field\
+    Id\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data\
+    \"\xa2\x01\n\x10BuildGridContext\x12+\n\x0bfield_metas\x18\x01\x20\x03(\
+    \x0b2\n.FieldMetaR\nfieldMetas\x12)\n\ngrid_block\x18\x02\x20\x01(\x0b2\
+    \n.GridBlockR\tgridBlock\x126\n\x0fgrid_block_meta\x18\x03\x20\x01(\x0b2\
+    \x0e.GridBlockMetaR\rgridBlockMeta*d\n\tFieldType\x12\x0c\n\x08RichText\
+    \x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\
+    \x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08C\
+    heckbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

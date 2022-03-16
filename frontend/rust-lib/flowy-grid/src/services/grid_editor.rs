@@ -12,8 +12,7 @@ use flowy_grid_data_model::entities::{
 use std::collections::HashMap;
 
 use crate::services::row::{
-    make_row_by_row_id, make_rows, row_meta_from_context, serialize_cell_data, CreateRowContext,
-    CreateRowContextBuilder,
+    make_row_by_row_id, make_rows, row_meta_from_context, serialize_cell_data, RowMetaContext, RowMetaContextBuilder,
 };
 use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
@@ -82,18 +81,28 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self) -> FlowyResult<()> {
+    pub async fn create_row(&self, upper_row_id: Option<String>) -> FlowyResult<Row> {
         let field_metas = self.grid_meta_pad.read().await.get_field_metas(None)?;
         let block_id = self.last_block_id().await?;
-        let create_row_ctx = CreateRowContextBuilder::new(&field_metas).build();
-        let row = row_meta_from_context(&block_id, create_row_ctx);
-        let row_count = self.block_meta_manager.create_row(row).await?;
+
+        // insert empty row below the row whose id is upper_row_id
+        let row_meta_ctx = RowMetaContextBuilder::new(&field_metas).build();
+        let row_meta = row_meta_from_context(&block_id, row_meta_ctx);
+
+        // insert the row
+        let row_count = self
+            .block_meta_manager
+            .create_row(row_meta.clone(), upper_row_id)
+            .await?;
+        let row = make_rows(&field_metas, vec![row_meta.into()]).pop().unwrap();
+
+        // update block row count
         let changeset = GridBlockChangeset::from_row_count(&block_id, row_count);
         let _ = self.update_block(changeset).await?;
-        Ok(())
+        Ok(row)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<CreateRowContext>) -> FlowyResult<()> {
+    pub async fn insert_rows(&self, contexts: Vec<RowMetaContext>) -> FlowyResult<()> {
         let block_id = self.last_block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowMeta>> = HashMap::new();
         for ctx in contexts {
