@@ -9,14 +9,14 @@ class FlowyButton extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsets padding;
   final Widget? icon;
-  final Color hoverColor;
+  final Color? hoverColor;
   const FlowyButton({
     Key? key,
     required this.text,
     this.onTap,
     this.padding = const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
     this.icon,
-    this.hoverColor = Colors.transparent,
+    this.hoverColor,
   }) : super(key: key);
 
   @override
@@ -24,7 +24,10 @@ class FlowyButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: FlowyHover(
-        config: HoverDisplayConfig(borderRadius: Corners.s6Border, hoverColor: hoverColor),
+        config: HoverDisplayConfig(
+          borderRadius: Corners.s6Border,
+          hoverColor: hoverColor ?? Theme.of(context).hoverColor,
+        ),
         builder: (context, onHover) => _render(),
       ),
     );
@@ -113,7 +116,7 @@ class FlowyTextButton extends StatelessWidget {
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
       fillColor: fillColor,
-      hoverColor: hoverColor ?? Colors.transparent,
+      hoverColor: hoverColor ?? Theme.of(context).hoverColor,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,

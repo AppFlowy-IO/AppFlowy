@@ -121,9 +121,8 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderToolbar(quill.QuillController controller) {
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
-      child: EditorToolbar.basic(
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) => EditorToolbar.basic(
         controller: controller,
       ),
     );

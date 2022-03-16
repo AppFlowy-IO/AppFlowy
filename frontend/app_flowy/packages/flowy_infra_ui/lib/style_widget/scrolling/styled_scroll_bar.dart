@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +83,6 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double maxExtent;
@@ -136,10 +134,19 @@ class ScrollbarState extends State<StyledScrollbar> {
           showHandle = false;
         }
 
+        // FIXME: Using Elevation colors?
         // Handle color
-        var handleColor = widget.handleColor ?? (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
+        var handleColor = widget.handleColor ??
+            (Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surface.withOpacity(.2)
+                : Theme.of(context).colorScheme.surface.withOpacity(.1));
+
+        // FIXME: Using Elevation colors?
         // Track color
-        var trackColor = widget.trackColor ?? (theme.isDark ? theme.bg2.withOpacity(.1) : theme.bg2.withOpacity(.3));
+        var trackColor = widget.handleColor ??
+            (Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surface.withOpacity(.2)
+                : Theme.of(context).colorScheme.surface.withOpacity(.4));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[

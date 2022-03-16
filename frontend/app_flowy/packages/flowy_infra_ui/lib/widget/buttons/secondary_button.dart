@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'base_styled_button.dart';
 
 class SecondaryTextButton extends StatelessWidget {
@@ -16,8 +15,7 @@ class SecondaryTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.main1);
+    TextStyle txtStyle = TextStyles.Footnote.textColor(Theme.of(context).primaryColor);
     return SecondaryButton(bigMode: bigMode, onPressed: onPressed, child: Text(label, style: txtStyle));
   }
 }
@@ -31,15 +29,14 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BaseStyledButton(
       minWidth: bigMode ? 170 : 78,
       minHeight: bigMode ? 48 : 28,
       contentPadding: EdgeInsets.zero,
-      bgColor: theme.shader7,
-      hoverColor: theme.hover,
-      downColor: theme.main1,
-      outlineColor: theme.main1,
+      bgColor: Colors.grey.shade700,
+      hoverColor: Theme.of(context).hoverColor,
+      downColor: Theme.of(context).primaryColor,
+      outlineColor: Theme.of(context).primaryColor,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
       child: child,
       onPressed: onPressed,

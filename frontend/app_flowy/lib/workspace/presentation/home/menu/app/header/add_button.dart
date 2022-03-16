@@ -1,12 +1,10 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class AddButton extends StatelessWidget {
@@ -18,9 +16,7 @@ class AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return FlowyIconButton(
-      hoverColor: theme.hover,
       width: 22,
       onPressed: () {
         ActionList(
@@ -77,8 +73,7 @@ class CreateItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.hover);
+    final config = HoverDisplayConfig(hoverColor: Theme.of(context).hoverColor);
 
     return FlowyHover(
       config: config,
@@ -87,7 +82,7 @@ class CreateItem extends StatelessWidget {
           onTap: () => onSelected(pluginBuilder),
           child: FlowyText.medium(
             pluginBuilder.menuName,
-            color: theme.textColor,
+            color: Theme.of(context).textTheme.bodyText1!.color,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),
         );

@@ -1,7 +1,6 @@
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -9,7 +8,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -23,16 +21,16 @@ class QuestionBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       width: 30,
       height: 30,
+      // FIXME: Use `elevation` instead, currently hacking it with primary color.
       child: FlowyTextButton(
         '?',
         tooltip: LocaleKeys.questionBubble_help.tr(),
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        fillColor: theme.selector,
+        fillColor: Theme.of(context).primaryColor,
         mainAxisAlignment: MainAxisAlignment.center,
         radius: BorderRadius.circular(10),
         onPressed: () {
@@ -61,7 +59,7 @@ class QuestionBubble extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25.0),
-                        color: theme.main1,
+                        color: Theme.of(context).primaryColor,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -179,14 +177,12 @@ class FlowyVersionDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return FlowyText("Error: ${snapshot.error}", fontSize: 12, color: theme.shader4);
+            return FlowyText("Error: ${snapshot.error}", fontSize: 12, color: Colors.grey.shade400);
           }
 
           PackageInfo packageInfo = snapshot.data;
@@ -198,9 +194,9 @@ class FlowyVersionDescription extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Divider(height: 1, color: theme.shader6, thickness: 1.0),
+              Divider(height: 1, color: Colors.grey.shade100, thickness: 1.0),
               const VSpace(6),
-              FlowyText("$appName $version.$buildNumber", fontSize: 12, color: theme.shader4),
+              FlowyText("$appName $version.$buildNumber", fontSize: 12, color: Colors.grey.shade400),
             ],
           ).padding(
             horizontal: ActionListSizes.itemHPadding + ActionListSizes.padding,

@@ -17,7 +17,6 @@ import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
@@ -149,7 +148,6 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   Widget build(BuildContext context) {
     _controller.text = widget.view.name;
 
-    final theme = context.watch<AppTheme>();
     return IntrinsicWidth(
       key: ValueKey(_controller.text),
       child: TextField(
@@ -161,12 +159,7 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
           border: InputBorder.none,
           isDense: true,
         ),
-        style: TextStyle(
-          color: theme.textColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: Theme.of(context).textTheme.subtitle2,
         // cursorColor: widget.cursorColor,
         // obscureText: widget.enableObscure,
       ),
@@ -209,23 +202,20 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            return ChangeNotifierProvider.value(
-              value: Provider.of<AppearanceSettingModel>(context, listen: true),
-              child: Selector<AppearanceSettingModel, Locale>(
-                selector: (ctx, notifier) => notifier.locale,
-                builder: (ctx, _, child) => ConstrainedBox(
-                  constraints: const BoxConstraints.expand(
-                    height: 30,
-                    // minWidth: buttonWidth,
-                    width: 100,
-                  ),
-                  child: RoundedTextButton(
-                    title: LocaleKeys.shareAction_buttonText.tr(),
-                    fontSize: 12,
-                    borderRadius: Corners.s6Border,
-                    color: Colors.lightBlue,
-                    onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
-                  ),
+            return BlocSelector<AppearanceSettingsCubit, AppearanceSettingsState, Locale>(
+              selector: (state) => state.locale,
+              builder: (context, state) => ConstrainedBox(
+                constraints: const BoxConstraints.expand(
+                  height: 30,
+                  // minWidth: buttonWidth,
+                  width: 100,
+                ),
+                child: RoundedTextButton(
+                  title: LocaleKeys.shareAction_buttonText.tr(),
+                  fontSize: 12,
+                  borderRadius: Corners.s6Border,
+                  color: Colors.lightBlue,
+                  onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
                 ),
               ),
             );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'base_styled_button.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
@@ -29,14 +28,13 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BaseStyledButton(
       minWidth: bigMode ? 170 : 78,
       minHeight: bigMode ? 48 : 28,
       contentPadding: EdgeInsets.zero,
-      bgColor: theme.main1,
-      hoverColor: theme.main1,
-      downColor: theme.main1,
+      bgColor: Theme.of(context).primaryColor,
+      hoverColor: Theme.of(context).primaryColor,
+      downColor: Theme.of(context).primaryColor,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
       child: child,
       onPressed: onPressed,

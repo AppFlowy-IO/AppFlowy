@@ -1,10 +1,8 @@
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
@@ -82,10 +80,8 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.hover),
+      config: HoverDisplayConfig(hoverColor: Theme.of(context).hoverColor),
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,

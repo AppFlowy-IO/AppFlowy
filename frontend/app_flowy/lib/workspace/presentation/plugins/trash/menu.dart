@@ -4,13 +4,12 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:flowy_infra/theme.dart';
 
 class MenuTrash extends StatelessWidget {
   const MenuTrash({Key? key}) : super(key: key);
@@ -31,21 +30,19 @@ class MenuTrash extends StatelessWidget {
 
   Widget _render(BuildContext context) {
     return Row(children: [
-      ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSettingModel>(context, listen: true),
-        child: Selector<AppearanceSettingModel, AppTheme>(
-          selector: (ctx, notifier) => notifier.theme,
-          builder: (ctx, theme, child) =>
-              SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
-        ),
-      ),
+      // SizedBox(width: 16, height: 16, child: svg("home/trash", color: Theme.of(context).iconTheme.color!)),
+      // ChangeNotifierProvider.value(
+      //   value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      //   child: Selector<AppearanceSettingModel, AppTheme>(
+      //     selector: (ctx, notifier) => notifier.theme,
+      //     builder: (ctx, theme, child) =>
+      //         SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
+      //   ),
+      // ),
       const HSpace(6),
-      ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSettingModel>(context, listen: true),
-        child: Selector<AppearanceSettingModel, Locale>(
-          selector: (ctx, notifier) => notifier.locale,
-          builder: (ctx, _, child) => FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
-        ),
+      BlocSelector<AppearanceSettingsCubit, AppearanceSettingsState, Locale>(
+        selector: (state) => state.locale,
+        builder: (context, state) => FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
       ),
     ]);
   }

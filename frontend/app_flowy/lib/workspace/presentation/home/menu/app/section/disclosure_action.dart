@@ -1,11 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flutter/material.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:provider/provider.dart';
 
 import 'item.dart';
 
@@ -26,7 +25,6 @@ class ViewDisclosureButton extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return FlowyIconButton(
       iconPadding: const EdgeInsets.all(5),
       width: 26,
@@ -34,7 +32,7 @@ class ViewDisclosureButton extends StatelessWidget
         onTap();
         show(context, context);
       },
-      icon: svg("editor/details", color: theme.iconColor),
+      icon: svg("editor/details", color: Theme.of(context).iconTheme.color),
     );
   }
 

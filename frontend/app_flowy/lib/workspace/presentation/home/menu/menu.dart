@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
@@ -75,10 +74,9 @@ class HomeMenu extends StatelessWidget {
   }
 
   Widget _renderBody(BuildContext context) {
-    // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
-    final theme = context.watch<AppTheme>();
+    // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
-      color: theme.bg1,
+      color: Theme.of(context).backgroundColor,
       child: ChangeNotifierProvider(
         create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
         child: Consumer(builder: (context, MenuSharedState sharedState, child) {
@@ -171,22 +169,21 @@ class MenuTopBar extends StatelessWidget {
   const MenuTopBar({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocBuilder<MenuBloc, MenuState>(
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
           child: Row(
             children: [
-              (theme.isDark
+              (Theme.of(context).brightness == Brightness.dark)
                   ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
-                  : svgWithSize("flowy_logo_with_text", const Size(92, 17))),
+                  : svgWithSize("flowy_logo_with_text", const Size(92, 17)),
               const Spacer(),
               FlowyIconButton(
                 width: 28,
                 onPressed: () => context.read<MenuBloc>().add(const MenuEvent.collapse()),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                icon: svg("home/hide_menu", color: theme.iconColor),
+                icon: svg("home/hide_menu", color: Theme.of(context).iconTheme.color),
               )
             ],
           ),
