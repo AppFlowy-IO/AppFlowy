@@ -3,6 +3,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 
 class GridService {
   Future<Either<Grid, FlowyError>> openGrid({required String gridId}) async {
@@ -18,11 +19,12 @@ class GridService {
     return GridEventCreateRow(payload).send();
   }
 
-  Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required List<RowOrder> rowOrders}) {
-    final payload = QueryRowPayload.create()
+  Future<Either<RepeatedGridBlock, FlowyError>> getGridBlocks(
+      {required String gridId, required List<GridBlockMeta> blocks}) {
+    final payload = QueryGridBlocksPayload.create()
       ..gridId = gridId
-      ..rowOrders = RepeatedRowOrder(items: rowOrders);
-    return GridEventGetRows(payload).send();
+      ..blocks.addAll(blocks);
+    return GridEventGetGridBlocks(payload).send();
   }
 
   Future<Either<RepeatedField, FlowyError>> getFields({required String gridId, required List<FieldOrder> fieldOrders}) {

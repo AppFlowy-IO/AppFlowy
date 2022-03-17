@@ -1,19 +1,24 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'data.dart';
+import 'row_listener.dart';
 import 'row_service.dart';
 
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService service;
+  final RowListener listener;
 
-  RowBloc({required this.service}) : super(RowState.initial(service.rowData)) {
+  RowBloc({required this.service, required this.listener}) : super(RowState.initial(service.rowData)) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
-          initial: (_InitialRow value) async {},
+          initial: (_InitialRow value) async {
+            _startRowListening();
+          },
           createRow: (_CreateRow value) {
             service.createRow();
           },
@@ -30,7 +35,25 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
+    await listener.close();
     return super.close();
+  }
+
+  Future<void> _startRowListening() async {
+    listener.updateRowNotifier.addPublishListener((result) {
+      result.fold((row) {
+        //
+      }, (err) => null);
+    });
+
+    listener.updateCellNotifier.addPublishListener((result) {
+      result.fold((repeatedCvell) {
+        //
+        Log.info("$repeatedCvell");
+      }, (r) => null);
+    });
+
+    listener.start();
   }
 }
 

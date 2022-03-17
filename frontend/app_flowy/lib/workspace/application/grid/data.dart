@@ -3,12 +3,12 @@ import 'package:equatable/equatable.dart';
 
 class GridInfo {
   final String gridId;
-  List<Row> rows;
+  List<GridBlock> gridBlocks;
   List<Field> fields;
 
   GridInfo({
     required this.gridId,
-    required this.rows,
+    required this.gridBlocks,
     required this.fields,
   });
 

@@ -1,8 +1,8 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, CreateRowPayload, Field, Grid, GridId, QueryFieldPayload, QueryRowPayload, RepeatedField,
-    RepeatedRow, Row,
+    CellMetaChangeset, CreateRowPayload, Field, Grid, GridId, QueryFieldPayload, QueryGridBlocksPayload, RepeatedField,
+    RepeatedGridBlock, Row,
 };
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
@@ -19,14 +19,14 @@ pub(crate) async fn get_grid_data_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_rows_handler(
-    data: Data<QueryRowPayload>,
+pub(crate) async fn get_grid_blocks_handler(
+    data: Data<QueryGridBlocksPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedRow, FlowyError> {
-    let payload: QueryRowPayload = data.into_inner();
+) -> DataResult<RepeatedGridBlock, FlowyError> {
+    let payload: QueryGridBlocksPayload = data.into_inner();
     let editor = manager.get_grid_editor(&payload.grid_id)?;
-    let repeated_row: RepeatedRow = editor.get_rows(Some(payload.row_orders)).await?.into();
-    data_result(repeated_row)
+    let repeated_grid_block = editor.get_grid_blocks(Some(payload.blocks)).await?;
+    data_result(repeated_grid_block)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

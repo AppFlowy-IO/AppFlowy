@@ -4,7 +4,7 @@ import "meta.proto";
 message Grid {
     string id = 1;
     repeated FieldOrder field_orders = 2;
-    repeated RowOrder row_orders = 3;
+    repeated GridBlockMeta blocks = 3;
 }
 message Field {
     string id = 1;
@@ -36,8 +36,12 @@ message Row {
     map<string, Cell> cell_by_field_id = 2;
     int32 height = 3;
 }
-message RepeatedRow {
-    repeated Row items = 1;
+message RepeatedGridBlock {
+    repeated GridBlock items = 1;
+}
+message GridBlock {
+    string block_id = 1;
+    repeated Row rows = 2;
 }
 message Cell {
     string field_id = 1;
@@ -52,6 +56,9 @@ message CreateGridPayload {
 message GridId {
     string value = 1;
 }
+message GridBlockId {
+    string value = 1;
+}
 message CreateRowPayload {
     string grid_id = 1;
     oneof one_of_upper_row_id { string upper_row_id = 2; };
@@ -60,7 +67,7 @@ message QueryFieldPayload {
     string grid_id = 1;
     RepeatedFieldOrder field_orders = 2;
 }
-message QueryRowPayload {
+message QueryGridBlocksPayload {
     string grid_id = 1;
-    RepeatedRowOrder row_orders = 2;
+    repeated GridBlockMeta blocks = 2;
 }

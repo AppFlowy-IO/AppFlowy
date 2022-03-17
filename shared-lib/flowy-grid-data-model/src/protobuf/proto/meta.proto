@@ -3,16 +3,16 @@ syntax = "proto3";
 message GridMeta {
     string grid_id = 1;
     repeated FieldMeta fields = 2;
-    repeated GridBlock blocks = 3;
-}
-message GridBlock {
-    string id = 1;
-    int32 start_row_index = 2;
-    int32 row_count = 3;
+    repeated GridBlockMeta blocks = 3;
 }
 message GridBlockMeta {
     string block_id = 1;
-    repeated RowMeta rows = 2;
+    int32 start_row_index = 2;
+    int32 row_count = 3;
+}
+message GridBlockMetaData {
+    string block_id = 1;
+    repeated RowMeta row_metas = 2;
 }
 message FieldMeta {
     string id = 1;
@@ -63,8 +63,8 @@ message CellMetaChangeset {
 }
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;
-    GridBlock grid_block = 2;
-    GridBlockMeta grid_block_meta = 3;
+    GridBlockMeta grid_block = 2;
+    GridBlockMetaData grid_block_meta_data = 3;
 }
 enum FieldType {
     RichText = 0;

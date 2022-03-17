@@ -11,14 +11,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent GetGridData = GridEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetGridData');
-  static const GridEvent GetRows = GridEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRows');
+  static const GridEvent GetGridBlocks = GridEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetGridBlocks');
   static const GridEvent GetFields = GridEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetFields');
   static const GridEvent CreateRow = GridEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
   static const GridEvent UpdateCell = GridEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
 
   static const $core.List<GridEvent> values = <GridEvent> [
     GetGridData,
-    GetRows,
+    GetGridBlocks,
     GetFields,
     CreateRow,
     UpdateCell,

@@ -2,9 +2,7 @@ syntax = "proto3";
 
 enum GridNotification {
     Unknown = 0;
-    GridDidCreateRows = 10;
-    GridDidDeleteRow = 11;
-    GridDidUpdateRows = 12;
+    GridDidUpdateBlock = 10;
     GridDidUpdateCells = 20;
     GridDidUpdateFields = 30;
 }

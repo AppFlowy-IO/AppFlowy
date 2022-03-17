@@ -16,13 +16,13 @@ pub struct GridMeta {
     pub fields: Vec<FieldMeta>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<GridBlock>,
+    pub blocks: Vec<GridBlockMeta>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
-pub struct GridBlock {
+pub struct GridBlockMeta {
     #[pb(index = 1)]
-    pub id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
     pub start_row_index: i32,
@@ -31,7 +31,7 @@ pub struct GridBlock {
     pub row_count: i32,
 }
 
-impl GridBlock {
+impl GridBlockMeta {
     pub fn len(&self) -> i32 {
         self.start_row_index + self.row_count
     }
@@ -41,22 +41,22 @@ impl GridBlock {
     }
 }
 
-impl GridBlock {
+impl GridBlockMeta {
     pub fn new() -> Self {
-        GridBlock {
-            id: uuid::Uuid::new_v4().to_string(),
+        GridBlockMeta {
+            block_id: uuid::Uuid::new_v4().to_string(),
             ..Default::default()
         }
     }
 }
 
-pub struct GridBlockChangeset {
+pub struct GridBlockMetaChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
     pub row_count: Option<i32>,
 }
 
-impl GridBlockChangeset {
+impl GridBlockMetaChangeset {
     pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
         Self {
             block_id: block_id.to_string(),
@@ -67,12 +67,12 @@ impl GridBlockChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct GridBlockMeta {
+pub struct GridBlockMetaData {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub rows: Vec<RowMeta>,
+    pub row_metas: Vec<RowMeta>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, PartialEq, Eq)]
@@ -329,24 +329,24 @@ pub struct BuildGridContext {
     pub field_metas: Vec<FieldMeta>,
 
     #[pb(index = 2)]
-    pub grid_block: GridBlock,
+    pub grid_block: GridBlockMeta,
 
     #[pb(index = 3)]
-    pub grid_block_meta: GridBlockMeta,
+    pub grid_block_meta_data: GridBlockMetaData,
 }
 
 impl std::default::Default for BuildGridContext {
     fn default() -> Self {
-        let grid_block = GridBlock::new();
-        let grid_block_meta = GridBlockMeta {
-            block_id: grid_block.id.clone(),
-            rows: vec![],
+        let grid_block = GridBlockMeta::new();
+        let grid_block_meta_data = GridBlockMetaData {
+            block_id: grid_block.block_id.clone(),
+            row_metas: vec![],
         };
 
         Self {
             field_metas: vec![],
             grid_block,
-            grid_block_meta,
+            grid_block_meta_data,
         }
     }
 }

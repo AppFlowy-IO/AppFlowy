@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use flowy_grid::services::cell::*;
 use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, RowMetaContextBuilder};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangeset, FieldType, GridBlock, GridBlockChangeset, RowMetaChangeset,
+    CellMetaChangeset, FieldChangeset, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
 };
 
 #[tokio::test]
@@ -135,7 +135,7 @@ async fn grid_delete_field() {
 
 #[tokio::test]
 async fn grid_create_block() {
-    let grid_block = GridBlock::new();
+    let grid_block = GridBlockMeta::new();
     let scripts = vec![
         AssertBlockCount(1),
         CreateBlock { block: grid_block },
@@ -146,10 +146,10 @@ async fn grid_create_block() {
 
 #[tokio::test]
 async fn grid_update_block() {
-    let grid_block = GridBlock::new();
+    let grid_block = GridBlockMeta::new();
     let mut cloned_grid_block = grid_block.clone();
-    let changeset = GridBlockChangeset {
-        block_id: grid_block.id.clone(),
+    let changeset = GridBlockMetaChangeset {
+        block_id: grid_block.block_id.clone(),
         start_row_index: Some(2),
         row_count: Some(10),
     };
@@ -377,7 +377,7 @@ async fn grid_cell_update() {
     assert_eq!(row_metas.len(), 3);
     assert_eq!(grid_blocks.len(), 1);
 
-    let block_id = &grid_blocks.first().unwrap().id;
+    let block_id = &grid_blocks.first().unwrap().block_id;
     let mut scripts = vec![];
     for (index, row_meta) in row_metas.iter().enumerate() {
         for field_meta in field_metas {

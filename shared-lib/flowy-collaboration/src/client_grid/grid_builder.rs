@@ -13,8 +13,8 @@ impl GridBuilder {
     }
 
     pub fn add_empty_row(mut self) -> Self {
-        let row = RowMeta::new(&self.build_context.grid_block.id);
-        self.build_context.grid_block_meta.rows.push(row);
+        let row = RowMeta::new(&self.build_context.grid_block.block_id);
+        self.build_context.grid_block_meta_data.row_metas.push(row);
         self.build_context.grid_block.row_count += 1;
         self
     }
@@ -41,7 +41,7 @@ fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
 mod tests {
 
     use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMeta, GridMeta};
+    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMetaData, GridMeta};
 
     #[test]
     fn create_default_grid_test() {
@@ -63,7 +63,7 @@ mod tests {
         let grid_meta_delta = make_grid_delta(&grid_meta);
         let _: GridMeta = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
 
-        let grid_block_meta_delta = make_block_meta_delta(&build_context.grid_block_meta);
-        let _: GridBlockMeta = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
+        let grid_block_meta_delta = make_block_meta_delta(&build_context.grid_block_meta_data);
+        let _: GridBlockMetaData = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
     }
 }

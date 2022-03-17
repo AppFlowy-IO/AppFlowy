@@ -5,9 +5,7 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 #[derive(ProtoBuf_Enum, Debug)]
 pub enum GridNotification {
     Unknown = 0,
-    GridDidCreateRows = 10,
-    GridDidDeleteRow = 11,
-    GridDidUpdateRows = 12,
+    GridDidUpdateBlock = 10,
 
     GridDidUpdateCells = 20,
     GridDidUpdateFields = 30,

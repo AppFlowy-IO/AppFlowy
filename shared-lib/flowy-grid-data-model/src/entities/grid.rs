@@ -1,6 +1,7 @@
-use crate::entities::{FieldMeta, FieldType, RowMeta};
+use crate::entities::{FieldMeta, FieldType, GridBlockMeta, RowMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
+use std::hash::Hash;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -12,7 +13,7 @@ pub struct Grid {
     pub field_orders: Vec<FieldOrder>,
 
     #[pb(index = 3)]
-    pub row_orders: Vec<RowOrder>,
+    pub blocks: Vec<GridBlockMeta>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -150,6 +151,12 @@ impl std::ops::DerefMut for RepeatedRowOrder {
     }
 }
 
+impl std::convert::From<Vec<RowOrder>> for RepeatedRowOrder {
+    fn from(items: Vec<RowOrder>) -> Self {
+        Self { items }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Row {
     #[pb(index = 1)]
@@ -163,29 +170,35 @@ pub struct Row {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRow {
+pub struct RepeatedGridBlock {
     #[pb(index = 1)]
-    pub items: Vec<Row>,
+    pub items: Vec<GridBlock>,
 }
 
-impl std::ops::Deref for RepeatedRow {
-    type Target = Vec<Row>;
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedRow {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-impl std::convert::From<Vec<Row>> for RepeatedRow {
-    fn from(items: Vec<Row>) -> Self {
+impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
+    fn from(items: Vec<GridBlock>) -> Self {
         Self { items }
     }
 }
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GridBlock {
+    #[pb(index = 1)]
+    pub block_id: String,
+
+    #[pb(index = 2)]
+    pub rows: Vec<Row>,
+}
+
+impl GridBlock {
+    pub fn new(block_id: &str, rows: Vec<Row>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            rows,
+        }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Cell {
     #[pb(index = 1)]
@@ -247,6 +260,18 @@ impl AsRef<str> for GridId {
     }
 }
 
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GridBlockId {
+    #[pb(index = 1)]
+    pub value: String,
+}
+
+impl AsRef<str> for GridBlockId {
+    fn as_ref(&self) -> &str {
+        &self.value
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct CreateRowPayload {
     #[pb(index = 1)]
@@ -266,10 +291,10 @@ pub struct QueryFieldPayload {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct QueryRowPayload {
+pub struct QueryGridBlocksPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub row_orders: RepeatedRowOrder,
+    pub blocks: Vec<GridBlockMeta>,
 }

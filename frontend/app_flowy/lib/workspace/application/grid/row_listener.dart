@@ -9,19 +9,21 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 import 'package:dartz/dartz.dart';
 
-typedef GridBlockUpdateNotifiedValue = Either<GridBlockId, FlowyError>;
+typedef UpdateCellNotifiedValue = Either<RepeatedCell, FlowyError>;
+typedef UpdateRowNotifiedValue = Either<Row, FlowyError>;
 
-class GridListener {
-  final String gridId;
-  PublishNotifier<GridBlockUpdateNotifiedValue> blockUpdateNotifier = PublishNotifier<GridBlockUpdateNotifiedValue>();
+class RowListener {
+  final String rowId;
+  PublishNotifier<UpdateCellNotifiedValue> updateCellNotifier = PublishNotifier<UpdateCellNotifiedValue>();
+  PublishNotifier<UpdateRowNotifiedValue> updateRowNotifier = PublishNotifier<UpdateRowNotifiedValue>();
   StreamSubscription<SubscribeObject>? _subscription;
   late GridNotificationParser _parser;
 
-  GridListener({required this.gridId});
+  RowListener({required this.rowId});
 
   void start() {
     _parser = GridNotificationParser(
-      id: gridId,
+      id: rowId,
       callback: (ty, result) {
         _handleObservableType(ty, result);
       },
@@ -32,10 +34,10 @@ class GridListener {
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.GridDidUpdateBlock:
+      case GridNotification.GridDidUpdateCells:
         result.fold(
-          (payload) => blockUpdateNotifier.value = left(GridBlockId.fromBuffer(payload)),
-          (error) => blockUpdateNotifier.value = right(error),
+          (payload) => updateCellNotifier.value = left(RepeatedCell.fromBuffer(payload)),
+          (error) => updateCellNotifier.value = right(error),
         );
         break;
 
@@ -46,6 +48,7 @@ class GridListener {
 
   Future<void> close() async {
     await _subscription?.cancel();
-    blockUpdateNotifier.dispose();
+    updateCellNotifier.dispose();
+    updateRowNotifier.dispose();
   }
 }

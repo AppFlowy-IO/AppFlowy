@@ -14,8 +14,8 @@ import 'grid_service.dart';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final GridService service;
   final View view;
+  final GridService service;
   final GridListener listener;
   Grid? _grid;
   List<Field>? _fields;
@@ -49,9 +49,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   Future<void> _startGridListening() async {
     listener.createRowNotifier.addPublishListener((result) {
-      result.fold((row) {
+      result.fold((repeatedRow) {
         //
-        Log.info("$row");
+        Log.info("$repeatedRow");
       }, (err) => null);
     });
 
@@ -91,10 +91,18 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   Future<void> _loadGridInfo(Emitter<GridState> emit) async {
     final grid = _grid;
     if (grid != null && _fields != null) {
-      final result = await service.getRows(gridId: grid.id, rowOrders: grid.rowOrders);
-      result.fold((repeatedRow) {
-        final rows = repeatedRow.items;
-        final gridInfo = GridInfo(gridId: grid.id, rows: rows, fields: _fields!);
+      final result = await service.getGridBlocks(
+        gridId: grid.id,
+        blocks: grid.blocks,
+      );
+
+      result.fold((repeatedGridBlock) {
+        final blocks = repeatedGridBlock.items;
+        final gridInfo = GridInfo(
+          gridId: grid.id,
+          blocks: blocks,
+          fields: _fields!,
+        );
         emit(
           state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
         );

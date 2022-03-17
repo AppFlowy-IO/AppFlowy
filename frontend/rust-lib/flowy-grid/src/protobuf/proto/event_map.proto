@@ -2,7 +2,7 @@ syntax = "proto3";
 
 enum GridEvent {
     GetGridData = 0;
-    GetRows = 1;
+    GetGridBlocks = 1;
     GetFields = 2;
     CreateRow = 3;
     UpdateCell = 4;

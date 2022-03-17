@@ -3,6 +3,7 @@ import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/workspace/application/doc/prelude.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/application/grid/row_listener.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
@@ -98,6 +99,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<RowBloc, GridRowData, void>(
       (data, _) => RowBloc(
         service: RowService(data),
+        listener: RowListener(rowId: data.row.id),
       ),
     );
 

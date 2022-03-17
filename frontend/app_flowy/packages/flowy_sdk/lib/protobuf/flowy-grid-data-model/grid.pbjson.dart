@@ -14,12 +14,12 @@ const Grid$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'field_orders', '3': 2, '4': 3, '5': 11, '6': '.FieldOrder', '10': 'fieldOrders'},
-    const {'1': 'row_orders', '3': 3, '4': 3, '5': 11, '6': '.RowOrder', '10': 'rowOrders'},
+    const {'1': 'blocks', '3': 3, '4': 3, '5': 11, '6': '.GridBlockMeta', '10': 'blocks'},
   ],
 };
 
 /// Descriptor for `Grid`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridDescriptor = $convert.base64Decode('CgRHcmlkEg4KAmlkGAEgASgJUgJpZBIuCgxmaWVsZF9vcmRlcnMYAiADKAsyCy5GaWVsZE9yZGVyUgtmaWVsZE9yZGVycxIoCgpyb3dfb3JkZXJzGAMgAygLMgkuUm93T3JkZXJSCXJvd09yZGVycw==');
+final $typed_data.Uint8List gridDescriptor = $convert.base64Decode('CgRHcmlkEg4KAmlkGAEgASgJUgJpZBIuCgxmaWVsZF9vcmRlcnMYAiADKAsyCy5GaWVsZE9yZGVyUgtmaWVsZE9yZGVycxImCgZibG9ja3MYAyADKAsyDi5HcmlkQmxvY2tNZXRhUgZibG9ja3M=');
 @$core.Deprecated('Use fieldDescriptor instead')
 const Field$json = const {
   '1': 'Field',
@@ -110,16 +110,27 @@ const Row_CellByFieldIdEntry$json = const {
 
 /// Descriptor for `Row`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List rowDescriptor = $convert.base64Decode('CgNSb3cSDgoCaWQYASABKAlSAmlkEkAKEGNlbGxfYnlfZmllbGRfaWQYAiADKAsyFy5Sb3cuQ2VsbEJ5RmllbGRJZEVudHJ5Ug1jZWxsQnlGaWVsZElkEhYKBmhlaWdodBgDIAEoBVIGaGVpZ2h0GkcKEkNlbGxCeUZpZWxkSWRFbnRyeRIQCgNrZXkYASABKAlSA2tleRIbCgV2YWx1ZRgCIAEoCzIFLkNlbGxSBXZhbHVlOgI4AQ==');
-@$core.Deprecated('Use repeatedRowDescriptor instead')
-const RepeatedRow$json = const {
-  '1': 'RepeatedRow',
+@$core.Deprecated('Use repeatedGridBlockDescriptor instead')
+const RepeatedGridBlock$json = const {
+  '1': 'RepeatedGridBlock',
   '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Row', '10': 'items'},
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.GridBlock', '10': 'items'},
   ],
 };
 
-/// Descriptor for `RepeatedRow`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List repeatedRowDescriptor = $convert.base64Decode('CgtSZXBlYXRlZFJvdxIaCgVpdGVtcxgBIAMoCzIELlJvd1IFaXRlbXM=');
+/// Descriptor for `RepeatedGridBlock`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedGridBlockDescriptor = $convert.base64Decode('ChFSZXBlYXRlZEdyaWRCbG9jaxIgCgVpdGVtcxgBIAMoCzIKLkdyaWRCbG9ja1IFaXRlbXM=');
+@$core.Deprecated('Use gridBlockDescriptor instead')
+const GridBlock$json = const {
+  '1': 'GridBlock',
+  '2': const [
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'rows', '3': 2, '4': 3, '5': 11, '6': '.Row', '10': 'rows'},
+  ],
+};
+
+/// Descriptor for `GridBlock`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSGAoEcm93cxgCIAMoCzIELlJvd1IEcm93cw==');
 @$core.Deprecated('Use cellDescriptor instead')
 const Cell$json = const {
   '1': 'Cell',
@@ -161,6 +172,16 @@ const GridId$json = const {
 
 /// Descriptor for `GridId`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridIdDescriptor = $convert.base64Decode('CgZHcmlkSWQSFAoFdmFsdWUYASABKAlSBXZhbHVl');
+@$core.Deprecated('Use gridBlockIdDescriptor instead')
+const GridBlockId$json = const {
+  '1': 'GridBlockId',
+  '2': const [
+    const {'1': 'value', '3': 1, '4': 1, '5': 9, '10': 'value'},
+  ],
+};
+
+/// Descriptor for `GridBlockId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockIdDescriptor = $convert.base64Decode('CgtHcmlkQmxvY2tJZBIUCgV2YWx1ZRgBIAEoCVIFdmFsdWU=');
 @$core.Deprecated('Use createRowPayloadDescriptor instead')
 const CreateRowPayload$json = const {
   '1': 'CreateRowPayload',
@@ -186,14 +207,14 @@ const QueryFieldPayload$json = const {
 
 /// Descriptor for `QueryFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryFieldPayloadDescriptor = $convert.base64Decode('ChFRdWVyeUZpZWxkUGF5bG9hZBIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSNgoMZmllbGRfb3JkZXJzGAIgASgLMhMuUmVwZWF0ZWRGaWVsZE9yZGVyUgtmaWVsZE9yZGVycw==');
-@$core.Deprecated('Use queryRowPayloadDescriptor instead')
-const QueryRowPayload$json = const {
-  '1': 'QueryRowPayload',
+@$core.Deprecated('Use queryGridBlocksPayloadDescriptor instead')
+const QueryGridBlocksPayload$json = const {
+  '1': 'QueryGridBlocksPayload',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'row_orders', '3': 2, '4': 1, '5': 11, '6': '.RepeatedRowOrder', '10': 'rowOrders'},
+    const {'1': 'blocks', '3': 2, '4': 3, '5': 11, '6': '.GridBlockMeta', '10': 'blocks'},
   ],
 };
 
-/// Descriptor for `QueryRowPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryRowPayloadDescriptor = $convert.base64Decode('Cg9RdWVyeVJvd1BheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEjAKCnJvd19vcmRlcnMYAiABKAsyES5SZXBlYXRlZFJvd09yZGVyUglyb3dPcmRlcnM=');
+/// Descriptor for `QueryGridBlocksPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List queryGridBlocksPayloadDescriptor = $convert.base64Decode('ChZRdWVyeUdyaWRCbG9ja3NQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBImCgZibG9ja3MYAiADKAsyDi5HcmlkQmxvY2tNZXRhUgZibG9ja3M=');

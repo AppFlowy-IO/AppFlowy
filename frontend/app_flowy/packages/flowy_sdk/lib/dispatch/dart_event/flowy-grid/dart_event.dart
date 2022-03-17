@@ -18,18 +18,18 @@ class GridEventGetGridData {
     }
 }
 
-class GridEventGetRows {
-     QueryRowPayload request;
-     GridEventGetRows(this.request);
+class GridEventGetGridBlocks {
+     QueryGridBlocksPayload request;
+     GridEventGetGridBlocks(this.request);
 
-    Future<Either<RepeatedRow, FlowyError>> send() {
+    Future<Either<RepeatedGridBlock, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.GetRows.toString()
+          ..event = GridEvent.GetGridBlocks.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(RepeatedRow.fromBuffer(okBytes)),
+           (okBytes) => left(RepeatedGridBlock.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
