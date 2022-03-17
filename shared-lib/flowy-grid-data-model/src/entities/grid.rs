@@ -187,7 +187,7 @@ pub struct GridBlock {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub rows: Vec<Row>,
+    pub rows: Vec<String>,
 }
 
 impl GridBlock {

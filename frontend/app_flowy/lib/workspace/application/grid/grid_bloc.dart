@@ -17,8 +17,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
   final GridService service;
   final GridListener listener;
-  Grid? _grid;
-  List<Field>? _fields;
 
   GridBloc({required this.view, required this.service, required this.listener}) : super(GridState.initial()) {
     on<GridEvent>(
@@ -27,8 +25,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           initial: (InitialGrid value) async {
             await _startGridListening();
             await _loadGrid(emit);
-            await _loadFields(emit);
-            await _loadGridInfo(emit);
           },
           createRow: (_CreateRow value) {
             service.createRow(gridId: view.id);
@@ -48,15 +44,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _startGridListening() async {
-    listener.createRowNotifier.addPublishListener((result) {
-      result.fold((repeatedRow) {
+    listener.blockUpdateNotifier.addPublishListener((result) {
+      result.fold((blockId) {
         //
-        Log.info("$repeatedRow");
+        Log.info("$blockId");
       }, (err) => null);
-    });
-
-    listener.deleteRowNotifier.addPublishListener((result) {
-      result.fold((l) => null, (r) => null);
     });
 
     listener.start();
@@ -66,52 +58,42 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     final result = await service.openGrid(gridId: view.id);
     result.fold(
       (grid) {
-        _grid = grid;
+        _loadFields(grid, emit);
+        emit(state.copyWith(grid: Some(grid)));
       },
-      (err) {
-        emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
-      },
+      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
     );
   }
 
-  Future<void> _loadFields(Emitter<GridState> emit) async {
-    if (_grid != null) {
-      final result = await service.getFields(gridId: _grid!.id, fieldOrders: _grid!.fieldOrders);
-      result.fold(
-        (fields) {
-          _fields = fields.items;
-        },
-        (err) {
-          emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
-        },
-      );
-    }
+  Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
+    final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
+    result.fold(
+      (fields) {
+        _loadGridBlocks(grid, emit);
+        emit(state.copyWith(fields: fields.items));
+      },
+      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+    );
   }
 
-  Future<void> _loadGridInfo(Emitter<GridState> emit) async {
-    final grid = _grid;
-    if (grid != null && _fields != null) {
-      final result = await service.getGridBlocks(
-        gridId: grid.id,
-        blocks: grid.blocks,
-      );
+  Future<void> _loadGridBlocks(Grid grid, Emitter<GridState> emit) async {
+    final result = await service.getGridBlocks(gridId: grid.id, blocks: grid.blocks);
 
-      result.fold((repeatedGridBlock) {
-        final blocks = repeatedGridBlock.items;
-        final gridInfo = GridInfo(
-          gridId: grid.id,
-          blocks: blocks,
-          fields: _fields!,
-        );
-        emit(
-          state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
-        );
-      }, (err) {
-        emit(
-          state.copyWith(loadingState: GridLoadingState.finish(right(err)), gridInfo: none()),
-        );
-      });
-    }
+    result.fold((repeatedGridBlock) {
+      final blocks = repeatedGridBlock.items;
+      final gridInfo = GridInfo(
+        gridId: grid.id,
+        blocks: blocks,
+        fields: _fields!,
+      );
+      emit(
+        state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
+      );
+    }, (err) {
+      emit(
+        state.copyWith(loadingState: GridLoadingState.finish(right(err)), gridInfo: none()),
+      );
+    });
   }
 }
 
@@ -128,12 +110,16 @@ abstract class GridEvent with _$GridEvent {
 abstract class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
-    required Option<Either<GridInfo, FlowyError>> gridInfo,
+    required List<Field> fields,
+    required List<Row> rows,
+    required Option<Grid> grid,
   }) = _GridState;
 
   factory GridState.initial() => GridState(
         loadingState: const _Loading(),
-        gridInfo: none(),
+        fields: [],
+        rows: [],
+        grid: none(),
       );
 }
 
