@@ -1,15 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/text_cell_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/row_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// The interface of base cell.
 
 class GridTextCell extends StatefulWidget {
-  final CellContext cellContext;
+  final GridCellData cellData;
   const GridTextCell({
-    required this.cellContext,
+    required this.cellData,
     Key? key,
   }) : super(key: key);
 
@@ -24,7 +24,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<TextCellBloc>(param1: widget.cellContext);
+    _cellBloc = getIt<TextCellBloc>(param1: widget.cellData);
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode.addListener(_focusChanged);
     super.initState();

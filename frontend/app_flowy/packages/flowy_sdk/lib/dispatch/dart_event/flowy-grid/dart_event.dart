@@ -69,6 +69,23 @@ class GridEventCreateRow {
     }
 }
 
+class GridEventGetRow {
+     QueryRowPayload request;
+     GridEventGetRow(this.request);
+
+    Future<Either<Row, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetRow.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Row.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventUpdateCell {
      CellMetaChangeset request;
      GridEventUpdateCell(this.request);

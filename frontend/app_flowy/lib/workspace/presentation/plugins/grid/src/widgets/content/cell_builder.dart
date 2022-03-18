@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
@@ -7,20 +8,20 @@ import 'number_cell.dart';
 import 'selection_cell.dart';
 import 'text_cell.dart';
 
-Widget buildGridCell(CellContext cellContext) {
-  switch (cellContext.field.fieldType) {
+Widget buildGridCell(GridCellData cellData) {
+  switch (cellData.field.fieldType) {
     case FieldType.Checkbox:
-      return CheckboxCell(cellContext: cellContext);
+      return CheckboxCell(cellData: cellData);
     case FieldType.DateTime:
-      return DateCell(cellContext: cellContext);
+      return DateCell(cellData: cellData);
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellContext: cellContext);
+      return MultiSelectCell(cellContext: cellData);
     case FieldType.Number:
-      return NumberCell(cellContext: cellContext);
+      return NumberCell(cellData: cellData);
     case FieldType.RichText:
-      return GridTextCell(cellContext: cellContext);
+      return GridTextCell(cellData: cellData);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellContext: cellContext);
+      return SingleSelectCell(cellContext: cellData);
     default:
       return const BlankCell();
   }

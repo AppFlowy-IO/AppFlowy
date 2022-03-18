@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:flutter/material.dart';
 
 class SingleSelectCell extends StatefulWidget {
-  final CellContext cellContext;
+  final GridCellData cellContext;
 
   const SingleSelectCell({
     required this.cellContext,
@@ -37,7 +37,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends StatefulWidget {
-  final CellContext cellContext;
+  final GridCellData cellContext;
 
   const MultiSelectCell({
     required this.cellContext,

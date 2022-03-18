@@ -1,11 +1,11 @@
 use crate::services::row::deserialize_cell_data;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    Cell, CellMeta, FieldMeta, GridBlock, GridBlockMeta, RepeatedGridBlock, RepeatedRowOrder, Row, RowMeta, RowOrder,
+    Cell, CellMeta, FieldMeta, GridBlock, RepeatedGridBlock, RepeatedRowOrder, Row, RowMeta, RowOrder,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
-use std::ops::Deref;
+
 use std::sync::Arc;
 
 pub(crate) struct RowIdsPerBlock {
@@ -22,9 +22,9 @@ impl RowIdsPerBlock {
     }
 }
 
-pub(crate) struct GridBlockMetaDataSnapshot {
+pub struct GridBlockMetaData {
     pub(crate) block_id: String,
-    pub(crate) row_metas: Vec<Arc<RowMeta>>,
+    pub row_metas: Vec<Arc<RowMeta>>,
 }
 
 pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBlock> {
@@ -40,17 +40,14 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
     map.into_values().collect::<Vec<_>>()
 }
 
-pub(crate) fn make_grid_blocks(
-    field_metas: &[FieldMeta],
-    grid_block_meta_snapshots: Vec<GridBlockMetaDataSnapshot>,
-) -> FlowyResult<RepeatedGridBlock> {
-    Ok(grid_block_meta_snapshots
+pub(crate) fn make_grid_blocks(block_meta_snapshots: Vec<GridBlockMetaData>) -> FlowyResult<RepeatedGridBlock> {
+    Ok(block_meta_snapshots
         .into_iter()
         .map(|row_metas_per_block| {
-            let rows = make_rows_from_row_metas(field_metas, &row_metas_per_block.row_metas);
+            let row_ids = make_row_ids_from_row_metas(&row_metas_per_block.row_metas);
             GridBlock {
                 block_id: row_metas_per_block.block_id,
-                rows,
+                row_ids,
             }
         })
         .collect::<Vec<GridBlock>>()
@@ -74,6 +71,10 @@ pub fn make_cell(
             None
         }
     }
+}
+
+pub(crate) fn make_row_ids_from_row_metas(row_metas: &Vec<Arc<RowMeta>>) -> Vec<String> {
+    row_metas.iter().map(|row_meta| row_meta.id.clone()).collect::<Vec<_>>()
 }
 
 pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &Vec<Arc<RowMeta>>) -> Vec<Row> {
@@ -101,22 +102,21 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &Vec<Arc
 }
 
 pub(crate) fn make_grid_block_from_block_metas(
-    field_metas: &[FieldMeta],
-    grid_block_metas: Vec<GridBlockMeta>,
-    grid_block_meta_snapshots: Vec<GridBlockMetaDataSnapshot>,
+    block_ids: &[String],
+    block_meta_data_vec: Vec<GridBlockMetaData>,
 ) -> FlowyResult<RepeatedGridBlock> {
-    let block_meta_snapshot_map: HashMap<&String, &Vec<Arc<RowMeta>>> = grid_block_meta_snapshots
+    let block_meta_data_map: HashMap<&String, &Vec<Arc<RowMeta>>> = block_meta_data_vec
         .iter()
-        .map(|snapshot| (&snapshot.block_id, &snapshot.row_metas))
+        .map(|data| (&data.block_id, &data.row_metas))
         .collect();
 
     let mut grid_blocks = vec![];
-    for grid_block_meta in grid_block_metas {
-        match block_meta_snapshot_map.get(&grid_block_meta.block_id) {
+    for block_id in block_ids {
+        match block_meta_data_map.get(&block_id) {
             None => {}
             Some(row_metas) => {
-                let rows = make_rows_from_row_metas(&field_metas, row_metas);
-                grid_blocks.push(GridBlock::new(&grid_block_meta.block_id, rows));
+                let row_ids = make_row_ids_from_row_metas(row_metas);
+                grid_blocks.push(GridBlock::new(block_id, row_ids));
             }
         }
     }

@@ -7,14 +7,15 @@ use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     Cell, CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset,
-    RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRowOrder, Row, RowMeta, RowMetaChangeset,
+    GridBlockOrder, RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, RepeatedRowOrder, Row, RowMeta,
+    RowMetaChangeset,
 };
 use std::collections::HashMap;
 
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::services::row::{
-    make_grid_block_from_block_metas, make_grid_blocks, make_row_ids_per_block, row_meta_from_context,
-    serialize_cell_data, GridBlockMetaDataSnapshot, RowMetaContext, RowMetaContextBuilder,
+    make_grid_block_from_block_metas, make_grid_blocks, make_row_ids_per_block, make_rows_from_row_metas,
+    row_meta_from_context, serialize_cell_data, GridBlockMetaData, RowMetaContext, RowMetaContextBuilder,
 };
 use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
@@ -125,6 +126,33 @@ impl ClientGridEditor {
         self.block_meta_manager.update_row(changeset).await
     }
 
+    pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRow> {
+        let block_ids = vec![block_id.to_owned()];
+        let mut block_meta_data_vec = self.get_block_meta_data_vec(Some(&block_ids)).await?;
+        debug_assert_eq!(block_meta_data_vec.len(), 1);
+        if block_meta_data_vec.len() == 1 {
+            let block_meta_data = block_meta_data_vec.pop().unwrap();
+            let field_metas = self.get_field_metas(None).await?;
+            let rows = make_rows_from_row_metas(&field_metas, &block_meta_data.row_metas);
+            Ok(rows.into())
+        } else {
+            Ok(vec![].into())
+        }
+    }
+
+    pub async fn get_row(&self, block_id: &str, row_id: &str) -> FlowyResult<Option<Row>> {
+        match self.block_meta_manager.get_row(block_id, row_id).await? {
+            None => Ok(None),
+            Some(row) => {
+                let field_metas = self.get_field_metas(None).await?;
+                let row_metas = vec![row];
+                let mut rows = make_rows_from_row_metas(&field_metas, &row_metas);
+                debug_assert!(rows.len() == 1);
+                Ok(rows.pop())
+            }
+        }
+    }
+
     pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
         if let Some(cell_data) = changeset.data.as_ref() {
             match self.pad.read().await.get_field(&changeset.field_id) {
@@ -147,41 +175,17 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn get_grid_blocks(
-        &self,
-        grid_block_metas: Option<Vec<GridBlockMeta>>,
-    ) -> FlowyResult<RepeatedGridBlock> {
-        let grid_block_meta_snapshots = self.get_grid_block_meta_snapshots(grid_block_metas.as_ref()).await?;
-        let field_meta = self.pad.read().await.get_field_metas(None)?;
-        match grid_block_metas {
-            None => make_grid_blocks(&field_meta, grid_block_meta_snapshots),
-            Some(grid_block_metas) => {
-                make_grid_block_from_block_metas(&field_meta, grid_block_metas, grid_block_meta_snapshots)
-            }
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedGridBlock> {
+        let block_meta_data_vec = self.get_block_meta_data_vec(block_ids.as_ref()).await?;
+        match block_ids {
+            None => make_grid_blocks(block_meta_data_vec),
+            Some(block_ids) => make_grid_block_from_block_metas(&block_ids, block_meta_data_vec),
         }
     }
 
-    pub(crate) async fn get_grid_block_meta_snapshots(
-        &self,
-        grid_block_infos: Option<&Vec<GridBlockMeta>>,
-    ) -> FlowyResult<Vec<GridBlockMetaDataSnapshot>> {
-        match grid_block_infos {
-            None => {
-                let grid_blocks = self.pad.read().await.get_blocks();
-                let row_metas_per_block = self
-                    .block_meta_manager
-                    .get_block_meta_snapshot_from_blocks(grid_blocks)
-                    .await?;
-                Ok(row_metas_per_block)
-            }
-            Some(grid_block_infos) => {
-                let row_metas_per_block = self
-                    .block_meta_manager
-                    .get_block_meta_snapshot_from_row_orders(grid_block_infos)
-                    .await?;
-                Ok(row_metas_per_block)
-            }
-        }
+    pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockMeta>> {
+        let grid_blocks = self.pad.read().await.get_blocks();
+        Ok(grid_blocks)
     }
 
     pub async fn delete_rows(&self, row_ids: Vec<String>) -> FlowyResult<()> {
@@ -194,11 +198,20 @@ impl ClientGridEditor {
 
     pub async fn grid_data(&self) -> FlowyResult<Grid> {
         let field_orders = self.pad.read().await.get_field_orders();
-        let block_orders = self.pad.read().await.get_blocks();
+        let block_orders = self
+            .pad
+            .read()
+            .await
+            .get_blocks()
+            .into_iter()
+            .map(|grid_block_meta| GridBlockOrder {
+                block_id: grid_block_meta.block_id,
+            })
+            .collect::<Vec<_>>();
         Ok(Grid {
             id: self.grid_id.clone(),
             field_orders,
-            blocks: block_orders,
+            block_orders,
         })
     }
 
@@ -207,9 +220,27 @@ impl ClientGridEditor {
         Ok(field_meta)
     }
 
-    pub async fn get_blocks(&self) -> FlowyResult<Vec<GridBlockMeta>> {
-        let grid_blocks = self.pad.read().await.get_blocks();
-        Ok(grid_blocks)
+    pub async fn get_block_meta_data_vec(
+        &self,
+        block_ids: Option<&Vec<String>>,
+    ) -> FlowyResult<Vec<GridBlockMetaData>> {
+        match block_ids {
+            None => {
+                let grid_blocks = self.pad.read().await.get_blocks();
+                let row_metas_per_block = self
+                    .block_meta_manager
+                    .get_block_meta_data_from_blocks(grid_blocks)
+                    .await?;
+                Ok(row_metas_per_block)
+            }
+            Some(block_ids) => {
+                let row_metas_per_block = self
+                    .block_meta_manager
+                    .get_block_meta_data(block_ids.as_slice())
+                    .await?;
+                Ok(row_metas_per_block)
+            }
+        }
     }
 
     pub async fn delta_bytes(&self) -> Bytes {

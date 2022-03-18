@@ -17,7 +17,7 @@ class GridMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..pc<FieldMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fields', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
-    ..pc<GridBlockMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blocks', $pb.PbFieldType.PM, subBuilder: GridBlockMeta.create)
+    ..pc<GridBlockMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetas', $pb.PbFieldType.PM, subBuilder: GridBlockMeta.create)
     ..hasRequiredFields = false
   ;
 
@@ -25,7 +25,7 @@ class GridMeta extends $pb.GeneratedMessage {
   factory GridMeta({
     $core.String? gridId,
     $core.Iterable<FieldMeta>? fields,
-    $core.Iterable<GridBlockMeta>? blocks,
+    $core.Iterable<GridBlockMeta>? blockMetas,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -34,8 +34,8 @@ class GridMeta extends $pb.GeneratedMessage {
     if (fields != null) {
       _result.fields.addAll(fields);
     }
-    if (blocks != null) {
-      _result.blocks.addAll(blocks);
+    if (blockMetas != null) {
+      _result.blockMetas.addAll(blockMetas);
     }
     return _result;
   }
@@ -73,7 +73,7 @@ class GridMeta extends $pb.GeneratedMessage {
   $core.List<FieldMeta> get fields => $_getList(1);
 
   @$pb.TagNumber(3)
-  $core.List<GridBlockMeta> get blocks => $_getList(2);
+  $core.List<GridBlockMeta> get blockMetas => $_getList(2);
 }
 
 class GridBlockMeta extends $pb.GeneratedMessage {
@@ -151,15 +151,15 @@ class GridBlockMeta extends $pb.GeneratedMessage {
   void clearRowCount() => clearField(3);
 }
 
-class GridBlockMetaData extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockMetaData', createEmptyInstance: create)
+class GridBlockMetaSerde extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockMetaSerde', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..pc<RowMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowMetas', $pb.PbFieldType.PM, subBuilder: RowMeta.create)
     ..hasRequiredFields = false
   ;
 
-  GridBlockMetaData._() : super();
-  factory GridBlockMetaData({
+  GridBlockMetaSerde._() : super();
+  factory GridBlockMetaSerde({
     $core.String? blockId,
     $core.Iterable<RowMeta>? rowMetas,
   }) {
@@ -172,26 +172,26 @@ class GridBlockMetaData extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory GridBlockMetaData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GridBlockMetaData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GridBlockMetaSerde.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridBlockMetaSerde.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GridBlockMetaData clone() => GridBlockMetaData()..mergeFromMessage(this);
+  GridBlockMetaSerde clone() => GridBlockMetaSerde()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GridBlockMetaData copyWith(void Function(GridBlockMetaData) updates) => super.copyWith((message) => updates(message as GridBlockMetaData)) as GridBlockMetaData; // ignore: deprecated_member_use
+  GridBlockMetaSerde copyWith(void Function(GridBlockMetaSerde) updates) => super.copyWith((message) => updates(message as GridBlockMetaSerde)) as GridBlockMetaSerde; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GridBlockMetaData create() => GridBlockMetaData._();
-  GridBlockMetaData createEmptyInstance() => create();
-  static $pb.PbList<GridBlockMetaData> createRepeated() => $pb.PbList<GridBlockMetaData>();
+  static GridBlockMetaSerde create() => GridBlockMetaSerde._();
+  GridBlockMetaSerde createEmptyInstance() => create();
+  static $pb.PbList<GridBlockMetaSerde> createRepeated() => $pb.PbList<GridBlockMetaSerde>();
   @$core.pragma('dart2js:noInline')
-  static GridBlockMetaData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlockMetaData>(create);
-  static GridBlockMetaData? _defaultInstance;
+  static GridBlockMetaSerde getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlockMetaSerde>(create);
+  static GridBlockMetaSerde? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get blockId => $_getSZ(0);
@@ -1020,26 +1020,26 @@ class CellMetaChangeset extends $pb.GeneratedMessage {
 class BuildGridContext extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BuildGridContext', createEmptyInstance: create)
     ..pc<FieldMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldMetas', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
-    ..aOM<GridBlockMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridBlock', subBuilder: GridBlockMeta.create)
-    ..aOM<GridBlockMetaData>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridBlockMetaData', subBuilder: GridBlockMetaData.create)
+    ..aOM<GridBlockMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetas', subBuilder: GridBlockMeta.create)
+    ..aOM<GridBlockMetaSerde>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetaData', subBuilder: GridBlockMetaSerde.create)
     ..hasRequiredFields = false
   ;
 
   BuildGridContext._() : super();
   factory BuildGridContext({
     $core.Iterable<FieldMeta>? fieldMetas,
-    GridBlockMeta? gridBlock,
-    GridBlockMetaData? gridBlockMetaData,
+    GridBlockMeta? blockMetas,
+    GridBlockMetaSerde? blockMetaData,
   }) {
     final _result = create();
     if (fieldMetas != null) {
       _result.fieldMetas.addAll(fieldMetas);
     }
-    if (gridBlock != null) {
-      _result.gridBlock = gridBlock;
+    if (blockMetas != null) {
+      _result.blockMetas = blockMetas;
     }
-    if (gridBlockMetaData != null) {
-      _result.gridBlockMetaData = gridBlockMetaData;
+    if (blockMetaData != null) {
+      _result.blockMetaData = blockMetaData;
     }
     return _result;
   }
@@ -1068,25 +1068,25 @@ class BuildGridContext extends $pb.GeneratedMessage {
   $core.List<FieldMeta> get fieldMetas => $_getList(0);
 
   @$pb.TagNumber(2)
-  GridBlockMeta get gridBlock => $_getN(1);
+  GridBlockMeta get blockMetas => $_getN(1);
   @$pb.TagNumber(2)
-  set gridBlock(GridBlockMeta v) { setField(2, v); }
+  set blockMetas(GridBlockMeta v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGridBlock() => $_has(1);
+  $core.bool hasBlockMetas() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGridBlock() => clearField(2);
+  void clearBlockMetas() => clearField(2);
   @$pb.TagNumber(2)
-  GridBlockMeta ensureGridBlock() => $_ensure(1);
+  GridBlockMeta ensureBlockMetas() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  GridBlockMetaData get gridBlockMetaData => $_getN(2);
+  GridBlockMetaSerde get blockMetaData => $_getN(2);
   @$pb.TagNumber(3)
-  set gridBlockMetaData(GridBlockMetaData v) { setField(3, v); }
+  set blockMetaData(GridBlockMetaSerde v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasGridBlockMetaData() => $_has(2);
+  $core.bool hasBlockMetaData() => $_has(2);
   @$pb.TagNumber(3)
-  void clearGridBlockMetaData() => clearField(3);
+  void clearBlockMetaData() => clearField(3);
   @$pb.TagNumber(3)
-  GridBlockMetaData ensureGridBlockMetaData() => $_ensure(2);
+  GridBlockMetaSerde ensureBlockMetaData() => $_ensure(2);
 }
 

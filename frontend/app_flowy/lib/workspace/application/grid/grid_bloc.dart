@@ -1,14 +1,12 @@
 import 'dart:async';
-
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'data.dart';
-import 'grid_listener.dart';
+import 'grid_block_service.dart';
+import 'grid_listenr.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
@@ -16,14 +14,16 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
   final GridService service;
-  final GridListener listener;
+  late GridListener _gridListener;
+  late GridBlockService _blockService;
 
-  GridBloc({required this.view, required this.service, required this.listener}) : super(GridState.initial()) {
+  GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
+    _gridListener = GridListener();
+
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (InitialGrid value) async {
-            await _startGridListening();
             await _loadGrid(emit);
           },
           createRow: (_CreateRow value) {
@@ -32,6 +32,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           delete: (_Delete value) {},
           rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
+          didLoadRows: (_DidLoadRows value) {
+            emit(state.copyWith(rows: value.rows));
+          },
         );
       },
     );
@@ -39,61 +42,63 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
-    await listener.close();
+    await _gridListener.stop();
+    await _blockService.stop();
     return super.close();
   }
 
   Future<void> _startGridListening() async {
-    listener.blockUpdateNotifier.addPublishListener((result) {
-      result.fold((blockId) {
-        //
-        Log.info("$blockId");
-      }, (err) => null);
-    });
+    _blockService.didLoadRowscallback = (rows) {
+      add(GridEvent.didLoadRows(rows));
+    };
 
-    listener.start();
+    _gridListener.start();
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await service.openGrid(gridId: view.id);
-    result.fold(
-      (grid) {
-        _loadFields(grid, emit);
-        emit(state.copyWith(grid: Some(grid)));
-      },
-      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+
+    return Future(
+      () => result.fold(
+        (grid) async => await _loadFields(grid, emit),
+        (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+      ),
     );
   }
 
   Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
     final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
-    result.fold(
-      (fields) {
-        _loadGridBlocks(grid, emit);
-        emit(state.copyWith(fields: fields.items));
-      },
-      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+    return Future(
+      () => result.fold(
+        (fields) => _loadGridBlocks(grid, fields.items, emit),
+        (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+      ),
     );
   }
 
-  Future<void> _loadGridBlocks(Grid grid, Emitter<GridState> emit) async {
-    final result = await service.getGridBlocks(gridId: grid.id, blocks: grid.blocks);
+  Future<void> _loadGridBlocks(Grid grid, List<Field> fields, Emitter<GridState> emit) async {
+    final result = await service.getGridBlocks(gridId: grid.id, blockOrders: grid.blockOrders);
+    result.fold(
+      (repeatedGridBlock) {
+        final gridBlocks = repeatedGridBlock.items;
+        final gridId = view.id;
+        _blockService = GridBlockService(
+          gridId: gridId,
+          fields: fields,
+          gridBlocks: gridBlocks,
+        );
+        final rows = _blockService.rows();
 
-    result.fold((repeatedGridBlock) {
-      final blocks = repeatedGridBlock.items;
-      final gridInfo = GridInfo(
-        gridId: grid.id,
-        blocks: blocks,
-        fields: _fields!,
-      );
-      emit(
-        state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
-      );
-    }, (err) {
-      emit(
-        state.copyWith(loadingState: GridLoadingState.finish(right(err)), gridInfo: none()),
-      );
-    });
+        _startGridListening();
+        emit(state.copyWith(
+          grid: Some(grid),
+          fields: Some(fields),
+          rows: rows,
+          loadingState: GridLoadingState.finish(left(unit)),
+        ));
+      },
+      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)), rows: [])),
+    );
   }
 }
 
@@ -104,20 +109,21 @@ abstract class GridEvent with _$GridEvent {
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.didLoadRows(List<GridRowData> rows) = _DidLoadRows;
 }
 
 @freezed
 abstract class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
-    required List<Field> fields,
-    required List<Row> rows,
+    required Option<List<Field>> fields,
+    required List<GridRowData> rows,
     required Option<Grid> grid,
   }) = _GridState;
 
   factory GridState.initial() => GridState(
         loadingState: const _Loading(),
-        fields: [],
+        fields: none(),
         rows: [],
         grid: none(),
       );

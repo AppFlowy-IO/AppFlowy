@@ -2,25 +2,26 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'data.dart';
+import 'grid_service.dart';
 import 'row_listener.dart';
 import 'row_service.dart';
 
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
-  final RowService service;
+  final RowService rowService;
   final RowListener listener;
 
-  RowBloc({required this.service, required this.listener}) : super(RowState.initial(service.rowData)) {
+  RowBloc({required this.rowService, required this.listener}) : super(RowState.initial(rowService.rowData)) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
             _startRowListening();
+            await _loadCellDatas(emit);
           },
           createRow: (_CreateRow value) {
-            service.createRow();
+            rowService.createRow();
           },
           activeRow: (_ActiveRow value) {
             emit(state.copyWith(active: true));
@@ -55,6 +56,25 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
     listener.start();
   }
+
+  Future<void> _loadCellDatas(Emitter<RowState> emit) async {
+    final result = await rowService.getRow();
+    result.fold(
+      (row) {
+        final cellDatas = rowService.rowData.fields.map((field) {
+          final cell = row.cellByFieldId[field.id];
+          return GridCellData(
+            rowId: row.id,
+            gridId: rowService.rowData.gridId,
+            cell: cell,
+            field: field,
+          );
+        }).toList();
+        emit(state.copyWith(cellDatas: cellDatas, rowHeight: row.height.toDouble()));
+      },
+      (e) => Log.error(e),
+    );
+  }
 }
 
 @freezed
@@ -68,9 +88,16 @@ abstract class RowEvent with _$RowEvent {
 @freezed
 abstract class RowState with _$RowState {
   const factory RowState({
-    required GridRowData data,
+    required String rowId,
+    required double rowHeight,
+    required List<GridCellData> cellDatas,
     required bool active,
   }) = _RowState;
 
-  factory RowState.initial(GridRowData data) => RowState(data: data, active: false);
+  factory RowState.initial(GridRowData data) => RowState(
+        rowId: data.rowId,
+        active: false,
+        rowHeight: 0,
+        cellDatas: [],
+      );
 }

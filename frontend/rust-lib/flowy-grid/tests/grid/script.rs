@@ -89,8 +89,8 @@ impl GridEditorTest {
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_metas = editor.get_field_metas(None).await.unwrap();
-        let grid_blocks = editor.get_blocks().await.unwrap();
-        let row_metas = editor.get_grid_block_meta_snapshots(None).await.unwrap();
+        let grid_blocks = editor.get_block_metas().await.unwrap();
+        let row_metas = get_row_metas(&editor).await;
 
         let grid_id = test.view.id;
         Self {
@@ -150,13 +150,13 @@ impl GridEditorTest {
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
-                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+                self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::UpdateBlock { changeset: change } => {
                 self.editor.update_block(change).await.unwrap();
             }
             EditorScript::AssertBlockCount(count) => {
-                assert_eq!(self.editor.get_blocks().await.unwrap().len(), count);
+                assert_eq!(self.editor.get_block_metas().await.unwrap().len(), count);
             }
             EditorScript::AssertBlock {
                 block_index,
@@ -167,25 +167,25 @@ impl GridEditorTest {
                 assert_eq!(self.grid_blocks[block_index].start_row_index, start_row_index);
             }
             EditorScript::AssertBlockEqual { block_index, block } => {
-                let blocks = self.editor.get_blocks().await.unwrap();
+                let blocks = self.editor.get_block_metas().await.unwrap();
                 let compared_block = blocks[block_index].clone();
                 assert_eq!(compared_block, block);
             }
             EditorScript::CreateEmptyRow => {
                 self.editor.create_row(None).await.unwrap();
-                self.row_metas = self.editor.get_grid_block_meta_snapshots(None).await.unwrap();
-                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+                self.row_metas = self.get_row_metas().await;
+                self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::CreateRow { context } => {
                 self.editor.insert_rows(vec![context]).await.unwrap();
-                self.row_metas = self.editor.get_grid_block_meta_snapshots(None).await.unwrap();
-                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+                self.row_metas = self.get_row_metas().await;
+                self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             EditorScript::DeleteRow { row_ids } => {
                 self.editor.delete_rows(row_ids).await.unwrap();
-                self.row_metas = self.editor.get_grid_block_meta_snapshots(None).await.unwrap();
-                self.grid_blocks = self.editor.get_blocks().await.unwrap();
+                self.row_metas = self.get_row_metas().await;
+                self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::AssertRow { changeset } => {
                 let row = self.row_metas.iter().find(|row| row.id == changeset.row_id).unwrap();
@@ -204,11 +204,11 @@ impl GridEditorTest {
                     assert!(result.is_err())
                 } else {
                     let _ = result.unwrap();
-                    self.row_metas = self.editor.get_grid_block_meta_snapshots(None).await.unwrap();
+                    self.row_metas = self.get_row_metas().await;
                 }
             }
             EditorScript::AssertRowCount(count) => {
-                assert_eq!(self.editor.get_grid_blocks(None).await.unwrap().len(), count);
+                assert_eq!(self.row_metas.len(), count);
             }
             EditorScript::AssertGridMetaPad => {
                 sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
@@ -218,6 +218,20 @@ impl GridEditorTest {
             }
         }
     }
+
+    async fn get_row_metas(&self) -> Vec<Arc<RowMeta>> {
+        get_row_metas(&self.editor).await
+    }
+}
+
+async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
+    editor
+        .get_block_meta_data_vec(None)
+        .await
+        .unwrap()
+        .pop()
+        .unwrap()
+        .row_metas
 }
 
 pub fn create_text_field() -> FieldMeta {

@@ -1,7 +1,9 @@
-use crate::entities::{FieldMeta, FieldType, GridBlockMeta, RowMeta};
+use crate::entities::{FieldMeta, FieldType, RowMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
-use std::hash::Hash;
+
+use crate::parser::NonEmptyId;
+use flowy_error_code::ErrorCode;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -13,7 +15,7 @@ pub struct Grid {
     pub field_orders: Vec<FieldOrder>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<GridBlockMeta>,
+    pub block_orders: Vec<GridBlockOrder>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -170,6 +172,18 @@ pub struct Row {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedRow {
+    #[pb(index = 1)]
+    pub items: Vec<Row>,
+}
+
+impl std::convert::From<Vec<Row>> for RepeatedRow {
+    fn from(items: Vec<Row>) -> Self {
+        Self { items }
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedGridBlock {
     #[pb(index = 1)]
     pub items: Vec<GridBlock>,
@@ -181,20 +195,26 @@ impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
     }
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct GridBlockOrder {
+    #[pb(index = 1)]
+    pub block_id: String,
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub rows: Vec<String>,
+    pub row_ids: Vec<String>,
 }
 
 impl GridBlock {
-    pub fn new(block_id: &str, rows: Vec<Row>) -> Self {
+    pub fn new(block_id: &str, row_ids: Vec<String>) -> Self {
         Self {
             block_id: block_id.to_owned(),
-            rows,
+            row_ids,
         }
     }
 }
@@ -278,7 +298,7 @@ pub struct CreateRowPayload {
     pub grid_id: String,
 
     #[pb(index = 2, one_of)]
-    pub upper_row_id: Option<String>,
+    pub start_row_id: Option<String>,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -296,5 +316,17 @@ pub struct QueryGridBlocksPayload {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub blocks: Vec<GridBlockMeta>,
+    pub block_orders: Vec<GridBlockOrder>,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct QueryRowPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub block_id: String,
+
+    #[pb(index = 3)]
+    pub row_id: String,
 }

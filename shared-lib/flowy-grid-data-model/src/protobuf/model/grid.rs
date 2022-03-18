@@ -28,7 +28,7 @@ pub struct Grid {
     // message fields
     pub id: ::std::string::String,
     pub field_orders: ::protobuf::RepeatedField<FieldOrder>,
-    pub blocks: ::protobuf::RepeatedField<super::meta::GridBlockMeta>,
+    pub block_orders: ::protobuf::RepeatedField<GridBlockOrder>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -96,29 +96,29 @@ impl Grid {
         ::std::mem::replace(&mut self.field_orders, ::protobuf::RepeatedField::new())
     }
 
-    // repeated .GridBlockMeta blocks = 3;
+    // repeated .GridBlockOrder block_orders = 3;
 
 
-    pub fn get_blocks(&self) -> &[super::meta::GridBlockMeta] {
-        &self.blocks
+    pub fn get_block_orders(&self) -> &[GridBlockOrder] {
+        &self.block_orders
     }
-    pub fn clear_blocks(&mut self) {
-        self.blocks.clear();
+    pub fn clear_block_orders(&mut self) {
+        self.block_orders.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_blocks(&mut self, v: ::protobuf::RepeatedField<super::meta::GridBlockMeta>) {
-        self.blocks = v;
+    pub fn set_block_orders(&mut self, v: ::protobuf::RepeatedField<GridBlockOrder>) {
+        self.block_orders = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_blocks(&mut self) -> &mut ::protobuf::RepeatedField<super::meta::GridBlockMeta> {
-        &mut self.blocks
+    pub fn mut_block_orders(&mut self) -> &mut ::protobuf::RepeatedField<GridBlockOrder> {
+        &mut self.block_orders
     }
 
     // Take field
-    pub fn take_blocks(&mut self) -> ::protobuf::RepeatedField<super::meta::GridBlockMeta> {
-        ::std::mem::replace(&mut self.blocks, ::protobuf::RepeatedField::new())
+    pub fn take_block_orders(&mut self) -> ::protobuf::RepeatedField<GridBlockOrder> {
+        ::std::mem::replace(&mut self.block_orders, ::protobuf::RepeatedField::new())
     }
 }
 
@@ -129,7 +129,7 @@ impl ::protobuf::Message for Grid {
                 return false;
             }
         };
-        for v in &self.blocks {
+        for v in &self.block_orders {
             if !v.is_initialized() {
                 return false;
             }
@@ -148,7 +148,7 @@ impl ::protobuf::Message for Grid {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.field_orders)?;
                 },
                 3 => {
-                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.blocks)?;
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.block_orders)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -169,7 +169,7 @@ impl ::protobuf::Message for Grid {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
-        for value in &self.blocks {
+        for value in &self.block_orders {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
@@ -187,7 +187,7 @@ impl ::protobuf::Message for Grid {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         };
-        for v in &self.blocks {
+        for v in &self.block_orders {
             os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
@@ -240,10 +240,10 @@ impl ::protobuf::Message for Grid {
                 |m: &Grid| { &m.field_orders },
                 |m: &mut Grid| { &mut m.field_orders },
             ));
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::meta::GridBlockMeta>>(
-                "blocks",
-                |m: &Grid| { &m.blocks },
-                |m: &mut Grid| { &mut m.blocks },
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<GridBlockOrder>>(
+                "block_orders",
+                |m: &Grid| { &m.block_orders },
+                |m: &mut Grid| { &mut m.block_orders },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Grid>(
                 "Grid",
@@ -263,7 +263,7 @@ impl ::protobuf::Clear for Grid {
     fn clear(&mut self) {
         self.id.clear();
         self.field_orders.clear();
-        self.blocks.clear();
+        self.block_orders.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1749,6 +1749,172 @@ impl ::protobuf::reflect::ProtobufValue for Row {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct RepeatedRow {
+    // message fields
+    pub items: ::protobuf::RepeatedField<Row>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a RepeatedRow {
+    fn default() -> &'a RepeatedRow {
+        <RepeatedRow as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RepeatedRow {
+    pub fn new() -> RepeatedRow {
+        ::std::default::Default::default()
+    }
+
+    // repeated .Row items = 1;
+
+
+    pub fn get_items(&self) -> &[Row] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<Row>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<Row> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<Row> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for RepeatedRow {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RepeatedRow {
+        RepeatedRow::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Row>>(
+                "items",
+                |m: &RepeatedRow| { &m.items },
+                |m: &mut RepeatedRow| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedRow>(
+                "RepeatedRow",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RepeatedRow {
+        static instance: ::protobuf::rt::LazyV2<RepeatedRow> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RepeatedRow::new)
+    }
+}
+
+impl ::protobuf::Clear for RepeatedRow {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RepeatedRow {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RepeatedRow {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct RepeatedGridBlock {
     // message fields
     pub items: ::protobuf::RepeatedField<GridBlock>,
@@ -1915,10 +2081,169 @@ impl ::protobuf::reflect::ProtobufValue for RepeatedGridBlock {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct GridBlockOrder {
+    // message fields
+    pub block_id: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a GridBlockOrder {
+    fn default() -> &'a GridBlockOrder {
+        <GridBlockOrder as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl GridBlockOrder {
+    pub fn new() -> GridBlockOrder {
+        ::std::default::Default::default()
+    }
+
+    // string block_id = 1;
+
+
+    pub fn get_block_id(&self) -> &str {
+        &self.block_id
+    }
+    pub fn clear_block_id(&mut self) {
+        self.block_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_block_id(&mut self, v: ::std::string::String) {
+        self.block_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
+        &mut self.block_id
+    }
+
+    // Take field
+    pub fn take_block_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for GridBlockOrder {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.block_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.block_id);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.block_id.is_empty() {
+            os.write_string(1, &self.block_id)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> GridBlockOrder {
+        GridBlockOrder::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "block_id",
+                |m: &GridBlockOrder| { &m.block_id },
+                |m: &mut GridBlockOrder| { &mut m.block_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<GridBlockOrder>(
+                "GridBlockOrder",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static GridBlockOrder {
+        static instance: ::protobuf::rt::LazyV2<GridBlockOrder> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(GridBlockOrder::new)
+    }
+}
+
+impl ::protobuf::Clear for GridBlockOrder {
+    fn clear(&mut self) {
+        self.block_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for GridBlockOrder {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for GridBlockOrder {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct GridBlock {
     // message fields
     pub block_id: ::std::string::String,
-    pub rows: ::protobuf::RepeatedField<Row>,
+    pub row_ids: ::protobuf::RepeatedField<::std::string::String>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1961,39 +2286,34 @@ impl GridBlock {
         ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
-    // repeated .Row rows = 2;
+    // repeated string row_ids = 2;
 
 
-    pub fn get_rows(&self) -> &[Row] {
-        &self.rows
+    pub fn get_row_ids(&self) -> &[::std::string::String] {
+        &self.row_ids
     }
-    pub fn clear_rows(&mut self) {
-        self.rows.clear();
+    pub fn clear_row_ids(&mut self) {
+        self.row_ids.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_rows(&mut self, v: ::protobuf::RepeatedField<Row>) {
-        self.rows = v;
+    pub fn set_row_ids(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+        self.row_ids = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_rows(&mut self) -> &mut ::protobuf::RepeatedField<Row> {
-        &mut self.rows
+    pub fn mut_row_ids(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+        &mut self.row_ids
     }
 
     // Take field
-    pub fn take_rows(&mut self) -> ::protobuf::RepeatedField<Row> {
-        ::std::mem::replace(&mut self.rows, ::protobuf::RepeatedField::new())
+    pub fn take_row_ids(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
+        ::std::mem::replace(&mut self.row_ids, ::protobuf::RepeatedField::new())
     }
 }
 
 impl ::protobuf::Message for GridBlock {
     fn is_initialized(&self) -> bool {
-        for v in &self.rows {
-            if !v.is_initialized() {
-                return false;
-            }
-        };
         true
     }
 
@@ -2005,7 +2325,7 @@ impl ::protobuf::Message for GridBlock {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.rows)?;
+                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.row_ids)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -2022,9 +2342,8 @@ impl ::protobuf::Message for GridBlock {
         if !self.block_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.block_id);
         }
-        for value in &self.rows {
-            let len = value.compute_size();
-            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        for value in &self.row_ids {
+            my_size += ::protobuf::rt::string_size(2, &value);
         };
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -2035,10 +2354,8 @@ impl ::protobuf::Message for GridBlock {
         if !self.block_id.is_empty() {
             os.write_string(1, &self.block_id)?;
         }
-        for v in &self.rows {
-            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-            os.write_raw_varint32(v.get_cached_size())?;
-            v.write_to_with_cached_sizes(os)?;
+        for v in &self.row_ids {
+            os.write_string(2, &v)?;
         };
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -2083,10 +2400,10 @@ impl ::protobuf::Message for GridBlock {
                 |m: &GridBlock| { &m.block_id },
                 |m: &mut GridBlock| { &mut m.block_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Row>>(
-                "rows",
-                |m: &GridBlock| { &m.rows },
-                |m: &mut GridBlock| { &mut m.rows },
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_ids",
+                |m: &GridBlock| { &m.row_ids },
+                |m: &mut GridBlock| { &mut m.row_ids },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<GridBlock>(
                 "GridBlock",
@@ -2105,7 +2422,7 @@ impl ::protobuf::Message for GridBlock {
 impl ::protobuf::Clear for GridBlock {
     fn clear(&mut self) {
         self.block_id.clear();
-        self.rows.clear();
+        self.row_ids.clear();
         self.unknown_fields.clear();
     }
 }
@@ -2971,7 +3288,7 @@ pub struct CreateRowPayload {
     // message fields
     pub grid_id: ::std::string::String,
     // message oneof groups
-    pub one_of_upper_row_id: ::std::option::Option<CreateRowPayload_oneof_one_of_upper_row_id>,
+    pub one_of_start_row_id: ::std::option::Option<CreateRowPayload_oneof_one_of_start_row_id>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -2984,8 +3301,8 @@ impl<'a> ::std::default::Default for &'a CreateRowPayload {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum CreateRowPayload_oneof_one_of_upper_row_id {
-    upper_row_id(::std::string::String),
+pub enum CreateRowPayload_oneof_one_of_start_row_id {
+    start_row_id(::std::string::String),
 }
 
 impl CreateRowPayload {
@@ -3019,48 +3336,48 @@ impl CreateRowPayload {
         ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
     }
 
-    // string upper_row_id = 2;
+    // string start_row_id = 2;
 
 
-    pub fn get_upper_row_id(&self) -> &str {
-        match self.one_of_upper_row_id {
-            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(ref v)) => v,
+    pub fn get_start_row_id(&self) -> &str {
+        match self.one_of_start_row_id {
+            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_upper_row_id(&mut self) {
-        self.one_of_upper_row_id = ::std::option::Option::None;
+    pub fn clear_start_row_id(&mut self) {
+        self.one_of_start_row_id = ::std::option::Option::None;
     }
 
-    pub fn has_upper_row_id(&self) -> bool {
-        match self.one_of_upper_row_id {
-            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(..)) => true,
+    pub fn has_start_row_id(&self) -> bool {
+        match self.one_of_start_row_id {
+            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_upper_row_id(&mut self, v: ::std::string::String) {
-        self.one_of_upper_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(v))
+    pub fn set_start_row_id(&mut self, v: ::std::string::String) {
+        self.one_of_start_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_upper_row_id(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(_)) = self.one_of_upper_row_id {
+    pub fn mut_start_row_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(_)) = self.one_of_start_row_id {
         } else {
-            self.one_of_upper_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(::std::string::String::new()));
+            self.one_of_start_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(::std::string::String::new()));
         }
-        match self.one_of_upper_row_id {
-            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(ref mut v)) => v,
+        match self.one_of_start_row_id {
+            ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_upper_row_id(&mut self) -> ::std::string::String {
-        if self.has_upper_row_id() {
-            match self.one_of_upper_row_id.take() {
-                ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(v)) => v,
+    pub fn take_start_row_id(&mut self) -> ::std::string::String {
+        if self.has_start_row_id() {
+            match self.one_of_start_row_id.take() {
+                ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -3085,7 +3402,7 @@ impl ::protobuf::Message for CreateRowPayload {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_upper_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(is.read_string()?));
+                    self.one_of_start_row_id = ::std::option::Option::Some(CreateRowPayload_oneof_one_of_start_row_id::start_row_id(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -3102,9 +3419,9 @@ impl ::protobuf::Message for CreateRowPayload {
         if !self.grid_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.grid_id);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_upper_row_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_start_row_id {
             match v {
-                &CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(ref v) => {
+                &CreateRowPayload_oneof_one_of_start_row_id::start_row_id(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
@@ -3118,9 +3435,9 @@ impl ::protobuf::Message for CreateRowPayload {
         if !self.grid_id.is_empty() {
             os.write_string(1, &self.grid_id)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_upper_row_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_start_row_id {
             match v {
-                &CreateRowPayload_oneof_one_of_upper_row_id::upper_row_id(ref v) => {
+                &CreateRowPayload_oneof_one_of_start_row_id::start_row_id(ref v) => {
                     os.write_string(2, v)?;
                 },
             };
@@ -3169,9 +3486,9 @@ impl ::protobuf::Message for CreateRowPayload {
                 |m: &mut CreateRowPayload| { &mut m.grid_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "upper_row_id",
-                CreateRowPayload::has_upper_row_id,
-                CreateRowPayload::get_upper_row_id,
+                "start_row_id",
+                CreateRowPayload::has_start_row_id,
+                CreateRowPayload::get_start_row_id,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateRowPayload>(
                 "CreateRowPayload",
@@ -3190,7 +3507,7 @@ impl ::protobuf::Message for CreateRowPayload {
 impl ::protobuf::Clear for CreateRowPayload {
     fn clear(&mut self) {
         self.grid_id.clear();
-        self.one_of_upper_row_id = ::std::option::Option::None;
+        self.one_of_start_row_id = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -3427,7 +3744,7 @@ impl ::protobuf::reflect::ProtobufValue for QueryFieldPayload {
 pub struct QueryGridBlocksPayload {
     // message fields
     pub grid_id: ::std::string::String,
-    pub blocks: ::protobuf::RepeatedField<super::meta::GridBlockMeta>,
+    pub block_orders: ::protobuf::RepeatedField<GridBlockOrder>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -3470,35 +3787,35 @@ impl QueryGridBlocksPayload {
         ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
     }
 
-    // repeated .GridBlockMeta blocks = 2;
+    // repeated .GridBlockOrder block_orders = 2;
 
 
-    pub fn get_blocks(&self) -> &[super::meta::GridBlockMeta] {
-        &self.blocks
+    pub fn get_block_orders(&self) -> &[GridBlockOrder] {
+        &self.block_orders
     }
-    pub fn clear_blocks(&mut self) {
-        self.blocks.clear();
+    pub fn clear_block_orders(&mut self) {
+        self.block_orders.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_blocks(&mut self, v: ::protobuf::RepeatedField<super::meta::GridBlockMeta>) {
-        self.blocks = v;
+    pub fn set_block_orders(&mut self, v: ::protobuf::RepeatedField<GridBlockOrder>) {
+        self.block_orders = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_blocks(&mut self) -> &mut ::protobuf::RepeatedField<super::meta::GridBlockMeta> {
-        &mut self.blocks
+    pub fn mut_block_orders(&mut self) -> &mut ::protobuf::RepeatedField<GridBlockOrder> {
+        &mut self.block_orders
     }
 
     // Take field
-    pub fn take_blocks(&mut self) -> ::protobuf::RepeatedField<super::meta::GridBlockMeta> {
-        ::std::mem::replace(&mut self.blocks, ::protobuf::RepeatedField::new())
+    pub fn take_block_orders(&mut self) -> ::protobuf::RepeatedField<GridBlockOrder> {
+        ::std::mem::replace(&mut self.block_orders, ::protobuf::RepeatedField::new())
     }
 }
 
 impl ::protobuf::Message for QueryGridBlocksPayload {
     fn is_initialized(&self) -> bool {
-        for v in &self.blocks {
+        for v in &self.block_orders {
             if !v.is_initialized() {
                 return false;
             }
@@ -3514,7 +3831,7 @@ impl ::protobuf::Message for QueryGridBlocksPayload {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.blocks)?;
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.block_orders)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -3531,7 +3848,7 @@ impl ::protobuf::Message for QueryGridBlocksPayload {
         if !self.grid_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.grid_id);
         }
-        for value in &self.blocks {
+        for value in &self.block_orders {
             let len = value.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         };
@@ -3544,7 +3861,7 @@ impl ::protobuf::Message for QueryGridBlocksPayload {
         if !self.grid_id.is_empty() {
             os.write_string(1, &self.grid_id)?;
         }
-        for v in &self.blocks {
+        for v in &self.block_orders {
             os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
@@ -3592,10 +3909,10 @@ impl ::protobuf::Message for QueryGridBlocksPayload {
                 |m: &QueryGridBlocksPayload| { &m.grid_id },
                 |m: &mut QueryGridBlocksPayload| { &mut m.grid_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::meta::GridBlockMeta>>(
-                "blocks",
-                |m: &QueryGridBlocksPayload| { &m.blocks },
-                |m: &mut QueryGridBlocksPayload| { &mut m.blocks },
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<GridBlockOrder>>(
+                "block_orders",
+                |m: &QueryGridBlocksPayload| { &m.block_orders },
+                |m: &mut QueryGridBlocksPayload| { &mut m.block_orders },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryGridBlocksPayload>(
                 "QueryGridBlocksPayload",
@@ -3614,7 +3931,7 @@ impl ::protobuf::Message for QueryGridBlocksPayload {
 impl ::protobuf::Clear for QueryGridBlocksPayload {
     fn clear(&mut self) {
         self.grid_id.clear();
-        self.blocks.clear();
+        self.block_orders.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3631,43 +3948,291 @@ impl ::protobuf::reflect::ProtobufValue for QueryGridBlocksPayload {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct QueryRowPayload {
+    // message fields
+    pub grid_id: ::std::string::String,
+    pub block_id: ::std::string::String,
+    pub row_id: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a QueryRowPayload {
+    fn default() -> &'a QueryRowPayload {
+        <QueryRowPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl QueryRowPayload {
+    pub fn new() -> QueryRowPayload {
+        ::std::default::Default::default()
+    }
+
+    // string grid_id = 1;
+
+
+    pub fn get_grid_id(&self) -> &str {
+        &self.grid_id
+    }
+    pub fn clear_grid_id(&mut self) {
+        self.grid_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_grid_id(&mut self, v: ::std::string::String) {
+        self.grid_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
+        &mut self.grid_id
+    }
+
+    // Take field
+    pub fn take_grid_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    }
+
+    // string block_id = 2;
+
+
+    pub fn get_block_id(&self) -> &str {
+        &self.block_id
+    }
+    pub fn clear_block_id(&mut self) {
+        self.block_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_block_id(&mut self, v: ::std::string::String) {
+        self.block_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
+        &mut self.block_id
+    }
+
+    // Take field
+    pub fn take_block_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
+    }
+
+    // string row_id = 3;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for QueryRowPayload {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.grid_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
+        }
+        if !self.block_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.block_id);
+        }
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.row_id);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.grid_id.is_empty() {
+            os.write_string(1, &self.grid_id)?;
+        }
+        if !self.block_id.is_empty() {
+            os.write_string(2, &self.block_id)?;
+        }
+        if !self.row_id.is_empty() {
+            os.write_string(3, &self.row_id)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> QueryRowPayload {
+        QueryRowPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "grid_id",
+                |m: &QueryRowPayload| { &m.grid_id },
+                |m: &mut QueryRowPayload| { &mut m.grid_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "block_id",
+                |m: &QueryRowPayload| { &m.block_id },
+                |m: &mut QueryRowPayload| { &mut m.block_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &QueryRowPayload| { &m.row_id },
+                |m: &mut QueryRowPayload| { &mut m.row_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryRowPayload>(
+                "QueryRowPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static QueryRowPayload {
+        static instance: ::protobuf::rt::LazyV2<QueryRowPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(QueryRowPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for QueryRowPayload {
+    fn clear(&mut self) {
+        self.grid_id.clear();
+        self.block_id.clear();
+        self.row_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for QueryRowPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for QueryRowPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ngrid.proto\x1a\nmeta.proto\"n\n\x04Grid\x12\x0e\n\x02id\x18\x01\x20\
+    \n\ngrid.proto\x1a\nmeta.proto\"z\n\x04Grid\x12\x0e\n\x02id\x18\x01\x20\
     \x01(\tR\x02id\x12.\n\x0cfield_orders\x18\x02\x20\x03(\x0b2\x0b.FieldOrd\
-    erR\x0bfieldOrders\x12&\n\x06blocks\x18\x03\x20\x03(\x0b2\x0e.GridBlockM\
-    etaR\x06blocks\"\xb8\x01\n\x05Field\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
-    \x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
-    \x18\x03\x20\x01(\tR\x04desc\x12)\n\nfield_type\x18\x04\x20\x01(\x0e2\n.\
-    FieldTypeR\tfieldType\x12\x16\n\x06frozen\x18\x05\x20\x01(\x08R\x06froze\
-    n\x12\x1e\n\nvisibility\x18\x06\x20\x01(\x08R\nvisibility\x12\x14\n\x05w\
-    idth\x18\x07\x20\x01(\x05R\x05width\"'\n\nFieldOrder\x12\x19\n\x08field_\
-    id\x18\x01\x20\x01(\tR\x07fieldId\"-\n\rRepeatedField\x12\x1c\n\x05items\
-    \x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"7\n\x12RepeatedFieldOrder\
-    \x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.FieldOrderR\x05items\"<\n\x08\
-    RowOrder\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\x12\x19\n\x08b\
-    lock_id\x18\x02\x20\x01(\tR\x07blockId\"3\n\x10RepeatedRowOrder\x12\x1f\
-    \n\x05items\x18\x01\x20\x03(\x0b2\t.RowOrderR\x05items\"\xb8\x01\n\x03Ro\
-    w\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12@\n\x10cell_by_field_id\
-    \x18\x02\x20\x03(\x0b2\x17.Row.CellByFieldIdEntryR\rcellByFieldId\x12\
-    \x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\x1aG\n\x12CellByFieldId\
-    Entry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\x18\
-    \x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\"5\n\x11RepeatedGridBloc\
-    k\x12\x20\n\x05items\x18\x01\x20\x03(\x0b2\n.GridBlockR\x05items\"@\n\tG\
-    ridBlock\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12\x18\n\
-    \x04rows\x18\x02\x20\x03(\x0b2\x04.RowR\x04rows\";\n\x04Cell\x12\x19\n\
-    \x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\
-    \x20\x01(\tR\x07content\"+\n\x0cRepeatedCell\x12\x1b\n\x05items\x18\x01\
-    \x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateGridPayload\x12\x12\n\
-    \x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05valu\
-    e\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\x05value\
-    \x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\n\x07grid\
-    _id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cupper_row_id\x18\x02\x20\
-    \x01(\tH\0R\nupperRowIdB\x15\n\x13one_of_upper_row_id\"d\n\x11QueryField\
-    Payload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x126\n\x0cfie\
-    ld_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFieldOrderR\x0bfieldOrders\"\
-    Y\n\x16QueryGridBlocksPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
-    \x06gridId\x12&\n\x06blocks\x18\x02\x20\x03(\x0b2\x0e.GridBlockMetaR\x06\
-    blocksb\x06proto3\
+    erR\x0bfieldOrders\x122\n\x0cblock_orders\x18\x03\x20\x03(\x0b2\x0f.Grid\
+    BlockOrderR\x0bblockOrders\"\xb8\x01\n\x05Field\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
+    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12)\n\nfield_type\x18\x04\x20\
+    \x01(\x0e2\n.FieldTypeR\tfieldType\x12\x16\n\x06frozen\x18\x05\x20\x01(\
+    \x08R\x06frozen\x12\x1e\n\nvisibility\x18\x06\x20\x01(\x08R\nvisibility\
+    \x12\x14\n\x05width\x18\x07\x20\x01(\x05R\x05width\"'\n\nFieldOrder\x12\
+    \x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\"-\n\rRepeatedField\
+    \x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"7\n\x12Re\
+    peatedFieldOrder\x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.FieldOrderR\
+    \x05items\"<\n\x08RowOrder\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05ro\
+    wId\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\"3\n\x10Repeate\
+    dRowOrder\x12\x1f\n\x05items\x18\x01\x20\x03(\x0b2\t.RowOrderR\x05items\
+    \"\xb8\x01\n\x03Row\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12@\n\x10\
+    cell_by_field_id\x18\x02\x20\x03(\x0b2\x17.Row.CellByFieldIdEntryR\rcell\
+    ByFieldId\x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\x1aG\n\x12\
+    CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\
+    \x05value\x18\x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\")\n\x0bRep\
+    eatedRow\x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\x04.RowR\x05items\"5\n\
+    \x11RepeatedGridBlock\x12\x20\n\x05items\x18\x01\x20\x03(\x0b2\n.GridBlo\
+    ckR\x05items\"+\n\x0eGridBlockOrder\x12\x19\n\x08block_id\x18\x01\x20\
+    \x01(\tR\x07blockId\"?\n\tGridBlock\x12\x19\n\x08block_id\x18\x01\x20\
+    \x01(\tR\x07blockId\x12\x17\n\x07row_ids\x18\x02\x20\x03(\tR\x06rowIds\"\
+    ;\n\x04Cell\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x18\
+    \n\x07content\x18\x02\x20\x01(\tR\x07content\"+\n\x0cRepeatedCell\x12\
+    \x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateG\
+    ridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06Grid\
+    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\
+    \x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayloa\
+    d\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_ro\
+    w_id\x18\x02\x20\x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\"d\
+    \n\x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06grid\
+    Id\x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFieldOrderR\
+    \x0bfieldOrders\"e\n\x16QueryGridBlocksPayload\x12\x17\n\x07grid_id\x18\
+    \x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_orders\x18\x02\x20\x03(\x0b2\
+    \x0f.GridBlockOrderR\x0bblockOrders\"\\\n\x0fQueryRowPayload\x12\x17\n\
+    \x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x19\n\x08block_id\x18\x02\
+    \x20\x01(\tR\x07blockId\x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\
+    b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

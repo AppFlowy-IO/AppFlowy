@@ -17,8 +17,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
-import '../workspace/application/grid/grid_listener.dart';
-
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
     getIt.registerFactoryParam<UserListener, UserProfile, void>(
@@ -93,13 +91,13 @@ class HomeDepsResolver {
 
     // Grid
     getIt.registerFactoryParam<GridBloc, View, void>(
-      (view, _) => GridBloc(view: view, service: GridService(), listener: GridListener(gridId: view.id)),
+      (view, _) => GridBloc(view: view, service: GridService()),
     );
 
     getIt.registerFactoryParam<RowBloc, GridRowData, void>(
       (data, _) => RowBloc(
-        service: RowService(data),
-        listener: RowListener(rowId: data.row.id),
+        rowService: RowService(data),
+        listener: RowListener(rowId: data.rowId),
       ),
     );
 
@@ -110,31 +108,31 @@ class HomeDepsResolver {
       ),
     );
 
-    getIt.registerFactoryParam<TextCellBloc, CellContext, void>(
+    getIt.registerFactoryParam<TextCellBloc, GridCellData, void>(
       (context, _) => TextCellBloc(
         service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<SelectionCellBloc, CellContext, void>(
+    getIt.registerFactoryParam<SelectionCellBloc, GridCellData, void>(
       (context, _) => SelectionCellBloc(
         service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<NumberCellBloc, CellContext, void>(
+    getIt.registerFactoryParam<NumberCellBloc, GridCellData, void>(
       (context, _) => NumberCellBloc(
         service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<DateCellBloc, CellContext, void>(
+    getIt.registerFactoryParam<DateCellBloc, GridCellData, void>(
       (context, _) => DateCellBloc(
         service: CellService(context),
       ),
     );
 
-    getIt.registerFactoryParam<CheckboxCellBloc, CellContext, void>(
+    getIt.registerFactoryParam<CheckboxCellBloc, GridCellData, void>(
       (context, _) => CheckboxCellBloc(
         service: CellService(context),
       ),

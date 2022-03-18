@@ -1,14 +1,14 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/checkbox_cell_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/row_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CheckboxCell extends StatefulWidget {
-  final CellContext cellContext;
+  final GridCellData cellData;
 
   const CheckboxCell({
-    required this.cellContext,
+    required this.cellData,
     Key? key,
   }) : super(key: key);
 
@@ -21,7 +21,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<CheckboxCellBloc>(param1: widget.cellContext);
+    _cellBloc = getIt<CheckboxCellBloc>(param1: widget.cellData);
     super.initState();
   }
 

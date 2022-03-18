@@ -140,12 +140,12 @@ impl GridMetaPad {
 
     pub fn create_block(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
-            if grid.blocks.iter().any(|b| b.block_id == block.block_id) {
+            if grid.block_metas.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
-                match grid.blocks.last() {
-                    None => grid.blocks.push(block),
+                match grid.block_metas.last() {
+                    None => grid.block_metas.push(block),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -153,7 +153,7 @@ impl GridMetaPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid.blocks.push(block);
+                        grid.block_metas.push(block);
                     }
                 }
                 Ok(Some(()))
@@ -162,7 +162,7 @@ impl GridMetaPad {
     }
 
     pub fn get_blocks(&self) -> Vec<GridBlockMeta> {
-        self.grid_meta.blocks.clone()
+        self.grid_meta.block_metas.clone()
     }
 
     pub fn update_block(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
@@ -226,12 +226,12 @@ impl GridMetaPad {
         F: FnOnce(&mut GridBlockMeta) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
-            |grid| match grid.blocks.iter().position(|block| block.block_id == block_id) {
+            |grid| match grid.block_metas.iter().position(|block| block.block_id == block_id) {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid.blocks[index]),
+                Some(index) => f(&mut grid.block_metas[index]),
             },
         )
     }
@@ -279,7 +279,7 @@ impl std::default::Default for GridMetaPad {
         let grid = GridMeta {
             grid_id: uuid(),
             fields: vec![],
-            blocks: vec![],
+            block_metas: vec![],
         };
         let delta = make_grid_delta(&grid);
         GridMetaPad {

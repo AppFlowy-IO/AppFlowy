@@ -11,7 +11,7 @@ import 'cell_container.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRowData data;
-  GridRowWidget({required this.data, Key? key}) : super(key: ObjectKey(data.row.id));
+  GridRowWidget({required this.data, Key? key}) : super(key: ObjectKey(data.rowId));
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -37,7 +37,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
           onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
           child: SizedBox(
-            height: _rowBloc.state.data.row.height.toDouble(),
+            height: _rowBloc.state.rowHeight,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -60,26 +60,17 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   Widget _buildCells() {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (p, c) => p.data != c.data,
+      buildWhen: (p, c) => p.cellDatas != c.cellDatas,
       builder: (context, state) {
         return Row(
-          key: ValueKey(state.data.row.id),
-          children: state.data.fields.map(
-            (field) {
-              final cell = state.data.cellMap[field.id];
-              return CellContainer(
-                width: field.width.toDouble(),
-                child: buildGridCell(
-                  CellContext(
-                    gridId: state.data.gridId,
-                    rowId: state.data.row.id,
-                    field: field,
-                    cell: cell,
-                  ),
+          children: state.cellDatas
+              .map(
+                (cellData) => CellContainer(
+                  width: cellData.field.width.toDouble(),
+                  child: buildGridCell(cellData),
                 ),
-              );
-            },
-          ).toList(),
+              )
+              .toList(),
         );
       },
     );

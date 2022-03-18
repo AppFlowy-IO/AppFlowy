@@ -27,6 +27,7 @@
 pub enum GridNotification {
     Unknown = 0,
     GridDidUpdateBlock = 10,
+    GridDidCreateBlock = 11,
     GridDidUpdateCells = 20,
     GridDidUpdateFields = 30,
 }
@@ -40,6 +41,7 @@ impl ::protobuf::ProtobufEnum for GridNotification {
         match value {
             0 => ::std::option::Option::Some(GridNotification::Unknown),
             10 => ::std::option::Option::Some(GridNotification::GridDidUpdateBlock),
+            11 => ::std::option::Option::Some(GridNotification::GridDidCreateBlock),
             20 => ::std::option::Option::Some(GridNotification::GridDidUpdateCells),
             30 => ::std::option::Option::Some(GridNotification::GridDidUpdateFields),
             _ => ::std::option::Option::None
@@ -50,6 +52,7 @@ impl ::protobuf::ProtobufEnum for GridNotification {
         static values: &'static [GridNotification] = &[
             GridNotification::Unknown,
             GridNotification::GridDidUpdateBlock,
+            GridNotification::GridDidCreateBlock,
             GridNotification::GridDidUpdateCells,
             GridNotification::GridDidUpdateFields,
         ];
@@ -80,9 +83,10 @@ impl ::protobuf::reflect::ProtobufValue for GridNotification {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x17dart_notification.proto*h\n\x10GridNotification\x12\x0b\n\x07Unkno\
-    wn\x10\0\x12\x16\n\x12GridDidUpdateBlock\x10\n\x12\x16\n\x12GridDidUpdat\
-    eCells\x10\x14\x12\x17\n\x13GridDidUpdateFields\x10\x1eb\x06proto3\
+    \n\x17dart_notification.proto*\x80\x01\n\x10GridNotification\x12\x0b\n\
+    \x07Unknown\x10\0\x12\x16\n\x12GridDidUpdateBlock\x10\n\x12\x16\n\x12Gri\
+    dDidCreateBlock\x10\x0b\x12\x16\n\x12GridDidUpdateCells\x10\x14\x12\x17\
+    \n\x13GridDidUpdateFields\x10\x1eb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

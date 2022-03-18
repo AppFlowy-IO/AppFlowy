@@ -2,6 +2,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::entities::GridBlockOrder;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
@@ -16,7 +17,7 @@ pub struct GridMeta {
     pub fields: Vec<FieldMeta>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<GridBlockMeta>,
+    pub block_metas: Vec<GridBlockMeta>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
@@ -33,7 +34,7 @@ pub struct GridBlockMeta {
 
 impl GridBlockMeta {
     pub fn len(&self) -> i32 {
-        self.start_row_index + self.row_count
+        self.row_count
     }
 
     pub fn is_empty(&self) -> bool {
@@ -67,7 +68,7 @@ impl GridBlockMetaChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct GridBlockMetaData {
+pub struct GridBlockMetaSerde {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -329,24 +330,24 @@ pub struct BuildGridContext {
     pub field_metas: Vec<FieldMeta>,
 
     #[pb(index = 2)]
-    pub grid_block: GridBlockMeta,
+    pub block_metas: GridBlockMeta,
 
     #[pb(index = 3)]
-    pub grid_block_meta_data: GridBlockMetaData,
+    pub block_meta_data: GridBlockMetaSerde,
 }
 
 impl std::default::Default for BuildGridContext {
     fn default() -> Self {
         let grid_block = GridBlockMeta::new();
-        let grid_block_meta_data = GridBlockMetaData {
+        let grid_block_meta_data = GridBlockMetaSerde {
             block_id: grid_block.block_id.clone(),
             row_metas: vec![],
         };
 
         Self {
             field_metas: vec![],
-            grid_block,
-            grid_block_meta_data,
+            block_metas: grid_block,
+            block_meta_data: grid_block_meta_data,
         }
     }
 }

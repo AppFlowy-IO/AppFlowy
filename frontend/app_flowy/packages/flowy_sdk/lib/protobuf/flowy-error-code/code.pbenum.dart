@@ -41,7 +41,10 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserIdInvalid = ErrorCode._(311, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const ErrorCode UserNotExist = ErrorCode._(312, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
   static const ErrorCode TextTooLong = ErrorCode._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TextTooLong');
-  static const ErrorCode InvalidData = ErrorCode._(401, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
+  static const ErrorCode BlockIdIsEmpty = ErrorCode._(401, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockIdIsEmpty');
+  static const ErrorCode RowIdIsEmpty = ErrorCode._(402, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
+  static const ErrorCode GridIdIsEmpty = ErrorCode._(403, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridIdIsEmpty');
+  static const ErrorCode InvalidData = ErrorCode._(404, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Internal,
@@ -75,6 +78,9 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserIdInvalid,
     UserNotExist,
     TextTooLong,
+    BlockIdIsEmpty,
+    RowIdIsEmpty,
+    GridIdIsEmpty,
     InvalidData,
   ];
 

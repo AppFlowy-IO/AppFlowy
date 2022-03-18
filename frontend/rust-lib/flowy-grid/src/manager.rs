@@ -182,11 +182,11 @@ pub async fn make_grid_view_data(
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    let block_id = build_context.grid_block.block_id.clone();
+    let block_id = build_context.block_metas.block_id.clone();
     let grid_meta = GridMeta {
         grid_id: view_id.to_string(),
         fields: build_context.field_metas,
-        blocks: vec![build_context.grid_block],
+        block_metas: vec![build_context.block_metas],
     };
 
     let grid_meta_delta = make_grid_delta(&grid_meta);
@@ -195,7 +195,7 @@ pub async fn make_grid_view_data(
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
 
-    let grid_block_meta_delta = make_block_meta_delta(&build_context.grid_block_meta_data);
+    let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
     let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, &block_id, block_meta_delta_data).into();

@@ -7,7 +7,7 @@ fn grid_serde_test() {
     let grid = GridMeta {
         grid_id,
         fields,
-        blocks: vec![],
+        block_metas: vec![],
     };
 
     let grid_1_json = serde_json::to_string(&grid).unwrap();
@@ -24,7 +24,7 @@ fn grid_default_serde_test() {
     let grid = GridMeta {
         grid_id,
         fields: vec![],
-        blocks: vec![],
+        block_metas: vec![],
     };
 
     let json = serde_json::to_string(&grid).unwrap();
