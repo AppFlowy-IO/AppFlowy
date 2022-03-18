@@ -147,12 +147,6 @@ pub enum FolderEvent {
 
     #[event()]
     DeleteAllTrash = 304,
-
-    #[event(input = "BlockDelta", output = "BlockDelta")]
-    ApplyDocDelta = 400,
-
-    #[event(input = "ExportPayload", output = "ExportData")]
-    ExportDocument = 500,
 }
 
 pub trait FolderCouldServiceV1: Send + Sync {

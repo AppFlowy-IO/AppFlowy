@@ -9,6 +9,12 @@ extend = [
     { path = "scripts/makefile/flutter.toml" },
 ]
 
+[config]
+on_error_task = "catch"
+
+[tasks.catch]
+run_task = {name = ["restore-crate-type"]}
+
 [env]
 RUST_LOG = "info"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true

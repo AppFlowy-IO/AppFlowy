@@ -35,10 +35,8 @@ const FolderEvent$json = const {
     const {'1': 'DeleteTrash', '2': 302},
     const {'1': 'RestoreAllTrash', '2': 303},
     const {'1': 'DeleteAllTrash', '2': 304},
-    const {'1': 'ApplyDocDelta', '2': 400},
-    const {'1': 'ExportDocument', '2': 500},
   ],
 };
 
 /// Descriptor for `FolderEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARISCg1TZXRMYXRlc3RWaWV3EM8BEg4KCUNsb3NlVmlldxDQARIOCglSZWFkVHJhc2gQrAISEQoMUHV0YmFja1RyYXNoEK0CEhAKC0RlbGV0ZVRyYXNoEK4CEhQKD1Jlc3RvcmVBbGxUcmFzaBCvAhITCg5EZWxldGVBbGxUcmFzaBCwAhISCg1BcHBseURvY0RlbHRhEJADEhMKDkV4cG9ydERvY3VtZW50EPQD');
+final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARISCg1TZXRMYXRlc3RWaWV3EM8BEg4KCUNsb3NlVmlldxDQARIOCglSZWFkVHJhc2gQrAISEQoMUHV0YmFja1RyYXNoEK0CEhAKC0RlbGV0ZVRyYXNoEK4CEhQKD1Jlc3RvcmVBbGxUcmFzaBCvAhITCg5EZWxldGVBbGxUcmFzaBCwAg==');

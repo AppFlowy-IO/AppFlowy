@@ -7,7 +7,7 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default staticlib
+# default static lib
 crate-type = ["staticlib"]
 
 

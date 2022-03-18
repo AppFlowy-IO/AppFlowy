@@ -10,7 +10,7 @@ class ShareService {
       ..viewId = docId
       ..exportType = type;
 
-    return FolderEventExportDocument(request).send();
+    return BlockEventExportDocument(request).send();
   }
 
   Future<Either<ExportData, FlowyError>> exportText(String docId) {
