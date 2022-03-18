@@ -50,7 +50,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   PluginType get pluginType => DefaultPlugin.quill.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.Block;
+  ViewDataType get dataType => ViewDataType.TextBlock;
 }
 
 class DocumentPlugin implements Plugin {
@@ -141,6 +141,7 @@ class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.removeListener(_handleFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }

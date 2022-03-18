@@ -168,7 +168,7 @@ class HomeStackManager {
           index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
           children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
             if (pluginType == notifier.plugin.ty) {
-              return notifier.plugin.display.buildWidget();
+              return notifier.plugin.display.buildWidget().padding(horizontal: 40, vertical: 28);
             } else {
               return const BlankPage();
             }

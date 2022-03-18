@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message NumberDescription {
+    NumberFormat format = 1;
+    uint32 scale = 2;
+    string symbol = 3;
+    bool sign_positive = 4;
+    string name = 5;
+}
+enum NumberFormat {
+    Number = 0;
+    USD = 1;
+    CNY = 2;
+    EUR = 3;
+}

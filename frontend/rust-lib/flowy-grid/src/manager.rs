@@ -1,12 +1,13 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
+use crate::services::kv_persistence::GridKVPersistence;
+use bytes::Bytes;
 use dashmap::DashMap;
-
-use flowy_collaboration::entities::revision::RepeatedRevision;
+use flowy_collaboration::client_grid::{make_block_meta_delta, make_grid_delta};
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{Field, RawRow};
+use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
+use flowy_sync::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
-
 use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -46,6 +47,19 @@ impl GridManager {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip_all, err)]
+    pub async fn create_grid_block_meta<T: AsRef<str>>(
+        &self,
+        block_id: T,
+        revisions: RepeatedRevision,
+    ) -> FlowyResult<()> {
+        let block_id = block_id.as_ref();
+        let db_pool = self.grid_user.db_pool()?;
+        let rev_manager = self.make_grid_block_meta_rev_manager(block_id, db_pool)?;
+        let _ = rev_manager.reset_object(revisions).await?;
+        Ok(())
+    }
+
     #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<ClientGridEditor>> {
         let grid_id = grid_id.as_ref();
@@ -77,18 +91,6 @@ impl GridManager {
         }
     }
 
-    pub fn save_rows(&self, rows: Vec<RawRow>) -> FlowyResult<()> {
-        let kv_persistence = self.get_kv_persistence()?;
-        let _ = kv_persistence.batch_set(rows)?;
-        Ok(())
-    }
-
-    pub fn save_fields(&self, fields: Vec<Field>) -> FlowyResult<()> {
-        let kv_persistence = self.get_kv_persistence()?;
-        let _ = kv_persistence.batch_set(fields)?;
-        Ok(())
-    }
-
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
         match self.editor_map.get(grid_id) {
             None => {
@@ -109,18 +111,32 @@ impl GridManager {
     ) -> Result<Arc<ClientGridEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let kv_persistence = self.get_kv_persistence()?;
-        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager, kv_persistence).await?;
+        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager).await?;
         Ok(grid_editor)
     }
 
-    fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    pub fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
         let user_id = self.grid_user.user_id()?;
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, pool));
+
+        let disk_cache = Arc::new(SQLiteGridRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, disk_cache));
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence);
         Ok(rev_manager)
     }
 
+    fn make_grid_block_meta_rev_manager(
+        &self,
+        block_d: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager> {
+        let user_id = self.grid_user.user_id()?;
+        let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_d, disk_cache));
+        let rev_manager = RevisionManager::new(&user_id, block_d, rev_persistence);
+        Ok(rev_manager)
+    }
+
+    #[allow(dead_code)]
     fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
         let read_guard = self.kv_persistence.read();
         if read_guard.is_some() {
@@ -158,4 +174,34 @@ impl GridEditorMap {
     pub(crate) fn remove(&self, grid_id: &str) {
         self.inner.remove(grid_id);
     }
+}
+
+pub async fn make_grid_view_data(
+    user_id: &str,
+    view_id: &str,
+    grid_manager: Arc<GridManager>,
+    build_context: BuildGridContext,
+) -> FlowyResult<Bytes> {
+    let block_id = build_context.block_metas.block_id.clone();
+    let grid_meta = GridMeta {
+        grid_id: view_id.to_string(),
+        fields: build_context.field_metas,
+        block_metas: vec![build_context.block_metas],
+    };
+
+    let grid_meta_delta = make_grid_delta(&grid_meta);
+    let grid_delta_data = grid_meta_delta.to_delta_bytes();
+    let repeated_revision: RepeatedRevision =
+        Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
+    let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
+
+    let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
+    let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
+    let repeated_revision: RepeatedRevision =
+        Revision::initial_revision(user_id, &block_id, block_meta_delta_data).into();
+    let _ = grid_manager
+        .create_grid_block_meta(&block_id, repeated_revision)
+        .await?;
+
+    Ok(grid_delta_data)
 }

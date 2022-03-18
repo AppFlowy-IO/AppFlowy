@@ -1,4 +1,4 @@
-pub mod block_editor;
+pub mod editor;
 mod entities;
 mod event_handler;
 pub mod event_map;
@@ -12,16 +12,18 @@ pub mod errors {
     pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }
 
-pub const DOCUMENT_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
+pub const TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
-use flowy_collaboration::entities::document_info::{BlockId, BlockInfo, CreateBlockParams, ResetBlockParams};
+use flowy_collaboration::entities::text_block_info::{
+    CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo,
+};
 use lib_infra::future::FutureResult;
 
 pub trait BlockCloudService: Send + Sync {
-    fn create_block(&self, token: &str, params: CreateBlockParams) -> FutureResult<(), FlowyError>;
+    fn create_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError>;
 
-    fn read_block(&self, token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError>;
+    fn read_block(&self, token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError>;
 
-    fn update_block(&self, token: &str, params: ResetBlockParams) -> FutureResult<(), FlowyError>;
+    fn update_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError>;
 }

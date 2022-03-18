@@ -1,11 +1,11 @@
 use crate::event_handler::*;
-use crate::BlockManager;
+use crate::TextBlockManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn create(block_manager: Arc<BlockManager>) -> Module {
+pub fn create(block_manager: Arc<TextBlockManager>) -> Module {
     let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(block_manager);
 
     module = module

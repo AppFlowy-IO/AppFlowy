@@ -1,29 +1,19 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
-import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_listener.dart';
-import 'package:app_flowy/workspace/application/app/app_service.dart';
-import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
-import 'package:app_flowy/workspace/application/doc/doc_service.dart';
-import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
-import 'package:app_flowy/workspace/application/doc/share_service.dart';
-import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/grid_service.dart';
-import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
-import 'package:app_flowy/workspace/application/trash/trash_listener.dart';
-import 'package:app_flowy/workspace/application/trash/trash_service.dart';
-import 'package:app_flowy/workspace/application/view/view_bloc.dart';
-import 'package:app_flowy/workspace/application/view/view_listener.dart';
-import 'package:app_flowy/workspace/application/view/view_service.dart';
-import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
-import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
-import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
+import 'package:app_flowy/workspace/application/app/prelude.dart';
+import 'package:app_flowy/workspace/application/doc/prelude.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/application/grid/row_listener.dart';
+import 'package:app_flowy/workspace/application/trash/prelude.dart';
+import 'package:app_flowy/workspace/application/workspace/prelude.dart';
+import 'package:app_flowy/workspace/application/view/prelude.dart';
+import 'package:app_flowy/workspace/application/home/prelude.dart';
+import 'package:app_flowy/workspace/application/menu/prelude.dart';
+
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -101,9 +91,50 @@ class HomeDepsResolver {
 
     // Grid
     getIt.registerFactoryParam<GridBloc, View, void>(
-      (view, _) => GridBloc(
-        view: view,
-        service: GridService(),
+      (view, _) => GridBloc(view: view, service: GridService()),
+    );
+
+    getIt.registerFactoryParam<RowBloc, GridRowData, void>(
+      (data, _) => RowBloc(
+        rowService: RowService(data),
+        listener: RowListener(rowId: data.rowId),
+      ),
+    );
+
+    getIt.registerFactoryParam<ColumnBloc, List<Field>, void>(
+      (data, _) => ColumnBloc(
+        data: GridColumnData(fields: data),
+        service: ColumnService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<TextCellBloc, GridCellData, void>(
+      (context, _) => TextCellBloc(
+        service: CellService(context),
+      ),
+    );
+
+    getIt.registerFactoryParam<SelectionCellBloc, GridCellData, void>(
+      (context, _) => SelectionCellBloc(
+        service: CellService(context),
+      ),
+    );
+
+    getIt.registerFactoryParam<NumberCellBloc, GridCellData, void>(
+      (context, _) => NumberCellBloc(
+        service: CellService(context),
+      ),
+    );
+
+    getIt.registerFactoryParam<DateCellBloc, GridCellData, void>(
+      (context, _) => DateCellBloc(
+        service: CellService(context),
+      ),
+    );
+
+    getIt.registerFactoryParam<CheckboxCellBloc, GridCellData, void>(
+      (context, _) => CheckboxCellBloc(
+        service: CellService(context),
       ),
     );
 

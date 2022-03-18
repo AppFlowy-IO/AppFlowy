@@ -9,15 +9,15 @@ import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef DeleteNotifierValue = Either<View, FlowyError>;
-typedef UpdateNotifierValue = Either<View, FlowyError>;
-typedef RestoreNotifierValue = Either<View, FlowyError>;
+typedef DeleteViewNotifyValue = Either<View, FlowyError>;
+typedef UpdateViewNotifiedValue = Either<View, FlowyError>;
+typedef RestoreViewNotifiedValue = Either<View, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  PublishNotifier<UpdateNotifierValue> updatedNotifier = PublishNotifier<UpdateNotifierValue>();
-  PublishNotifier<DeleteNotifierValue> deletedNotifier = PublishNotifier<DeleteNotifierValue>();
-  PublishNotifier<RestoreNotifierValue> restoredNotifier = PublishNotifier<RestoreNotifierValue>();
+  PublishNotifier<UpdateViewNotifiedValue> updatedNotifier = PublishNotifier<UpdateViewNotifiedValue>();
+  PublishNotifier<DeleteViewNotifyValue> deletedNotifier = PublishNotifier<DeleteViewNotifyValue>();
+  PublishNotifier<RestoreViewNotifiedValue> restoredNotifier = PublishNotifier<RestoreViewNotifiedValue>();
   late FolderNotificationParser _parser;
   View view;
 

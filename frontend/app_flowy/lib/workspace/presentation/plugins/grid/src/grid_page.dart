@@ -40,7 +40,7 @@ class _GridPageState extends State<GridPage> {
           return state.loadingState.map(
             loading: (_) => const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const GridBody(),
+              (_) => const FlowyGrid(),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -65,14 +65,14 @@ class _GridPageState extends State<GridPage> {
   }
 }
 
-class GridBody extends StatefulWidget {
-  const GridBody({Key? key}) : super(key: key);
+class FlowyGrid extends StatefulWidget {
+  const FlowyGrid({Key? key}) : super(key: key);
 
   @override
-  _GridBodyState createState() => _GridBodyState();
+  _FlowyGridState createState() => _FlowyGridState();
 }
 
-class _GridBodyState extends State<GridBody> {
+class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController();
 
   @override
@@ -85,32 +85,29 @@ class _GridBodyState extends State<GridBody> {
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       builder: (context, state) {
-        return state.gridInfo.fold(
+        return state.fields.fold(
           () => const Center(child: CircularProgressIndicator.adaptive()),
-          (some) => some.fold(
-            (gridInfo) => _renderGrid(context, gridInfo),
-            (err) => FlowyErrorPage(err.toString()),
-          ),
+          (fields) => _renderGrid(context, fields),
         );
       },
     );
   }
 
-  Widget _renderGrid(BuildContext context, GridInfo gridInfo) {
+  Widget _renderGrid(BuildContext context, List<Field> fields) {
     return Stack(
       children: [
         StyledSingleChildScrollView(
           controller: _scrollController.horizontalController,
           axis: Axis.horizontal,
           child: SizedBox(
-            width: GridLayout.headerWidth(gridInfo.fields),
+            width: GridLayout.headerWidth(fields),
             child: CustomScrollView(
               physics: StyledScrollPhysics(),
               controller: _scrollController.verticalController,
               slivers: <Widget>[
-                _buildHeader(gridInfo.fields),
-                _buildRows(gridInfo),
-                _builderFooter(context),
+                _buildHeader(fields),
+                _buildRows(context),
+                const GridFooter(),
               ],
             ),
           ),
@@ -133,20 +130,16 @@ class _GridBodyState extends State<GridBody> {
     );
   }
 
-  Widget _buildRows(GridInfo gridInfo) {
+  Widget _buildRows(BuildContext context) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) {
-        final rowInfo = gridInfo.rowInfoAtIndex(index);
-        return RepaintBoundary(child: GridRowWidget(rowInfo));
-      }, childCount: gridInfo.numberOfRows()),
-    );
-  }
-
-  Widget _builderFooter(BuildContext context) {
-    return GridFooter(
-      onAddRow: () {
-        context.read<GridBloc>().add(const GridEvent.createRow());
-      },
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final rowData = context.read<GridBloc>().state.rows[index];
+          return GridRowWidget(data: rowData);
+        },
+        childCount: context.read<GridBloc>().state.rows.length,
+        addRepaintBoundaries: true,
+      ),
     );
   }
 }

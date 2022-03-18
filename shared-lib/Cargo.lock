@@ -485,6 +485,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "flowy-derive",
+ "flowy-error-code",
  "lib-infra",
  "protobuf",
  "serde",

@@ -1,2 +1,2 @@
-mod document_test;
-mod edit_script;
+mod script;
+mod text_block_test;

@@ -22,6 +22,28 @@ table! {
 }
 
 table! {
+    grid_meta_rev_table (id) {
+        id -> Integer,
+        object_id -> Text,
+        base_rev_id -> BigInt,
+        rev_id -> BigInt,
+        data -> Binary,
+        state -> Integer,
+    }
+}
+
+table! {
+    grid_rev_table (id) {
+        id -> Integer,
+        object_id -> Text,
+        base_rev_id -> BigInt,
+        rev_id -> BigInt,
+        data -> Binary,
+        state -> Integer,
+    }
+}
+
+table! {
     kv_table (key) {
         key -> Text,
         value -> Binary,
@@ -91,6 +113,8 @@ table! {
 allow_tables_to_appear_in_same_query!(
     app_table,
     doc_table,
+    grid_meta_rev_table,
+    grid_rev_table,
     kv_table,
     rev_table,
     trash_table,

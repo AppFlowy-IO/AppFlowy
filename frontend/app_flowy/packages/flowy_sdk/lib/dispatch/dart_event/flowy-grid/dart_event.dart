@@ -18,18 +18,18 @@ class GridEventGetGridData {
     }
 }
 
-class GridEventGetRows {
-     QueryRowPayload request;
-     GridEventGetRows(this.request);
+class GridEventGetGridBlocks {
+     QueryGridBlocksPayload request;
+     GridEventGetGridBlocks(this.request);
 
-    Future<Either<RepeatedRow, FlowyError>> send() {
+    Future<Either<RepeatedGridBlock, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.GetRows.toString()
+          ..event = GridEvent.GetGridBlocks.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(RepeatedRow.fromBuffer(okBytes)),
+           (okBytes) => left(RepeatedGridBlock.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
@@ -53,12 +53,46 @@ class GridEventGetFields {
 }
 
 class GridEventCreateRow {
-     GridId request;
+     CreateRowPayload request;
      GridEventCreateRow(this.request);
+
+    Future<Either<Row, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.CreateRow.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Row.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventGetRow {
+     QueryRowPayload request;
+     GridEventGetRow(this.request);
+
+    Future<Either<Row, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetRow.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Row.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventUpdateCell {
+     CellMetaChangeset request;
+     GridEventUpdateCell(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.CreateRow.toString()
+          ..event = GridEvent.UpdateCell.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

@@ -12,12 +12,13 @@ use bytes::Bytes;
 use chrono::Utc;
 
 use flowy_collaboration::client_document::default::{initial_quill_delta_string, initial_read_me};
-use flowy_collaboration::entities::revision::RepeatedRevision;
+
 use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
-use flowy_sync::RevisionWebSocket;
+use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
+use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
@@ -163,7 +164,12 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let folder_editor = ClientFolderEditor::new(user_id, &folder_id, token, pool, self.web_socket.clone()).await?;
+        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
+        let rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
+
+        let folder_editor =
+            ClientFolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -208,7 +214,7 @@ impl DefaultFolderBuilder {
                 };
                 let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataType::Block, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataType::TextBlock, Bytes::from(view_data))
                     .await?;
             }
         }
@@ -233,15 +239,17 @@ impl FolderManager {
 pub trait ViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError>;
 
-    fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError>;
+    fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError>;
 
     fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError>;
+    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn default_view_data(&self, view_id: &str) -> String;
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+
+    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

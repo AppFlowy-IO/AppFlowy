@@ -11,6 +11,7 @@ use flowy_folder_data_model::entities::{
     view::{RepeatedView, View},
     workspace::Workspace,
 };
+use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_sync::{RevisionLoader, RevisionPersistence};
 use std::sync::Arc;
 
@@ -87,7 +88,8 @@ impl FolderMigration {
             return Ok(None);
         }
         let pool = self.database.db_pool()?;
-        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), pool.clone()));
+        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
+        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
         let (revisions, _) = RevisionLoader {
             object_id: folder_id.as_ref().to_owned(),
             user_id: self.user_id.clone(),

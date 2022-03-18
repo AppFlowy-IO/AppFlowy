@@ -1,6 +1,7 @@
 use crate::web_socket::EditorCommandReceiver;
-use crate::BlockUser;
+use crate::TextBlockUser;
 use async_stream::stream;
+use bytes::Bytes;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_collaboration::{
     client_document::{history::UndoResult, ClientDocument},
@@ -8,7 +9,7 @@ use flowy_collaboration::{
     errors::CollaborateError,
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{DeltaMD5, RevisionCompact, RevisionManager, RichTextTransformDeltas, TransformDeltas};
+use flowy_sync::{DeltaMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -21,14 +22,14 @@ use tokio::sync::{oneshot, RwLock};
 // serial.
 pub(crate) struct EditBlockQueue {
     document: Arc<RwLock<ClientDocument>>,
-    user: Arc<dyn BlockUser>,
+    user: Arc<dyn TextBlockUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditBlockQueue {
     pub(crate) fn new(
-        user: Arc<dyn BlockUser>,
+        user: Arc<dyn TextBlockUser>,
         rev_manager: Arc<RevisionManager>,
         delta: RichTextDelta,
         receiver: EditorCommandReceiver,
@@ -165,7 +166,7 @@ impl EditBlockQueue {
                 let data = self.document.read().await.delta_str();
                 let _ = ret.send(Ok(data));
             }
-            EditorCommand::ReadBlockDelta { ret } => {
+            EditorCommand::ReadDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
             }
@@ -174,7 +175,7 @@ impl EditBlockQueue {
     }
 
     async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
-        let delta_data = delta.to_bytes();
+        let delta_data = delta.to_delta_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
         let revision = Revision::new(
@@ -187,31 +188,17 @@ impl EditBlockQueue {
         );
         let _ = self
             .rev_manager
-            .add_local_revision::<BlockRevisionCompact>(&revision)
+            .add_local_revision(&revision, Box::new(TextBlockRevisionCompactor()))
             .await?;
         Ok(rev_id.into())
     }
 }
 
-pub(crate) struct BlockRevisionCompact();
-impl RevisionCompact for BlockRevisionCompact {
-    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
-        if revisions.is_empty() {
-            return Err(FlowyError::internal().context("Can't compact the empty block's revisions"));
-        }
-
-        if revisions.len() == 1 {
-            return Ok(revisions.pop().unwrap());
-        }
-
-        let first_revision = revisions.first().unwrap();
-        let last_revision = revisions.last().unwrap();
-
-        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
-        let md5 = last_revision.md5.clone();
+pub(crate) struct TextBlockRevisionCompactor();
+impl RevisionCompactor for TextBlockRevisionCompactor {
+    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
-        let delta_data = delta.to_bytes();
-        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
+        Ok(delta.to_delta_bytes())
     }
 }
 
@@ -269,7 +256,7 @@ pub(crate) enum EditorCommand {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadBlockDelta {
+    ReadDelta {
         ret: Ret<RichTextDelta>,
     },
 }
@@ -290,7 +277,7 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
             EditorCommand::ReadDeltaStr { .. } => "ReadDeltaStr",
-            EditorCommand::ReadBlockDelta { .. } => "ReadDocumentAsDelta",
+            EditorCommand::ReadDelta { .. } => "ReadDocumentAsDelta",
         };
         f.write_str(s)
     }

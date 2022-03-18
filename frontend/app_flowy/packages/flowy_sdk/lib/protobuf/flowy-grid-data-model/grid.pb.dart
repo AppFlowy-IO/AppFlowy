@@ -9,33 +9,31 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'grid.pbenum.dart';
-
-export 'grid.pbenum.dart';
+import 'meta.pbenum.dart' as $0;
 
 class Grid extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Grid', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOM<RepeatedFieldOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldOrders', subBuilder: RepeatedFieldOrder.create)
-    ..aOM<RepeatedRowOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrders', subBuilder: RepeatedRowOrder.create)
+    ..pc<FieldOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldOrders', $pb.PbFieldType.PM, subBuilder: FieldOrder.create)
+    ..pc<GridBlockOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockOrders', $pb.PbFieldType.PM, subBuilder: GridBlockOrder.create)
     ..hasRequiredFields = false
   ;
 
   Grid._() : super();
   factory Grid({
     $core.String? id,
-    RepeatedFieldOrder? fieldOrders,
-    RepeatedRowOrder? rowOrders,
+    $core.Iterable<FieldOrder>? fieldOrders,
+    $core.Iterable<GridBlockOrder>? blockOrders,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
     }
     if (fieldOrders != null) {
-      _result.fieldOrders = fieldOrders;
+      _result.fieldOrders.addAll(fieldOrders);
     }
-    if (rowOrders != null) {
-      _result.rowOrders = rowOrders;
+    if (blockOrders != null) {
+      _result.blockOrders.addAll(blockOrders);
     }
     return _result;
   }
@@ -70,128 +68,10 @@ class Grid extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  RepeatedFieldOrder get fieldOrders => $_getN(1);
-  @$pb.TagNumber(2)
-  set fieldOrders(RepeatedFieldOrder v) { setField(2, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasFieldOrders() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearFieldOrders() => clearField(2);
-  @$pb.TagNumber(2)
-  RepeatedFieldOrder ensureFieldOrders() => $_ensure(1);
+  $core.List<FieldOrder> get fieldOrders => $_getList(1);
 
   @$pb.TagNumber(3)
-  RepeatedRowOrder get rowOrders => $_getN(2);
-  @$pb.TagNumber(3)
-  set rowOrders(RepeatedRowOrder v) { setField(3, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasRowOrders() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearRowOrders() => clearField(3);
-  @$pb.TagNumber(3)
-  RepeatedRowOrder ensureRowOrders() => $_ensure(2);
-}
-
-class FieldOrder extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldOrder', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
-    ..hasRequiredFields = false
-  ;
-
-  FieldOrder._() : super();
-  factory FieldOrder({
-    $core.String? fieldId,
-    $core.bool? visibility,
-  }) {
-    final _result = create();
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
-    }
-    if (visibility != null) {
-      _result.visibility = visibility;
-    }
-    return _result;
-  }
-  factory FieldOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  FieldOrder clone() => FieldOrder()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldOrder copyWith(void Function(FieldOrder) updates) => super.copyWith((message) => updates(message as FieldOrder)) as FieldOrder; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static FieldOrder create() => FieldOrder._();
-  FieldOrder createEmptyInstance() => create();
-  static $pb.PbList<FieldOrder> createRepeated() => $pb.PbList<FieldOrder>();
-  @$core.pragma('dart2js:noInline')
-  static FieldOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldOrder>(create);
-  static FieldOrder? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get fieldId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set fieldId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasFieldId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearFieldId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.bool get visibility => $_getBF(1);
-  @$pb.TagNumber(2)
-  set visibility($core.bool v) { $_setBool(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasVisibility() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearVisibility() => clearField(2);
-}
-
-class RepeatedFieldOrder extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedFieldOrder', createEmptyInstance: create)
-    ..pc<FieldOrder>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: FieldOrder.create)
-    ..hasRequiredFields = false
-  ;
-
-  RepeatedFieldOrder._() : super();
-  factory RepeatedFieldOrder({
-    $core.Iterable<FieldOrder>? items,
-  }) {
-    final _result = create();
-    if (items != null) {
-      _result.items.addAll(items);
-    }
-    return _result;
-  }
-  factory RepeatedFieldOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedFieldOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RepeatedFieldOrder clone() => RepeatedFieldOrder()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedFieldOrder copyWith(void Function(RepeatedFieldOrder) updates) => super.copyWith((message) => updates(message as RepeatedFieldOrder)) as RepeatedFieldOrder; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RepeatedFieldOrder create() => RepeatedFieldOrder._();
-  RepeatedFieldOrder createEmptyInstance() => create();
-  static $pb.PbList<RepeatedFieldOrder> createRepeated() => $pb.PbList<RepeatedFieldOrder>();
-  @$core.pragma('dart2js:noInline')
-  static RepeatedFieldOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedFieldOrder>(create);
-  static RepeatedFieldOrder? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<FieldOrder> get items => $_getList(0);
+  $core.List<GridBlockOrder> get blockOrders => $_getList(2);
 }
 
 class Field extends $pb.GeneratedMessage {
@@ -199,10 +79,10 @@ class Field extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<FieldType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
+    ..e<$0.FieldType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
-    ..a<$core.int>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOM<AnyData>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions', subBuilder: AnyData.create)
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
+    ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -211,10 +91,10 @@ class Field extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? desc,
-    FieldType? fieldType,
+    $0.FieldType? fieldType,
     $core.bool? frozen,
+    $core.bool? visibility,
     $core.int? width,
-    AnyData? typeOptions,
   }) {
     final _result = create();
     if (id != null) {
@@ -232,11 +112,11 @@ class Field extends $pb.GeneratedMessage {
     if (frozen != null) {
       _result.frozen = frozen;
     }
+    if (visibility != null) {
+      _result.visibility = visibility;
+    }
     if (width != null) {
       _result.width = width;
-    }
-    if (typeOptions != null) {
-      _result.typeOptions = typeOptions;
     }
     return _result;
   }
@@ -289,9 +169,9 @@ class Field extends $pb.GeneratedMessage {
   void clearDesc() => clearField(3);
 
   @$pb.TagNumber(4)
-  FieldType get fieldType => $_getN(3);
+  $0.FieldType get fieldType => $_getN(3);
   @$pb.TagNumber(4)
-  set fieldType(FieldType v) { setField(4, v); }
+  set fieldType($0.FieldType v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasFieldType() => $_has(3);
   @$pb.TagNumber(4)
@@ -307,24 +187,69 @@ class Field extends $pb.GeneratedMessage {
   void clearFrozen() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.int get width => $_getIZ(5);
+  $core.bool get visibility => $_getBF(5);
   @$pb.TagNumber(6)
-  set width($core.int v) { $_setSignedInt32(5, v); }
+  set visibility($core.bool v) { $_setBool(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasWidth() => $_has(5);
+  $core.bool hasVisibility() => $_has(5);
   @$pb.TagNumber(6)
-  void clearWidth() => clearField(6);
+  void clearVisibility() => clearField(6);
 
   @$pb.TagNumber(7)
-  AnyData get typeOptions => $_getN(6);
+  $core.int get width => $_getIZ(6);
   @$pb.TagNumber(7)
-  set typeOptions(AnyData v) { setField(7, v); }
+  set width($core.int v) { $_setSignedInt32(6, v); }
   @$pb.TagNumber(7)
-  $core.bool hasTypeOptions() => $_has(6);
+  $core.bool hasWidth() => $_has(6);
   @$pb.TagNumber(7)
-  void clearTypeOptions() => clearField(7);
-  @$pb.TagNumber(7)
-  AnyData ensureTypeOptions() => $_ensure(6);
+  void clearWidth() => clearField(7);
+}
+
+class FieldOrder extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldOrder', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..hasRequiredFields = false
+  ;
+
+  FieldOrder._() : super();
+  factory FieldOrder({
+    $core.String? fieldId,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    return _result;
+  }
+  factory FieldOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldOrder clone() => FieldOrder()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldOrder copyWith(void Function(FieldOrder) updates) => super.copyWith((message) => updates(message as FieldOrder)) as FieldOrder; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldOrder create() => FieldOrder._();
+  FieldOrder createEmptyInstance() => create();
+  static $pb.PbList<FieldOrder> createRepeated() => $pb.PbList<FieldOrder>();
+  @$core.pragma('dart2js:noInline')
+  static FieldOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldOrder>(create);
+  static FieldOrder? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
 }
 
 class RepeatedField extends $pb.GeneratedMessage {
@@ -368,90 +293,70 @@ class RepeatedField extends $pb.GeneratedMessage {
   $core.List<Field> get items => $_getList(0);
 }
 
-class AnyData extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AnyData', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeId')
-    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
+class RepeatedFieldOrder extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedFieldOrder', createEmptyInstance: create)
+    ..pc<FieldOrder>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: FieldOrder.create)
     ..hasRequiredFields = false
   ;
 
-  AnyData._() : super();
-  factory AnyData({
-    $core.String? typeId,
-    $core.List<$core.int>? value,
+  RepeatedFieldOrder._() : super();
+  factory RepeatedFieldOrder({
+    $core.Iterable<FieldOrder>? items,
   }) {
     final _result = create();
-    if (typeId != null) {
-      _result.typeId = typeId;
-    }
-    if (value != null) {
-      _result.value = value;
+    if (items != null) {
+      _result.items.addAll(items);
     }
     return _result;
   }
-  factory AnyData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AnyData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RepeatedFieldOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedFieldOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  AnyData clone() => AnyData()..mergeFromMessage(this);
+  RepeatedFieldOrder clone() => RepeatedFieldOrder()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  AnyData copyWith(void Function(AnyData) updates) => super.copyWith((message) => updates(message as AnyData)) as AnyData; // ignore: deprecated_member_use
+  RepeatedFieldOrder copyWith(void Function(RepeatedFieldOrder) updates) => super.copyWith((message) => updates(message as RepeatedFieldOrder)) as RepeatedFieldOrder; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static AnyData create() => AnyData._();
-  AnyData createEmptyInstance() => create();
-  static $pb.PbList<AnyData> createRepeated() => $pb.PbList<AnyData>();
+  static RepeatedFieldOrder create() => RepeatedFieldOrder._();
+  RepeatedFieldOrder createEmptyInstance() => create();
+  static $pb.PbList<RepeatedFieldOrder> createRepeated() => $pb.PbList<RepeatedFieldOrder>();
   @$core.pragma('dart2js:noInline')
-  static AnyData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AnyData>(create);
-  static AnyData? _defaultInstance;
+  static RepeatedFieldOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedFieldOrder>(create);
+  static RepeatedFieldOrder? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get typeId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set typeId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasTypeId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearTypeId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.List<$core.int> get value => $_getN(1);
-  @$pb.TagNumber(2)
-  set value($core.List<$core.int> v) { $_setBytes(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasValue() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearValue() => clearField(2);
+  $core.List<FieldOrder> get items => $_getList(0);
 }
 
 class RowOrder extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RowOrder', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
   RowOrder._() : super();
   factory RowOrder({
-    $core.String? gridId,
     $core.String? rowId,
-    $core.bool? visibility,
+    $core.String? blockId,
+    $core.int? height,
   }) {
     final _result = create();
-    if (gridId != null) {
-      _result.gridId = gridId;
-    }
     if (rowId != null) {
       _result.rowId = rowId;
     }
-    if (visibility != null) {
-      _result.visibility = visibility;
+    if (blockId != null) {
+      _result.blockId = blockId;
+    }
+    if (height != null) {
+      _result.height = height;
     }
     return _result;
   }
@@ -477,120 +382,79 @@ class RowOrder extends $pb.GeneratedMessage {
   static RowOrder? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gridId => $_getSZ(0);
+  $core.String get rowId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gridId($core.String v) { $_setString(0, v); }
+  set rowId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGridId() => $_has(0);
+  $core.bool hasRowId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGridId() => clearField(1);
+  void clearRowId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get rowId => $_getSZ(1);
+  $core.String get blockId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set rowId($core.String v) { $_setString(1, v); }
+  set blockId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasRowId() => $_has(1);
+  $core.bool hasBlockId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearRowId() => clearField(2);
+  void clearBlockId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.bool get visibility => $_getBF(2);
+  $core.int get height => $_getIZ(2);
   @$pb.TagNumber(3)
-  set visibility($core.bool v) { $_setBool(2, v); }
+  set height($core.int v) { $_setSignedInt32(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasVisibility() => $_has(2);
+  $core.bool hasHeight() => $_has(2);
   @$pb.TagNumber(3)
-  void clearVisibility() => clearField(3);
+  void clearHeight() => clearField(3);
 }
 
-class RepeatedRowOrder extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedRowOrder', createEmptyInstance: create)
-    ..pc<RowOrder>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
-    ..hasRequiredFields = false
-  ;
-
-  RepeatedRowOrder._() : super();
-  factory RepeatedRowOrder({
-    $core.Iterable<RowOrder>? items,
-  }) {
-    final _result = create();
-    if (items != null) {
-      _result.items.addAll(items);
-    }
-    return _result;
-  }
-  factory RepeatedRowOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RepeatedRowOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RepeatedRowOrder clone() => RepeatedRowOrder()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RepeatedRowOrder copyWith(void Function(RepeatedRowOrder) updates) => super.copyWith((message) => updates(message as RepeatedRowOrder)) as RepeatedRowOrder; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RepeatedRowOrder create() => RepeatedRowOrder._();
-  RepeatedRowOrder createEmptyInstance() => create();
-  static $pb.PbList<RepeatedRowOrder> createRepeated() => $pb.PbList<RepeatedRowOrder>();
-  @$core.pragma('dart2js:noInline')
-  static RepeatedRowOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedRowOrder>(create);
-  static RepeatedRowOrder? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<RowOrder> get items => $_getList(0);
-}
-
-class RawRow extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RawRow', createEmptyInstance: create)
+class Row extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Row', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..m<$core.String, RawCell>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'RawRow.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: RawCell.create)
+    ..m<$core.String, Cell>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'Row.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: Cell.create)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'height', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
-  RawRow._() : super();
-  factory RawRow({
+  Row._() : super();
+  factory Row({
     $core.String? id,
-    $core.String? gridId,
-    $core.Map<$core.String, RawCell>? cellByFieldId,
+    $core.Map<$core.String, Cell>? cellByFieldId,
+    $core.int? height,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
-    }
-    if (gridId != null) {
-      _result.gridId = gridId;
     }
     if (cellByFieldId != null) {
       _result.cellByFieldId.addAll(cellByFieldId);
     }
+    if (height != null) {
+      _result.height = height;
+    }
     return _result;
   }
-  factory RawRow.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RawRow.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Row.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Row.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  RawRow clone() => RawRow()..mergeFromMessage(this);
+  Row clone() => Row()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  RawRow copyWith(void Function(RawRow) updates) => super.copyWith((message) => updates(message as RawRow)) as RawRow; // ignore: deprecated_member_use
+  Row copyWith(void Function(Row) updates) => super.copyWith((message) => updates(message as Row)) as Row; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static RawRow create() => RawRow._();
-  RawRow createEmptyInstance() => create();
-  static $pb.PbList<RawRow> createRepeated() => $pb.PbList<RawRow>();
+  static Row create() => Row._();
+  Row createEmptyInstance() => create();
+  static $pb.PbList<Row> createRepeated() => $pb.PbList<Row>();
   @$core.pragma('dart2js:noInline')
-  static RawRow getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RawRow>(create);
-  static RawRow? _defaultInstance;
+  static Row getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Row>(create);
+  static Row? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -602,107 +466,16 @@ class RawRow extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gridId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set gridId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasGridId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearGridId() => clearField(2);
+  $core.Map<$core.String, Cell> get cellByFieldId => $_getMap(1);
 
   @$pb.TagNumber(3)
-  $core.Map<$core.String, RawCell> get cellByFieldId => $_getMap(2);
-}
-
-class RawCell extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RawCell', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOM<AnyData>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: AnyData.create)
-    ..hasRequiredFields = false
-  ;
-
-  RawCell._() : super();
-  factory RawCell({
-    $core.String? id,
-    $core.String? rowId,
-    $core.String? fieldId,
-    AnyData? data,
-  }) {
-    final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (rowId != null) {
-      _result.rowId = rowId;
-    }
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
-    }
-    if (data != null) {
-      _result.data = data;
-    }
-    return _result;
-  }
-  factory RawCell.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RawCell.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  RawCell clone() => RawCell()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  RawCell copyWith(void Function(RawCell) updates) => super.copyWith((message) => updates(message as RawCell)) as RawCell; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static RawCell create() => RawCell._();
-  RawCell createEmptyInstance() => create();
-  static $pb.PbList<RawCell> createRepeated() => $pb.PbList<RawCell>();
-  @$core.pragma('dart2js:noInline')
-  static RawCell getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RawCell>(create);
-  static RawCell? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get rowId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set rowId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasRowId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearRowId() => clearField(2);
-
+  $core.int get height => $_getIZ(2);
   @$pb.TagNumber(3)
-  $core.String get fieldId => $_getSZ(2);
+  set height($core.int v) { $_setSignedInt32(2, v); }
   @$pb.TagNumber(3)
-  set fieldId($core.String v) { $_setString(2, v); }
+  $core.bool hasHeight() => $_has(2);
   @$pb.TagNumber(3)
-  $core.bool hasFieldId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearFieldId() => clearField(3);
-
-  @$pb.TagNumber(4)
-  AnyData get data => $_getN(3);
-  @$pb.TagNumber(4)
-  set data(AnyData v) { setField(4, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearData() => clearField(4);
-  @$pb.TagNumber(4)
-  AnyData ensureData() => $_ensure(3);
+  void clearHeight() => clearField(3);
 }
 
 class RepeatedRow extends $pb.GeneratedMessage {
@@ -746,79 +519,162 @@ class RepeatedRow extends $pb.GeneratedMessage {
   $core.List<Row> get items => $_getList(0);
 }
 
-class Row extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Row', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..m<$core.String, Cell>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellByFieldId', entryClassName: 'Row.CellByFieldIdEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OM, valueCreator: Cell.create)
+class RepeatedGridBlock extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedGridBlock', createEmptyInstance: create)
+    ..pc<GridBlock>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: GridBlock.create)
     ..hasRequiredFields = false
   ;
 
-  Row._() : super();
-  factory Row({
-    $core.String? id,
-    $core.Map<$core.String, Cell>? cellByFieldId,
+  RepeatedGridBlock._() : super();
+  factory RepeatedGridBlock({
+    $core.Iterable<GridBlock>? items,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (cellByFieldId != null) {
-      _result.cellByFieldId.addAll(cellByFieldId);
+    if (items != null) {
+      _result.items.addAll(items);
     }
     return _result;
   }
-  factory Row.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Row.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RepeatedGridBlock.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedGridBlock.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Row clone() => Row()..mergeFromMessage(this);
+  RepeatedGridBlock clone() => RepeatedGridBlock()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Row copyWith(void Function(Row) updates) => super.copyWith((message) => updates(message as Row)) as Row; // ignore: deprecated_member_use
+  RepeatedGridBlock copyWith(void Function(RepeatedGridBlock) updates) => super.copyWith((message) => updates(message as RepeatedGridBlock)) as RepeatedGridBlock; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Row create() => Row._();
-  Row createEmptyInstance() => create();
-  static $pb.PbList<Row> createRepeated() => $pb.PbList<Row>();
+  static RepeatedGridBlock create() => RepeatedGridBlock._();
+  RepeatedGridBlock createEmptyInstance() => create();
+  static $pb.PbList<RepeatedGridBlock> createRepeated() => $pb.PbList<RepeatedGridBlock>();
   @$core.pragma('dart2js:noInline')
-  static Row getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Row>(create);
-  static Row? _defaultInstance;
+  static RepeatedGridBlock getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedGridBlock>(create);
+  static RepeatedGridBlock? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.List<GridBlock> get items => $_getList(0);
+}
+
+class GridBlockOrder extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockOrder', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..hasRequiredFields = false
+  ;
+
+  GridBlockOrder._() : super();
+  factory GridBlockOrder({
+    $core.String? blockId,
+  }) {
+    final _result = create();
+    if (blockId != null) {
+      _result.blockId = blockId;
+    }
+    return _result;
+  }
+  factory GridBlockOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridBlockOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GridBlockOrder clone() => GridBlockOrder()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GridBlockOrder copyWith(void Function(GridBlockOrder) updates) => super.copyWith((message) => updates(message as GridBlockOrder)) as GridBlockOrder; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GridBlockOrder create() => GridBlockOrder._();
+  GridBlockOrder createEmptyInstance() => create();
+  static $pb.PbList<GridBlockOrder> createRepeated() => $pb.PbList<GridBlockOrder>();
+  @$core.pragma('dart2js:noInline')
+  static GridBlockOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlockOrder>(create);
+  static GridBlockOrder? _defaultInstance;
+
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  $core.String get blockId => $_getSZ(0);
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  set blockId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  $core.bool hasBlockId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBlockId() => clearField(1);
+}
+
+class GridBlock extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlock', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..pc<RowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrders', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
+    ..hasRequiredFields = false
+  ;
+
+  GridBlock._() : super();
+  factory GridBlock({
+    $core.String? blockId,
+    $core.Iterable<RowOrder>? rowOrders,
+  }) {
+    final _result = create();
+    if (blockId != null) {
+      _result.blockId = blockId;
+    }
+    if (rowOrders != null) {
+      _result.rowOrders.addAll(rowOrders);
+    }
+    return _result;
+  }
+  factory GridBlock.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridBlock.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GridBlock clone() => GridBlock()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GridBlock copyWith(void Function(GridBlock) updates) => super.copyWith((message) => updates(message as GridBlock)) as GridBlock; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GridBlock create() => GridBlock._();
+  GridBlock createEmptyInstance() => create();
+  static $pb.PbList<GridBlock> createRepeated() => $pb.PbList<GridBlock>();
+  @$core.pragma('dart2js:noInline')
+  static GridBlock getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlock>(create);
+  static GridBlock? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get blockId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set blockId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasBlockId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.Map<$core.String, Cell> get cellByFieldId => $_getMap(1);
+  $core.List<RowOrder> get rowOrders => $_getList(1);
 }
 
 class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
     ..hasRequiredFields = false
   ;
 
   Cell._() : super();
   factory Cell({
-    $core.String? id,
     $core.String? fieldId,
     $core.String? content,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
     if (fieldId != null) {
       _result.fieldId = fieldId;
     }
@@ -849,120 +705,63 @@ class Cell extends $pb.GeneratedMessage {
   static Cell? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get fieldId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set fieldId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasFieldId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearFieldId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get fieldId => $_getSZ(1);
+  $core.String get content => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fieldId($core.String v) { $_setString(1, v); }
+  set content($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasFieldId() => $_has(1);
+  $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
-  void clearFieldId() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get content => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set content($core.String v) { $_setString(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasContent() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearContent() => clearField(3);
+  void clearContent() => clearField(2);
 }
 
-class CellChangeset extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellChangeset', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+class RepeatedCell extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedCell', createEmptyInstance: create)
+    ..pc<Cell>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Cell.create)
     ..hasRequiredFields = false
   ;
 
-  CellChangeset._() : super();
-  factory CellChangeset({
-    $core.String? id,
-    $core.String? rowId,
-    $core.String? fieldId,
-    $core.String? data,
+  RepeatedCell._() : super();
+  factory RepeatedCell({
+    $core.Iterable<Cell>? items,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (rowId != null) {
-      _result.rowId = rowId;
-    }
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
-    }
-    if (data != null) {
-      _result.data = data;
+    if (items != null) {
+      _result.items.addAll(items);
     }
     return _result;
   }
-  factory CellChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CellChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RepeatedCell.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedCell.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CellChangeset clone() => CellChangeset()..mergeFromMessage(this);
+  RepeatedCell clone() => RepeatedCell()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CellChangeset copyWith(void Function(CellChangeset) updates) => super.copyWith((message) => updates(message as CellChangeset)) as CellChangeset; // ignore: deprecated_member_use
+  RepeatedCell copyWith(void Function(RepeatedCell) updates) => super.copyWith((message) => updates(message as RepeatedCell)) as RepeatedCell; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CellChangeset create() => CellChangeset._();
-  CellChangeset createEmptyInstance() => create();
-  static $pb.PbList<CellChangeset> createRepeated() => $pb.PbList<CellChangeset>();
+  static RepeatedCell create() => RepeatedCell._();
+  RepeatedCell createEmptyInstance() => create();
+  static $pb.PbList<RepeatedCell> createRepeated() => $pb.PbList<RepeatedCell>();
   @$core.pragma('dart2js:noInline')
-  static CellChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellChangeset>(create);
-  static CellChangeset? _defaultInstance;
+  static RepeatedCell getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedCell>(create);
+  static RepeatedCell? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get rowId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set rowId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasRowId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearRowId() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get fieldId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set fieldId($core.String v) { $_setString(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasFieldId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearFieldId() => clearField(3);
-
-  @$pb.TagNumber(4)
-  $core.String get data => $_getSZ(3);
-  @$pb.TagNumber(4)
-  set data($core.String v) { $_setString(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearData() => clearField(4);
+  $core.List<Cell> get items => $_getList(0);
 }
 
 class CreateGridPayload extends $pb.GeneratedMessage {
@@ -1059,6 +858,127 @@ class GridId extends $pb.GeneratedMessage {
   void clearValue() => clearField(1);
 }
 
+class GridBlockId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockId', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
+    ..hasRequiredFields = false
+  ;
+
+  GridBlockId._() : super();
+  factory GridBlockId({
+    $core.String? value,
+  }) {
+    final _result = create();
+    if (value != null) {
+      _result.value = value;
+    }
+    return _result;
+  }
+  factory GridBlockId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridBlockId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GridBlockId clone() => GridBlockId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GridBlockId copyWith(void Function(GridBlockId) updates) => super.copyWith((message) => updates(message as GridBlockId)) as GridBlockId; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GridBlockId create() => GridBlockId._();
+  GridBlockId createEmptyInstance() => create();
+  static $pb.PbList<GridBlockId> createRepeated() => $pb.PbList<GridBlockId>();
+  @$core.pragma('dart2js:noInline')
+  static GridBlockId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlockId>(create);
+  static GridBlockId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get value => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set value($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasValue() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearValue() => clearField(1);
+}
+
+enum CreateRowPayload_OneOfStartRowId {
+  startRowId, 
+  notSet
+}
+
+class CreateRowPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CreateRowPayload_OneOfStartRowId> _CreateRowPayload_OneOfStartRowIdByTag = {
+    2 : CreateRowPayload_OneOfStartRowId.startRowId,
+    0 : CreateRowPayload_OneOfStartRowId.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateRowPayload', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'startRowId')
+    ..hasRequiredFields = false
+  ;
+
+  CreateRowPayload._() : super();
+  factory CreateRowPayload({
+    $core.String? gridId,
+    $core.String? startRowId,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (startRowId != null) {
+      _result.startRowId = startRowId;
+    }
+    return _result;
+  }
+  factory CreateRowPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateRowPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CreateRowPayload clone() => CreateRowPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CreateRowPayload copyWith(void Function(CreateRowPayload) updates) => super.copyWith((message) => updates(message as CreateRowPayload)) as CreateRowPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CreateRowPayload create() => CreateRowPayload._();
+  CreateRowPayload createEmptyInstance() => create();
+  static $pb.PbList<CreateRowPayload> createRepeated() => $pb.PbList<CreateRowPayload>();
+  @$core.pragma('dart2js:noInline')
+  static CreateRowPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateRowPayload>(create);
+  static CreateRowPayload? _defaultInstance;
+
+  CreateRowPayload_OneOfStartRowId whichOneOfStartRowId() => _CreateRowPayload_OneOfStartRowIdByTag[$_whichOneof(0)]!;
+  void clearOneOfStartRowId() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get startRowId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set startRowId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStartRowId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStartRowId() => clearField(2);
+}
+
 class QueryFieldPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryFieldPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
@@ -1122,24 +1042,84 @@ class QueryFieldPayload extends $pb.GeneratedMessage {
   RepeatedFieldOrder ensureFieldOrders() => $_ensure(1);
 }
 
+class QueryGridBlocksPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryGridBlocksPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..pc<GridBlockOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockOrders', $pb.PbFieldType.PM, subBuilder: GridBlockOrder.create)
+    ..hasRequiredFields = false
+  ;
+
+  QueryGridBlocksPayload._() : super();
+  factory QueryGridBlocksPayload({
+    $core.String? gridId,
+    $core.Iterable<GridBlockOrder>? blockOrders,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (blockOrders != null) {
+      _result.blockOrders.addAll(blockOrders);
+    }
+    return _result;
+  }
+  factory QueryGridBlocksPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory QueryGridBlocksPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  QueryGridBlocksPayload clone() => QueryGridBlocksPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  QueryGridBlocksPayload copyWith(void Function(QueryGridBlocksPayload) updates) => super.copyWith((message) => updates(message as QueryGridBlocksPayload)) as QueryGridBlocksPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static QueryGridBlocksPayload create() => QueryGridBlocksPayload._();
+  QueryGridBlocksPayload createEmptyInstance() => create();
+  static $pb.PbList<QueryGridBlocksPayload> createRepeated() => $pb.PbList<QueryGridBlocksPayload>();
+  @$core.pragma('dart2js:noInline')
+  static QueryGridBlocksPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryGridBlocksPayload>(create);
+  static QueryGridBlocksPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<GridBlockOrder> get blockOrders => $_getList(1);
+}
+
 class QueryRowPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryRowPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..aOM<RepeatedRowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrders', subBuilder: RepeatedRowOrder.create)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..hasRequiredFields = false
   ;
 
   QueryRowPayload._() : super();
   factory QueryRowPayload({
     $core.String? gridId,
-    RepeatedRowOrder? rowOrders,
+    $core.String? blockId,
+    $core.String? rowId,
   }) {
     final _result = create();
     if (gridId != null) {
       _result.gridId = gridId;
     }
-    if (rowOrders != null) {
-      _result.rowOrders = rowOrders;
+    if (blockId != null) {
+      _result.blockId = blockId;
+    }
+    if (rowId != null) {
+      _result.rowId = rowId;
     }
     return _result;
   }
@@ -1174,14 +1154,21 @@ class QueryRowPayload extends $pb.GeneratedMessage {
   void clearGridId() => clearField(1);
 
   @$pb.TagNumber(2)
-  RepeatedRowOrder get rowOrders => $_getN(1);
+  $core.String get blockId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set rowOrders(RepeatedRowOrder v) { setField(2, v); }
+  set blockId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasRowOrders() => $_has(1);
+  $core.bool hasBlockId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearRowOrders() => clearField(2);
-  @$pb.TagNumber(2)
-  RepeatedRowOrder ensureRowOrders() => $_ensure(1);
+  void clearBlockId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get rowId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set rowId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRowId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRowId() => clearField(3);
 }
 

@@ -154,7 +154,7 @@ where
         &rev_manager.object_id,
         base_rev_id,
         rev_id,
-        client_delta.to_bytes(),
+        client_delta.to_delta_bytes(),
         user_id,
         md5.clone(),
     );
@@ -166,7 +166,7 @@ where
                 &rev_manager.object_id,
                 base_rev_id,
                 rev_id,
-                server_delta.to_bytes(),
+                server_delta.to_delta_bytes(),
                 user_id,
                 md5,
             );

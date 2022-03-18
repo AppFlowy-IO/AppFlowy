@@ -1,13 +1,13 @@
 use crate::{
     entities::{
-        document_info::BlockInfo,
         folder_info::{FolderDelta, FolderInfo},
         revision::{RepeatedRevision, Revision},
+        text_block_info::TextBlockInfo,
     },
     errors::{CollaborateError, CollaborateResult},
     protobuf::{
-        BlockInfo as BlockInfoPB, FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB,
-        Revision as RevisionPB,
+        FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB,
+        TextBlockInfo as TextBlockInfoPB,
     },
 };
 use dissimilar::Chunk;
@@ -202,11 +202,11 @@ pub fn make_folder_pb_from_revisions_pb(
 pub fn make_document_info_from_revisions_pb(
     doc_id: &str,
     revisions: RepeatedRevisionPB,
-) -> Result<Option<BlockInfo>, CollaborateError> {
+) -> Result<Option<TextBlockInfo>, CollaborateError> {
     match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
         None => Ok(None),
         Some(pb) => {
-            let document_info: BlockInfo = pb.try_into().map_err(|e| {
+            let document_info: TextBlockInfo = pb.try_into().map_err(|e| {
                 CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
             })?;
             Ok(Some(document_info))
@@ -218,7 +218,7 @@ pub fn make_document_info_from_revisions_pb(
 pub fn make_document_info_pb_from_revisions_pb(
     doc_id: &str,
     mut revisions: RepeatedRevisionPB,
-) -> Result<Option<BlockInfoPB>, CollaborateError> {
+) -> Result<Option<TextBlockInfoPB>, CollaborateError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Ok(None);
@@ -240,7 +240,7 @@ pub fn make_document_info_pb_from_revisions_pb(
     }
 
     let text = document_delta.to_delta_str();
-    let mut block_info = BlockInfoPB::new();
+    let mut block_info = TextBlockInfoPB::new();
     block_info.set_block_id(doc_id.to_owned());
     block_info.set_text(text);
     block_info.set_base_rev_id(base_rev_id);

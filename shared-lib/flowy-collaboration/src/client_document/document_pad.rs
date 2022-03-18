@@ -6,6 +6,7 @@ use crate::{
     },
     errors::CollaborateError,
 };
+use bytes::Bytes;
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextDelta},
@@ -54,7 +55,7 @@ impl ClientDocument {
     }
 
     pub fn from_json(json: &str) -> Result<Self, CollaborateError> {
-        let delta = RichTextDelta::from_json(json)?;
+        let delta = RichTextDelta::from_delta_str(json)?;
         Ok(Self::from_delta(delta))
     }
 
@@ -62,8 +63,8 @@ impl ClientDocument {
         self.delta.to_delta_str()
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        self.delta.clone().to_bytes().to_vec()
+    pub fn to_bytes(&self) -> Bytes {
+        self.delta.to_delta_bytes()
     }
 
     pub fn to_plain_string(&self) -> String {

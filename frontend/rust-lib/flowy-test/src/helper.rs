@@ -25,17 +25,26 @@ pub struct ViewTest {
 }
 
 impl ViewTest {
-    pub async fn new(sdk: &FlowySDKTest) -> Self {
+    #[allow(dead_code)]
+    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataType, data: Vec<u8>) -> Self {
         let workspace = create_workspace(sdk, "Workspace", "").await;
         open_workspace(sdk, &workspace.id).await;
         let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-        let view = create_view(sdk, &app.id).await;
+        let view = create_view(sdk, &app.id, data_type, data).await;
         Self {
             sdk: sdk.clone(),
             workspace,
             app,
             view,
         }
+    }
+
+    pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
+        Self::new(sdk, ViewDataType::Grid, data).await
+    }
+
+    pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
+        Self::new(sdk, ViewDataType::TextBlock, vec![]).await
     }
 }
 
@@ -82,15 +91,15 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     app
 }
 
-async fn create_view(sdk: &FlowySDKTest, app_id: &str) -> View {
+async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, data: Vec<u8>) -> View {
     let request = CreateViewPayload {
         belong_to_id: app_id.to_string(),
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
-        data_type: ViewDataType::Block,
-        ext_data: "".to_string(),
+        data_type,
         plugin_type: 0,
+        data,
     };
 
     let view = FolderEventBuilder::new(sdk.clone())

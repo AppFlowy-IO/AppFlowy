@@ -13,10 +13,7 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_collaboration::entities::{
-    document_info::BlockId,
-    revision::{RepeatedRevision, Revision},
-};
+use flowy_collaboration::entities::text_block_info::TextBlockId;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use futures::{FutureExt, StreamExt};
@@ -58,18 +55,19 @@ impl ViewController {
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
         let processor = self.get_data_processor(&params.data_type)?;
-        let content = if params.data.is_empty() {
-            let default_view_data = processor.default_view_data(&params.view_id);
-            params.data = default_view_data.clone();
-            default_view_data
+        let user_id = self.user.user_id()?;
+        if params.data.is_empty() {
+            let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
+            params.data = view_data.to_vec();
         } else {
-            params.data.clone()
+            let delta_data = processor
+                .process_create_view_data(&user_id, &params.view_id, params.data.clone())
+                .await?;
+            let _ = self
+                .create_view(&params.view_id, params.data_type.clone(), delta_data)
+                .await?;
         };
 
-        let delta_data = Bytes::from(content);
-        let _ = self
-            .create_view(&params.view_id, params.data_type.clone(), delta_data)
-            .await?;
         let view = self.create_view_on_server(params).await?;
         let _ = self.create_view_on_local(view.clone()).await?;
         Ok(view)
@@ -86,9 +84,8 @@ impl ViewController {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(&user_id, view_id, delta_data).into();
         let processor = self.get_data_processor(&data_type)?;
-        let _ = processor.create_container(view_id, repeated_revision).await?;
+        let _ = processor.create_container(&user_id, view_id, delta_data).await?;
         Ok(())
     }
 
@@ -147,7 +144,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: BlockId) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: TextBlockId) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);
@@ -166,16 +163,15 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(&view.data_type)?;
-        let delta_str = processor.delta_str(view_id).await?;
+        let delta_bytes = processor.delta_bytes(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
             desc: view.desc,
             thumbnail: view.thumbnail,
             data_type: view.data_type,
-            data: delta_str,
+            data: delta_bytes.to_vec(),
             view_id: uuid(),
-            ext_data: view.ext_data,
             plugin_type: view.plugin_type,
         };
 

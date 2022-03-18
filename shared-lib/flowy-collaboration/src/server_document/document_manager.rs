@@ -1,5 +1,5 @@
 use crate::{
-    entities::{document_info::BlockInfo, ws_data::ServerRevisionWSDataBuilder},
+    entities::{text_block_info::TextBlockInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::document_pad::ServerDocument,
@@ -17,41 +17,42 @@ use tokio::{
     task::spawn_blocking,
 };
 
-pub trait DocumentCloudPersistence: Send + Sync + Debug {
-    fn read_document(&self, doc_id: &str) -> BoxResultFuture<BlockInfo, CollaborateError>;
+pub trait TextBlockCloudPersistence: Send + Sync + Debug {
+    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfo, CollaborateError>;
 
-    fn create_document(
+    fn create_text_block(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<BlockInfo>, CollaborateError>;
+    ) -> BoxResultFuture<Option<TextBlockInfo>, CollaborateError>;
 
-    fn read_document_revisions(
+    fn read_text_block_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
 
-    fn save_document_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+    fn save_text_block_revisions(&self, repeated_revision: RepeatedRevisionPB)
+        -> BoxResultFuture<(), CollaborateError>;
 
-    fn reset_document(
+    fn reset_text_block(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
+impl RevisionSyncPersistence for Arc<dyn TextBlockCloudPersistence> {
     fn read_revisions(
         &self,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
     ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
-        (**self).read_document_revisions(object_id, rev_ids)
+        (**self).read_text_block_revisions(object_id, rev_ids)
     }
 
     fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
-        (**self).save_document_revisions(repeated_revision)
+        (**self).save_text_block_revisions(repeated_revision)
     }
 
     fn reset_object(
@@ -59,17 +60,17 @@ impl RevisionSyncPersistence for Arc<dyn DocumentCloudPersistence> {
         object_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> BoxResultFuture<(), CollaborateError> {
-        (**self).reset_document(object_id, repeated_revision)
+        (**self).reset_text_block(object_id, repeated_revision)
     }
 }
 
 pub struct ServerDocumentManager {
     document_handlers: Arc<RwLock<HashMap<String, Arc<OpenDocumentHandler>>>>,
-    persistence: Arc<dyn DocumentCloudPersistence>,
+    persistence: Arc<dyn TextBlockCloudPersistence>,
 }
 
 impl ServerDocumentManager {
-    pub fn new(persistence: Arc<dyn DocumentCloudPersistence>) -> Self {
+    pub fn new(persistence: Arc<dyn TextBlockCloudPersistence>) -> Self {
         Self {
             document_handlers: Arc::new(RwLock::new(HashMap::new())),
             persistence,
@@ -151,7 +152,7 @@ impl ServerDocumentManager {
         }
 
         let mut write_guard = self.document_handlers.write().await;
-        match self.persistence.read_document(doc_id).await {
+        match self.persistence.read_text_block(doc_id).await {
             Ok(doc) => {
                 let handler = self.create_document_handler(doc).await.map_err(internal_error).unwrap();
                 write_guard.insert(doc_id.to_owned(), handler.clone());
@@ -168,7 +169,7 @@ impl ServerDocumentManager {
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
     ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
-        match self.persistence.create_document(doc_id, repeated_revision).await? {
+        match self.persistence.create_text_block(doc_id, repeated_revision).await? {
             None => Err(CollaborateError::internal().context("Create document info from revisions failed")),
             Some(doc) => {
                 let handler = self.create_document_handler(doc).await?;
@@ -181,7 +182,7 @@ impl ServerDocumentManager {
         }
     }
 
-    async fn create_document_handler(&self, doc: BlockInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
+    async fn create_document_handler(&self, doc: TextBlockInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
@@ -205,7 +206,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: BlockInfo, persistence: Arc<dyn DocumentCloudPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: TextBlockInfo, persistence: Arc<dyn TextBlockCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.block_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();

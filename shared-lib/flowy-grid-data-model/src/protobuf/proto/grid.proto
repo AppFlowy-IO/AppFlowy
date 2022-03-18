@@ -1,16 +1,10 @@
 syntax = "proto3";
+import "meta.proto";
 
 message Grid {
     string id = 1;
-    RepeatedFieldOrder field_orders = 2;
-    RepeatedRowOrder row_orders = 3;
-}
-message FieldOrder {
-    string field_id = 1;
-    bool visibility = 2;
-}
-message RepeatedFieldOrder {
-    repeated FieldOrder items = 1;
+    repeated FieldOrder field_orders = 2;
+    repeated GridBlockOrder block_orders = 3;
 }
 message Field {
     string id = 1;
@@ -18,52 +12,47 @@ message Field {
     string desc = 3;
     FieldType field_type = 4;
     bool frozen = 5;
-    int32 width = 6;
-    AnyData type_options = 7;
+    bool visibility = 6;
+    int32 width = 7;
+}
+message FieldOrder {
+    string field_id = 1;
 }
 message RepeatedField {
     repeated Field items = 1;
 }
-message AnyData {
-    string type_id = 1;
-    bytes value = 2;
+message RepeatedFieldOrder {
+    repeated FieldOrder items = 1;
 }
 message RowOrder {
-    string grid_id = 1;
-    string row_id = 2;
-    bool visibility = 3;
-}
-message RepeatedRowOrder {
-    repeated RowOrder items = 1;
-}
-message RawRow {
-    string id = 1;
-    string grid_id = 2;
-    map<string, RawCell> cell_by_field_id = 3;
-}
-message RawCell {
-    string id = 1;
-    string row_id = 2;
-    string field_id = 3;
-    AnyData data = 4;
-}
-message RepeatedRow {
-    repeated Row items = 1;
+    string row_id = 1;
+    string block_id = 2;
+    int32 height = 3;
 }
 message Row {
     string id = 1;
     map<string, Cell> cell_by_field_id = 2;
+    int32 height = 3;
+}
+message RepeatedRow {
+    repeated Row items = 1;
+}
+message RepeatedGridBlock {
+    repeated GridBlock items = 1;
+}
+message GridBlockOrder {
+    string block_id = 1;
+}
+message GridBlock {
+    string block_id = 1;
+    repeated RowOrder row_orders = 2;
 }
 message Cell {
-    string id = 1;
-    string field_id = 2;
-    string content = 3;
+    string field_id = 1;
+    string content = 2;
 }
-message CellChangeset {
-    string id = 1;
-    string row_id = 2;
-    string field_id = 3;
-    string data = 4;
+message RepeatedCell {
+    repeated Cell items = 1;
 }
 message CreateGridPayload {
     string name = 1;
@@ -71,19 +60,23 @@ message CreateGridPayload {
 message GridId {
     string value = 1;
 }
+message GridBlockId {
+    string value = 1;
+}
+message CreateRowPayload {
+    string grid_id = 1;
+    oneof one_of_start_row_id { string start_row_id = 2; };
+}
 message QueryFieldPayload {
     string grid_id = 1;
     RepeatedFieldOrder field_orders = 2;
 }
+message QueryGridBlocksPayload {
+    string grid_id = 1;
+    repeated GridBlockOrder block_orders = 2;
+}
 message QueryRowPayload {
     string grid_id = 1;
-    RepeatedRowOrder row_orders = 2;
-}
-enum FieldType {
-    RichText = 0;
-    Number = 1;
-    DateTime = 2;
-    SingleSelect = 3;
-    MultiSelect = 4;
-    Checkbox = 5;
+    string block_id = 2;
+    string row_id = 3;
 }

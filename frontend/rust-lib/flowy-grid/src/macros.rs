@@ -1,29 +1,17 @@
 #[macro_export]
-macro_rules! impl_any_data {
+macro_rules! impl_from_and_to_type_option {
     ($target: ident, $field_type:expr) => {
-        impl_field_type_data_from_field!($target);
-        impl_field_type_data_from_field_type_option!($target);
-        impl_type_option_from_field_data!($target, $field_type);
+        impl_from_field_type_option!($target);
+        impl_to_field_type_option!($target, $field_type);
     };
 }
 
 #[macro_export]
-macro_rules! impl_field_type_data_from_field {
+macro_rules! impl_from_field_type_option {
     ($target: ident) => {
-        impl std::convert::From<&Field> for $target {
-            fn from(field: &Field) -> $target {
-                $target::from(&field.type_options)
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! impl_field_type_data_from_field_type_option {
-    ($target: ident) => {
-        impl std::convert::From<&AnyData> for $target {
-            fn from(any_data: &AnyData) -> $target {
-                match $target::try_from(Bytes::from(any_data.value.clone())) {
+        impl std::convert::From<&FieldMeta> for $target {
+            fn from(field_meta: &FieldMeta) -> $target {
+                match serde_json::from_str(&field_meta.type_options) {
                     Ok(obj) => obj,
                     Err(err) => {
                         tracing::error!("{} convert from any data failed, {:?}", stringify!($target), err);
@@ -36,26 +24,21 @@ macro_rules! impl_field_type_data_from_field_type_option {
 }
 
 #[macro_export]
-macro_rules! impl_type_option_from_field_data {
+macro_rules! impl_to_field_type_option {
     ($target: ident, $field_type:expr) => {
         impl $target {
-            pub fn field_type() -> FieldType {
+            pub fn field_type(&self) -> FieldType {
                 $field_type
             }
         }
 
-        impl std::convert::From<$target> for AnyData {
-            fn from(field_data: $target) -> Self {
-                match field_data.try_into() {
-                    Ok(bytes) => {
-                        let bytes: Bytes = bytes;
-                        AnyData::from_bytes(&$target::field_type(), bytes)
-                    }
+        impl std::convert::From<$target> for String {
+            fn from(field_description: $target) -> Self {
+                match serde_json::to_string(&field_description) {
+                    Ok(s) => s,
                     Err(e) => {
                         tracing::error!("Field type data convert to AnyData fail, error: {:?}", e);
-                        // it's impossible to fail when unwrapping the default field type data
-                        let default_bytes: Bytes = $target::default().try_into().unwrap();
-                        AnyData::from_bytes(&$target::field_type(), default_bytes)
+                        serde_json::to_string(&$target::default()).unwrap()
                     }
                 }
             }

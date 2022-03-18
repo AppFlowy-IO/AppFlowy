@@ -1,33 +1,33 @@
 use crate::manager::GridUser;
-use crate::services::kv_persistence::{GridKVPersistence, KVTransaction};
-use crate::services::stringify::stringify_deserialize;
-
-use dashmap::DashMap;
-use flowy_collaboration::client_grid::{GridChange, GridPad};
+use crate::services::block_meta_editor::GridBlockMetaEditorManager;
+use bytes::Bytes;
+use flowy_collaboration::client_grid::{GridChangeset, GridMetaPad};
 use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Cell, Field, Grid, RawCell, RawRow, RepeatedField, RepeatedFieldOrder, RepeatedRow, RepeatedRowOrder, Row,
+    CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder,
+    RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, Row, RowMeta, RowMetaChangeset, RowOrder,
 };
-use flowy_sync::{RevisionCloudService, RevisionCompact, RevisionManager, RevisionObjectBuilder};
-use lib_infra::future::FutureResult;
-use lib_infra::uuid;
-use lib_ot::core::PlainTextAttributes;
-
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
+
+use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::services::row::{
+    make_grid_block_from_block_metas, make_grid_blocks, make_row_meta_from_context, make_rows_from_row_metas,
+    serialize_cell_data, CreateRowMetaBuilder, CreateRowMetaPayload, GridBlockMetaData,
+};
+use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use lib_infra::future::FutureResult;
+use lib_ot::core::PlainTextAttributes;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct ClientGridEditor {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    grid_pad: Arc<RwLock<GridPad>>,
+    pad: Arc<RwLock<GridMetaPad>>,
     rev_manager: Arc<RevisionManager>,
-    kv_persistence: Arc<GridKVPersistence>,
-
-    field_map: DashMap<String, Field>,
+    block_meta_manager: Arc<GridBlockMetaEditorManager>,
 }
 
 impl ClientGridEditor {
@@ -35,132 +35,225 @@ impl ClientGridEditor {
         grid_id: &str,
         user: Arc<dyn GridUser>,
         mut rev_manager: RevisionManager,
-        kv_persistence: Arc<GridKVPersistence>,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridPadBuilder, GridRevisionCompact>(cloud).await?;
-
+        let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
-        let field_map = load_all_fields(&grid_pad, &kv_persistence).await?;
-        let grid_pad = Arc::new(RwLock::new(grid_pad));
+        let pad = Arc::new(RwLock::new(grid_pad));
+
+        let block_meta_manager =
+            Arc::new(GridBlockMetaEditorManager::new(grid_id, &user, pad.read().await.get_blocks().clone()).await?);
 
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
-            grid_pad,
+            pad,
             rev_manager,
-            kv_persistence,
-            field_map,
+            block_meta_manager,
         }))
     }
 
-    pub async fn create_empty_row(&self) -> FlowyResult<()> {
-        let row = RawRow {
-            id: uuid(),
-            grid_id: self.grid_id.clone(),
-            cell_by_field_id: Default::default(),
-        };
-        self.create_row(row).await?;
+    pub async fn create_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_field(field_meta)?)).await?;
+        let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
 
-    async fn create_row(&self, row: RawRow) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_row(&row)?)).await?;
-        let _ = self.kv_persistence.set(row)?;
+    pub async fn contain_field(&self, field_meta: &FieldMeta) -> bool {
+        self.pad.read().await.contain_field(&field_meta.id)
+    }
+
+    pub async fn update_field(&self, change: FieldChangeset) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.update_field(change)?)).await?;
         Ok(())
     }
 
-    pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.delete_rows(&ids)?)).await?;
-        // let _ = self.kv.batch_delete(ids)?;
-        Ok(())
-    }
-
-    pub async fn create_field(&mut self, field: Field) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_field(&field)?)).await?;
-        let _ = self.kv_persistence.set(field)?;
-        Ok(())
-    }
-
-    pub async fn delete_field(&mut self, field_id: &str) -> FlowyResult<()> {
+    pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
-        // let _ = self.kv.remove(field_id)?;
         Ok(())
     }
 
-    pub async fn get_rows(&self, row_orders: RepeatedRowOrder) -> FlowyResult<RepeatedRow> {
-        let ids = row_orders
-            .items
-            .into_iter()
-            .map(|row_order| row_order.row_id)
-            .collect::<Vec<_>>();
-        let raw_rows: Vec<RawRow> = self.kv_persistence.batch_get(ids)?;
-
-        let make_cell = |field_id: String, raw_cell: RawCell| {
-            let some_field = self.field_map.get(&field_id);
-            if some_field.is_none() {
-                tracing::error!("Can't find the field with {}", field_id);
-                return None;
-            }
-
-            let field = some_field.unwrap();
-            match stringify_deserialize(raw_cell.data, field.value()) {
-                Ok(content) => {
-                    let cell = Cell {
-                        id: raw_cell.id,
-                        field_id: field_id.clone(),
-                        content,
-                    };
-                    Some((field_id, cell))
-                }
-                Err(_) => None,
-            }
-        };
-
-        let rows = raw_rows
-            .into_par_iter()
-            .map(|raw_row| {
-                let mut row = Row::new(&raw_row.id);
-                row.cell_by_field_id = raw_row
-                    .cell_by_field_id
-                    .into_par_iter()
-                    .flat_map(|(field_id, raw_cell)| make_cell(field_id, raw_cell))
-                    .collect::<HashMap<String, Cell>>();
-                row
-            })
-            .collect::<Vec<Row>>();
-
-        Ok(rows.into())
+    pub async fn create_block(&self, grid_block: GridBlockMeta) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_block(grid_block)?)).await?;
+        Ok(())
     }
 
-    pub async fn get_fields(&self, field_orders: RepeatedFieldOrder) -> FlowyResult<RepeatedField> {
-        let fields = field_orders
-            .iter()
-            .flat_map(|field_order| match self.field_map.get(&field_order.field_id) {
+    pub async fn update_block(&self, changeset: GridBlockMetaChangeset) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.update_block(changeset)?)).await?;
+        Ok(())
+    }
+
+    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowOrder> {
+        let field_metas = self.pad.read().await.get_field_metas(None)?;
+        let block_id = self.block_id().await?;
+
+        // insert empty row below the row whose id is upper_row_id
+        let row_meta_ctx = CreateRowMetaBuilder::new(&field_metas).build();
+        let row_meta = make_row_meta_from_context(&block_id, row_meta_ctx);
+        let row_order = RowOrder::from(&row_meta);
+
+        // insert the row
+        let row_count = self
+            .block_meta_manager
+            .create_row(&block_id, row_meta, start_row_id)
+            .await?;
+
+        // update block row count
+        let changeset = GridBlockMetaChangeset::from_row_count(&block_id, row_count);
+        let _ = self.update_block(changeset).await?;
+        Ok(row_order)
+    }
+
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowMetaPayload>) -> FlowyResult<Vec<RowOrder>> {
+        let block_id = self.block_id().await?;
+        let mut rows_by_block_id: HashMap<String, Vec<RowMeta>> = HashMap::new();
+        let mut row_orders = vec![];
+        for ctx in contexts {
+            let row_meta = make_row_meta_from_context(&block_id, ctx);
+            row_orders.push(RowOrder::from(&row_meta));
+            rows_by_block_id
+                .entry(block_id.clone())
+                .or_insert_with(Vec::new)
+                .push(row_meta);
+        }
+        let changesets = self.block_meta_manager.insert_row(rows_by_block_id).await?;
+        for changeset in changesets {
+            let _ = self.update_block(changeset).await?;
+        }
+        Ok(row_orders)
+    }
+
+    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+        self.block_meta_manager.update_row(changeset).await
+    }
+
+    pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRow> {
+        let block_ids = vec![block_id.to_owned()];
+        let mut block_meta_data_vec = self.get_block_meta_data_vec(Some(&block_ids)).await?;
+        debug_assert_eq!(block_meta_data_vec.len(), 1);
+        if block_meta_data_vec.len() == 1 {
+            let block_meta_data = block_meta_data_vec.pop().unwrap();
+            let field_metas = self.get_field_metas(None).await?;
+            let rows = make_rows_from_row_metas(&field_metas, &block_meta_data.row_metas);
+            Ok(rows.into())
+        } else {
+            Ok(vec![].into())
+        }
+    }
+
+    pub async fn get_row(&self, block_id: &str, row_id: &str) -> FlowyResult<Option<Row>> {
+        match self.block_meta_manager.get_row(block_id, row_id).await? {
+            None => Ok(None),
+            Some(row) => {
+                let field_metas = self.get_field_metas(None).await?;
+                let row_metas = vec![row];
+                let mut rows = make_rows_from_row_metas(&field_metas, &row_metas);
+                debug_assert!(rows.len() == 1);
+                Ok(rows.pop())
+            }
+        }
+    }
+
+    pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
+        if let Some(cell_data) = changeset.data.as_ref() {
+            match self.pad.read().await.get_field(&changeset.field_id) {
                 None => {
-                    tracing::error!("Can't find the field with {}", field_order.field_id);
-                    None
+                    return Err(FlowyError::internal()
+                        .context(format!("Can not find the field with id: {}", &changeset.field_id)));
                 }
-                Some(field) => Some(field.value().clone()),
+                Some(field_meta) => {
+                    let _ = serialize_cell_data(cell_data, field_meta)?;
+                }
+            }
+        }
+
+        let field_metas = self.get_field_metas(None).await?;
+        let row_changeset: RowMetaChangeset = changeset.into();
+        let _ = self
+            .block_meta_manager
+            .update_cells(&field_metas, row_changeset)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedGridBlock> {
+        let block_meta_data_vec = self.get_block_meta_data_vec(block_ids.as_ref()).await?;
+        match block_ids {
+            None => make_grid_blocks(block_meta_data_vec),
+            Some(block_ids) => make_grid_block_from_block_metas(&block_ids, block_meta_data_vec),
+        }
+    }
+
+    pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockMeta>> {
+        let grid_blocks = self.pad.read().await.get_blocks();
+        Ok(grid_blocks)
+    }
+
+    pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
+        let changesets = self.block_meta_manager.delete_rows(row_orders).await?;
+        for changeset in changesets {
+            let _ = self.update_block(changeset).await?;
+        }
+        Ok(())
+    }
+
+    pub async fn grid_data(&self) -> FlowyResult<Grid> {
+        let field_orders = self.pad.read().await.get_field_orders();
+        let block_orders = self
+            .pad
+            .read()
+            .await
+            .get_blocks()
+            .into_iter()
+            .map(|grid_block_meta| GridBlockOrder {
+                block_id: grid_block_meta.block_id,
             })
-            .collect::<Vec<Field>>();
-        Ok(fields.into())
+            .collect::<Vec<_>>();
+        Ok(Grid {
+            id: self.grid_id.clone(),
+            field_orders,
+            block_orders,
+        })
     }
 
-    pub async fn grid_data(&self) -> Grid {
-        self.grid_pad.read().await.grid_data()
+    pub async fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<FieldMeta>> {
+        let field_meta = self.pad.read().await.get_field_metas(field_orders)?;
+        Ok(field_meta)
     }
 
-    pub async fn delta_str(&self) -> String {
-        self.grid_pad.read().await.delta_str()
+    pub async fn get_block_meta_data_vec(
+        &self,
+        block_ids: Option<&Vec<String>>,
+    ) -> FlowyResult<Vec<GridBlockMetaData>> {
+        match block_ids {
+            None => {
+                let grid_blocks = self.pad.read().await.get_blocks();
+                let row_metas_per_block = self
+                    .block_meta_manager
+                    .get_block_meta_data_from_blocks(grid_blocks)
+                    .await?;
+                Ok(row_metas_per_block)
+            }
+            Some(block_ids) => {
+                let row_metas_per_block = self
+                    .block_meta_manager
+                    .get_block_meta_data(block_ids.as_slice())
+                    .await?;
+                Ok(row_metas_per_block)
+            }
+        }
+    }
+
+    pub async fn delta_bytes(&self) -> Bytes {
+        self.pad.read().await.delta_bytes()
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: for<'a> FnOnce(&'a mut GridPad) -> FlowyResult<Option<GridChange>>,
+        F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChangeset>>,
     {
-        let mut write_guard = self.grid_pad.write().await;
+        let mut write_guard = self.pad.write().await;
         match f(&mut *write_guard)? {
             None => {}
             Some(change) => {
@@ -170,11 +263,11 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    async fn apply_change(&self, change: GridChange) -> FlowyResult<()> {
-        let GridChange { delta, md5 } = change;
+    async fn apply_change(&self, change: GridChangeset) -> FlowyResult<()> {
+        let GridChangeset { delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.to_bytes();
+        let delta_data = delta.to_delta_bytes();
         let revision = Revision::new(
             &self.rev_manager.object_id,
             base_rev_id,
@@ -185,36 +278,41 @@ impl ClientGridEditor {
         );
         let _ = self
             .rev_manager
-            .add_local_revision::<GridRevisionCompact>(&revision)
+            .add_local_revision(&revision, Box::new(GridRevisionCompactor()))
             .await?;
+        Ok(())
+    }
+
+    async fn block_id(&self) -> FlowyResult<String> {
+        match self.pad.read().await.get_blocks().last() {
+            None => Err(FlowyError::internal().context("There is no grid block in this grid")),
+            Some(grid_block) => Ok(grid_block.block_id.clone()),
+        }
+    }
+
+    async fn notify_did_update_fields(&self) -> FlowyResult<()> {
+        let field_metas = self.get_field_metas(None).await?;
+        let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
+        send_dart_notification(&self.grid_id, GridNotification::GridDidUpdateFields)
+            .payload(repeated_field)
+            .send();
         Ok(())
     }
 }
 
-async fn load_all_fields(
-    grid_pad: &GridPad,
-    kv_persistence: &Arc<GridKVPersistence>,
-) -> FlowyResult<DashMap<String, Field>> {
-    let field_ids = grid_pad
-        .field_orders()
-        .iter()
-        .map(|field_order| field_order.field_id.clone())
-        .collect::<Vec<_>>();
-
-    let fields = kv_persistence.batch_get::<Field>(field_ids)?;
-    let map = DashMap::new();
-    for field in fields {
-        map.insert(field.id.clone(), field);
+#[cfg(feature = "flowy_unit_test")]
+impl ClientGridEditor {
+    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+        self.rev_manager.clone()
     }
-    Ok(map)
 }
 
-struct GridPadBuilder();
+pub struct GridPadBuilder();
 impl RevisionObjectBuilder for GridPadBuilder {
-    type Output = GridPad;
+    type Output = GridMetaPad;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridPad::from_revisions(object_id, revisions)?;
+        let pad = GridMetaPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
 }
@@ -231,24 +329,10 @@ impl RevisionCloudService for GridRevisionCloudService {
     }
 }
 
-struct GridRevisionCompact();
-impl RevisionCompact for GridRevisionCompact {
-    fn compact_revisions(user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
-        if revisions.is_empty() {
-            return Err(FlowyError::internal().context("Can't compact the empty folder's revisions"));
-        }
-
-        if revisions.len() == 1 {
-            return Ok(revisions.pop().unwrap());
-        }
-
-        let first_revision = revisions.first().unwrap();
-        let last_revision = revisions.last().unwrap();
-
-        let (base_rev_id, rev_id) = first_revision.pair_rev_id();
-        let md5 = last_revision.md5.clone();
+struct GridRevisionCompactor();
+impl RevisionCompactor for GridRevisionCompactor {
+    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
-        let delta_data = delta.to_bytes();
-        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
+        Ok(delta.to_delta_bytes())
     }
 }

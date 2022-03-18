@@ -1,4 +1,5 @@
-use crate::{RevisionRecord, REVISION_WRITE_INTERVAL_IN_MILLIS};
+use crate::disk::RevisionRecord;
+use crate::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};

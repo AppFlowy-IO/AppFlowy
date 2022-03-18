@@ -12,6 +12,7 @@ flowy-user = { path = "../flowy-user" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
+flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
 flowy-database = { path = "../flowy-database" }
 flowy-block = { path = "../flowy-block", default-features = false }
 flowy-sync = { path = "../flowy-sync" }

@@ -1,28 +1,28 @@
 use crate::entities::{ExportData, ExportParams, ExportPayload};
-use crate::BlockManager;
-use flowy_collaboration::entities::document_info::{BlockDelta, BlockId};
+use crate::TextBlockManager;
+use flowy_collaboration::entities::text_block_info::{TextBlockDelta, TextBlockId};
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 pub(crate) async fn get_block_data_handler(
-    data: Data<BlockId>,
-    manager: AppData<Arc<BlockManager>>,
-) -> DataResult<BlockDelta, FlowyError> {
-    let block_id: BlockId = data.into_inner();
+    data: Data<TextBlockId>,
+    manager: AppData<Arc<TextBlockManager>>,
+) -> DataResult<TextBlockDelta, FlowyError> {
+    let block_id: TextBlockId = data.into_inner();
     let editor = manager.open_block(&block_id).await?;
     let delta_str = editor.delta_str().await?;
-    data_result(BlockDelta {
+    data_result(TextBlockDelta {
         block_id: block_id.into(),
         delta_str,
     })
 }
 
 pub(crate) async fn apply_delta_handler(
-    data: Data<BlockDelta>,
-    manager: AppData<Arc<BlockManager>>,
-) -> DataResult<BlockDelta, FlowyError> {
+    data: Data<TextBlockDelta>,
+    manager: AppData<Arc<TextBlockManager>>,
+) -> DataResult<TextBlockDelta, FlowyError> {
     let block_delta = manager.receive_local_delta(data.into_inner()).await?;
     data_result(block_delta)
 }
@@ -30,7 +30,7 @@ pub(crate) async fn apply_delta_handler(
 #[tracing::instrument(skip(data, manager), err)]
 pub(crate) async fn export_handler(
     data: Data<ExportPayload>,
-    manager: AppData<Arc<BlockManager>>,
+    manager: AppData<Arc<TextBlockManager>>,
 ) -> DataResult<ExportData, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager.open_block(&params.view_id).await?;

@@ -22,7 +22,6 @@ import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-block/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 
 // ignore: unused_import

@@ -55,6 +55,11 @@ pub enum ErrorCode {
     UserNameIsEmpty = 310,
     UserIdInvalid = 311,
     UserNotExist = 312,
+    TextTooLong = 400,
+    BlockIdIsEmpty = 401,
+    RowIdIsEmpty = 402,
+    GridIdIsEmpty = 403,
+    InvalidData = 404,
 }
 
 impl ::protobuf::ProtobufEnum for ErrorCode {
@@ -94,6 +99,11 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             310 => ::std::option::Option::Some(ErrorCode::UserNameIsEmpty),
             311 => ::std::option::Option::Some(ErrorCode::UserIdInvalid),
             312 => ::std::option::Option::Some(ErrorCode::UserNotExist),
+            400 => ::std::option::Option::Some(ErrorCode::TextTooLong),
+            401 => ::std::option::Option::Some(ErrorCode::BlockIdIsEmpty),
+            402 => ::std::option::Option::Some(ErrorCode::RowIdIsEmpty),
+            403 => ::std::option::Option::Some(ErrorCode::GridIdIsEmpty),
+            404 => ::std::option::Option::Some(ErrorCode::InvalidData),
             _ => ::std::option::Option::None
         }
     }
@@ -130,6 +140,11 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             ErrorCode::UserNameIsEmpty,
             ErrorCode::UserIdInvalid,
             ErrorCode::UserNotExist,
+            ErrorCode::TextTooLong,
+            ErrorCode::BlockIdIsEmpty,
+            ErrorCode::RowIdIsEmpty,
+            ErrorCode::GridIdIsEmpty,
+            ErrorCode::InvalidData,
         ];
         values
     }
@@ -158,7 +173,7 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ncode.proto*\xc4\x05\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
+    \n\ncode.proto*\xa4\x06\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
     \n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\x03\x12\
     \x18\n\x14WorkspaceNameInvalid\x10d\x12\x16\n\x12WorkspaceIdInvalid\x10e\
     \x12\x18\n\x14AppColorStyleInvalid\x10f\x12\x18\n\x14WorkspaceDescTooLon\
@@ -174,8 +189,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     rmatInvalid\x10\xb2\x02\x12\x15\n\x10PasswordNotMatch\x10\xb3\x02\x12\
     \x14\n\x0fUserNameTooLong\x10\xb4\x02\x12'\n\"UserNameContainForbiddenCh\
     aracters\x10\xb5\x02\x12\x14\n\x0fUserNameIsEmpty\x10\xb6\x02\x12\x12\n\
-    \rUserIdInvalid\x10\xb7\x02\x12\x11\n\x0cUserNotExist\x10\xb8\x02b\x06pr\
-    oto3\
+    \rUserIdInvalid\x10\xb7\x02\x12\x11\n\x0cUserNotExist\x10\xb8\x02\x12\
+    \x10\n\x0bTextTooLong\x10\x90\x03\x12\x13\n\x0eBlockIdIsEmpty\x10\x91\
+    \x03\x12\x11\n\x0cRowIdIsEmpty\x10\x92\x03\x12\x12\n\rGridIdIsEmpty\x10\
+    \x93\x03\x12\x10\n\x0bInvalidData\x10\x94\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -2,20 +2,13 @@ mod migration;
 pub mod version_1;
 mod version_2;
 
-use flowy_collaboration::client_folder::initial_folder_delta;
-use flowy_collaboration::{
-    client_folder::FolderPad,
-    entities::revision::{Revision, RevisionState},
-};
-use std::sync::Arc;
-use tokio::sync::RwLock;
-pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
-
 use crate::{
     event_map::WorkspaceDatabase,
     manager::FolderId,
     services::{folder_editor::ClientFolderEditor, persistence::migration::FolderMigration},
 };
+use flowy_collaboration::client_folder::initial_folder_delta;
+use flowy_collaboration::{client_folder::FolderPad, entities::revision::Revision};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::entities::{
     app::App,
@@ -23,8 +16,12 @@ use flowy_folder_data_model::entities::{
     view::View,
     workspace::Workspace,
 };
-use flowy_sync::{mk_revision_disk_cache, RevisionRecord};
+use flowy_sync::disk::{RevisionRecord, RevisionState};
+use flowy_sync::mk_revision_disk_cache;
 use lib_sqlite::ConnectionPool;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 pub trait FolderPersistenceTransaction {
     fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()>;
@@ -118,7 +115,7 @@ impl FolderPersistence {
 
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
-        let delta_data = initial_folder_delta(&folder)?.to_bytes();
+        let delta_data = initial_folder_delta(&folder)?.to_delta_bytes();
         let md5 = folder.md5();
         let revision = Revision::new(folder_id.as_ref(), 0, 0, delta_data, user_id, md5);
         let record = RevisionRecord {

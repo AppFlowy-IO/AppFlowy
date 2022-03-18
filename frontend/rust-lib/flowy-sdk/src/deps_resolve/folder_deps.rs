@@ -1,9 +1,10 @@
 use bytes::Bytes;
-use flowy_block::BlockManager;
+use flowy_block::TextBlockManager;
 use flowy_collaboration::client_document::default::initial_quill_delta_string;
-use flowy_collaboration::entities::revision::RepeatedRevision;
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
+
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
@@ -11,8 +12,9 @@ use flowy_folder::{
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     manager::FolderManager,
 };
-use flowy_grid::manager::GridManager;
-use flowy_grid::services::grid_builder::make_default_grid;
+use flowy_grid::manager::{make_grid_view_data, GridManager};
+use flowy_grid::util::make_default_grid;
+use flowy_grid_data_model::entities::BuildGridContext;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -23,6 +25,7 @@ use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 
 pub struct FolderDepsResolver();
@@ -32,7 +35,7 @@ impl FolderDepsResolver {
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
         ws_conn: &Arc<FlowyWebSocketConnect>,
-        block_manager: &Arc<BlockManager>,
+        text_block_manager: &Arc<TextBlockManager>,
         grid_manager: &Arc<GridManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
@@ -43,7 +46,7 @@ impl FolderDepsResolver {
             Some(local_server) => local_server,
         };
 
-        let view_data_processor = make_view_data_processor(block_manager.clone(), grid_manager.clone());
+        let view_data_processor = make_view_data_processor(text_block_manager.clone(), grid_manager.clone());
         let folder_manager =
             Arc::new(FolderManager::new(user.clone(), cloud_service, database, view_data_processor, web_socket).await);
 
@@ -60,13 +63,16 @@ impl FolderDepsResolver {
     }
 }
 
-fn make_view_data_processor(block_manager: Arc<BlockManager>, grid_manager: Arc<GridManager>) -> ViewDataProcessorMap {
+fn make_view_data_processor(
+    text_block_manager: Arc<TextBlockManager>,
+    grid_manager: Arc<GridManager>,
+) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = BlockManagerViewDataImpl(block_manager);
+    let block_data_impl = TextBlockViewDataProcessor(text_block_manager);
     map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
 
-    let grid_data_impl = GridManagerViewDataImpl(grid_manager);
+    let grid_data_impl = GridViewDataProcessor(grid_manager);
     map.insert(grid_data_impl.data_type(), Arc::new(grid_data_impl));
 
     Arc::new(map)
@@ -130,68 +136,89 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
     }
 }
 
-struct BlockManagerViewDataImpl(Arc<BlockManager>);
-impl ViewDataProcessor for BlockManagerViewDataImpl {
+struct TextBlockViewDataProcessor(Arc<TextBlockManager>);
+impl ViewDataProcessor for TextBlockViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
-        FutureResult::new(async move { block_manager.init() })
+        let manager = self.0.clone();
+        FutureResult::new(async move { manager.init() })
     }
 
-    fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+    fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError> {
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
         let view_id = view_id.to_string();
+        let manager = self.0.clone();
         FutureResult::new(async move {
-            let _ = block_manager.create_block(view_id, repeated_revision).await?;
+            let _ = manager.create_block(view_id, repeated_revision).await?;
             Ok(())
         })
     }
 
     fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = block_manager.delete_block(view_id)?;
+            let _ = manager.delete_block(view_id)?;
             Ok(())
         })
     }
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = block_manager.close_block(view_id)?;
+            let _ = manager.close_block(view_id)?;
             Ok(())
         })
     }
 
-    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError> {
+    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
-        let block_manager = self.0.clone();
+        let manager = self.0.clone();
         FutureResult::new(async move {
-            let editor = block_manager.open_block(view_id).await?;
-            let delta_str = editor.delta_str().await?;
-            Ok(delta_str)
+            let editor = manager.open_block(view_id).await?;
+            let delta_bytes = Bytes::from(editor.delta_str().await?);
+            Ok(delta_bytes)
         })
     }
 
-    fn default_view_data(&self, _view_id: &str) -> String {
-        initial_quill_delta_string()
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+        let user_id = user_id.to_string();
+        let view_id = view_id.to_string();
+        let manager = self.0.clone();
+        FutureResult::new(async move {
+            let view_data = initial_quill_delta_string();
+            let delta_data = Bytes::from(view_data);
+            let repeated_revision: RepeatedRevision =
+                Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
+            let _ = manager.create_block(view_id, repeated_revision).await?;
+            Ok(delta_data)
+        })
+    }
+
+    fn process_create_view_data(
+        &self,
+        _user_id: &str,
+        _view_id: &str,
+        data: Vec<u8>,
+    ) -> FutureResult<Bytes, FlowyError> {
+        FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
     fn data_type(&self) -> ViewDataType {
-        ViewDataType::Block
+        ViewDataType::TextBlock
     }
 }
 
-struct GridManagerViewDataImpl(Arc<GridManager>);
-impl ViewDataProcessor for GridManagerViewDataImpl {
+struct GridViewDataProcessor(Arc<GridManager>);
+impl ViewDataProcessor for GridViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_container(&self, view_id: &str, repeated_revision: RepeatedRevision) -> FutureResult<(), FlowyError> {
-        let grid_manager = self.0.clone();
+    fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError> {
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
         let view_id = view_id.to_string();
+        let grid_manager = self.0.clone();
         FutureResult::new(async move {
             let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
             Ok(())
@@ -216,18 +243,35 @@ impl ViewDataProcessor for GridManagerViewDataImpl {
         })
     }
 
-    fn delta_str(&self, view_id: &str) -> FutureResult<String, FlowyError> {
+    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
             let editor = grid_manager.open_grid(view_id).await?;
-            let delta_str = editor.delta_str().await;
-            Ok(delta_str)
+            let delta_bytes = editor.delta_bytes().await;
+            Ok(delta_bytes)
         })
     }
 
-    fn default_view_data(&self, view_id: &str) -> String {
-        make_default_grid(view_id, self.0.clone())
+    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+        let build_context = make_default_grid();
+        let user_id = user_id.to_string();
+        let view_id = view_id.to_string();
+        let grid_manager = self.0.clone();
+
+        FutureResult::new(async move { make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await })
+    }
+
+    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError> {
+        let user_id = user_id.to_string();
+        let view_id = view_id.to_string();
+        let grid_manager = self.0.clone();
+
+        FutureResult::new(async move {
+            let bytes = Bytes::from(data);
+            let build_context = BuildGridContext::try_from(bytes)?;
+            make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await
+        })
     }
 
     fn data_type(&self) -> ViewDataType {

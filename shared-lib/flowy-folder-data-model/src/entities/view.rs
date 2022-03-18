@@ -4,7 +4,7 @@ use crate::{
     impl_def_and_def_mut,
     parser::{
         app::AppIdentify,
-        view::{ViewDesc, ViewExtensionData, ViewIdentify, ViewName, ViewThumbnail},
+        view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -83,24 +83,24 @@ impl std::convert::From<View> for Trash {
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataType {
-    Block = 0,
+    TextBlock = 0,
     Grid = 1,
 }
 
 impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewDataType::Block
+        ViewDataType::TextBlock
     }
 }
 
 impl std::convert::From<i32> for ViewDataType {
     fn from(val: i32) -> Self {
         match val {
-            0 => ViewDataType::Block,
+            0 => ViewDataType::TextBlock,
             1 => ViewDataType::Grid,
             _ => {
                 log::error!("Invalid view type: {}", val);
-                ViewDataType::Block
+                ViewDataType::TextBlock
             }
         }
     }
@@ -124,10 +124,10 @@ pub struct CreateViewPayload {
     pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub ext_data: String,
+    pub plugin_type: i32,
 
     #[pb(index = 7)]
-    pub plugin_type: i32,
+    pub data: Vec<u8>,
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]
@@ -148,15 +148,12 @@ pub struct CreateViewParams {
     pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub ext_data: String,
-
-    #[pb(index = 7)]
     pub view_id: String,
 
-    #[pb(index = 8)]
-    pub data: String,
+    #[pb(index = 7)]
+    pub data: Vec<u8>,
 
-    #[pb(index = 9)]
+    #[pb(index = 8)]
     pub plugin_type: i32,
 }
 
@@ -167,12 +164,10 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
         let view_id = uuid::Uuid::new_v4().to_string();
-        let ext_data = ViewExtensionData::parse(self.ext_data)?.0;
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
         };
-        let data = "".to_string();
 
         Ok(CreateViewParams {
             belong_to_id,
@@ -180,9 +175,8 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
             desc: self.desc,
             data_type: self.data_type,
             thumbnail,
-            ext_data,
             view_id,
-            data,
+            data: self.data,
             plugin_type: self.plugin_type,
         })
     }

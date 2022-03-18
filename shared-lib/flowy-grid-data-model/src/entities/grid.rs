@@ -1,69 +1,18 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::{Deserialize, Serialize};
+use crate::entities::{FieldMeta, FieldType, RowMeta};
+use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
-use strum_macros::{Display, EnumIter, EnumString};
+use std::sync::Arc;
 
-pub trait GridIdentifiable {
-    fn id(&self) -> &str;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    #[serde(flatten)]
-    pub field_orders: RepeatedFieldOrder,
+    pub field_orders: Vec<FieldOrder>,
 
     #[pb(index = 3)]
-    #[serde(flatten)]
-    pub row_orders: RepeatedRowOrder,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
-pub struct FieldOrder {
-    #[pb(index = 1)]
-    pub field_id: String,
-
-    #[pb(index = 2)]
-    pub visibility: bool,
-}
-
-impl std::convert::From<&Field> for FieldOrder {
-    fn from(field: &Field) -> Self {
-        Self {
-            field_id: field.id.clone(),
-            visibility: true,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct RepeatedFieldOrder {
-    #[pb(index = 1)]
-    #[serde(rename(serialize = "field_orders", deserialize = "field_orders"))]
-    pub items: Vec<FieldOrder>,
-}
-
-impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
-    fn from(items: Vec<FieldOrder>) -> Self {
-        Self { items }
-    }
-}
-
-impl std::ops::Deref for RepeatedFieldOrder {
-    type Target = Vec<FieldOrder>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedFieldOrder {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
+    pub block_orders: Vec<GridBlockOrder>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -84,15 +33,37 @@ pub struct Field {
     pub frozen: bool,
 
     #[pb(index = 6)]
-    pub width: i32,
+    pub visibility: bool,
 
     #[pb(index = 7)]
-    pub type_options: AnyData,
+    pub width: i32,
 }
 
-impl GridIdentifiable for Field {
-    fn id(&self) -> &str {
-        &self.id
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldOrder {
+    #[pb(index = 1)]
+    pub field_id: String,
+}
+
+impl std::convert::From<&FieldMeta> for FieldOrder {
+    fn from(field_meta: &FieldMeta) -> Self {
+        Self {
+            field_id: field_meta.id.clone(),
+        }
+    }
+}
+
+impl std::convert::From<FieldMeta> for Field {
+    fn from(field_meta: FieldMeta) -> Self {
+        Self {
+            id: field_meta.id,
+            name: field_meta.name,
+            desc: field_meta.desc,
+            field_type: field_meta.field_type,
+            frozen: field_meta.frozen,
+            visibility: field_meta.visibility,
+            width: field_meta.width,
+        }
     }
 }
 
@@ -120,176 +91,48 @@ impl std::convert::From<Vec<Field>> for RepeatedField {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumString, EnumIter, Display, Serialize, Deserialize)]
-pub enum FieldType {
-    RichText = 0,
-    Number = 1,
-    DateTime = 2,
-    SingleSelect = 3,
-    MultiSelect = 4,
-    Checkbox = 5,
-}
-
-impl std::default::Default for FieldType {
-    fn default() -> Self {
-        FieldType::RichText
-    }
-}
-
-impl FieldType {
-    #[allow(dead_code)]
-    pub fn type_id(&self) -> String {
-        let ty = self.clone();
-        format!("{}", ty as u8)
-    }
-
-    pub fn from_type_id(type_id: &str) -> Result<FieldType, String> {
-        match type_id {
-            "0" => Ok(FieldType::RichText),
-            "1" => Ok(FieldType::Number),
-            "2" => Ok(FieldType::DateTime),
-            "3" => Ok(FieldType::SingleSelect),
-            "4" => Ok(FieldType::MultiSelect),
-            "5" => Ok(FieldType::Checkbox),
-            _ => Err(format!("Invalid type_id: {}", type_id)),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct AnyData {
+pub struct RepeatedFieldOrder {
     #[pb(index = 1)]
-    pub type_id: String,
-
-    #[pb(index = 2)]
-    pub value: Vec<u8>,
+    pub items: Vec<FieldOrder>,
 }
 
-impl AnyData {
-    pub fn from_str(field_type: &FieldType, s: &str) -> AnyData {
-        Self::from_bytes(field_type, s.as_bytes().to_vec())
-    }
-
-    pub fn from_bytes<T: AsRef<[u8]>>(field_type: &FieldType, bytes: T) -> AnyData {
-        AnyData {
-            type_id: field_type.type_id(),
-            value: bytes.as_ref().to_vec(),
-        }
+impl std::ops::Deref for RepeatedFieldOrder {
+    type Target = Vec<FieldOrder>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
     }
 }
 
-impl ToString for AnyData {
-    fn to_string(&self) -> String {
-        match String::from_utf8(self.value.clone()) {
-            Ok(s) => s,
-            Err(_) => "".to_owned(),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct RowOrder {
     #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
     pub row_id: String,
 
+    #[pb(index = 2)]
+    pub block_id: String,
+
     #[pb(index = 3)]
-    pub visibility: bool,
+    pub height: i32,
 }
 
-impl std::convert::From<&RawRow> for RowOrder {
-    fn from(row: &RawRow) -> Self {
+impl std::convert::From<&RowMeta> for RowOrder {
+    fn from(row: &RowMeta) -> Self {
         Self {
-            grid_id: row.grid_id.clone(),
             row_id: row.id.clone(),
-            visibility: true,
+            block_id: row.block_id.clone(),
+            height: row.height,
         }
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
-pub struct RepeatedRowOrder {
-    #[pb(index = 1)]
-    #[serde(rename(serialize = "row_orders", deserialize = "row_orders"))]
-    pub items: Vec<RowOrder>,
-}
-
-impl std::convert::From<Vec<RowOrder>> for RepeatedRowOrder {
-    fn from(items: Vec<RowOrder>) -> Self {
-        Self { items }
-    }
-}
-
-impl std::ops::Deref for RepeatedRowOrder {
-    type Target = Vec<RowOrder>;
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedRowOrder {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RawRow {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub grid_id: String,
-
-    #[pb(index = 3)]
-    pub cell_by_field_id: HashMap<String, RawCell>,
-}
-
-impl GridIdentifiable for RawRow {
-    fn id(&self) -> &str {
-        &self.id
-    }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RawCell {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub row_id: String,
-
-    #[pb(index = 3)]
-    pub field_id: String,
-
-    #[pb(index = 4)]
-    pub data: AnyData,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRow {
-    #[pb(index = 1)]
-    pub items: Vec<Row>,
-}
-
-impl std::ops::Deref for RepeatedRow {
-    type Target = Vec<Row>;
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedRow {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-impl std::convert::From<Vec<Row>> for RepeatedRow {
-    fn from(items: Vec<Row>) -> Self {
-        Self { items }
+impl std::convert::From<&Arc<RowMeta>> for RowOrder {
+    fn from(row: &Arc<RowMeta>) -> Self {
+        Self {
+            row_id: row.id.clone(),
+            block_id: row.block_id.clone(),
+            height: row.height,
+        }
     }
 }
 
@@ -300,13 +143,55 @@ pub struct Row {
 
     #[pb(index = 2)]
     pub cell_by_field_id: HashMap<String, Cell>,
+
+    #[pb(index = 3)]
+    pub height: i32,
 }
 
-impl Row {
-    pub fn new(row_id: &str) -> Self {
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedRow {
+    #[pb(index = 1)]
+    pub items: Vec<Row>,
+}
+
+impl std::convert::From<Vec<Row>> for RepeatedRow {
+    fn from(items: Vec<Row>) -> Self {
+        Self { items }
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedGridBlock {
+    #[pb(index = 1)]
+    pub items: Vec<GridBlock>,
+}
+
+impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
+    fn from(items: Vec<GridBlock>) -> Self {
+        Self { items }
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct GridBlockOrder {
+    #[pb(index = 1)]
+    pub block_id: String,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GridBlock {
+    #[pb(index = 1)]
+    pub block_id: String,
+
+    #[pb(index = 2)]
+    pub row_orders: Vec<RowOrder>,
+}
+
+impl GridBlock {
+    pub fn new(block_id: &str, row_orders: Vec<RowOrder>) -> Self {
         Self {
-            id: row_id.to_owned(),
-            cell_by_field_id: HashMap::new(),
+            block_id: block_id.to_owned(),
+            row_orders,
         }
     }
 }
@@ -314,28 +199,44 @@ impl Row {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct Cell {
     #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
     pub field_id: String,
 
-    #[pb(index = 3)]
+    #[pb(index = 2)]
     pub content: String,
 }
 
+impl Cell {
+    pub fn new(field_id: &str, content: String) -> Self {
+        Self {
+            field_id: field_id.to_owned(),
+            content,
+        }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
-pub struct CellChangeset {
+pub struct RepeatedCell {
     #[pb(index = 1)]
-    pub id: String,
+    pub items: Vec<Cell>,
+}
 
-    #[pb(index = 2)]
-    pub row_id: String,
+impl std::ops::Deref for RepeatedCell {
+    type Target = Vec<Cell>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
 
-    #[pb(index = 3)]
-    pub field_id: String,
+impl std::ops::DerefMut for RepeatedCell {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
+}
 
-    #[pb(index = 4)]
-    pub data: String,
+impl std::convert::From<Vec<Cell>> for RepeatedCell {
+    fn from(items: Vec<Cell>) -> Self {
+        Self { items }
+    }
 }
 
 #[derive(ProtoBuf, Default)]
@@ -356,6 +257,27 @@ impl AsRef<str> for GridId {
     }
 }
 
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GridBlockId {
+    #[pb(index = 1)]
+    pub value: String,
+}
+
+impl AsRef<str> for GridBlockId {
+    fn as_ref(&self) -> &str {
+        &self.value
+    }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateRowPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub start_row_id: Option<String>,
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct QueryFieldPayload {
     #[pb(index = 1)]
@@ -366,10 +288,22 @@ pub struct QueryFieldPayload {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct QueryGridBlocksPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub block_orders: Vec<GridBlockOrder>,
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct QueryRowPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub row_orders: RepeatedRowOrder,
+    pub block_id: String,
+
+    #[pb(index = 3)]
+    pub row_id: String,
 }

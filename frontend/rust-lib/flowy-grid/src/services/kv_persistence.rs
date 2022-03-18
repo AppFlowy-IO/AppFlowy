@@ -6,8 +6,6 @@ use flowy_database::{
     schema::{kv_table, kv_table::dsl},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::GridIdentifiable;
-
 use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
 
@@ -135,33 +133,11 @@ impl<'a> KVTransaction for SqliteTransaction<'a> {
     }
 }
 
-impl<T: TryInto<Bytes, Error = ::protobuf::ProtobufError> + GridIdentifiable> std::convert::From<T> for KeyValue {
-    fn from(value: T) -> Self {
-        let key = value.id().to_string();
-        let bytes: Bytes = value.try_into().unwrap();
-        let value = bytes.to_vec();
-        KeyValue { key, value }
-    }
-}
-
-//
-// impl std::convert::TryInto<RawRow> for KeyValue {
-
-//     type Error = FlowyError;
-//
-//     fn try_into(self) -> Result<RawRow, Self::Error> {
-//         let bytes = Bytes::from(self.value);
-//         RawRow::try_from(bytes)
-//             .map_err(|e| FlowyError::internal().context(format!("Deserialize into raw row failed: {:?}", e)))
-//     }
-// }
-//
-// impl std::convert::TryInto<Field> for KeyValue {
-//     type Error = FlowyError;
-//
-//     fn try_into(self) -> Result<Field, Self::Error> {
-//         let bytes = Bytes::from(self.value);
-//         Field::try_from(bytes)
-//             .map_err(|e| FlowyError::internal().context(format!("Deserialize into field failed: {:?}", e)))
+// impl<T: TryInto<Bytes, Error = ::protobuf::ProtobufError> + GridIdentifiable> std::convert::From<T> for KeyValue {
+//     fn from(value: T) -> Self {
+//         let key = value.id().to_string();
+//         let bytes: Bytes = value.try_into().unwrap();
+//         let value = bytes.to_vec();
+//         KeyValue { key, value }
 //     }
 // }

@@ -1,30 +1,30 @@
 import 'dart:async';
-
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
+import 'grid_block_service.dart';
+import 'grid_listenr.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final GridService service;
   final View view;
-  Grid? _grid;
-  List<Field>? _fields;
+  final GridService service;
+  late GridListener _gridListener;
+  late GridBlockService _blockService;
 
   GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
+    _gridListener = GridListener();
+
     on<GridEvent>(
       (event, emit) async {
         await event.map(
-          initial: (Initial value) async {
+          initial: (InitialGrid value) async {
             await _loadGrid(emit);
-            await _loadFields(emit);
-            await _loadGridInfo(emit);
           },
           createRow: (_CreateRow value) {
             service.createRow(gridId: view.id);
@@ -32,6 +32,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           delete: (_Delete value) {},
           rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
+          didLoadRows: (_DidLoadRows value) {
+            emit(state.copyWith(rows: value.rows));
+          },
         );
       },
     );
@@ -39,72 +42,90 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
+    await _gridListener.stop();
+    await _blockService.stop();
     return super.close();
+  }
+
+  Future<void> _startGridListening() async {
+    _blockService.didLoadRowscallback = (rows) {
+      add(GridEvent.didLoadRows(rows));
+    };
+
+    _gridListener.start();
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await service.openGrid(gridId: view.id);
-    result.fold(
-      (grid) {
-        _grid = grid;
-      },
-      (err) {
-        emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
-      },
+
+    return Future(
+      () => result.fold(
+        (grid) async => await _loadFields(grid, emit),
+        (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+      ),
     );
   }
 
-  Future<void> _loadFields(Emitter<GridState> emit) async {
-    if (_grid != null) {
-      final result = await service.getFields(gridId: _grid!.id, fieldOrders: _grid!.fieldOrders);
-      result.fold(
-        (fields) {
-          _fields = fields.items;
-        },
-        (err) {
-          emit(state.copyWith(loadingState: GridLoadingState.finish(right(err))));
-        },
-      );
-    }
+  Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
+    final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
+    return Future(
+      () => result.fold(
+        (fields) => _loadGridBlocks(grid, fields.items, emit),
+        (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
+      ),
+    );
   }
 
-  Future<void> _loadGridInfo(Emitter<GridState> emit) async {
-    if (_grid != null && _fields != null) {
-      final result = await service.getRows(gridId: _grid!.id, rowOrders: _grid!.rowOrders);
-      result.fold((repeatedRow) {
-        final rows = repeatedRow.items;
-        final gridInfo = GridInfo(rows: rows, fields: _fields!);
-        emit(
-          state.copyWith(loadingState: GridLoadingState.finish(left(unit)), gridInfo: some(left(gridInfo))),
+  Future<void> _loadGridBlocks(Grid grid, List<Field> fields, Emitter<GridState> emit) async {
+    final result = await service.getGridBlocks(gridId: grid.id, blockOrders: grid.blockOrders);
+    result.fold(
+      (repeatedGridBlock) {
+        final gridBlocks = repeatedGridBlock.items;
+        final gridId = view.id;
+        _blockService = GridBlockService(
+          gridId: gridId,
+          fields: fields,
+          gridBlocks: gridBlocks,
         );
-      }, (err) {
-        emit(
-          state.copyWith(loadingState: GridLoadingState.finish(right(err)), gridInfo: none()),
-        );
-      });
-    }
+        final rows = _blockService.rows();
+
+        _startGridListening();
+        emit(state.copyWith(
+          grid: Some(grid),
+          fields: Some(fields),
+          rows: rows,
+          loadingState: GridLoadingState.finish(left(unit)),
+        ));
+      },
+      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)), rows: [])),
+    );
   }
 }
 
 @freezed
 abstract class GridEvent with _$GridEvent {
-  const factory GridEvent.initial() = Initial;
+  const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.rename(String gridId, String name) = _Rename;
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.didLoadRows(List<GridRowData> rows) = _DidLoadRows;
 }
 
 @freezed
 abstract class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
-    required Option<Either<GridInfo, FlowyError>> gridInfo,
+    required Option<List<Field>> fields,
+    required List<GridRowData> rows,
+    required Option<Grid> grid,
   }) = _GridState;
 
   factory GridState.initial() => GridState(
         loadingState: const _Loading(),
-        gridInfo: none(),
+        fields: none(),
+        rows: [],
+        grid: none(),
       );
 }
 
@@ -112,35 +133,4 @@ abstract class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
-}
-
-class GridInfo {
-  List<Row> rows;
-  List<Field> fields;
-
-  GridInfo({
-    required this.rows,
-    required this.fields,
-  });
-
-  RowInfo rowInfoAtIndex(int index) {
-    final row = rows[index];
-    return RowInfo(
-      fields: fields,
-      cellMap: row.cellByFieldId,
-    );
-  }
-
-  int numberOfRows() {
-    return rows.length;
-  }
-}
-
-class RowInfo {
-  List<Field> fields;
-  Map<String, Cell> cellMap;
-  RowInfo({
-    required this.fields,
-    required this.cellMap,
-  });
 }

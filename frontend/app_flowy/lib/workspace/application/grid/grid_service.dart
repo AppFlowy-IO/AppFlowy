@@ -3,6 +3,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 
 class GridService {
   Future<Either<Grid, FlowyError>> openGrid({required String gridId}) async {
@@ -12,22 +13,43 @@ class GridService {
     return GridEventGetGridData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> createRow({required String gridId}) {
-    return GridEventCreateRow(GridId(value: gridId)).send();
+  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? upperRowId}) {
+    CreateRowPayload payload = CreateRowPayload.create()..gridId = gridId;
+    upperRowId?.fold(() => null, (id) => payload.startRowId = id);
+    return GridEventCreateRow(payload).send();
   }
 
-  Future<Either<RepeatedRow, FlowyError>> getRows({required String gridId, required RepeatedRowOrder rowOrders}) {
-    final payload = QueryRowPayload.create()
+  Future<Either<RepeatedGridBlock, FlowyError>> getGridBlocks(
+      {required String gridId, required List<GridBlockOrder> blockOrders}) {
+    final payload = QueryGridBlocksPayload.create()
       ..gridId = gridId
-      ..rowOrders = rowOrders;
-    return GridEventGetRows(payload).send();
+      ..blockOrders.addAll(blockOrders);
+    return GridEventGetGridBlocks(payload).send();
   }
 
-  Future<Either<RepeatedField, FlowyError>> getFields(
-      {required String gridId, required RepeatedFieldOrder fieldOrders}) {
+  Future<Either<RepeatedField, FlowyError>> getFields({required String gridId, required List<FieldOrder> fieldOrders}) {
     final payload = QueryFieldPayload.create()
       ..gridId = gridId
-      ..fieldOrders = fieldOrders;
+      ..fieldOrders = RepeatedFieldOrder(items: fieldOrders);
     return GridEventGetFields(payload).send();
   }
+}
+
+class GridRowData extends Equatable {
+  final String gridId;
+  final String rowId;
+  final String blockId;
+  final List<Field> fields;
+  final double height;
+
+  const GridRowData({
+    required this.gridId,
+    required this.rowId,
+    required this.blockId,
+    required this.fields,
+    required this.height,
+  });
+
+  @override
+  List<Object> get props => [rowId];
 }

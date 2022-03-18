@@ -83,6 +83,16 @@ pub enum ErrorCode {
     UserIdInvalid = 311,
     #[display(fmt = "User not exist")]
     UserNotExist = 312,
+    #[display(fmt = "Text is too long")]
+    TextTooLong = 400,
+    #[display(fmt = "Grid block id is empty")]
+    BlockIdIsEmpty = 401,
+    #[display(fmt = "Row id is empty")]
+    RowIdIsEmpty = 402,
+    #[display(fmt = "Grid id is empty")]
+    GridIdIsEmpty = 403,
+    #[display(fmt = "Invalid data")]
+    InvalidData = 404,
 }
 
 impl ErrorCode {

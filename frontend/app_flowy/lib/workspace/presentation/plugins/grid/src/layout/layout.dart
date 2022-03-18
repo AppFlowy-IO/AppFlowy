@@ -8,6 +8,6 @@ class GridLayout {
 
     final fieldsWidth = fields.map((field) => field.width.toDouble()).reduce((value, element) => value + element);
 
-    return fieldsWidth + GridSize.firstHeaderPadding;
+    return fieldsWidth + GridSize.leadingHeaderPadding + GridSize.trailHeaderPadding;
   }
 }
