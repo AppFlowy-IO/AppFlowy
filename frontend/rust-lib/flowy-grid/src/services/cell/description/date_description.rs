@@ -232,6 +232,7 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn date_description_invalid_data_test() {
         let description = DateDescription::default();
         description.serialize_cell_data("he").unwrap();

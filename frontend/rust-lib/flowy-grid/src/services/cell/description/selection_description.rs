@@ -116,6 +116,7 @@ mod tests {
     use crate::services::row::CellDataSerde;
 
     #[test]
+    #[should_panic]
     fn selection_description_test() {
         let description = SingleSelectDescription::default();
         assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
