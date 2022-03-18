@@ -1,7 +1,7 @@
 use crate::services::row::deserialize_cell_data;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    Cell, CellMeta, FieldMeta, GridBlock, RepeatedGridBlock, RepeatedRowOrder, Row, RowMeta, RowOrder,
+    Cell, CellMeta, FieldMeta, GridBlock, RepeatedGridBlock, Row, RowMeta, RowOrder,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::collections::HashMap;
@@ -32,8 +32,8 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
     row_orders.iter().for_each(|row_order| {
         let block_id = &row_order.block_id;
         let row_id = row_order.row_id.clone();
-        map.entry(&block_id)
-            .or_insert_with(|| RowIdsPerBlock::new(&block_id))
+        map.entry(block_id)
+            .or_insert_with(|| RowIdsPerBlock::new(block_id))
             .row_ids
             .push(row_id);
     });
@@ -44,10 +44,10 @@ pub(crate) fn make_grid_blocks(block_meta_snapshots: Vec<GridBlockMetaData>) -> 
     Ok(block_meta_snapshots
         .into_iter()
         .map(|row_metas_per_block| {
-            let row_ids = make_row_ids_from_row_metas(&row_metas_per_block.row_metas);
+            let row_orders = make_row_orders_from_row_metas(&row_metas_per_block.row_metas);
             GridBlock {
                 block_id: row_metas_per_block.block_id,
-                row_ids,
+                row_orders,
             }
         })
         .collect::<Vec<GridBlock>>()
@@ -73,11 +73,11 @@ pub fn make_cell(
     }
 }
 
-pub(crate) fn make_row_ids_from_row_metas(row_metas: &Vec<Arc<RowMeta>>) -> Vec<String> {
-    row_metas.iter().map(|row_meta| row_meta.id.clone()).collect::<Vec<_>>()
+pub(crate) fn make_row_orders_from_row_metas(row_metas: &[Arc<RowMeta>]) -> Vec<RowOrder> {
+    row_metas.iter().map(RowOrder::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &Vec<Arc<RowMeta>>) -> Vec<Row> {
+pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<RowMeta>]) -> Vec<Row> {
     let field_meta_map = fields
         .iter()
         .map(|field_meta| (&field_meta.id, field_meta))
@@ -98,7 +98,7 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &Vec<Arc
         }
     };
 
-    row_metas.into_iter().map(make_row).collect::<Vec<_>>()
+    row_metas.iter().map(make_row).collect::<Vec<_>>()
 }
 
 pub(crate) fn make_grid_block_from_block_metas(
@@ -115,8 +115,8 @@ pub(crate) fn make_grid_block_from_block_metas(
         match block_meta_data_map.get(&block_id) {
             None => {}
             Some(row_metas) => {
-                let row_ids = make_row_ids_from_row_metas(row_metas);
-                grid_blocks.push(GridBlock::new(block_id, row_ids));
+                let row_orders = make_row_orders_from_row_metas(row_metas);
+                grid_blocks.push(GridBlock::new(block_id, row_orders));
             }
         }
     }

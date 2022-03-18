@@ -6,16 +6,15 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    Cell, CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset,
-    GridBlockOrder, RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, RepeatedRowOrder, Row, RowMeta,
-    RowMetaChangeset,
+    CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder,
+    RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, Row, RowMeta, RowMetaChangeset, RowOrder,
 };
 use std::collections::HashMap;
 
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::services::row::{
-    make_grid_block_from_block_metas, make_grid_blocks, make_row_ids_per_block, make_rows_from_row_metas,
-    row_meta_from_context, serialize_cell_data, GridBlockMetaData, RowMetaContext, RowMetaContextBuilder,
+    make_grid_block_from_block_metas, make_grid_blocks, make_row_meta_from_context, make_rows_from_row_metas,
+    serialize_cell_data, CreateRowMetaBuilder, CreateRowMetaPayload, GridBlockMetaData,
 };
 use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
@@ -85,13 +84,14 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<()> {
+    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowOrder> {
         let field_metas = self.pad.read().await.get_field_metas(None)?;
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
-        let row_meta_ctx = RowMetaContextBuilder::new(&field_metas).build();
-        let row_meta = row_meta_from_context(&block_id, row_meta_ctx);
+        let row_meta_ctx = CreateRowMetaBuilder::new(&field_metas).build();
+        let row_meta = make_row_meta_from_context(&block_id, row_meta_ctx);
+        let row_order = RowOrder::from(&row_meta);
 
         // insert the row
         let row_count = self
@@ -102,14 +102,16 @@ impl ClientGridEditor {
         // update block row count
         let changeset = GridBlockMetaChangeset::from_row_count(&block_id, row_count);
         let _ = self.update_block(changeset).await?;
-        Ok(())
+        Ok(row_order)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<RowMetaContext>) -> FlowyResult<()> {
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowMetaPayload>) -> FlowyResult<Vec<RowOrder>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowMeta>> = HashMap::new();
+        let mut row_orders = vec![];
         for ctx in contexts {
-            let row_meta = row_meta_from_context(&block_id, ctx);
+            let row_meta = make_row_meta_from_context(&block_id, ctx);
+            row_orders.push(RowOrder::from(&row_meta));
             rows_by_block_id
                 .entry(block_id.clone())
                 .or_insert_with(Vec::new)
@@ -119,7 +121,7 @@ impl ClientGridEditor {
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
         }
-        Ok(())
+        Ok(row_orders)
     }
 
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
@@ -188,8 +190,8 @@ impl ClientGridEditor {
         Ok(grid_blocks)
     }
 
-    pub async fn delete_rows(&self, row_ids: Vec<String>) -> FlowyResult<()> {
-        let changesets = self.block_meta_manager.delete_rows(row_ids).await?;
+    pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
+        let changesets = self.block_meta_manager.delete_rows(row_orders).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
         }

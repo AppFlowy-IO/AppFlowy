@@ -1,4 +1,5 @@
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -61,19 +62,28 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     final result = await rowService.getRow();
     result.fold(
       (row) {
-        final cellDatas = rowService.rowData.fields.map((field) {
-          final cell = row.cellByFieldId[field.id];
-          return GridCellData(
-            rowId: row.id,
-            gridId: rowService.rowData.gridId,
-            cell: cell,
-            field: field,
-          );
-        }).toList();
-        emit(state.copyWith(cellDatas: cellDatas, rowHeight: row.height.toDouble()));
+        emit(state.copyWith(
+          cellDatas: makeGridCellDatas(row),
+          rowHeight: row.height.toDouble(),
+        ));
       },
       (e) => Log.error(e),
     );
+  }
+
+  List<GridCellData> makeGridCellDatas(Row row) {
+    return rowService.rowData.fields.map((field) {
+      final cell = row.cellByFieldId[field.id];
+      final rowData = rowService.rowData;
+
+      return GridCellData(
+        rowId: row.id,
+        gridId: rowData.gridId,
+        blockId: rowData.blockId,
+        cell: cell,
+        field: field,
+      );
+    }).toList();
   }
 }
 
@@ -97,7 +107,7 @@ abstract class RowState with _$RowState {
   factory RowState.initial(GridRowData data) => RowState(
         rowId: data.rowId,
         active: false,
-        rowHeight: 0,
+        rowHeight: data.height,
         cellDatas: [],
       );
 }

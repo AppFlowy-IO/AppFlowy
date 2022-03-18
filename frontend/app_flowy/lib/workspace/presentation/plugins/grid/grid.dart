@@ -28,7 +28,7 @@ class GridPluginBuilder implements PluginBuilder {
 
 class GridPluginConfig implements PluginConfig {
   @override
-  bool get creatable => true;
+  bool get creatable => false;
 }
 
 class GridPlugin extends Plugin {

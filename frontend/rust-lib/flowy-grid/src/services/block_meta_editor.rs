@@ -9,8 +9,7 @@ use flowy_collaboration::entities::revision::Revision;
 use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    FieldMeta, GridBlockId, GridBlockMeta, GridBlockMetaChangeset, RepeatedCell, RepeatedRowOrder, RowMeta,
-    RowMetaChangeset, RowOrder,
+    FieldMeta, GridBlockId, GridBlockMeta, GridBlockMetaChangeset, RepeatedCell, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_sync::{
@@ -92,16 +91,7 @@ impl GridBlockMetaEditorManager {
         Ok(changesets)
     }
 
-    pub(crate) async fn delete_rows(&self, row_ids: Vec<String>) -> FlowyResult<Vec<GridBlockMetaChangeset>> {
-        let row_orders = row_ids
-            .into_iter()
-            .flat_map(|row_id| {
-                self.block_id_by_row_id.get(&row_id).map(|block_id| RowOrder {
-                    row_id,
-                    block_id: block_id.clone(),
-                })
-            })
-            .collect::<Vec<RowOrder>>();
+    pub(crate) async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<Vec<GridBlockMetaChangeset>> {
         let mut changesets = vec![];
         let row_ids_per_blocks = make_row_ids_per_block(&row_orders);
         for row_ids_per_block in row_ids_per_blocks {
@@ -163,7 +153,7 @@ impl GridBlockMetaEditorManager {
     pub(crate) async fn get_block_meta_data(&self, block_ids: &[String]) -> FlowyResult<Vec<GridBlockMetaData>> {
         let mut snapshots = vec![];
         for block_id in block_ids {
-            let editor = self.get_editor(&block_id).await?;
+            let editor = self.get_editor(block_id).await?;
             let row_metas = editor.get_row_metas(None).await?;
             row_metas.iter().for_each(|row_meta| {
                 self.block_id_by_row_id
@@ -175,16 +165,6 @@ impl GridBlockMetaEditorManager {
             });
         }
         Ok(snapshots)
-    }
-
-    pub(crate) async fn get_row_orders(&self, grid_block_ids: Vec<String>) -> FlowyResult<Vec<RowOrder>> {
-        let mut row_orders = vec![];
-        for grid_block_id in grid_block_ids {
-            let editor = self.get_editor(&grid_block_id).await?;
-            let new_row_order = editor.get_row_orders().await?;
-            row_orders.extend(new_row_order);
-        }
-        Ok(row_orders)
     }
 
     async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
@@ -328,12 +308,12 @@ impl ClientGridBlockMetaEditor {
         Ok(row_metas)
     }
 
-    pub async fn get_row_orders(&self) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn get_row_orders(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<RowOrder>> {
         let row_orders = self
             .pad
             .read()
             .await
-            .get_rows(None)?
+            .get_rows(row_ids)?
             .iter()
             .map(RowOrder::from)
             .collect::<Vec<RowOrder>>();

@@ -1,8 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use crate::entities::GridBlockOrder;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;

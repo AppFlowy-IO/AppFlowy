@@ -72,21 +72,12 @@ const RowOrder$json = const {
   '2': const [
     const {'1': 'row_id', '3': 1, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'block_id', '3': 2, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'height', '3': 3, '4': 1, '5': 5, '10': 'height'},
   ],
 };
 
 /// Descriptor for `RowOrder`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rowOrderDescriptor = $convert.base64Decode('CghSb3dPcmRlchIVCgZyb3dfaWQYASABKAlSBXJvd0lkEhkKCGJsb2NrX2lkGAIgASgJUgdibG9ja0lk');
-@$core.Deprecated('Use repeatedRowOrderDescriptor instead')
-const RepeatedRowOrder$json = const {
-  '1': 'RepeatedRowOrder',
-  '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.RowOrder', '10': 'items'},
-  ],
-};
-
-/// Descriptor for `RepeatedRowOrder`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List repeatedRowOrderDescriptor = $convert.base64Decode('ChBSZXBlYXRlZFJvd09yZGVyEh8KBWl0ZW1zGAEgAygLMgkuUm93T3JkZXJSBWl0ZW1z');
+final $typed_data.Uint8List rowOrderDescriptor = $convert.base64Decode('CghSb3dPcmRlchIVCgZyb3dfaWQYASABKAlSBXJvd0lkEhkKCGJsb2NrX2lkGAIgASgJUgdibG9ja0lkEhYKBmhlaWdodBgDIAEoBVIGaGVpZ2h0');
 @$core.Deprecated('Use rowDescriptor instead')
 const Row$json = const {
   '1': 'Row',
@@ -145,12 +136,12 @@ const GridBlock$json = const {
   '1': 'GridBlock',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
-    const {'1': 'row_ids', '3': 2, '4': 3, '5': 9, '10': 'rowIds'},
+    const {'1': 'row_orders', '3': 2, '4': 3, '5': 11, '6': '.RowOrder', '10': 'rowOrders'},
   ],
 };
 
 /// Descriptor for `GridBlock`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSFwoHcm93X2lkcxgCIAMoCVIGcm93SWRz');
+final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSKAoKcm93X29yZGVycxgCIAMoCzIJLlJvd09yZGVyUglyb3dPcmRlcnM=');
 @$core.Deprecated('Use cellDescriptor instead')
 const Cell$json = const {
   '1': 'Cell',

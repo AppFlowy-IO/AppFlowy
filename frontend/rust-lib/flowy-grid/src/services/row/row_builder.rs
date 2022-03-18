@@ -3,26 +3,29 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
 use std::collections::HashMap;
 
-pub struct RowMetaContextBuilder<'a> {
+pub struct CreateRowMetaBuilder<'a> {
     field_meta_map: HashMap<&'a String, &'a FieldMeta>,
-    ctx: RowMetaContext,
+    payload: CreateRowMetaPayload,
 }
 
-impl<'a> RowMetaContextBuilder<'a> {
+impl<'a> CreateRowMetaBuilder<'a> {
     pub fn new(fields: &'a [FieldMeta]) -> Self {
         let field_meta_map = fields
             .iter()
             .map(|field| (&field.id, field))
             .collect::<HashMap<&String, &FieldMeta>>();
 
-        let ctx = RowMetaContext {
+        let payload = CreateRowMetaPayload {
             row_id: uuid::Uuid::new_v4().to_string(),
             cell_by_field_id: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
             visibility: true,
         };
 
-        Self { field_meta_map, ctx }
+        Self {
+            field_meta_map,
+            payload,
+        }
     }
 
     pub fn add_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
@@ -34,7 +37,7 @@ impl<'a> RowMetaContextBuilder<'a> {
             Some(field_meta) => {
                 let data = serialize_cell_data(&data, field_meta)?;
                 let cell = CellMeta::new(field_id, data);
-                self.ctx.cell_by_field_id.insert(field_id.to_owned(), cell);
+                self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
             }
         }
@@ -42,32 +45,32 @@ impl<'a> RowMetaContextBuilder<'a> {
 
     #[allow(dead_code)]
     pub fn height(mut self, height: i32) -> Self {
-        self.ctx.height = height;
+        self.payload.height = height;
         self
     }
 
     #[allow(dead_code)]
     pub fn visibility(mut self, visibility: bool) -> Self {
-        self.ctx.visibility = visibility;
+        self.payload.visibility = visibility;
         self
     }
 
-    pub fn build(self) -> RowMetaContext {
-        self.ctx
+    pub fn build(self) -> CreateRowMetaPayload {
+        self.payload
     }
 }
 
-pub fn row_meta_from_context(block_id: &str, ctx: RowMetaContext) -> RowMeta {
+pub fn make_row_meta_from_context(block_id: &str, payload: CreateRowMetaPayload) -> RowMeta {
     RowMeta {
-        id: ctx.row_id,
+        id: payload.row_id,
         block_id: block_id.to_owned(),
-        cell_by_field_id: ctx.cell_by_field_id,
-        height: ctx.height,
-        visibility: ctx.visibility,
+        cell_by_field_id: payload.cell_by_field_id,
+        height: payload.height,
+        visibility: payload.visibility,
     }
 }
 
-pub struct RowMetaContext {
+pub struct CreateRowMetaPayload {
     pub row_id: String,
     pub cell_by_field_id: HashMap<String, CellMeta>,
     pub height: i32,

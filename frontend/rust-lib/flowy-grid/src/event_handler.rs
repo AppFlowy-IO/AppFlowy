@@ -2,7 +2,7 @@ use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, CreateRowPayload, Field, Grid, GridId, QueryFieldPayload, QueryGridBlocksPayload,
-    QueryRowPayload, RepeatedField, RepeatedGridBlock, RepeatedRow, Row,
+    QueryRowPayload, RepeatedField, RepeatedGridBlock, Row,
 };
 use flowy_grid_data_model::parser::{CreateRowParams, QueryFieldParams, QueryGridBlocksParams, QueryRowParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};

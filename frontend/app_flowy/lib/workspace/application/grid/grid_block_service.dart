@@ -37,13 +37,14 @@ class GridBlockService {
 
   List<GridRowData> rows() {
     List<GridRowData> rows = [];
-    blockMap.forEach((_, gridBlock) {
-      rows.addAll(gridBlock.rowIds.map(
-        (rowId) => GridRowData(
+    blockMap.forEach((_, GridBlock gridBlock) {
+      rows.addAll(gridBlock.rowOrders.map(
+        (rowOrder) => GridRowData(
           gridId: gridId,
           fields: fields,
           blockId: gridBlock.blockId,
-          rowId: rowId,
+          rowId: rowOrder.rowId,
+          height: rowOrder.height.toDouble(),
         ),
       ));
     });

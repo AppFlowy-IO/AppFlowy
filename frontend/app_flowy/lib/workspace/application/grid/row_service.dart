@@ -31,12 +31,14 @@ class RowService {
 class GridCellData {
   final String gridId;
   final String rowId;
+  final String blockId;
   final Field field;
   final Cell? cell;
 
   GridCellData({
     required this.rowId,
     required this.gridId,
+    required this.blockId,
     required this.field,
     required this.cell,
   });

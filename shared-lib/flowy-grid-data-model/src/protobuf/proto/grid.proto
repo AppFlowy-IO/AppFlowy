@@ -27,9 +27,7 @@ message RepeatedFieldOrder {
 message RowOrder {
     string row_id = 1;
     string block_id = 2;
-}
-message RepeatedRowOrder {
-    repeated RowOrder items = 1;
+    int32 height = 3;
 }
 message Row {
     string id = 1;
@@ -47,7 +45,7 @@ message GridBlockOrder {
 }
 message GridBlock {
     string block_id = 1;
-    repeated string row_ids = 2;
+    repeated RowOrder row_orders = 2;
 }
 message Cell {
     string field_id = 1;

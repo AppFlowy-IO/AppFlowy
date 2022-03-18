@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/widgets.dart';

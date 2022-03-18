@@ -1,13 +1,14 @@
 use bytes::Bytes;
 use flowy_collaboration::client_grid::GridBuilder;
+use std::collections::HashMap;
 
 use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
-use flowy_grid::services::row::RowMetaContext;
+use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
     BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlockMeta, GridBlockMetaChangeset,
-    RowMeta, RowMetaChangeset,
+    RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
@@ -50,7 +51,7 @@ pub enum EditorScript {
     },
     CreateEmptyRow,
     CreateRow {
-        context: RowMetaContext,
+        context: CreateRowMetaPayload,
     },
     UpdateRow {
         changeset: RowMetaChangeset,
@@ -78,6 +79,8 @@ pub struct GridEditorTest {
     pub grid_blocks: Vec<GridBlockMeta>,
     pub row_metas: Vec<Arc<RowMeta>>,
     pub field_count: usize,
+
+    pub row_order_by_row_id: HashMap<String, RowOrder>,
 }
 
 impl GridEditorTest {
@@ -101,6 +104,7 @@ impl GridEditorTest {
             grid_blocks,
             row_metas,
             field_count: FieldType::COUNT,
+            row_order_by_row_id: HashMap::default(),
         }
     }
 
@@ -172,18 +176,27 @@ impl GridEditorTest {
                 assert_eq!(compared_block, block);
             }
             EditorScript::CreateEmptyRow => {
-                self.editor.create_row(None).await.unwrap();
+                let row_order = self.editor.create_row(None).await.unwrap();
+                self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
                 self.row_metas = self.get_row_metas().await;
                 self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::CreateRow { context } => {
-                self.editor.insert_rows(vec![context]).await.unwrap();
+                let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
+                for row_order in row_orders {
+                    self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
+                }
                 self.row_metas = self.get_row_metas().await;
                 self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }
             EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             EditorScript::DeleteRow { row_ids } => {
-                self.editor.delete_rows(row_ids).await.unwrap();
+                let row_orders = row_ids
+                    .into_iter()
+                    .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
+                    .collect::<Vec<RowOrder>>();
+
+                self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_metas = self.get_row_metas().await;
                 self.grid_blocks = self.editor.get_block_metas().await.unwrap();
             }

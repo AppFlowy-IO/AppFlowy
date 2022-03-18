@@ -40,11 +40,14 @@ class GridRowData extends Equatable {
   final String rowId;
   final String blockId;
   final List<Field> fields;
+  final double height;
+
   const GridRowData({
     required this.gridId,
     required this.rowId,
     required this.blockId,
     required this.fields,
+    required this.height,
   });
 
   @override

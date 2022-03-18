@@ -36,16 +36,21 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           cursor: SystemMouseCursors.click,
           onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
           onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
-          child: SizedBox(
-            height: _rowBloc.state.rowHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const LeadingRow(),
-                _buildCells(),
-                const TrailingRow(),
-              ],
-            ),
+          child: BlocBuilder<RowBloc, RowState>(
+            buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+            builder: (context, state) {
+              return SizedBox(
+                height: _rowBloc.state.rowHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const LeadingRow(),
+                    _buildCells(),
+                    const TrailingRow(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),

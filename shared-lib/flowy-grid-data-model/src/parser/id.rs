@@ -1,5 +1,3 @@
-use flowy_error_code::ErrorCode;
-
 #[derive(Debug)]
 pub struct NonEmptyId(pub String);
 

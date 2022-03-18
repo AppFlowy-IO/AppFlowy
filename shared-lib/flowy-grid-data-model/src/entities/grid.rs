@@ -1,9 +1,6 @@
 use crate::entities::{FieldMeta, FieldType, RowMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
-
-use crate::parser::NonEmptyId;
-use flowy_error_code::ErrorCode;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -114,6 +111,9 @@ pub struct RowOrder {
 
     #[pb(index = 2)]
     pub block_id: String,
+
+    #[pb(index = 3)]
+    pub height: i32,
 }
 
 impl std::convert::From<&RowMeta> for RowOrder {
@@ -121,6 +121,7 @@ impl std::convert::From<&RowMeta> for RowOrder {
         Self {
             row_id: row.id.clone(),
             block_id: row.block_id.clone(),
+            height: row.height,
         }
     }
 }
@@ -130,32 +131,8 @@ impl std::convert::From<&Arc<RowMeta>> for RowOrder {
         Self {
             row_id: row.id.clone(),
             block_id: row.block_id.clone(),
+            height: row.height,
         }
-    }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct RepeatedRowOrder {
-    #[pb(index = 1)]
-    pub items: Vec<RowOrder>,
-}
-
-impl std::ops::Deref for RepeatedRowOrder {
-    type Target = Vec<RowOrder>;
-    fn deref(&self) -> &Self::Target {
-        &self.items
-    }
-}
-
-impl std::ops::DerefMut for RepeatedRowOrder {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.items
-    }
-}
-
-impl std::convert::From<Vec<RowOrder>> for RepeatedRowOrder {
-    fn from(items: Vec<RowOrder>) -> Self {
-        Self { items }
     }
 }
 
@@ -207,14 +184,14 @@ pub struct GridBlock {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub row_ids: Vec<String>,
+    pub row_orders: Vec<RowOrder>,
 }
 
 impl GridBlock {
-    pub fn new(block_id: &str, row_ids: Vec<String>) -> Self {
+    pub fn new(block_id: &str, row_orders: Vec<RowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
-            row_ids,
+            row_orders,
         }
     }
 }
