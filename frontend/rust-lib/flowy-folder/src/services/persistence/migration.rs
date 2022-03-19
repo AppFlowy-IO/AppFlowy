@@ -3,7 +3,6 @@ use crate::{
     event_map::WorkspaceDatabase,
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
-use flowy_collaboration::{client_folder::FolderPad, entities::revision::md5};
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::entities::{
@@ -11,8 +10,9 @@ use flowy_folder_data_model::entities::{
     view::{RepeatedView, View},
     workspace::Workspace,
 };
-use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_sync::{RevisionLoader, RevisionPersistence};
+use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
+use flowy_revision::{RevisionLoader, RevisionPersistence};
+use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";

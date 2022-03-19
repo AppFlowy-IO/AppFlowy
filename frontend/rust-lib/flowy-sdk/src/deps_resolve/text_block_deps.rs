@@ -1,15 +1,15 @@
 use bytes::Bytes;
-use flowy_block::{
-    errors::{internal_error, FlowyError},
-    BlockCloudService, TextBlockManager, TextBlockUser,
-};
-use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::document::BlockHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
-use flowy_sync::{RevisionWebSocket, WSStateReceiver};
+use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_sync::entities::ws_data::ClientRevisionWSData;
+use flowy_text_block::{
+    errors::{internal_error, FlowyError},
+    BlockCloudService, TextBlockManager, TextBlockUser,
+};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;

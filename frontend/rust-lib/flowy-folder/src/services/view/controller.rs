@@ -13,9 +13,9 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_collaboration::entities::text_block_info::TextBlockId;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::ViewDataType;
+use flowy_sync::entities::text_block_info::TextBlockId;
 use futures::{FutureExt, StreamExt};
 use lib_infra::uuid;
 use std::{collections::HashSet, sync::Arc};

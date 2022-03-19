@@ -2,13 +2,13 @@ use crate::services::grid_editor::ClientGridEditor;
 use crate::services::kv_persistence::GridKVPersistence;
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::client_grid::{make_block_meta_delta, make_grid_delta};
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
-use flowy_sync::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
-use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_revision::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
+use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

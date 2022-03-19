@@ -2,7 +2,7 @@ use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTes
 
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
 use flowy_folder_data_model::entities::view::ViewDataType;
-use flowy_sync::disk::RevisionState;
+use flowy_revision::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
 #[tokio::test]

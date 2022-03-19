@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-block/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-text-block/protobuf.dart';
 
 class ShareService {
   Future<Either<ExportData, FlowyError>> export(String docId, ExportType type) {

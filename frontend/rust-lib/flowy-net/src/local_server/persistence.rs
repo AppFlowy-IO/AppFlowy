@@ -1,4 +1,4 @@
-use flowy_collaboration::{
+use flowy_sync::{
     entities::{folder_info::FolderInfo, text_block_info::TextBlockInfo},
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},

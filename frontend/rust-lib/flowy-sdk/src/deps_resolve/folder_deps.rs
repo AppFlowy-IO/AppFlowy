@@ -1,9 +1,9 @@
 use bytes::Bytes;
-use flowy_block::TextBlockManager;
-use flowy_collaboration::client_document::default::initial_quill_delta_string;
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
-use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
+use flowy_sync::client_document::default::initial_quill_delta_string;
+use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::ws_data::ClientRevisionWSData;
+use flowy_text_block::TextBlockManager;
 
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
@@ -19,7 +19,7 @@ use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
-use flowy_sync::{RevisionWebSocket, WSStateReceiver};
+use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};

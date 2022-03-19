@@ -1,14 +1,14 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
-use flowy_collaboration::{
+use flowy_error::FlowyError;
+use flowy_revision::*;
+use flowy_sync::{
     client_folder::FolderPad,
     entities::{
         revision::RevisionRange,
         ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
     },
 };
-use flowy_error::FlowyError;
-use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
 use parking_lot::RwLock;

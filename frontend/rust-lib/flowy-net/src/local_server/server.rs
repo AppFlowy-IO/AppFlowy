@@ -1,7 +1,9 @@
 use crate::local_server::persistence::LocalTextBlockCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_collaboration::{
+use flowy_error::{internal_error, FlowyError};
+use flowy_folder::event_map::FolderCouldServiceV1;
+use flowy_sync::{
     client_document::default::initial_quill_delta_string,
     entities::{
         text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
@@ -13,8 +15,6 @@ use flowy_collaboration::{
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
-use flowy_error::{internal_error, FlowyError};
-use flowy_folder::event_map::FolderCouldServiceV1;
 use futures_util::stream::StreamExt;
 use lib_ws::{WSChannel, WebSocketRawMessage};
 use parking_lot::RwLock;
@@ -251,13 +251,13 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_block::BlockCloudService;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
     view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
+use flowy_text_block::BlockCloudService;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,

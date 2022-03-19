@@ -1,14 +1,14 @@
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
 use bytes::Bytes;
-use flowy_collaboration::client_grid::{GridChangeset, GridMetaPad};
-use flowy_collaboration::entities::revision::Revision;
-use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder,
     RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, Row, RowMeta, RowMetaChangeset, RowOrder,
 };
+use flowy_sync::client_grid::{GridChangeset, GridMetaPad};
+use flowy_sync::entities::revision::Revision;
+use flowy_sync::util::make_delta_from_revisions;
 use std::collections::HashMap;
 
 use crate::dart_notification::{send_dart_notification, GridNotification};
@@ -16,7 +16,7 @@ use crate::services::row::{
     make_grid_block_from_block_metas, make_grid_blocks, make_row_meta_from_context, make_rows_from_row_metas,
     serialize_cell_data, CreateRowMetaBuilder, CreateRowMetaPayload, GridBlockMetaData,
 };
-use flowy_sync::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
 use std::sync::Arc;

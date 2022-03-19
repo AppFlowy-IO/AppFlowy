@@ -819,74 +819,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-block"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "color-eyre",
- "criterion",
- "dart-notify",
- "dashmap",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
- "flowy-database",
- "flowy-derive",
- "flowy-error",
- "flowy-sync",
- "flowy-test",
- "futures",
- "futures-util",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-ws",
- "log",
- "protobuf",
- "rand 0.7.3",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "url",
-]
-
-[[package]]
-name = "flowy-collaboration"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "dissimilar",
- "flowy-derive",
- "flowy-folder-data-model",
- "flowy-grid-data-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -918,10 +850,10 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
+ "flowy-sync",
  "http-flowy",
  "lib-dispatch",
  "lib-infra",
@@ -950,15 +882,15 @@ dependencies = [
  "dart-notify",
  "diesel",
  "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "flowy-text-block",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -1006,12 +938,12 @@ dependencies = [
  "dart-notify",
  "dashmap",
  "diesel",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-grid",
  "flowy-grid-data-model",
+ "flowy-revision",
  "flowy-sync",
  "flowy-test",
  "lazy_static",
@@ -1056,12 +988,12 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
- "flowy-block",
- "flowy-collaboration",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "flowy-user-data-model",
  "futures-util",
@@ -1085,6 +1017,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-revision"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-error",
+ "flowy-sync",
+ "futures-util",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
@@ -1092,14 +1047,14 @@ dependencies = [
  "bytes",
  "claim 0.5.0",
  "color-eyre",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-folder",
  "flowy-grid",
  "flowy-grid-data-model",
  "flowy-net",
+ "flowy-revision",
  "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "futures-core",
  "futures-util",
@@ -1121,21 +1076,26 @@ version = "0.1.0"
 dependencies = [
  "async-stream",
  "bytes",
+ "chrono",
  "dashmap",
- "diesel",
- "diesel_derives",
- "flowy-collaboration",
- "flowy-database",
- "flowy-error",
- "futures-util",
+ "dissimilar",
+ "flowy-derive",
+ "flowy-folder-data-model",
+ "flowy-grid-data-model",
+ "futures",
  "lib-infra",
  "lib-ot",
- "lib-ws",
+ "log",
+ "md5",
+ "parking_lot",
+ "protobuf",
  "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -1147,10 +1107,10 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
- "flowy-collaboration",
  "flowy-folder",
  "flowy-net",
  "flowy-sdk",
+ "flowy-sync",
  "flowy-user",
  "futures",
  "futures-util",
@@ -1166,6 +1126,46 @@ dependencies = [
  "serial_test",
  "thread-id",
  "tokio",
+]
+
+[[package]]
+name = "flowy-text-block"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "chrono",
+ "color-eyre",
+ "criterion",
+ "dart-notify",
+ "dashmap",
+ "derive_more",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-revision",
+ "flowy-sync",
+ "flowy-test",
+ "flowy-text-block",
+ "futures",
+ "futures-util",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "log",
+ "protobuf",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "unicode-segmentation",
+ "url",
 ]
 
 [[package]]

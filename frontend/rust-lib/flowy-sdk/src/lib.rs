@@ -3,7 +3,6 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_block::TextBlockManager;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -12,6 +11,7 @@ use flowy_net::{
     local_server::LocalServer,
     ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
 };
+use flowy_text_block::TextBlockManager;
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::util::tokio_default_runtime;
