@@ -9,14 +9,12 @@ use crate::{
     manager::FolderManager,
     services::{app::event_handler::*, trash::event_handler::*, view::event_handler::*, workspace::event_handler::*},
 };
-use flowy_database::DBConnection;
+use flowy_database::{ConnectionPool, DBConnection};
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use strum_macros::Display;
-
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
-use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
+use strum_macros::Display;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 

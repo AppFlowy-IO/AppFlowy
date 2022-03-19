@@ -28,6 +28,7 @@ pub enum ErrorCode {
     Internal = 0,
     UserUnauthorized = 2,
     RecordNotFound = 3,
+    UserIdIsEmpty = 4,
     WorkspaceNameInvalid = 100,
     WorkspaceIdInvalid = 101,
     AppColorStyleInvalid = 102,
@@ -72,6 +73,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             0 => ::std::option::Option::Some(ErrorCode::Internal),
             2 => ::std::option::Option::Some(ErrorCode::UserUnauthorized),
             3 => ::std::option::Option::Some(ErrorCode::RecordNotFound),
+            4 => ::std::option::Option::Some(ErrorCode::UserIdIsEmpty),
             100 => ::std::option::Option::Some(ErrorCode::WorkspaceNameInvalid),
             101 => ::std::option::Option::Some(ErrorCode::WorkspaceIdInvalid),
             102 => ::std::option::Option::Some(ErrorCode::AppColorStyleInvalid),
@@ -113,6 +115,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             ErrorCode::Internal,
             ErrorCode::UserUnauthorized,
             ErrorCode::RecordNotFound,
+            ErrorCode::UserIdIsEmpty,
             ErrorCode::WorkspaceNameInvalid,
             ErrorCode::WorkspaceIdInvalid,
             ErrorCode::AppColorStyleInvalid,
@@ -173,26 +176,27 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ncode.proto*\xa4\x06\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
+    \n\ncode.proto*\xb7\x06\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
     \n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\x03\x12\
-    \x18\n\x14WorkspaceNameInvalid\x10d\x12\x16\n\x12WorkspaceIdInvalid\x10e\
-    \x12\x18\n\x14AppColorStyleInvalid\x10f\x12\x18\n\x14WorkspaceDescTooLon\
-    g\x10g\x12\x18\n\x14WorkspaceNameTooLong\x10h\x12\x10\n\x0cAppIdInvalid\
-    \x10n\x12\x12\n\x0eAppNameInvalid\x10o\x12\x13\n\x0fViewNameInvalid\x10x\
-    \x12\x18\n\x14ViewThumbnailInvalid\x10y\x12\x11\n\rViewIdInvalid\x10z\
-    \x12\x13\n\x0fViewDescTooLong\x10{\x12\x13\n\x0fViewDataInvalid\x10|\x12\
-    \x13\n\x0fViewNameTooLong\x10}\x12\x11\n\x0cConnectError\x10\xc8\x01\x12\
-    \x11\n\x0cEmailIsEmpty\x10\xac\x02\x12\x17\n\x12EmailFormatInvalid\x10\
-    \xad\x02\x12\x17\n\x12EmailAlreadyExists\x10\xae\x02\x12\x14\n\x0fPasswo\
-    rdIsEmpty\x10\xaf\x02\x12\x14\n\x0fPasswordTooLong\x10\xb0\x02\x12%\n\
-    \x20PasswordContainsForbidCharacters\x10\xb1\x02\x12\x1a\n\x15PasswordFo\
-    rmatInvalid\x10\xb2\x02\x12\x15\n\x10PasswordNotMatch\x10\xb3\x02\x12\
-    \x14\n\x0fUserNameTooLong\x10\xb4\x02\x12'\n\"UserNameContainForbiddenCh\
-    aracters\x10\xb5\x02\x12\x14\n\x0fUserNameIsEmpty\x10\xb6\x02\x12\x12\n\
-    \rUserIdInvalid\x10\xb7\x02\x12\x11\n\x0cUserNotExist\x10\xb8\x02\x12\
-    \x10\n\x0bTextTooLong\x10\x90\x03\x12\x13\n\x0eBlockIdIsEmpty\x10\x91\
-    \x03\x12\x11\n\x0cRowIdIsEmpty\x10\x92\x03\x12\x12\n\rGridIdIsEmpty\x10\
-    \x93\x03\x12\x10\n\x0bInvalidData\x10\x94\x03b\x06proto3\
+    \x11\n\rUserIdIsEmpty\x10\x04\x12\x18\n\x14WorkspaceNameInvalid\x10d\x12\
+    \x16\n\x12WorkspaceIdInvalid\x10e\x12\x18\n\x14AppColorStyleInvalid\x10f\
+    \x12\x18\n\x14WorkspaceDescTooLong\x10g\x12\x18\n\x14WorkspaceNameTooLon\
+    g\x10h\x12\x10\n\x0cAppIdInvalid\x10n\x12\x12\n\x0eAppNameInvalid\x10o\
+    \x12\x13\n\x0fViewNameInvalid\x10x\x12\x18\n\x14ViewThumbnailInvalid\x10\
+    y\x12\x11\n\rViewIdInvalid\x10z\x12\x13\n\x0fViewDescTooLong\x10{\x12\
+    \x13\n\x0fViewDataInvalid\x10|\x12\x13\n\x0fViewNameTooLong\x10}\x12\x11\
+    \n\x0cConnectError\x10\xc8\x01\x12\x11\n\x0cEmailIsEmpty\x10\xac\x02\x12\
+    \x17\n\x12EmailFormatInvalid\x10\xad\x02\x12\x17\n\x12EmailAlreadyExists\
+    \x10\xae\x02\x12\x14\n\x0fPasswordIsEmpty\x10\xaf\x02\x12\x14\n\x0fPassw\
+    ordTooLong\x10\xb0\x02\x12%\n\x20PasswordContainsForbidCharacters\x10\
+    \xb1\x02\x12\x1a\n\x15PasswordFormatInvalid\x10\xb2\x02\x12\x15\n\x10Pas\
+    swordNotMatch\x10\xb3\x02\x12\x14\n\x0fUserNameTooLong\x10\xb4\x02\x12'\
+    \n\"UserNameContainForbiddenCharacters\x10\xb5\x02\x12\x14\n\x0fUserName\
+    IsEmpty\x10\xb6\x02\x12\x12\n\rUserIdInvalid\x10\xb7\x02\x12\x11\n\x0cUs\
+    erNotExist\x10\xb8\x02\x12\x10\n\x0bTextTooLong\x10\x90\x03\x12\x13\n\
+    \x0eBlockIdIsEmpty\x10\x91\x03\x12\x11\n\x0cRowIdIsEmpty\x10\x92\x03\x12\
+    \x12\n\rGridIdIsEmpty\x10\x93\x03\x12\x10\n\x0bInvalidData\x10\x94\x03b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

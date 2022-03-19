@@ -4,13 +4,13 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
 use flowy_sync::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
-use lib_sqlite::ConnectionPool;
-use parking_lot::RwLock;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub trait GridUser: Send + Sync {
     fn user_id(&self) -> Result<String, FlowyError>;
@@ -137,8 +137,8 @@ impl GridManager {
     }
 
     #[allow(dead_code)]
-    fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
-        let read_guard = self.kv_persistence.read();
+    async fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
+        let read_guard = self.kv_persistence.read().await;
         if read_guard.is_some() {
             return Ok(read_guard.clone().unwrap());
         }
@@ -146,7 +146,7 @@ impl GridManager {
 
         let pool = self.grid_user.db_pool()?;
         let kv_persistence = Arc::new(GridKVPersistence::new(pool));
-        *self.kv_persistence.write() = Some(kv_persistence.clone());
+        *self.kv_persistence.write().await = Some(kv_persistence.clone());
         Ok(kv_persistence)
     }
 }

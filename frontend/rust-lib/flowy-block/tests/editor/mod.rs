@@ -4,7 +4,6 @@ mod op_test;
 mod serde_test;
 mod undo_redo_test;
 
-use derive_more::Display;
 use flowy_collaboration::client_document::{ClientDocument, InitialDocumentText};
 use lib_ot::{
     core::*,

@@ -9,6 +9,7 @@ use crate::{
 };
 use flowy_collaboration::client_folder::initial_folder_delta;
 use flowy_collaboration::{client_folder::FolderPad, entities::revision::Revision};
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::entities::{
     app::App,
@@ -18,7 +19,6 @@ use flowy_folder_data_model::entities::{
 };
 use flowy_sync::disk::{RevisionRecord, RevisionState};
 use flowy_sync::mk_revision_disk_cache;
-use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};

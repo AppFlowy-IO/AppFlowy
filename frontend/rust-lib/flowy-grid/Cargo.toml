@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
 dart-notify = { path = "../dart-notify" }
-lib-sqlite = { path = "../lib-sqlite" }
 flowy-sync = { path = "../flowy-sync" }
 flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
@@ -32,7 +31,6 @@ diesel = {version = "1.4.8", features = ["sqlite"]}
 dashmap = "4.0"
 tokio = {version = "1", features = ["sync"]}
 rayon = "1.5"
-parking_lot = "0.11"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 

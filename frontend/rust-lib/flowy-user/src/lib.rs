@@ -9,7 +9,7 @@ pub mod services;
 extern crate flowy_database;
 
 pub mod errors {
-    pub use flowy_error::{internal_error, ErrorCode, FlowyError};
+    pub use flowy_error::*;
 }
 
 pub mod entities {
