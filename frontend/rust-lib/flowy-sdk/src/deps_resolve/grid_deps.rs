@@ -1,10 +1,10 @@
 use crate::FlowyError;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws_data::ClientRevisionWSData;
 use flowy_database::ConnectionPool;
 use flowy_grid::manager::{GridManager, GridUser};
 use flowy_net::ws::connection::FlowyWebSocketConnect;
-use flowy_sync::{RevisionWebSocket, WSStateReceiver};
+use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_sync::entities::ws_data::ClientRevisionWSData;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;

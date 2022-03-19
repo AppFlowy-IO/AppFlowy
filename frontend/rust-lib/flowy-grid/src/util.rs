@@ -1,7 +1,7 @@
 use crate::services::cell::*;
 use crate::services::field::*;
-use flowy_collaboration::client_grid::GridBuilder;
 use flowy_grid_data_model::entities::{BuildGridContext, FieldType};
+use flowy_sync::client_grid::GridBuilder;
 
 pub fn make_default_grid() -> BuildGridContext {
     let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::default())

@@ -12,7 +12,7 @@ flowy-net = { path = "../flowy-net"}
 flowy-folder = { path = "../flowy-folder", default-features = false}
 lib-dispatch = { path = "../lib-dispatch" }
 
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

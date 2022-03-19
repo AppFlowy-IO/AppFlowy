@@ -9,16 +9,14 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use chrono::Utc;
+use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
 
-use flowy_collaboration::client_document::default::{initial_quill_delta_string, initial_read_me};
-
-use flowy_collaboration::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
-use flowy_sync::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_sync::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
@@ -202,8 +200,7 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
     ) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
-        let time = Utc::now();
-        let workspace = user_default::create_default_workspace(time);
+        let workspace = user_default::create_default_workspace();
         set_current_workspace(&workspace.id);
         for app in workspace.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {

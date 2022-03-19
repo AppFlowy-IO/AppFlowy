@@ -4,17 +4,17 @@ use bytes::Bytes;
 
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use dashmap::DashMap;
-use flowy_collaboration::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
-use flowy_collaboration::entities::revision::Revision;
-use flowy_collaboration::util::make_delta_from_revisions;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     FieldMeta, GridBlockId, GridBlockMeta, GridBlockMetaChangeset, RepeatedCell, RowMeta, RowMetaChangeset, RowOrder,
 };
-use flowy_sync::disk::SQLiteGridBlockMetaRevisionPersistence;
-use flowy_sync::{
+use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
+use flowy_revision::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionPersistence,
 };
+use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
+use flowy_sync::entities::revision::Revision;
+use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
 use std::collections::HashMap;

@@ -403,34 +403,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-collaboration"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "dissimilar",
- "flowy-derive",
- "flowy-folder-data-model",
- "flowy-grid-data-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
@@ -493,6 +465,34 @@ dependencies = [
  "strum",
  "strum_macros",
  "uuid",
+]
+
+[[package]]
+name = "flowy-sync"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "chrono",
+ "dashmap",
+ "dissimilar",
+ "flowy-derive",
+ "flowy-folder-data-model",
+ "flowy-grid-data-model",
+ "futures",
+ "lib-infra",
+ "lib-ot",
+ "log",
+ "md5",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
 ]
 
 [[package]]

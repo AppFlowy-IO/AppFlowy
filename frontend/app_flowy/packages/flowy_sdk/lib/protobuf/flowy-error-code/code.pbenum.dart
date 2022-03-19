@@ -13,6 +13,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode Internal = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Internal');
   static const ErrorCode UserUnauthorized = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const ErrorCode RecordNotFound = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
+  static const ErrorCode UserIdIsEmpty = ErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
   static const ErrorCode WorkspaceNameInvalid = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
   static const ErrorCode WorkspaceIdInvalid = ErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const ErrorCode AppColorStyleInvalid = ErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
@@ -50,6 +51,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     Internal,
     UserUnauthorized,
     RecordNotFound,
+    UserIdIsEmpty,
     WorkspaceNameInvalid,
     WorkspaceIdInvalid,
     AppColorStyleInvalid,

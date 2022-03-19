@@ -1,4 +1,3 @@
-use flowy_collaboration::entities::text_block_info::TextBlockInfo;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
 use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
@@ -15,8 +14,9 @@ use flowy_folder_data_model::entities::{
     view::{CreateViewPayload, UpdateViewPayload},
     workspace::{CreateWorkspacePayload, RepeatedWorkspace},
 };
-use flowy_sync::disk::RevisionState;
-use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
+use flowy_revision::disk::RevisionState;
+use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
+use flowy_sync::entities::text_block_info::TextBlockInfo;
 use flowy_test::{event_builder::*, FlowySDKTest};
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;

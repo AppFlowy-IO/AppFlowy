@@ -15,6 +15,9 @@ pub enum ErrorCode {
     #[display(fmt = "RecordNotFound")]
     RecordNotFound = 3,
 
+    #[display(fmt = "User id is empty")]
+    UserIdIsEmpty = 4,
+
     #[display(fmt = "Workspace name can not be empty or whitespace")]
     WorkspaceNameInvalid = 100,
 

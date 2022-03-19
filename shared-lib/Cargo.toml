@@ -2,7 +2,7 @@
 members = [
   "flowy-user-data-model",
   "flowy-folder-data-model",
-  "flowy-collaboration",
+  "flowy-sync",
   "lib-ot",
   "lib-ws",
   "lib-infra",

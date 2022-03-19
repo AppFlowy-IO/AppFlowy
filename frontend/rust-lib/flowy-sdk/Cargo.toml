@@ -14,8 +14,8 @@ flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
 flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
 flowy-database = { path = "../flowy-database" }
-flowy-block = { path = "../flowy-block", default-features = false }
-flowy-sync = { path = "../flowy-sync" }
+flowy-text-block = { path = "../flowy-text-block", default-features = false }
+flowy-revision = { path = "../flowy-revision" }
 
 tracing = { version = "0.1" }
 log = "0.4.14"
@@ -25,7 +25,7 @@ bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.11"
 
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
@@ -38,6 +38,6 @@ tokio = { version = "1", features = ["full"]}
 futures-util = "0.3.15"
 
 [features]
-http_server = ["flowy-user/http_server", "flowy-folder/http_server", "flowy-block/http_server"]
+http_server = ["flowy-user/http_server", "flowy-folder/http_server", "flowy-text-block/http_server"]
 use_bunyan = ["lib-log/use_bunyan"]
-dart = ["flowy-user/dart", "flowy-net/dart", "flowy-folder/dart", "flowy-collaboration/dart", "flowy-grid/dart", "flowy-block/dart"]
+dart = ["flowy-user/dart", "flowy-net/dart", "flowy-folder/dart", "flowy-sync/dart", "flowy-grid/dart", "flowy-text-block/dart"]

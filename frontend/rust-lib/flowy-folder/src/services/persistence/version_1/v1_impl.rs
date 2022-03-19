@@ -6,6 +6,7 @@ use crate::services::persistence::{
     },
     FolderPersistenceTransaction, TrashTableSql,
 };
+use flowy_database::DBConnection;
 use flowy_error::FlowyResult;
 use flowy_folder_data_model::entities::{
     app::App,
@@ -13,7 +14,6 @@ use flowy_folder_data_model::entities::{
     view::View,
     workspace::Workspace,
 };
-use lib_sqlite::DBConnection;
 
 pub struct V1Transaction<'a>(pub &'a DBConnection);
 

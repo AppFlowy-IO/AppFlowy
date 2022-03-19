@@ -85,17 +85,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-trait"
-version = "0.1.52"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "061a7acccaa286c011ddc30970520b98fa40e00c9d644633fb26b5fc63a265e3"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "atomic"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -465,20 +454,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ae5588f6b3c3cb05239e90bd110f257254aecd01e4635400391aeae07497845"
-dependencies = [
- "cfg-if",
- "crossbeam-channel",
- "crossbeam-deque",
- "crossbeam-epoch",
- "crossbeam-queue",
- "crossbeam-utils",
-]
-
-[[package]]
 name = "crossbeam-channel"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -510,16 +485,6 @@ dependencies = [
  "lazy_static",
  "memoffset",
  "scopeguard",
-]
-
-[[package]]
-name = "crossbeam-queue"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b979d76c9fcb84dffc80a73f7290da0f83e4c95773494674cb44b76d13a7a110"
-dependencies = [
- "cfg-if",
- "crossbeam-utils",
 ]
 
 [[package]]
@@ -854,79 +819,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-block"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "async-trait",
- "bytecount",
- "byteorder",
- "bytes",
- "chrono",
- "color-eyre",
- "criterion",
- "dart-notify",
- "dashmap",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
- "flowy-database",
- "flowy-derive",
- "flowy-error",
- "flowy-sync",
- "flowy-test",
- "futures",
- "futures-util",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-ws",
- "log",
- "parking_lot",
- "pin-project",
- "protobuf",
- "rand 0.7.3",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "url",
-]
-
-[[package]]
-name = "flowy-collaboration"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "dissimilar",
- "flowy-derive",
- "flowy-folder-data-model",
- "flowy-grid-data-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -958,10 +850,10 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
+ "flowy-sync",
  "http-flowy",
  "lib-dispatch",
  "lib-infra",
@@ -986,39 +878,30 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "chrono",
- "crossbeam",
- "crossbeam-utils",
  "dart-notify",
- "dashmap",
- "derive_more",
  "diesel",
  "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "flowy-text-block",
  "futures",
- "futures-core",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
- "lib-sqlite",
  "log",
  "parking_lot",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
  "tokio",
@@ -1055,20 +938,18 @@ dependencies = [
  "dart-notify",
  "dashmap",
  "diesel",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-grid",
  "flowy-grid-data-model",
+ "flowy-revision",
  "flowy-sync",
  "flowy-test",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
- "lib-sqlite",
- "parking_lot",
  "protobuf",
  "rayon",
  "rust_decimal",
@@ -1107,12 +988,12 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
- "flowy-block",
- "flowy-collaboration",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "flowy-user-data-model",
  "futures-util",
@@ -1136,6 +1017,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-revision"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-error",
+ "flowy-sync",
+ "futures-util",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
@@ -1143,14 +1047,14 @@ dependencies = [
  "bytes",
  "claim 0.5.0",
  "color-eyre",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-folder",
  "flowy-grid",
  "flowy-grid-data-model",
  "flowy-net",
+ "flowy-revision",
  "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "futures-core",
  "futures-util",
@@ -1171,18 +1075,18 @@ name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
  "async-stream",
- "async-trait",
  "bytes",
+ "chrono",
  "dashmap",
- "diesel",
- "diesel_derives",
- "flowy-collaboration",
- "flowy-database",
- "flowy-error",
- "futures-util",
+ "dissimilar",
+ "flowy-derive",
+ "flowy-folder-data-model",
+ "flowy-grid-data-model",
+ "futures",
  "lib-infra",
  "lib-ot",
- "lib-ws",
+ "log",
+ "md5",
  "parking_lot",
  "protobuf",
  "serde",
@@ -1191,6 +1095,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -1202,10 +1107,10 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
- "flowy-collaboration",
  "flowy-folder",
  "flowy-net",
  "flowy-sdk",
+ "flowy-sync",
  "flowy-user",
  "futures",
  "futures-util",
@@ -1224,10 +1129,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user"
+name = "flowy-text-block"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "bytes",
+ "chrono",
+ "color-eyre",
+ "criterion",
  "dart-notify",
  "dashmap",
  "derive_more",
@@ -1236,27 +1145,54 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-revision",
+ "flowy-sync",
+ "flowy-test",
+ "flowy-text-block",
+ "futures",
+ "futures-util",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "log",
+ "protobuf",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "unicode-segmentation",
+ "url",
+]
+
+[[package]]
+name = "flowy-user"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "dart-notify",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
  "flowy-test",
  "flowy-user-data-model",
  "futures",
- "futures-core",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "lib-sqlite",
  "log",
  "once_cell",
  "parking_lot",
- "pin-project",
  "protobuf",
- "r2d2",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
- "thread-id",
- "thread_local",
  "tokio",
  "tracing",
 ]

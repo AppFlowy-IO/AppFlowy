@@ -4,6 +4,7 @@ enum ErrorCode {
     Internal = 0;
     UserUnauthorized = 2;
     RecordNotFound = 3;
+    UserIdIsEmpty = 4;
     WorkspaceNameInvalid = 100;
     WorkspaceIdInvalid = 101;
     AppColorStyleInvalid = 102;

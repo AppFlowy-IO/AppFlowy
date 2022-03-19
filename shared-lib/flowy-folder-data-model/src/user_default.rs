@@ -5,7 +5,8 @@ use crate::entities::{
 };
 use chrono::Utc;
 
-pub fn create_default_workspace(time: chrono::DateTime<Utc>) -> Workspace {
+pub fn create_default_workspace() -> Workspace {
+    let time = Utc::now();
     let workspace_id = uuid::Uuid::new_v4();
     let name = "Workspace".to_string();
     let desc = "".to_string();

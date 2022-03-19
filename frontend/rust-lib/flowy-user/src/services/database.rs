@@ -1,8 +1,8 @@
+use flowy_database::ConnectionPool;
 use flowy_database::{schema::user_table, DBConnection, Database};
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_data_model::entities::{SignInResponse, SignUpResponse, UpdateUserParams, UserProfile};
 use lazy_static::lazy_static;
-use lib_sqlite::ConnectionPool;
 use once_cell::sync::Lazy;
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, sync::Arc, time::Duration};
@@ -24,7 +24,7 @@ impl UserDB {
 
     fn open_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
         if user_id.is_empty() {
-            return Err(FlowyError::internal().context("user id is empty"));
+            return Err(ErrorCode::UserIdIsEmpty.into());
         }
 
         tracing::info!("open user db {}", user_id);

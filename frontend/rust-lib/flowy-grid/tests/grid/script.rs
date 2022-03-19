@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use flowy_collaboration::client_grid::GridBuilder;
+use flowy_sync::client_grid::GridBuilder;
 use std::collections::HashMap;
 
 use flowy_grid::services::cell::*;
@@ -10,7 +10,7 @@ use flowy_grid_data_model::entities::{
     BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlockMeta, GridBlockMetaChangeset,
     RowMeta, RowMetaChangeset, RowOrder,
 };
-use flowy_sync::REVISION_WRITE_INTERVAL_IN_MILLIS;
+use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::sync::Arc;

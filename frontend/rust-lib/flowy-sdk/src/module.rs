@@ -1,7 +1,7 @@
-use flowy_block::TextBlockManager;
 use flowy_folder::manager::FolderManager;
 use flowy_grid::manager::GridManager;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
+use flowy_text_block::TextBlockManager;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
@@ -44,5 +44,5 @@ fn mk_grid_module(grid_manager: Arc<GridManager>) -> Module {
 }
 
 fn mk_text_block_module(text_block_manager: Arc<TextBlockManager>) -> Module {
-    flowy_block::event_map::create(text_block_manager)
+    flowy_text_block::event_map::create(text_block_manager)
 }
