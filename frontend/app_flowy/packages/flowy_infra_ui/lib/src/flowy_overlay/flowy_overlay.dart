@@ -279,8 +279,11 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       children.add(child);
     }
 
-    return Stack(
-      children: children..addAll(overlays),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Stack(
+        children: children..addAll(overlays),
+      ),
     );
   }
 

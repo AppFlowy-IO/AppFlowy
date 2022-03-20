@@ -82,7 +82,6 @@ class MenuAppHeader extends StatelessWidget {
             final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
-              context,
               anchorDirection: AnchorDirection.bottomWithCenterAligned,
             );
           },

@@ -103,38 +103,4 @@ class ListOverlay extends StatelessWidget {
       style: style,
     );
   }
-
-  static void showWithRect(
-    BuildContext context, {
-    required BuildContext anchorContext,
-    required String identifier,
-    required IndexedWidgetBuilder itemBuilder,
-    int? itemCount,
-    ScrollController? controller,
-    double maxWidth = double.infinity,
-    double maxHeight = double.infinity,
-    required Offset anchorPosition,
-    required Size anchorSize,
-    AnchorDirection? anchorDirection,
-    FlowyOverlayDelegate? delegate,
-    OverlapBehaviour? overlapBehaviour,
-    FlowyOverlayStyle? style,
-  }) {
-    FlowyOverlay.of(context).insertWithRect(
-      widget: ListOverlay(
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
-        controller: controller,
-        width: maxWidth,
-        height: maxHeight,
-      ),
-      identifier: identifier,
-      anchorPosition: anchorPosition,
-      anchorSize: anchorSize,
-      anchorDirection: anchorDirection,
-      delegate: delegate,
-      overlapBehaviour: overlapBehaviour,
-      style: style,
-    );
-  }
 }

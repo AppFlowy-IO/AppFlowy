@@ -21,6 +21,7 @@ class FlowyPoppuWindow extends StatelessWidget {
     required Size size,
   }) async {
     final window = await getWindowInfo();
+
     FlowyOverlay.of(context).insertWithRect(
       widget: SizedBox.fromSize(
         size: size,

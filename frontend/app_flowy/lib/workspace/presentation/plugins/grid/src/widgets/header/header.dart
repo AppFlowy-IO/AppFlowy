@@ -61,9 +61,9 @@ class GridHeader extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const LeadingHeaderCell(),
+                const _HeaderLeading(),
                 ...headers,
-                const TrailingHeaderCell(),
+                const _HeaderTrailing(),
               ],
             ),
           );
@@ -73,8 +73,8 @@ class GridHeader extends StatelessWidget {
   }
 }
 
-class LeadingHeaderCell extends StatelessWidget {
-  const LeadingHeaderCell({Key? key}) : super(key: key);
+class _HeaderLeading extends StatelessWidget {
+  const _HeaderLeading({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +84,8 @@ class LeadingHeaderCell extends StatelessWidget {
   }
 }
 
-class TrailingHeaderCell extends StatelessWidget {
-  const TrailingHeaderCell({Key? key}) : super(key: key);
+class _HeaderTrailing extends StatelessWidget {
+  const _HeaderTrailing({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +112,7 @@ class CreateColumnButton extends StatelessWidget {
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.hover,
       onTap: () => context.read<ColumnBloc>().add(const ColumnEvent.createColumn()),
-      icon: svg("home/add"),
+      leftIcon: svg("home/add"),
     );
   }
 }

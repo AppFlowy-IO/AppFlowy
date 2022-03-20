@@ -1,7 +1,10 @@
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/widgets/pop_up_window.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,9 +17,31 @@ class HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyButton(
-      text: FlowyText.medium(field.name, fontSize: 12),
+      text: Padding(padding: GridSize.cellContentInsets, child: FlowyText.medium(field.name, fontSize: 12)),
       hoverColor: theme.hover,
-      onTap: () {},
+      onTap: () {
+        FlowyPoppuWindow.show(
+          context,
+          size: Size(300, 100),
+          child: Container(
+            color: Colors.red,
+            child: TextField(
+              decoration: InputDecoration(hintText: 'Please enter a text'),
+              onSubmitted: print,
+            ),
+          ),
+        );
+
+        // StyledDialog(
+        //   child: SingleChildScrollView(
+        //     child: Container(
+        //       color: Colors.red,
+        //       child: TextField(),
+        //     ),
+        //   ),
+        // ).show(context);
+      },
+      rightIcon: svg("editor/details", color: theme.iconColor),
     );
   }
 }

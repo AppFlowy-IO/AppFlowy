@@ -8,13 +8,13 @@ class GridSize {
   static double get footerHeight => 40 * scale;
   static double get leadingHeaderPadding => 30 * scale;
   static double get trailHeaderPadding => 140 * scale;
-  static double get headerContentPadding => 8 * scale;
-  static double get cellContentPadding => 8 * scale;
+  static double get headerContainerPadding => 0 * scale;
+  static double get cellContentPadding => 10 * scale;
 
   //
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(
-        horizontal: GridSize.headerContentPadding,
-        vertical: GridSize.headerContentPadding,
+        horizontal: GridSize.headerContainerPadding,
+        vertical: GridSize.headerContainerPadding,
       );
   static EdgeInsets get cellContentInsets => EdgeInsets.symmetric(
         horizontal: GridSize.cellContentPadding,
@@ -23,8 +23,8 @@ class GridSize {
 
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         0,
-        GridSize.headerContentPadding,
-        GridSize.headerContentPadding,
-        GridSize.headerContentPadding,
+        GridSize.headerContainerPadding,
+        GridSize.headerContainerPadding,
+        GridSize.headerContainerPadding,
       );
 }

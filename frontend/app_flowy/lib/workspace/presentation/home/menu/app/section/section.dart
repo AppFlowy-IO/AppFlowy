@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
-import 'package:async/async.dart';
 
 class ViewSection extends StatelessWidget {
   final AppDataNotifier appData;

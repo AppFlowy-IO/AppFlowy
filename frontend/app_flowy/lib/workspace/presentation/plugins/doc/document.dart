@@ -189,7 +189,6 @@ class DocumentShareButton extends StatelessWidget {
     });
     actionList.show(
       context,
-      context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
       anchorOffset: offset,
     );

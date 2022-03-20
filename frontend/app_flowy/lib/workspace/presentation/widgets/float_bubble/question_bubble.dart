@@ -113,7 +113,6 @@ class QuestionBubble extends StatelessWidget {
           });
           actionList.show(
             context,
-            context,
             anchorDirection: AnchorDirection.topWithRightAligned,
             anchorOffset: const Offset(0, -10),
           );

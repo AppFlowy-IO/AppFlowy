@@ -146,7 +146,7 @@ class _TrashPageState extends State<TrashPage> {
             size: const Size(102, 30),
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(), fontSize: 12),
-              icon: svg('editor/restore', color: theme.iconColor),
+              leftIcon: svg('editor/restore', color: theme.iconColor),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
             ),
@@ -156,7 +156,7 @@ class _TrashPageState extends State<TrashPage> {
             size: const Size(102, 30),
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(), fontSize: 12),
-              icon: svg('editor/delete', color: theme.iconColor),
+              leftIcon: svg('editor/delete', color: theme.iconColor),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),
