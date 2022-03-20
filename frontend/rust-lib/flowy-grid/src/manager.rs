@@ -83,7 +83,7 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    // #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
         match self.editor_map.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),

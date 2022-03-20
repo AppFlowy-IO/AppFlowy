@@ -43,10 +43,10 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
 pub(crate) fn make_grid_blocks(block_meta_snapshots: Vec<GridBlockMetaData>) -> FlowyResult<RepeatedGridBlock> {
     Ok(block_meta_snapshots
         .into_iter()
-        .map(|row_metas_per_block| {
-            let row_orders = make_row_orders_from_row_metas(&row_metas_per_block.row_metas);
+        .map(|block_meta_data| {
+            let row_orders = make_row_orders_from_row_metas(&block_meta_data.row_metas);
             GridBlock {
-                block_id: row_metas_per_block.block_id,
+                id: block_meta_data.block_id,
                 row_orders,
             }
         })

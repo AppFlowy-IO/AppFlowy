@@ -2111,7 +2111,7 @@ impl ::protobuf::reflect::ProtobufValue for GridBlockOrder {
 #[derive(PartialEq,Clone,Default)]
 pub struct GridBlock {
     // message fields
-    pub block_id: ::std::string::String,
+    pub id: ::std::string::String,
     pub row_orders: ::protobuf::RepeatedField<RowOrder>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -2129,30 +2129,30 @@ impl GridBlock {
         ::std::default::Default::default()
     }
 
-    // string block_id = 1;
+    // string id = 1;
 
 
-    pub fn get_block_id(&self) -> &str {
-        &self.block_id
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
-    pub fn clear_block_id(&mut self) {
-        self.block_id.clear();
+    pub fn clear_id(&mut self) {
+        self.id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_block_id(&mut self, v: ::std::string::String) {
-        self.block_id = v;
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_block_id(&mut self) -> &mut ::std::string::String {
-        &mut self.block_id
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
     }
 
     // Take field
-    pub fn take_block_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
     // repeated .RowOrder row_orders = 2;
@@ -2196,7 +2196,7 @@ impl ::protobuf::Message for GridBlock {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.row_orders)?;
@@ -2213,8 +2213,8 @@ impl ::protobuf::Message for GridBlock {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.block_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.block_id);
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
         }
         for value in &self.row_orders {
             let len = value.compute_size();
@@ -2226,8 +2226,8 @@ impl ::protobuf::Message for GridBlock {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.block_id.is_empty() {
-            os.write_string(1, &self.block_id)?;
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
         }
         for v in &self.row_orders {
             os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
@@ -2273,9 +2273,9 @@ impl ::protobuf::Message for GridBlock {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "block_id",
-                |m: &GridBlock| { &m.block_id },
-                |m: &mut GridBlock| { &mut m.block_id },
+                "id",
+                |m: &GridBlock| { &m.id },
+                |m: &mut GridBlock| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RowOrder>>(
                 "row_orders",
@@ -2298,7 +2298,7 @@ impl ::protobuf::Message for GridBlock {
 
 impl ::protobuf::Clear for GridBlock {
     fn clear(&mut self) {
-        self.block_id.clear();
+        self.id.clear();
         self.row_orders.clear();
         self.unknown_fields.clear();
     }
@@ -4091,24 +4091,24 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x05.CellR\x05value:\x028\x01\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\
     \x01\x20\x03(\x0b2\x04.RowR\x05items\"5\n\x11RepeatedGridBlock\x12\x20\n\
     \x05items\x18\x01\x20\x03(\x0b2\n.GridBlockR\x05items\"+\n\x0eGridBlockO\
-    rder\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\"P\n\tGridBloc\
-    k\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12(\n\nrow_order\
-    s\x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrders\";\n\x04Cell\x12\x19\n\
-    \x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\
-    \x20\x01(\tR\x07content\"+\n\x0cRepeatedCell\x12\x1b\n\x05items\x18\x01\
-    \x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateGridPayload\x12\x12\n\
-    \x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05valu\
-    e\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\x05value\
-    \x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\n\x07grid\
-    _id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_row_id\x18\x02\x20\
-    \x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\"d\n\x11QueryField\
-    Payload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x126\n\x0cfie\
-    ld_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFieldOrderR\x0bfieldOrders\"\
-    e\n\x16QueryGridBlocksPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
-    \x06gridId\x122\n\x0cblock_orders\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrd\
-    erR\x0bblockOrders\"\\\n\x0fQueryRowPayload\x12\x17\n\x07grid_id\x18\x01\
-    \x20\x01(\tR\x06gridId\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07bloc\
-    kId\x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowIdb\x06proto3\
+    rder\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\"E\n\tGridBloc\
+    k\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\nrow_orders\x18\x02\
+    \x20\x03(\x0b2\t.RowOrderR\trowOrders\";\n\x04Cell\x12\x19\n\x08field_id\
+    \x18\x01\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\x20\x01(\tR\
+    \x07content\"+\n\x0cRepeatedCell\x12\x1b\n\x05items\x18\x01\x20\x03(\x0b\
+    2\x05.CellR\x05items\"'\n\x11CreateGridPayload\x12\x12\n\x04name\x18\x01\
+    \x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05value\x18\x01\x20\
+    \x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\x05value\x18\x01\x20\x01\
+    (\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\
+    \x01(\tR\x06gridId\x12\"\n\x0cstart_row_id\x18\x02\x20\x01(\tH\0R\nstart\
+    RowIdB\x15\n\x13one_of_start_row_id\"d\n\x11QueryFieldPayload\x12\x17\n\
+    \x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\
+    \x20\x01(\x0b2\x13.RepeatedFieldOrderR\x0bfieldOrders\"e\n\x16QueryGridB\
+    locksPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x122\n\
+    \x0cblock_orders\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrderR\x0bblockOrder\
+    s\"\\\n\x0fQueryRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06g\
+    ridId\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\x12\x15\n\x06\
+    row_id\x18\x03\x20\x01(\tR\x05rowIdb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

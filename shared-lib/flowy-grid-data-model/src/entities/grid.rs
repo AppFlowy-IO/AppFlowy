@@ -181,7 +181,7 @@ pub struct GridBlockOrder {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
-    pub block_id: String,
+    pub id: String,
 
     #[pb(index = 2)]
     pub row_orders: Vec<RowOrder>,
@@ -190,7 +190,7 @@ pub struct GridBlock {
 impl GridBlock {
     pub fn new(block_id: &str, row_orders: Vec<RowOrder>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            id: block_id.to_owned(),
             row_orders,
         }
     }
@@ -266,6 +266,12 @@ pub struct GridBlockId {
 impl AsRef<str> for GridBlockId {
     fn as_ref(&self) -> &str {
         &self.value
+    }
+}
+
+impl std::convert::From<&str> for GridBlockId {
+    fn from(s: &str) -> Self {
+        GridBlockId { value: s.to_owned() }
     }
 }
 

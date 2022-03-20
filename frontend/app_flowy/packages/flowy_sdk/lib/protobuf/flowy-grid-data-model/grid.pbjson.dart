@@ -135,13 +135,13 @@ final $typed_data.Uint8List gridBlockOrderDescriptor = $convert.base64Decode('Cg
 const GridBlock$json = const {
   '1': 'GridBlock',
   '2': const [
-    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'row_orders', '3': 2, '4': 3, '5': 11, '6': '.RowOrder', '10': 'rowOrders'},
   ],
 };
 
 /// Descriptor for `GridBlock`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSKAoKcm93X29yZGVycxgCIAMoCzIJLlJvd09yZGVyUglyb3dPcmRlcnM=');
+final $typed_data.Uint8List gridBlockDescriptor = $convert.base64Decode('CglHcmlkQmxvY2sSDgoCaWQYASABKAlSAmlkEigKCnJvd19vcmRlcnMYAiADKAsyCS5Sb3dPcmRlclIJcm93T3JkZXJz');
 @$core.Deprecated('Use cellDescriptor instead')
 const Cell$json = const {
   '1': 'Cell',

@@ -47,20 +47,21 @@ impl GridBlockMetaPad {
         Self::from_delta(block_delta)
     }
 
-    pub fn add_row(
+    #[tracing::instrument(level = "trace", skip(self, row), err)]
+    pub fn add_row_meta(
         &mut self,
         row: RowMeta,
         start_row_id: Option<String>,
     ) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
-            if let Some(upper_row_id) = start_row_id {
-                if upper_row_id.is_empty() {
+            if let Some(start_row_id) = start_row_id {
+                if start_row_id.is_empty() {
                     rows.insert(0, Arc::new(row));
                     return Ok(Some(()));
                 }
 
-                if let Some(index) = rows.iter().position(|row| row.id == upper_row_id) {
-                    rows.insert(index, Arc::new(row));
+                if let Some(index) = rows.iter().position(|row| row.id == start_row_id) {
+                    rows.insert(index + 1, Arc::new(row));
                     return Ok(Some(()));
                 }
             }
@@ -77,7 +78,7 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn get_rows(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
+    pub fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
         match row_ids {
             None => Ok(self.row_metas.to_vec()),
             Some(row_ids) => {
@@ -229,7 +230,7 @@ mod tests {
             visibility: false,
         };
 
-        let change = pad.add_row(row, None).unwrap().unwrap();
+        let change = pad.add_row_meta(row, None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
@@ -243,19 +244,19 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let change = pad.add_row(row_1.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row(row_2.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":106},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
+        let change = pad.add_row_meta(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":114},{"insert":"3\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false},{\"id\":\""},{"retain":72}]"#
@@ -283,9 +284,9 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let _ = pad.add_row(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.row_metas[0], row_3);
         assert_eq!(*pad.row_metas[1], row_1);
@@ -299,9 +300,9 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let _ = pad.add_row(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_3.clone(), Some("".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_3.clone(), Some("".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.row_metas[0], row_3);
         assert_eq!(*pad.row_metas[1], row_1);
@@ -320,7 +321,7 @@ mod tests {
             visibility: false,
         };
 
-        let _ = pad.add_row(row.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
         let change = pad.delete_rows(&[row.id]).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
@@ -348,7 +349,7 @@ mod tests {
             cell_by_field_id: Default::default(),
         };
 
-        let _ = pad.add_row(row, None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row, None).unwrap().unwrap();
         let change = pad.update_row(changeset).unwrap().unwrap();
 
         assert_eq!(

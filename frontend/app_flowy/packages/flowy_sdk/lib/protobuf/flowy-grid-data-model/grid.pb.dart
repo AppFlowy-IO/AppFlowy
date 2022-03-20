@@ -609,19 +609,19 @@ class GridBlockOrder extends $pb.GeneratedMessage {
 
 class GridBlock extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlock', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..pc<RowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrders', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
     ..hasRequiredFields = false
   ;
 
   GridBlock._() : super();
   factory GridBlock({
-    $core.String? blockId,
+    $core.String? id,
     $core.Iterable<RowOrder>? rowOrders,
   }) {
     final _result = create();
-    if (blockId != null) {
-      _result.blockId = blockId;
+    if (id != null) {
+      _result.id = id;
     }
     if (rowOrders != null) {
       _result.rowOrders.addAll(rowOrders);
@@ -650,13 +650,13 @@ class GridBlock extends $pb.GeneratedMessage {
   static GridBlock? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get blockId => $_getSZ(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set blockId($core.String v) { $_setString(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasBlockId() => $_has(0);
+  $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearBlockId() => clearField(1);
+  void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.List<RowOrder> get rowOrders => $_getList(1);

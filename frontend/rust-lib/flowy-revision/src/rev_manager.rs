@@ -67,6 +67,7 @@ impl RevisionManager {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip_all, fields(object_id) err)]
     pub async fn load<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectBuilder,
@@ -80,6 +81,7 @@ impl RevisionManager {
         .load()
         .await?;
         self.rev_id_counter.set(rev_id);
+        tracing::Span::current().record("object_id", &self.object_id.as_str());
         B::build_object(&self.object_id, revisions)
     }
 

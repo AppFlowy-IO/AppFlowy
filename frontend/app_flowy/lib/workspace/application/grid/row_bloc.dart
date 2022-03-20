@@ -19,7 +19,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
         await event.map(
           initial: (_InitialRow value) async {
             _startRowListening();
-            await _loadCellDatas(emit);
+            await _loadRow(emit);
           },
           createRow: (_CreateRow value) {
             rowService.createRow();
@@ -58,20 +58,20 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     listener.start();
   }
 
-  Future<void> _loadCellDatas(Emitter<RowState> emit) async {
-    final result = await rowService.getRow();
-    result.fold(
-      (row) {
-        emit(state.copyWith(
-          cellDatas: makeGridCellDatas(row),
-          rowHeight: row.height.toDouble(),
-        ));
-      },
-      (e) => Log.error(e),
-    );
+  Future<void> _loadRow(Emitter<RowState> emit) async {
+    final Future<List<GridCellData>> cellDatas = rowService.getRow().then((result) {
+      return result.fold(
+        (row) => _makeCellDatas(row),
+        (e) {
+          Log.error(e);
+          return [];
+        },
+      );
+    });
+    emit(state.copyWith(cellDatas: cellDatas));
   }
 
-  List<GridCellData> makeGridCellDatas(Row row) {
+  List<GridCellData> _makeCellDatas(Row row) {
     return rowService.rowData.fields.map((field) {
       final cell = row.cellByFieldId[field.id];
       final rowData = rowService.rowData;
@@ -96,18 +96,18 @@ abstract class RowEvent with _$RowEvent {
 }
 
 @freezed
-abstract class RowState with _$RowState {
+class RowState with _$RowState {
   const factory RowState({
     required String rowId,
     required double rowHeight,
-    required List<GridCellData> cellDatas,
+    required Future<List<GridCellData>> cellDatas,
     required bool active,
   }) = _RowState;
 
   factory RowState.initial(GridRowData data) => RowState(
         rowId: data.rowId,
-        active: false,
         rowHeight: data.height,
-        cellDatas: [],
+        cellDatas: Future(() => []),
+        active: false,
       );
 }

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/text_cell_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row_service.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,27 +22,40 @@ class GridTextCell extends StatefulWidget {
 
 class _GridTextCellState extends State<GridTextCell> {
   late TextEditingController _controller;
+  Timer? _delayOperation;
   final _focusNode = FocusNode();
-  late TextCellBloc _cellBloc;
+  TextCellBloc? _cellBloc;
 
   @override
   void initState() {
     _cellBloc = getIt<TextCellBloc>(param1: widget.cellData);
-    _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode.addListener(_focusChanged);
+    _controller = TextEditingController(text: _cellBloc!.state.content);
+    _focusNode.addListener(save);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _cellBloc,
+      value: _cellBloc!,
       child: BlocBuilder<TextCellBloc, TextCellState>(
+        buildWhen: (previous, current) {
+          return _controller.text != current.content;
+        },
         builder: (context, state) {
           return TextField(
             controller: _controller,
             focusNode: _focusNode,
-            onChanged: (value) {},
+            onChanged: (value) {
+              Log.info("On change");
+              save();
+            },
+            onEditingComplete: () {
+              Log.info("On complete");
+            },
+            onSubmitted: (value) {
+              Log.info("On submit");
+            },
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: const InputDecoration(
@@ -55,13 +71,18 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    _cellBloc.close();
-    _focusNode.removeListener(_focusChanged);
+    _cellBloc?.close();
+    _cellBloc = null;
+    _focusNode.removeListener(save);
     _focusNode.dispose();
     super.dispose();
   }
 
-  void _focusChanged() {
-    _cellBloc.add(TextCellEvent.updateText(_controller.text));
+  Future<void> save() async {
+    _delayOperation?.cancel();
+    _delayOperation = Timer(const Duration(seconds: 2), () {
+      _cellBloc?.add(TextCellEvent.updateText(_controller.text));
+    });
+    // and later, before the timer goes off...
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
@@ -32,7 +33,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           delete: (_Delete value) {},
           rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
-          didLoadRows: (_DidLoadRows value) {
+          rowsDidUpdate: (_RowsDidUpdate value) {
             emit(state.copyWith(rows: value.rows));
           },
         );
@@ -47,10 +48,19 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  Future<void> _startGridListening() async {
-    _blockService.didLoadRowscallback = (rows) {
-      add(GridEvent.didLoadRows(rows));
-    };
+  Future<void> _initGridBlockService(Grid grid, List<Field> fields) async {
+    _blockService = GridBlockService(
+      gridId: grid.id,
+      fields: fields,
+      blockOrders: grid.blockOrders,
+    );
+
+    _blockService.rowsUpdateNotifier.addPublishListener((result) {
+      result.fold(
+        (rows) => add(GridEvent.rowsDidUpdate(rows)),
+        (err) => Log.error('$err'),
+      );
+    });
 
     _gridListener.start();
   }
@@ -70,34 +80,16 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
     return Future(
       () => result.fold(
-        (fields) => _loadGridBlocks(grid, fields.items, emit),
+        (fields) {
+          _initGridBlockService(grid, fields.items);
+          emit(state.copyWith(
+            grid: Some(grid),
+            fields: Some(fields.items),
+            loadingState: GridLoadingState.finish(left(unit)),
+          ));
+        },
         (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
       ),
-    );
-  }
-
-  Future<void> _loadGridBlocks(Grid grid, List<Field> fields, Emitter<GridState> emit) async {
-    final result = await service.getGridBlocks(gridId: grid.id, blockOrders: grid.blockOrders);
-    result.fold(
-      (repeatedGridBlock) {
-        final gridBlocks = repeatedGridBlock.items;
-        final gridId = view.id;
-        _blockService = GridBlockService(
-          gridId: gridId,
-          fields: fields,
-          gridBlocks: gridBlocks,
-        );
-        final rows = _blockService.rows();
-
-        _startGridListening();
-        emit(state.copyWith(
-          grid: Some(grid),
-          fields: Some(fields),
-          rows: rows,
-          loadingState: GridLoadingState.finish(left(unit)),
-        ));
-      },
-      (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)), rows: [])),
     );
   }
 }
@@ -109,7 +101,7 @@ abstract class GridEvent with _$GridEvent {
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didLoadRows(List<GridRowData> rows) = _DidLoadRows;
+  const factory GridEvent.rowsDidUpdate(List<GridRowData> rows) = _RowsDidUpdate;
 }
 
 @freezed

@@ -84,42 +84,38 @@ class _FlowyGridState extends State<FlowyGrid> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         return state.fields.fold(
           () => const Center(child: CircularProgressIndicator.adaptive()),
-          (fields) => _renderGrid(context, fields),
+          (fields) => _wrapScrollbar(fields, [
+            _buildHeader(fields),
+            _buildRows(context),
+            const GridFooter(),
+          ]),
         );
       },
     );
   }
 
-  Widget _renderGrid(BuildContext context, List<Field> fields) {
-    return Stack(
-      children: [
-        StyledSingleChildScrollView(
-          controller: _scrollController.horizontalController,
-          axis: Axis.horizontal,
-          child: SizedBox(
-            width: GridLayout.headerWidth(fields),
-            child: CustomScrollView(
-              physics: StyledScrollPhysics(),
-              controller: _scrollController.verticalController,
-              slivers: <Widget>[
-                _buildHeader(fields),
-                _buildRows(context),
-                const GridFooter(),
-              ],
-            ),
+  Widget _wrapScrollbar(List<Field> fields, List<Widget> children) {
+    return ScrollbarListStack(
+      axis: Axis.vertical,
+      controller: _scrollController.verticalController,
+      barSize: GridSize.scrollBarSize,
+      child: StyledSingleChildScrollView(
+        controller: _scrollController.horizontalController,
+        axis: Axis.horizontal,
+        child: SizedBox(
+          width: GridLayout.headerWidth(fields),
+          child: CustomScrollView(
+            physics: StyledScrollPhysics(),
+            controller: _scrollController.verticalController,
+            slivers: <Widget>[...children],
           ),
         ),
-        ScrollbarListStack(
-          axis: Axis.vertical,
-          controller: _scrollController.verticalController,
-          barSize: GridSize.scrollBarSize,
-          child: Container(),
-        ).padding(right: 0, top: GridSize.headerHeight, bottom: GridSize.scrollBarSize),
-      ],
-    );
+      ),
+    ).padding(right: 0, top: GridSize.headerHeight, bottom: GridSize.scrollBarSize);
   }
 
   Widget _buildHeader(List<Field> fields) {
@@ -131,15 +127,21 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _buildRows(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final rowData = context.read<GridBloc>().state.rows[index];
-          return GridRowWidget(data: rowData);
-        },
-        childCount: context.read<GridBloc>().state.rows.length,
-        addRepaintBoundaries: true,
-      ),
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.rows.length != current.rows.length,
+      builder: (context, state) {
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final rowData = context.read<GridBloc>().state.rows[index];
+              return GridRowWidget(data: rowData);
+            },
+            childCount: context.read<GridBloc>().state.rows.length,
+            addRepaintBoundaries: true,
+            addAutomaticKeepAlives: true,
+          ),
+        );
+      },
     );
   }
 }

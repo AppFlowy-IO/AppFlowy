@@ -40,7 +40,7 @@ class BlankPagePlugin extends Plugin {
   PluginType get ty => _pluginType;
 }
 
-class BlankPagePluginDisplay extends PluginDisplay {
+class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
 

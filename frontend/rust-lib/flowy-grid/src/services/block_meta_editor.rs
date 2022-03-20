@@ -46,7 +46,9 @@ impl GridBlockMetaEditorManager {
         Ok(manager)
     }
 
+    // #[tracing::instrument(level = "trace", skip(self))]
     pub(crate) async fn get_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
+        debug_assert!(!block_id.is_empty());
         match self.editor_map.get(block_id) {
             None => {
                 tracing::error!("The is a fatal error, block is not exist");
@@ -68,7 +70,7 @@ impl GridBlockMetaEditorManager {
             .insert(row_meta.id.clone(), row_meta.block_id.clone());
         let editor = self.get_editor(&row_meta.block_id).await?;
         let row_count = editor.create_row(row_meta, start_row_id).await?;
-        self.notify_did_update_block(block_id).await?;
+        self.notify_block_did_update_row(&block_id).await?;
         Ok(row_count)
     }
 
@@ -85,7 +87,7 @@ impl GridBlockMetaEditorManager {
                 row_count = editor.create_row(row.clone(), None).await?;
             }
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
-            let _ = self.notify_did_update_block(&block_id).await?;
+            let _ = self.notify_block_did_update_row(&block_id).await?;
         }
 
         Ok(changesets)
@@ -108,7 +110,7 @@ impl GridBlockMetaEditorManager {
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
-        let _ = self.notify_did_update_block(&editor.block_id).await?;
+        let _ = self.notify_block_did_update_row(&editor.block_id).await?;
         Ok(())
     }
 
@@ -183,11 +185,9 @@ impl GridBlockMetaEditorManager {
         }
     }
 
-    async fn notify_did_update_block(&self, block_id: &str) -> FlowyResult<()> {
-        let block_id = GridBlockId {
-            value: block_id.to_owned(),
-        };
-        send_dart_notification(&self.grid_id, GridNotification::GridDidUpdateBlock)
+    async fn notify_block_did_update_row(&self, block_id: &str) -> FlowyResult<()> {
+        let block_id: GridBlockId = block_id.into();
+        send_dart_notification(&self.grid_id, GridNotification::BlockDidUpdateRow)
             .payload(block_id)
             .send();
         Ok(())
@@ -277,7 +277,7 @@ impl ClientGridBlockMetaEditor {
         let mut row_count = 0;
         let _ = self
             .modify(|pad| {
-                let change = pad.add_row(row, start_row_id)?;
+                let change = pad.add_row_meta(row, start_row_id)?;
                 row_count = pad.number_of_rows();
                 Ok(change)
             })
@@ -298,13 +298,22 @@ impl ClientGridBlockMetaEditor {
         Ok(row_count)
     }
 
-    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<RowMeta> {
+        let row_id = changeset.row_id.clone();
         let _ = self.modify(|pad| Ok(pad.update_row(changeset)?)).await?;
-        Ok(())
+        let mut row_metas = self.get_row_metas(Some(vec![row_id.clone()])).await?;
+        debug_assert_eq!(row_metas.len(), 1);
+
+        if row_metas.is_empty() {
+            return Err(FlowyError::record_not_found().context(format!("Can't find the row with id: {}", &row_id)));
+        } else {
+            let a = (**row_metas.pop().as_ref().unwrap()).clone();
+            Ok(a)
+        }
     }
 
     pub async fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
-        let row_metas = self.pad.read().await.get_rows(row_ids)?;
+        let row_metas = self.pad.read().await.get_row_metas(row_ids)?;
         Ok(row_metas)
     }
 
@@ -313,7 +322,7 @@ impl ClientGridBlockMetaEditor {
             .pad
             .read()
             .await
-            .get_rows(row_ids)?
+            .get_row_metas(row_ids)?
             .iter()
             .map(RowOrder::from)
             .collect::<Vec<RowOrder>>();

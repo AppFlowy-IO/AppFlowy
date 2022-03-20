@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
@@ -64,7 +66,7 @@ class ViewSectionNotifier with ChangeNotifier {
   bool isDisposed = false;
   List<View> _views;
   View? _selectedView;
-  CancelableOperation? _notifyListenerOperation;
+  Timer? _notifyListenerOperation;
 
   ViewSectionNotifier({
     required BuildContext context,
@@ -120,9 +122,7 @@ class ViewSectionNotifier with ChangeNotifier {
 
   void _notifyListeners() {
     _notifyListenerOperation?.cancel();
-    _notifyListenerOperation = CancelableOperation.fromFuture(
-      Future.delayed(const Duration(milliseconds: 30), () {}),
-    ).then((_) {
+    _notifyListenerOperation = Timer(const Duration(milliseconds: 30), () {
       if (!isDisposed) {
         notifyListeners();
       }

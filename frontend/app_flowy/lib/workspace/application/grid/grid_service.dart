@@ -13,9 +13,9 @@ class GridService {
     return GridEventGetGridData(payload).send();
   }
 
-  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? upperRowId}) {
+  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? startRowId}) {
     CreateRowPayload payload = CreateRowPayload.create()..gridId = gridId;
-    upperRowId?.fold(() => null, (id) => payload.startRowId = id);
+    startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return GridEventCreateRow(payload).send();
   }
 

@@ -44,7 +44,7 @@ message GridBlockOrder {
     string block_id = 1;
 }
 message GridBlock {
-    string block_id = 1;
+    string id = 1;
     repeated RowOrder row_orders = 2;
 }
 message Cell {

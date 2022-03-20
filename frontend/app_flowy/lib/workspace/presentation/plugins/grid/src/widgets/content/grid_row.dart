@@ -11,7 +11,7 @@ import 'cell_container.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRowData data;
-  GridRowWidget({required this.data, Key? key}) : super(key: ObjectKey(data.rowId));
+  GridRowWidget({required this.data, Key? key}) : super(key: ValueKey(data.rowId));
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -30,28 +30,25 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
-          onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
-          child: BlocBuilder<RowBloc, RowState>(
-            buildWhen: (p, c) => p.rowHeight != c.rowHeight,
-            builder: (context, state) {
-              return SizedBox(
-                height: _rowBloc.state.rowHeight,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const LeadingRow(),
-                    _buildCells(),
-                    const TrailingRow(),
-                  ],
-                ),
-              );
-            },
-          ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
+        onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
+        child: BlocBuilder<RowBloc, RowState>(
+          buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+          builder: (context, state) {
+            return SizedBox(
+              height: _rowBloc.state.rowHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  _RowLeading(),
+                  _RowCells(),
+                  _RowTrailing(),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -62,69 +59,37 @@ class _GridRowWidgetState extends State<GridRowWidget> {
     _rowBloc.close();
     super.dispose();
   }
-
-  Widget _buildCells() {
-    return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (p, c) => p.cellDatas != c.cellDatas,
-      builder: (context, state) {
-        return Row(
-          children: state.cellDatas
-              .map(
-                (cellData) => CellContainer(
-                  width: cellData.field.width.toDouble(),
-                  child: buildGridCell(cellData),
-                ),
-              )
-              .toList(),
-        );
-      },
-    );
-  }
 }
 
-class LeadingRow extends StatelessWidget {
-  const LeadingRow({Key? key}) : super(key: key);
+class _RowLeading extends StatelessWidget {
+  const _RowLeading({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocSelector<RowBloc, RowState, bool>(
       selector: (state) => state.active,
       builder: (context, isActive) {
-        return SizedBox(
-          width: GridSize.leadingHeaderPadding,
-          child: isActive
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    AppendRowButton(),
-                  ],
-                )
-              : null,
-        );
+        return SizedBox(width: GridSize.leadingHeaderPadding, child: isActive ? _activeWidget() : null);
       },
+    );
+  }
+
+  Widget _activeWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        AppendRowButton(),
+      ],
     );
   }
 }
 
-class TrailingRow extends StatelessWidget {
-  const TrailingRow({Key? key}) : super(key: key);
+class _RowTrailing extends StatelessWidget {
+  const _RowTrailing({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    final borderSide = BorderSide(color: theme.shader4, width: 0.4);
-
-    return BlocBuilder<RowBloc, RowState>(
-      builder: (context, state) {
-        return Container(
-          width: GridSize.trailHeaderPadding,
-          decoration: BoxDecoration(
-            border: Border(bottom: borderSide),
-          ),
-          padding: GridSize.cellContentInsets,
-        );
-      },
-    );
+    return const SizedBox();
   }
 }
 
@@ -140,6 +105,40 @@ class AppendRowButton extends StatelessWidget {
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
       icon: svg("home/add"),
+    );
+  }
+}
+
+class _RowCells extends StatelessWidget {
+  const _RowCells({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RowBloc, RowState>(
+      buildWhen: (previous, current) => previous.cellDatas != current.cellDatas,
+      builder: (context, state) {
+        return FutureBuilder(
+          future: state.cellDatas,
+          builder: builder,
+        );
+      },
+    );
+  }
+
+  Widget builder(context, AsyncSnapshot<dynamic> snapshot) {
+    switch (snapshot.connectionState) {
+      case ConnectionState.done:
+        List<GridCellData> cellDatas = snapshot.data;
+        return Row(children: cellDatas.map(_toCell).toList());
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _toCell(GridCellData data) {
+    return CellContainer(
+      width: data.field.width.toDouble(),
+      child: buildGridCell(data),
     );
   }
 }

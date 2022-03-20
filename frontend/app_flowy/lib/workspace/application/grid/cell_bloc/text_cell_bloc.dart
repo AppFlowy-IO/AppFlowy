@@ -17,6 +17,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           initial: (_InitialCell value) async {},
           updateText: (_UpdateText value) {
             service.updateCell(data: value.text);
+            emit(state.copyWith(content: value.text));
           },
         );
       },

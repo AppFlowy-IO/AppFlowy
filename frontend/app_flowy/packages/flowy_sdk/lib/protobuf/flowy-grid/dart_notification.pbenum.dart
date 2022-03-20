@@ -11,15 +11,15 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class GridNotification extends $pb.ProtobufEnum {
   static const GridNotification Unknown = GridNotification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const GridNotification GridDidUpdateBlock = GridNotification._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateBlock');
   static const GridNotification GridDidCreateBlock = GridNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidCreateBlock');
-  static const GridNotification GridDidUpdateCells = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateCells');
-  static const GridNotification GridDidUpdateFields = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateFields');
+  static const GridNotification BlockDidUpdateRow = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockDidUpdateRow');
+  static const GridNotification GridDidUpdateCells = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateCells');
+  static const GridNotification GridDidUpdateFields = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateFields');
 
   static const $core.List<GridNotification> values = <GridNotification> [
     Unknown,
-    GridDidUpdateBlock,
     GridDidCreateBlock,
+    BlockDidUpdateRow,
     GridDidUpdateCells,
     GridDidUpdateFields,
   ];

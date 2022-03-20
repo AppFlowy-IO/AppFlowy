@@ -42,6 +42,7 @@ class GridHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return BlocProvider(
       create: (context) => getIt<ColumnBloc>(param1: fields)..add(const ColumnEvent.initial()),
       child: BlocBuilder<ColumnBloc, ColumnState>(
@@ -55,13 +56,16 @@ class GridHeader extends StatelessWidget {
               )
               .toList();
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const LeadingHeaderCell(),
-              ...headers,
-              const TrailingHeaderCell(),
-            ],
+          return Container(
+            color: theme.surface,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const LeadingHeaderCell(),
+                ...headers,
+                const TrailingHeaderCell(),
+              ],
+            ),
           );
         },
       ),
