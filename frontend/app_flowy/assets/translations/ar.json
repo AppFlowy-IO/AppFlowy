@@ -1,0 +1,145 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "أنا",
+  "welcomeText": "مرحبًا بك في @: appName",
+  "githubStarText": "Star on GitHub",
+  "subscribeNewsletterText": "Subscribe to Newsletter",
+  "letsGoButtonText": "Let's Go",
+  "title": "العنوان",
+  "signUp": {
+    "buttonText": "تسجيل",
+    "title": "اشترك في @: appName",
+    "getStartedText": "البدء",
+    "emptyPasswordError": "كلمة المرور لا يمكن أن تكون فارغة",
+    "repeatPasswordEmptyError": "تكرار كلمة المرور لا يمكن أن يكون فارغًا",
+    "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
+    "alreadyHaveAnAccount": "هل لديك حساب بالفعل؟",
+    "emailHint": "البريد الٌالإلكتروني",
+    "passwordHint": "كلمة المرور",
+    "repeatPasswordHint": "كرر كلمة المرور"
+  },
+  "signIn": {
+    "loginTitle": "تسجيل الدخول إلى @: appName",
+    "loginButtonText": "تسجيل الدخول",
+    "buttonText": "تسجيل الدخول",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "emailHint": "البريد الإلكتروني",
+    "passwordHint": "كلمة المرور",
+    "dontHaveAnAccount": "ليس لديك حساب؟",
+    "repeatPasswordEmptyError": "تكرار كلمة المرور لا يمكن أن يكون فارغًا",
+    "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور"
+  },
+  "workspace": {
+    "create": "إنشاء مساحة عمل",
+    "hint": "مساحة العمل",
+    "notFoundError": "مساحة العمل غير موجودة"
+  },
+  "shareAction": {
+    "buttonText": "مشاركة",
+    "workInProgress": "قريبًا",
+    "markdown": "نص ماركداون",
+    "copyLink": "نسخ الرابط"
+  },
+  "disclosureAction": {
+    "rename": "Rename",
+    "delete": "حذف",
+    "duplicate": "مكرر"
+  },
+  "blankPageTitle": "صفحة فارغة",
+  "newPageText": "صفحة جديدة",
+  "trash": {
+    "text": "المهملات",
+    "restoreAll": "استعادة الكل",
+    "deleteAll": "Delete All",
+    "pageHeader": {
+      "fileName": "اسم الملف",
+      "lastModified": "Last Modified",
+      "created": "تم إنشاؤه"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "هذه الصفحة في المهملات",
+    "restore": "استعادة الصفحة",
+    "deletePermanent": "الحذف نهائيًا"
+  },
+  "DialCreatePageNameHint": "اسم الصفحة",
+  "questionBubble": {
+    "whatsNew": "ما الجديد؟",
+    "help": "Help & Support",
+    "debug": {
+      "name": "معلومات التصحيح",
+      "Success": "تم نسخ معلومات تصحيح الأخطاء إلى الحافظة!",
+      "fail": "تعذر نسخ معلومات التصحيح إلى الحافظة"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "أضف صفحة داخل الصفحة بسرعة",
+    "defaultNewPageName": "بدون عنوان",
+    "renameDialog": "Rename"
+  },
+  "toolbar": {
+    "undo": "تراجع",
+    "redo": "إعادة",
+    "bold": "غامق",
+    "italic": "مائل",
+    "underline": "تسطير",
+    "strike": "يتوسطه خط",
+    "numList": "قائمة ذات تعداد رقمي",
+    "bulletList": "قائمة نقطية",
+    "checkList": "قائمة التحقق",
+    "inlineCode": "Inline Code",
+    "quote": "اقتباس بلوك",
+    "header": "Header",
+    "highlight": "تمييز"
+  },
+  "tooltip": {
+    "lightMode": "التبديل إلى الوضع الفاتح",
+    "darkMode": "التبديل إلى الوضع الداكن"
+  },
+  "contactsPage": {
+    "title": "جهات الاتصال",
+    "whatsHappening": "ماذا يحدث هذا الأسبوع؟",
+    "addContact": "إضافة جهة اتصال",
+    "editContact": "تحرير جهة الاتصال"
+  },
+  "button": {
+    "OK": "حسنا حسنا",
+    "Cancel": "إلغاء",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "complete": "كاملة",
+    "save": "حفظ"
+  },
+  "label": {
+    "welcome": "اهلا اهلا!",
+    "firstName": "الاسم الأول",
+    "middleName": "الاسم الأوسط",
+    "lastName": "اسم العائلة",
+    "stepX": "الخطوة {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "تعذر الاتصال بحسابك.",
+      "failureMsg": "الرجاء التأكد من إكمال عملية تسجيل الدخول في متصفحك."
+    },
+    "google": {
+      "title": "تسجيل دخول GOOGLE",
+      "instruction1": "من أجل استيراد جهات اتصال Google الخاصة بك , ستحتاج إلى تفويض هذا التطبيق باستخدام متصفح الويب الخاص بك.",
+      "instruction2": "انسخ هذا الرمز إلى الحافظة الخاصة بك عن طريق النقر فوق الرمز أو تحديد النص:",
+      "instruction3": "انتقل إلى الرابط التالي في متصفح الويب الخاص بك , وأدخل الرمز أعلاه:",
+      "instruction4": "اضغط على الزر أدناه عند الانتهاء من التسجيل:"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "menu": {
+      "appearance": "المظهر",
+      "language": "اللغة",
+      "open": "فتح الإعدادات"
+    },
+    "appearance": {
+      "lightLabel": "الوضع الساطع",
+      "darkLabel": "الوضع الداكن"
+    }
+  }
+}

@@ -1,14 +1,14 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
-import 'package:bloc/bloc.dart';
-import 'package:flowy_sdk/log.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   @override
@@ -29,6 +29,7 @@ class InitAppWidgetTask extends LaunchTask {
           EasyLocalization(
             supportedLocales: const [
               // In alphabetical order
+              Locale('ar'),
               Locale('ca', 'ES'),
               Locale('de', 'DE'),
               Locale('en'),
