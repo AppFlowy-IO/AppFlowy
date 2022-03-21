@@ -126,13 +126,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEditPannel({required HomeState homeState, required BuildContext context, required HomeLayout layout}) {
     final homeBloc = context.read<HomeBloc>();
-    Widget editPannel = EditPannel(
-      context: homeState.editContext,
-      onEndEdit: () => homeBloc.add(const HomeEvent.dismissEditPannel()),
+    return BlocBuilder<HomeBloc, HomeState>(
+      buildWhen: (previous, current) => previous.pannelContext != current.pannelContext,
+      builder: (context, state) {
+        return state.pannelContext.fold(
+          () => const SizedBox(),
+          (pannelContext) => FocusTraversalGroup(
+            child: RepaintBoundary(
+              child: EditPannel(
+                pannelContext: pannelContext,
+                onEndEdit: () => homeBloc.add(const HomeEvent.dismissEditPannel()),
+              ),
+            ),
+          ),
+        );
+      },
     );
-    // editPannel = RepaintBoundary(child: editPannel);
-    // editPannel = FocusTraversalGroup(child: editPannel);
-    return editPannel;
   }
 
   Widget _layoutWidgets({

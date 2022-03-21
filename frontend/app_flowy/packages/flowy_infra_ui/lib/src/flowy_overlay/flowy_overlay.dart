@@ -279,6 +279,17 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       children.add(child);
     }
 
+    // Try to fix there is no overlay for editabletext widget. e.g. TextField.
+    // // Check out the TextSelectionOverlay class in text_selection.dart.
+    // // ...
+    // //  final OverlayState? overlay = Overlay.of(context, rootOverlay: true);
+    // // assert(
+    // //   overlay != null,
+    // //   'No Overlay widget exists above $context.\n'
+    // //   'Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your '
+    // //   'app content was created above the Navigator with the WidgetsApp builder parameter.',
+    // // );
+    // // ...
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Stack(
