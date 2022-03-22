@@ -141,5 +141,14 @@
       "lightLabel": "Light Mode",
       "darkLabel": "Dark Mode"
     }
+  },
+  "grid": {
+    "field": {
+      "hide": "Hide",
+      "insertLeft": "Insert Left",
+      "insertRight": "Insert Right",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    }
   }
 }

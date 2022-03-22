@@ -5,6 +5,8 @@ import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+export './overlay_container.dart';
+
 /// Specifies how overlay are anchored to the SourceWidget
 enum AnchorDirection {
   // Corner aligned with a corner of the SourceWidget

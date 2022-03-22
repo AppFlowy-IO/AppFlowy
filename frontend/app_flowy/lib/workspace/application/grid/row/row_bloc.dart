@@ -1,9 +1,9 @@
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'grid_service.dart';
 import 'row_listener.dart';
 import 'row_service.dart';
 

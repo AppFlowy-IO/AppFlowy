@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/column_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -44,8 +44,8 @@ class GridHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => getIt<ColumnBloc>(param1: fields)..add(const ColumnEvent.initial()),
-      child: BlocBuilder<ColumnBloc, ColumnState>(
+      create: (context) => getIt<GridHeaderBloc>(param1: fields)..add(const GridHeaderEvent.initial()),
+      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         builder: (context, state) {
           final headers = state.fields
               .map(
@@ -111,7 +111,7 @@ class CreateColumnButton extends StatelessWidget {
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.hover,
-      onTap: () => context.read<ColumnBloc>().add(const ColumnEvent.createColumn()),
+      onTap: () => context.read<GridHeaderBloc>().add(const GridHeaderEvent.createField()),
       leftIcon: svg("home/add"),
     );
   }

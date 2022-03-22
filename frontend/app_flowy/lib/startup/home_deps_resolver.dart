@@ -3,7 +3,7 @@ import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/workspace/application/doc/prelude.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/application/grid/row_listener.dart';
+import 'package:app_flowy/workspace/application/grid/row/row_listener.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
@@ -101,10 +101,17 @@ class HomeDepsResolver {
       ),
     );
 
-    getIt.registerFactoryParam<ColumnBloc, List<Field>, void>(
-      (data, _) => ColumnBloc(
+    getIt.registerFactoryParam<GridHeaderBloc, List<Field>, void>(
+      (data, _) => GridHeaderBloc(
         data: GridColumnData(fields: data),
-        service: ColumnService(),
+        service: FieldService(),
+      ),
+    );
+
+    getIt.registerFactoryParam<FieldEditBloc, Field, void>(
+      (field, _) => FieldEditBloc(
+        field: field,
+        service: FieldService(),
       ),
     );
 

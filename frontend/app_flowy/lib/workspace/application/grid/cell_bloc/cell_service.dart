@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/row_service.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';

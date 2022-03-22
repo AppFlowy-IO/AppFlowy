@@ -3,7 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 
-import 'grid_service.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
 
 class RowService {
   final GridRowData rowData;

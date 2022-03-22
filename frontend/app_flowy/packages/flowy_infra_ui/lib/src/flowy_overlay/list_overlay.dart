@@ -35,36 +35,29 @@ class ListOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     const padding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
     double totalHeight = height + padding.vertical;
     if (footer != null) {
       totalHeight = totalHeight + footer!.height + footer!.padding.vertical;
     }
 
-    return Material(
-      type: MaterialType.transparency,
-      child: Container(
-        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.1)),
-        constraints: BoxConstraints.tight(Size(width, totalHeight)),
-        child: Padding(
-          padding: padding,
-          child: Column(
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemBuilder: itemBuilder,
-                itemCount: itemCount,
-                controller: controller,
-              ),
-              if (footer != null)
-                Padding(
-                  padding: footer!.padding,
-                  child: footer!.widget,
-                ),
-            ],
+    return OverlayContainer(
+      constraints: BoxConstraints.tight(Size(width, totalHeight)),
+      padding: padding,
+      child: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+            controller: controller,
           ),
-        ),
+          if (footer != null)
+            Padding(
+              padding: footer!.padding,
+              child: footer!.widget,
+            ),
+        ],
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/cell_bloc/number_cell_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/row_service.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

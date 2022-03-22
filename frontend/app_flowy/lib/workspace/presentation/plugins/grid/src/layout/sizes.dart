@@ -21,6 +21,11 @@ class GridSize {
         vertical: GridSize.cellContentPadding,
       );
 
+  static EdgeInsets get fieldContentInsets => EdgeInsets.symmetric(
+        horizontal: GridSize.cellContentPadding,
+        vertical: GridSize.cellContentPadding,
+      );
+
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         0,
         GridSize.headerContainerPadding,
