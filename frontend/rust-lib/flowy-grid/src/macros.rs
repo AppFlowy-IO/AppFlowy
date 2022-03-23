@@ -11,7 +11,7 @@ macro_rules! impl_from_field_type_option {
     ($target: ident) => {
         impl std::convert::From<&FieldMeta> for $target {
             fn from(field_meta: &FieldMeta) -> $target {
-                match serde_json::from_str(&field_meta.type_options) {
+                match serde_json::from_str(&field_meta.type_option) {
                     Ok(obj) => obj,
                     Err(err) => {
                         tracing::error!("{} convert from any data failed, {:?}", stringify!($target), err);

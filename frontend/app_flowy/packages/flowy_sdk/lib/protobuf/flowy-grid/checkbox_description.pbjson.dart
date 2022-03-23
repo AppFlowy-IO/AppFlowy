@@ -8,13 +8,13 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use checkboxDescriptionDescriptor instead')
-const CheckboxDescription$json = const {
-  '1': 'CheckboxDescription',
+@$core.Deprecated('Use checkboxTypeOptionDescriptor instead')
+const CheckboxTypeOption$json = const {
+  '1': 'CheckboxTypeOption',
   '2': const [
     const {'1': 'is_selected', '3': 1, '4': 1, '5': 8, '10': 'isSelected'},
   ],
 };
 
-/// Descriptor for `CheckboxDescription`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List checkboxDescriptionDescriptor = $convert.base64Decode('ChNDaGVja2JveERlc2NyaXB0aW9uEh8KC2lzX3NlbGVjdGVkGAEgASgIUgppc1NlbGVjdGVk');
+/// Descriptor for `CheckboxTypeOption`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List checkboxTypeOptionDescriptor = $convert.base64Decode('ChJDaGVja2JveFR5cGVPcHRpb24SHwoLaXNfc2VsZWN0ZWQYASABKAhSCmlzU2VsZWN0ZWQ=');

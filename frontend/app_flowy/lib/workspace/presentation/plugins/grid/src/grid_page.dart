@@ -83,17 +83,20 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final gridId = context.read<GridBloc>().view.id;
+
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        return state.fields.fold(
-          () => const Center(child: CircularProgressIndicator.adaptive()),
-          (fields) => _wrapScrollbar(fields, [
-            _buildHeader(fields),
-            _buildRows(context),
-            const GridFooter(),
-          ]),
-        );
+        if (state.fields.isEmpty) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
+
+        return _wrapScrollbar(state.fields, [
+          _buildHeader(gridId, state.fields),
+          _buildRows(context),
+          const GridFooter(),
+        ]);
       },
     );
   }
@@ -108,19 +111,22 @@ class _FlowyGridState extends State<FlowyGrid> {
         axis: Axis.horizontal,
         child: SizedBox(
           width: GridLayout.headerWidth(fields),
-          child: CustomScrollView(
-            physics: StyledScrollPhysics(),
-            controller: _scrollController.verticalController,
-            slivers: <Widget>[...children],
+          child: ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(scrollbars: false),
+            child: CustomScrollView(
+              physics: StyledScrollPhysics(),
+              controller: _scrollController.verticalController,
+              slivers: <Widget>[...children],
+            ),
           ),
         ),
       ),
     ).padding(right: 0, top: GridSize.headerHeight, bottom: GridSize.scrollBarSize);
   }
 
-  Widget _buildHeader(List<Field> fields) {
+  Widget _buildHeader(String gridId, List<Field> fields) {
     return SliverPersistentHeader(
-      delegate: GridHeaderDelegate(fields),
+      delegate: GridHeaderDelegate(gridId: gridId, fields: fields),
       floating: true,
       pinned: true,
     );

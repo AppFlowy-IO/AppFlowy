@@ -17,34 +17,21 @@ class HeaderCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return FlowyButton(
-      text: Padding(
-        padding: GridSize.cellContentInsets,
-        child: FlowyText.medium(field.name, fontSize: 12),
-      ),
+    final button = FlowyButton(
       hoverColor: theme.hover,
       onTap: () => FieldEditor.show(context, field),
       rightIcon: svg("editor/details", color: theme.iconColor),
+      text: Padding(padding: GridSize.cellContentInsets, child: FlowyText.medium(field.name, fontSize: 12)),
     );
-  }
-}
 
-class HeaderCellContainer extends StatelessWidget {
-  final HeaderCell child;
-  final double width;
-  const HeaderCellContainer({Key? key, required this.child, required this.width}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     final borderSide = BorderSide(color: theme.shader4, width: 0.4);
+    final decoration = BoxDecoration(border: Border(top: borderSide, right: borderSide, bottom: borderSide));
+
     return Container(
-      width: width,
-      decoration: BoxDecoration(
-        border: Border(top: borderSide, right: borderSide, bottom: borderSide),
-      ),
+      width: field.width.toDouble(),
+      decoration: decoration,
       padding: GridSize.headerContentInsets,
-      child: child,
+      child: button,
     );
   }
 }

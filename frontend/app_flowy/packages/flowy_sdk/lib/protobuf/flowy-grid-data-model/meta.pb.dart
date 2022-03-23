@@ -215,7 +215,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
+    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOption')
     ..hasRequiredFields = false
   ;
 
@@ -228,7 +228,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    $core.String? typeOptions,
+    $core.String? typeOption,
   }) {
     final _result = create();
     if (id != null) {
@@ -252,8 +252,8 @@ class FieldMeta extends $pb.GeneratedMessage {
     if (width != null) {
       _result.width = width;
     }
-    if (typeOptions != null) {
-      _result.typeOptions = typeOptions;
+    if (typeOption != null) {
+      _result.typeOption = typeOption;
     }
     return _result;
   }
@@ -342,13 +342,13 @@ class FieldMeta extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 
   @$pb.TagNumber(8)
-  $core.String get typeOptions => $_getSZ(7);
+  $core.String get typeOption => $_getSZ(7);
   @$pb.TagNumber(8)
-  set typeOptions($core.String v) { $_setString(7, v); }
+  set typeOption($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
-  $core.bool hasTypeOptions() => $_has(7);
+  $core.bool hasTypeOption() => $_has(7);
   @$pb.TagNumber(8)
-  void clearTypeOptions() => clearField(8);
+  void clearTypeOption() => clearField(8);
 }
 
 enum FieldChangeset_OneOfName {
@@ -388,55 +388,57 @@ enum FieldChangeset_OneOfTypeOptions {
 
 class FieldChangeset extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, FieldChangeset_OneOfName> _FieldChangeset_OneOfNameByTag = {
-    2 : FieldChangeset_OneOfName.name,
+    3 : FieldChangeset_OneOfName.name,
     0 : FieldChangeset_OneOfName.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfDesc> _FieldChangeset_OneOfDescByTag = {
-    3 : FieldChangeset_OneOfDesc.desc,
+    4 : FieldChangeset_OneOfDesc.desc,
     0 : FieldChangeset_OneOfDesc.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfFieldType> _FieldChangeset_OneOfFieldTypeByTag = {
-    4 : FieldChangeset_OneOfFieldType.fieldType,
+    5 : FieldChangeset_OneOfFieldType.fieldType,
     0 : FieldChangeset_OneOfFieldType.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfFrozen> _FieldChangeset_OneOfFrozenByTag = {
-    5 : FieldChangeset_OneOfFrozen.frozen,
+    6 : FieldChangeset_OneOfFrozen.frozen,
     0 : FieldChangeset_OneOfFrozen.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfVisibility> _FieldChangeset_OneOfVisibilityByTag = {
-    6 : FieldChangeset_OneOfVisibility.visibility,
+    7 : FieldChangeset_OneOfVisibility.visibility,
     0 : FieldChangeset_OneOfVisibility.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfWidth> _FieldChangeset_OneOfWidthByTag = {
-    7 : FieldChangeset_OneOfWidth.width,
+    8 : FieldChangeset_OneOfWidth.width,
     0 : FieldChangeset_OneOfWidth.notSet
   };
   static const $core.Map<$core.int, FieldChangeset_OneOfTypeOptions> _FieldChangeset_OneOfTypeOptionsByTag = {
-    8 : FieldChangeset_OneOfTypeOptions.typeOptions,
+    9 : FieldChangeset_OneOfTypeOptions.typeOptions,
     0 : FieldChangeset_OneOfTypeOptions.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldChangeset', createEmptyInstance: create)
-    ..oo(0, [2])
-    ..oo(1, [3])
-    ..oo(2, [4])
-    ..oo(3, [5])
-    ..oo(4, [6])
-    ..oo(5, [7])
-    ..oo(6, [8])
+    ..oo(0, [3])
+    ..oo(1, [4])
+    ..oo(2, [5])
+    ..oo(3, [6])
+    ..oo(4, [7])
+    ..oo(5, [8])
+    ..oo(6, [9])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<FieldType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
-    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
-    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
-    ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..e<FieldType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
+    ..aOB(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
+    ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
+    ..aOS(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
     ..hasRequiredFields = false
   ;
 
   FieldChangeset._() : super();
   factory FieldChangeset({
     $core.String? fieldId,
+    $core.String? gridId,
     $core.String? name,
     $core.String? desc,
     FieldType? fieldType,
@@ -448,6 +450,9 @@ class FieldChangeset extends $pb.GeneratedMessage {
     final _result = create();
     if (fieldId != null) {
       _result.fieldId = fieldId;
+    }
+    if (gridId != null) {
+      _result.gridId = gridId;
     }
     if (name != null) {
       _result.name = name;
@@ -524,67 +529,76 @@ class FieldChangeset extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get name => $_getSZ(1);
+  $core.String get gridId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set name($core.String v) { $_setString(1, v); }
+  set gridId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasName() => $_has(1);
+  $core.bool hasGridId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearName() => clearField(2);
+  void clearGridId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get desc => $_getSZ(2);
+  $core.String get name => $_getSZ(2);
   @$pb.TagNumber(3)
-  set desc($core.String v) { $_setString(2, v); }
+  set name($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasDesc() => $_has(2);
+  $core.bool hasName() => $_has(2);
   @$pb.TagNumber(3)
-  void clearDesc() => clearField(3);
+  void clearName() => clearField(3);
 
   @$pb.TagNumber(4)
-  FieldType get fieldType => $_getN(3);
+  $core.String get desc => $_getSZ(3);
   @$pb.TagNumber(4)
-  set fieldType(FieldType v) { setField(4, v); }
+  set desc($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasFieldType() => $_has(3);
+  $core.bool hasDesc() => $_has(3);
   @$pb.TagNumber(4)
-  void clearFieldType() => clearField(4);
+  void clearDesc() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.bool get frozen => $_getBF(4);
+  FieldType get fieldType => $_getN(4);
   @$pb.TagNumber(5)
-  set frozen($core.bool v) { $_setBool(4, v); }
+  set fieldType(FieldType v) { setField(5, v); }
   @$pb.TagNumber(5)
-  $core.bool hasFrozen() => $_has(4);
+  $core.bool hasFieldType() => $_has(4);
   @$pb.TagNumber(5)
-  void clearFrozen() => clearField(5);
+  void clearFieldType() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.bool get visibility => $_getBF(5);
+  $core.bool get frozen => $_getBF(5);
   @$pb.TagNumber(6)
-  set visibility($core.bool v) { $_setBool(5, v); }
+  set frozen($core.bool v) { $_setBool(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasVisibility() => $_has(5);
+  $core.bool hasFrozen() => $_has(5);
   @$pb.TagNumber(6)
-  void clearVisibility() => clearField(6);
+  void clearFrozen() => clearField(6);
 
   @$pb.TagNumber(7)
-  $core.int get width => $_getIZ(6);
+  $core.bool get visibility => $_getBF(6);
   @$pb.TagNumber(7)
-  set width($core.int v) { $_setSignedInt32(6, v); }
+  set visibility($core.bool v) { $_setBool(6, v); }
   @$pb.TagNumber(7)
-  $core.bool hasWidth() => $_has(6);
+  $core.bool hasVisibility() => $_has(6);
   @$pb.TagNumber(7)
-  void clearWidth() => clearField(7);
+  void clearVisibility() => clearField(7);
 
   @$pb.TagNumber(8)
-  $core.String get typeOptions => $_getSZ(7);
+  $core.int get width => $_getIZ(7);
   @$pb.TagNumber(8)
-  set typeOptions($core.String v) { $_setString(7, v); }
+  set width($core.int v) { $_setSignedInt32(7, v); }
   @$pb.TagNumber(8)
-  $core.bool hasTypeOptions() => $_has(7);
+  $core.bool hasWidth() => $_has(7);
   @$pb.TagNumber(8)
-  void clearTypeOptions() => clearField(8);
+  void clearWidth() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get typeOptions => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set typeOptions($core.String v) { $_setString(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasTypeOptions() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearTypeOptions() => clearField(9);
 }
 
 class AnyData extends $pb.GeneratedMessage {

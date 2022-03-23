@@ -6,7 +6,8 @@ use crate::dart_notification::{send_dart_notification, GridNotification};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    FieldMeta, GridBlockId, GridBlockMeta, GridBlockMetaChangeset, RepeatedCell, RowMeta, RowMetaChangeset, RowOrder,
+    FieldMeta, GridBlockId, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, RowMeta,
+    RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{
@@ -186,9 +187,9 @@ impl GridBlockMetaEditorManager {
     }
 
     async fn notify_block_did_update_row(&self, block_id: &str) -> FlowyResult<()> {
-        let block_id: GridBlockId = block_id.into();
-        send_dart_notification(&self.grid_id, GridNotification::BlockDidUpdateRow)
-            .payload(block_id)
+        let block_order: GridBlockOrder = block_id.into();
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateRow)
+            .payload(block_order)
             .send();
         Ok(())
     }

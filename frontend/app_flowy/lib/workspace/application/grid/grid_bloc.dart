@@ -19,13 +19,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   late GridBlockService _blockService;
 
   GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
-    _gridListener = GridListener();
+    _gridListener = GridListener(gridId: view.id);
 
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (InitialGrid value) async {
-            await _loadGrid(emit);
+            await _initGrid(emit);
           },
           createRow: (_CreateRow value) {
             service.createRow(gridId: view.id);
@@ -35,6 +35,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           updateDesc: (_Desc value) {},
           rowsDidUpdate: (_RowsDidUpdate value) {
             emit(state.copyWith(rows: value.rows));
+          },
+          fieldsDidUpdate: (_FieldsDidUpdate value) {
+            emit(state.copyWith(fields: value.fields));
           },
         );
       },
@@ -48,26 +51,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  Future<void> _initGridBlockService(Grid grid, List<Field> fields) async {
-    _blockService = GridBlockService(
-      gridId: grid.id,
-      fields: fields,
-      blockOrders: grid.blockOrders,
-    );
-
-    _blockService.rowsUpdateNotifier.addPublishListener((result) {
+  Future<void> _initGrid(Emitter<GridState> emit) async {
+    _gridListener.fieldsUpdateNotifier.addPublishListener((result) {
       result.fold(
-        (rows) => add(GridEvent.rowsDidUpdate(rows)),
-        (err) => Log.error('$err'),
+        (fields) => add(GridEvent.fieldsDidUpdate(fields)),
+        (err) => Log.error(err),
       );
     });
-
     _gridListener.start();
+
+    await _loadGrid(emit);
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await service.openGrid(gridId: view.id);
-
     return Future(
       () => result.fold(
         (grid) async => await _loadFields(grid, emit),
@@ -81,16 +78,48 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return Future(
       () => result.fold(
         (fields) {
-          _initGridBlockService(grid, fields.items);
+          _initGridBlockService(grid);
           emit(state.copyWith(
             grid: Some(grid),
-            fields: Some(fields.items),
+            fields: fields.items,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
         (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
       ),
     );
+  }
+
+  Future<void> _initGridBlockService(Grid grid) async {
+    _blockService = GridBlockService(
+      gridId: grid.id,
+      blockOrders: grid.blockOrders,
+    );
+
+    _blockService.blocksUpdateNotifier.addPublishListener((result) {
+      result.fold(
+        (blockMap) => add(GridEvent.rowsDidUpdate(_buildRows(blockMap))),
+        (err) => Log.error('$err'),
+      );
+    });
+
+    _gridListener.start();
+  }
+
+  List<GridRowData> _buildRows(GridBlockMap blockMap) {
+    List<GridRowData> rows = [];
+    blockMap.forEach((_, GridBlock gridBlock) {
+      rows.addAll(gridBlock.rowOrders.map(
+        (rowOrder) => GridRowData(
+          gridId: view.id,
+          fields: state.fields,
+          blockId: gridBlock.id,
+          rowId: rowOrder.rowId,
+          height: rowOrder.height.toDouble(),
+        ),
+      ));
+    });
+    return rows;
   }
 }
 
@@ -102,20 +131,21 @@ abstract class GridEvent with _$GridEvent {
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.rowsDidUpdate(List<GridRowData> rows) = _RowsDidUpdate;
+  const factory GridEvent.fieldsDidUpdate(List<Field> fields) = _FieldsDidUpdate;
 }
 
 @freezed
 abstract class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
-    required Option<List<Field>> fields,
+    required List<Field> fields,
     required List<GridRowData> rows,
     required Option<Grid> grid,
   }) = _GridState;
 
   factory GridState.initial() => GridState(
         loadingState: const _Loading(),
-        fields: none(),
+        fields: [],
         rows: [],
         grid: none(),
       );

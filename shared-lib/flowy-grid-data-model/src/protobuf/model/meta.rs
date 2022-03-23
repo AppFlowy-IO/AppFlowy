@@ -727,7 +727,7 @@ pub struct FieldMeta {
     pub frozen: bool,
     pub visibility: bool,
     pub width: i32,
-    pub type_options: ::std::string::String,
+    pub type_option: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -882,30 +882,30 @@ impl FieldMeta {
         self.width = v;
     }
 
-    // string type_options = 8;
+    // string type_option = 8;
 
 
-    pub fn get_type_options(&self) -> &str {
-        &self.type_options
+    pub fn get_type_option(&self) -> &str {
+        &self.type_option
     }
-    pub fn clear_type_options(&mut self) {
-        self.type_options.clear();
+    pub fn clear_type_option(&mut self) {
+        self.type_option.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_type_options(&mut self, v: ::std::string::String) {
-        self.type_options = v;
+    pub fn set_type_option(&mut self, v: ::std::string::String) {
+        self.type_option = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_type_options(&mut self) -> &mut ::std::string::String {
-        &mut self.type_options
+    pub fn mut_type_option(&mut self) -> &mut ::std::string::String {
+        &mut self.type_option
     }
 
     // Take field
-    pub fn take_type_options(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.type_options, ::std::string::String::new())
+    pub fn take_type_option(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.type_option, ::std::string::String::new())
     }
 }
 
@@ -952,7 +952,7 @@ impl ::protobuf::Message for FieldMeta {
                     self.width = tmp;
                 },
                 8 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.type_options)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.type_option)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -987,8 +987,8 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             my_size += ::protobuf::rt::value_size(7, self.width, ::protobuf::wire_format::WireTypeVarint);
         }
-        if !self.type_options.is_empty() {
-            my_size += ::protobuf::rt::string_size(8, &self.type_options);
+        if !self.type_option.is_empty() {
+            my_size += ::protobuf::rt::string_size(8, &self.type_option);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1017,8 +1017,8 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             os.write_int32(7, self.width)?;
         }
-        if !self.type_options.is_empty() {
-            os.write_string(8, &self.type_options)?;
+        if !self.type_option.is_empty() {
+            os.write_string(8, &self.type_option)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1094,9 +1094,9 @@ impl ::protobuf::Message for FieldMeta {
                 |m: &mut FieldMeta| { &mut m.width },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "type_options",
-                |m: &FieldMeta| { &m.type_options },
-                |m: &mut FieldMeta| { &mut m.type_options },
+                "type_option",
+                |m: &FieldMeta| { &m.type_option },
+                |m: &mut FieldMeta| { &mut m.type_option },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldMeta>(
                 "FieldMeta",
@@ -1121,7 +1121,7 @@ impl ::protobuf::Clear for FieldMeta {
         self.frozen = false;
         self.visibility = false;
         self.width = 0;
-        self.type_options.clear();
+        self.type_option.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1142,6 +1142,7 @@ impl ::protobuf::reflect::ProtobufValue for FieldMeta {
 pub struct FieldChangeset {
     // message fields
     pub field_id: ::std::string::String,
+    pub grid_id: ::std::string::String,
     // message oneof groups
     pub one_of_name: ::std::option::Option<FieldChangeset_oneof_one_of_name>,
     pub one_of_desc: ::std::option::Option<FieldChangeset_oneof_one_of_desc>,
@@ -1227,7 +1228,33 @@ impl FieldChangeset {
         ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
     }
 
-    // string name = 2;
+    // string grid_id = 2;
+
+
+    pub fn get_grid_id(&self) -> &str {
+        &self.grid_id
+    }
+    pub fn clear_grid_id(&mut self) {
+        self.grid_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_grid_id(&mut self, v: ::std::string::String) {
+        self.grid_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
+        &mut self.grid_id
+    }
+
+    // Take field
+    pub fn take_grid_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    }
+
+    // string name = 3;
 
 
     pub fn get_name(&self) -> &str {
@@ -1276,7 +1303,7 @@ impl FieldChangeset {
         }
     }
 
-    // string desc = 3;
+    // string desc = 4;
 
 
     pub fn get_desc(&self) -> &str {
@@ -1325,7 +1352,7 @@ impl FieldChangeset {
         }
     }
 
-    // .FieldType field_type = 4;
+    // .FieldType field_type = 5;
 
 
     pub fn get_field_type(&self) -> FieldType {
@@ -1350,7 +1377,7 @@ impl FieldChangeset {
         self.one_of_field_type = ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(v))
     }
 
-    // bool frozen = 5;
+    // bool frozen = 6;
 
 
     pub fn get_frozen(&self) -> bool {
@@ -1375,7 +1402,7 @@ impl FieldChangeset {
         self.one_of_frozen = ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(v))
     }
 
-    // bool visibility = 6;
+    // bool visibility = 7;
 
 
     pub fn get_visibility(&self) -> bool {
@@ -1400,7 +1427,7 @@ impl FieldChangeset {
         self.one_of_visibility = ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(v))
     }
 
-    // int32 width = 7;
+    // int32 width = 8;
 
 
     pub fn get_width(&self) -> i32 {
@@ -1425,7 +1452,7 @@ impl FieldChangeset {
         self.one_of_width = ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(v))
     }
 
-    // string type_options = 8;
+    // string type_options = 9;
 
 
     pub fn get_type_options(&self) -> &str {
@@ -1488,42 +1515,45 @@ impl ::protobuf::Message for FieldChangeset {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
                 },
                 2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.one_of_name = ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(is.read_string()?));
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
                 },
                 3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_desc = ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(is.read_string()?));
+                    self.one_of_name = ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(is.read_string()?));
                 },
                 4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_field_type = ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(is.read_enum()?));
+                    self.one_of_desc = ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(is.read_string()?));
                 },
                 5 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_frozen = ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(is.read_bool()?));
+                    self.one_of_field_type = ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(is.read_enum()?));
                 },
                 6 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_visibility = ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(is.read_bool()?));
+                    self.one_of_frozen = ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(is.read_bool()?));
                 },
                 7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_width = ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(is.read_int32()?));
+                    self.one_of_visibility = ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(is.read_bool()?));
                 },
                 8 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_width = ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(is.read_int32()?));
+                },
+                9 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -1544,24 +1574,27 @@ impl ::protobuf::Message for FieldChangeset {
         if !self.field_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.field_id);
         }
+        if !self.grid_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.grid_id);
+        }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
                 &FieldChangeset_oneof_one_of_name::name(ref v) => {
-                    my_size += ::protobuf::rt::string_size(2, &v);
+                    my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
                 &FieldChangeset_oneof_one_of_desc::desc(ref v) => {
-                    my_size += ::protobuf::rt::string_size(3, &v);
+                    my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_field_type {
             match v {
                 &FieldChangeset_oneof_one_of_field_type::field_type(v) => {
-                    my_size += ::protobuf::rt::enum_size(4, v);
+                    my_size += ::protobuf::rt::enum_size(5, v);
                 },
             };
         }
@@ -1582,14 +1615,14 @@ impl ::protobuf::Message for FieldChangeset {
         if let ::std::option::Option::Some(ref v) = self.one_of_width {
             match v {
                 &FieldChangeset_oneof_one_of_width::width(v) => {
-                    my_size += ::protobuf::rt::value_size(7, v, ::protobuf::wire_format::WireTypeVarint);
+                    my_size += ::protobuf::rt::value_size(8, v, ::protobuf::wire_format::WireTypeVarint);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_type_options {
             match v {
                 &FieldChangeset_oneof_one_of_type_options::type_options(ref v) => {
-                    my_size += ::protobuf::rt::string_size(8, &v);
+                    my_size += ::protobuf::rt::string_size(9, &v);
                 },
             };
         }
@@ -1602,52 +1635,55 @@ impl ::protobuf::Message for FieldChangeset {
         if !self.field_id.is_empty() {
             os.write_string(1, &self.field_id)?;
         }
+        if !self.grid_id.is_empty() {
+            os.write_string(2, &self.grid_id)?;
+        }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
                 &FieldChangeset_oneof_one_of_name::name(ref v) => {
-                    os.write_string(2, v)?;
+                    os.write_string(3, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
                 &FieldChangeset_oneof_one_of_desc::desc(ref v) => {
-                    os.write_string(3, v)?;
+                    os.write_string(4, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_field_type {
             match v {
                 &FieldChangeset_oneof_one_of_field_type::field_type(v) => {
-                    os.write_enum(4, ::protobuf::ProtobufEnum::value(&v))?;
+                    os.write_enum(5, ::protobuf::ProtobufEnum::value(&v))?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_frozen {
             match v {
                 &FieldChangeset_oneof_one_of_frozen::frozen(v) => {
-                    os.write_bool(5, v)?;
+                    os.write_bool(6, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_visibility {
             match v {
                 &FieldChangeset_oneof_one_of_visibility::visibility(v) => {
-                    os.write_bool(6, v)?;
+                    os.write_bool(7, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_width {
             match v {
                 &FieldChangeset_oneof_one_of_width::width(v) => {
-                    os.write_int32(7, v)?;
+                    os.write_int32(8, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_type_options {
             match v {
                 &FieldChangeset_oneof_one_of_type_options::type_options(ref v) => {
-                    os.write_string(8, v)?;
+                    os.write_string(9, v)?;
                 },
             };
         }
@@ -1693,6 +1729,11 @@ impl ::protobuf::Message for FieldChangeset {
                 "field_id",
                 |m: &FieldChangeset| { &m.field_id },
                 |m: &mut FieldChangeset| { &mut m.field_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "grid_id",
+                |m: &FieldChangeset| { &m.grid_id },
+                |m: &mut FieldChangeset| { &mut m.grid_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
@@ -1746,6 +1787,7 @@ impl ::protobuf::Message for FieldChangeset {
 impl ::protobuf::Clear for FieldChangeset {
     fn clear(&mut self) {
         self.field_id.clear();
+        self.grid_id.clear();
         self.one_of_name = ::std::option::Option::None;
         self.one_of_desc = ::std::option::Option::None;
         self.one_of_field_type = ::std::option::Option::None;
@@ -3465,49 +3507,50 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ockId\x12&\n\x0fstart_row_index\x18\x02\x20\x01(\x05R\rstartRowIndex\x12\
     \x1b\n\trow_count\x18\x03\x20\x01(\x05R\x08rowCount\"V\n\x12GridBlockMet\
     aSerde\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12%\n\trow_\
-    metas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\xdf\x01\n\tFieldM\
+    metas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\xdd\x01\n\tFieldM\
     eta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\
     \x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12)\
     \n\nfield_type\x18\x04\x20\x01(\x0e2\n.FieldTypeR\tfieldType\x12\x16\n\
     \x06frozen\x18\x05\x20\x01(\x08R\x06frozen\x12\x1e\n\nvisibility\x18\x06\
     \x20\x01(\x08R\nvisibility\x12\x14\n\x05width\x18\x07\x20\x01(\x05R\x05w\
-    idth\x12!\n\x0ctype_options\x18\x08\x20\x01(\tR\x0btypeOptions\"\xfd\x02\
+    idth\x12\x1f\n\x0btype_option\x18\x08\x20\x01(\tR\ntypeOption\"\x96\x03\
     \n\x0eFieldChangeset\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldI\
-    d\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\
-    \x03\x20\x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x04\x20\x01(\x0e2\n\
-    .FieldTypeH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x05\x20\x01(\x08H\
-    \x03R\x06frozen\x12\x20\n\nvisibility\x18\x06\x20\x01(\x08H\x04R\nvisibi\
-    lity\x12\x16\n\x05width\x18\x07\x20\x01(\x05H\x05R\x05width\x12#\n\x0cty\
-    pe_options\x18\x08\x20\x01(\tH\x06R\x0btypeOptionsB\r\n\x0bone_of_nameB\
-    \r\n\x0bone_of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\
-    \x13\n\x11one_of_visibilityB\x0e\n\x0cone_of_widthB\x15\n\x13one_of_type\
-    _options\"8\n\x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typ\
-    eId\x12\x14\n\x05value\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\n\x07Row\
-    Meta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\
-    \x02\x20\x01(\tR\x07blockId\x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\
-    \x0b2\x1b.RowMeta.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\
-    \x18\x04\x20\x01(\x05R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\
-    \x08R\nvisibility\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\
-    \x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\
-    \x05value:\x028\x01\"\xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\
-    \x18\x01\x20\x01(\tR\x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\
-    \0R\x06height\x12\x20\n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibili\
-    ty\x12M\n\x10cell_by_field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.Ce\
-    llByFieldIdEntryR\rcellByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\
-    \x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\
-    \x0b2\t.CellMetaR\x05value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one\
-    _of_visibility\"9\n\x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\t\
-    R\x07fieldId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\
-    \x11CellMetaChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\
-    \x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\
-    \x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\
-    \x04dataB\r\n\x0bone_of_data\"\xad\x01\n\x10BuildGridContext\x12+\n\x0bf\
-    ield_metas\x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\x0bbloc\
-    k_metas\x18\x02\x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12;\n\x0fb\
-    lock_meta_data\x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSerdeR\rblockMetaD\
-    ata*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\
-    \x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\
-    \n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    d\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\x04name\
+    \x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\
+    \x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTypeH\x02R\
+    \tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06frozen\x12\
+    \x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\x16\n\x05w\
+    idth\x18\x08\x20\x01(\x05H\x05R\x05width\x12#\n\x0ctype_options\x18\t\
+    \x20\x01(\tH\x06R\x0btypeOptionsB\r\n\x0bone_of_nameB\r\n\x0bone_of_desc\
+    B\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one_of_visi\
+    bilityB\x0e\n\x0cone_of_widthB\x15\n\x13one_of_type_options\"8\n\x07AnyD\
+    ata\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\x05valu\
+    e\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\n\x07RowMeta\x12\x0e\n\x02id\
+    \x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07\
+    blockId\x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1b.RowMeta.Cel\
+    lByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\x01(\x05\
+    R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\nvisibility\x1aK\
+    \n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\
+    \x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01\"\
+    \xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\
+    \x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06height\x12\x20\
+    \n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\x10cell_by_\
+    field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByFieldIdEntryR\rce\
+    llByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\
+    \x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05\
+    value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"9\n\
+    \x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\
+    \x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\x11CellMetaChange\
+    set\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_\
+    id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\t\
+    R\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bon\
+    e_of_data\"\xad\x01\n\x10BuildGridContext\x12+\n\x0bfield_metas\x18\x01\
+    \x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\x0bblock_metas\x18\x02\
+    \x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12;\n\x0fblock_meta_data\
+    \x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSerdeR\rblockMetaData*d\n\tField\
+    Type\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08\
+    DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSel\
+    ect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

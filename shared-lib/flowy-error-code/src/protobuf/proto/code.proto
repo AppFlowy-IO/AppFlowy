@@ -33,8 +33,10 @@ enum ErrorCode {
     UserIdInvalid = 311;
     UserNotExist = 312;
     TextTooLong = 400;
-    BlockIdIsEmpty = 401;
-    RowIdIsEmpty = 402;
-    GridIdIsEmpty = 403;
-    InvalidData = 404;
+    GridIdIsEmpty = 410;
+    BlockIdIsEmpty = 420;
+    RowIdIsEmpty = 430;
+    FieldIdIsEmpty = 440;
+    TypeOptionIsEmpty = 441;
+    InvalidData = 500;
 }

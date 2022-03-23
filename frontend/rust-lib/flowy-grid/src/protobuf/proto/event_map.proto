@@ -4,7 +4,9 @@ enum GridEvent {
     GetGridData = 0;
     GetGridBlocks = 1;
     GetFields = 10;
-    CreateRow = 11;
-    GetRow = 12;
-    UpdateCell = 20;
+    UpdateField = 11;
+    CreateField = 12;
+    CreateRow = 21;
+    GetRow = 22;
+    UpdateCell = 30;
 }

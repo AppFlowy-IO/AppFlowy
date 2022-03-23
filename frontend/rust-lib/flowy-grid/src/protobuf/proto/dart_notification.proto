@@ -3,7 +3,7 @@ syntax = "proto3";
 enum GridNotification {
     Unknown = 0;
     GridDidCreateBlock = 11;
-    BlockDidUpdateRow = 20;
+    DidUpdateRow = 20;
     GridDidUpdateCells = 30;
-    GridDidUpdateFields = 40;
+    DidUpdateFields = 40;
 }

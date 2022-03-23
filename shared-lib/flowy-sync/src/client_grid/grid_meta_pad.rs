@@ -5,6 +5,7 @@ use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     FieldChangeset, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
 };
+use flowy_grid_data_model::parser::CreateFieldParams;
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
@@ -35,15 +36,49 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_field(&mut self, params: CreateFieldParams) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
-            if grid.fields.contains(&field_meta) {
-                tracing::warn!("Duplicate grid field");
-                Ok(None)
-            } else {
-                grid.fields.push(field_meta);
-                Ok(Some(()))
+            let CreateFieldParams {
+                field,
+                type_option_data,
+                start_field_id,
+                ..
+            } = params;
+
+            if grid
+                .fields
+                .iter()
+                .find(|field_meta| field_meta.id == field.id)
+                .is_some()
+            {
+                tracing::warn!("Create grid field");
+                return Ok(None);
             }
+
+            let type_option =
+                String::from_utf8(type_option_data).map_err(|e| CollaborateError::internal().context(e))?;
+
+            let field_meta = FieldMeta {
+                id: field.id,
+                name: field.name,
+                desc: field.desc,
+                field_type: field.field_type,
+                frozen: field.frozen,
+                visibility: field.visibility,
+                width: field.width,
+                type_option,
+            };
+
+            let insert_index = match start_field_id {
+                None => None,
+                Some(start_field_id) => grid.fields.iter().position(|field| field.id == start_field_id),
+            };
+
+            match insert_index {
+                None => grid.fields.push(field_meta),
+                Some(index) => grid.fields.insert(index, field_meta),
+            }
+            Ok(Some(()))
         })
     }
 
@@ -130,7 +165,7 @@ impl GridMetaPad {
             }
 
             if let Some(type_options) = changeset.type_options {
-                field.type_options = type_options;
+                field.type_option = type_options;
                 is_changed = Some(())
             }
 

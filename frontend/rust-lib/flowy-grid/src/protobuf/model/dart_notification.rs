@@ -27,9 +27,9 @@
 pub enum GridNotification {
     Unknown = 0,
     GridDidCreateBlock = 11,
-    BlockDidUpdateRow = 20,
+    DidUpdateRow = 20,
     GridDidUpdateCells = 30,
-    GridDidUpdateFields = 40,
+    DidUpdateFields = 40,
 }
 
 impl ::protobuf::ProtobufEnum for GridNotification {
@@ -41,9 +41,9 @@ impl ::protobuf::ProtobufEnum for GridNotification {
         match value {
             0 => ::std::option::Option::Some(GridNotification::Unknown),
             11 => ::std::option::Option::Some(GridNotification::GridDidCreateBlock),
-            20 => ::std::option::Option::Some(GridNotification::BlockDidUpdateRow),
+            20 => ::std::option::Option::Some(GridNotification::DidUpdateRow),
             30 => ::std::option::Option::Some(GridNotification::GridDidUpdateCells),
-            40 => ::std::option::Option::Some(GridNotification::GridDidUpdateFields),
+            40 => ::std::option::Option::Some(GridNotification::DidUpdateFields),
             _ => ::std::option::Option::None
         }
     }
@@ -52,9 +52,9 @@ impl ::protobuf::ProtobufEnum for GridNotification {
         static values: &'static [GridNotification] = &[
             GridNotification::Unknown,
             GridNotification::GridDidCreateBlock,
-            GridNotification::BlockDidUpdateRow,
+            GridNotification::DidUpdateRow,
             GridNotification::GridDidUpdateCells,
-            GridNotification::GridDidUpdateFields,
+            GridNotification::DidUpdateFields,
         ];
         values
     }
@@ -83,10 +83,10 @@ impl ::protobuf::reflect::ProtobufValue for GridNotification {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x17dart_notification.proto*\x7f\n\x10GridNotification\x12\x0b\n\x07Un\
-    known\x10\0\x12\x16\n\x12GridDidCreateBlock\x10\x0b\x12\x15\n\x11BlockDi\
-    dUpdateRow\x10\x14\x12\x16\n\x12GridDidUpdateCells\x10\x1e\x12\x17\n\x13\
-    GridDidUpdateFields\x10(b\x06proto3\
+    \n\x17dart_notification.proto*v\n\x10GridNotification\x12\x0b\n\x07Unkno\
+    wn\x10\0\x12\x16\n\x12GridDidCreateBlock\x10\x0b\x12\x10\n\x0cDidUpdateR\
+    ow\x10\x14\x12\x16\n\x12GridDidUpdateCells\x10\x1e\x12\x13\n\x0fDidUpdat\
+    eFields\x10(b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

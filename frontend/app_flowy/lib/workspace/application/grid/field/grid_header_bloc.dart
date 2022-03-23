@@ -9,9 +9,11 @@ part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final FieldService service;
-  final GridColumnData data;
 
-  GridHeaderBloc({required this.data, required this.service}) : super(GridHeaderState.initial(data.fields)) {
+  GridHeaderBloc({
+    required GridColumnData data,
+    required this.service,
+  }) : super(GridHeaderState.initial(data.fields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(

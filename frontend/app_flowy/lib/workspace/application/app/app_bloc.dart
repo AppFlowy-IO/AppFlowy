@@ -19,7 +19,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc({required this.app, required this.service, required this.listener}) : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
-        listener.startListening(
+        listener.start(
           viewsChanged: _handleViewsChanged,
           appUpdated: (app) => add(AppEvent.appDidUpdate(app)),
         );

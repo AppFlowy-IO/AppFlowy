@@ -1,10 +1,12 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, CreateRowPayload, Field, Grid, GridId, QueryFieldPayload, QueryGridBlocksPayload,
-    QueryRowPayload, RepeatedField, RepeatedGridBlock, Row,
+    CellMetaChangeset, CreateFieldPayload, CreateRowPayload, Field, FieldChangeset, Grid, GridId, QueryFieldPayload,
+    QueryGridBlocksPayload, QueryRowPayload, RepeatedField, RepeatedGridBlock, Row,
 };
-use flowy_grid_data_model::parser::{CreateRowParams, QueryFieldParams, QueryGridBlocksParams, QueryRowParams};
+use flowy_grid_data_model::parser::{
+    CreateFieldParams, CreateRowParams, QueryFieldParams, QueryGridBlocksParams, QueryRowParams,
+};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -36,6 +38,40 @@ pub(crate) async fn get_grid_blocks_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_fields_handler(
+    data: Data<QueryFieldPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RepeatedField, FlowyError> {
+    let params: QueryFieldParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let field_metas = editor.get_field_metas(Some(params.field_orders)).await?;
+    let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
+    data_result(repeated_field)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn update_field_handler(
+    data: Data<FieldChangeset>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let changeset: FieldChangeset = data.into_inner();
+    let editor = manager.get_grid_editor(&changeset.grid_id)?;
+    let _ = editor.update_field(changeset).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_field_handler(
+    data: Data<CreateFieldPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: CreateFieldParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor.create_field(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
     data: Data<QueryRowPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -46,18 +82,6 @@ pub(crate) async fn get_row_handler(
         None => Err(FlowyError::record_not_found().context("Can not find the row")),
         Some(row) => data_result(row),
     }
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_fields_handler(
-    data: Data<QueryFieldPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedField, FlowyError> {
-    let params: QueryFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_metas = editor.get_field_metas(Some(params.field_orders)).await?;
-    let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
-    data_result(repeated_field)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

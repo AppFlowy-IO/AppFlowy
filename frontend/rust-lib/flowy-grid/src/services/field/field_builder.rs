@@ -48,7 +48,7 @@ impl FieldBuilder {
         assert_eq!(self.field_meta.field_type, self.type_options_builder.field_type());
 
         let type_options = self.type_options_builder.build();
-        self.field_meta.type_options = type_options;
+        self.field_meta.type_option = type_options;
         self.field_meta
     }
 }

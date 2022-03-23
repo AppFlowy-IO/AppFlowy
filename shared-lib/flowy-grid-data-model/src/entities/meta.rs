@@ -98,7 +98,7 @@ pub struct FieldMeta {
     pub width: i32,
 
     #[pb(index = 8)]
-    pub type_options: String,
+    pub type_option: String,
 }
 
 impl FieldMeta {
@@ -111,7 +111,7 @@ impl FieldMeta {
             frozen: false,
             visibility: true,
             width: DEFAULT_FIELD_WIDTH,
-            type_options: Default::default(),
+            type_option: Default::default(),
         }
     }
 }
@@ -121,25 +121,28 @@ pub struct FieldChangeset {
     #[pb(index = 1)]
     pub field_id: String,
 
-    #[pb(index = 2, one_of)]
-    pub name: Option<String>,
+    #[pb(index = 2)]
+    pub grid_id: String,
 
     #[pb(index = 3, one_of)]
-    pub desc: Option<String>,
+    pub name: Option<String>,
 
     #[pb(index = 4, one_of)]
-    pub field_type: Option<FieldType>,
+    pub desc: Option<String>,
 
     #[pb(index = 5, one_of)]
-    pub frozen: Option<bool>,
+    pub field_type: Option<FieldType>,
 
     #[pb(index = 6, one_of)]
-    pub visibility: Option<bool>,
+    pub frozen: Option<bool>,
 
     #[pb(index = 7, one_of)]
-    pub width: Option<i32>,
+    pub visibility: Option<bool>,
 
     #[pb(index = 8, one_of)]
+    pub width: Option<i32>,
+
+    #[pb(index = 9, one_of)]
     pub type_options: Option<String>,
 }
 

@@ -16,6 +16,7 @@ use crate::services::row::{
     make_grid_block_from_block_metas, make_grid_blocks, make_row_meta_from_context, make_rows_from_row_metas,
     serialize_cell_data, CreateRowMetaBuilder, CreateRowMetaPayload, GridBlockMetaData,
 };
+use flowy_grid_data_model::parser::CreateFieldParams;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
@@ -54,23 +55,25 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_field(field_meta)?)).await?;
+    pub async fn create_field(&self, params: CreateFieldParams) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.create_field(params)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
 
-    pub async fn contain_field(&self, field_meta: &FieldMeta) -> bool {
-        self.pad.read().await.contain_field(&field_meta.id)
+    pub async fn contain_field(&self, field_id: &str) -> bool {
+        self.pad.read().await.contain_field(field_id)
     }
 
     pub async fn update_field(&self, change: FieldChangeset) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.update_field(change)?)).await?;
+        let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
+        let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
 
@@ -293,7 +296,7 @@ impl ClientGridEditor {
     async fn notify_did_update_fields(&self) -> FlowyResult<()> {
         let field_metas = self.get_field_metas(None).await?;
         let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
-        send_dart_notification(&self.grid_id, GridNotification::GridDidUpdateFields)
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateFields)
             .payload(repeated_field)
             .send();
         Ok(())

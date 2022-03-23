@@ -24,7 +24,7 @@ class AppListener {
     required this.appId,
   });
 
-  void startListening({ViewsDidChangeCallback? viewsChanged, AppDidUpdateCallback? appUpdated}) {
+  void start({ViewsDidChangeCallback? viewsChanged, AppDidUpdateCallback? appUpdated}) {
     _viewsChanged = viewsChanged;
     _updated = appUpdated;
     _parser = FolderNotificationParser(id: appId, callback: _bservableCallback);

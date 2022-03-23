@@ -11,51 +11,34 @@ import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
-import 'grid_service.dart';
 
-typedef RowsUpdateNotifierValue = Either<List<GridRowData>, FlowyError>;
+typedef GridBlockMap = LinkedHashMap<String, GridBlock>;
+typedef BlocksUpdateNotifierValue = Either<GridBlockMap, FlowyError>;
 
 class GridBlockService {
   String gridId;
-  List<Field> fields;
-  LinkedHashMap<String, GridBlock> blockMap = LinkedHashMap();
+  GridBlockMap blockMap = GridBlockMap();
   late GridBlockListener _blockListener;
-  PublishNotifier<RowsUpdateNotifierValue> rowsUpdateNotifier = PublishNotifier<RowsUpdateNotifierValue>();
+  PublishNotifier<BlocksUpdateNotifierValue> blocksUpdateNotifier = PublishNotifier();
 
-  GridBlockService({required this.gridId, required this.fields, required List<GridBlockOrder> blockOrders}) {
-    _loadGridBlocks(blockOrders: blockOrders);
+  GridBlockService({required this.gridId, required List<GridBlockOrder> blockOrders}) {
+    _loadGridBlocks(blockOrders);
 
     _blockListener = GridBlockListener(gridId: gridId);
-    _blockListener.rowsUpdateNotifier.addPublishListener((result) {
+    _blockListener.blockUpdateNotifier.addPublishListener((result) {
       result.fold(
-        (blockId) => _loadGridBlocks(blockOrders: [GridBlockOrder.create()..blockId = blockId.value]),
+        (blockOrder) => _loadGridBlocks(blockOrder),
         (err) => Log.error(err),
       );
     });
     _blockListener.start();
   }
 
-  List<GridRowData> buildRows() {
-    List<GridRowData> rows = [];
-    blockMap.forEach((_, GridBlock gridBlock) {
-      rows.addAll(gridBlock.rowOrders.map(
-        (rowOrder) => GridRowData(
-          gridId: gridId,
-          fields: fields,
-          blockId: gridBlock.id,
-          rowId: rowOrder.rowId,
-          height: rowOrder.height.toDouble(),
-        ),
-      ));
-    });
-    return rows;
-  }
-
   Future<void> stop() async {
     await _blockListener.stop();
   }
 
-  void _loadGridBlocks({required List<GridBlockOrder> blockOrders}) {
+  void _loadGridBlocks(List<GridBlockOrder> blockOrders) {
     final payload = QueryGridBlocksPayload.create()
       ..gridId = gridId
       ..blockOrders.addAll(blockOrders);
@@ -66,9 +49,9 @@ class GridBlockService {
           for (final gridBlock in repeatedBlocks.items) {
             blockMap[gridBlock.id] = gridBlock;
           }
-          rowsUpdateNotifier.value = left(buildRows());
+          blocksUpdateNotifier.value = left(blockMap);
         },
-        (err) => rowsUpdateNotifier.value = right(err),
+        (err) => blocksUpdateNotifier.value = right(err),
       );
     });
   }
@@ -76,7 +59,7 @@ class GridBlockService {
 
 class GridBlockListener {
   final String gridId;
-  PublishNotifier<Either<GridBlockId, FlowyError>> rowsUpdateNotifier = PublishNotifier(comparable: null);
+  PublishNotifier<Either<List<GridBlockOrder>, FlowyError>> blockUpdateNotifier = PublishNotifier(comparable: null);
   StreamSubscription<SubscribeObject>? _subscription;
   late GridNotificationParser _parser;
 
@@ -95,10 +78,10 @@ class GridBlockListener {
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.BlockDidUpdateRow:
+      case GridNotification.DidUpdateRow:
         result.fold(
-          (payload) => rowsUpdateNotifier.value = left(GridBlockId.fromBuffer(payload)),
-          (error) => rowsUpdateNotifier.value = right(error),
+          (payload) => blockUpdateNotifier.value = left([GridBlockOrder.fromBuffer(payload)]),
+          (error) => blockUpdateNotifier.value = right(error),
         );
         break;
 
@@ -109,6 +92,6 @@ class GridBlockListener {
 
   Future<void> stop() async {
     await _subscription?.cancel();
-    rowsUpdateNotifier.dispose();
+    blockUpdateNotifier.dispose();
   }
 }

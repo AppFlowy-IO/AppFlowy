@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message DateDescription {
+message DateTypeOption {
     DateFormat date_format = 1;
     TimeFormat time_format = 2;
 }

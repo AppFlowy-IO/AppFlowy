@@ -14,7 +14,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
   TrashBloc({required this.service, required this.listener}) : super(TrashState.init()) {
     on<TrashEvent>((event, emit) async {
       await event.map(initial: (e) async {
-        listener.startListening(trashUpdated: _listenTrashUpdated);
+        listener.start(trashUpdated: _listenTrashUpdated);
         final result = await service.readTrash();
         emit(result.fold(
           (object) => state.copyWith(objects: object.items, successOrFailure: left(unit)),

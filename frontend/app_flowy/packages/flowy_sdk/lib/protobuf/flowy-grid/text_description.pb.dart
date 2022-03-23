@@ -9,14 +9,14 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class RichTextDescription extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RichTextDescription', createEmptyInstance: create)
+class RichTextTypeOption extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RichTextTypeOption', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'format')
     ..hasRequiredFields = false
   ;
 
-  RichTextDescription._() : super();
-  factory RichTextDescription({
+  RichTextTypeOption._() : super();
+  factory RichTextTypeOption({
     $core.String? format,
   }) {
     final _result = create();
@@ -25,26 +25,26 @@ class RichTextDescription extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory RichTextDescription.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RichTextDescription.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RichTextTypeOption.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RichTextTypeOption.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  RichTextDescription clone() => RichTextDescription()..mergeFromMessage(this);
+  RichTextTypeOption clone() => RichTextTypeOption()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  RichTextDescription copyWith(void Function(RichTextDescription) updates) => super.copyWith((message) => updates(message as RichTextDescription)) as RichTextDescription; // ignore: deprecated_member_use
+  RichTextTypeOption copyWith(void Function(RichTextTypeOption) updates) => super.copyWith((message) => updates(message as RichTextTypeOption)) as RichTextTypeOption; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static RichTextDescription create() => RichTextDescription._();
-  RichTextDescription createEmptyInstance() => create();
-  static $pb.PbList<RichTextDescription> createRepeated() => $pb.PbList<RichTextDescription>();
+  static RichTextTypeOption create() => RichTextTypeOption._();
+  RichTextTypeOption createEmptyInstance() => create();
+  static $pb.PbList<RichTextTypeOption> createRepeated() => $pb.PbList<RichTextTypeOption>();
   @$core.pragma('dart2js:noInline')
-  static RichTextDescription getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RichTextDescription>(create);
-  static RichTextDescription? _defaultInstance;
+  static RichTextTypeOption getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RichTextTypeOption>(create);
+  static RichTextTypeOption? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get format => $_getSZ(0);

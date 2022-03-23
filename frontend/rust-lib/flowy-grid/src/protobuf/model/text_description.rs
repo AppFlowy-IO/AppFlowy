@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct RichTextDescription {
+pub struct RichTextTypeOption {
     // message fields
     pub format: ::std::string::String,
     // special fields
@@ -32,14 +32,14 @@ pub struct RichTextDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a RichTextDescription {
-    fn default() -> &'a RichTextDescription {
-        <RichTextDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a RichTextTypeOption {
+    fn default() -> &'a RichTextTypeOption {
+        <RichTextTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl RichTextDescription {
-    pub fn new() -> RichTextDescription {
+impl RichTextTypeOption {
+    pub fn new() -> RichTextTypeOption {
         ::std::default::Default::default()
     }
 
@@ -70,7 +70,7 @@ impl RichTextDescription {
     }
 }
 
-impl ::protobuf::Message for RichTextDescription {
+impl ::protobuf::Message for RichTextTypeOption {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -136,8 +136,8 @@ impl ::protobuf::Message for RichTextDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> RichTextDescription {
-        RichTextDescription::new()
+    fn new() -> RichTextTypeOption {
+        RichTextTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -146,45 +146,45 @@ impl ::protobuf::Message for RichTextDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "format",
-                |m: &RichTextDescription| { &m.format },
-                |m: &mut RichTextDescription| { &mut m.format },
+                |m: &RichTextTypeOption| { &m.format },
+                |m: &mut RichTextTypeOption| { &mut m.format },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RichTextDescription>(
-                "RichTextDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RichTextTypeOption>(
+                "RichTextTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static RichTextDescription {
-        static instance: ::protobuf::rt::LazyV2<RichTextDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(RichTextDescription::new)
+    fn default_instance() -> &'static RichTextTypeOption {
+        static instance: ::protobuf::rt::LazyV2<RichTextTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RichTextTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for RichTextDescription {
+impl ::protobuf::Clear for RichTextTypeOption {
     fn clear(&mut self) {
         self.format.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for RichTextDescription {
+impl ::std::fmt::Debug for RichTextTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for RichTextDescription {
+impl ::protobuf::reflect::ProtobufValue for RichTextTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16text_description.proto\"-\n\x13RichTextDescription\x12\x16\n\x06fo\
-    rmat\x18\x01\x20\x01(\tR\x06formatb\x06proto3\
+    \n\x16text_description.proto\",\n\x12RichTextTypeOption\x12\x16\n\x06for\
+    mat\x18\x01\x20\x01(\tR\x06formatb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -17,14 +17,14 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `selection_description.proto`
+//! Generated file from `selection_type_option.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SingleSelectDescription {
+pub struct SingleSelectTypeOption {
     // message fields
     pub options: ::protobuf::RepeatedField<SelectOption>,
     pub disable_color: bool,
@@ -33,14 +33,14 @@ pub struct SingleSelectDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SingleSelectDescription {
-    fn default() -> &'a SingleSelectDescription {
-        <SingleSelectDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SingleSelectTypeOption {
+    fn default() -> &'a SingleSelectTypeOption {
+        <SingleSelectTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SingleSelectDescription {
-    pub fn new() -> SingleSelectDescription {
+impl SingleSelectTypeOption {
+    pub fn new() -> SingleSelectTypeOption {
         ::std::default::Default::default()
     }
 
@@ -85,7 +85,7 @@ impl SingleSelectDescription {
     }
 }
 
-impl ::protobuf::Message for SingleSelectDescription {
+impl ::protobuf::Message for SingleSelectTypeOption {
     fn is_initialized(&self) -> bool {
         for v in &self.options {
             if !v.is_initialized() {
@@ -172,8 +172,8 @@ impl ::protobuf::Message for SingleSelectDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> SingleSelectDescription {
-        SingleSelectDescription::new()
+    fn new() -> SingleSelectTypeOption {
+        SingleSelectTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -182,29 +182,29 @@ impl ::protobuf::Message for SingleSelectDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "options",
-                |m: &SingleSelectDescription| { &m.options },
-                |m: &mut SingleSelectDescription| { &mut m.options },
+                |m: &SingleSelectTypeOption| { &m.options },
+                |m: &mut SingleSelectTypeOption| { &mut m.options },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "disable_color",
-                |m: &SingleSelectDescription| { &m.disable_color },
-                |m: &mut SingleSelectDescription| { &mut m.disable_color },
+                |m: &SingleSelectTypeOption| { &m.disable_color },
+                |m: &mut SingleSelectTypeOption| { &mut m.disable_color },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SingleSelectDescription>(
-                "SingleSelectDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SingleSelectTypeOption>(
+                "SingleSelectTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SingleSelectDescription {
-        static instance: ::protobuf::rt::LazyV2<SingleSelectDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SingleSelectDescription::new)
+    fn default_instance() -> &'static SingleSelectTypeOption {
+        static instance: ::protobuf::rt::LazyV2<SingleSelectTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SingleSelectTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for SingleSelectDescription {
+impl ::protobuf::Clear for SingleSelectTypeOption {
     fn clear(&mut self) {
         self.options.clear();
         self.disable_color = false;
@@ -212,20 +212,20 @@ impl ::protobuf::Clear for SingleSelectDescription {
     }
 }
 
-impl ::std::fmt::Debug for SingleSelectDescription {
+impl ::std::fmt::Debug for SingleSelectTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SingleSelectDescription {
+impl ::protobuf::reflect::ProtobufValue for SingleSelectTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct MultiSelectDescription {
+pub struct MultiSelectTypeOption {
     // message fields
     pub options: ::protobuf::RepeatedField<SelectOption>,
     pub disable_color: bool,
@@ -234,14 +234,14 @@ pub struct MultiSelectDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a MultiSelectDescription {
-    fn default() -> &'a MultiSelectDescription {
-        <MultiSelectDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a MultiSelectTypeOption {
+    fn default() -> &'a MultiSelectTypeOption {
+        <MultiSelectTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl MultiSelectDescription {
-    pub fn new() -> MultiSelectDescription {
+impl MultiSelectTypeOption {
+    pub fn new() -> MultiSelectTypeOption {
         ::std::default::Default::default()
     }
 
@@ -286,7 +286,7 @@ impl MultiSelectDescription {
     }
 }
 
-impl ::protobuf::Message for MultiSelectDescription {
+impl ::protobuf::Message for MultiSelectTypeOption {
     fn is_initialized(&self) -> bool {
         for v in &self.options {
             if !v.is_initialized() {
@@ -373,8 +373,8 @@ impl ::protobuf::Message for MultiSelectDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> MultiSelectDescription {
-        MultiSelectDescription::new()
+    fn new() -> MultiSelectTypeOption {
+        MultiSelectTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -383,29 +383,29 @@ impl ::protobuf::Message for MultiSelectDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "options",
-                |m: &MultiSelectDescription| { &m.options },
-                |m: &mut MultiSelectDescription| { &mut m.options },
+                |m: &MultiSelectTypeOption| { &m.options },
+                |m: &mut MultiSelectTypeOption| { &mut m.options },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "disable_color",
-                |m: &MultiSelectDescription| { &m.disable_color },
-                |m: &mut MultiSelectDescription| { &mut m.disable_color },
+                |m: &MultiSelectTypeOption| { &m.disable_color },
+                |m: &mut MultiSelectTypeOption| { &mut m.disable_color },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MultiSelectDescription>(
-                "MultiSelectDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MultiSelectTypeOption>(
+                "MultiSelectTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static MultiSelectDescription {
-        static instance: ::protobuf::rt::LazyV2<MultiSelectDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(MultiSelectDescription::new)
+    fn default_instance() -> &'static MultiSelectTypeOption {
+        static instance: ::protobuf::rt::LazyV2<MultiSelectTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MultiSelectTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for MultiSelectDescription {
+impl ::protobuf::Clear for MultiSelectTypeOption {
     fn clear(&mut self) {
         self.options.clear();
         self.disable_color = false;
@@ -413,13 +413,13 @@ impl ::protobuf::Clear for MultiSelectDescription {
     }
 }
 
-impl ::std::fmt::Debug for MultiSelectDescription {
+impl ::std::fmt::Debug for MultiSelectTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for MultiSelectDescription {
+impl ::protobuf::reflect::ProtobufValue for MultiSelectTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -669,12 +669,12 @@ impl ::protobuf::reflect::ProtobufValue for SelectOption {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x1bselection_description.proto\"g\n\x17SingleSelectDescription\x12'\n\
+    \n\x1bselection_type_option.proto\"f\n\x16SingleSelectTypeOption\x12'\n\
     \x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07options\x12#\n\rdis\
-    able_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"f\n\x16MultiSelectDesc\
-    ription\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07optio\
-    ns\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"H\n\x0cS\
-    electOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
+    able_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"e\n\x15MultiSelectType\
+    Option\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07option\
+    s\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"H\n\x0cSe\
+    lectOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
     \x18\x02\x20\x01(\tR\x04name\x12\x14\n\x05color\x18\x03\x20\x01(\tR\x05c\
     olorb\x06proto3\
 ";

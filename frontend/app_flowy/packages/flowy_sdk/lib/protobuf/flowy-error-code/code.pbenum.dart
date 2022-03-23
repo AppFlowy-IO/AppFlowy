@@ -42,10 +42,12 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserIdInvalid = ErrorCode._(311, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const ErrorCode UserNotExist = ErrorCode._(312, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
   static const ErrorCode TextTooLong = ErrorCode._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TextTooLong');
-  static const ErrorCode BlockIdIsEmpty = ErrorCode._(401, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockIdIsEmpty');
-  static const ErrorCode RowIdIsEmpty = ErrorCode._(402, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
-  static const ErrorCode GridIdIsEmpty = ErrorCode._(403, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridIdIsEmpty');
-  static const ErrorCode InvalidData = ErrorCode._(404, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
+  static const ErrorCode GridIdIsEmpty = ErrorCode._(410, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridIdIsEmpty');
+  static const ErrorCode BlockIdIsEmpty = ErrorCode._(420, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockIdIsEmpty');
+  static const ErrorCode RowIdIsEmpty = ErrorCode._(430, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
+  static const ErrorCode FieldIdIsEmpty = ErrorCode._(440, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldIdIsEmpty');
+  static const ErrorCode TypeOptionIsEmpty = ErrorCode._(441, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TypeOptionIsEmpty');
+  static const ErrorCode InvalidData = ErrorCode._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Internal,
@@ -80,9 +82,11 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserIdInvalid,
     UserNotExist,
     TextTooLong,
+    GridIdIsEmpty,
     BlockIdIsEmpty,
     RowIdIsEmpty,
-    GridIdIsEmpty,
+    FieldIdIsEmpty,
+    TypeOptionIsEmpty,
     InvalidData,
   ];
 

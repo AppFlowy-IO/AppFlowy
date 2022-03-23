@@ -1,4 +1,5 @@
 use crate::impl_from_and_to_type_option;
+use crate::services::field::TypeOptionsBuilder;
 use crate::services::row::CellDataSerde;
 use crate::services::util::*;
 use flowy_derive::ProtoBuf;
@@ -12,16 +13,16 @@ pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
 // Single select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct SingleSelectDescription {
+pub struct SingleSelectTypeOption {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_from_and_to_type_option!(SingleSelectDescription, FieldType::SingleSelect);
+impl_from_and_to_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
-impl CellDataSerde for SingleSelectDescription {
+impl CellDataSerde for SingleSelectTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
@@ -31,23 +32,61 @@ impl CellDataSerde for SingleSelectDescription {
     }
 }
 
+#[derive(Default)]
+pub struct SingleSelectTypeOptionsBuilder(SingleSelectTypeOption);
+
+impl SingleSelectTypeOptionsBuilder {
+    pub fn option(mut self, opt: SelectOption) -> Self {
+        self.0.options.push(opt);
+        self
+    }
+}
+impl TypeOptionsBuilder for SingleSelectTypeOptionsBuilder {
+    fn field_type(&self) -> FieldType {
+        self.0.field_type()
+    }
+
+    fn build(&self) -> String {
+        self.0.clone().into()
+    }
+}
+
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct MultiSelectDescription {
+pub struct MultiSelectTypeOption {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_from_and_to_type_option!(MultiSelectDescription, FieldType::MultiSelect);
-impl CellDataSerde for MultiSelectDescription {
+impl_from_and_to_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
+impl CellDataSerde for MultiSelectTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
         multi_select_option_id_from_data(data.to_owned())
+    }
+}
+
+#[derive(Default)]
+pub struct MultiSelectTypeOptionsBuilder(MultiSelectTypeOption);
+impl MultiSelectTypeOptionsBuilder {
+    pub fn option(mut self, opt: SelectOption) -> Self {
+        self.0.options.push(opt);
+        self
+    }
+}
+
+impl TypeOptionsBuilder for MultiSelectTypeOptionsBuilder {
+    fn field_type(&self) -> FieldType {
+        self.0.field_type()
+    }
+
+    fn build(&self) -> String {
+        self.0.clone().into()
     }
 }
 
@@ -112,13 +151,13 @@ impl SelectOption {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{MultiSelectDescription, SingleSelectDescription};
+    use crate::services::cell::{MultiSelectDescription, SingleSelectTypeOption};
     use crate::services::row::CellDataSerde;
 
     #[test]
     #[should_panic]
     fn selection_description_test() {
-        let description = SingleSelectDescription::default();
+        let description = SingleSelectTypeOption::default();
         assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
 
         let description = MultiSelectDescription::default();

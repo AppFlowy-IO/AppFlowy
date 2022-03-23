@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-message SingleSelectDescription {
+message SingleSelectTypeOption {
     repeated SelectOption options = 1;
     bool disable_color = 2;
 }
-message MultiSelectDescription {
+message MultiSelectTypeOption {
     repeated SelectOption options = 1;
     bool disable_color = 2;
 }

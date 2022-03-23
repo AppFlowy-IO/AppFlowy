@@ -17,14 +17,14 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `date_description.proto`
+//! Generated file from `date_type_option.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct DateDescription {
+pub struct DateTypeOption {
     // message fields
     pub date_format: DateFormat,
     pub time_format: TimeFormat,
@@ -33,14 +33,14 @@ pub struct DateDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a DateDescription {
-    fn default() -> &'a DateDescription {
-        <DateDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a DateTypeOption {
+    fn default() -> &'a DateTypeOption {
+        <DateTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl DateDescription {
-    pub fn new() -> DateDescription {
+impl DateTypeOption {
+    pub fn new() -> DateTypeOption {
         ::std::default::Default::default()
     }
 
@@ -75,7 +75,7 @@ impl DateDescription {
     }
 }
 
-impl ::protobuf::Message for DateDescription {
+impl ::protobuf::Message for DateTypeOption {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -150,8 +150,8 @@ impl ::protobuf::Message for DateDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> DateDescription {
-        DateDescription::new()
+    fn new() -> DateTypeOption {
+        DateTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -160,29 +160,29 @@ impl ::protobuf::Message for DateDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<DateFormat>>(
                 "date_format",
-                |m: &DateDescription| { &m.date_format },
-                |m: &mut DateDescription| { &mut m.date_format },
+                |m: &DateTypeOption| { &m.date_format },
+                |m: &mut DateTypeOption| { &mut m.date_format },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<TimeFormat>>(
                 "time_format",
-                |m: &DateDescription| { &m.time_format },
-                |m: &mut DateDescription| { &mut m.time_format },
+                |m: &DateTypeOption| { &m.time_format },
+                |m: &mut DateTypeOption| { &mut m.time_format },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateDescription>(
-                "DateDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateTypeOption>(
+                "DateTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static DateDescription {
-        static instance: ::protobuf::rt::LazyV2<DateDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(DateDescription::new)
+    fn default_instance() -> &'static DateTypeOption {
+        static instance: ::protobuf::rt::LazyV2<DateTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DateTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for DateDescription {
+impl ::protobuf::Clear for DateTypeOption {
     fn clear(&mut self) {
         self.date_format = DateFormat::Local;
         self.time_format = TimeFormat::TwelveHour;
@@ -190,13 +190,13 @@ impl ::protobuf::Clear for DateDescription {
     }
 }
 
-impl ::std::fmt::Debug for DateDescription {
+impl ::std::fmt::Debug for DateTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for DateDescription {
+impl ::protobuf::reflect::ProtobufValue for DateTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -309,9 +309,9 @@ impl ::protobuf::reflect::ProtobufValue for TimeFormat {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16date_description.proto\"m\n\x0fDateDescription\x12,\n\x0bdate_form\
-    at\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\x12,\n\x0btime_form\
-    at\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat*6\n\nDateFormat\x12\
+    \n\x16date_type_option.proto\"l\n\x0eDateTypeOption\x12,\n\x0bdate_forma\
+    t\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\x12,\n\x0btime_forma\
+    t\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat*6\n\nDateFormat\x12\
     \t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\
     \x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\
     \x12\x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\

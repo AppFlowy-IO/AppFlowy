@@ -8,13 +8,13 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use richTextDescriptionDescriptor instead')
-const RichTextDescription$json = const {
-  '1': 'RichTextDescription',
+@$core.Deprecated('Use richTextTypeOptionDescriptor instead')
+const RichTextTypeOption$json = const {
+  '1': 'RichTextTypeOption',
   '2': const [
     const {'1': 'format', '3': 1, '4': 1, '5': 9, '10': 'format'},
   ],
 };
 
-/// Descriptor for `RichTextDescription`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List richTextDescriptionDescriptor = $convert.base64Decode('ChNSaWNoVGV4dERlc2NyaXB0aW9uEhYKBmZvcm1hdBgBIAEoCVIGZm9ybWF0');
+/// Descriptor for `RichTextTypeOption`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List richTextTypeOptionDescriptor = $convert.base64Decode('ChJSaWNoVGV4dFR5cGVPcHRpb24SFgoGZm9ybWF0GAEgASgJUgZmb3JtYXQ=');

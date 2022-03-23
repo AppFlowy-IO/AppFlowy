@@ -69,24 +69,25 @@ const FieldMeta$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '10': 'typeOptions'},
+    const {'1': 'type_option', '3': 8, '4': 1, '5': 9, '10': 'typeOption'},
   ],
 };
 
 /// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSIQoMdHlwZV9vcHRpb25zGAggASgJUgt0eXBlT3B0aW9ucw==');
+final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSHwoLdHlwZV9vcHRpb24YCCABKAlSCnR5cGVPcHRpb24=');
 @$core.Deprecated('Use fieldChangesetDescriptor instead')
 const FieldChangeset$json = const {
   '1': 'FieldChangeset',
   '2': const [
     const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
-    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'desc'},
-    const {'1': 'field_type', '3': 4, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
-    const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
-    const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
-    const {'1': 'width', '3': 7, '4': 1, '5': 5, '9': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '9': 6, '10': 'typeOptions'},
+    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'desc', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'desc'},
+    const {'1': 'field_type', '3': 5, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
+    const {'1': 'frozen', '3': 6, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
+    const {'1': 'visibility', '3': 7, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
+    const {'1': 'width', '3': 8, '4': 1, '5': 5, '9': 5, '10': 'width'},
+    const {'1': 'type_options', '3': 9, '4': 1, '5': 9, '9': 6, '10': 'typeOptions'},
   ],
   '8': const [
     const {'1': 'one_of_name'},
@@ -100,7 +101,7 @@ const FieldChangeset$json = const {
 };
 
 /// Descriptor for `FieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEiMKDHR5cGVfb3B0aW9ucxgIIAEoCUgGUgt0eXBlT3B0aW9uc0INCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIVChNvbmVfb2ZfdHlwZV9vcHRpb25z');
+final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIXCgdncmlkX2lkGAIgASgJUgZncmlkSWQSFAoEbmFtZRgDIAEoCUgAUgRuYW1lEhQKBGRlc2MYBCABKAlIAVIEZGVzYxIrCgpmaWVsZF90eXBlGAUgASgOMgouRmllbGRUeXBlSAJSCWZpZWxkVHlwZRIYCgZmcm96ZW4YBiABKAhIA1IGZnJvemVuEiAKCnZpc2liaWxpdHkYByABKAhIBFIKdmlzaWJpbGl0eRIWCgV3aWR0aBgIIAEoBUgFUgV3aWR0aBIjCgx0eXBlX29wdGlvbnMYCSABKAlIBlILdHlwZU9wdGlvbnNCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEwoRb25lX29mX2ZpZWxkX3R5cGVCDwoNb25lX29mX2Zyb3plbkITChFvbmVfb2ZfdmlzaWJpbGl0eUIOCgxvbmVfb2Zfd2lkdGhCFQoTb25lX29mX3R5cGVfb3B0aW9ucw==');
 @$core.Deprecated('Use anyDataDescriptor instead')
 const AnyData$json = const {
   '1': 'AnyData',

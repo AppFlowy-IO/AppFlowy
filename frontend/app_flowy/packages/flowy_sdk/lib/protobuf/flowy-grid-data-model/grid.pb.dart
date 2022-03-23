@@ -979,6 +979,110 @@ class CreateRowPayload extends $pb.GeneratedMessage {
   void clearStartRowId() => clearField(2);
 }
 
+enum CreateFieldPayload_OneOfStartFieldId {
+  startFieldId, 
+  notSet
+}
+
+class CreateFieldPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CreateFieldPayload_OneOfStartFieldId> _CreateFieldPayload_OneOfStartFieldIdByTag = {
+    4 : CreateFieldPayload_OneOfStartFieldId.startFieldId,
+    0 : CreateFieldPayload_OneOfStartFieldId.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateFieldPayload', createEmptyInstance: create)
+    ..oo(0, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOM<Field>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'field', subBuilder: Field.create)
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'startFieldId')
+    ..hasRequiredFields = false
+  ;
+
+  CreateFieldPayload._() : super();
+  factory CreateFieldPayload({
+    $core.String? gridId,
+    Field? field_2,
+    $core.List<$core.int>? typeOptionData,
+    $core.String? startFieldId,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (field_2 != null) {
+      _result.field_2 = field_2;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    if (startFieldId != null) {
+      _result.startFieldId = startFieldId;
+    }
+    return _result;
+  }
+  factory CreateFieldPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateFieldPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CreateFieldPayload clone() => CreateFieldPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CreateFieldPayload copyWith(void Function(CreateFieldPayload) updates) => super.copyWith((message) => updates(message as CreateFieldPayload)) as CreateFieldPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CreateFieldPayload create() => CreateFieldPayload._();
+  CreateFieldPayload createEmptyInstance() => create();
+  static $pb.PbList<CreateFieldPayload> createRepeated() => $pb.PbList<CreateFieldPayload>();
+  @$core.pragma('dart2js:noInline')
+  static CreateFieldPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateFieldPayload>(create);
+  static CreateFieldPayload? _defaultInstance;
+
+  CreateFieldPayload_OneOfStartFieldId whichOneOfStartFieldId() => _CreateFieldPayload_OneOfStartFieldIdByTag[$_whichOneof(0)]!;
+  void clearOneOfStartFieldId() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  Field get field_2 => $_getN(1);
+  @$pb.TagNumber(2)
+  set field_2(Field v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasField_2() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearField_2() => clearField(2);
+  @$pb.TagNumber(2)
+  Field ensureField_2() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get typeOptionData => $_getN(2);
+  @$pb.TagNumber(3)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTypeOptionData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTypeOptionData() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get startFieldId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set startFieldId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasStartFieldId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearStartFieldId() => clearField(4);
+}
+
 class QueryFieldPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryFieldPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')

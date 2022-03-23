@@ -1,7 +1,9 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
-use flowy_grid::services::cell::*;
+use flowy_grid::services::field::{
+    MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+};
 use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, FieldChangeset, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
@@ -10,23 +12,22 @@ use flowy_grid_data_model::entities::{
 #[tokio::test]
 async fn grid_create_field() {
     let mut test = GridEditorTest::new().await;
-    let text_field = create_text_field();
-    let single_select_field = create_single_select_field();
-
+    let (text_field_params, text_field_meta) = create_text_field(&test.grid_id);
+    let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let scripts = vec![
         CreateField {
-            field_meta: text_field.clone(),
+            params: text_field_params,
         },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: text_field,
+            field_meta: text_field_meta,
         },
     ];
     test.run_scripts(scripts).await;
 
     let scripts = vec![
         CreateField {
-            field_meta: single_select_field.clone(),
+            params: single_select_params,
         },
         AssertFieldEqual {
             field_index: test.field_count,
@@ -39,16 +40,12 @@ async fn grid_create_field() {
 #[tokio::test]
 async fn grid_create_duplicate_field() {
     let mut test = GridEditorTest::new().await;
-    let text_field = create_text_field();
+    let (params, _) = create_text_field(&test.grid_id);
     let field_count = test.field_count;
     let expected_field_count = field_count + 1;
     let scripts = vec![
-        CreateField {
-            field_meta: text_field.clone(),
-        },
-        CreateField {
-            field_meta: text_field.clone(),
-        },
+        CreateField { params: params.clone() },
+        CreateField { params },
         AssertFieldCount(expected_field_count),
     ];
     test.run_scripts(scripts).await;
@@ -57,9 +54,10 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let mut test = GridEditorTest::new().await;
-    let single_select_field = create_single_select_field();
+    let (params, field_meta) = create_single_select_field(&test.grid_id);
     let changeset = FieldChangeset {
-        field_id: single_select_field.id.clone(),
+        field_id: field_meta.id.clone(),
+        grid_id: test.grid_id.clone(),
         name: None,
         desc: None,
         field_type: None,
@@ -70,13 +68,11 @@ async fn grid_update_field_with_empty_change() {
     };
 
     let scripts = vec![
-        CreateField {
-            field_meta: single_select_field.clone(),
-        },
+        CreateField { params },
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: single_select_field,
+            field_meta,
         },
     ];
     test.run_scripts(scripts).await;
@@ -85,13 +81,14 @@ async fn grid_update_field_with_empty_change() {
 #[tokio::test]
 async fn grid_update_field() {
     let mut test = GridEditorTest::new().await;
-    let single_select_field = create_single_select_field();
+    let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let mut cloned_field = single_select_field.clone();
 
-    let mut single_select_type_options = SingleSelectDescription::from(&single_select_field);
+    let mut single_select_type_options = SingleSelectTypeOption::from(&single_select_field);
     single_select_type_options.options.push(SelectOption::new("Unknown"));
     let changeset = FieldChangeset {
         field_id: single_select_field.id.clone(),
+        grid_id: test.grid_id.clone(),
         name: None,
         desc: None,
         field_type: None,
@@ -103,11 +100,11 @@ async fn grid_update_field() {
 
     cloned_field.frozen = true;
     cloned_field.width = 1000;
-    cloned_field.type_options = single_select_type_options.into();
+    cloned_field.type_option = single_select_type_options.into();
 
     let scripts = vec![
         CreateField {
-            field_meta: single_select_field.clone(),
+            params: single_select_params,
         },
         UpdateField { changeset },
         AssertFieldEqual {
@@ -122,11 +119,9 @@ async fn grid_update_field() {
 async fn grid_delete_field() {
     let mut test = GridEditorTest::new().await;
     let expected_field_count = test.field_count;
-    let text_field = create_text_field();
+    let (text_params, text_field) = create_text_field(&test.grid_id);
     let scripts = vec![
-        CreateField {
-            field_meta: text_field.clone(),
-        },
+        CreateField { params: text_params },
         DeleteField { field_meta: text_field },
         AssertFieldCount(expected_field_count),
     ];
@@ -258,13 +253,13 @@ async fn grid_row_add_cells_test() {
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::SingleSelect => {
-                let description = SingleSelectDescription::from(field);
+                let description = SingleSelectTypeOption::from(field);
                 let options = description.options.first().unwrap();
                 let data = description.serialize_cell_data(&options.id).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::MultiSelect => {
-                let description = MultiSelectDescription::from(field);
+                let description = MultiSelectTypeOption::from(field);
                 let options = description
                     .options
                     .iter()
@@ -387,11 +382,11 @@ async fn grid_cell_update() {
                     FieldType::Number => "123".to_string(),
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
-                        let description = SingleSelectDescription::from(field_meta);
+                        let description = SingleSelectTypeOption::from(field_meta);
                         description.options.first().unwrap().id.clone()
                     }
                     FieldType::MultiSelect => {
-                        let description = MultiSelectDescription::from(field_meta);
+                        let description = MultiSelectTypeOption::from(field_meta);
                         description.options.first().unwrap().id.clone()
                     }
                     FieldType::Checkbox => "1".to_string(),

@@ -12,13 +12,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'header_cell.dart';
 
 class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final String gridId;
   final List<Field> fields;
 
-  GridHeaderDelegate(this.fields);
+  GridHeaderDelegate({required this.gridId, required this.fields});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return GridHeader(fields: fields);
+    return GridHeader(gridId: gridId, fields: fields);
   }
 
   @override
@@ -38,36 +39,26 @@ class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
 
 class GridHeader extends StatelessWidget {
   final List<Field> fields;
-  const GridHeader({required this.fields, Key? key}) : super(key: key);
+  final String gridId;
+  const GridHeader({required this.gridId, required this.fields, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => getIt<GridHeaderBloc>(param1: fields)..add(const GridHeaderEvent.initial()),
+      create: (context) => getIt<GridHeaderBloc>(param1: gridId, param2: fields)..add(const GridHeaderEvent.initial()),
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        builder: (context, state) {
-          final headers = state.fields
-              .map(
-                (field) => HeaderCellContainer(
-                  width: field.width.toDouble(),
-                  child: HeaderCell(field),
-                ),
-              )
-              .toList();
-
-          return Container(
-            color: theme.surface,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _HeaderLeading(),
-                ...headers,
-                const _HeaderTrailing(),
-              ],
-            ),
-          );
-        },
+        builder: (context, state) => Container(
+          color: theme.surface,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _HeaderLeading(),
+              ...state.fields.map((field) => HeaderCell(field)),
+              const _HeaderTrailing(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -97,13 +88,13 @@ class _HeaderTrailing extends StatelessWidget {
         border: Border(top: borderSide, bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
-      child: const CreateColumnButton(),
+      child: const CreateFieldButton(),
     );
   }
 }
 
-class CreateColumnButton extends StatelessWidget {
-  const CreateColumnButton({Key? key}) : super(key: key);
+class CreateFieldButton extends StatelessWidget {
+  const CreateFieldButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

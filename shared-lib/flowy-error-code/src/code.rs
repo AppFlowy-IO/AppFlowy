@@ -88,14 +88,20 @@ pub enum ErrorCode {
     UserNotExist = 312,
     #[display(fmt = "Text is too long")]
     TextTooLong = 400,
-    #[display(fmt = "Grid block id is empty")]
-    BlockIdIsEmpty = 401,
-    #[display(fmt = "Row id is empty")]
-    RowIdIsEmpty = 402,
+
     #[display(fmt = "Grid id is empty")]
-    GridIdIsEmpty = 403,
+    GridIdIsEmpty = 410,
+    #[display(fmt = "Grid block id is empty")]
+    BlockIdIsEmpty = 420,
+    #[display(fmt = "Row id is empty")]
+    RowIdIsEmpty = 430,
+    #[display(fmt = "Field id is empty")]
+    FieldIdIsEmpty = 440,
+    #[display(fmt = "Field's type option should not be empty")]
+    TypeOptionIsEmpty = 441,
+
     #[display(fmt = "Invalid data")]
-    InvalidData = 404,
+    InvalidData = 500,
 }
 
 impl ErrorCode {

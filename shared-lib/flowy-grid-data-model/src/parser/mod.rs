@@ -1,5 +1,5 @@
-mod grid;
-mod id;
+mod grid_params;
+mod id_parser;
 
-pub use grid::*;
-pub use id::*;
+pub use grid_params::*;
+pub use id_parser::*;

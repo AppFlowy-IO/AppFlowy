@@ -17,14 +17,14 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `number_description.proto`
+//! Generated file from `number_type_option.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct NumberDescription {
+pub struct NumberTypeOption {
     // message fields
     pub format: NumberFormat,
     pub scale: u32,
@@ -36,14 +36,14 @@ pub struct NumberDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a NumberDescription {
-    fn default() -> &'a NumberDescription {
-        <NumberDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a NumberTypeOption {
+    fn default() -> &'a NumberTypeOption {
+        <NumberTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl NumberDescription {
-    pub fn new() -> NumberDescription {
+impl NumberTypeOption {
+    pub fn new() -> NumberTypeOption {
         ::std::default::Default::default()
     }
 
@@ -145,7 +145,7 @@ impl NumberDescription {
     }
 }
 
-impl ::protobuf::Message for NumberDescription {
+impl ::protobuf::Message for NumberTypeOption {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -255,8 +255,8 @@ impl ::protobuf::Message for NumberDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> NumberDescription {
-        NumberDescription::new()
+    fn new() -> NumberTypeOption {
+        NumberTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -265,44 +265,44 @@ impl ::protobuf::Message for NumberDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<NumberFormat>>(
                 "format",
-                |m: &NumberDescription| { &m.format },
-                |m: &mut NumberDescription| { &mut m.format },
+                |m: &NumberTypeOption| { &m.format },
+                |m: &mut NumberTypeOption| { &mut m.format },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                 "scale",
-                |m: &NumberDescription| { &m.scale },
-                |m: &mut NumberDescription| { &mut m.scale },
+                |m: &NumberTypeOption| { &m.scale },
+                |m: &mut NumberTypeOption| { &mut m.scale },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "symbol",
-                |m: &NumberDescription| { &m.symbol },
-                |m: &mut NumberDescription| { &mut m.symbol },
+                |m: &NumberTypeOption| { &m.symbol },
+                |m: &mut NumberTypeOption| { &mut m.symbol },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "sign_positive",
-                |m: &NumberDescription| { &m.sign_positive },
-                |m: &mut NumberDescription| { &mut m.sign_positive },
+                |m: &NumberTypeOption| { &m.sign_positive },
+                |m: &mut NumberTypeOption| { &mut m.sign_positive },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &NumberDescription| { &m.name },
-                |m: &mut NumberDescription| { &mut m.name },
+                |m: &NumberTypeOption| { &m.name },
+                |m: &mut NumberTypeOption| { &mut m.name },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<NumberDescription>(
-                "NumberDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<NumberTypeOption>(
+                "NumberTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static NumberDescription {
-        static instance: ::protobuf::rt::LazyV2<NumberDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(NumberDescription::new)
+    fn default_instance() -> &'static NumberTypeOption {
+        static instance: ::protobuf::rt::LazyV2<NumberTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(NumberTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for NumberDescription {
+impl ::protobuf::Clear for NumberTypeOption {
     fn clear(&mut self) {
         self.format = NumberFormat::Number;
         self.scale = 0;
@@ -313,13 +313,13 @@ impl ::protobuf::Clear for NumberDescription {
     }
 }
 
-impl ::std::fmt::Debug for NumberDescription {
+impl ::std::fmt::Debug for NumberTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for NumberDescription {
+impl ::protobuf::reflect::ProtobufValue for NumberTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -382,7 +382,7 @@ impl ::protobuf::reflect::ProtobufValue for NumberFormat {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x18number_description.proto\"\xa1\x01\n\x11NumberDescription\x12%\n\
+    \n\x18number_type_option.proto\"\xa0\x01\n\x10NumberTypeOption\x12%\n\
     \x06format\x18\x01\x20\x01(\x0e2\r.NumberFormatR\x06format\x12\x14\n\x05\
     scale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\x18\x03\x20\x01(\
     \tR\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\x08R\x0csignPositiv\

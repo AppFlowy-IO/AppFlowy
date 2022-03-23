@@ -8,10 +8,10 @@ pub enum GridNotification {
 
     GridDidCreateBlock = 11,
 
-    BlockDidUpdateRow = 20,
+    DidUpdateRow = 20,
 
     GridDidUpdateCells = 30,
-    GridDidUpdateFields = 40,
+    DidUpdateFields = 40,
 }
 
 impl std::default::Default for GridNotification {

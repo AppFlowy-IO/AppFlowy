@@ -8,20 +8,21 @@ use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
+use crate::services::field::TypeOptionsBuilder;
 use strum_macros::EnumIter;
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct DateDescription {
+pub struct DateTypeOption {
     #[pb(index = 1)]
     pub date_format: DateFormat,
 
     #[pb(index = 2)]
     pub time_format: TimeFormat,
 }
-impl_from_and_to_type_option!(DateDescription, FieldType::DateTime);
+impl_from_and_to_type_option!(DateTypeOption, FieldType::DateTime);
 
-impl DateDescription {
+impl DateTypeOption {
     #[allow(dead_code)]
     fn today_from_timestamp(&self, timestamp: i64) -> String {
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
@@ -38,7 +39,7 @@ impl DateDescription {
     }
 }
 
-impl CellDataSerde for DateDescription {
+impl CellDataSerde for DateTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
         match data.parse::<i64>() {
             Ok(timestamp) => {
@@ -58,6 +59,29 @@ impl CellDataSerde for DateDescription {
             return Err(FlowyError::internal().context(e));
         };
         Ok(data.to_owned())
+    }
+}
+
+#[derive(Default)]
+pub struct DateTypeOptionsBuilder(DateTypeOption);
+impl DateTypeOptionsBuilder {
+    pub fn date_format(mut self, date_format: DateFormat) -> Self {
+        self.0.date_format = date_format;
+        self
+    }
+
+    pub fn time_format(mut self, time_format: TimeFormat) -> Self {
+        self.0.time_format = time_format;
+        self
+    }
+}
+impl TypeOptionsBuilder for DateTypeOptionsBuilder {
+    fn field_type(&self) -> FieldType {
+        self.0.field_type()
+    }
+
+    fn build(&self) -> String {
+        self.0.clone().into()
     }
 }
 
@@ -145,13 +169,13 @@ impl std::default::Default for TimeFormat {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{DateDescription, DateFormat, TimeFormat};
+    use crate::services::cell::{DateFormat, DateTypeOption, TimeFormat};
     use crate::services::row::CellDataSerde;
     use strum::IntoEnumIterator;
 
     #[test]
     fn date_description_date_format_test() {
-        let mut description = DateDescription::default();
+        let mut description = DateTypeOption::default();
         let _timestamp = 1647251762;
 
         for date_format in DateFormat::iter() {
@@ -203,7 +227,7 @@ mod tests {
 
     #[test]
     fn date_description_time_format_test() {
-        let mut description = DateDescription::default();
+        let mut description = DateTypeOption::default();
         for time_format in TimeFormat::iter() {
             description.time_format = time_format;
             match time_format {
@@ -234,7 +258,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn date_description_invalid_data_test() {
-        let description = DateDescription::default();
+        let description = DateTypeOption::default();
         description.serialize_cell_data("he").unwrap();
     }
 }

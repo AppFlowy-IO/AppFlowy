@@ -1,18 +1,38 @@
 use crate::impl_from_and_to_type_option;
+use crate::services::field::TypeOptionsBuilder;
 use crate::services::row::CellDataSerde;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
+#[derive(Default)]
+pub struct CheckboxTypeOptionsBuilder(CheckboxTypeOption);
+impl CheckboxTypeOptionsBuilder {
+    pub fn set_selected(mut self, is_selected: bool) -> Self {
+        self.0.is_selected = is_selected;
+        self
+    }
+}
+
+impl TypeOptionsBuilder for CheckboxTypeOptionsBuilder {
+    fn field_type(&self) -> FieldType {
+        self.0.field_type()
+    }
+
+    fn build(&self) -> String {
+        self.0.clone().into()
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
-pub struct CheckboxDescription {
+pub struct CheckboxTypeOption {
     #[pb(index = 1)]
     pub is_selected: bool,
 }
-impl_from_and_to_type_option!(CheckboxDescription, FieldType::Checkbox);
+impl_from_and_to_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 
-impl CellDataSerde for CheckboxDescription {
+impl CellDataSerde for CheckboxTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
         data
     }
@@ -41,12 +61,12 @@ fn string_to_bool(bool_str: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::CheckboxDescription;
+    use crate::services::cell::CheckboxTypeOption;
     use crate::services::row::CellDataSerde;
 
     #[test]
     fn checkout_box_description_test() {
-        let description = CheckboxDescription::default();
+        let description = CheckboxTypeOption::default();
         assert_eq!(description.serialize_cell_data("true").unwrap(), "1".to_owned());
         assert_eq!(description.serialize_cell_data("1").unwrap(), "1".to_owned());
         assert_eq!(description.serialize_cell_data("yes").unwrap(), "1".to_owned());

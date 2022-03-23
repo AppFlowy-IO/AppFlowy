@@ -9,14 +9,14 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class CheckboxDescription extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CheckboxDescription', createEmptyInstance: create)
+class CheckboxTypeOption extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CheckboxTypeOption', createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isSelected')
     ..hasRequiredFields = false
   ;
 
-  CheckboxDescription._() : super();
-  factory CheckboxDescription({
+  CheckboxTypeOption._() : super();
+  factory CheckboxTypeOption({
     $core.bool? isSelected,
   }) {
     final _result = create();
@@ -25,26 +25,26 @@ class CheckboxDescription extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CheckboxDescription.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CheckboxDescription.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CheckboxTypeOption.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CheckboxTypeOption.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CheckboxDescription clone() => CheckboxDescription()..mergeFromMessage(this);
+  CheckboxTypeOption clone() => CheckboxTypeOption()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CheckboxDescription copyWith(void Function(CheckboxDescription) updates) => super.copyWith((message) => updates(message as CheckboxDescription)) as CheckboxDescription; // ignore: deprecated_member_use
+  CheckboxTypeOption copyWith(void Function(CheckboxTypeOption) updates) => super.copyWith((message) => updates(message as CheckboxTypeOption)) as CheckboxTypeOption; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CheckboxDescription create() => CheckboxDescription._();
-  CheckboxDescription createEmptyInstance() => create();
-  static $pb.PbList<CheckboxDescription> createRepeated() => $pb.PbList<CheckboxDescription>();
+  static CheckboxTypeOption create() => CheckboxTypeOption._();
+  CheckboxTypeOption createEmptyInstance() => create();
+  static $pb.PbList<CheckboxTypeOption> createRepeated() => $pb.PbList<CheckboxTypeOption>();
   @$core.pragma('dart2js:noInline')
-  static CheckboxDescription getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckboxDescription>(create);
-  static CheckboxDescription? _defaultInstance;
+  static CheckboxTypeOption getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckboxTypeOption>(create);
+  static CheckboxTypeOption? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.bool get isSelected => $_getBF(0);

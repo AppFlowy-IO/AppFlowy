@@ -17,14 +17,14 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `checkbox_description.proto`
+//! Generated file from `checkbox_type_option.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CheckboxDescription {
+pub struct CheckboxTypeOption {
     // message fields
     pub is_selected: bool,
     // special fields
@@ -32,14 +32,14 @@ pub struct CheckboxDescription {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CheckboxDescription {
-    fn default() -> &'a CheckboxDescription {
-        <CheckboxDescription as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a CheckboxTypeOption {
+    fn default() -> &'a CheckboxTypeOption {
+        <CheckboxTypeOption as ::protobuf::Message>::default_instance()
     }
 }
 
-impl CheckboxDescription {
-    pub fn new() -> CheckboxDescription {
+impl CheckboxTypeOption {
+    pub fn new() -> CheckboxTypeOption {
         ::std::default::Default::default()
     }
 
@@ -59,7 +59,7 @@ impl CheckboxDescription {
     }
 }
 
-impl ::protobuf::Message for CheckboxDescription {
+impl ::protobuf::Message for CheckboxTypeOption {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -129,8 +129,8 @@ impl ::protobuf::Message for CheckboxDescription {
         Self::descriptor_static()
     }
 
-    fn new() -> CheckboxDescription {
-        CheckboxDescription::new()
+    fn new() -> CheckboxTypeOption {
+        CheckboxTypeOption::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -139,44 +139,44 @@ impl ::protobuf::Message for CheckboxDescription {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "is_selected",
-                |m: &CheckboxDescription| { &m.is_selected },
-                |m: &mut CheckboxDescription| { &mut m.is_selected },
+                |m: &CheckboxTypeOption| { &m.is_selected },
+                |m: &mut CheckboxTypeOption| { &mut m.is_selected },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CheckboxDescription>(
-                "CheckboxDescription",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CheckboxTypeOption>(
+                "CheckboxTypeOption",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CheckboxDescription {
-        static instance: ::protobuf::rt::LazyV2<CheckboxDescription> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CheckboxDescription::new)
+    fn default_instance() -> &'static CheckboxTypeOption {
+        static instance: ::protobuf::rt::LazyV2<CheckboxTypeOption> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CheckboxTypeOption::new)
     }
 }
 
-impl ::protobuf::Clear for CheckboxDescription {
+impl ::protobuf::Clear for CheckboxTypeOption {
     fn clear(&mut self) {
         self.is_selected = false;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for CheckboxDescription {
+impl ::std::fmt::Debug for CheckboxTypeOption {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CheckboxDescription {
+impl ::protobuf::reflect::ProtobufValue for CheckboxTypeOption {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x1acheckbox_description.proto\"6\n\x13CheckboxDescription\x12\x1f\n\
+    \n\x1acheckbox_type_option.proto\"5\n\x12CheckboxTypeOption\x12\x1f\n\
     \x0bis_selected\x18\x01\x20\x01(\x08R\nisSelectedb\x06proto3\
 ";
 

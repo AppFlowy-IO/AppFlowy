@@ -178,6 +178,12 @@ pub struct GridBlockOrder {
     pub block_id: String,
 }
 
+impl std::convert::From<&str> for GridBlockOrder {
+    fn from(s: &str) -> Self {
+        GridBlockOrder { block_id: s.to_owned() }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
@@ -282,6 +288,21 @@ pub struct CreateRowPayload {
 
     #[pb(index = 2, one_of)]
     pub start_row_id: Option<String>,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateFieldPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field: Field,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+
+    #[pb(index = 4, one_of)]
+    pub start_field_id: Option<String>,
 }
 
 #[derive(ProtoBuf, Default)]

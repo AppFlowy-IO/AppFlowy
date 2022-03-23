@@ -11,6 +11,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetGridData, get_grid_data_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetFields, get_fields_handler)
+        .event(GridEvent::UpdateField, update_field_handler)
+        .event(GridEvent::CreateField, create_field_handler)
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
         .event(GridEvent::UpdateCell, update_cell_handler);
@@ -30,12 +32,18 @@ pub enum GridEvent {
     #[event(input = "QueryFieldPayload", output = "RepeatedField")]
     GetFields = 10,
 
+    #[event(input = "FieldChangeset")]
+    UpdateField = 11,
+
+    #[event(input = "CreateFieldPayload")]
+    CreateField = 12,
+
     #[event(input = "CreateRowPayload", output = "Row")]
-    CreateRow = 11,
+    CreateRow = 21,
 
     #[event(input = "QueryRowPayload", output = "Row")]
-    GetRow = 12,
+    GetRow = 22,
 
     #[event(input = "CellMetaChangeset")]
-    UpdateCell = 20,
+    UpdateCell = 30,
 }

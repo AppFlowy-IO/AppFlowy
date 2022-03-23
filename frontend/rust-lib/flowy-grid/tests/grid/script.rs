@@ -1,18 +1,17 @@
 use bytes::Bytes;
-use flowy_sync::client_grid::GridBuilder;
-use std::collections::HashMap;
-
-use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlockMeta, GridBlockMetaChangeset,
-    RowMeta, RowMetaChangeset, RowOrder,
+    BuildGridContext, CellMetaChangeset, CreateFieldPayload, Field, FieldChangeset, FieldMeta, FieldType,
+    GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder,
 };
+use flowy_grid_data_model::parser::CreateFieldParams;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
+use flowy_sync::client_grid::GridBuilder;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
@@ -20,7 +19,7 @@ use tokio::time::sleep;
 
 pub enum EditorScript {
     CreateField {
-        field_meta: FieldMeta,
+        params: CreateFieldParams,
     },
     UpdateField {
         changeset: FieldChangeset,
@@ -121,11 +120,12 @@ impl GridEditorTest {
         let _cache = rev_manager.revision_cache().await;
 
         match script {
-            EditorScript::CreateField { field_meta } => {
-                if !self.editor.contain_field(&field_meta).await {
+            EditorScript::CreateField { params } => {
+                if !self.editor.contain_field(&params.field.id).await {
                     self.field_count += 1;
                 }
-                self.editor.create_field(field_meta).await.unwrap();
+
+                self.editor.create_field(params).await.unwrap();
                 self.field_metas = self.editor.get_field_metas(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_metas.len());
             }
@@ -134,7 +134,7 @@ impl GridEditorTest {
                 self.field_metas = self.editor.get_field_metas(None).await.unwrap();
             }
             EditorScript::DeleteField { field_meta } => {
-                if self.editor.contain_field(&field_meta).await {
+                if self.editor.contain_field(&field_meta.id).await {
                     self.field_count -= 1;
                 }
 
@@ -247,24 +247,64 @@ async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
         .row_metas
 }
 
-pub fn create_text_field() -> FieldMeta {
-    FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
+    let field_meta = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
         .name("Name")
         .visibility(true)
         .field_type(FieldType::RichText)
-        .build()
+        .build();
+
+    let cloned_field_meta = field_meta.clone();
+
+    let field = Field {
+        id: field_meta.id,
+        name: field_meta.name,
+        desc: field_meta.desc,
+        field_type: field_meta.field_type,
+        frozen: field_meta.frozen,
+        visibility: field_meta.visibility,
+        width: field_meta.width,
+    };
+
+    let params = CreateFieldParams {
+        grid_id: grid_id.to_owned(),
+        field,
+        type_option_data: field_meta.type_option.as_bytes().to_vec(),
+        start_field_id: None,
+    };
+    (params, cloned_field_meta)
 }
 
-pub fn create_single_select_field() -> FieldMeta {
+pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
     let single_select = SingleSelectTypeOptionsBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));
 
-    FieldBuilder::new(single_select)
+    let field_meta = FieldBuilder::new(single_select)
         .name("Name")
         .visibility(true)
         .field_type(FieldType::SingleSelect)
-        .build()
+        .build();
+
+    let cloned_field_meta = field_meta.clone();
+
+    let field = Field {
+        id: field_meta.id,
+        name: field_meta.name,
+        desc: field_meta.desc,
+        field_type: field_meta.field_type,
+        frozen: field_meta.frozen,
+        visibility: field_meta.visibility,
+        width: field_meta.width,
+    };
+
+    let params = CreateFieldParams {
+        grid_id: grid_id.to_owned(),
+        field,
+        type_option_data: field_meta.type_option.as_bytes().to_vec(),
+        start_field_id: None,
+    };
+    (params, cloned_field_meta)
 }
 
 fn make_template_1_grid() -> BuildGridContext {

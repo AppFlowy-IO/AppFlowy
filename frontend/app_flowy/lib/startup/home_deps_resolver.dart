@@ -101,9 +101,9 @@ class HomeDepsResolver {
       ),
     );
 
-    getIt.registerFactoryParam<GridHeaderBloc, List<Field>, void>(
-      (data, _) => GridHeaderBloc(
-        data: GridColumnData(fields: data),
+    getIt.registerFactoryParam<GridHeaderBloc, String, List<Field>>(
+      (gridId, fields) => GridHeaderBloc(
+        data: GridColumnData(fields: fields),
         service: FieldService(),
       ),
     );

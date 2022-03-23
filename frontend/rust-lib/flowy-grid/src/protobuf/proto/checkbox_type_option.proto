@@ -1,5 +1,5 @@
 syntax = "proto3";
 
-message CheckboxDescription {
+message CheckboxTypeOption {
     bool is_selected = 1;
 }

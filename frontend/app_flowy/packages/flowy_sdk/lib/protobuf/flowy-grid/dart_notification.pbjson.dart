@@ -14,11 +14,11 @@ const GridNotification$json = const {
   '2': const [
     const {'1': 'Unknown', '2': 0},
     const {'1': 'GridDidCreateBlock', '2': 11},
-    const {'1': 'BlockDidUpdateRow', '2': 20},
+    const {'1': 'DidUpdateRow', '2': 20},
     const {'1': 'GridDidUpdateCells', '2': 30},
-    const {'1': 'GridDidUpdateFields', '2': 40},
+    const {'1': 'DidUpdateFields', '2': 40},
   ],
 };
 
 /// Descriptor for `GridNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridNotificationDescriptor = $convert.base64Decode('ChBHcmlkTm90aWZpY2F0aW9uEgsKB1Vua25vd24QABIWChJHcmlkRGlkQ3JlYXRlQmxvY2sQCxIVChFCbG9ja0RpZFVwZGF0ZVJvdxAUEhYKEkdyaWREaWRVcGRhdGVDZWxscxAeEhcKE0dyaWREaWRVcGRhdGVGaWVsZHMQKA==');
+final $typed_data.Uint8List gridNotificationDescriptor = $convert.base64Decode('ChBHcmlkTm90aWZpY2F0aW9uEgsKB1Vua25vd24QABIWChJHcmlkRGlkQ3JlYXRlQmxvY2sQCxIQCgxEaWRVcGRhdGVSb3cQFBIWChJHcmlkRGlkVXBkYXRlQ2VsbHMQHhITCg9EaWRVcGRhdGVGaWVsZHMQKA==');
