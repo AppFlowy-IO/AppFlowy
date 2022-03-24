@@ -150,7 +150,7 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "textFieldName": "Text",
-      "checkboxFieldName": "Number",
+      "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
       "numberFieldName": "Number",
       "singleSelectFieldName": "Select",

@@ -65,7 +65,7 @@ class GridHeader extends StatelessWidget {
             children: [
               const _HeaderLeading(),
               ...cells,
-              const _HeaderTrailing(),
+              _HeaderTrailing(gridId: gridId),
             ],
           );
 
@@ -88,7 +88,8 @@ class _HeaderLeading extends StatelessWidget {
 }
 
 class _HeaderTrailing extends StatelessWidget {
-  const _HeaderTrailing({Key? key}) : super(key: key);
+  final String gridId;
+  const _HeaderTrailing({required this.gridId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +101,14 @@ class _HeaderTrailing extends StatelessWidget {
         border: Border(top: borderSide, bottom: borderSide),
       ),
       padding: GridSize.headerContentInsets,
-      child: const CreateFieldButton(),
+      child: CreateFieldButton(gridId: gridId),
     );
   }
 }
 
 class CreateFieldButton extends StatelessWidget {
-  const CreateFieldButton({Key? key}) : super(key: key);
+  final String gridId;
+  const CreateFieldButton({required this.gridId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +116,7 @@ class CreateFieldButton extends StatelessWidget {
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.hover,
-      onTap: () => CreateFieldPannel.show(context),
+      onTap: () => CreateFieldPannel(gridId: gridId).show(context, gridId),
       leftIcon: svg("home/add"),
     );
   }

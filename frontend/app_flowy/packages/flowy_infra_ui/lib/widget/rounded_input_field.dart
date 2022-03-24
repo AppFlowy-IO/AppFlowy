@@ -81,6 +81,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           },
           cursorColor: widget.cursorColor,
           obscureText: obscuteText,
+          style: widget.style,
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,

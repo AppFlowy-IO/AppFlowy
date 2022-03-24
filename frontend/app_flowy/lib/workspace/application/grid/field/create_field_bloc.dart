@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,8 +15,15 @@ class CreateFieldBloc extends Bloc<CreateFieldEvent, CreateFieldState> {
     on<CreateFieldEvent>(
       (event, emit) async {
         await event.map(
-          initial: (_InitialField value) {},
+          initial: (_InitialField value) async {
+            final result = await service.getDefaultField();
+            result.fold(
+              (field) => emit(state.copyWith(field: Some(field))),
+              (err) => Log.error(err),
+            );
+          },
           updateName: (_UpdateName value) {},
+          done: (_Done value) {},
         );
       },
     );
@@ -31,6 +39,7 @@ class CreateFieldBloc extends Bloc<CreateFieldEvent, CreateFieldState> {
 class CreateFieldEvent with _$CreateFieldEvent {
   const factory CreateFieldEvent.initial() = _InitialField;
   const factory CreateFieldEvent.updateName(String newName) = _UpdateName;
+  const factory CreateFieldEvent.done() = _Done;
 }
 
 @freezed

@@ -64,7 +64,8 @@ impl ClientGridEditor {
 
     pub async fn make_default_field(&self) -> FlowyResult<Field> {
         let field_type = FieldType::default();
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let name = format!("Property {}", self.pad.read().await.fields().len());
+        let field_meta = FieldBuilder::from_field_type(&field_type).name(&name).build();
         Ok(field_meta.into())
     }
 

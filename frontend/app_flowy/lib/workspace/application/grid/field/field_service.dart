@@ -12,9 +12,7 @@ class FieldService {
 
   FieldService({required this.gridId});
 
-  Future<Either<Field, FlowyError>> getDefaultField(
-    String gridId,
-  ) {
+  Future<Either<Field, FlowyError>> getDefaultField() {
     final payload = GridId.create()..value = gridId;
     return GridEventCreateDefaultField(payload).send();
   }
@@ -26,7 +24,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return _createField(gridId, field, typeOptionData, startFieldId);
+    return createField(gridId, field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createSingleSelectField(
@@ -36,7 +34,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return _createField(gridId, field, typeOptionData, startFieldId);
+    return createField(gridId, field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createMultiSelectField(
@@ -46,7 +44,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return _createField(gridId, field, typeOptionData, startFieldId);
+    return createField(gridId, field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createNumberField(
@@ -56,7 +54,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return _createField(gridId, field, typeOptionData, startFieldId);
+    return createField(gridId, field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createDateField(
@@ -66,19 +64,19 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return _createField(gridId, field, typeOptionData, startFieldId);
+    return createField(gridId, field, typeOptionData, startFieldId);
   }
 
-  Future<Either<Unit, FlowyError>> _createField(
+  Future<Either<Unit, FlowyError>> createField(
     String gridId,
     Field field,
-    Uint8List typeOptionData,
+    Uint8List? typeOptionData,
     String? startFieldId,
   ) {
     final payload = CreateFieldPayload.create()
       ..gridId = gridId
       ..field_2 = field
-      ..typeOptionData = typeOptionData
+      ..typeOptionData = typeOptionData ?? Uint8List.fromList([])
       ..startFieldId = startFieldId ?? "";
 
     return GridEventCreateField(payload).send();

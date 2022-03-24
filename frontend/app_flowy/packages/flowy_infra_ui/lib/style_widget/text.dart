@@ -1,5 +1,5 @@
 import 'package:flowy_infra/theme.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FlowyText extends StatelessWidget {
@@ -42,6 +42,7 @@ class FlowyText extends StatelessWidget {
     return Text(title,
         overflow: overflow,
         softWrap: false,
+        textAlign: textAlign,
         style: TextStyle(
           color: theme.textColor,
           fontWeight: fontWeight,

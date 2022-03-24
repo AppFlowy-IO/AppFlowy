@@ -3,54 +3,72 @@ import 'package:app_flowy/workspace/application/grid/field/create_field_bloc.dar
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'field_name_input.dart';
 import 'field_tyep_switcher.dart';
 
-class CreateFieldPannel extends StatelessWidget {
-  const CreateFieldPannel({Key? key}) : super(key: key);
+class CreateFieldPannel extends FlowyOverlayDelegate {
+  final String gridId;
+  final CreateFieldBloc _createFieldBloc;
+  CreateFieldPannel({required this.gridId, Key? key}) : _createFieldBloc = getIt<CreateFieldBloc>(param1: gridId) {
+    _createFieldBloc.add(const CreateFieldEvent.initial());
+  }
 
-  static void show(BuildContext context) {
-    const pannel = CreateFieldPannel();
+  void show(BuildContext context, String gridId) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: pannel,
-        constraints: BoxConstraints.loose(const Size(300, 200)),
+        child: _CreateFieldPannelWidget(_createFieldBloc),
+        constraints: BoxConstraints.loose(const Size(220, 200)),
       ),
-      identifier: pannel.identifier(),
+      identifier: identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomWithLeftAligned,
       style: FlowyOverlayStyle(blur: false),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<CreateFieldBloc>()..add(const CreateFieldEvent.initial()),
-      child: BlocBuilder<CreateFieldBloc, CreateFieldState>(
-        builder: (context, state) {
-          return state.field.fold(
-            () => const SizedBox(),
-            (field) => Column(children: [
-              const FlowyText.medium("Edit property"),
-              const VSpace(10),
-              _FieldNameTextField(field),
-              const VSpace(10),
-              _FieldTypeSwitcher(field),
-            ]),
-          );
-        },
-      ),
+      delegate: this,
     );
   }
 
   String identifier() {
     return toString();
+  }
+
+  @override
+  void didRemove() async {
+    await _createFieldBloc.close();
+    // TODO: implement didRemove
+  }
+}
+
+class _CreateFieldPannelWidget extends StatelessWidget {
+  final CreateFieldBloc createFieldBloc;
+  const _CreateFieldPannelWidget(this.createFieldBloc, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: createFieldBloc,
+      child: BlocBuilder<CreateFieldBloc, CreateFieldState>(
+        builder: (context, state) {
+          return state.field.fold(
+            () => const SizedBox(),
+            (field) => ListView(
+              shrinkWrap: true,
+              children: [
+                const FlowyText.medium("Edit property", fontSize: 12),
+                const VSpace(10),
+                _FieldNameTextField(field),
+                const VSpace(10),
+                _FieldTypeSwitcher(field),
+                const VSpace(10),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

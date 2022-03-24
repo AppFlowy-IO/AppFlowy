@@ -55,9 +55,7 @@ class FieldActionItem extends StatelessWidget {
 
 enum FieldAction {
   hide,
-  // insertLeft,
   duplicate,
-  // insertRight,
   delete,
 }
 

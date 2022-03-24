@@ -26,7 +26,8 @@ class FieldTypeSwitcher extends StatelessWidget {
     return SizedBox(
       height: 36,
       child: FlowyButton(
-        text: FlowyText.medium(field.name, fontSize: 12),
+        text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         hoverColor: theme.hover,
         onTap: () => FieldTypeList.show(context, onSelectField),
         leftIcon: svg(field.fieldType.iconName(), color: theme.iconColor),
