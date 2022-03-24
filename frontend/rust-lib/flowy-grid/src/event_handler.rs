@@ -72,6 +72,17 @@ pub(crate) async fn create_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_default_field_handler(
+    data: Data<GridId>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<Field, FlowyError> {
+    let grid_id: GridId = data.into_inner();
+    let editor = manager.get_grid_editor(grid_id.as_ref())?;
+    let field = editor.make_default_field().await?;
+    data_result(field)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
     data: Data<QueryRowPayload>,
     manager: AppData<Arc<GridManager>>,

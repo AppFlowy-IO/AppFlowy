@@ -17,7 +17,7 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `text_description.proto`
+//! Generated file from `text_type_option.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -183,7 +183,7 @@ impl ::protobuf::reflect::ProtobufValue for RichTextTypeOption {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16text_description.proto\",\n\x12RichTextTypeOption\x12\x16\n\x06for\
+    \n\x16text_type_option.proto\",\n\x12RichTextTypeOption\x12\x16\n\x06for\
     mat\x18\x01\x20\x01(\tR\x06formatb\x06proto3\
 ";
 

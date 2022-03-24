@@ -63,8 +63,8 @@ impl CellDataSerde for DateTypeOption {
 }
 
 #[derive(Default)]
-pub struct DateTypeOptionsBuilder(DateTypeOption);
-impl DateTypeOptionsBuilder {
+pub struct DateTypeOptionBuilder(DateTypeOption);
+impl DateTypeOptionBuilder {
     pub fn date_format(mut self, date_format: DateFormat) -> Self {
         self.0.date_format = date_format;
         self
@@ -75,7 +75,7 @@ impl DateTypeOptionsBuilder {
         self
     }
 }
-impl TypeOptionsBuilder for DateTypeOptionsBuilder {
+impl TypeOptionsBuilder for DateTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
@@ -258,7 +258,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn date_description_invalid_data_test() {
-        let description = DateTypeOption::default();
+        let type_option = DateTypeOption::default();
         description.serialize_cell_data("he").unwrap();
     }
 }

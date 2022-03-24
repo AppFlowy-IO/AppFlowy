@@ -1,25 +1,19 @@
+use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
+use crate::services::field::{type_option_builder_from_type, FieldBuilder};
+use crate::services::row::*;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    CellMetaChangeset, Field, FieldChangeset, FieldMeta, Grid, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder,
-    RepeatedField, RepeatedFieldOrder, RepeatedGridBlock, RepeatedRow, Row, RowMeta, RowMetaChangeset, RowOrder,
-};
+use flowy_grid_data_model::entities::*;
+use flowy_grid_data_model::parser::CreateFieldParams;
+use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridChangeset, GridMetaPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_delta_from_revisions;
-use std::collections::HashMap;
-
-use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::services::row::{
-    make_grid_block_from_block_metas, make_grid_blocks, make_row_meta_from_context, make_rows_from_row_metas,
-    serialize_cell_data, CreateRowMetaBuilder, CreateRowMetaPayload, GridBlockMetaData,
-};
-use flowy_grid_data_model::parser::CreateFieldParams;
-use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -55,10 +49,23 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&self, params: CreateFieldParams) -> FlowyResult<()> {
+    pub async fn create_field(&self, mut params: CreateFieldParams) -> FlowyResult<()> {
+        if params.type_option_data.is_empty() {
+            params.type_option_data = type_option_builder_from_type(&params.field.field_type)
+                .build()
+                .as_bytes()
+                .to_vec();
+        }
+
         let _ = self.modify(|grid| Ok(grid.create_field(params)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
+    }
+
+    pub async fn make_default_field(&self) -> FlowyResult<Field> {
+        let field_type = FieldType::default();
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        Ok(field_meta.into())
     }
 
     pub async fn contain_field(&self, field_id: &str) -> bool {

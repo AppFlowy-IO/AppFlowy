@@ -248,10 +248,9 @@ async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
 }
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
-    let field_meta = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+    let field_meta = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
-        .field_type(FieldType::RichText)
         .build();
 
     let cloned_field_meta = field_meta.clone();
@@ -276,16 +275,11 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
 }
 
 pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
-    let single_select = SingleSelectTypeOptionsBuilder::default()
+    let single_select = SingleSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));
 
-    let field_meta = FieldBuilder::new(single_select)
-        .name("Name")
-        .visibility(true)
-        .field_type(FieldType::SingleSelect)
-        .build();
-
+    let field_meta = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_meta = field_meta.clone();
 
     let field = Field {
@@ -308,60 +302,42 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
 }
 
 fn make_template_1_grid() -> BuildGridContext {
-    let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+    let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
-        .field_type(FieldType::RichText)
         .build();
 
     // Single Select
-    let single_select = SingleSelectTypeOptionsBuilder::default()
+    let single_select = SingleSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Live"))
         .option(SelectOption::new("Completed"))
         .option(SelectOption::new("Planned"))
         .option(SelectOption::new("Paused"));
-    let single_select_field = FieldBuilder::new(single_select)
-        .name("Status")
-        .visibility(true)
-        .field_type(FieldType::SingleSelect)
-        .build();
+    let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
 
     // MultiSelect
-    let multi_select = MultiSelectTypeOptionsBuilder::default()
+    let multi_select = MultiSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Google"))
         .option(SelectOption::new("Facebook"))
         .option(SelectOption::new("Twitter"));
     let multi_select_field = FieldBuilder::new(multi_select)
         .name("Platform")
         .visibility(true)
-        .field_type(FieldType::MultiSelect)
         .build();
 
     // Number
-    let number = NumberTypeOptionsBuilder::default().set_format(NumberFormat::USD);
-    let number_field = FieldBuilder::new(number)
-        .name("Price")
-        .visibility(true)
-        .field_type(FieldType::Number)
-        .build();
+    let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
+    let number_field = FieldBuilder::new(number).name("Price").visibility(true).build();
 
     // Date
-    let date = DateTypeOptionsBuilder::default()
+    let date = DateTypeOptionBuilder::default()
         .date_format(DateFormat::US)
         .time_format(TimeFormat::TwentyFourHour);
-    let date_field = FieldBuilder::new(date)
-        .name("Time")
-        .visibility(true)
-        .field_type(FieldType::DateTime)
-        .build();
+    let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
 
     // Checkbox
-    let checkbox = CheckboxTypeOptionsBuilder::default();
-    let checkbox_field = FieldBuilder::new(checkbox)
-        .name("is done")
-        .visibility(true)
-        .field_type(FieldType::Checkbox)
-        .build();
+    let checkbox = CheckboxTypeOptionBuilder::default();
+    let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
 
     GridBuilder::default()
         .add_field(text_field)

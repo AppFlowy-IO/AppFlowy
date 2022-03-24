@@ -7,15 +7,15 @@ use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
-pub struct CheckboxTypeOptionsBuilder(CheckboxTypeOption);
-impl CheckboxTypeOptionsBuilder {
+pub struct CheckboxTypeOptionBuilder(CheckboxTypeOption);
+impl CheckboxTypeOptionBuilder {
     pub fn set_selected(mut self, is_selected: bool) -> Self {
         self.0.is_selected = is_selected;
         self
     }
 }
 
-impl TypeOptionsBuilder for CheckboxTypeOptionsBuilder {
+impl TypeOptionsBuilder for CheckboxTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn checkout_box_description_test() {
-        let description = CheckboxTypeOption::default();
+        let type_option = CheckboxTypeOption::default();
         assert_eq!(description.serialize_cell_data("true").unwrap(), "1".to_owned());
         assert_eq!(description.serialize_cell_data("1").unwrap(), "1".to_owned());
         assert_eq!(description.serialize_cell_data("yes").unwrap(), "1".to_owned());

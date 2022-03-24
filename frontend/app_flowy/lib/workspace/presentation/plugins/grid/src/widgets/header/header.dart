@@ -9,6 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'create_field_pannel.dart';
 import 'header_cell.dart';
 
 class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -46,19 +47,30 @@ class GridHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => getIt<GridHeaderBloc>(param1: gridId, param2: fields)..add(const GridHeaderEvent.initial()),
+      create: (context) {
+        final bloc = getIt<GridHeaderBloc>(param1: gridId, param2: fields);
+        bloc.add(const GridHeaderEvent.initial());
+        return bloc;
+      },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        builder: (context, state) => Container(
-          color: theme.surface,
-          child: Row(
+        builder: (context, state) {
+          final cells = state.fields.map(
+            (field) => HeaderCell(
+              GridFieldData(gridId: gridId, field: field),
+            ),
+          );
+
+          final row = Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const _HeaderLeading(),
-              ...state.fields.map((field) => HeaderCell(field)),
+              ...cells,
               const _HeaderTrailing(),
             ],
-          ),
-        ),
+          );
+
+          return Container(color: theme.surface, child: row);
+        },
       ),
     );
   }
@@ -102,7 +114,7 @@ class CreateFieldButton extends StatelessWidget {
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.hover,
-      onTap: () => context.read<GridHeaderBloc>().add(const GridHeaderEvent.createField()),
+      onTap: () => CreateFieldPannel.show(context),
       leftIcon: svg("home/add"),
     );
   }

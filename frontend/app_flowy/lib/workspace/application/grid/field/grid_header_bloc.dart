@@ -11,7 +11,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final FieldService service;
 
   GridHeaderBloc({
-    required GridColumnData data,
+    required GridHeaderData data,
     required this.service,
   }) : super(GridHeaderState.initial(data.fields)) {
     on<GridHeaderEvent>(
@@ -19,6 +19,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
         await event.map(
           initial: (_InitialHeader value) async {},
           createField: (_CreateField value) {},
+          insertField: (_InsertField value) {},
         );
       },
     );
@@ -34,6 +35,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
   const factory GridHeaderEvent.createField() = _CreateField;
+  const factory GridHeaderEvent.insertField({required bool onLeft}) = _InsertField;
 }
 
 @freezed

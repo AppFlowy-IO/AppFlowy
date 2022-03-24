@@ -102,10 +102,6 @@ impl TryInto<CreateFieldParams> for CreateFieldPayload {
             Some(id) => Some(NotEmptyUuid::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
-        if self.type_option_data.is_empty() {
-            return Err(ErrorCode::TypeOptionIsEmpty);
-        }
-
         Ok(CreateFieldParams {
             grid_id: grid_id.0,
             field: self.field,

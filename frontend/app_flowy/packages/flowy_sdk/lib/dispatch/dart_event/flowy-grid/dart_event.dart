@@ -86,6 +86,23 @@ class GridEventCreateField {
     }
 }
 
+class GridEventCreateDefaultField {
+     GridId request;
+     GridEventCreateDefaultField(this.request);
+
+    Future<Either<Field, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.CreateDefaultField.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Field.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventCreateRow {
      CreateRowPayload request;
      GridEventCreateRow(this.request);

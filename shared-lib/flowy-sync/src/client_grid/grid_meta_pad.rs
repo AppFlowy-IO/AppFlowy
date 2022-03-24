@@ -45,16 +45,18 @@ impl GridMetaPad {
                 ..
             } = params;
 
+            // Check if the field exists or not
             if grid
                 .fields
                 .iter()
                 .find(|field_meta| field_meta.id == field.id)
                 .is_some()
             {
-                tracing::warn!("Create grid field");
+                tracing::warn!("Duplicate grid field");
                 return Ok(None);
             }
 
+            // Parse type option
             let type_option =
                 String::from_utf8(type_option_data).map_err(|e| CollaborateError::internal().context(e))?;
 

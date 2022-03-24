@@ -13,6 +13,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::CreateField, create_field_handler)
+        .event(GridEvent::CreateDefaultField, create_default_field_handler)
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
         .event(GridEvent::UpdateCell, update_cell_handler);
@@ -37,6 +38,9 @@ pub enum GridEvent {
 
     #[event(input = "CreateFieldPayload")]
     CreateField = 12,
+
+    #[event(input = "GridId", output = "Field")]
+    CreateDefaultField = 13,
 
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 21,

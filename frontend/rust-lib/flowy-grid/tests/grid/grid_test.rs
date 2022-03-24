@@ -253,13 +253,13 @@ async fn grid_row_add_cells_test() {
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::SingleSelect => {
-                let description = SingleSelectTypeOption::from(field);
+                let type_option = SingleSelectTypeOption::from(field);
                 let options = description.options.first().unwrap();
                 let data = description.serialize_cell_data(&options.id).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::MultiSelect => {
-                let description = MultiSelectTypeOption::from(field);
+                let type_option = MultiSelectTypeOption::from(field);
                 let options = description
                     .options
                     .iter()
@@ -382,11 +382,11 @@ async fn grid_cell_update() {
                     FieldType::Number => "123".to_string(),
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
-                        let description = SingleSelectTypeOption::from(field_meta);
+                        let type_option = SingleSelectTypeOption::from(field_meta);
                         description.options.first().unwrap().id.clone()
                     }
                     FieldType::MultiSelect => {
-                        let description = MultiSelectTypeOption::from(field_meta);
+                        let type_option = MultiSelectTypeOption::from(field_meta);
                         description.options.first().unwrap().id.clone()
                     }
                     FieldType::Checkbox => "1".to_string(),

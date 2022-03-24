@@ -148,7 +148,13 @@
       "insertLeft": "Insert Left",
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
-      "delete": "Delete"
+      "delete": "Delete",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Number",
+      "dateFieldName": "Date",
+      "numberFieldName": "Number",
+      "singleSelectFieldName": "Select",
+      "multiSelectFieldName": "Multiselect"
     }
   }
 }

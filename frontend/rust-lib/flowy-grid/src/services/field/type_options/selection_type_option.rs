@@ -33,15 +33,15 @@ impl CellDataSerde for SingleSelectTypeOption {
 }
 
 #[derive(Default)]
-pub struct SingleSelectTypeOptionsBuilder(SingleSelectTypeOption);
+pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOption);
 
-impl SingleSelectTypeOptionsBuilder {
+impl SingleSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
         self.0.options.push(opt);
         self
     }
 }
-impl TypeOptionsBuilder for SingleSelectTypeOptionsBuilder {
+impl TypeOptionsBuilder for SingleSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
@@ -72,15 +72,15 @@ impl CellDataSerde for MultiSelectTypeOption {
 }
 
 #[derive(Default)]
-pub struct MultiSelectTypeOptionsBuilder(MultiSelectTypeOption);
-impl MultiSelectTypeOptionsBuilder {
+pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
+impl MultiSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
         self.0.options.push(opt);
         self
     }
 }
 
-impl TypeOptionsBuilder for MultiSelectTypeOptionsBuilder {
+impl TypeOptionsBuilder for MultiSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
@@ -157,10 +157,10 @@ mod tests {
     #[test]
     #[should_panic]
     fn selection_description_test() {
-        let description = SingleSelectTypeOption::default();
+        let type_option = SingleSelectTypeOption::default();
         assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
 
-        let description = MultiSelectDescription::default();
+        let type_option = MultiSelectDescription::default();
         assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
     }
 }

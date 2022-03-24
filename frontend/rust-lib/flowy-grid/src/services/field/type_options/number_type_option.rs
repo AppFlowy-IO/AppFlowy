@@ -19,9 +19,9 @@ lazy_static! {
 }
 
 #[derive(Default)]
-pub struct NumberTypeOptionsBuilder(NumberTypeOption);
+pub struct NumberTypeOptionBuilder(NumberTypeOption);
 
-impl NumberTypeOptionsBuilder {
+impl NumberTypeOptionBuilder {
     pub fn name(mut self, name: &str) -> Self {
         self.0.name = name.to_string();
         self
@@ -43,7 +43,7 @@ impl NumberTypeOptionsBuilder {
     }
 }
 
-impl TypeOptionsBuilder for NumberTypeOptionsBuilder {
+impl TypeOptionsBuilder for NumberTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }

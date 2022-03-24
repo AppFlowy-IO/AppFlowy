@@ -8,9 +8,9 @@ use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
-pub struct RichTextTypeOptionsBuilder(RichTextTypeOption);
+pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
 
-impl TypeOptionsBuilder for RichTextTypeOptionsBuilder {
+impl TypeOptionsBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
