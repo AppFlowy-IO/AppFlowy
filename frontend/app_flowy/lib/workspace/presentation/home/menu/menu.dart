@@ -1,6 +1,8 @@
 export './app/header/header.dart';
 export './app/menu_app.dart';
 
+import 'dart:developer';
+
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
@@ -45,7 +47,10 @@ class HomeMenu extends StatefulWidget {
 }
 
 class _HomeMenuState extends State<HomeMenu> {
-  final List<Widget> _menuItems = List.empty(growable: true);
+  // final List<Widget> _menuItems = List.empty(growable: true);
+  /// Maps the hashmap of the menu items to their index in reorderable list view.
+  //TODO @gaganyadav80: need to retain this to persist on app restarts.
+  final Map<int, int> _menuItemIndex = <int, int>{};
 
   @override
   Widget build(BuildContext context) {
@@ -122,26 +127,33 @@ class _HomeMenuState extends State<HomeMenu> {
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
             selector: (state) {
-              // List<Widget> menuItems = [];
+              List<Widget> menuItems = [];
               // menuItems.add(MenuUser(user));
               List<MenuApp> appWidgets =
                   state.apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-
-              for (var app in appWidgets) {
-                if (!_menuItems.any((oldElement) => oldElement.key == app.key)) {
-                  _menuItems.add(app);
-                }
-              }
-              // TODO @gaganyadav: fix: concurrent modification exception
-              // Unhandled Exception: Concurrent modification during iteration: Instance(length:3) of '_GrowableList'.
-              for (var item in _menuItems) {
-                if (!appWidgets.any((oldElement) => oldElement.key == item.key)) {
-                  _menuItems.remove(item);
-                }
-              }
-
               // menuItems.addAll(appWidgets);
-              return _menuItems;
+              for (int i = 0; i < appWidgets.length; i++) {
+                if (_menuItemIndex[appWidgets[i].key.hashCode] == null) {
+                  _menuItemIndex[appWidgets[i].key.hashCode] = i;
+                }
+
+                menuItems.insert(_menuItemIndex[appWidgets[i].key.hashCode]!, appWidgets[i]);
+              }
+
+              // for (var app in appWidgets) {
+              //   if (!_menuItems.any((oldElement) => oldElement.key == app.key)) {
+              //     _menuItems.add(app);
+              //   }
+              // }
+              // // TODO @gaganyadav80: fix: concurrent modification exception
+              // // Unhandled Exception: Concurrent modification during iteration: Instance(length:3) of '_GrowableList'.
+              // for (var item in _menuItems) {
+              //   if (!appWidgets.any((oldElement) => oldElement.key == item.key)) {
+              //     _menuItems.remove(item);
+              //   }
+              // }
+
+              return menuItems;
             },
             builder: (context, menuItems) {
               return ReorderableListView.builder(
@@ -162,6 +174,8 @@ class _HomeMenuState extends State<HomeMenu> {
                     var app = a.removeAt(oldIndex);
                     a.insert(index, app);
                   });
+
+                  _menuItemIndex[menu.key.hashCode] = index;
                 },
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {

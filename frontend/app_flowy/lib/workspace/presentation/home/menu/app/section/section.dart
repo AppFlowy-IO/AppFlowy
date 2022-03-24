@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
@@ -5,14 +7,22 @@ import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 import 'package:async/async.dart';
 
-class ViewSection extends StatelessWidget {
+//? @gaganyadav80: Build 3 times on startup. Then one time on each doc change.
+
+class ViewSection extends StatefulWidget {
   final AppDataNotifier appData;
   const ViewSection({Key? key, required this.appData}) : super(key: key);
 
+  @override
+  State<ViewSection> createState() => _ViewSectionState();
+}
+
+class _ViewSectionState extends State<ViewSection> {
   @override
   Widget build(BuildContext context) {
     // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
@@ -20,35 +30,120 @@ class ViewSection extends StatelessWidget {
       create: (_) {
         return ViewSectionNotifier(
           context: context,
-          views: appData.views,
-          initialSelectedView: appData.selectedView,
+          views: widget.appData.views,
+          initialSelectedView: widget.appData.selectedView,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
-        return _renderSectionItems(context, notifier.views);
+        log("BUILD: Section Bloc section update triggered + ${notifier.views.length}");
+        return RenderSectionItems(views: notifier.views);
       }),
     );
   }
 
-  Widget _renderSectionItems(BuildContext context, List<View> views) {
-    List<Widget> viewWidgets = [];
-    if (views.isNotEmpty) {
-      viewWidgets = views
-          .map(
-            (view) => ViewSectionItem(
-              view: view,
-              isSelected: _isViewSelected(context, view.id),
-              onSelected: (view) {
-                context.read<ViewSectionNotifier>().selectedView = view;
-                Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
-              },
-            ).padding(vertical: 4),
-          )
-          .toList(growable: false);
+  // Widget _renderSectionItems(BuildContext context, List<View> views) {
+  //   return Container();
+  // }
+}
+
+class RenderSectionItems extends StatefulWidget {
+  const RenderSectionItems({Key? key, required this.views}) : super(key: key);
+
+  final List<View> views;
+
+  @override
+  State<RenderSectionItems> createState() => _RenderSectionItemsState();
+}
+
+class _RenderSectionItemsState extends State<RenderSectionItems> {
+  // List<Widget> viewWidgets = List.empty(growable: true);
+  // List<Widget> sectionItems = List.empty(growable: true);
+  List<View> views = <View>[];
+
+  /// Maps the hasmap value of the section items to their index in the reorderable list.
+  //TODO @gaganyadav80: Retain this map to persist the order of the items.
+  final Map<String, int> _sectionItemIndex = <String, int>{};
+
+  void _initItemList() {
+    views.addAll(widget.views);
+    // log(widget.views.length.toString());
+    // if (widget.views.isNotEmpty) {
+    //   viewWidgets = widget.views
+    //       .map(
+    //         (view) => ViewSectionItem(
+    //           view: view,
+    //           isSelected: _isViewSelected(context, view.id),
+    //           onSelected: (view) {
+    //             context.read<ViewSectionNotifier>().selectedView = view;
+    //             Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
+    //           },
+    //         ).padding(vertical: 4),
+    //       )
+    //       .toList(growable: false);
+    // }
+
+    // sectionItems.clear();
+
+    for (int i = 0; i < views.length; i++) {
+      if (_sectionItemIndex[views[i].id] == null) {
+        _sectionItemIndex[views[i].id] = i;
+      }
+
+      // sectionItems.insert(_sectionItemIndex[viewWidgets[i].key.hashCode]!, viewWidgets[i]);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initItemList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (views.isEmpty) {
+      _initItemList();
     }
 
-    return Column(children: viewWidgets);
+    log("BUILD: Section items: ${views.length}");
+    return ReorderableColumn(
+      // itemCount: sectionItems.length,
+      // buildDefaultDragHandles: false,
+      needsLongPressDraggable: false,
+      onReorder: (oldIndex, index) {
+        setState(() {
+          // int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+          View section = views.removeAt(oldIndex);
+          views.insert(index, section);
+
+          _sectionItemIndex[section.id] = index;
+        });
+      },
+      // physics: StyledScrollPhysics(),
+      // itemBuilder: (context, index) {},
+      children: List.generate(
+        views.length,
+        (index) {
+          return Container(
+            key: ValueKey(views[index].id),
+            // index: index,
+            child: views
+                .map(
+                  (view) => ViewSectionItem(
+                    view: view,
+                    isSelected: _isViewSelected(context, view.id),
+                    onSelected: (view) {
+                      context.read<ViewSectionNotifier>().selectedView = view;
+                      Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
+                    },
+                  ).padding(vertical: 4),
+                )
+                .toList()[index],
+          );
+        },
+      ),
+    );
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
