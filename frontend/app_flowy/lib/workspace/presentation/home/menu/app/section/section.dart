@@ -12,17 +12,10 @@ import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 import 'package:async/async.dart';
 
-//? @gaganyadav80: Build 3 times on startup. Then one time on each doc change.
-
-class ViewSection extends StatefulWidget {
+class ViewSection extends StatelessWidget {
   final AppDataNotifier appData;
   const ViewSection({Key? key, required this.appData}) : super(key: key);
 
-  @override
-  State<ViewSection> createState() => _ViewSectionState();
-}
-
-class _ViewSectionState extends State<ViewSection> {
   @override
   Widget build(BuildContext context) {
     // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
@@ -30,20 +23,43 @@ class _ViewSectionState extends State<ViewSection> {
       create: (_) {
         return ViewSectionNotifier(
           context: context,
-          views: widget.appData.views,
-          initialSelectedView: widget.appData.selectedView,
+          views: appData.views,
+          initialSelectedView: appData.selectedView,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
-        log("BUILD: Section Bloc section update triggered + ${notifier.views.length}");
         return RenderSectionItems(views: notifier.views);
       }),
     );
   }
 
   // Widget _renderSectionItems(BuildContext context, List<View> views) {
-  //   return Container();
+  //   List<Widget> viewWidgets = [];
+  //   if (views.isNotEmpty) {
+  //     viewWidgets = views
+  //         .map(
+  //           (view) => ViewSectionItem(
+  //             view: view,
+  //             isSelected: _isViewSelected(context, view.id),
+  //             onSelected: (view) {
+  //               context.read<ViewSectionNotifier>().selectedView = view;
+  //               Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
+  //             },
+  //           ).padding(vertical: 4),
+  //         )
+  //         .toList(growable: false);
+  //   }
+
+  //   return Column(children: viewWidgets);
+  // }
+
+  // bool _isViewSelected(BuildContext context, String viewId) {
+  //   final view = context.read<ViewSectionNotifier>().selectedView;
+  //   if (view == null) {
+  //     return false;
+  //   }
+  //   return view.id == viewId;
   // }
 }
 
@@ -57,8 +73,6 @@ class RenderSectionItems extends StatefulWidget {
 }
 
 class _RenderSectionItemsState extends State<RenderSectionItems> {
-  // List<Widget> viewWidgets = List.empty(growable: true);
-  // List<Widget> sectionItems = List.empty(growable: true);
   List<View> views = <View>[];
 
   /// Maps the hasmap value of the section items to their index in the reorderable list.
@@ -67,30 +81,11 @@ class _RenderSectionItemsState extends State<RenderSectionItems> {
 
   void _initItemList() {
     views.addAll(widget.views);
-    // log(widget.views.length.toString());
-    // if (widget.views.isNotEmpty) {
-    //   viewWidgets = widget.views
-    //       .map(
-    //         (view) => ViewSectionItem(
-    //           view: view,
-    //           isSelected: _isViewSelected(context, view.id),
-    //           onSelected: (view) {
-    //             context.read<ViewSectionNotifier>().selectedView = view;
-    //             Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
-    //           },
-    //         ).padding(vertical: 4),
-    //       )
-    //       .toList(growable: false);
-    // }
-
-    // sectionItems.clear();
 
     for (int i = 0; i < views.length; i++) {
       if (_sectionItemIndex[views[i].id] == null) {
         _sectionItemIndex[views[i].id] = i;
       }
-
-      // sectionItems.insert(_sectionItemIndex[viewWidgets[i].key.hashCode]!, viewWidgets[i]);
     }
   }
 
@@ -108,8 +103,6 @@ class _RenderSectionItemsState extends State<RenderSectionItems> {
 
     log("BUILD: Section items: ${views.length}");
     return ReorderableColumn(
-      // itemCount: sectionItems.length,
-      // buildDefaultDragHandles: false,
       needsLongPressDraggable: false,
       onReorder: (oldIndex, index) {
         setState(() {
@@ -120,14 +113,11 @@ class _RenderSectionItemsState extends State<RenderSectionItems> {
           _sectionItemIndex[section.id] = index;
         });
       },
-      // physics: StyledScrollPhysics(),
-      // itemBuilder: (context, index) {},
       children: List.generate(
         views.length,
         (index) {
           return Container(
             key: ValueKey(views[index].id),
-            // index: index,
             child: views
                 .map(
                   (view) => ViewSectionItem(

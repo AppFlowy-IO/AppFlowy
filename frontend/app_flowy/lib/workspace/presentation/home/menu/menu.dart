@@ -1,8 +1,6 @@
 export './app/header/header.dart';
 export './app/menu_app.dart';
 
-import 'dart:developer';
-
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
@@ -47,9 +45,8 @@ class HomeMenu extends StatefulWidget {
 }
 
 class _HomeMenuState extends State<HomeMenu> {
-  // final List<Widget> _menuItems = List.empty(growable: true);
   /// Maps the hashmap of the menu items to their index in reorderable list view.
-  //TODO @gaganyadav80: need to retain this to persist on app restarts.
+  //TODO @gaganyadav80: Retain this map to persist on app restarts.
   final Map<int, int> _menuItemIndex = <int, int>{};
 
   @override
@@ -140,19 +137,6 @@ class _HomeMenuState extends State<HomeMenu> {
                 menuItems.insert(_menuItemIndex[appWidgets[i].key.hashCode]!, appWidgets[i]);
               }
 
-              // for (var app in appWidgets) {
-              //   if (!_menuItems.any((oldElement) => oldElement.key == app.key)) {
-              //     _menuItems.add(app);
-              //   }
-              // }
-              // // TODO @gaganyadav80: fix: concurrent modification exception
-              // // Unhandled Exception: Concurrent modification during iteration: Instance(length:3) of '_GrowableList'.
-              // for (var item in _menuItems) {
-              //   if (!appWidgets.any((oldElement) => oldElement.key == item.key)) {
-              //     _menuItems.remove(item);
-              //   }
-              // }
-
               return menuItems;
             },
             builder: (context, menuItems) {
@@ -179,7 +163,7 @@ class _HomeMenuState extends State<HomeMenu> {
                 },
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
-                  //? To mimic the ListView.separated behavior, we need to add a padding.
+                  //? @gaganyadav80: To mimic the ListView.separated behavior, we need to add a padding.
                   // EdgeInsets padding = EdgeInsets.zero;
                   // if (index == 0) {
                   //   padding = EdgeInsets.only(bottom: MenuAppSizes.appVPadding / 2);
