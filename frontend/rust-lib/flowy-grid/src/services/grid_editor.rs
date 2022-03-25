@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::field::{type_option_builder_from_type, FieldBuilder};
+use crate::services::field::{default_type_option_builder_from_type, type_option_json_str_from_bytes, FieldBuilder};
 use crate::services::row::*;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -49,20 +49,35 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&self, mut params: CreateFieldParams) -> FlowyResult<()> {
-        if params.type_option_data.is_empty() {
-            params.type_option_data = type_option_builder_from_type(&params.field.field_type)
-                .build()
-                .as_bytes()
-                .to_vec();
-        }
+    pub async fn create_field(&self, params: CreateFieldParams) -> FlowyResult<()> {
+        let CreateFieldParams {
+            field,
+            type_option_data,
+            start_field_id,
+            ..
+        } = params;
 
-        let _ = self.modify(|grid| Ok(grid.create_field(params)?)).await?;
+        let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
+
+        let field_meta = FieldMeta {
+            id: field.id,
+            name: field.name,
+            desc: field.desc,
+            field_type: field.field_type,
+            frozen: field.frozen,
+            visibility: field.visibility,
+            width: field.width,
+            type_option_json,
+        };
+
+        let _ = self
+            .modify(|grid| Ok(grid.create_field(field_meta, start_field_id)?))
+            .await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
 
-    pub async fn make_field_meta_from_ty(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
+    pub async fn default_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.pad.read().await.fields().len());
         let field_meta = FieldBuilder::from_field_type(&field_type).name(&name).build();
         Ok(field_meta)

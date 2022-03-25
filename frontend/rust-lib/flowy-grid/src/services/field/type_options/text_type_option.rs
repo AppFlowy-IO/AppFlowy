@@ -1,7 +1,7 @@
 use crate::impl_from_and_to_type_option;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
-
-use crate::services::field::TypeOptionsBuilder;
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
@@ -9,14 +9,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
 pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
+impl_into_box_type_option_builder!(RichTextTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOption);
 
-impl TypeOptionsBuilder for RichTextTypeOptionBuilder {
+impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 

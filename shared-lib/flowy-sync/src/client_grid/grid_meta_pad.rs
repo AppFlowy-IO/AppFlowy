@@ -36,40 +36,22 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_field(&mut self, params: CreateFieldParams) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_field(
+        &mut self,
+        new_field_meta: FieldMeta,
+        start_field_id: Option<String>,
+    ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
-            let CreateFieldParams {
-                field,
-                type_option_data,
-                start_field_id,
-                ..
-            } = params;
-
             // Check if the field exists or not
             if grid
                 .fields
                 .iter()
-                .find(|field_meta| field_meta.id == field.id)
+                .find(|field_meta| field_meta.id == new_field_meta.id)
                 .is_some()
             {
                 tracing::warn!("Duplicate grid field");
                 return Ok(None);
             }
-
-            // Parse type option
-            let type_option =
-                String::from_utf8(type_option_data).map_err(|e| CollaborateError::internal().context(e))?;
-
-            let field_meta = FieldMeta {
-                id: field.id,
-                name: field.name,
-                desc: field.desc,
-                field_type: field.field_type,
-                frozen: field.frozen,
-                visibility: field.visibility,
-                width: field.width,
-                type_option,
-            };
 
             let insert_index = match start_field_id {
                 None => None,
@@ -77,8 +59,8 @@ impl GridMetaPad {
             };
 
             match insert_index {
-                None => grid.fields.push(field_meta),
-                Some(index) => grid.fields.insert(index, field_meta),
+                None => grid.fields.push(new_field_meta),
+                Some(index) => grid.fields.insert(index, new_field_meta),
             }
             Ok(Some(()))
         })
@@ -167,7 +149,7 @@ impl GridMetaPad {
             }
 
             if let Some(type_options) = changeset.type_options {
-                field.type_option = type_options;
+                field.type_option_json = type_options;
                 is_changed = Some(())
             }
 

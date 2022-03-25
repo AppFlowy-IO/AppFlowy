@@ -1,5 +1,6 @@
 use crate::impl_from_and_to_type_option;
 use crate::services::row::CellDataSerde;
+use bytes::Bytes;
 
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
@@ -8,7 +9,7 @@ use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
-use crate::services::field::TypeOptionsBuilder;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use strum_macros::EnumIter;
 
 // Date
@@ -64,6 +65,9 @@ impl CellDataSerde for DateTypeOption {
 
 #[derive(Default)]
 pub struct DateTypeOptionBuilder(DateTypeOption);
+impl_into_box_type_option_builder!(DateTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(DateTypeOptionBuilder, DateTypeOption);
+
 impl DateTypeOptionBuilder {
     pub fn date_format(mut self, date_format: DateFormat) -> Self {
         self.0.date_format = date_format;
@@ -75,13 +79,17 @@ impl DateTypeOptionBuilder {
         self
     }
 }
-impl TypeOptionsBuilder for DateTypeOptionBuilder {
+impl TypeOptionBuilder for DateTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 

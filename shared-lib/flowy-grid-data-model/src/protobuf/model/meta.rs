@@ -727,7 +727,7 @@ pub struct FieldMeta {
     pub frozen: bool,
     pub visibility: bool,
     pub width: i32,
-    pub type_option: ::std::string::String,
+    pub type_option_json: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -882,30 +882,30 @@ impl FieldMeta {
         self.width = v;
     }
 
-    // string type_option = 8;
+    // string type_option_json = 8;
 
 
-    pub fn get_type_option(&self) -> &str {
-        &self.type_option
+    pub fn get_type_option_json(&self) -> &str {
+        &self.type_option_json
     }
-    pub fn clear_type_option(&mut self) {
-        self.type_option.clear();
+    pub fn clear_type_option_json(&mut self) {
+        self.type_option_json.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_type_option(&mut self, v: ::std::string::String) {
-        self.type_option = v;
+    pub fn set_type_option_json(&mut self, v: ::std::string::String) {
+        self.type_option_json = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_type_option(&mut self) -> &mut ::std::string::String {
-        &mut self.type_option
+    pub fn mut_type_option_json(&mut self) -> &mut ::std::string::String {
+        &mut self.type_option_json
     }
 
     // Take field
-    pub fn take_type_option(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.type_option, ::std::string::String::new())
+    pub fn take_type_option_json(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.type_option_json, ::std::string::String::new())
     }
 }
 
@@ -952,7 +952,7 @@ impl ::protobuf::Message for FieldMeta {
                     self.width = tmp;
                 },
                 8 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.type_option)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.type_option_json)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -987,8 +987,8 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             my_size += ::protobuf::rt::value_size(7, self.width, ::protobuf::wire_format::WireTypeVarint);
         }
-        if !self.type_option.is_empty() {
-            my_size += ::protobuf::rt::string_size(8, &self.type_option);
+        if !self.type_option_json.is_empty() {
+            my_size += ::protobuf::rt::string_size(8, &self.type_option_json);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1017,8 +1017,8 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             os.write_int32(7, self.width)?;
         }
-        if !self.type_option.is_empty() {
-            os.write_string(8, &self.type_option)?;
+        if !self.type_option_json.is_empty() {
+            os.write_string(8, &self.type_option_json)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1094,9 +1094,9 @@ impl ::protobuf::Message for FieldMeta {
                 |m: &mut FieldMeta| { &mut m.width },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "type_option",
-                |m: &FieldMeta| { &m.type_option },
-                |m: &mut FieldMeta| { &mut m.type_option },
+                "type_option_json",
+                |m: &FieldMeta| { &m.type_option_json },
+                |m: &mut FieldMeta| { &mut m.type_option_json },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldMeta>(
                 "FieldMeta",
@@ -1121,7 +1121,7 @@ impl ::protobuf::Clear for FieldMeta {
         self.frozen = false;
         self.visibility = false;
         self.width = 0;
-        self.type_option.clear();
+        self.type_option_json.clear();
         self.unknown_fields.clear();
     }
 }
@@ -3507,50 +3507,50 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ockId\x12&\n\x0fstart_row_index\x18\x02\x20\x01(\x05R\rstartRowIndex\x12\
     \x1b\n\trow_count\x18\x03\x20\x01(\x05R\x08rowCount\"V\n\x12GridBlockMet\
     aSerde\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12%\n\trow_\
-    metas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\xdd\x01\n\tFieldM\
+    metas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\xe6\x01\n\tFieldM\
     eta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\
     \x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12)\
     \n\nfield_type\x18\x04\x20\x01(\x0e2\n.FieldTypeR\tfieldType\x12\x16\n\
     \x06frozen\x18\x05\x20\x01(\x08R\x06frozen\x12\x1e\n\nvisibility\x18\x06\
     \x20\x01(\x08R\nvisibility\x12\x14\n\x05width\x18\x07\x20\x01(\x05R\x05w\
-    idth\x12\x1f\n\x0btype_option\x18\x08\x20\x01(\tR\ntypeOption\"\x96\x03\
-    \n\x0eFieldChangeset\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldI\
-    d\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\x04name\
-    \x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\
-    \x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTypeH\x02R\
-    \tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06frozen\x12\
-    \x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\x16\n\x05w\
-    idth\x18\x08\x20\x01(\x05H\x05R\x05width\x12#\n\x0ctype_options\x18\t\
-    \x20\x01(\tH\x06R\x0btypeOptionsB\r\n\x0bone_of_nameB\r\n\x0bone_of_desc\
-    B\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one_of_visi\
-    bilityB\x0e\n\x0cone_of_widthB\x15\n\x13one_of_type_options\"8\n\x07AnyD\
-    ata\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\x05valu\
-    e\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\n\x07RowMeta\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07\
-    blockId\x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1b.RowMeta.Cel\
-    lByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\x01(\x05\
-    R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\nvisibility\x1aK\
-    \n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\
-    \x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01\"\
-    \xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\
-    \x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06height\x12\x20\
-    \n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\x10cell_by_\
-    field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByFieldIdEntryR\rce\
-    llByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\
-    \x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05\
-    value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"9\n\
-    \x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\
-    \x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\x11CellMetaChange\
-    set\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_\
-    id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\t\
-    R\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bon\
-    e_of_data\"\xad\x01\n\x10BuildGridContext\x12+\n\x0bfield_metas\x18\x01\
-    \x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\x0bblock_metas\x18\x02\
-    \x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12;\n\x0fblock_meta_data\
-    \x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSerdeR\rblockMetaData*d\n\tField\
-    Type\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08\
-    DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSel\
-    ect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    idth\x12(\n\x10type_option_json\x18\x08\x20\x01(\tR\x0etypeOptionJson\"\
+    \x96\x03\n\x0eFieldChangeset\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\
+    \x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\
+    \x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\
+    \x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTy\
+    peH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06fr\
+    ozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\
+    \x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\x12#\n\x0ctype_optio\
+    ns\x18\t\x20\x01(\tH\x06R\x0btypeOptionsB\r\n\x0bone_of_nameB\r\n\x0bone\
+    _of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one\
+    _of_visibilityB\x0e\n\x0cone_of_widthB\x15\n\x13one_of_type_options\"8\n\
+    \x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\
+    \x05value\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\n\x07RowMeta\x12\x0e\
+    \n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\x02\x20\x01\
+    (\tR\x07blockId\x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1b.Row\
+    Meta.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\
+    \x01(\x05R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\nvisibi\
+    lity\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\
+    \x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\
+    \x028\x01\"\xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\
+    \x20\x01(\tR\x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06he\
+    ight\x12\x20\n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\
+    \x10cell_by_field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByField\
+    IdEntryR\rcellByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\
+    \x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.C\
+    ellMetaR\x05value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visib\
+    ility\"9\n\x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fiel\
+    dId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\x11CellMet\
+    aChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\
+    \x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\
+    \x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04data\
+    B\r\n\x0bone_of_data\"\xad\x01\n\x10BuildGridContext\x12+\n\x0bfield_met\
+    as\x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\x0bblock_metas\
+    \x18\x02\x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12;\n\x0fblock_me\
+    ta_data\x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSerdeR\rblockMetaData*d\n\
+    \tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\
+    \x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\
+    \x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

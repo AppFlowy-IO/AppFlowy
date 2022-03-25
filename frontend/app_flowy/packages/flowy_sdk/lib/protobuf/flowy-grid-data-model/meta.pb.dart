@@ -215,7 +215,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOption')
+    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionJson')
     ..hasRequiredFields = false
   ;
 
@@ -228,7 +228,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    $core.String? typeOption,
+    $core.String? typeOptionJson,
   }) {
     final _result = create();
     if (id != null) {
@@ -252,8 +252,8 @@ class FieldMeta extends $pb.GeneratedMessage {
     if (width != null) {
       _result.width = width;
     }
-    if (typeOption != null) {
-      _result.typeOption = typeOption;
+    if (typeOptionJson != null) {
+      _result.typeOptionJson = typeOptionJson;
     }
     return _result;
   }
@@ -342,13 +342,13 @@ class FieldMeta extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 
   @$pb.TagNumber(8)
-  $core.String get typeOption => $_getSZ(7);
+  $core.String get typeOptionJson => $_getSZ(7);
   @$pb.TagNumber(8)
-  set typeOption($core.String v) { $_setString(7, v); }
+  set typeOptionJson($core.String v) { $_setString(7, v); }
   @$pb.TagNumber(8)
-  $core.bool hasTypeOption() => $_has(7);
+  $core.bool hasTypeOptionJson() => $_has(7);
   @$pb.TagNumber(8)
-  void clearTypeOption() => clearField(8);
+  void clearTypeOptionJson() => clearField(8);
 }
 
 enum FieldChangeset_OneOfName {

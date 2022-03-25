@@ -13,7 +13,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::CreateField, create_field_handler)
-        .event(GridEvent::CreateEditFieldContext, create_field_edit_context_handler)
+        .event(GridEvent::CreateEditFieldContext, create_edit_field_context_handler)
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
         .event(GridEvent::UpdateCell, update_cell_handler);

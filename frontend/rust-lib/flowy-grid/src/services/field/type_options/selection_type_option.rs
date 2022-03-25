@@ -1,7 +1,8 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::field::TypeOptionsBuilder;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
 use crate::services::util::*;
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
@@ -34,6 +35,8 @@ impl CellDataSerde for SingleSelectTypeOption {
 
 #[derive(Default)]
 pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOption);
+impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOption);
 
 impl SingleSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
@@ -41,13 +44,18 @@ impl SingleSelectTypeOptionBuilder {
         self
     }
 }
-impl TypeOptionsBuilder for SingleSelectTypeOptionBuilder {
+
+impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 
@@ -61,6 +69,7 @@ pub struct MultiSelectTypeOption {
     pub disable_color: bool,
 }
 impl_from_and_to_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
+
 impl CellDataSerde for MultiSelectTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
         data
@@ -73,6 +82,8 @@ impl CellDataSerde for MultiSelectTypeOption {
 
 #[derive(Default)]
 pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
+impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
 impl MultiSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
         self.0.options.push(opt);
@@ -80,13 +91,17 @@ impl MultiSelectTypeOptionBuilder {
     }
 }
 
-impl TypeOptionsBuilder for MultiSelectTypeOptionBuilder {
+impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 

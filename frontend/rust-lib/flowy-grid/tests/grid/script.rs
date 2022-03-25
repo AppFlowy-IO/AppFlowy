@@ -268,7 +268,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
         field,
-        type_option_data: field_meta.type_option.as_bytes().to_vec(),
+        type_option_data: field_meta.type_option_json.as_bytes().to_vec(),
         start_field_id: None,
     };
     (params, cloned_field_meta)
@@ -295,7 +295,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
         field,
-        type_option_data: field_meta.type_option.as_bytes().to_vec(),
+        type_option_data: field_meta.type_option_json.as_bytes().to_vec(),
         start_field_id: None,
     };
     (params, cloned_field_meta)

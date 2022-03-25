@@ -1,6 +1,7 @@
 use crate::impl_from_and_to_type_option;
-use crate::services::field::TypeOptionsBuilder;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
@@ -8,6 +9,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
 pub struct CheckboxTypeOptionBuilder(CheckboxTypeOption);
+impl_into_box_type_option_builder!(CheckboxTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(CheckboxTypeOptionBuilder, CheckboxTypeOption);
+
 impl CheckboxTypeOptionBuilder {
     pub fn set_selected(mut self, is_selected: bool) -> Self {
         self.0.is_selected = is_selected;
@@ -15,13 +19,17 @@ impl CheckboxTypeOptionBuilder {
     }
 }
 
-impl TypeOptionsBuilder for CheckboxTypeOptionBuilder {
+impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 

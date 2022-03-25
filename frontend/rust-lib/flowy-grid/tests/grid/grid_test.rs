@@ -100,7 +100,7 @@ async fn grid_update_field() {
 
     cloned_field.frozen = true;
     cloned_field.width = 1000;
-    cloned_field.type_option = single_select_type_options.into();
+    cloned_field.type_option_json = single_select_type_options.into();
 
     let scripts = vec![
         CreateField {

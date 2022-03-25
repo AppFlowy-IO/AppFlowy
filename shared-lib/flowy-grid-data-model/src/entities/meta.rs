@@ -98,7 +98,7 @@ pub struct FieldMeta {
     pub width: i32,
 
     #[pb(index = 8)]
-    pub type_option: String,
+    pub type_option_json: String,
 }
 
 impl FieldMeta {
@@ -111,7 +111,7 @@ impl FieldMeta {
             frozen: false,
             visibility: true,
             width: DEFAULT_FIELD_WIDTH,
-            type_option: Default::default(),
+            type_option_json: Default::default(),
         }
     }
 }

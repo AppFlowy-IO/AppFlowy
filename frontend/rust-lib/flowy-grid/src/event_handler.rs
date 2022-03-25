@@ -1,4 +1,5 @@
 use crate::manager::GridManager;
+use crate::services::field::type_option_data_from_str;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, CreateEditFieldContextParams, CreateFieldPayload, CreateRowPayload, EditFieldContext, Field,
@@ -73,22 +74,20 @@ pub(crate) async fn create_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_field_edit_context_handler(
+pub(crate) async fn create_edit_field_context_handler(
     data: Data<CreateEditFieldContextParams>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<EditFieldContext, FlowyError> {
     let params: CreateEditFieldContextParams = data.into_inner();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_meta = editor.make_field_meta_from_ty(&params.field_type).await?;
-    let type_option_data = field_meta.type_option.as_bytes().to_vec();
+    let field_meta = editor.default_field_meta(&params.field_type).await?;
+    let type_option_data = type_option_data_from_str(&field_meta.type_option_json, &field_meta.field_type);
     let field: Field = field_meta.into();
-
     let edit_context = EditFieldContext {
         grid_id: params.grid_id,
         grid_field: field,
         type_option_data,
     };
-
     data_result(edit_context)
 }
 

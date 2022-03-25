@@ -69,12 +69,12 @@ const FieldMeta$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_option', '3': 8, '4': 1, '5': 9, '10': 'typeOption'},
+    const {'1': 'type_option_json', '3': 8, '4': 1, '5': 9, '10': 'typeOptionJson'},
   ],
 };
 
 /// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSHwoLdHlwZV9vcHRpb24YCCABKAlSCnR5cGVPcHRpb24=');
+final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSKAoQdHlwZV9vcHRpb25fanNvbhgIIAEoCVIOdHlwZU9wdGlvbkpzb24=');
 @$core.Deprecated('Use fieldChangesetDescriptor instead')
 const FieldChangeset$json = const {
   '1': 'FieldChangeset',

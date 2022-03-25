@@ -9,7 +9,8 @@ use rust_decimal::Decimal;
 use rusty_money::iso::{Currency, CNY, EUR, USD};
 use serde::{Deserialize, Serialize};
 
-use crate::services::field::TypeOptionsBuilder;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use bytes::Bytes;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -20,6 +21,8 @@ lazy_static! {
 
 #[derive(Default)]
 pub struct NumberTypeOptionBuilder(NumberTypeOption);
+impl_into_box_type_option_builder!(NumberTypeOptionBuilder);
+impl_from_json_str_and_from_bytes!(NumberTypeOptionBuilder, NumberTypeOption);
 
 impl NumberTypeOptionBuilder {
     pub fn name(mut self, name: &str) -> Self {
@@ -43,13 +46,17 @@ impl NumberTypeOptionBuilder {
     }
 }
 
-impl TypeOptionsBuilder for NumberTypeOptionBuilder {
+impl TypeOptionBuilder for NumberTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build(&self) -> String {
+    fn build_type_option_str(&self) -> String {
         self.0.clone().into()
+    }
+
+    fn build_type_option_data(&self) -> Bytes {
+        self.0.clone().try_into().unwrap()
     }
 }
 
