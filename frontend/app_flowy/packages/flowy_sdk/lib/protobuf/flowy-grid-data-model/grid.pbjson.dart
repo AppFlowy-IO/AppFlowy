@@ -46,6 +46,29 @@ const FieldOrder$json = const {
 
 /// Descriptor for `FieldOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldOrderDescriptor = $convert.base64Decode('CgpGaWVsZE9yZGVyEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElk');
+@$core.Deprecated('Use createEditFieldContextParamsDescriptor instead')
+const CreateEditFieldContextParams$json = const {
+  '1': 'CreateEditFieldContextParams',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_type', '3': 2, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
+  ],
+};
+
+/// Descriptor for `CreateEditFieldContextParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createEditFieldContextParamsDescriptor = $convert.base64Decode('ChxDcmVhdGVFZGl0RmllbGRDb250ZXh0UGFyYW1zEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIpCgpmaWVsZF90eXBlGAIgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGU=');
+@$core.Deprecated('Use editFieldContextDescriptor instead')
+const EditFieldContext$json = const {
+  '1': 'EditFieldContext',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'grid_field', '3': 2, '4': 1, '5': 11, '6': '.Field', '10': 'gridField'},
+    const {'1': 'type_option_data', '3': 3, '4': 1, '5': 12, '10': 'typeOptionData'},
+  ],
+};
+
+/// Descriptor for `EditFieldContext`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List editFieldContextDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRDb250ZXh0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIlCgpncmlkX2ZpZWxkGAIgASgLMgYuRmllbGRSCWdyaWRGaWVsZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
 @$core.Deprecated('Use repeatedFieldDescriptor instead')
 const RepeatedField$json = const {
   '1': 'RepeatedField',

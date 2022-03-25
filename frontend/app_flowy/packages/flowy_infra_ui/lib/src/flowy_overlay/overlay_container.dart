@@ -21,7 +21,7 @@ class OverlayContainer extends StatelessWidget {
       type: MaterialType.transparency,
       child: Container(
         padding: padding,
-        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.1)),
+        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.15)),
         constraints: constraints,
         child: child,
       ),

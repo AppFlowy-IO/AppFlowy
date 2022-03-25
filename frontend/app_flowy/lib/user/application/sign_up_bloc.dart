@@ -15,11 +15,11 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     on<SignUpEvent>((event, emit) async {
       await event.map(signUpWithUserEmailAndPassword: (e) async {
         await _performActionOnSignUp(emit);
-      }, emailChanged: (EmailChanged value) async {
+      }, emailChanged: (_EmailChanged value) async {
         emit(state.copyWith(email: value.email, emailError: none(), successOrFail: none()));
-      }, passwordChanged: (PasswordChanged value) async {
+      }, passwordChanged: (_PasswordChanged value) async {
         emit(state.copyWith(password: value.password, passwordError: none(), successOrFail: none()));
-      }, repeatPasswordChanged: (RepeatPasswordChanged value) async {
+      }, repeatPasswordChanged: (_RepeatPasswordChanged value) async {
         emit(state.copyWith(repeatedPassword: value.password, repeatPasswordError: none(), successOrFail: none()));
       });
     });
@@ -104,9 +104,9 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 @freezed
 class SignUpEvent with _$SignUpEvent {
   const factory SignUpEvent.signUpWithUserEmailAndPassword() = SignUpWithUserEmailAndPassword;
-  const factory SignUpEvent.emailChanged(String email) = EmailChanged;
-  const factory SignUpEvent.passwordChanged(String password) = PasswordChanged;
-  const factory SignUpEvent.repeatPasswordChanged(String password) = RepeatPasswordChanged;
+  const factory SignUpEvent.emailChanged(String email) = _EmailChanged;
+  const factory SignUpEvent.passwordChanged(String password) = _PasswordChanged;
+  const factory SignUpEvent.repeatPasswordChanged(String password) = _RepeatPasswordChanged;
 }
 
 @freezed

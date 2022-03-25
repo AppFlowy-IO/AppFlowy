@@ -37,8 +37,7 @@ class CreateFieldPannel extends FlowyOverlayDelegate {
 
   @override
   void didRemove() async {
-    await _createFieldBloc.close();
-    // TODO: implement didRemove
+    _createFieldBloc.add(const CreateFieldEvent.done());
   }
 }
 
@@ -52,16 +51,16 @@ class _CreateFieldPannelWidget extends StatelessWidget {
       value: createFieldBloc,
       child: BlocBuilder<CreateFieldBloc, CreateFieldState>(
         builder: (context, state) {
-          return state.field.fold(
+          return state.editContext.fold(
             () => const SizedBox(),
-            (field) => ListView(
+            (editContext) => ListView(
               shrinkWrap: true,
               children: [
                 const FlowyText.medium("Edit property", fontSize: 12),
                 const VSpace(10),
-                _FieldNameTextField(field),
+                _FieldNameTextField(editContext.gridField),
                 const VSpace(10),
-                _FieldTypeSwitcher(field),
+                _FieldTypeSwitcher(editContext),
                 const VSpace(10),
               ],
             ),
@@ -73,19 +72,12 @@ class _CreateFieldPannelWidget extends StatelessWidget {
 }
 
 class _FieldTypeSwitcher extends StatelessWidget {
-  final Field field;
-  const _FieldTypeSwitcher(this.field, {Key? key}) : super(key: key);
+  final EditFieldContext editContext;
+  const _FieldTypeSwitcher(this.editContext, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FieldTypeSwitcher(
-      field: field,
-      onSelectField: _switchToFieldType,
-    );
-  }
-
-  void _switchToFieldType(FieldType fieldType) {
-    throw UnimplementedError();
+    return FieldTypeSwitcher(editContext: editContext);
   }
 }
 

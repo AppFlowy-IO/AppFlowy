@@ -252,6 +252,144 @@ class FieldOrder extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(1);
 }
 
+class CreateEditFieldContextParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateEditFieldContextParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..e<$0.FieldType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
+    ..hasRequiredFields = false
+  ;
+
+  CreateEditFieldContextParams._() : super();
+  factory CreateEditFieldContextParams({
+    $core.String? gridId,
+    $0.FieldType? fieldType,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (fieldType != null) {
+      _result.fieldType = fieldType;
+    }
+    return _result;
+  }
+  factory CreateEditFieldContextParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateEditFieldContextParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CreateEditFieldContextParams clone() => CreateEditFieldContextParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CreateEditFieldContextParams copyWith(void Function(CreateEditFieldContextParams) updates) => super.copyWith((message) => updates(message as CreateEditFieldContextParams)) as CreateEditFieldContextParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CreateEditFieldContextParams create() => CreateEditFieldContextParams._();
+  CreateEditFieldContextParams createEmptyInstance() => create();
+  static $pb.PbList<CreateEditFieldContextParams> createRepeated() => $pb.PbList<CreateEditFieldContextParams>();
+  @$core.pragma('dart2js:noInline')
+  static CreateEditFieldContextParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateEditFieldContextParams>(create);
+  static CreateEditFieldContextParams? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.FieldType get fieldType => $_getN(1);
+  @$pb.TagNumber(2)
+  set fieldType($0.FieldType v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldType() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldType() => clearField(2);
+}
+
+class EditFieldContext extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditFieldContext', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOM<Field>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridField', subBuilder: Field.create)
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  EditFieldContext._() : super();
+  factory EditFieldContext({
+    $core.String? gridId,
+    Field? gridField,
+    $core.List<$core.int>? typeOptionData,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (gridField != null) {
+      _result.gridField = gridField;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    return _result;
+  }
+  factory EditFieldContext.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory EditFieldContext.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  EditFieldContext clone() => EditFieldContext()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  EditFieldContext copyWith(void Function(EditFieldContext) updates) => super.copyWith((message) => updates(message as EditFieldContext)) as EditFieldContext; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static EditFieldContext create() => EditFieldContext._();
+  EditFieldContext createEmptyInstance() => create();
+  static $pb.PbList<EditFieldContext> createRepeated() => $pb.PbList<EditFieldContext>();
+  @$core.pragma('dart2js:noInline')
+  static EditFieldContext getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EditFieldContext>(create);
+  static EditFieldContext? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  Field get gridField => $_getN(1);
+  @$pb.TagNumber(2)
+  set gridField(Field v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGridField() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGridField() => clearField(2);
+  @$pb.TagNumber(2)
+  Field ensureGridField() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get typeOptionData => $_getN(2);
+  @$pb.TagNumber(3)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTypeOptionData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTypeOptionData() => clearField(3);
+}
+
 class RepeatedField extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedField', createEmptyInstance: create)
     ..pc<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Field.create)

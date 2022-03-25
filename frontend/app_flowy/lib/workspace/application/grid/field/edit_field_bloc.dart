@@ -9,7 +9,8 @@ part 'edit_field_bloc.freezed.dart';
 class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
   final FieldService service;
 
-  EditFieldBloc({required Field field, required this.service}) : super(EditFieldState.initial(field)) {
+  EditFieldBloc({required Field field, required this.service})
+      : super(EditFieldState.initial(EditFieldContext.create()..gridField = field)) {
     on<EditFieldEvent>(
       (event, emit) async {
         await event.map(
@@ -43,12 +44,12 @@ class EditFieldEvent with _$EditFieldEvent {
 @freezed
 class EditFieldState with _$EditFieldState {
   const factory EditFieldState({
-    required Field field,
+    required EditFieldContext editContext,
     required String errorText,
   }) = _EditFieldState;
 
-  factory EditFieldState.initial(Field field) => EditFieldState(
-        field: field,
+  factory EditFieldState.initial(EditFieldContext editContext) => EditFieldState(
+        editContext: editContext,
         errorText: '',
       );
 }

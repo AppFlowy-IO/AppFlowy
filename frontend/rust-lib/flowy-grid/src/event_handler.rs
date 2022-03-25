@@ -1,8 +1,9 @@
 use crate::manager::GridManager;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, CreateFieldPayload, CreateRowPayload, Field, FieldChangeset, Grid, GridId, QueryFieldPayload,
-    QueryGridBlocksPayload, QueryRowPayload, RepeatedField, RepeatedGridBlock, Row,
+    CellMetaChangeset, CreateEditFieldContextParams, CreateFieldPayload, CreateRowPayload, EditFieldContext, Field,
+    FieldChangeset, Grid, GridId, QueryFieldPayload, QueryGridBlocksPayload, QueryRowPayload, RepeatedField,
+    RepeatedGridBlock, Row,
 };
 use flowy_grid_data_model::parser::{
     CreateFieldParams, CreateRowParams, QueryFieldParams, QueryGridBlocksParams, QueryRowParams,
@@ -72,14 +73,23 @@ pub(crate) async fn create_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_default_field_handler(
-    data: Data<GridId>,
+pub(crate) async fn create_field_edit_context_handler(
+    data: Data<CreateEditFieldContextParams>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<Field, FlowyError> {
-    let grid_id: GridId = data.into_inner();
-    let editor = manager.get_grid_editor(grid_id.as_ref())?;
-    let field = editor.make_default_field().await?;
-    data_result(field)
+) -> DataResult<EditFieldContext, FlowyError> {
+    let params: CreateEditFieldContextParams = data.into_inner();
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let field_meta = editor.make_field_meta_from_ty(&params.field_type).await?;
+    let type_option_data = field_meta.type_option.as_bytes().to_vec();
+    let field: Field = field_meta.into();
+
+    let edit_context = EditFieldContext {
+        grid_id: params.grid_id,
+        grid_field: field,
+        type_option_data,
+    };
+
+    data_result(edit_context)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

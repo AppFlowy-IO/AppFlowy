@@ -86,18 +86,18 @@ class GridEventCreateField {
     }
 }
 
-class GridEventCreateDefaultField {
-     GridId request;
-     GridEventCreateDefaultField(this.request);
+class GridEventCreateEditFieldContext {
+     CreateEditFieldContextParams request;
+     GridEventCreateEditFieldContext(this.request);
 
-    Future<Either<Field, FlowyError>> send() {
+    Future<Either<EditFieldContext, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.CreateDefaultField.toString()
+          ..event = GridEvent.CreateEditFieldContext.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(Field.fromBuffer(okBytes)),
+           (okBytes) => left(EditFieldContext.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

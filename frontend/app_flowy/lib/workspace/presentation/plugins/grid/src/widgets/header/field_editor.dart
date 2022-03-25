@@ -59,14 +59,10 @@ class _FieldTypeSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<EditFieldBloc, EditFieldState>(
       builder: (context, state) {
-        final field = context.read<EditFieldBloc>().state.field;
-        return FieldTypeSwitcher(field: field, onSelectField: _switchToFieldType);
+        final editContext = context.read<EditFieldBloc>().state.editContext;
+        return FieldTypeSwitcher(editContext: editContext);
       },
     );
-  }
-
-  void _switchToFieldType(FieldType fieldType) {
-    throw UnimplementedError();
   }
 }
 
@@ -76,10 +72,10 @@ class _FieldNameTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EditFieldBloc, EditFieldState>(
-      buildWhen: ((previous, current) => previous.field.name == current.field.name),
+      buildWhen: ((previous, current) => previous.editContext.gridField.name == current.editContext.gridField.name),
       builder: (context, state) {
         return FieldNameTextField(
-          name: state.field.name,
+          name: state.editContext.gridField.name,
           errorText: state.errorText,
           onNameChanged: (newName) {
             context.read<EditFieldBloc>().add(EditFieldEvent.updateFieldName(newName));

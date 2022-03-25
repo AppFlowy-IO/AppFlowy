@@ -68,6 +68,27 @@ impl std::convert::From<FieldMeta> for Field {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
+pub struct CreateEditFieldContextParams {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_type: FieldType,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct EditFieldContext {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub grid_field: Field,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedField {
     #[pb(index = 1)]
     pub items: Vec<Field>,

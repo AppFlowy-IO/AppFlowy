@@ -18,6 +18,15 @@ message Field {
 message FieldOrder {
     string field_id = 1;
 }
+message CreateEditFieldContextParams {
+    string grid_id = 1;
+    FieldType field_type = 2;
+}
+message EditFieldContext {
+    string grid_id = 1;
+    Field grid_field = 2;
+    bytes type_option_data = 3;
+}
 message RepeatedField {
     repeated Field items = 1;
 }

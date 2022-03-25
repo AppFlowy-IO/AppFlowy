@@ -28,12 +28,12 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 }
 
 @freezed
-abstract class CheckboxCellEvent with _$CheckboxCellEvent {
+class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _InitialCell;
 }
 
 @freezed
-abstract class CheckboxCellState with _$CheckboxCellState {
+class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
     required Cell? cell,
   }) = _CheckboxCellState;

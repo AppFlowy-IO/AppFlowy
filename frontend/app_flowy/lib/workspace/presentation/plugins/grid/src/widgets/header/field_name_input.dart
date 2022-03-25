@@ -19,7 +19,7 @@ class FieldNameTextField extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return RoundedInputField(
       height: 36,
-      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
       initialValue: name,
       normalBorderColor: theme.shader4,
       errorBorderColor: theme.red,

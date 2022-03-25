@@ -62,11 +62,10 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn make_default_field(&self) -> FlowyResult<Field> {
-        let field_type = FieldType::default();
+    pub async fn make_field_meta_from_ty(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.pad.read().await.fields().len());
         let field_meta = FieldBuilder::from_field_type(&field_type).name(&name).build();
-        Ok(field_meta.into())
+        Ok(field_meta)
     }
 
     pub async fn contain_field(&self, field_id: &str) -> bool {

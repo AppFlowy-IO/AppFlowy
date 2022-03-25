@@ -28,12 +28,12 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
 }
 
 @freezed
-abstract class SelectionCellEvent with _$SelectionCellEvent {
+class SelectionCellEvent with _$SelectionCellEvent {
   const factory SelectionCellEvent.initial() = _InitialCell;
 }
 
 @freezed
-abstract class SelectionCellState with _$SelectionCellState {
+class SelectionCellState with _$SelectionCellState {
   const factory SelectionCellState({
     required Cell? cell,
   }) = _SelectionCellState;

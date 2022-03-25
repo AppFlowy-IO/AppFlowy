@@ -22,7 +22,7 @@ Widget buildGridCell(GridCellData cellData) {
     case FieldType.SingleSelect:
       return SingleSelectCell(cellContext: cellData);
     default:
-      return const BlankCell();
+      throw UnimplementedError;
   }
 }
 

@@ -124,7 +124,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 }
 
 @freezed
-abstract class GridEvent with _$GridEvent {
+class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.rename(String gridId, String name) = _Rename;
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
@@ -135,7 +135,7 @@ abstract class GridEvent with _$GridEvent {
 }
 
 @freezed
-abstract class GridState with _$GridState {
+class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
     required List<Field> fields,

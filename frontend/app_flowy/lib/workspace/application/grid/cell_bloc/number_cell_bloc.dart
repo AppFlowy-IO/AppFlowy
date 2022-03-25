@@ -28,12 +28,12 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 }
 
 @freezed
-abstract class NumberCellEvent with _$NumberCellEvent {
+class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _InitialCell;
 }
 
 @freezed
-abstract class NumberCellState with _$NumberCellState {
+class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
     required Cell? cell,
   }) = _NumberCellState;

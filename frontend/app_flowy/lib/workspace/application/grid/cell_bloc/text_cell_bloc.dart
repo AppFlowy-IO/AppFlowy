@@ -31,13 +31,13 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 }
 
 @freezed
-abstract class TextCellEvent with _$TextCellEvent {
+class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
 }
 
 @freezed
-abstract class TextCellState with _$TextCellState {
+class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
   }) = _TextCellState;

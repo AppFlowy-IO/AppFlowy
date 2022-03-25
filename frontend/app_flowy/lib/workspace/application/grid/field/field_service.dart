@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 class FieldService {
@@ -12,9 +13,12 @@ class FieldService {
 
   FieldService({required this.gridId});
 
-  Future<Either<Field, FlowyError>> getDefaultField() {
-    final payload = GridId.create()..value = gridId;
-    return GridEventCreateDefaultField(payload).send();
+  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(FieldType fieldType) {
+    final payload = CreateEditFieldContextParams.create()
+      ..gridId = gridId
+      ..fieldType = fieldType;
+
+    return GridEventCreateEditFieldContext(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> createTextField(
@@ -24,7 +28,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return createField(gridId, field, typeOptionData, startFieldId);
+    return createField(field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createSingleSelectField(
@@ -34,7 +38,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return createField(gridId, field, typeOptionData, startFieldId);
+    return createField(field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createMultiSelectField(
@@ -44,7 +48,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return createField(gridId, field, typeOptionData, startFieldId);
+    return createField(field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createNumberField(
@@ -54,7 +58,7 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return createField(gridId, field, typeOptionData, startFieldId);
+    return createField(field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createDateField(
@@ -64,11 +68,10 @@ class FieldService {
     String? startFieldId,
   ) {
     final typeOptionData = typeOption.writeToBuffer();
-    return createField(gridId, field, typeOptionData, startFieldId);
+    return createField(field, typeOptionData, startFieldId);
   }
 
   Future<Either<Unit, FlowyError>> createField(
-    String gridId,
     Field field,
     Uint8List? typeOptionData,
     String? startFieldId,

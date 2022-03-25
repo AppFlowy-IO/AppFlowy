@@ -104,8 +104,7 @@ extension FieldTypeListExtension on FieldType {
       case FieldType.SingleSelect:
         return "grid/field/single_select";
       default:
-        assert(false, "Unsupport field type");
-        return "grid/field/text";
+        throw UnimplementedError;
     }
   }
 
@@ -124,8 +123,7 @@ extension FieldTypeListExtension on FieldType {
       case FieldType.SingleSelect:
         return LocaleKeys.grid_field_singleSelectFieldName.tr();
       default:
-        assert(false, "Unsupport field type");
-        return LocaleKeys.grid_field_textFieldName.tr();
+        throw UnimplementedError;
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -16,9 +17,9 @@ class CreateFieldBloc extends Bloc<CreateFieldEvent, CreateFieldState> {
       (event, emit) async {
         await event.map(
           initial: (_InitialField value) async {
-            final result = await service.getDefaultField();
+            final result = await service.getEditFieldContext(FieldType.RichText);
             result.fold(
-              (field) => emit(state.copyWith(field: Some(field))),
+              (editContext) => emit(state.copyWith(editContext: Some(editContext))),
               (err) => Log.error(err),
             );
           },
@@ -46,11 +47,11 @@ class CreateFieldEvent with _$CreateFieldEvent {
 class CreateFieldState with _$CreateFieldState {
   const factory CreateFieldState({
     required String errorText,
-    required Option<Field> field,
+    required Option<EditFieldContext> editContext,
   }) = _CreateFieldState;
 
   factory CreateFieldState.initial() => CreateFieldState(
-        field: none(),
+        editContext: none(),
         errorText: '',
       );
 }

@@ -28,12 +28,12 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 }
 
 @freezed
-abstract class DateCellEvent with _$DateCellEvent {
+class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
 }
 
 @freezed
-abstract class DateCellState with _$DateCellState {
+class DateCellState with _$DateCellState {
   const factory DateCellState({
     required Cell? cell,
   }) = _DateCellState;
