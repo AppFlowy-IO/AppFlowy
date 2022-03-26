@@ -3,8 +3,8 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellMetaChangeset, CreateFieldPayload, Field, FieldChangeset, FieldMeta, FieldType,
-    GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder,
+    BuildGridContext, CellMetaChangeset, Field, FieldChangeset, FieldMeta, FieldType, GridBlockMeta,
+    GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_grid_data_model::parser::CreateFieldParams;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;

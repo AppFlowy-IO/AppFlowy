@@ -6,6 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 import 'grid_block_service.dart';
 import 'grid_listenr.dart';
 import 'grid_service.dart';
@@ -63,6 +64,20 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await _loadGrid(emit);
   }
 
+  Future<void> _initGridBlock(Grid grid) async {
+    _blockService = GridBlockService(
+      gridId: grid.id,
+      blockOrders: grid.blockOrders,
+    );
+
+    _blockService.blocksUpdateNotifier?.addPublishListener((result) {
+      result.fold(
+        (blockMap) => add(GridEvent.rowsDidUpdate(_buildRows(blockMap))),
+        (err) => Log.error('$err'),
+      );
+    });
+  }
+
   Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await service.openGrid(gridId: view.id);
     return Future(
@@ -78,7 +93,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return Future(
       () => result.fold(
         (fields) {
-          _initGridBlockService(grid);
+          _initGridBlock(grid);
           emit(state.copyWith(
             grid: Some(grid),
             fields: fields.items,
@@ -90,29 +105,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  Future<void> _initGridBlockService(Grid grid) async {
-    _blockService = GridBlockService(
-      gridId: grid.id,
-      blockOrders: grid.blockOrders,
-    );
-
-    _blockService.blocksUpdateNotifier.addPublishListener((result) {
-      result.fold(
-        (blockMap) => add(GridEvent.rowsDidUpdate(_buildRows(blockMap))),
-        (err) => Log.error('$err'),
-      );
-    });
-
-    _gridListener.start();
-  }
-
-  List<GridRowData> _buildRows(GridBlockMap blockMap) {
-    List<GridRowData> rows = [];
+  List<GridBlockRow> _buildRows(GridBlockMap blockMap) {
+    List<GridBlockRow> rows = [];
     blockMap.forEach((_, GridBlock gridBlock) {
       rows.addAll(gridBlock.rowOrders.map(
-        (rowOrder) => GridRowData(
+        (rowOrder) => GridBlockRow(
           gridId: view.id,
-          fields: state.fields,
           blockId: gridBlock.id,
           rowId: rowOrder.rowId,
           height: rowOrder.height.toDouble(),
@@ -130,7 +128,7 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.rowsDidUpdate(List<GridRowData> rows) = _RowsDidUpdate;
+  const factory GridEvent.rowsDidUpdate(List<GridBlockRow> rows) = _RowsDidUpdate;
   const factory GridEvent.fieldsDidUpdate(List<Field> fields) = _FieldsDidUpdate;
 }
 
@@ -139,7 +137,7 @@ class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
     required List<Field> fields,
-    required List<GridRowData> rows,
+    required List<GridBlockRow> rows,
     required Option<Grid> grid,
   }) = _GridState;
 
@@ -155,4 +153,47 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
+}
+
+class GridBlockRow {
+  final String gridId;
+  final String rowId;
+  final String blockId;
+  final double height;
+
+  const GridBlockRow({
+    required this.gridId,
+    required this.rowId,
+    required this.blockId,
+    required this.height,
+  });
+}
+
+class GridRowData extends Equatable {
+  final String gridId;
+  final String rowId;
+  final String blockId;
+  final List<Field> fields;
+  final double height;
+
+  const GridRowData({
+    required this.gridId,
+    required this.rowId,
+    required this.blockId,
+    required this.fields,
+    required this.height,
+  });
+
+  factory GridRowData.fromBlockRow(GridBlockRow row, List<Field> fields) {
+    return GridRowData(
+      gridId: row.gridId,
+      rowId: row.rowId,
+      blockId: row.blockId,
+      fields: fields,
+      height: row.height,
+    );
+  }
+
+  @override
+  List<Object> get props => [rowId, fields];
 }

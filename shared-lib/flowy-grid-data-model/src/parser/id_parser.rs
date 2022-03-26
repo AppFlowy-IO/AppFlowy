@@ -4,12 +4,11 @@ use uuid::Uuid;
 pub struct NotEmptyUuid(pub String);
 
 impl NotEmptyUuid {
-    pub fn parse(s: String) -> Result<NotEmptyUuid, ()> {
-        debug_assert!(Uuid::parse_str(&s).is_ok());
-
+    pub fn parse(s: String) -> Result<Self, String> {
         if s.trim().is_empty() {
-            return Err(());
+            return Err("Input string is empty".to_owned());
         }
+        debug_assert!(Uuid::parse_str(&s).is_ok());
 
         Ok(Self(s))
     }

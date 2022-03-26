@@ -1,9 +1,9 @@
 #[macro_export]
 macro_rules! impl_into_box_type_option_builder {
     ($target: ident) => {
-        impl std::convert::Into<BoxTypeOptionBuilder> for $target {
-            fn into(self) -> Box<dyn TypeOptionBuilder> {
-                Box::new(self)
+        impl std::convert::From<$target> for BoxTypeOptionBuilder {
+            fn from(target: $target) -> BoxTypeOptionBuilder {
+                Box::new(target)
             }
         }
     };

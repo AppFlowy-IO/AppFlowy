@@ -19,7 +19,7 @@ class GridBlockService {
   String gridId;
   GridBlockMap blockMap = GridBlockMap();
   late GridBlockListener _blockListener;
-  PublishNotifier<BlocksUpdateNotifierValue> blocksUpdateNotifier = PublishNotifier();
+  PublishNotifier<BlocksUpdateNotifierValue>? blocksUpdateNotifier = PublishNotifier();
 
   GridBlockService({required this.gridId, required List<GridBlockOrder> blockOrders}) {
     _loadGridBlocks(blockOrders);
@@ -36,6 +36,8 @@ class GridBlockService {
 
   Future<void> stop() async {
     await _blockListener.stop();
+    blocksUpdateNotifier?.dispose();
+    blocksUpdateNotifier = null;
   }
 
   void _loadGridBlocks(List<GridBlockOrder> blockOrders) {
@@ -49,9 +51,9 @@ class GridBlockService {
           for (final gridBlock in repeatedBlocks.items) {
             blockMap[gridBlock.id] = gridBlock;
           }
-          blocksUpdateNotifier.value = left(blockMap);
+          blocksUpdateNotifier?.value = left(blockMap);
         },
-        (err) => blocksUpdateNotifier.value = right(err),
+        (err) => blocksUpdateNotifier?.value = right(err),
       );
     });
   }
@@ -61,7 +63,7 @@ class GridBlockListener {
   final String gridId;
   PublishNotifier<Either<List<GridBlockOrder>, FlowyError>> blockUpdateNotifier = PublishNotifier(comparable: null);
   StreamSubscription<SubscribeObject>? _subscription;
-  late GridNotificationParser _parser;
+  GridNotificationParser? _parser;
 
   GridBlockListener({required this.gridId});
 
@@ -73,7 +75,7 @@ class GridBlockListener {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
@@ -91,6 +93,7 @@ class GridBlockListener {
   }
 
   Future<void> stop() async {
+    _parser = null;
     await _subscription?.cancel();
     blockUpdateNotifier.dispose();
   }

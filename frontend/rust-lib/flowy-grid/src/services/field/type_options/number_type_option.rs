@@ -192,41 +192,41 @@ fn make_strip_symbol() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{NumberFormat, NumberTypeOption};
+    use crate::services::field::{NumberFormat, NumberTypeOption};
     use crate::services::row::CellDataSerde;
     use strum::IntoEnumIterator;
 
     #[test]
     fn number_description_test() {
-        let mut description = NumberTypeOption::default();
-        assert_eq!(description.serialize_cell_data("¥18,443").unwrap(), "18443".to_owned());
-        assert_eq!(description.serialize_cell_data("$18,443").unwrap(), "18443".to_owned());
-        assert_eq!(description.serialize_cell_data("€18.443").unwrap(), "18443".to_owned());
+        let mut type_option = NumberTypeOption::default();
+        assert_eq!(type_option.serialize_cell_data("¥18,443").unwrap(), "18443".to_owned());
+        assert_eq!(type_option.serialize_cell_data("$18,443").unwrap(), "18443".to_owned());
+        assert_eq!(type_option.serialize_cell_data("€18.443").unwrap(), "18443".to_owned());
 
         for format in NumberFormat::iter() {
-            description.format = format;
+            type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "$18,443".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "€18.443".to_owned()
                     );
                 }
@@ -236,35 +236,35 @@ mod tests {
 
     #[test]
     fn number_description_scale_test() {
-        let mut description = NumberTypeOption {
+        let mut type_option = NumberTypeOption {
             scale: 1,
             ..Default::default()
         };
 
         for format in NumberFormat::iter() {
-            description.format = format;
+            type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "$1,844.3".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "¥1,844.3".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "€1.844,3".to_owned()
                     );
                 }
@@ -274,35 +274,35 @@ mod tests {
 
     #[test]
     fn number_description_sign_test() {
-        let mut description = NumberTypeOption {
+        let mut type_option = NumberTypeOption {
             sign_positive: false,
             ..Default::default()
         };
 
         for format in NumberFormat::iter() {
-            description.format = format;
+            type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "-$18,443".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "-¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        description.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data("18443".to_owned()),
                         "-€18.443".to_owned()
                     );
                 }

@@ -10,7 +10,7 @@ import 'field_service.dart';
 part 'switch_field_type_bloc.freezed.dart';
 
 class SwitchFieldTypeBloc extends Bloc<SwitchFieldTypeEvent, SwitchFieldTypeState> {
-  SwitchFieldTypeBloc(EditFieldContext editContext) : super(SwitchFieldTypeState.initial(editContext)) {
+  SwitchFieldTypeBloc(SwitchFieldContext editContext) : super(SwitchFieldTypeState.initial(editContext)) {
     on<SwitchFieldTypeEvent>(
       (event, emit) async {
         await event.map(
@@ -53,9 +53,17 @@ class SwitchFieldTypeState with _$SwitchFieldTypeState {
     required Uint8List typeOptionData,
   }) = _SwitchFieldTypeState;
 
-  factory SwitchFieldTypeState.initial(EditFieldContext editContext) => SwitchFieldTypeState(
-        gridId: editContext.gridId,
-        field: editContext.gridField,
-        typeOptionData: Uint8List.fromList(editContext.typeOptionData),
+  factory SwitchFieldTypeState.initial(SwitchFieldContext switchContext) => SwitchFieldTypeState(
+        gridId: switchContext.gridId,
+        field: switchContext.field,
+        typeOptionData: Uint8List.fromList(switchContext.typeOptionData),
       );
+}
+
+class SwitchFieldContext {
+  final String gridId;
+  final Field field;
+  final List<int> typeOptionData;
+
+  SwitchFieldContext(this.gridId, this.field, this.typeOptionData);
 }

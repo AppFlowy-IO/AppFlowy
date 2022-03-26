@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -8,10 +9,14 @@ part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   final CellService service;
+  // final FutureCellData cellData;
 
   CheckboxCellBloc({
     required this.service,
-  }) : super(CheckboxCellState.initial(service.context.cell)) {
+    required FutureCellData cellData,
+  }) : super(CheckboxCellState.initial()) {
+    cellData.then((a) {});
+
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(
@@ -38,5 +43,5 @@ class CheckboxCellState with _$CheckboxCellState {
     required Cell? cell,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(Cell? cell) => CheckboxCellState(cell: cell);
+  factory CheckboxCellState.initial() => const CheckboxCellState(cell: null);
 }

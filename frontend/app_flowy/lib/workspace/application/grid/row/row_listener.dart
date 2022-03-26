@@ -11,13 +11,14 @@ import 'package:dartz/dartz.dart';
 
 typedef UpdateCellNotifiedValue = Either<RepeatedCell, FlowyError>;
 typedef UpdateRowNotifiedValue = Either<Row, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
 
 class RowListener {
   final String rowId;
-  PublishNotifier<UpdateCellNotifiedValue> updateCellNotifier = PublishNotifier<UpdateCellNotifiedValue>();
-  PublishNotifier<UpdateRowNotifiedValue> updateRowNotifier = PublishNotifier<UpdateRowNotifiedValue>();
+  PublishNotifier<UpdateCellNotifiedValue> updateCellNotifier = PublishNotifier();
+  PublishNotifier<UpdateRowNotifiedValue> updateRowNotifier = PublishNotifier();
   StreamSubscription<SubscribeObject>? _subscription;
-  late GridNotificationParser _parser;
+  GridNotificationParser? _parser;
 
   RowListener({required this.rowId});
 
@@ -29,7 +30,7 @@ class RowListener {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
@@ -40,15 +41,54 @@ class RowListener {
           (error) => updateCellNotifier.value = right(error),
         );
         break;
-
       default:
         break;
     }
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     updateCellNotifier.dispose();
     updateRowNotifier.dispose();
+  }
+}
+
+class RowFieldListener {
+  final String gridId;
+  PublishNotifier<UpdateFieldNotifiedValue> updateFieldNotifier = PublishNotifier();
+  StreamSubscription<SubscribeObject>? _subscription;
+  GridNotificationParser? _parser;
+
+  RowFieldListener({required this.gridId});
+
+  void start() {
+    _parser = GridNotificationParser(
+      id: gridId,
+      callback: (ty, result) {
+        _handleObservableType(ty, result);
+      },
+    );
+
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+  }
+
+  void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
+    switch (ty) {
+      case GridNotification.DidUpdateFields:
+        result.fold(
+          (payload) => updateFieldNotifier.value = left(RepeatedField.fromBuffer(payload).items),
+          (error) => updateFieldNotifier.value = right(error),
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> close() async {
+    _parser = null;
+    await _subscription?.cancel();
+    updateFieldNotifier.dispose();
   }
 }

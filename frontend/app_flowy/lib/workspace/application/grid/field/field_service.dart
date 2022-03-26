@@ -21,66 +21,19 @@ class FieldService {
     return GridEventCreateEditFieldContext(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> createTextField(
-    String gridId,
-    Field field,
-    RichTextTypeOption typeOption,
+  Future<Either<Unit, FlowyError>> createField({
+    required Field field,
+    List<int>? typeOptionData,
     String? startFieldId,
-  ) {
-    final typeOptionData = typeOption.writeToBuffer();
-    return createField(field, typeOptionData, startFieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> createSingleSelectField(
-    String gridId,
-    Field field,
-    SingleSelectTypeOption typeOption,
-    String? startFieldId,
-  ) {
-    final typeOptionData = typeOption.writeToBuffer();
-    return createField(field, typeOptionData, startFieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> createMultiSelectField(
-    String gridId,
-    Field field,
-    MultiSelectTypeOption typeOption,
-    String? startFieldId,
-  ) {
-    final typeOptionData = typeOption.writeToBuffer();
-    return createField(field, typeOptionData, startFieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> createNumberField(
-    String gridId,
-    Field field,
-    NumberTypeOption typeOption,
-    String? startFieldId,
-  ) {
-    final typeOptionData = typeOption.writeToBuffer();
-    return createField(field, typeOptionData, startFieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> createDateField(
-    String gridId,
-    Field field,
-    DateTypeOption typeOption,
-    String? startFieldId,
-  ) {
-    final typeOptionData = typeOption.writeToBuffer();
-    return createField(field, typeOptionData, startFieldId);
-  }
-
-  Future<Either<Unit, FlowyError>> createField(
-    Field field,
-    Uint8List? typeOptionData,
-    String? startFieldId,
-  ) {
-    final payload = CreateFieldPayload.create()
+  }) {
+    var payload = CreateFieldPayload.create()
       ..gridId = gridId
       ..field_2 = field
-      ..typeOptionData = typeOptionData ?? Uint8List.fromList([])
-      ..startFieldId = startFieldId ?? "";
+      ..typeOptionData = typeOptionData ?? [];
+
+    if (startFieldId != null) {
+      payload.startFieldId = startFieldId;
+    }
 
     return GridEventCreateField(payload).send();
   }

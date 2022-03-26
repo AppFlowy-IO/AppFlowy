@@ -17,20 +17,22 @@ import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef SelectFieldCallback = void Function(FieldType);
+typedef SelectFieldCallback = void Function(Field, Uint8List);
 
 class FieldTypeSwitcher extends StatelessWidget {
-  final EditFieldContext editContext;
+  final SwitchFieldContext switchContext;
+  final SelectFieldCallback onSelected;
 
   const FieldTypeSwitcher({
-    required this.editContext,
+    required this.switchContext,
+    required this.onSelected,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SwitchFieldTypeBloc>(param1: editContext),
+      create: (context) => getIt<SwitchFieldTypeBloc>(param1: switchContext),
       child: BlocBuilder<SwitchFieldTypeBloc, SwitchFieldTypeState>(
         builder: (context, state) {
           List<Widget> children = [
@@ -133,7 +135,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<NumberTypeOptionBloc>(),
-      child: Container(),
+      child: Container(height: 30, color: Colors.green),
     );
   }
 }
@@ -157,7 +159,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<DateTypeOptionBloc>(),
-      child: Container(),
+      child: Container(height: 80, color: Colors.red),
     );
   }
 }
@@ -194,7 +196,7 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: Container(),
+      child: Container(height: 100, color: Colors.yellow),
     );
   }
 }
@@ -219,7 +221,7 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: Container(),
+      child: Container(height: 100, color: Colors.blue),
     );
   }
 }

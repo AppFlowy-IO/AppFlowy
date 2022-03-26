@@ -17,7 +17,7 @@ class AppListener {
   StreamSubscription<SubscribeObject>? _subscription;
   ViewsDidChangeCallback? _viewsChanged;
   AppDidUpdateCallback? _updated;
-  late FolderNotificationParser _parser;
+  FolderNotificationParser? _parser;
   String appId;
 
   AppListener({
@@ -28,7 +28,7 @@ class AppListener {
     _viewsChanged = viewsChanged;
     _updated = appUpdated;
     _parser = FolderNotificationParser(id: appId, callback: _bservableCallback);
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _bservableCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {
@@ -61,6 +61,7 @@ class AppListener {
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     _viewsChanged = null;
     _updated = null;

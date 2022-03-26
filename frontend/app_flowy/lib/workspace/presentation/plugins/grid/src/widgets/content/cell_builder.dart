@@ -7,20 +7,20 @@ import 'number_cell.dart';
 import 'selection_cell.dart';
 import 'text_cell.dart';
 
-Widget buildGridCell(GridCellData cellData) {
-  switch (cellData.field.fieldType) {
+Widget buildGridCell(FieldType fieldType, FutureCellData cellData) {
+  switch (fieldType) {
     case FieldType.Checkbox:
-      return CheckboxCell(cellData: cellData);
+      return CheckboxCell(cellData: cellData, key: ObjectKey(cellData));
     case FieldType.DateTime:
-      return DateCell(cellData: cellData);
+      return DateCell(cellData: cellData, key: ObjectKey(cellData));
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellContext: cellData);
+      return MultiSelectCell(cellData: cellData, key: ObjectKey(cellData));
     case FieldType.Number:
-      return NumberCell(cellData: cellData);
+      return NumberCell(cellData: cellData, key: ObjectKey(cellData));
     case FieldType.RichText:
-      return GridTextCell(cellData: cellData);
+      return GridTextCell(cellData: cellData, key: ObjectKey(cellData));
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellContext: cellData);
+      return SingleSelectCell(cellData: cellData, key: ObjectKey(cellData));
     default:
       throw UnimplementedError;
   }

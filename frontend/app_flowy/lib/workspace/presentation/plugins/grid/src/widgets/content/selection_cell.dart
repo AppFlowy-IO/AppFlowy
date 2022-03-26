@@ -3,10 +3,10 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:flutter/material.dart';
 
 class SingleSelectCell extends StatefulWidget {
-  final GridCellData cellContext;
+  final FutureCellData cellData;
 
   const SingleSelectCell({
-    required this.cellContext,
+    required this.cellData,
     Key? key,
   }) : super(key: key);
 
@@ -19,7 +19,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext);
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData);
     super.initState();
   }
 
@@ -37,10 +37,10 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends StatefulWidget {
-  final GridCellData cellContext;
+  final FutureCellData cellData;
 
   const MultiSelectCell({
-    required this.cellContext,
+    required this.cellData,
     Key? key,
   }) : super(key: key);
 
@@ -53,7 +53,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext);
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData);
     super.initState();
   }
 

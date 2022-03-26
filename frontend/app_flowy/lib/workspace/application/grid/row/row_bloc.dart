@@ -1,4 +1,6 @@
-import 'package:app_flowy/workspace/application/grid/grid_service.dart';
+import 'dart:collection';
+
+import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,20 +8,34 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'row_listener.dart';
 import 'row_service.dart';
+import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
+typedef CellDataMap = HashMap<String, GridCellData>;
+
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService rowService;
-  final RowListener listener;
+  final RowListener rowlistener;
+  final RowFieldListener fieldListener;
 
-  RowBloc({required this.rowService, required this.listener}) : super(RowState.initial(rowService.rowData)) {
+  RowBloc({required GridRowData rowData, required this.rowlistener})
+      : rowService = RowService(
+          gridId: rowData.gridId,
+          blockId: rowData.blockId,
+          rowId: rowData.rowId,
+        ),
+        fieldListener = RowFieldListener(
+          gridId: rowData.gridId,
+        ),
+        super(RowState.initial(rowData)) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
-            _startRowListening();
+            _startListening();
             await _loadRow(emit);
+            add(const RowEvent.didUpdateCell());
           },
           createRow: (_CreateRow value) {
             rowService.createRow();
@@ -30,6 +46,19 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           disactiveRow: (_DisactiveRow value) {
             emit(state.copyWith(active: false));
           },
+          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+            emit(state.copyWith(fields: value.fields));
+            add(const RowEvent.didUpdateCell());
+          },
+          didUpdateCell: (_DidUpdateCell value) {
+            final Future<CellDataMap> cellDataMap = state.row.then(
+              (someRow) => someRow.fold(
+                () => HashMap.identity(),
+                (row) => _makeCellDatas(row),
+              ),
+            );
+            emit(state.copyWith(cellDataMap: cellDataMap));
+          },
         );
       },
     );
@@ -37,53 +66,66 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
-    await listener.close();
+    await rowlistener.close();
+    await fieldListener.close();
     return super.close();
   }
 
-  Future<void> _startRowListening() async {
-    listener.updateRowNotifier.addPublishListener((result) {
-      result.fold((row) {
-        //
-      }, (err) => null);
+  Future<void> _startListening() async {
+    rowlistener.updateRowNotifier.addPublishListener((result) {
+      result.fold(
+        (row) {
+          //
+        },
+        (err) => Log.error(err),
+      );
     });
 
-    listener.updateCellNotifier.addPublishListener((result) {
-      result.fold((repeatedCvell) {
-        //
-        Log.info("$repeatedCvell");
-      }, (r) => null);
+    rowlistener.updateCellNotifier.addPublishListener((result) {
+      result.fold(
+        (repeatedCell) {
+          Log.info("$repeatedCell");
+        },
+        (err) => Log.error(err),
+      );
     });
 
-    listener.start();
+    fieldListener.updateFieldNotifier.addPublishListener((result) {
+      result.fold(
+        (fields) => add(RowEvent.didReceiveFieldUpdate(fields)),
+        (err) => Log.error(err),
+      );
+    });
+
+    rowlistener.start();
+    fieldListener.start();
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    final Future<List<GridCellData>> cellDatas = rowService.getRow().then((result) {
+    final Future<Option<Row>> row = rowService.getRow().then((result) {
       return result.fold(
-        (row) => _makeCellDatas(row),
-        (e) {
-          Log.error(e);
-          return [];
+        (row) => Some(row),
+        (err) {
+          Log.error(err);
+          return none();
         },
       );
     });
-    emit(state.copyWith(cellDatas: cellDatas));
+    emit(state.copyWith(row: row));
   }
 
-  List<GridCellData> _makeCellDatas(Row row) {
-    return rowService.rowData.fields.map((field) {
-      final cell = row.cellByFieldId[field.id];
-      final rowData = rowService.rowData;
-
-      return GridCellData(
+  CellDataMap _makeCellDatas(Row row) {
+    var map = CellDataMap.new();
+    for (final field in state.fields) {
+      map[field.id] = GridCellData(
         rowId: row.id,
-        gridId: rowData.gridId,
-        blockId: rowData.blockId,
-        cell: cell,
+        gridId: rowService.gridId,
+        blockId: rowService.blockId,
+        cell: row.cellByFieldId[field.id],
         field: field,
       );
-    }).toList();
+    }
+    return map;
   }
 }
 
@@ -93,21 +135,27 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.activeRow() = _ActiveRow;
   const factory RowEvent.disactiveRow() = _DisactiveRow;
+  const factory RowEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory RowEvent.didUpdateCell() = _DidUpdateCell;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
     required String rowId,
-    required double rowHeight,
-    required Future<List<GridCellData>> cellDatas,
     required bool active,
+    required double rowHeight,
+    required List<Field> fields,
+    required Future<Option<Row>> row,
+    required Future<CellDataMap> cellDataMap,
   }) = _RowState;
 
   factory RowState.initial(GridRowData data) => RowState(
         rowId: data.rowId,
-        rowHeight: data.height,
-        cellDatas: Future(() => []),
         active: false,
+        rowHeight: data.height,
+        fields: data.fields,
+        row: Future(() => none()),
+        cellDataMap: Future(() => CellDataMap.identity()),
       );
 }

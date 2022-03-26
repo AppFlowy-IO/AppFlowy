@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::field::{default_type_option_builder_from_type, type_option_json_str_from_bytes, FieldBuilder};
+use crate::services::field::{type_option_json_str_from_bytes, FieldBuilder};
 use crate::services::row::*;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -78,8 +78,8 @@ impl ClientGridEditor {
     }
 
     pub async fn default_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
-        let name = format!("Property {}", self.pad.read().await.fields().len());
-        let field_meta = FieldBuilder::from_field_type(&field_type).name(&name).build();
+        let name = format!("Property {}", self.pad.read().await.fields().len() + 1);
+        let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();
         Ok(field_meta)
     }
 

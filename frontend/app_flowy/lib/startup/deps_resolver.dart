@@ -149,8 +149,8 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<RowBloc, GridRowData, void>(
     (data, _) => RowBloc(
-      rowService: RowService(data),
-      listener: RowListener(rowId: data.rowId),
+      rowData: data,
+      rowlistener: RowListener(rowId: data.rowId),
     ),
   );
 
@@ -174,38 +174,43 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellData, void>(
-    (context, _) => TextCellBloc(
-      service: CellService(context),
+  getIt.registerFactoryParam<TextCellBloc, FutureCellData, void>(
+    (cellData, _) => TextCellBloc(
+      service: CellService(),
+      cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridCellData, void>(
-    (context, _) => SelectionCellBloc(
-      service: CellService(context),
+  getIt.registerFactoryParam<SelectionCellBloc, FutureCellData, void>(
+    (cellData, _) => SelectionCellBloc(
+      service: CellService(),
+      cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellData, void>(
-    (context, _) => NumberCellBloc(
-      service: CellService(context),
+  getIt.registerFactoryParam<NumberCellBloc, FutureCellData, void>(
+    (cellData, _) => NumberCellBloc(
+      service: CellService(),
+      cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridCellData, void>(
-    (context, _) => DateCellBloc(
-      service: CellService(context),
+  getIt.registerFactoryParam<DateCellBloc, FutureCellData, void>(
+    (cellData, _) => DateCellBloc(
+      service: CellService(),
+      cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellData, void>(
-    (context, _) => CheckboxCellBloc(
-      service: CellService(context),
+  getIt.registerFactoryParam<CheckboxCellBloc, FutureCellData, void>(
+    (cellData, _) => CheckboxCellBloc(
+      service: CellService(),
+      cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<SwitchFieldTypeBloc, EditFieldContext, void>(
-    (editContext, _) => SwitchFieldTypeBloc(editContext),
+  getIt.registerFactoryParam<SwitchFieldTypeBloc, SwitchFieldContext, void>(
+    (context, _) => SwitchFieldTypeBloc(context),
   );
 
   getIt.registerFactory<SelectionTypeOptionBloc>(

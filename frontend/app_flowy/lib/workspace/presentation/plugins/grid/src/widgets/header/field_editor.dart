@@ -60,7 +60,12 @@ class _FieldTypeSwitcher extends StatelessWidget {
     return BlocBuilder<EditFieldBloc, EditFieldState>(
       builder: (context, state) {
         final editContext = context.read<EditFieldBloc>().state.editContext;
-        return FieldTypeSwitcher(editContext: editContext);
+        final switchContext = SwitchFieldContext(
+          editContext.gridId,
+          editContext.gridField,
+          editContext.typeOptionData,
+        );
+        return FieldTypeSwitcher(switchContext: switchContext, onSelected: (field, typeOptionData) {});
       },
     );
   }

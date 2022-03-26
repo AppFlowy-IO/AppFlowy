@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,7 +12,8 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
 
   SelectionCellBloc({
     required this.service,
-  }) : super(SelectionCellState.initial(service.context.cell)) {
+    required FutureCellData cellData,
+  }) : super(SelectionCellState.initial()) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(
@@ -35,8 +37,8 @@ class SelectionCellEvent with _$SelectionCellEvent {
 @freezed
 class SelectionCellState with _$SelectionCellState {
   const factory SelectionCellState({
-    required Cell? cell,
+    Cell? cell,
   }) = _SelectionCellState;
 
-  factory SelectionCellState.initial(Cell? cell) => SelectionCellState(cell: cell);
+  factory SelectionCellState.initial() => const SelectionCellState();
 }

@@ -5,7 +5,7 @@ use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     FieldChangeset, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
 };
-use flowy_grid_data_model::parser::CreateFieldParams;
+
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
@@ -43,12 +43,7 @@ impl GridMetaPad {
     ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
             // Check if the field exists or not
-            if grid
-                .fields
-                .iter()
-                .find(|field_meta| field_meta.id == new_field_meta.id)
-                .is_some()
-            {
+            if grid.fields.iter().any(|field_meta| field_meta.id == new_field_meta.id) {
                 tracing::warn!("Duplicate grid field");
                 return Ok(None);
             }

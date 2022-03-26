@@ -1,5 +1,5 @@
 use crate::services::field::*;
-use flowy_grid_data_model::entities::{BuildGridContext, FieldType};
+use flowy_grid_data_model::entities::BuildGridContext;
 use flowy_sync::client_grid::GridBuilder;
 
 pub fn make_default_grid() -> BuildGridContext {

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,18 +11,45 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   TextCellBloc({
     required this.service,
-  }) : super(TextCellState.initial(service.context.cell?.content ?? "")) {
+    required FutureCellData cellData,
+  }) : super(TextCellState.initial()) {
+    cellData.then((cellData) {
+      if (cellData != null) {
+        add(TextCellEvent.didReceiveCellData(cellData));
+      }
+    });
+
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialCell value) async {},
           updateText: (_UpdateText value) {
-            service.updateCell(data: value.text);
+            updateCellContent(value.text);
             emit(state.copyWith(content: value.text));
+          },
+          didReceiveCellData: (_DidReceiveCellData value) {
+            emit(state.copyWith(
+              cellData: value.cellData,
+              content: value.cellData.cell?.content ?? "",
+            ));
           },
         );
       },
     );
+  }
+
+  void updateCellContent(String content) {
+    if (state.cellData != null) {
+      final fieldId = state.cellData!.field.id;
+      final gridId = state.cellData!.gridId;
+      final rowId = state.cellData!.rowId;
+      service.updateCell(
+        data: content,
+        fieldId: fieldId,
+        gridId: gridId,
+        rowId: rowId,
+      );
+    }
   }
 
   @override
@@ -33,6 +61,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 @freezed
 class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
+  const factory TextCellEvent.didReceiveCellData(GridCellData cellData) = _DidReceiveCellData;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
 }
 
@@ -40,7 +69,8 @@ class TextCellEvent with _$TextCellEvent {
 class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
+    GridCellData? cellData,
   }) = _TextCellState;
 
-  factory TextCellState.initial(String content) => TextCellState(content: content);
+  factory TextCellState.initial() => const TextCellState(content: "");
 }

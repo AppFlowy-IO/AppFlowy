@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DateCell extends StatefulWidget {
-  final GridCellData cellData;
+  final FutureCellData cellData;
 
   const DateCell({
     required this.cellData,

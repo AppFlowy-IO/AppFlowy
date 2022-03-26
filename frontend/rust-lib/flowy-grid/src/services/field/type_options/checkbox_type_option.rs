@@ -69,20 +69,20 @@ fn string_to_bool(bool_str: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::CheckboxTypeOption;
+    use crate::services::field::CheckboxTypeOption;
     use crate::services::row::CellDataSerde;
 
     #[test]
     fn checkout_box_description_test() {
         let type_option = CheckboxTypeOption::default();
-        assert_eq!(description.serialize_cell_data("true").unwrap(), "1".to_owned());
-        assert_eq!(description.serialize_cell_data("1").unwrap(), "1".to_owned());
-        assert_eq!(description.serialize_cell_data("yes").unwrap(), "1".to_owned());
+        assert_eq!(type_option.serialize_cell_data("true").unwrap(), "1".to_owned());
+        assert_eq!(type_option.serialize_cell_data("1").unwrap(), "1".to_owned());
+        assert_eq!(type_option.serialize_cell_data("yes").unwrap(), "1".to_owned());
 
-        assert_eq!(description.serialize_cell_data("false").unwrap(), "0".to_owned());
-        assert_eq!(description.serialize_cell_data("no").unwrap(), "0".to_owned());
-        assert_eq!(description.serialize_cell_data("123").unwrap(), "0".to_owned());
+        assert_eq!(type_option.serialize_cell_data("false").unwrap(), "0".to_owned());
+        assert_eq!(type_option.serialize_cell_data("no").unwrap(), "0".to_owned());
+        assert_eq!(type_option.serialize_cell_data("123").unwrap(), "0".to_owned());
 
-        assert_eq!(description.deserialize_cell_data("1".to_owned()), "1".to_owned());
+        assert_eq!(type_option.deserialize_cell_data("1".to_owned()), "1".to_owned());
     }
 }

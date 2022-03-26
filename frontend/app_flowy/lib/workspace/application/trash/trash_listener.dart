@@ -13,12 +13,12 @@ typedef TrashUpdatedCallback = void Function(Either<List<Trash>, FlowyError> tra
 class TrashListener {
   StreamSubscription<SubscribeObject>? _subscription;
   TrashUpdatedCallback? _trashUpdated;
-  late FolderNotificationParser _parser;
+  FolderNotificationParser? _parser;
 
   void start({TrashUpdatedCallback? trashUpdated}) {
     _trashUpdated = trashUpdated;
     _parser = FolderNotificationParser(callback: _bservableCallback);
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _bservableCallback(FolderNotification ty, Either<Uint8List, FlowyError> result) {
@@ -40,6 +40,7 @@ class TrashListener {
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     _trashUpdated = null;
   }

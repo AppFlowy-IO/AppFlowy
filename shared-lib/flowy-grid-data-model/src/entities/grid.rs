@@ -39,20 +39,6 @@ pub struct Field {
     pub width: i32,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldOrder {
-    #[pb(index = 1)]
-    pub field_id: String,
-}
-
-impl std::convert::From<&FieldMeta> for FieldOrder {
-    fn from(field_meta: &FieldMeta) -> Self {
-        Self {
-            field_id: field_meta.id.clone(),
-        }
-    }
-}
-
 impl std::convert::From<FieldMeta> for Field {
     fn from(field_meta: FieldMeta) -> Self {
         Self {
@@ -63,6 +49,20 @@ impl std::convert::From<FieldMeta> for Field {
             frozen: field_meta.frozen,
             visibility: field_meta.visibility,
             width: field_meta.width,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldOrder {
+    #[pb(index = 1)]
+    pub field_id: String,
+}
+
+impl std::convert::From<&FieldMeta> for FieldOrder {
+    fn from(field_meta: &FieldMeta) -> Self {
+        Self {
+            field_id: field_meta.id.clone(),
         }
     }
 }

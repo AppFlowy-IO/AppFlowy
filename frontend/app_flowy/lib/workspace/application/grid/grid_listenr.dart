@@ -13,9 +13,9 @@ import 'package:app_flowy/core/notification_helper.dart';
 
 class GridListener {
   final String gridId;
-  PublishNotifier<Either<List<Field>, FlowyError>> fieldsUpdateNotifier = PublishNotifier(comparable: null);
+  PublishNotifier<Either<List<Field>, FlowyError>> fieldsUpdateNotifier = PublishNotifier();
   StreamSubscription<SubscribeObject>? _subscription;
-  late GridNotificationParser _parser;
+  GridNotificationParser? _parser;
   GridListener({required this.gridId});
 
   void start() {
@@ -26,7 +26,7 @@ class GridListener {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
@@ -43,6 +43,7 @@ class GridListener {
   }
 
   Future<void> stop() async {
+    _parser = null;
     await _subscription?.cancel();
     fieldsUpdateNotifier.dispose();
   }

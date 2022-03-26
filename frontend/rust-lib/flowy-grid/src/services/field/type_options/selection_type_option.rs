@@ -166,16 +166,16 @@ impl SelectOption {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{MultiSelectDescription, SingleSelectTypeOption};
+    use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
     use crate::services::row::CellDataSerde;
 
     #[test]
     #[should_panic]
     fn selection_description_test() {
         let type_option = SingleSelectTypeOption::default();
-        assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
+        assert_eq!(type_option.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
 
-        let type_option = MultiSelectDescription::default();
-        assert_eq!(description.serialize_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
+        let type_option = MultiSelectTypeOption::default();
+        assert_eq!(type_option.serialize_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
     }
 }

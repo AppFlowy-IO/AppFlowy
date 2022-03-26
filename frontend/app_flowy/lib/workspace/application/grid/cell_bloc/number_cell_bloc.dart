@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,7 +12,8 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   NumberCellBloc({
     required this.service,
-  }) : super(NumberCellState.initial(service.context.cell)) {
+    required FutureCellData cellData,
+  }) : super(NumberCellState.initial()) {
     on<NumberCellEvent>(
       (event, emit) async {
         await event.map(
@@ -35,8 +37,8 @@ class NumberCellEvent with _$NumberCellEvent {
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required Cell? cell,
+    Cell? cell,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(Cell? cell) => NumberCellState(cell: cell);
+  factory NumberCellState.initial() => const NumberCellState();
 }

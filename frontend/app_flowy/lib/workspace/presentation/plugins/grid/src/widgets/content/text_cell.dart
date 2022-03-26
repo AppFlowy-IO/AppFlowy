@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// The interface of base cell.
 
 class GridTextCell extends StatefulWidget {
-  final GridCellData cellData;
+  final FutureCellData cellData;
   const GridTextCell({
     required this.cellData,
     Key? key,
@@ -36,9 +36,11 @@ class _GridTextCellState extends State<GridTextCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc!,
-      child: BlocBuilder<TextCellBloc, TextCellState>(
-        buildWhen: (previous, current) {
-          return _controller.text != current.content;
+      child: BlocConsumer<TextCellBloc, TextCellState>(
+        listener: (context, state) {
+          if (_controller.text != state.content) {
+            _controller.text = state.content;
+          }
         },
         builder: (context, state) {
           return TextField(

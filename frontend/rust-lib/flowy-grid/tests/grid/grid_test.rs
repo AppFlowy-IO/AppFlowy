@@ -254,19 +254,19 @@ async fn grid_row_add_cells_test() {
             }
             FieldType::SingleSelect => {
                 let type_option = SingleSelectTypeOption::from(field);
-                let options = description.options.first().unwrap();
-                let data = description.serialize_cell_data(&options.id).unwrap();
+                let options = type_option.options.first().unwrap();
+                let data = type_option.serialize_cell_data(&options.id).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::MultiSelect => {
                 let type_option = MultiSelectTypeOption::from(field);
-                let options = description
+                let options = type_option
                     .options
                     .iter()
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
                     .join(SELECTION_IDS_SEPARATOR);
-                let data = description.serialize_cell_data(&options).unwrap();
+                let data = type_option.serialize_cell_data(&options).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::Checkbox => {
@@ -383,11 +383,11 @@ async fn grid_cell_update() {
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
                         let type_option = SingleSelectTypeOption::from(field_meta);
-                        description.options.first().unwrap().id.clone()
+                        type_option.options.first().unwrap().id.clone()
                     }
                     FieldType::MultiSelect => {
                         let type_option = MultiSelectTypeOption::from(field_meta);
-                        description.options.first().unwrap().id.clone()
+                        type_option.options.first().unwrap().id.clone()
                     }
                     FieldType::Checkbox => "1".to_string(),
                 };

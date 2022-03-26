@@ -177,7 +177,7 @@ impl std::default::Default for TimeFormat {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{DateFormat, DateTypeOption, TimeFormat};
+    use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
     use crate::services::row::CellDataSerde;
     use strum::IntoEnumIterator;
 
@@ -267,6 +267,6 @@ mod tests {
     #[should_panic]
     fn date_description_invalid_data_test() {
         let type_option = DateTypeOption::default();
-        description.serialize_cell_data("he").unwrap();
+        type_option.serialize_cell_data("he").unwrap();
     }
 }

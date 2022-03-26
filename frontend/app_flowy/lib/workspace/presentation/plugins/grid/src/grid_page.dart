@@ -1,15 +1,13 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:styled_widget/styled_widget.dart';
-
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -92,16 +90,33 @@ class _FlowyGridState extends State<FlowyGrid> {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        return _wrapScrollbar(state.fields, [
-          _buildHeader(gridId, state.fields),
-          _buildRows(context),
-          const GridFooter(),
-        ]);
+        final child = BlocBuilder<GridBloc, GridState>(
+          builder: (context, state) {
+            return SizedBox(
+              width: GridLayout.headerWidth(state.fields),
+              child: ScrollConfiguration(
+                behavior: const ScrollBehavior().copyWith(scrollbars: false),
+                child: CustomScrollView(
+                  shrinkWrap: true,
+                  physics: StyledScrollPhysics(),
+                  controller: _scrollController.verticalController,
+                  slivers: [
+                    _buildHeader(gridId),
+                    _buildRows(context),
+                    const GridFooter(),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+
+        return _wrapScrollbar(child);
       },
     );
   }
 
-  Widget _wrapScrollbar(List<Field> fields, List<Widget> children) {
+  Widget _wrapScrollbar(Widget child) {
     return ScrollbarListStack(
       axis: Axis.vertical,
       controller: _scrollController.verticalController,
@@ -109,38 +124,39 @@ class _FlowyGridState extends State<FlowyGrid> {
       child: StyledSingleChildScrollView(
         controller: _scrollController.horizontalController,
         axis: Axis.horizontal,
-        child: SizedBox(
-          width: GridLayout.headerWidth(fields),
-          child: ScrollConfiguration(
-            behavior: const ScrollBehavior().copyWith(scrollbars: false),
-            child: CustomScrollView(
-              physics: StyledScrollPhysics(),
-              controller: _scrollController.verticalController,
-              slivers: <Widget>[...children],
-            ),
-          ),
-        ),
+        child: child,
       ),
-    ).padding(right: 0, top: GridSize.headerHeight, bottom: GridSize.scrollBarSize);
+    );
   }
 
-  Widget _buildHeader(String gridId, List<Field> fields) {
-    return SliverPersistentHeader(
-      delegate: GridHeaderDelegate(gridId: gridId, fields: fields),
-      floating: true,
-      pinned: true,
+  Widget _buildHeader(String gridId) {
+    return BlocBuilder<GridBloc, GridState>(
+      buildWhen: (previous, current) => previous.fields.length != current.fields.length,
+      builder: (context, state) {
+        return SliverPersistentHeader(
+          delegate: GridHeaderDelegate(gridId: gridId, fields: state.fields),
+          floating: true,
+          pinned: true,
+        );
+      },
     );
   }
 
   Widget _buildRows(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.rows.length != current.rows.length,
+      buildWhen: (previous, current) {
+        final rowChanged = previous.rows.length != current.rows.length;
+        // final fieldChanged = previous.fields.length != current.fields.length;
+        return rowChanged;
+      },
       builder: (context, state) {
         return SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              final rowData = context.read<GridBloc>().state.rows[index];
-              return GridRowWidget(data: rowData);
+              final blockRow = context.read<GridBloc>().state.rows[index];
+              final fields = context.read<GridBloc>().state.fields;
+              final rowData = GridRowData.fromBlockRow(blockRow, fields);
+              return GridRowWidget(data: rowData, key: ValueKey(rowData.rowId));
             },
             childCount: context.read<GridBloc>().state.rows.length,
             addRepaintBoundaries: true,
