@@ -50,12 +50,11 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             emit(state.copyWith(fields: value.fields));
             add(const RowEvent.didUpdateCell());
           },
-          didUpdateCell: (_DidUpdateCell value) {
-            final Future<CellDataMap> cellDataMap = state.row.then(
-              (someRow) => someRow.fold(
-                () => HashMap.identity(),
-                (row) => _makeCellDatas(row),
-              ),
+          didUpdateCell: (_DidUpdateCell value) async {
+            final optionRow = await state.row;
+            final CellDataMap cellDataMap = optionRow.fold(
+              () => HashMap.identity(),
+              (row) => _makeCellDatas(row),
             );
             emit(state.copyWith(cellDataMap: cellDataMap));
           },
@@ -147,7 +146,7 @@ class RowState with _$RowState {
     required double rowHeight,
     required List<Field> fields,
     required Future<Option<Row>> row,
-    required Future<CellDataMap> cellDataMap,
+    required CellDataMap? cellDataMap,
   }) = _RowState;
 
   factory RowState.initial(GridRowData data) => RowState(
@@ -156,6 +155,6 @@ class RowState with _$RowState {
         rowHeight: data.height,
         fields: data.fields,
         row: Future(() => none()),
-        cellDataMap: Future(() => CellDataMap.identity()),
+        cellDataMap: null,
       );
 }

@@ -15,8 +15,6 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
     required this.service,
     required FutureCellData cellData,
   }) : super(CheckboxCellState.initial()) {
-    cellData.then((a) {});
-
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(

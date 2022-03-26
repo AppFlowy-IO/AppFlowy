@@ -29,7 +29,7 @@ class RowService {
   }
 }
 
-typedef FutureCellData = Future<GridCellData?>;
+typedef FutureCellData = GridCellData?;
 
 class GridCellData extends Equatable {
   final String gridId;

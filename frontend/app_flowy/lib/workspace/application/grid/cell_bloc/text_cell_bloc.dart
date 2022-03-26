@@ -12,13 +12,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   TextCellBloc({
     required this.service,
     required FutureCellData cellData,
-  }) : super(TextCellState.initial()) {
-    cellData.then((cellData) {
-      if (cellData != null) {
-        add(TextCellEvent.didReceiveCellData(cellData));
-      }
-    });
-
+  }) : super(TextCellState.initial(cellData)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(
@@ -69,8 +63,11 @@ class TextCellEvent with _$TextCellEvent {
 class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
-    GridCellData? cellData,
+    required FutureCellData cellData,
   }) = _TextCellState;
 
-  factory TextCellState.initial() => const TextCellState(content: "");
+  factory TextCellState.initial(FutureCellData cellData) => TextCellState(
+        content: cellData?.cell?.content ?? "",
+        cellData: cellData,
+      );
 }

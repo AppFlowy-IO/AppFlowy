@@ -22,12 +22,12 @@ class _GridTextCellState extends State<GridTextCell> {
   late TextEditingController _controller;
   Timer? _delayOperation;
   final _focusNode = FocusNode();
-  TextCellBloc? _cellBloc;
+  late TextCellBloc _cellBloc;
 
   @override
   void initState() {
     _cellBloc = getIt<TextCellBloc>(param1: widget.cellData);
-    _controller = TextEditingController(text: _cellBloc!.state.content);
+    _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode.addListener(save);
     super.initState();
   }
@@ -35,7 +35,7 @@ class _GridTextCellState extends State<GridTextCell> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _cellBloc!,
+      value: _cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
         listener: (context, state) {
           if (_controller.text != state.content) {
@@ -71,8 +71,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    _cellBloc?.close();
-    _cellBloc = null;
+    _cellBloc.close();
     _focusNode.removeListener(save);
     _focusNode.dispose();
     super.dispose();
@@ -80,8 +79,10 @@ class _GridTextCellState extends State<GridTextCell> {
 
   Future<void> save() async {
     _delayOperation?.cancel();
-    _delayOperation = Timer(const Duration(seconds: 2), () {
-      _cellBloc?.add(TextCellEvent.updateText(_controller.text));
+    _delayOperation = Timer(const Duration(milliseconds: 300), () {
+      if (_cellBloc.isClosed == false) {
+        _cellBloc.add(TextCellEvent.updateText(_controller.text));
+      }
     });
     // and later, before the timer goes off...
   }

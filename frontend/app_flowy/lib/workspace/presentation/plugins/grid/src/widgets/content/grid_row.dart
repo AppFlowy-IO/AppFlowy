@@ -4,37 +4,60 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.d
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 import 'cell_container.dart';
 
-class GridRowWidget extends StatelessWidget {
+class GridRowWidget extends StatefulWidget {
   final GridRowData data;
   const GridRowWidget({required this.data, Key? key}) : super(key: key);
 
   @override
+  State<GridRowWidget> createState() => _GridRowWidgetState();
+}
+
+class _GridRowWidgetState extends State<GridRowWidget> {
+  late RowBloc _rowBloc;
+
+  @override
+  void initState() {
+    _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<RowBloc>(param1: data)..add(const RowEvent.initial()),
-      child: BlocBuilder<RowBloc, RowState>(
-        buildWhen: (p, c) => p.rowHeight != c.rowHeight,
-        builder: (context, state) {
-          return SizedBox(
-            height: state.rowHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: const [
-                _RowLeading(),
-                _RowCells(),
-                _RowTrailing(),
-              ],
-            ),
-          );
-        },
+    return BlocProvider.value(
+      value: _rowBloc,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
+        onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
+        child: BlocBuilder<RowBloc, RowState>(
+          buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+          builder: (context, state) {
+            return SizedBox(
+              height: _rowBloc.state.rowHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  _RowLeading(),
+                  _RowCells(),
+                  _RowTrailing(),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
+  }
+
+  @override
+  Future<void> dispose() async {
+    _rowBloc.close();
+    super.dispose();
   }
 }
 
@@ -92,18 +115,20 @@ class _RowCells extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
+      buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
-        return Row(children: [
-          ...state.fields.map(
-            (field) {
-              final cellData = state.cellDataMap.then((fut) => fut[field.id]);
-              return CellContainer(
-                width: field.width.toDouble(),
-                child: buildGridCell(field.fieldType, cellData),
-              );
-            },
-          ),
-        ]);
+        final children = state.fields
+            .map((field) => CellContainer(
+                  width: field.width.toDouble(),
+                  child: buildGridCell(
+                    state.rowId,
+                    field,
+                    state.cellDataMap?[field.id],
+                  ),
+                ))
+            .toList();
+
+        return Row(children: children);
       },
     );
   }
