@@ -29,6 +29,9 @@ class SwitchFieldTypeBloc extends Bloc<SwitchFieldTypeEvent, SwitchFieldTypeStat
               (err) => Log.error(err),
             );
           },
+          didUpdateTypeOptionData: (_DidUpdateTypeOptionData value) {
+            emit(state.copyWith(typeOptionData: value.typeOptionData));
+          },
         );
       },
     );
@@ -43,6 +46,7 @@ class SwitchFieldTypeBloc extends Bloc<SwitchFieldTypeEvent, SwitchFieldTypeStat
 @freezed
 class SwitchFieldTypeEvent with _$SwitchFieldTypeEvent {
   const factory SwitchFieldTypeEvent.toFieldType(FieldType fieldType) = _ToFieldType;
+  const factory SwitchFieldTypeEvent.didUpdateTypeOptionData(Uint8List typeOptionData) = _DidUpdateTypeOptionData;
 }
 
 @freezed

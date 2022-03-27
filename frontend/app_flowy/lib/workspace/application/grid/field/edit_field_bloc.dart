@@ -16,25 +16,29 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
       (event, emit) async {
         await event.map(
           initial: (_InitialField value) {},
-          updateFieldName: (_UpdateFieldName value) {
-            //
+          updateFieldName: (_UpdateFieldName value) async {
+            final result = await service.updateField(fieldId: field.id, name: value.name);
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
           },
           hideField: (_HideField value) async {
-            final result = await service.updateField(fieldId: value.fieldId, visibility: false);
+            final result = await service.updateField(fieldId: field.id, visibility: false);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           deleteField: (_DeleteField value) async {
-            final result = await service.deleteField(fieldId: value.fieldId);
+            final result = await service.deleteField(fieldId: field.id);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           duplicateField: (_DuplicateField value) async {
-            final result = await service.duplicateField(fieldId: value.fieldId);
+            final result = await service.duplicateField(fieldId: field.id);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -56,9 +60,9 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
 class EditFieldEvent with _$EditFieldEvent {
   const factory EditFieldEvent.initial() = _InitialField;
   const factory EditFieldEvent.updateFieldName(String name) = _UpdateFieldName;
-  const factory EditFieldEvent.hideField(String fieldId) = _HideField;
-  const factory EditFieldEvent.duplicateField(String fieldId) = _DuplicateField;
-  const factory EditFieldEvent.deleteField(String fieldId) = _DeleteField;
+  const factory EditFieldEvent.hideField() = _HideField;
+  const factory EditFieldEvent.duplicateField() = _DuplicateField;
+  const factory EditFieldEvent.deleteField() = _DeleteField;
   const factory EditFieldEvent.saveField() = _SaveField;
 }
 
@@ -67,10 +71,12 @@ class EditFieldState with _$EditFieldState {
   const factory EditFieldState({
     required EditFieldContext editContext,
     required String errorText,
+    required String fieldName,
   }) = _EditFieldState;
 
   factory EditFieldState.initial(EditFieldContext editContext) => EditFieldState(
         editContext: editContext,
         errorText: '',
+        fieldName: editContext.gridField.name,
       );
 }

@@ -152,9 +152,10 @@
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
-      "numberFieldName": "Number",
+      "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
-      "multiSelectFieldName": "Multiselect"
+      "multiSelectFieldName": "Multiselect",
+      "numberFormat": " Number format"
     }
   }
 }

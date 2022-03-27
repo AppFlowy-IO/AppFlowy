@@ -52,7 +52,7 @@ class _CreateFieldPannelWidget extends StatelessWidget {
       child: BlocBuilder<CreateFieldBloc, CreateFieldState>(
         builder: (context, state) {
           return state.field.fold(
-            () => const SizedBox(),
+            () => const SizedBox(width: 200),
             (field) => ListView(
               shrinkWrap: true,
               children: [

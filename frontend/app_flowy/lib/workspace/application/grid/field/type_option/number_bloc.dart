@@ -1,20 +1,20 @@
-import 'dart:typed_data';
-
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'package:dartz/dartz.dart';
 
 part 'number_bloc.freezed.dart';
 
 class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionState> {
-  NumberTypeOptionBloc() : super(NumberTypeOptionState.initial()) {
+  NumberTypeOptionBloc({required NumberTypeOption typeOption}) : super(NumberTypeOptionState.initial(typeOption)) {
     on<NumberTypeOptionEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialField value) async {},
+          didSelectFormat: (_DidSelectFormat value) {
+            state.typeOption.format = value.format;
+            emit(state);
+          },
         );
       },
     );
@@ -28,12 +28,17 @@ class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionS
 
 @freezed
 class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
-  const factory NumberTypeOptionEvent.initial(Uint8List? typeOptionData) = _InitialField;
+  const factory NumberTypeOptionEvent.initial() = _InitialField;
+  const factory NumberTypeOptionEvent.didSelectFormat(NumberFormat format) = _DidSelectFormat;
 }
 
 @freezed
 class NumberTypeOptionState with _$NumberTypeOptionState {
-  const factory NumberTypeOptionState() = _NumberTypeOptionState;
+  const factory NumberTypeOptionState({
+    required NumberTypeOption typeOption,
+  }) = _NumberTypeOptionState;
 
-  factory NumberTypeOptionState.initial() => NumberTypeOptionState();
+  factory NumberTypeOptionState.initial(NumberTypeOption typeOption) => NumberTypeOptionState(
+        typeOption: typeOption,
+      );
 }

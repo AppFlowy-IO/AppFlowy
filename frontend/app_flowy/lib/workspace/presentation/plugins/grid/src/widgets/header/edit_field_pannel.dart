@@ -95,10 +95,10 @@ class _FieldNameTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EditFieldBloc, EditFieldState>(
-      buildWhen: ((previous, current) => previous.editContext.gridField.name == current.editContext.gridField.name),
+      buildWhen: ((previous, current) => previous.fieldName == current.fieldName),
       builder: (context, state) {
         return FieldNameTextField(
-          name: state.editContext.gridField.name,
+          name: state.fieldName,
           errorText: state.errorText,
           onNameChanged: (newName) {
             context.read<EditFieldBloc>().add(EditFieldEvent.updateFieldName(newName));

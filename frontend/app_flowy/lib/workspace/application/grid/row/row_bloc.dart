@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -17,7 +18,7 @@ typedef CellDataMap = HashMap<String, GridCellData>;
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService rowService;
   final RowListener rowlistener;
-  final RowFieldListener fieldListener;
+  final GridFieldsListener fieldListener;
 
   RowBloc({required GridRowData rowData, required this.rowlistener})
       : rowService = RowService(
@@ -25,7 +26,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           blockId: rowData.blockId,
           rowId: rowData.rowId,
         ),
-        fieldListener = RowFieldListener(
+        fieldListener = GridFieldsListener(
           gridId: rowData.gridId,
         ),
         super(RowState.initial(rowData)) {
@@ -65,8 +66,8 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
-    await rowlistener.close();
-    await fieldListener.close();
+    await rowlistener.stop();
+    await fieldListener.stop();
     return super.close();
   }
 
@@ -89,7 +90,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       );
     });
 
-    fieldListener.updateFieldNotifier.addPublishListener((result) {
+    fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
         (fields) => add(RowEvent.didReceiveFieldUpdate(fields)),
         (err) => Log.error(err),

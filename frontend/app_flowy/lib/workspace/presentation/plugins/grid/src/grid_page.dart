@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
@@ -97,7 +96,6 @@ class _FlowyGridState extends State<FlowyGrid> {
               child: ScrollConfiguration(
                 behavior: const ScrollBehavior().copyWith(scrollbars: false),
                 child: CustomScrollView(
-                  shrinkWrap: true,
                   physics: StyledScrollPhysics(),
                   controller: _scrollController.verticalController,
                   slivers: [

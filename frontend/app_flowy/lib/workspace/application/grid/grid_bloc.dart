@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'grid_block_service.dart';
-import 'grid_listenr.dart';
+import 'field/grid_listenr.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
@@ -16,11 +16,11 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
   final GridService service;
-  late GridListener _gridListener;
+  late GridFieldsListener _fieldListener;
   late GridBlockService _blockService;
 
   GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
-    _gridListener = GridListener(gridId: view.id);
+    _fieldListener = GridFieldsListener(gridId: view.id);
 
     on<GridEvent>(
       (event, emit) async {
@@ -34,10 +34,10 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           delete: (_Delete value) {},
           rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
-          rowsDidUpdate: (_RowsDidUpdate value) {
+          didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
             emit(state.copyWith(rows: value.rows));
           },
-          fieldsDidUpdate: (_FieldsDidUpdate value) {
+          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fields: value.fields));
           },
         );
@@ -47,19 +47,19 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
-    await _gridListener.stop();
+    await _fieldListener.stop();
     await _blockService.stop();
     return super.close();
   }
 
   Future<void> _initGrid(Emitter<GridState> emit) async {
-    _gridListener.fieldsUpdateNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
-        (fields) => add(GridEvent.fieldsDidUpdate(fields)),
+        (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
         (err) => Log.error(err),
       );
     });
-    _gridListener.start();
+    _fieldListener.start();
 
     await _loadGrid(emit);
   }
@@ -72,7 +72,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
     _blockService.blocksUpdateNotifier?.addPublishListener((result) {
       result.fold(
-        (blockMap) => add(GridEvent.rowsDidUpdate(_buildRows(blockMap))),
+        (blockMap) => add(GridEvent.didReceiveRowUpdate(_buildRows(blockMap))),
         (err) => Log.error('$err'),
       );
     });
@@ -128,8 +128,8 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.rowsDidUpdate(List<GridBlockRow> rows) = _RowsDidUpdate;
-  const factory GridEvent.fieldsDidUpdate(List<Field> fields) = _FieldsDidUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<GridBlockRow> rows) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
 @freezed

@@ -46,7 +46,7 @@ class FieldActionItem extends StatelessWidget {
       text: FlowyText.medium(action.title(), fontSize: 12),
       hoverColor: theme.hover,
       onTap: () {
-        action.run(context, fieldId);
+        action.run(context);
         onTap();
       },
       leftIcon: svg(action.iconName(), color: theme.iconColor),
@@ -83,16 +83,16 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, String fieldId) {
+  void run(BuildContext context) {
     switch (this) {
       case FieldAction.hide:
-        context.read<EditFieldBloc>().add(EditFieldEvent.hideField(fieldId));
+        context.read<EditFieldBloc>().add(const EditFieldEvent.hideField());
         break;
       case FieldAction.duplicate:
-        context.read<EditFieldBloc>().add(EditFieldEvent.duplicateField(fieldId));
+        context.read<EditFieldBloc>().add(const EditFieldEvent.duplicateField());
         break;
       case FieldAction.delete:
-        context.read<EditFieldBloc>().add(EditFieldEvent.deleteField(fieldId));
+        context.read<EditFieldBloc>().add(const EditFieldEvent.deleteField());
         break;
     }
   }

@@ -11,11 +11,12 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'type_option/number.dart';
 
 typedef SelectFieldCallback = void Function(Field, Uint8List);
 
@@ -40,8 +41,11 @@ class FieldTypeSwitcher extends StatelessWidget {
           ];
 
           final builder = _makeTypeOptionBuild(
-            state.field.fieldType,
-            state.typeOptionData,
+            fieldType: state.field.fieldType,
+            typeOptionData: state.typeOptionData,
+            typeOptionDataCallback: (newTypeOptionData) {
+              context.read<SwitchFieldTypeBloc>().add(SwitchFieldTypeEvent.didUpdateTypeOptionData(newTypeOptionData));
+            },
           );
 
           final typeOptionWidget = builder.customWidget;
@@ -77,7 +81,6 @@ class FieldTypeSwitcher extends StatelessWidget {
 }
 
 abstract class TypeOptionBuilder {
-  Uint8List? get typeOptionData;
   Widget? get customWidget;
 }
 
@@ -85,7 +88,14 @@ abstract class TypeOptionWidget extends StatelessWidget {
   const TypeOptionWidget({Key? key}) : super(key: key);
 }
 
-TypeOptionBuilder _makeTypeOptionBuild(FieldType fieldType, Uint8List typeOptionData) {
+typedef TypeOptionData = Uint8List;
+typedef TypeOptionDataCallback = void Function(TypeOptionData typeOptionData);
+
+TypeOptionBuilder _makeTypeOptionBuild({
+  required FieldType fieldType,
+  required TypeOptionData typeOptionData,
+  required TypeOptionDataCallback typeOptionDataCallback,
+}) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return CheckboxTypeOptionBuilder(typeOptionData);
@@ -94,7 +104,7 @@ TypeOptionBuilder _makeTypeOptionBuild(FieldType fieldType, Uint8List typeOption
     case FieldType.MultiSelect:
       return MultiSelectTypeOptionBuilder(typeOptionData);
     case FieldType.Number:
-      return NumberTypeOptionBuilder(typeOptionData);
+      return NumberTypeOptionBuilder(typeOptionData, typeOptionDataCallback);
     case FieldType.RichText:
       return RichTextTypeOptionBuilder(typeOptionData);
     case FieldType.SingleSelect:
@@ -107,46 +117,16 @@ TypeOptionBuilder _makeTypeOptionBuild(FieldType fieldType, Uint8List typeOption
 class RichTextTypeOptionBuilder extends TypeOptionBuilder {
   RichTextTypeOption typeOption;
 
-  RichTextTypeOptionBuilder(Uint8List typeOptionData) : typeOption = RichTextTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => typeOption.writeToBuffer();
+  RichTextTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = RichTextTypeOption.fromBuffer(typeOptionData);
 
   @override
   Widget? get customWidget => null;
 }
 
-class NumberTypeOptionBuilder extends TypeOptionBuilder {
-  NumberTypeOption typeOption;
-
-  NumberTypeOptionBuilder(Uint8List typeOptionData) : typeOption = NumberTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => typeOption.writeToBuffer();
-
-  @override
-  Widget? get customWidget => const NumberTypeOptionWidget();
-}
-
-class NumberTypeOptionWidget extends TypeOptionWidget {
-  const NumberTypeOptionWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<NumberTypeOptionBloc>(),
-      child: Container(height: 30, color: Colors.green),
-    );
-  }
-}
-
 class DateTypeOptionBuilder extends TypeOptionBuilder {
   DateTypeOption typeOption;
 
-  DateTypeOptionBuilder(Uint8List typeOptionData) : typeOption = DateTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => typeOption.writeToBuffer();
+  DateTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = DateTypeOption.fromBuffer(typeOptionData);
 
   @override
   Widget? get customWidget => const DateTypeOptionWidget();
@@ -167,10 +147,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
 class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
   CheckboxTypeOption typeOption;
 
-  CheckboxTypeOptionBuilder(Uint8List typeOptionData) : typeOption = CheckboxTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => throw UnimplementedError();
+  CheckboxTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = CheckboxTypeOption.fromBuffer(typeOptionData);
 
   @override
   Widget? get customWidget => null;
@@ -179,11 +156,8 @@ class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
 class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
   SingleSelectTypeOption typeOption;
 
-  SingleSelectTypeOptionBuilder(Uint8List typeOptionData)
+  SingleSelectTypeOptionBuilder(TypeOptionData typeOptionData)
       : typeOption = SingleSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => typeOption.writeToBuffer();
 
   @override
   Widget? get customWidget => const SingleSelectTypeOptionWidget();
@@ -204,11 +178,8 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
   MultiSelectTypeOption typeOption;
 
-  MultiSelectTypeOptionBuilder(Uint8List typeOptionData)
+  MultiSelectTypeOptionBuilder(TypeOptionData typeOptionData)
       : typeOption = MultiSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Uint8List? get typeOptionData => typeOption.writeToBuffer();
 
   @override
   Widget? get customWidget => const MultiSelectTypeOptionWidget();
