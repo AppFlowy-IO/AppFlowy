@@ -3,12 +3,13 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    FieldChangeset, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
+    FieldChangesetParams, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
 };
 
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
+use std::string::FromUtf8Error;
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;
@@ -109,7 +110,7 @@ impl GridMetaPad {
         }
     }
 
-    pub fn update_field(&mut self, changeset: FieldChangeset) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_field(&mut self, changeset: FieldChangesetParams) -> CollaborateResult<Option<GridChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -143,9 +144,16 @@ impl GridMetaPad {
                 is_changed = Some(())
             }
 
-            if let Some(type_options) = changeset.type_options {
-                field.type_option_json = type_options;
-                is_changed = Some(())
+            if let Some(type_option_data) = changeset.type_option_data {
+                match String::from_utf8(type_option_data) {
+                    Ok(type_option_json) => {
+                        field.type_option_json = type_option_json;
+                        is_changed = Some(())
+                    }
+                    Err(err) => {
+                        tracing::error!("Deserialize data to type option json failed: {}", err);
+                    }
+                }
             }
 
             Ok(is_changed)

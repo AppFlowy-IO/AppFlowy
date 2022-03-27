@@ -10,12 +10,12 @@ import 'field_name_input.dart';
 import 'field_operation_list.dart';
 import 'field_tyep_switcher.dart';
 
-class FieldEditor extends StatelessWidget {
+class EditFieldPannel extends StatelessWidget {
   final GridFieldData fieldData;
-  const FieldEditor({required this.fieldData, Key? key}) : super(key: key);
+  const EditFieldPannel({required this.fieldData, Key? key}) : super(key: key);
 
   static void show(BuildContext context, GridFieldData fieldData) {
-    final editor = FieldEditor(fieldData: fieldData);
+    final editor = EditFieldPannel(fieldData: fieldData);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: editor,

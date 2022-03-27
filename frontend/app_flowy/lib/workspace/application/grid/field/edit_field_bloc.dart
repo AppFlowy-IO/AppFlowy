@@ -21,6 +21,7 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
           hideField: (_HideField value) {},
           deleteField: (_DeleteField value) {},
           duplicateField: (_DuplicateField value) {},
+          saveField: (_SaveField value) {},
         );
       },
     );
@@ -39,6 +40,7 @@ class EditFieldEvent with _$EditFieldEvent {
   const factory EditFieldEvent.hideField() = _HideField;
   const factory EditFieldEvent.duplicateField() = _DuplicateField;
   const factory EditFieldEvent.deleteField() = _DeleteField;
+  const factory EditFieldEvent.saveField() = _SaveField;
 }
 
 @freezed

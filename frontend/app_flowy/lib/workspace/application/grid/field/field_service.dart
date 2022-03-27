@@ -6,7 +6,6 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 class FieldService {
   final String gridId;
@@ -19,6 +18,44 @@ class FieldService {
       ..fieldType = fieldType;
 
     return GridEventCreateEditFieldContext(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateField({
+    required Field field,
+    String? name,
+    FieldType? fieldType,
+    bool? frozen,
+    bool? visibility,
+    double? width,
+    List<int>? typeOptionData,
+  }) {
+    var payload = FieldChangesetPayload.create()..gridId = gridId;
+
+    if (name != null) {
+      payload.name = name;
+    }
+
+    if (fieldType != null) {
+      payload.fieldType = fieldType;
+    }
+
+    if (frozen != null) {
+      payload.frozen = frozen;
+    }
+
+    if (visibility != null) {
+      payload.visibility = visibility;
+    }
+
+    if (width != null) {
+      payload.width = width.toInt();
+    }
+
+    if (typeOptionData != null) {
+      payload.typeOptionData = typeOptionData;
+    }
+
+    return GridEventUpdateField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> createField({

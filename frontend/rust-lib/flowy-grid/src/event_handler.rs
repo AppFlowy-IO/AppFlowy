@@ -1,14 +1,7 @@
 use crate::manager::GridManager;
 use crate::services::field::type_option_data_from_str;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{
-    CellMetaChangeset, CreateEditFieldContextParams, CreateFieldPayload, CreateRowPayload, EditFieldContext, Field,
-    FieldChangeset, Grid, GridId, QueryFieldPayload, QueryGridBlocksPayload, QueryRowPayload, RepeatedField,
-    RepeatedGridBlock, Row,
-};
-use flowy_grid_data_model::parser::{
-    CreateFieldParams, CreateRowParams, QueryFieldParams, QueryGridBlocksParams, QueryRowParams,
-};
+use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -53,10 +46,10 @@ pub(crate) async fn get_fields_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
-    data: Data<FieldChangeset>,
+    data: Data<FieldChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let changeset: FieldChangeset = data.into_inner();
+    let changeset: FieldChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.grid_id)?;
     let _ = editor.update_field(changeset).await?;
     Ok(())
@@ -70,6 +63,17 @@ pub(crate) async fn create_field_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.create_field(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn delete_field_handler(
+    data: Data<FieldOrder>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let field_order: FieldOrder = data.into_inner();
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor.delete_field(&field_order.field_id).await?;
     Ok(())
 }
 

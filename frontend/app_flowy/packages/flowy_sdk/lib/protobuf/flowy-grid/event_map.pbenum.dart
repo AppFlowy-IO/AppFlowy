@@ -15,7 +15,8 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent GetFields = GridEvent._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetFields');
   static const GridEvent UpdateField = GridEvent._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateField');
   static const GridEvent CreateField = GridEvent._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateField');
-  static const GridEvent CreateEditFieldContext = GridEvent._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateEditFieldContext');
+  static const GridEvent DeleteField = GridEvent._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteField');
+  static const GridEvent CreateEditFieldContext = GridEvent._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateEditFieldContext');
   static const GridEvent CreateRow = GridEvent._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
   static const GridEvent GetRow = GridEvent._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRow');
   static const GridEvent UpdateCell = GridEvent._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
@@ -26,6 +27,7 @@ class GridEvent extends $pb.ProtobufEnum {
     GetFields,
     UpdateField,
     CreateField,
+    DeleteField,
     CreateEditFieldContext,
     CreateRow,
     GetRow,

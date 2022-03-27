@@ -44,7 +44,12 @@ class CreateFieldBloc extends Bloc<CreateFieldEvent, CreateFieldState> {
     await state.field.fold(
       () async => null,
       (field) async {
-        final result = await service.createField(field: field, typeOptionData: state.typeOptionData);
+        field.name = state.fieldName;
+
+        final result = await service.createField(
+          field: field,
+          typeOptionData: state.typeOptionData,
+        );
         result.fold((l) => null, (r) => null);
       },
     );

@@ -97,8 +97,11 @@ pub enum ErrorCode {
     RowIdIsEmpty = 430,
     #[display(fmt = "Field id is empty")]
     FieldIdIsEmpty = 440,
-    #[display(fmt = "Field's type option should not be empty")]
-    TypeOptionIsEmpty = 441,
+    #[display(fmt = "Field doesn't exist")]
+    FieldDoesNotExist = 441,
+
+    #[display(fmt = "Field's type option data should not be empty")]
+    TypeOptionDataIsEmpty = 450,
 
     #[display(fmt = "Invalid data")]
     InvalidData = 500,

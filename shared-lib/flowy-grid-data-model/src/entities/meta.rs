@@ -1,4 +1,6 @@
+use crate::parser::NotEmptyUuid;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error_code::ErrorCode;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
@@ -117,7 +119,7 @@ impl FieldMeta {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldChangeset {
+pub struct FieldChangesetPayload {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -143,7 +145,47 @@ pub struct FieldChangeset {
     pub width: Option<i32>,
 
     #[pb(index = 9, one_of)]
-    pub type_options: Option<String>,
+    pub type_option_data: Option<Vec<u8>>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct FieldChangesetParams {
+    pub field_id: String,
+    pub grid_id: String,
+    pub name: Option<String>,
+    pub desc: Option<String>,
+    pub field_type: Option<FieldType>,
+    pub frozen: Option<bool>,
+    pub visibility: Option<bool>,
+    pub width: Option<i32>,
+    pub type_option_data: Option<Vec<u8>>,
+}
+
+impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+
+        if let Some(type_option_data) = self.type_option_data.as_ref() {
+            if type_option_data.is_empty() {
+                return Err(ErrorCode::TypeOptionDataIsEmpty);
+            }
+        }
+
+        Ok(FieldChangesetParams {
+            field_id: field_id.0,
+            grid_id: grid_id.0,
+            name: self.name,
+            desc: self.desc,
+            field_type: self.field_type,
+            frozen: self.frozen,
+            visibility: self.visibility,
+            width: self.width,
+            type_option_data: self.type_option_data,
+        })
+    }
 }
 
 #[derive(

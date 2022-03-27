@@ -4,9 +4,8 @@ use crate::services::block_meta_editor::GridBlockMetaEditorManager;
 use crate::services::field::{type_option_json_str_from_bytes, FieldBuilder};
 use crate::services::row::*;
 use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
-use flowy_grid_data_model::parser::CreateFieldParams;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridChangeset, GridMetaPad};
 use flowy_sync::entities::revision::Revision;
@@ -87,8 +86,20 @@ impl ClientGridEditor {
         self.pad.read().await.contain_field(field_id)
     }
 
-    pub async fn update_field(&self, change: FieldChangeset) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.update_field(change)?)).await?;
+    pub async fn update_field(&self, mut params: FieldChangesetParams) -> FlowyResult<()> {
+        if let Some(type_option_data) = params.type_option_data {
+            match self.pad.read().await.get_field(&params.field_id) {
+                None => return Err(ErrorCode::FieldDoesNotExist.into()),
+                Some(field_meta) => {
+                    // The type_option_data is serialized by protobuf. But the type_option_data should be
+                    // serialized by utf-8 encoding. So we must transform the data here.
+                    let type_option_json = type_option_json_str_from_bytes(type_option_data, &field_meta.field_type);
+                    params.type_option_data = Some(type_option_json.as_bytes().to_vec());
+                }
+            }
+        }
+
+        let _ = self.modify(|grid| Ok(grid.update_field(params)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
     }

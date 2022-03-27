@@ -37,6 +37,7 @@ enum ErrorCode {
     BlockIdIsEmpty = 420;
     RowIdIsEmpty = 430;
     FieldIdIsEmpty = 440;
-    TypeOptionIsEmpty = 441;
+    FieldDoesNotExist = 441;
+    TypeOptionDataIsEmpty = 450;
     InvalidData = 500;
 }

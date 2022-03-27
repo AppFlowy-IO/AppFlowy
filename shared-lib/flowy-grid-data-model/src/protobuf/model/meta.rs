@@ -1139,66 +1139,66 @@ impl ::protobuf::reflect::ProtobufValue for FieldMeta {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct FieldChangeset {
+pub struct FieldChangesetPayload {
     // message fields
     pub field_id: ::std::string::String,
     pub grid_id: ::std::string::String,
     // message oneof groups
-    pub one_of_name: ::std::option::Option<FieldChangeset_oneof_one_of_name>,
-    pub one_of_desc: ::std::option::Option<FieldChangeset_oneof_one_of_desc>,
-    pub one_of_field_type: ::std::option::Option<FieldChangeset_oneof_one_of_field_type>,
-    pub one_of_frozen: ::std::option::Option<FieldChangeset_oneof_one_of_frozen>,
-    pub one_of_visibility: ::std::option::Option<FieldChangeset_oneof_one_of_visibility>,
-    pub one_of_width: ::std::option::Option<FieldChangeset_oneof_one_of_width>,
-    pub one_of_type_options: ::std::option::Option<FieldChangeset_oneof_one_of_type_options>,
+    pub one_of_name: ::std::option::Option<FieldChangesetPayload_oneof_one_of_name>,
+    pub one_of_desc: ::std::option::Option<FieldChangesetPayload_oneof_one_of_desc>,
+    pub one_of_field_type: ::std::option::Option<FieldChangesetPayload_oneof_one_of_field_type>,
+    pub one_of_frozen: ::std::option::Option<FieldChangesetPayload_oneof_one_of_frozen>,
+    pub one_of_visibility: ::std::option::Option<FieldChangesetPayload_oneof_one_of_visibility>,
+    pub one_of_width: ::std::option::Option<FieldChangesetPayload_oneof_one_of_width>,
+    pub one_of_type_option_data: ::std::option::Option<FieldChangesetPayload_oneof_one_of_type_option_data>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a FieldChangeset {
-    fn default() -> &'a FieldChangeset {
-        <FieldChangeset as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a FieldChangesetPayload {
+    fn default() -> &'a FieldChangesetPayload {
+        <FieldChangesetPayload as ::protobuf::Message>::default_instance()
     }
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_name {
+pub enum FieldChangesetPayload_oneof_one_of_name {
     name(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_desc {
+pub enum FieldChangesetPayload_oneof_one_of_desc {
     desc(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_field_type {
+pub enum FieldChangesetPayload_oneof_one_of_field_type {
     field_type(FieldType),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_frozen {
+pub enum FieldChangesetPayload_oneof_one_of_frozen {
     frozen(bool),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_visibility {
+pub enum FieldChangesetPayload_oneof_one_of_visibility {
     visibility(bool),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_width {
+pub enum FieldChangesetPayload_oneof_one_of_width {
     width(i32),
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum FieldChangeset_oneof_one_of_type_options {
-    type_options(::std::string::String),
+pub enum FieldChangesetPayload_oneof_one_of_type_option_data {
+    type_option_data(::std::vec::Vec<u8>),
 }
 
-impl FieldChangeset {
-    pub fn new() -> FieldChangeset {
+impl FieldChangesetPayload {
+    pub fn new() -> FieldChangesetPayload {
         ::std::default::Default::default()
     }
 
@@ -1259,7 +1259,7 @@ impl FieldChangeset {
 
     pub fn get_name(&self) -> &str {
         match self.one_of_name {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(ref v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(ref v)) => v,
             _ => "",
         }
     }
@@ -1269,24 +1269,24 @@ impl FieldChangeset {
 
     pub fn has_name(&self) -> bool {
         match self.one_of_name {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_name(&mut self, v: ::std::string::String) {
-        self.one_of_name = ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(v))
+        self.one_of_name = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(_)) = self.one_of_name {
+        if let ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(_)) = self.one_of_name {
         } else {
-            self.one_of_name = ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(::std::string::String::new()));
+            self.one_of_name = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(::std::string::String::new()));
         }
         match self.one_of_name {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(ref mut v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1295,7 +1295,7 @@ impl FieldChangeset {
     pub fn take_name(&mut self) -> ::std::string::String {
         if self.has_name() {
             match self.one_of_name.take() {
-                ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(v)) => v,
+                ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1308,7 +1308,7 @@ impl FieldChangeset {
 
     pub fn get_desc(&self) -> &str {
         match self.one_of_desc {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(ref v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(ref v)) => v,
             _ => "",
         }
     }
@@ -1318,24 +1318,24 @@ impl FieldChangeset {
 
     pub fn has_desc(&self) -> bool {
         match self.one_of_desc {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.one_of_desc = ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(v))
+        self.one_of_desc = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(v))
     }
 
     // Mutable pointer to the field.
     pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(_)) = self.one_of_desc {
+        if let ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(_)) = self.one_of_desc {
         } else {
-            self.one_of_desc = ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(::std::string::String::new()));
+            self.one_of_desc = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(::std::string::String::new()));
         }
         match self.one_of_desc {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(ref mut v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(ref mut v)) => v,
             _ => panic!(),
         }
     }
@@ -1344,7 +1344,7 @@ impl FieldChangeset {
     pub fn take_desc(&mut self) -> ::std::string::String {
         if self.has_desc() {
             match self.one_of_desc.take() {
-                ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(v)) => v,
+                ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1357,7 +1357,7 @@ impl FieldChangeset {
 
     pub fn get_field_type(&self) -> FieldType {
         match self.one_of_field_type {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_field_type::field_type(v)) => v,
             _ => FieldType::RichText,
         }
     }
@@ -1367,14 +1367,14 @@ impl FieldChangeset {
 
     pub fn has_field_type(&self) -> bool {
         match self.one_of_field_type {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_field_type::field_type(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_field_type(&mut self, v: FieldType) {
-        self.one_of_field_type = ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(v))
+        self.one_of_field_type = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_field_type::field_type(v))
     }
 
     // bool frozen = 6;
@@ -1382,7 +1382,7 @@ impl FieldChangeset {
 
     pub fn get_frozen(&self) -> bool {
         match self.one_of_frozen {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_frozen::frozen(v)) => v,
             _ => false,
         }
     }
@@ -1392,14 +1392,14 @@ impl FieldChangeset {
 
     pub fn has_frozen(&self) -> bool {
         match self.one_of_frozen {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_frozen::frozen(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_frozen(&mut self, v: bool) {
-        self.one_of_frozen = ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(v))
+        self.one_of_frozen = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_frozen::frozen(v))
     }
 
     // bool visibility = 7;
@@ -1407,7 +1407,7 @@ impl FieldChangeset {
 
     pub fn get_visibility(&self) -> bool {
         match self.one_of_visibility {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_visibility::visibility(v)) => v,
             _ => false,
         }
     }
@@ -1417,14 +1417,14 @@ impl FieldChangeset {
 
     pub fn has_visibility(&self) -> bool {
         match self.one_of_visibility {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_visibility::visibility(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_visibility(&mut self, v: bool) {
-        self.one_of_visibility = ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(v))
+        self.one_of_visibility = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_visibility::visibility(v))
     }
 
     // int32 width = 8;
@@ -1432,7 +1432,7 @@ impl FieldChangeset {
 
     pub fn get_width(&self) -> i32 {
         match self.one_of_width {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(v)) => v,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_width::width(v)) => v,
             _ => 0,
         }
     }
@@ -1442,67 +1442,67 @@ impl FieldChangeset {
 
     pub fn has_width(&self) -> bool {
         match self.one_of_width {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(..)) => true,
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_width::width(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
     pub fn set_width(&mut self, v: i32) {
-        self.one_of_width = ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(v))
+        self.one_of_width = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_width::width(v))
     }
 
-    // string type_options = 9;
+    // bytes type_option_data = 9;
 
 
-    pub fn get_type_options(&self) -> &str {
-        match self.one_of_type_options {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(ref v)) => v,
-            _ => "",
+    pub fn get_type_option_data(&self) -> &[u8] {
+        match self.one_of_type_option_data {
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(ref v)) => v,
+            _ => &[],
         }
     }
-    pub fn clear_type_options(&mut self) {
-        self.one_of_type_options = ::std::option::Option::None;
+    pub fn clear_type_option_data(&mut self) {
+        self.one_of_type_option_data = ::std::option::Option::None;
     }
 
-    pub fn has_type_options(&self) -> bool {
-        match self.one_of_type_options {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(..)) => true,
+    pub fn has_type_option_data(&self) -> bool {
+        match self.one_of_type_option_data {
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_type_options(&mut self, v: ::std::string::String) {
-        self.one_of_type_options = ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(v))
+    pub fn set_type_option_data(&mut self, v: ::std::vec::Vec<u8>) {
+        self.one_of_type_option_data = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_type_options(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(_)) = self.one_of_type_options {
+    pub fn mut_type_option_data(&mut self) -> &mut ::std::vec::Vec<u8> {
+        if let ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(_)) = self.one_of_type_option_data {
         } else {
-            self.one_of_type_options = ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(::std::string::String::new()));
+            self.one_of_type_option_data = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(::std::vec::Vec::new()));
         }
-        match self.one_of_type_options {
-            ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(ref mut v)) => v,
+        match self.one_of_type_option_data {
+            ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_type_options(&mut self) -> ::std::string::String {
-        if self.has_type_options() {
-            match self.one_of_type_options.take() {
-                ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(v)) => v,
+    pub fn take_type_option_data(&mut self) -> ::std::vec::Vec<u8> {
+        if self.has_type_option_data() {
+            match self.one_of_type_option_data.take() {
+                ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(v)) => v,
                 _ => panic!(),
             }
         } else {
-            ::std::string::String::new()
+            ::std::vec::Vec::new()
         }
     }
 }
 
-impl ::protobuf::Message for FieldChangeset {
+impl ::protobuf::Message for FieldChangesetPayload {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -1521,43 +1521,43 @@ impl ::protobuf::Message for FieldChangeset {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_name = ::std::option::Option::Some(FieldChangeset_oneof_one_of_name::name(is.read_string()?));
+                    self.one_of_name = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_name::name(is.read_string()?));
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_desc = ::std::option::Option::Some(FieldChangeset_oneof_one_of_desc::desc(is.read_string()?));
+                    self.one_of_desc = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_desc::desc(is.read_string()?));
                 },
                 5 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_field_type = ::std::option::Option::Some(FieldChangeset_oneof_one_of_field_type::field_type(is.read_enum()?));
+                    self.one_of_field_type = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_field_type::field_type(is.read_enum()?));
                 },
                 6 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_frozen = ::std::option::Option::Some(FieldChangeset_oneof_one_of_frozen::frozen(is.read_bool()?));
+                    self.one_of_frozen = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_frozen::frozen(is.read_bool()?));
                 },
                 7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_visibility = ::std::option::Option::Some(FieldChangeset_oneof_one_of_visibility::visibility(is.read_bool()?));
+                    self.one_of_visibility = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_visibility::visibility(is.read_bool()?));
                 },
                 8 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_width = ::std::option::Option::Some(FieldChangeset_oneof_one_of_width::width(is.read_int32()?));
+                    self.one_of_width = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_width::width(is.read_int32()?));
                 },
                 9 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_type_options = ::std::option::Option::Some(FieldChangeset_oneof_one_of_type_options::type_options(is.read_string()?));
+                    self.one_of_type_option_data = ::std::option::Option::Some(FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(is.read_bytes()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1579,50 +1579,50 @@ impl ::protobuf::Message for FieldChangeset {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &FieldChangeset_oneof_one_of_name::name(ref v) => {
+                &FieldChangesetPayload_oneof_one_of_name::name(ref v) => {
                     my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &FieldChangeset_oneof_one_of_desc::desc(ref v) => {
+                &FieldChangesetPayload_oneof_one_of_desc::desc(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_field_type {
             match v {
-                &FieldChangeset_oneof_one_of_field_type::field_type(v) => {
+                &FieldChangesetPayload_oneof_one_of_field_type::field_type(v) => {
                     my_size += ::protobuf::rt::enum_size(5, v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_frozen {
             match v {
-                &FieldChangeset_oneof_one_of_frozen::frozen(v) => {
+                &FieldChangesetPayload_oneof_one_of_frozen::frozen(v) => {
                     my_size += 2;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_visibility {
             match v {
-                &FieldChangeset_oneof_one_of_visibility::visibility(v) => {
+                &FieldChangesetPayload_oneof_one_of_visibility::visibility(v) => {
                     my_size += 2;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_width {
             match v {
-                &FieldChangeset_oneof_one_of_width::width(v) => {
+                &FieldChangesetPayload_oneof_one_of_width::width(v) => {
                     my_size += ::protobuf::rt::value_size(8, v, ::protobuf::wire_format::WireTypeVarint);
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_type_options {
+        if let ::std::option::Option::Some(ref v) = self.one_of_type_option_data {
             match v {
-                &FieldChangeset_oneof_one_of_type_options::type_options(ref v) => {
-                    my_size += ::protobuf::rt::string_size(9, &v);
+                &FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(ref v) => {
+                    my_size += ::protobuf::rt::bytes_size(9, &v);
                 },
             };
         }
@@ -1640,50 +1640,50 @@ impl ::protobuf::Message for FieldChangeset {
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_name {
             match v {
-                &FieldChangeset_oneof_one_of_name::name(ref v) => {
+                &FieldChangesetPayload_oneof_one_of_name::name(ref v) => {
                     os.write_string(3, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_desc {
             match v {
-                &FieldChangeset_oneof_one_of_desc::desc(ref v) => {
+                &FieldChangesetPayload_oneof_one_of_desc::desc(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_field_type {
             match v {
-                &FieldChangeset_oneof_one_of_field_type::field_type(v) => {
+                &FieldChangesetPayload_oneof_one_of_field_type::field_type(v) => {
                     os.write_enum(5, ::protobuf::ProtobufEnum::value(&v))?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_frozen {
             match v {
-                &FieldChangeset_oneof_one_of_frozen::frozen(v) => {
+                &FieldChangesetPayload_oneof_one_of_frozen::frozen(v) => {
                     os.write_bool(6, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_visibility {
             match v {
-                &FieldChangeset_oneof_one_of_visibility::visibility(v) => {
+                &FieldChangesetPayload_oneof_one_of_visibility::visibility(v) => {
                     os.write_bool(7, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_width {
             match v {
-                &FieldChangeset_oneof_one_of_width::width(v) => {
+                &FieldChangesetPayload_oneof_one_of_width::width(v) => {
                     os.write_int32(8, v)?;
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_type_options {
+        if let ::std::option::Option::Some(ref v) = self.one_of_type_option_data {
             match v {
-                &FieldChangeset_oneof_one_of_type_options::type_options(ref v) => {
-                    os.write_string(9, v)?;
+                &FieldChangesetPayload_oneof_one_of_type_option_data::type_option_data(ref v) => {
+                    os.write_bytes(9, v)?;
                 },
             };
         }
@@ -1717,8 +1717,8 @@ impl ::protobuf::Message for FieldChangeset {
         Self::descriptor_static()
     }
 
-    fn new() -> FieldChangeset {
-        FieldChangeset::new()
+    fn new() -> FieldChangesetPayload {
+        FieldChangesetPayload::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -1727,64 +1727,64 @@ impl ::protobuf::Message for FieldChangeset {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "field_id",
-                |m: &FieldChangeset| { &m.field_id },
-                |m: &mut FieldChangeset| { &mut m.field_id },
+                |m: &FieldChangesetPayload| { &m.field_id },
+                |m: &mut FieldChangesetPayload| { &mut m.field_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "grid_id",
-                |m: &FieldChangeset| { &m.grid_id },
-                |m: &mut FieldChangeset| { &mut m.grid_id },
+                |m: &FieldChangesetPayload| { &m.grid_id },
+                |m: &mut FieldChangesetPayload| { &mut m.grid_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
-                FieldChangeset::has_name,
-                FieldChangeset::get_name,
+                FieldChangesetPayload::has_name,
+                FieldChangesetPayload::get_name,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "desc",
-                FieldChangeset::has_desc,
-                FieldChangeset::get_desc,
+                FieldChangesetPayload::has_desc,
+                FieldChangesetPayload::get_desc,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_enum_accessor::<_, FieldType>(
                 "field_type",
-                FieldChangeset::has_field_type,
-                FieldChangeset::get_field_type,
+                FieldChangesetPayload::has_field_type,
+                FieldChangesetPayload::get_field_type,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_bool_accessor::<_>(
                 "frozen",
-                FieldChangeset::has_frozen,
-                FieldChangeset::get_frozen,
+                FieldChangesetPayload::has_frozen,
+                FieldChangesetPayload::get_frozen,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_bool_accessor::<_>(
                 "visibility",
-                FieldChangeset::has_visibility,
-                FieldChangeset::get_visibility,
+                FieldChangesetPayload::has_visibility,
+                FieldChangesetPayload::get_visibility,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_i32_accessor::<_>(
                 "width",
-                FieldChangeset::has_width,
-                FieldChangeset::get_width,
+                FieldChangesetPayload::has_width,
+                FieldChangesetPayload::get_width,
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "type_options",
-                FieldChangeset::has_type_options,
-                FieldChangeset::get_type_options,
+            fields.push(::protobuf::reflect::accessor::make_singular_bytes_accessor::<_>(
+                "type_option_data",
+                FieldChangesetPayload::has_type_option_data,
+                FieldChangesetPayload::get_type_option_data,
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldChangeset>(
-                "FieldChangeset",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldChangesetPayload>(
+                "FieldChangesetPayload",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static FieldChangeset {
-        static instance: ::protobuf::rt::LazyV2<FieldChangeset> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(FieldChangeset::new)
+    fn default_instance() -> &'static FieldChangesetPayload {
+        static instance: ::protobuf::rt::LazyV2<FieldChangesetPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(FieldChangesetPayload::new)
     }
 }
 
-impl ::protobuf::Clear for FieldChangeset {
+impl ::protobuf::Clear for FieldChangesetPayload {
     fn clear(&mut self) {
         self.field_id.clear();
         self.grid_id.clear();
@@ -1794,18 +1794,18 @@ impl ::protobuf::Clear for FieldChangeset {
         self.one_of_frozen = ::std::option::Option::None;
         self.one_of_visibility = ::std::option::Option::None;
         self.one_of_width = ::std::option::Option::None;
-        self.one_of_type_options = ::std::option::Option::None;
+        self.one_of_type_option_data = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for FieldChangeset {
+impl ::std::fmt::Debug for FieldChangesetPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for FieldChangeset {
+impl ::protobuf::reflect::ProtobufValue for FieldChangesetPayload {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -3514,43 +3514,44 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x06frozen\x18\x05\x20\x01(\x08R\x06frozen\x12\x1e\n\nvisibility\x18\x06\
     \x20\x01(\x08R\nvisibility\x12\x14\n\x05width\x18\x07\x20\x01(\x05R\x05w\
     idth\x12(\n\x10type_option_json\x18\x08\x20\x01(\tR\x0etypeOptionJson\"\
-    \x96\x03\n\x0eFieldChangeset\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\
-    \x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\
-    \x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\
-    \x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTy\
-    peH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06fr\
-    ozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\
-    \x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\x12#\n\x0ctype_optio\
-    ns\x18\t\x20\x01(\tH\x06R\x0btypeOptionsB\r\n\x0bone_of_nameB\r\n\x0bone\
-    _of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one\
-    _of_visibilityB\x0e\n\x0cone_of_widthB\x15\n\x13one_of_type_options\"8\n\
-    \x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\
-    \x05value\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\n\x07RowMeta\x12\x0e\
-    \n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08block_id\x18\x02\x20\x01\
-    (\tR\x07blockId\x12D\n\x10cell_by_field_id\x18\x03\x20\x03(\x0b2\x1b.Row\
-    Meta.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x04\x20\
-    \x01(\x05R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\nvisibi\
-    lity\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\
-    \x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\
-    \x028\x01\"\xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\
-    \x20\x01(\tR\x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06he\
-    ight\x12\x20\n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\
-    \x10cell_by_field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByField\
-    IdEntryR\rcellByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\
+    \xa8\x03\n\x15FieldChangesetPayload\x12\x19\n\x08field_id\x18\x01\x20\
+    \x01(\tR\x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\
+    \x12\x14\n\x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\
+    \x04\x20\x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n\
+    .FieldTypeH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\
+    \x03R\x06frozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibi\
+    lity\x12\x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\x12*\n\x10ty\
+    pe_option_data\x18\t\x20\x01(\x0cH\x06R\x0etypeOptionDataB\r\n\x0bone_of\
+    _nameB\r\n\x0bone_of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_fro\
+    zenB\x13\n\x11one_of_visibilityB\x0e\n\x0cone_of_widthB\x19\n\x17one_of_\
+    type_option_data\"8\n\x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\x01(\t\
+    R\x06typeId\x12\x14\n\x05value\x18\x02\x20\x01(\x0cR\x05value\"\xff\x01\
+    \n\x07RowMeta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\n\x08blo\
+    ck_id\x18\x02\x20\x01(\tR\x07blockId\x12D\n\x10cell_by_field_id\x18\x03\
+    \x20\x03(\x0b2\x1b.RowMeta.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\
+    \x06height\x18\x04\x20\x01(\x05R\x06height\x12\x1e\n\nvisibility\x18\x05\
+    \x20\x01(\x08R\nvisibility\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\
     \x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.C\
-    ellMetaR\x05value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visib\
-    ility\"9\n\x08CellMeta\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fiel\
-    dId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\x83\x01\n\x11CellMet\
-    aChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\
-    \x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\
-    \x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04data\
-    B\r\n\x0bone_of_data\"\xad\x01\n\x10BuildGridContext\x12+\n\x0bfield_met\
-    as\x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\x0bblock_metas\
-    \x18\x02\x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12;\n\x0fblock_me\
-    ta_data\x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSerdeR\rblockMetaData*d\n\
-    \tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\
-    \x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\
-    \x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    ellMetaR\x05value:\x028\x01\"\xa7\x02\n\x10RowMetaChangeset\x12\x15\n\
+    \x06row_id\x18\x01\x20\x01(\tR\x05rowId\x12\x18\n\x06height\x18\x02\x20\
+    \x01(\x05H\0R\x06height\x12\x20\n\nvisibility\x18\x03\x20\x01(\x08H\x01R\
+    \nvisibility\x12M\n\x10cell_by_field_id\x18\x04\x20\x03(\x0b2$.RowMetaCh\
+    angeset.CellByFieldIdEntryR\rcellByFieldId\x1aK\n\x12CellByFieldIdEntry\
+    \x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\
+    \x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01B\x0f\n\rone_of_heightB\x13\
+    \n\x11one_of_visibility\"9\n\x08CellMeta\x12\x19\n\x08field_id\x18\x01\
+    \x20\x01(\tR\x07fieldId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"\
+    \x83\x01\n\x11CellMetaChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
+    \x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\
+    \x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\
+    \x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data\"\xad\x01\n\x10BuildGridCont\
+    ext\x12+\n\x0bfield_metas\x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\
+    \x12/\n\x0bblock_metas\x18\x02\x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMe\
+    tas\x12;\n\x0fblock_meta_data\x18\x03\x20\x01(\x0b2\x13.GridBlockMetaSer\
+    deR\rblockMetaData*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\
+    \x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSele\
+    ct\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\
+    \x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -351,71 +351,71 @@ class FieldMeta extends $pb.GeneratedMessage {
   void clearTypeOptionJson() => clearField(8);
 }
 
-enum FieldChangeset_OneOfName {
+enum FieldChangesetPayload_OneOfName {
   name, 
   notSet
 }
 
-enum FieldChangeset_OneOfDesc {
+enum FieldChangesetPayload_OneOfDesc {
   desc, 
   notSet
 }
 
-enum FieldChangeset_OneOfFieldType {
+enum FieldChangesetPayload_OneOfFieldType {
   fieldType, 
   notSet
 }
 
-enum FieldChangeset_OneOfFrozen {
+enum FieldChangesetPayload_OneOfFrozen {
   frozen, 
   notSet
 }
 
-enum FieldChangeset_OneOfVisibility {
+enum FieldChangesetPayload_OneOfVisibility {
   visibility, 
   notSet
 }
 
-enum FieldChangeset_OneOfWidth {
+enum FieldChangesetPayload_OneOfWidth {
   width, 
   notSet
 }
 
-enum FieldChangeset_OneOfTypeOptions {
-  typeOptions, 
+enum FieldChangesetPayload_OneOfTypeOptionData {
+  typeOptionData, 
   notSet
 }
 
-class FieldChangeset extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, FieldChangeset_OneOfName> _FieldChangeset_OneOfNameByTag = {
-    3 : FieldChangeset_OneOfName.name,
-    0 : FieldChangeset_OneOfName.notSet
+class FieldChangesetPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfName> _FieldChangesetPayload_OneOfNameByTag = {
+    3 : FieldChangesetPayload_OneOfName.name,
+    0 : FieldChangesetPayload_OneOfName.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfDesc> _FieldChangeset_OneOfDescByTag = {
-    4 : FieldChangeset_OneOfDesc.desc,
-    0 : FieldChangeset_OneOfDesc.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfDesc> _FieldChangesetPayload_OneOfDescByTag = {
+    4 : FieldChangesetPayload_OneOfDesc.desc,
+    0 : FieldChangesetPayload_OneOfDesc.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfFieldType> _FieldChangeset_OneOfFieldTypeByTag = {
-    5 : FieldChangeset_OneOfFieldType.fieldType,
-    0 : FieldChangeset_OneOfFieldType.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfFieldType> _FieldChangesetPayload_OneOfFieldTypeByTag = {
+    5 : FieldChangesetPayload_OneOfFieldType.fieldType,
+    0 : FieldChangesetPayload_OneOfFieldType.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfFrozen> _FieldChangeset_OneOfFrozenByTag = {
-    6 : FieldChangeset_OneOfFrozen.frozen,
-    0 : FieldChangeset_OneOfFrozen.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfFrozen> _FieldChangesetPayload_OneOfFrozenByTag = {
+    6 : FieldChangesetPayload_OneOfFrozen.frozen,
+    0 : FieldChangesetPayload_OneOfFrozen.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfVisibility> _FieldChangeset_OneOfVisibilityByTag = {
-    7 : FieldChangeset_OneOfVisibility.visibility,
-    0 : FieldChangeset_OneOfVisibility.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfVisibility> _FieldChangesetPayload_OneOfVisibilityByTag = {
+    7 : FieldChangesetPayload_OneOfVisibility.visibility,
+    0 : FieldChangesetPayload_OneOfVisibility.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfWidth> _FieldChangeset_OneOfWidthByTag = {
-    8 : FieldChangeset_OneOfWidth.width,
-    0 : FieldChangeset_OneOfWidth.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfWidth> _FieldChangesetPayload_OneOfWidthByTag = {
+    8 : FieldChangesetPayload_OneOfWidth.width,
+    0 : FieldChangesetPayload_OneOfWidth.notSet
   };
-  static const $core.Map<$core.int, FieldChangeset_OneOfTypeOptions> _FieldChangeset_OneOfTypeOptionsByTag = {
-    9 : FieldChangeset_OneOfTypeOptions.typeOptions,
-    0 : FieldChangeset_OneOfTypeOptions.notSet
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfTypeOptionData> _FieldChangesetPayload_OneOfTypeOptionDataByTag = {
+    9 : FieldChangesetPayload_OneOfTypeOptionData.typeOptionData,
+    0 : FieldChangesetPayload_OneOfTypeOptionData.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldChangeset', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldChangesetPayload', createEmptyInstance: create)
     ..oo(0, [3])
     ..oo(1, [4])
     ..oo(2, [5])
@@ -431,12 +431,12 @@ class FieldChangeset extends $pb.GeneratedMessage {
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOS(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptions')
+    ..a<$core.List<$core.int>>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  FieldChangeset._() : super();
-  factory FieldChangeset({
+  FieldChangesetPayload._() : super();
+  factory FieldChangesetPayload({
     $core.String? fieldId,
     $core.String? gridId,
     $core.String? name,
@@ -445,7 +445,7 @@ class FieldChangeset extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    $core.String? typeOptions,
+    $core.List<$core.int>? typeOptionData,
   }) {
     final _result = create();
     if (fieldId != null) {
@@ -472,52 +472,52 @@ class FieldChangeset extends $pb.GeneratedMessage {
     if (width != null) {
       _result.width = width;
     }
-    if (typeOptions != null) {
-      _result.typeOptions = typeOptions;
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
     }
     return _result;
   }
-  factory FieldChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory FieldChangesetPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldChangesetPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  FieldChangeset clone() => FieldChangeset()..mergeFromMessage(this);
+  FieldChangesetPayload clone() => FieldChangesetPayload()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  FieldChangeset copyWith(void Function(FieldChangeset) updates) => super.copyWith((message) => updates(message as FieldChangeset)) as FieldChangeset; // ignore: deprecated_member_use
+  FieldChangesetPayload copyWith(void Function(FieldChangesetPayload) updates) => super.copyWith((message) => updates(message as FieldChangesetPayload)) as FieldChangesetPayload; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static FieldChangeset create() => FieldChangeset._();
-  FieldChangeset createEmptyInstance() => create();
-  static $pb.PbList<FieldChangeset> createRepeated() => $pb.PbList<FieldChangeset>();
+  static FieldChangesetPayload create() => FieldChangesetPayload._();
+  FieldChangesetPayload createEmptyInstance() => create();
+  static $pb.PbList<FieldChangesetPayload> createRepeated() => $pb.PbList<FieldChangesetPayload>();
   @$core.pragma('dart2js:noInline')
-  static FieldChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldChangeset>(create);
-  static FieldChangeset? _defaultInstance;
+  static FieldChangesetPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldChangesetPayload>(create);
+  static FieldChangesetPayload? _defaultInstance;
 
-  FieldChangeset_OneOfName whichOneOfName() => _FieldChangeset_OneOfNameByTag[$_whichOneof(0)]!;
+  FieldChangesetPayload_OneOfName whichOneOfName() => _FieldChangesetPayload_OneOfNameByTag[$_whichOneof(0)]!;
   void clearOneOfName() => clearField($_whichOneof(0));
 
-  FieldChangeset_OneOfDesc whichOneOfDesc() => _FieldChangeset_OneOfDescByTag[$_whichOneof(1)]!;
+  FieldChangesetPayload_OneOfDesc whichOneOfDesc() => _FieldChangesetPayload_OneOfDescByTag[$_whichOneof(1)]!;
   void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  FieldChangeset_OneOfFieldType whichOneOfFieldType() => _FieldChangeset_OneOfFieldTypeByTag[$_whichOneof(2)]!;
+  FieldChangesetPayload_OneOfFieldType whichOneOfFieldType() => _FieldChangesetPayload_OneOfFieldTypeByTag[$_whichOneof(2)]!;
   void clearOneOfFieldType() => clearField($_whichOneof(2));
 
-  FieldChangeset_OneOfFrozen whichOneOfFrozen() => _FieldChangeset_OneOfFrozenByTag[$_whichOneof(3)]!;
+  FieldChangesetPayload_OneOfFrozen whichOneOfFrozen() => _FieldChangesetPayload_OneOfFrozenByTag[$_whichOneof(3)]!;
   void clearOneOfFrozen() => clearField($_whichOneof(3));
 
-  FieldChangeset_OneOfVisibility whichOneOfVisibility() => _FieldChangeset_OneOfVisibilityByTag[$_whichOneof(4)]!;
+  FieldChangesetPayload_OneOfVisibility whichOneOfVisibility() => _FieldChangesetPayload_OneOfVisibilityByTag[$_whichOneof(4)]!;
   void clearOneOfVisibility() => clearField($_whichOneof(4));
 
-  FieldChangeset_OneOfWidth whichOneOfWidth() => _FieldChangeset_OneOfWidthByTag[$_whichOneof(5)]!;
+  FieldChangesetPayload_OneOfWidth whichOneOfWidth() => _FieldChangesetPayload_OneOfWidthByTag[$_whichOneof(5)]!;
   void clearOneOfWidth() => clearField($_whichOneof(5));
 
-  FieldChangeset_OneOfTypeOptions whichOneOfTypeOptions() => _FieldChangeset_OneOfTypeOptionsByTag[$_whichOneof(6)]!;
-  void clearOneOfTypeOptions() => clearField($_whichOneof(6));
+  FieldChangesetPayload_OneOfTypeOptionData whichOneOfTypeOptionData() => _FieldChangesetPayload_OneOfTypeOptionDataByTag[$_whichOneof(6)]!;
+  void clearOneOfTypeOptionData() => clearField($_whichOneof(6));
 
   @$pb.TagNumber(1)
   $core.String get fieldId => $_getSZ(0);
@@ -592,13 +592,13 @@ class FieldChangeset extends $pb.GeneratedMessage {
   void clearWidth() => clearField(8);
 
   @$pb.TagNumber(9)
-  $core.String get typeOptions => $_getSZ(8);
+  $core.List<$core.int> get typeOptionData => $_getN(8);
   @$pb.TagNumber(9)
-  set typeOptions($core.String v) { $_setString(8, v); }
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(8, v); }
   @$pb.TagNumber(9)
-  $core.bool hasTypeOptions() => $_has(8);
+  $core.bool hasTypeOptionData() => $_has(8);
   @$pb.TagNumber(9)
-  void clearTypeOptions() => clearField(9);
+  void clearTypeOptionData() => clearField(9);
 }
 
 class AnyData extends $pb.GeneratedMessage {

@@ -86,6 +86,23 @@ class GridEventCreateField {
     }
 }
 
+class GridEventDeleteField {
+     FieldOrder request;
+     GridEventDeleteField(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.DeleteField.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventCreateEditFieldContext {
      CreateEditFieldContextParams request;
      GridEventCreateEditFieldContext(this.request);

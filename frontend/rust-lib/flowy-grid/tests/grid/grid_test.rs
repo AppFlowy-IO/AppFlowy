@@ -64,7 +64,7 @@ async fn grid_update_field_with_empty_change() {
         frozen: None,
         visibility: None,
         width: None,
-        type_options: None,
+        type_option_data: None,
     };
 
     let scripts = vec![
@@ -95,7 +95,7 @@ async fn grid_update_field() {
         frozen: Some(true),
         visibility: None,
         width: Some(1000),
-        type_options: Some(single_select_type_options.clone().into()),
+        type_option_data: Some(single_select_type_options.clone().into()),
     };
 
     cloned_field.frozen = true;

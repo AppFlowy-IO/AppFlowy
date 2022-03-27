@@ -24,7 +24,7 @@ message FieldMeta {
     int32 width = 7;
     string type_option_json = 8;
 }
-message FieldChangeset {
+message FieldChangesetPayload {
     string field_id = 1;
     string grid_id = 2;
     oneof one_of_name { string name = 3; };
@@ -33,7 +33,7 @@ message FieldChangeset {
     oneof one_of_frozen { bool frozen = 6; };
     oneof one_of_visibility { bool visibility = 7; };
     oneof one_of_width { int32 width = 8; };
-    oneof one_of_type_options { string type_options = 9; };
+    oneof one_of_type_option_data { bytes type_option_data = 9; };
 }
 message AnyData {
     string type_id = 1;
