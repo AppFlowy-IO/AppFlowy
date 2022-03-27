@@ -56,6 +56,37 @@ impl std::convert::From<FieldMeta> for Field {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldIdentifierPayload {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub grid_id: String,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldIdentifierParams {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub grid_id: String,
+}
+
+impl TryInto<FieldIdentifierParams> for FieldIdentifierPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<FieldIdentifierParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(FieldIdentifierParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
     pub field_id: String,

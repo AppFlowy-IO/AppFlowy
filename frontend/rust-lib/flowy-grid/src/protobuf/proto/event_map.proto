@@ -7,7 +7,8 @@ enum GridEvent {
     UpdateField = 11;
     CreateField = 12;
     DeleteField = 13;
-    CreateEditFieldContext = 14;
+    DuplicateField = 15;
+    CreateEditFieldContext = 16;
     CreateRow = 21;
     GetRow = 22;
     UpdateCell = 30;

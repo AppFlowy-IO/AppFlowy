@@ -110,6 +110,12 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
+        let _ = self.modify(|grid| Ok(grid.duplicate_field(field_id)?)).await?;
+        let _ = self.notify_did_update_fields().await?;
+        Ok(())
+    }
+
     pub async fn create_block(&self, grid_block: GridBlockMeta) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.create_block(grid_block)?)).await?;
         Ok(())
@@ -254,8 +260,9 @@ impl ClientGridEditor {
     }
 
     pub async fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<FieldMeta>> {
-        let field_meta = self.pad.read().await.get_field_metas(field_orders)?;
-        Ok(field_meta)
+        let mut field_metas = self.pad.read().await.get_field_metas(field_orders)?;
+        field_metas.retain(|field_meta| field_meta.visibility);
+        Ok(field_metas)
     }
 
     pub async fn get_block_meta_data_vec(

@@ -62,6 +62,7 @@ class CreateFieldBloc extends Bloc<CreateFieldEvent, CreateFieldState> {
         emit(state.copyWith(
           field: Some(editContext.gridField),
           typeOptionData: editContext.typeOptionData,
+          fieldName: editContext.gridField.name,
         ));
       },
       (err) => Log.error(err),

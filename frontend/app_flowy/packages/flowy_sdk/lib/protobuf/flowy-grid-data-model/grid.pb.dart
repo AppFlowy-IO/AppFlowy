@@ -205,6 +205,128 @@ class Field extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 }
 
+class FieldIdentifierPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldIdentifierPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..hasRequiredFields = false
+  ;
+
+  FieldIdentifierPayload._() : super();
+  factory FieldIdentifierPayload({
+    $core.String? fieldId,
+    $core.String? gridId,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    return _result;
+  }
+  factory FieldIdentifierPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldIdentifierPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldIdentifierPayload clone() => FieldIdentifierPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldIdentifierPayload copyWith(void Function(FieldIdentifierPayload) updates) => super.copyWith((message) => updates(message as FieldIdentifierPayload)) as FieldIdentifierPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldIdentifierPayload create() => FieldIdentifierPayload._();
+  FieldIdentifierPayload createEmptyInstance() => create();
+  static $pb.PbList<FieldIdentifierPayload> createRepeated() => $pb.PbList<FieldIdentifierPayload>();
+  @$core.pragma('dart2js:noInline')
+  static FieldIdentifierPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldIdentifierPayload>(create);
+  static FieldIdentifierPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get gridId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set gridId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGridId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGridId() => clearField(2);
+}
+
+class FieldIdentifierParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldIdentifierParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..hasRequiredFields = false
+  ;
+
+  FieldIdentifierParams._() : super();
+  factory FieldIdentifierParams({
+    $core.String? fieldId,
+    $core.String? gridId,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    return _result;
+  }
+  factory FieldIdentifierParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldIdentifierParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldIdentifierParams clone() => FieldIdentifierParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldIdentifierParams copyWith(void Function(FieldIdentifierParams) updates) => super.copyWith((message) => updates(message as FieldIdentifierParams)) as FieldIdentifierParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldIdentifierParams create() => FieldIdentifierParams._();
+  FieldIdentifierParams createEmptyInstance() => create();
+  static $pb.PbList<FieldIdentifierParams> createRepeated() => $pb.PbList<FieldIdentifierParams>();
+  @$core.pragma('dart2js:noInline')
+  static FieldIdentifierParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldIdentifierParams>(create);
+  static FieldIdentifierParams? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get gridId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set gridId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGridId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGridId() => clearField(2);
+}
+
 class FieldOrder extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldOrder', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')

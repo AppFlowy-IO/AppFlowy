@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,9 +19,27 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
           updateFieldName: (_UpdateFieldName value) {
             //
           },
-          hideField: (_HideField value) {},
-          deleteField: (_DeleteField value) {},
-          duplicateField: (_DuplicateField value) {},
+          hideField: (_HideField value) async {
+            final result = await service.updateField(fieldId: value.fieldId, visibility: false);
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          },
+          deleteField: (_DeleteField value) async {
+            final result = await service.deleteField(fieldId: value.fieldId);
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          },
+          duplicateField: (_DuplicateField value) async {
+            final result = await service.duplicateField(fieldId: value.fieldId);
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          },
           saveField: (_SaveField value) {},
         );
       },
@@ -37,9 +56,9 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
 class EditFieldEvent with _$EditFieldEvent {
   const factory EditFieldEvent.initial() = _InitialField;
   const factory EditFieldEvent.updateFieldName(String name) = _UpdateFieldName;
-  const factory EditFieldEvent.hideField() = _HideField;
-  const factory EditFieldEvent.duplicateField() = _DuplicateField;
-  const factory EditFieldEvent.deleteField() = _DeleteField;
+  const factory EditFieldEvent.hideField(String fieldId) = _HideField;
+  const factory EditFieldEvent.duplicateField(String fieldId) = _DuplicateField;
+  const factory EditFieldEvent.deleteField(String fieldId) = _DeleteField;
   const factory EditFieldEvent.saveField() = _SaveField;
 }
 

@@ -53,7 +53,7 @@ class GridEventGetFields {
 }
 
 class GridEventUpdateField {
-     FieldChangeset request;
+     FieldChangesetPayload request;
      GridEventUpdateField(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -87,12 +87,29 @@ class GridEventCreateField {
 }
 
 class GridEventDeleteField {
-     FieldOrder request;
+     FieldIdentifierPayload request;
      GridEventDeleteField(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = GridEvent.DeleteField.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventDuplicateField {
+     FieldIdentifierPayload request;
+     GridEventDuplicateField(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.DuplicateField.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

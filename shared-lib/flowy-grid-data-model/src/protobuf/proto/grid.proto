@@ -15,6 +15,14 @@ message Field {
     bool visibility = 6;
     int32 width = 7;
 }
+message FieldIdentifierPayload {
+    string field_id = 1;
+    string grid_id = 2;
+}
+message FieldIdentifierParams {
+    string field_id = 1;
+    string grid_id = 2;
+}
 message FieldOrder {
     string field_id = 1;
 }

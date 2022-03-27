@@ -40,10 +40,9 @@ class FlowyButton extends StatelessWidget {
       children.add(const HSpace(6));
     }
 
-    children.add(text);
+    children.add(Expanded(child: text));
 
     if (rightIcon != null) {
-      children.add(const Spacer());
       children.add(SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
       children.add(const HSpace(6));
     }

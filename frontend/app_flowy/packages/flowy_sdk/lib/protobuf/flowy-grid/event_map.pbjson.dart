@@ -18,7 +18,8 @@ const GridEvent$json = const {
     const {'1': 'UpdateField', '2': 11},
     const {'1': 'CreateField', '2': 12},
     const {'1': 'DeleteField', '2': 13},
-    const {'1': 'CreateEditFieldContext', '2': 14},
+    const {'1': 'DuplicateField', '2': 15},
+    const {'1': 'CreateEditFieldContext', '2': 16},
     const {'1': 'CreateRow', '2': 21},
     const {'1': 'GetRow', '2': 22},
     const {'1': 'UpdateCell', '2': 30},
@@ -26,4 +27,4 @@ const GridEvent$json = const {
 };
 
 /// Descriptor for `GridEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIPCgtDcmVhdGVGaWVsZBAMEg8KC0RlbGV0ZUZpZWxkEA0SGgoWQ3JlYXRlRWRpdEZpZWxkQ29udGV4dBAOEg0KCUNyZWF0ZVJvdxAVEgoKBkdldFJvdxAWEg4KClVwZGF0ZUNlbGwQHg==');
+final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIPCgtDcmVhdGVGaWVsZBAMEg8KC0RlbGV0ZUZpZWxkEA0SEgoORHVwbGljYXRlRmllbGQQDxIaChZDcmVhdGVFZGl0RmllbGRDb250ZXh0EBASDQoJQ3JlYXRlUm93EBUSCgoGR2V0Um93EBYSDgoKVXBkYXRlQ2VsbBAe');

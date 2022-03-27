@@ -21,7 +21,7 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> updateField({
-    required Field field,
+    required String fieldId,
     String? name,
     FieldType? fieldType,
     bool? frozen,
@@ -29,7 +29,9 @@ class FieldService {
     double? width,
     List<int>? typeOptionData,
   }) {
-    var payload = FieldChangesetPayload.create()..gridId = gridId;
+    var payload = FieldChangesetPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId;
 
     if (name != null) {
       payload.name = name;
@@ -73,6 +75,26 @@ class FieldService {
     }
 
     return GridEventCreateField(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> deleteField({
+    required String fieldId,
+  }) {
+    final payload = FieldIdentifierPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId;
+
+    return GridEventDeleteField(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> duplicateField({
+    required String fieldId,
+  }) {
+    final payload = FieldIdentifierPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId;
+
+    return GridEventDuplicateField(payload).send();
   }
 }
 

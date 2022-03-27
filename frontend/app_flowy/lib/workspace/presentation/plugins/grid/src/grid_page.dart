@@ -13,7 +13,7 @@ import 'layout/layout.dart';
 import 'layout/sizes.dart';
 import 'widgets/content/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
-import 'widgets/header/header.dart';
+import 'widgets/header/grid_header.dart';
 
 class GridPage extends StatefulWidget {
   final View view;

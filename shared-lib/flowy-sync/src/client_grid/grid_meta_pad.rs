@@ -72,42 +72,17 @@ impl GridMetaPad {
         })
     }
 
-    pub fn contain_field(&self, field_id: &str) -> bool {
-        self.grid_meta.fields.iter().any(|field| field.id == field_id)
-    }
-
-    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
-        self.grid_meta.fields.iter().find(|field| field.id == field_id)
-    }
-
-    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
-        self.grid_meta.fields.iter().map(FieldOrder::from).collect()
-    }
-
-    pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
-        match field_orders {
-            None => Ok(self.grid_meta.fields.clone()),
-            Some(field_orders) => {
-                let field_by_field_id = self
-                    .grid_meta
-                    .fields
-                    .iter()
-                    .map(|field| (&field.id, field))
-                    .collect::<HashMap<&String, &FieldMeta>>();
-
-                let fields = field_orders
-                    .iter()
-                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
-                        None => {
-                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
-                            None
-                        }
-                        Some(field) => Some((*field).clone()),
-                    })
-                    .collect::<Vec<FieldMeta>>();
-                Ok(fields)
+    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
+            None => Ok(None),
+            Some(index) => {
+                let mut duplicate_field_meta = grid.fields[index].clone();
+                duplicate_field_meta.id = uuid();
+                duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
+                grid.fields.insert(index + 1, duplicate_field_meta);
+                Ok(Some(()))
             }
-        }
+        })
     }
 
     pub fn update_field(&mut self, changeset: FieldChangesetParams) -> CollaborateResult<Option<GridChangeset>> {
@@ -158,6 +133,44 @@ impl GridMetaPad {
 
             Ok(is_changed)
         })
+    }
+
+    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
+        self.grid_meta.fields.iter().find(|field| field.id == field_id)
+    }
+
+    pub fn contain_field(&self, field_id: &str) -> bool {
+        self.grid_meta.fields.iter().any(|field| field.id == field_id)
+    }
+
+    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
+        self.grid_meta.fields.iter().map(FieldOrder::from).collect()
+    }
+
+    pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
+        match field_orders {
+            None => Ok(self.grid_meta.fields.clone()),
+            Some(field_orders) => {
+                let field_by_field_id = self
+                    .grid_meta
+                    .fields
+                    .iter()
+                    .map(|field| (&field.id, field))
+                    .collect::<HashMap<&String, &FieldMeta>>();
+
+                let fields = field_orders
+                    .iter()
+                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                        None => {
+                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
+                            None
+                        }
+                        Some(field) => Some((*field).clone()),
+                    })
+                    .collect::<Vec<FieldMeta>>();
+                Ok(fields)
+            }
+        }
     }
 
     pub fn create_block(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {

@@ -9,17 +9,11 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FieldOperationList extends StatelessWidget {
-  final VoidCallback onDismiss;
-  const FieldOperationList({required this.onDismiss, Key? key}) : super(key: key);
+  final List<FieldActionItem> actions;
+  const FieldOperationList({required this.actions, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final children = FieldAction.values
-        .map((action) => FieldActionItem(
-              action: action,
-              onTap: onDismiss,
-            ))
-        .toList();
     return GridView(
       // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
       shrinkWrap: true,
@@ -28,15 +22,22 @@ class FieldOperationList extends StatelessWidget {
         childAspectRatio: 4.0,
         mainAxisSpacing: 8,
       ),
-      children: children,
+      children: actions,
     );
   }
 }
 
 class FieldActionItem extends StatelessWidget {
+  final String fieldId;
   final VoidCallback onTap;
   final FieldAction action;
-  const FieldActionItem({required this.action, required this.onTap, Key? key}) : super(key: key);
+
+  const FieldActionItem({
+    required this.fieldId,
+    required this.action,
+    required this.onTap,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,7 @@ class FieldActionItem extends StatelessWidget {
       text: FlowyText.medium(action.title(), fontSize: 12),
       hoverColor: theme.hover,
       onTap: () {
-        action.run(context);
+        action.run(context, fieldId);
         onTap();
       },
       leftIcon: svg(action.iconName(), color: theme.iconColor),
@@ -82,16 +83,16 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context) {
+  void run(BuildContext context, String fieldId) {
     switch (this) {
       case FieldAction.hide:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.hideField());
+        context.read<EditFieldBloc>().add(EditFieldEvent.hideField(fieldId));
         break;
       case FieldAction.duplicate:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.duplicateField());
+        context.read<EditFieldBloc>().add(EditFieldEvent.duplicateField(fieldId));
         break;
       case FieldAction.delete:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.deleteField());
+        context.read<EditFieldBloc>().add(EditFieldEvent.deleteField(fieldId));
         break;
     }
   }

@@ -13,7 +13,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::CreateField, create_field_handler)
-        .event(GridEvent::DeleteField, create_field_handler)
+        .event(GridEvent::DeleteField, delete_field_handler)
+        .event(GridEvent::DuplicateField, duplicate_field_handler)
         .event(GridEvent::CreateEditFieldContext, create_edit_field_context_handler)
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
@@ -34,17 +35,20 @@ pub enum GridEvent {
     #[event(input = "QueryFieldPayload", output = "RepeatedField")]
     GetFields = 10,
 
-    #[event(input = "FieldChangeset")]
+    #[event(input = "FieldChangesetPayload")]
     UpdateField = 11,
 
     #[event(input = "CreateFieldPayload")]
     CreateField = 12,
 
-    #[event(input = "FieldOrder")]
+    #[event(input = "FieldIdentifierPayload")]
     DeleteField = 13,
 
+    #[event(input = "FieldIdentifierPayload")]
+    DuplicateField = 15,
+
     #[event(input = "CreateEditFieldContextParams", output = "EditFieldContext")]
-    CreateEditFieldContext = 14,
+    CreateEditFieldContext = 16,
 
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 21,

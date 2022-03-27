@@ -68,12 +68,23 @@ pub(crate) async fn create_field_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
-    data: Data<FieldOrder>,
+    data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let field_order: FieldOrder = data.into_inner();
+    let params: FieldIdentifierParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.delete_field(&field_order.field_id).await?;
+    let _ = editor.delete_field(&params.field_id).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn duplicate_field_handler(
+    data: Data<FieldIdentifierPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: FieldIdentifierParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
 }
 

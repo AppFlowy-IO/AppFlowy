@@ -36,6 +36,28 @@ const Field$json = const {
 
 /// Descriptor for `Field`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldDescriptor = $convert.base64Decode('CgVGaWVsZBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEikKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZRIWCgZmcm96ZW4YBSABKAhSBmZyb3plbhIeCgp2aXNpYmlsaXR5GAYgASgIUgp2aXNpYmlsaXR5EhQKBXdpZHRoGAcgASgFUgV3aWR0aA==');
+@$core.Deprecated('Use fieldIdentifierPayloadDescriptor instead')
+const FieldIdentifierPayload$json = const {
+  '1': 'FieldIdentifierPayload',
+  '2': const [
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+  ],
+};
+
+/// Descriptor for `FieldIdentifierPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldIdentifierPayloadDescriptor = $convert.base64Decode('ChZGaWVsZElkZW50aWZpZXJQYXlsb2FkEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhcKB2dyaWRfaWQYAiABKAlSBmdyaWRJZA==');
+@$core.Deprecated('Use fieldIdentifierParamsDescriptor instead')
+const FieldIdentifierParams$json = const {
+  '1': 'FieldIdentifierParams',
+  '2': const [
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+  ],
+};
+
+/// Descriptor for `FieldIdentifierParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldIdentifierParamsDescriptor = $convert.base64Decode('ChVGaWVsZElkZW50aWZpZXJQYXJhbXMSGQoIZmllbGRfaWQYASABKAlSB2ZpZWxkSWQSFwoHZ3JpZF9pZBgCIAEoCVIGZ3JpZElk');
 @$core.Deprecated('Use fieldOrderDescriptor instead')
 const FieldOrder$json = const {
   '1': 'FieldOrder',
