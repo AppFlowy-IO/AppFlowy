@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_bloc.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_tyep_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -15,24 +16,24 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class NumberTypeOptionBuilder extends TypeOptionBuilder {
   NumberTypeOption typeOption;
-  TypeOptionDataCallback typeOptionDataCallback;
+  TypeOptionOperationDelegate delegate;
 
   NumberTypeOptionBuilder(
     TypeOptionData typeOptionData,
-    this.typeOptionDataCallback,
+    this.delegate,
   ) : typeOption = NumberTypeOption.fromBuffer(typeOptionData);
 
   @override
   Widget? get customWidget => NumberTypeOptionWidget(
         typeOption: typeOption,
-        updateCallback: typeOptionDataCallback,
+        operationDelegate: delegate,
       );
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {
-  final TypeOptionDataCallback updateCallback;
+  final TypeOptionOperationDelegate operationDelegate;
   final NumberTypeOption typeOption;
-  const NumberTypeOptionWidget({required this.typeOption, required this.updateCallback, Key? key}) : super(key: key);
+  const NumberTypeOptionWidget({required this.typeOption, required this.operationDelegate, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +41,19 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
     return BlocProvider(
       create: (context) => getIt<NumberTypeOptionBloc>(param1: typeOption),
       child: SizedBox(
-        height: 36,
+        height: GridSize.typeOptionItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-          listener: (context, state) => updateCallback(state.typeOption.writeToBuffer()),
+          listener: (context, state) => operationDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
           builder: (context, state) {
             return FlowyButton(
               text: FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(), fontSize: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: GridSize.typeOptionContentInsets,
               hoverColor: theme.hover,
               onTap: () {
-                NumberFormatList.show(context, (format) {
+                final list = NumberFormatList(onSelected: (format) {
                   context.read<NumberTypeOptionBloc>().add(NumberTypeOptionEvent.didSelectFormat(format));
                 });
+                operationDelegate.requireToShowOverlay(context, list.identifier(), list);
               },
               rightIcon: svg("grid/more", color: theme.iconColor),
             );
@@ -68,21 +70,6 @@ class NumberFormatList extends StatelessWidget {
   final _SelectNumberFormatCallback onSelected;
   const NumberFormatList({required this.onSelected, Key? key}) : super(key: key);
 
-  static void show(BuildContext context, _SelectNumberFormatCallback onSelected) {
-    final list = NumberFormatList(onSelected: onSelected);
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: list,
-        constraints: BoxConstraints.loose(const Size(140, 300)),
-      ),
-      identifier: list.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(-20, 0),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final formatItems = NumberFormat.values.map((format) {
@@ -94,16 +81,19 @@ class NumberFormatList extends StatelessWidget {
           });
     }).toList();
 
-    return ListView.separated(
-      shrinkWrap: true,
-      controller: ScrollController(),
-      separatorBuilder: (context, index) {
-        return const VSpace(10);
-      },
-      itemCount: formatItems.length,
-      itemBuilder: (BuildContext context, int index) {
-        return formatItems[index];
-      },
+    return SizedBox(
+      width: 120,
+      child: ListView.separated(
+        shrinkWrap: true,
+        controller: ScrollController(),
+        separatorBuilder: (context, index) {
+          return VSpace(GridSize.typeOptionSeparatorHeight);
+        },
+        itemCount: formatItems.length,
+        itemBuilder: (BuildContext context, int index) {
+          return formatItems[index];
+        },
+      ),
     );
   }
 

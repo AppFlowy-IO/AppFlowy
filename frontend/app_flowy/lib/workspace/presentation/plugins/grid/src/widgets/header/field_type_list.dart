@@ -19,17 +19,22 @@ class FieldTypeList extends StatelessWidget {
 
   static void show(BuildContext context, SelectFieldCallback onSelectField) {
     final list = FieldTypeList(onSelectField: onSelectField);
+    FieldTypeList.hide(context);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: list,
         constraints: BoxConstraints.loose(const Size(140, 300)),
       ),
-      identifier: list.identifier(),
+      identifier: FieldTypeList.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.leftWithCenterAligned,
       style: FlowyOverlayStyle(blur: false),
       anchorOffset: const Offset(-20, 0),
     );
+  }
+
+  static void hide(BuildContext context) {
+    FlowyOverlay.of(context).remove(FieldTypeList.identifier());
   }
 
   @override
@@ -39,7 +44,7 @@ class FieldTypeList extends StatelessWidget {
         fieldType: fieldType,
         onSelectField: (fieldType) {
           onSelectField(fieldType);
-          FlowyOverlay.of(context).remove(identifier());
+          FlowyOverlay.of(context).remove(FieldTypeList.identifier());
         },
       );
     }).toList();
@@ -58,8 +63,8 @@ class FieldTypeList extends StatelessWidget {
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (FieldTypeList).toString();
   }
 }
 

@@ -18,6 +18,7 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
@@ -210,16 +211,16 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<SwitchFieldTypeBloc, SwitchFieldContext, void>(
-    (context, _) => SwitchFieldTypeBloc(context),
+  getIt.registerFactoryParam<FieldTypeSwitchBloc, SwitchFieldContext, void>(
+    (context, _) => FieldTypeSwitchBloc(context),
   );
 
   getIt.registerFactory<SelectionTypeOptionBloc>(
     () => SelectionTypeOptionBloc(),
   );
 
-  getIt.registerFactory<DateTypeOptionBloc>(
-    () => DateTypeOptionBloc(),
+  getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(
+    (typeOption, _) => DateTypeOptionBloc(typeOption: typeOption),
   );
 
   getIt.registerFactoryParam<NumberTypeOptionBloc, NumberTypeOption, void>(

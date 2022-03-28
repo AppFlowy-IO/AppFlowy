@@ -155,7 +155,15 @@
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
-      "numberFormat": " Number format"
+      "numberFormat": " Number format",
+      "dateFormat": " Date format",
+      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Month/Day",
+      "dateFormatUS": "Month/Month/Day",
+      "timeFormat": " Time format",
+      "timeFormatTwelveHour": "12 hour",
+      "timeFormatTwentyFourHour": "24 hour"
     }
   }
 }

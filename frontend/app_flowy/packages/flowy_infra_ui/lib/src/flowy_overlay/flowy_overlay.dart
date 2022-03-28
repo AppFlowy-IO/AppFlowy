@@ -182,7 +182,9 @@ class FlowyOverlayState extends State<FlowyOverlay> {
   void remove(String identifier) {
     setState(() {
       final index = _overlayList.indexWhere((ele) => ele.value2 == identifier);
-      _overlayList.removeAt(index).value3?.didRemove();
+      if (index != -1) {
+        _overlayList.removeAt(index).value3?.didRemove();
+      }
     });
   }
 

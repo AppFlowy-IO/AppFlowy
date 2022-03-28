@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/application/grid/field/switch_field_type_blo
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_name_input.dart';
@@ -61,7 +60,6 @@ class _CreateFieldPannelWidget extends StatelessWidget {
                 const _FieldNameTextField(),
                 const VSpace(10),
                 _FieldTypeSwitcher(SwitchFieldContext(state.gridId, field, state.typeOptionData)),
-                const VSpace(10),
               ],
             ),
           );

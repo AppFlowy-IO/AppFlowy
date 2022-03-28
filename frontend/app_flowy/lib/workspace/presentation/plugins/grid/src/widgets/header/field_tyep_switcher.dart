@@ -1,26 +1,29 @@
 import 'dart:typed_data';
 
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/selection.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
 
 import 'type_option/number.dart';
 
 typedef SelectFieldCallback = void Function(Field, Uint8List);
 
-class FieldTypeSwitcher extends StatelessWidget {
+class FieldTypeSwitcher extends StatefulWidget {
   final SwitchFieldContext switchContext;
   final SelectFieldCallback onSelected;
 
@@ -31,24 +34,26 @@ class FieldTypeSwitcher extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<FieldTypeSwitcher> createState() => _FieldTypeSwitcherState();
+}
+
+class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
+  String? currentOverlayIdentifier;
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SwitchFieldTypeBloc>(param1: switchContext),
-      child: BlocBuilder<SwitchFieldTypeBloc, SwitchFieldTypeState>(
+      create: (context) => getIt<FieldTypeSwitchBloc>(param1: widget.switchContext),
+      child: BlocBuilder<FieldTypeSwitchBloc, FieldTypeSwitchState>(
         builder: (context, state) {
-          List<Widget> children = [
-            _switchFieldTypeButton(context, state.field),
-          ];
+          List<Widget> children = [_switchFieldTypeButton(context, state.field)];
 
-          final builder = _makeTypeOptionBuild(
+          final typeOptionWidget = _typeOptionWidget(
+            context: context,
             fieldType: state.field.fieldType,
-            typeOptionData: state.typeOptionData,
-            typeOptionDataCallback: (newTypeOptionData) {
-              context.read<SwitchFieldTypeBloc>().add(SwitchFieldTypeEvent.didUpdateTypeOptionData(newTypeOptionData));
-            },
+            data: state.typeOptionData,
           );
 
-          final typeOptionWidget = builder.customWidget;
           if (typeOptionWidget != null) {
             children.add(typeOptionWidget);
           }
@@ -65,17 +70,54 @@ class FieldTypeSwitcher extends StatelessWidget {
   Widget _switchFieldTypeButton(BuildContext context, Field field) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
-      height: 36,
+      height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         hoverColor: theme.hover,
-        onTap: () => FieldTypeList.show(context, (fieldType) {
-          context.read<SwitchFieldTypeBloc>().add(SwitchFieldTypeEvent.toFieldType(fieldType));
-        }),
+        onTap: () {
+          final list = FieldTypeList(onSelectField: (fieldType) {
+            context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.toFieldType(fieldType));
+          });
+          _showOverlay(context, FieldTypeList.identifier(), list);
+        },
         leftIcon: svg(field.fieldType.iconName(), color: theme.iconColor),
         rightIcon: svg("grid/more", color: theme.iconColor),
       ),
+    );
+  }
+
+  Widget? _typeOptionWidget({
+    required BuildContext context,
+    required FieldType fieldType,
+    required TypeOptionData data,
+  }) {
+    final delegate = TypeOptionOperationDelegate(
+      didUpdateTypeOptionData: (data) {
+        context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.didUpdateTypeOptionData(data));
+      },
+      requireToShowOverlay: _showOverlay,
+    );
+    final builder = _makeTypeOptionBuild(fieldType: fieldType, data: data, delegate: delegate);
+    return builder.customWidget;
+  }
+
+  void _showOverlay(BuildContext context, String identifier, Widget child) {
+    if (currentOverlayIdentifier != null) {
+      FlowyOverlay.of(context).remove(currentOverlayIdentifier!);
+    }
+
+    currentOverlayIdentifier = identifier;
+    FlowyOverlay.of(context).insertWithAnchor(
+      widget: OverlayContainer(
+        child: child,
+        constraints: BoxConstraints.loose(const Size(240, 400)),
+      ),
+      identifier: identifier,
+      anchorContext: context,
+      anchorDirection: AnchorDirection.leftWithCenterAligned,
+      style: FlowyOverlayStyle(blur: false),
+      anchorOffset: const Offset(-20, 0),
     );
   }
 }
@@ -84,34 +126,44 @@ abstract class TypeOptionBuilder {
   Widget? get customWidget;
 }
 
+TypeOptionBuilder _makeTypeOptionBuild({
+  required FieldType fieldType,
+  required TypeOptionData data,
+  required TypeOptionOperationDelegate delegate,
+}) {
+  switch (fieldType) {
+    case FieldType.Checkbox:
+      return CheckboxTypeOptionBuilder(data);
+    case FieldType.DateTime:
+      return DateTypeOptionBuilder(data, delegate);
+    case FieldType.MultiSelect:
+      return MultiSelectTypeOptionBuilder(data);
+    case FieldType.Number:
+      return NumberTypeOptionBuilder(data, delegate);
+    case FieldType.RichText:
+      return RichTextTypeOptionBuilder(data);
+    case FieldType.SingleSelect:
+      return SingleSelectTypeOptionBuilder(data);
+    default:
+      throw UnimplementedError;
+  }
+}
+
 abstract class TypeOptionWidget extends StatelessWidget {
   const TypeOptionWidget({Key? key}) : super(key: key);
 }
 
 typedef TypeOptionData = Uint8List;
 typedef TypeOptionDataCallback = void Function(TypeOptionData typeOptionData);
+typedef ShowOverlayCallback = void Function(BuildContext anchorContext, String overlayIdentifier, Widget child);
 
-TypeOptionBuilder _makeTypeOptionBuild({
-  required FieldType fieldType,
-  required TypeOptionData typeOptionData,
-  required TypeOptionDataCallback typeOptionDataCallback,
-}) {
-  switch (fieldType) {
-    case FieldType.Checkbox:
-      return CheckboxTypeOptionBuilder(typeOptionData);
-    case FieldType.DateTime:
-      return DateTypeOptionBuilder(typeOptionData);
-    case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(typeOptionData);
-    case FieldType.Number:
-      return NumberTypeOptionBuilder(typeOptionData, typeOptionDataCallback);
-    case FieldType.RichText:
-      return RichTextTypeOptionBuilder(typeOptionData);
-    case FieldType.SingleSelect:
-      return SingleSelectTypeOptionBuilder(typeOptionData);
-    default:
-      throw UnimplementedError;
-  }
+class TypeOptionOperationDelegate {
+  TypeOptionDataCallback didUpdateTypeOptionData;
+  ShowOverlayCallback requireToShowOverlay;
+  TypeOptionOperationDelegate({
+    required this.didUpdateTypeOptionData,
+    required this.requireToShowOverlay,
+  });
 }
 
 class RichTextTypeOptionBuilder extends TypeOptionBuilder {
@@ -123,27 +175,6 @@ class RichTextTypeOptionBuilder extends TypeOptionBuilder {
   Widget? get customWidget => null;
 }
 
-class DateTypeOptionBuilder extends TypeOptionBuilder {
-  DateTypeOption typeOption;
-
-  DateTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = DateTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => const DateTypeOptionWidget();
-}
-
-class DateTypeOptionWidget extends TypeOptionWidget {
-  const DateTypeOptionWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<DateTypeOptionBloc>(),
-      child: Container(height: 80, color: Colors.red),
-    );
-  }
-}
-
 class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
   CheckboxTypeOption typeOption;
 
@@ -151,48 +182,4 @@ class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
 
   @override
   Widget? get customWidget => null;
-}
-
-class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
-  SingleSelectTypeOption typeOption;
-
-  SingleSelectTypeOptionBuilder(TypeOptionData typeOptionData)
-      : typeOption = SingleSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => const SingleSelectTypeOptionWidget();
-}
-
-class SingleSelectTypeOptionWidget extends TypeOptionWidget {
-  const SingleSelectTypeOptionWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: Container(height: 100, color: Colors.yellow),
-    );
-  }
-}
-
-class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
-  MultiSelectTypeOption typeOption;
-
-  MultiSelectTypeOptionBuilder(TypeOptionData typeOptionData)
-      : typeOption = MultiSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => const MultiSelectTypeOptionWidget();
-}
-
-class MultiSelectTypeOptionWidget extends TypeOptionWidget {
-  const MultiSelectTypeOptionWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: Container(height: 100, color: Colors.blue),
-    );
-  }
 }

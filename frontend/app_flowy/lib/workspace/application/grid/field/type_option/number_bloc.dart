@@ -9,8 +9,7 @@ class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionS
   NumberTypeOptionBloc({required NumberTypeOption typeOption}) : super(NumberTypeOptionState.initial(typeOption)) {
     on<NumberTypeOptionEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialField value) async {},
+        event.map(
           didSelectFormat: (_DidSelectFormat value) {
             state.typeOption.format = value.format;
             emit(state);
@@ -28,7 +27,6 @@ class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionS
 
 @freezed
 class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
-  const factory NumberTypeOptionEvent.initial() = _InitialField;
   const factory NumberTypeOptionEvent.didSelectFormat(NumberFormat format) = _DidSelectFormat;
 }
 
