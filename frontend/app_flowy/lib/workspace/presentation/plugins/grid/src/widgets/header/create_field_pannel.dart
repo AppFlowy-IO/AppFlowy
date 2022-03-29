@@ -20,7 +20,7 @@ class CreateFieldPannel extends FlowyOverlayDelegate {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: _CreateFieldPannelWidget(_createFieldBloc),
-        constraints: BoxConstraints.loose(const Size(220, 400)),
+        constraints: BoxConstraints.loose(const Size(220, 500)),
       ),
       identifier: identifier(),
       anchorContext: context,

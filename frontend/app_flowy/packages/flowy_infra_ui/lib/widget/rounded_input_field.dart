@@ -20,6 +20,8 @@ class RoundedInputField extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
   final double height;
+  final FocusNode? focusNode;
+  final TextEditingController? controller;
 
   const RoundedInputField({
     Key? key,
@@ -39,6 +41,8 @@ class RoundedInputField extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 10),
     this.height = 48,
+    this.focusNode,
+    this.controller,
   }) : super(key: key);
 
   @override
@@ -71,7 +75,9 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
         padding: widget.padding,
         height: widget.height,
         child: TextFormField(
+          controller: widget.controller,
           initialValue: widget.initialValue,
+          focusNode: widget.focusNode,
           onChanged: (value) {
             inputText = value;
             if (widget.onChanged != null) {

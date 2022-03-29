@@ -49,17 +49,20 @@ class FieldTypeList extends StatelessWidget {
       );
     }).toList();
 
-    return ListView.separated(
-      shrinkWrap: true,
-      controller: ScrollController(),
-      itemCount: cells.length,
-      separatorBuilder: (context, index) {
-        return const VSpace(10);
-      },
-      physics: StyledScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        return cells[index];
-      },
+    return SizedBox(
+      width: 140,
+      child: ListView.separated(
+        shrinkWrap: true,
+        controller: ScrollController(),
+        itemCount: cells.length,
+        separatorBuilder: (context, index) {
+          return const VSpace(10);
+        },
+        physics: StyledScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          return cells[index];
+        },
+      ),
     );
   }
 

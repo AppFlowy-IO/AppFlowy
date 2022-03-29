@@ -111,7 +111,7 @@ class NumberFormatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
-      height: 26,
+      height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title(), fontSize: 12),
         hoverColor: theme.hover,

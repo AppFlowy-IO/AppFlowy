@@ -30,47 +30,28 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: BlocBuilder<RowBloc, RowState>(
-        buildWhen: (p, c) => p.rowHeight != c.rowHeight,
-        builder: (context, state) {
-          return SizedBox(
-            height: _rowBloc.state.rowHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: const [
-                _RowLeading(),
-                _RowCells(),
-                _RowTrailing(),
-              ],
-            ),
-          );
-        },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
+        onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
+        child: BlocBuilder<RowBloc, RowState>(
+          buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+          builder: (context, state) {
+            return SizedBox(
+              height: _rowBloc.state.rowHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  _RowLeading(),
+                  _RowCells(),
+                  _RowTrailing(),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
-    // return BlocProvider.value(
-    //   value: _rowBloc,
-    //   child: MouseRegion(
-    //     cursor: SystemMouseCursors.click,
-    //     onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
-    //     onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
-    //     child: BlocBuilder<RowBloc, RowState>(
-    //       buildWhen: (p, c) => p.rowHeight != c.rowHeight,
-    //       builder: (context, state) {
-    //         return SizedBox(
-    //           height: _rowBloc.state.rowHeight,
-    //           child: Row(
-    //             crossAxisAlignment: CrossAxisAlignment.stretch,
-    //             children: const [
-    //               _RowLeading(),
-    //               _RowCells(),
-    //               _RowTrailing(),
-    //             ],
-    //           ),
-    //         );
-    //       },
-    //     ),
-    //   ),
-    // );
   }
 
   @override
