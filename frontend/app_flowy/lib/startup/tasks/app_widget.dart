@@ -39,6 +39,7 @@ class InitAppWidgetTask extends LaunchTask {
               Locale('it', 'IT'),
               Locale('pt', 'BR'),
               Locale('ru', 'RU'),
+              Locale('tr', 'TR'),
               Locale('zh', 'CN'),
             ],
             path: 'assets/translations',
