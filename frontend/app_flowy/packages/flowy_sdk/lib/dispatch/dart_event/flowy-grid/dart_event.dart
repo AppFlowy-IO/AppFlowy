@@ -137,6 +137,23 @@ class GridEventCreateEditFieldContext {
     }
 }
 
+class GridEventCreateSelectOption {
+     CreateSelectOptionPayload request;
+     GridEventCreateSelectOption(this.request);
+
+    Future<Either<SelectOption, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.CreateSelectOption.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(SelectOption.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventCreateRow {
      CreateRowPayload request;
      GridEventCreateRow(this.request);

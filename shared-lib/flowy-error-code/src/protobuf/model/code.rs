@@ -62,6 +62,7 @@ pub enum ErrorCode {
     RowIdIsEmpty = 430,
     FieldIdIsEmpty = 440,
     FieldDoesNotExist = 441,
+    SelectOptionNameIsEmpty = 442,
     TypeOptionDataIsEmpty = 450,
     InvalidData = 500,
 }
@@ -110,6 +111,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             430 => ::std::option::Option::Some(ErrorCode::RowIdIsEmpty),
             440 => ::std::option::Option::Some(ErrorCode::FieldIdIsEmpty),
             441 => ::std::option::Option::Some(ErrorCode::FieldDoesNotExist),
+            442 => ::std::option::Option::Some(ErrorCode::SelectOptionNameIsEmpty),
             450 => ::std::option::Option::Some(ErrorCode::TypeOptionDataIsEmpty),
             500 => ::std::option::Option::Some(ErrorCode::InvalidData),
             _ => ::std::option::Option::None
@@ -155,6 +157,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             ErrorCode::RowIdIsEmpty,
             ErrorCode::FieldIdIsEmpty,
             ErrorCode::FieldDoesNotExist,
+            ErrorCode::SelectOptionNameIsEmpty,
             ErrorCode::TypeOptionDataIsEmpty,
             ErrorCode::InvalidData,
         ];
@@ -185,7 +188,7 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ncode.proto*\x80\x07\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
+    \n\ncode.proto*\x9e\x07\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
     \n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\x03\x12\
     \x11\n\rUserIdIsEmpty\x10\x04\x12\x18\n\x14WorkspaceNameInvalid\x10d\x12\
     \x16\n\x12WorkspaceIdInvalid\x10e\x12\x18\n\x14AppColorStyleInvalid\x10f\
@@ -205,8 +208,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     erNotExist\x10\xb8\x02\x12\x10\n\x0bTextTooLong\x10\x90\x03\x12\x12\n\rG\
     ridIdIsEmpty\x10\x9a\x03\x12\x13\n\x0eBlockIdIsEmpty\x10\xa4\x03\x12\x11\
     \n\x0cRowIdIsEmpty\x10\xae\x03\x12\x13\n\x0eFieldIdIsEmpty\x10\xb8\x03\
-    \x12\x16\n\x11FieldDoesNotExist\x10\xb9\x03\x12\x1a\n\x15TypeOptionDataI\
-    sEmpty\x10\xc2\x03\x12\x10\n\x0bInvalidData\x10\xf4\x03b\x06proto3\
+    \x12\x16\n\x11FieldDoesNotExist\x10\xb9\x03\x12\x1c\n\x17SelectOptionNam\
+    eIsEmpty\x10\xba\x03\x12\x1a\n\x15TypeOptionDataIsEmpty\x10\xc2\x03\x12\
+    \x10\n\x0bInvalidData\x10\xf4\x03b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

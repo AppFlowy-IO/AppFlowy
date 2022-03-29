@@ -5258,6 +5258,165 @@ impl ::protobuf::reflect::ProtobufValue for QueryRowPayload {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct CreateSelectOptionPayload {
+    // message fields
+    pub option_name: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CreateSelectOptionPayload {
+    fn default() -> &'a CreateSelectOptionPayload {
+        <CreateSelectOptionPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl CreateSelectOptionPayload {
+    pub fn new() -> CreateSelectOptionPayload {
+        ::std::default::Default::default()
+    }
+
+    // string option_name = 1;
+
+
+    pub fn get_option_name(&self) -> &str {
+        &self.option_name
+    }
+    pub fn clear_option_name(&mut self) {
+        self.option_name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_option_name(&mut self, v: ::std::string::String) {
+        self.option_name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_option_name(&mut self) -> &mut ::std::string::String {
+        &mut self.option_name
+    }
+
+    // Take field
+    pub fn take_option_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.option_name, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for CreateSelectOptionPayload {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.option_name)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.option_name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.option_name);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.option_name.is_empty() {
+            os.write_string(1, &self.option_name)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CreateSelectOptionPayload {
+        CreateSelectOptionPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "option_name",
+                |m: &CreateSelectOptionPayload| { &m.option_name },
+                |m: &mut CreateSelectOptionPayload| { &mut m.option_name },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateSelectOptionPayload>(
+                "CreateSelectOptionPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CreateSelectOptionPayload {
+        static instance: ::protobuf::rt::LazyV2<CreateSelectOptionPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateSelectOptionPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for CreateSelectOptionPayload {
+    fn clear(&mut self) {
+        self.option_name.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CreateSelectOptionPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CreateSelectOptionPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\ngrid.proto\x1a\nmeta.proto\"z\n\x04Grid\x12\x0e\n\x02id\x18\x01\x20\
     \x01(\tR\x02id\x12.\n\x0cfield_orders\x18\x02\x20\x03(\x0b2\x0b.FieldOrd\
@@ -5311,7 +5470,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ridId\x122\n\x0cblock_orders\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrderR\
     \x0bblockOrders\"\\\n\x0fQueryRowPayload\x12\x17\n\x07grid_id\x18\x01\
     \x20\x01(\tR\x06gridId\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07bloc\
-    kId\x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowIdb\x06proto3\
+    kId\x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\"<\n\x19CreateSelec\
+    tOptionPayload\x12\x1f\n\x0boption_name\x18\x01\x20\x01(\tR\noptionNameb\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

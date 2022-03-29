@@ -15,7 +15,7 @@ class FlowyButton extends StatelessWidget {
     Key? key,
     required this.text,
     this.onTap,
-    this.padding = const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     this.leftIcon,
     this.rightIcon,
     this.hoverColor = Colors.transparent,
@@ -44,12 +44,13 @@ class FlowyButton extends StatelessWidget {
 
     if (rightIcon != null) {
       children.add(SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
-      children.add(const HSpace(6));
     }
 
     return Padding(
       padding: padding,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: children,
       ),
     );

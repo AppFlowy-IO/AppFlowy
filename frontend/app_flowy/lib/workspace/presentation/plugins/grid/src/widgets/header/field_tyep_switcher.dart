@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/selection.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -14,12 +13,13 @@ import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
 
+import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
+import 'type_option/single_select.dart';
 
 typedef SelectFieldCallback = void Function(Field, Uint8List);
 
@@ -50,7 +50,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
 
           final typeOptionWidget = _typeOptionWidget(
             context: context,
-            fieldType: state.field.fieldType,
+            field: state.field,
             data: state.typeOptionData,
           );
 
@@ -89,7 +89,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
 
   Widget? _typeOptionWidget({
     required BuildContext context,
-    required FieldType fieldType,
+    required Field field,
     required TypeOptionData data,
   }) {
     final delegate = TypeOptionOperationDelegate(
@@ -97,8 +97,9 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
         context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.didUpdateTypeOptionData(data));
       },
       requireToShowOverlay: _showOverlay,
+      hideOverlay: _hideOverlay,
     );
-    final builder = _makeTypeOptionBuild(fieldType: fieldType, data: data, delegate: delegate);
+    final builder = _makeTypeOptionBuild(field: field, data: data, delegate: delegate);
     return builder.customWidget;
   }
 
@@ -120,6 +121,12 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
       anchorOffset: const Offset(-20, 0),
     );
   }
+
+  void _hideOverlay(BuildContext context) {
+    if (currentOverlayIdentifier != null) {
+      FlowyOverlay.of(context).remove(currentOverlayIdentifier!);
+    }
+  }
 }
 
 abstract class TypeOptionBuilder {
@@ -127,23 +134,24 @@ abstract class TypeOptionBuilder {
 }
 
 TypeOptionBuilder _makeTypeOptionBuild({
-  required FieldType fieldType,
+  required Field field,
   required TypeOptionData data,
   required TypeOptionOperationDelegate delegate,
 }) {
-  switch (fieldType) {
+  switch (field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxTypeOptionBuilder(data);
     case FieldType.DateTime:
       return DateTypeOptionBuilder(data, delegate);
+    case FieldType.SingleSelect:
+      return SingleSelectTypeOptionBuilder(field.id, data, delegate);
     case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(data);
+      return MultiSelectTypeOptionBuilder(data, delegate);
     case FieldType.Number:
       return NumberTypeOptionBuilder(data, delegate);
     case FieldType.RichText:
       return RichTextTypeOptionBuilder(data);
-    case FieldType.SingleSelect:
-      return SingleSelectTypeOptionBuilder(data);
+
     default:
       throw UnimplementedError;
   }
@@ -156,13 +164,16 @@ abstract class TypeOptionWidget extends StatelessWidget {
 typedef TypeOptionData = Uint8List;
 typedef TypeOptionDataCallback = void Function(TypeOptionData typeOptionData);
 typedef ShowOverlayCallback = void Function(BuildContext anchorContext, String overlayIdentifier, Widget child);
+typedef HideOverlayCallback = void Function(BuildContext anchorContext);
 
 class TypeOptionOperationDelegate {
   TypeOptionDataCallback didUpdateTypeOptionData;
   ShowOverlayCallback requireToShowOverlay;
+  HideOverlayCallback hideOverlay;
   TypeOptionOperationDelegate({
     required this.didUpdateTypeOptionData,
     required this.requireToShowOverlay,
+    required this.hideOverlay,
   });
 }
 

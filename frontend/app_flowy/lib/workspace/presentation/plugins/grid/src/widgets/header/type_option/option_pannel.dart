@@ -1,8 +1,5 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/option_pannel_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/field/type_option/selection_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_tyep_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -16,73 +13,48 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'widget.dart';
 
-class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
-  SingleSelectTypeOption typeOption;
-
-  SingleSelectTypeOptionBuilder(TypeOptionData typeOptionData)
-      : typeOption = SingleSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => SingleSelectTypeOptionWidget(typeOption);
-}
-
-class SingleSelectTypeOptionWidget extends TypeOptionWidget {
-  final SingleSelectTypeOption typeOption;
-  const SingleSelectTypeOptionWidget(this.typeOption, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: OptionPannel(options: typeOption.options),
-    );
-  }
-}
-
-class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
-  MultiSelectTypeOption typeOption;
-
-  MultiSelectTypeOptionBuilder(TypeOptionData typeOptionData)
-      : typeOption = MultiSelectTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => MultiSelectTypeOptionWidget(typeOption);
-}
-
-class MultiSelectTypeOptionWidget extends TypeOptionWidget {
-  final MultiSelectTypeOption typeOption;
-  const MultiSelectTypeOptionWidget(this.typeOption, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SelectionTypeOptionBloc>(),
-      child: OptionPannel(options: typeOption.options),
-    );
-  }
-}
-
 class OptionPannel extends StatelessWidget {
   final List<SelectOption> options;
-  const OptionPannel({required this.options, Key? key}) : super(key: key);
+  final VoidCallback beginEdit;
+  final Function(String optionName) createOptionCallback;
+  final Function(List<SelectOption>) updateOptionsCallback;
+  const OptionPannel({
+    required this.options,
+    required this.beginEdit,
+    required this.createOptionCallback,
+    required this.updateOptionsCallback,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => OptionPannelBloc(options: options),
-      child: BlocBuilder<OptionPannelBloc, OptionPannelState>(
+      child: BlocConsumer<OptionPannelBloc, OptionPannelState>(
+        listener: (context, state) {
+          if (state.isEditingOption) {
+            beginEdit();
+          }
+          state.newOptionName.fold(
+            () => null,
+            (optionName) => createOptionCallback(optionName),
+          );
+        },
         builder: (context, state) {
-          List<Widget> children = [const OptionTitle()];
-          if (state.isAddingOption) {
+          List<Widget> children = [
+            const TypeOptionSeparator(),
+            const OptionTitle(),
+          ];
+          if (state.isEditingOption) {
             children.add(const _AddOptionTextField());
           }
 
-          if (state.options.isEmpty && !state.isAddingOption) {
+          if (state.options.isEmpty && !state.isEditingOption) {
             children.add(const _AddOptionButton());
           }
 
           if (state.options.isNotEmpty) {
-            children.add(const _OptionList());
+            children.add(_OptionList(key: ObjectKey(state.options)));
           }
 
           return Column(children: children);
@@ -100,19 +72,27 @@ class OptionTitle extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return BlocBuilder<OptionPannelBloc, OptionPannelState>(
-      buildWhen: (previous, current) => previous.options.length != current.options.length,
       builder: (context, state) {
         List<Widget> children = [FlowyText.medium(LocaleKeys.grid_field_optionTitle.tr(), fontSize: 12)];
-
-        if (state.options.isNotEmpty && state.isAddingOption == false) {
-          children.add(FlowyButton(
-            text: FlowyText.medium(LocaleKeys.grid_field_addOption.tr(), fontSize: 12),
-            hoverColor: theme.hover,
-            onTap: () {
-              context.read<OptionPannelBloc>().add(const OptionPannelEvent.beginAddingOption());
-            },
-            rightIcon: svg("grid/more", color: theme.iconColor),
-          ));
+        if (state.options.isNotEmpty) {
+          children.add(const Spacer());
+          children.add(
+            SizedBox(
+              width: 100,
+              height: 26,
+              child: FlowyButton(
+                text: FlowyText.medium(
+                  LocaleKeys.grid_field_addOption.tr(),
+                  fontSize: 12,
+                  textAlign: TextAlign.center,
+                ),
+                hoverColor: theme.hover,
+                onTap: () {
+                  context.read<OptionPannelBloc>().add(const OptionPannelEvent.beginAddingOption());
+                },
+              ),
+            ),
+          );
         }
 
         return SizedBox(
@@ -135,19 +115,16 @@ class _OptionList extends StatelessWidget {
           return _OptionItem(option: option);
         }).toList();
 
-        return SizedBox(
-          width: 120,
-          child: ListView.separated(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
-            itemCount: optionItems.length,
-            itemBuilder: (BuildContext context, int index) {
-              return optionItems[index];
-            },
-          ),
+        return ListView.separated(
+          shrinkWrap: true,
+          controller: ScrollController(),
+          separatorBuilder: (context, index) {
+            return VSpace(GridSize.typeOptionSeparatorHeight);
+          },
+          itemCount: optionItems.length,
+          itemBuilder: (BuildContext context, int index) {
+            return optionItems[index];
+          },
         );
       },
     );
@@ -167,7 +144,7 @@ class _OptionItem extends StatelessWidget {
         text: FlowyText.medium(option.name, fontSize: 12),
         hoverColor: theme.hover,
         onTap: () {},
-        rightIcon: svg("grid/more", color: theme.iconColor),
+        rightIcon: svg("grid/details", color: theme.iconColor),
       ),
     );
   }

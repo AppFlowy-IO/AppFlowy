@@ -1536,3 +1536,50 @@ class QueryRowPayload extends $pb.GeneratedMessage {
   void clearRowId() => clearField(3);
 }
 
+class CreateSelectOptionPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateSelectOptionPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'optionName')
+    ..hasRequiredFields = false
+  ;
+
+  CreateSelectOptionPayload._() : super();
+  factory CreateSelectOptionPayload({
+    $core.String? optionName,
+  }) {
+    final _result = create();
+    if (optionName != null) {
+      _result.optionName = optionName;
+    }
+    return _result;
+  }
+  factory CreateSelectOptionPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateSelectOptionPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CreateSelectOptionPayload clone() => CreateSelectOptionPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CreateSelectOptionPayload copyWith(void Function(CreateSelectOptionPayload) updates) => super.copyWith((message) => updates(message as CreateSelectOptionPayload)) as CreateSelectOptionPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CreateSelectOptionPayload create() => CreateSelectOptionPayload._();
+  CreateSelectOptionPayload createEmptyInstance() => create();
+  static $pb.PbList<CreateSelectOptionPayload> createRepeated() => $pb.PbList<CreateSelectOptionPayload>();
+  @$core.pragma('dart2js:noInline')
+  static CreateSelectOptionPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateSelectOptionPayload>(create);
+  static CreateSelectOptionPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get optionName => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set optionName($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasOptionName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearOptionName() => clearField(1);
+}
+

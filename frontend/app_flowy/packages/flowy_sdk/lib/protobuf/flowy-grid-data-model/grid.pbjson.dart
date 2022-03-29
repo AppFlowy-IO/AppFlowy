@@ -302,3 +302,13 @@ const QueryRowPayload$json = const {
 
 /// Descriptor for `QueryRowPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryRowPayloadDescriptor = $convert.base64Decode('Cg9RdWVyeVJvd1BheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhkKCGJsb2NrX2lkGAIgASgJUgdibG9ja0lkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
+@$core.Deprecated('Use createSelectOptionPayloadDescriptor instead')
+const CreateSelectOptionPayload$json = const {
+  '1': 'CreateSelectOptionPayload',
+  '2': const [
+    const {'1': 'option_name', '3': 1, '4': 1, '5': 9, '10': 'optionName'},
+  ],
+};
+
+/// Descriptor for `CreateSelectOptionPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createSelectOptionPayloadDescriptor = $convert.base64Decode('ChlDcmVhdGVTZWxlY3RPcHRpb25QYXlsb2FkEh8KC29wdGlvbl9uYW1lGAEgASgJUgpvcHRpb25OYW1l');

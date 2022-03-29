@@ -38,6 +38,7 @@ enum ErrorCode {
     RowIdIsEmpty = 430;
     FieldIdIsEmpty = 440;
     FieldDoesNotExist = 441;
+    SelectOptionNameIsEmpty = 442;
     TypeOptionDataIsEmpty = 450;
     InvalidData = 500;
 }

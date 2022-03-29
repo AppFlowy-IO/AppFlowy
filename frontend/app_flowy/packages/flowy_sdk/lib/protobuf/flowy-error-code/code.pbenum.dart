@@ -47,6 +47,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode RowIdIsEmpty = ErrorCode._(430, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
   static const ErrorCode FieldIdIsEmpty = ErrorCode._(440, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldIdIsEmpty');
   static const ErrorCode FieldDoesNotExist = ErrorCode._(441, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldDoesNotExist');
+  static const ErrorCode SelectOptionNameIsEmpty = ErrorCode._(442, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SelectOptionNameIsEmpty');
   static const ErrorCode TypeOptionDataIsEmpty = ErrorCode._(450, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TypeOptionDataIsEmpty');
   static const ErrorCode InvalidData = ErrorCode._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
@@ -88,6 +89,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     RowIdIsEmpty,
     FieldIdIsEmpty,
     FieldDoesNotExist,
+    SelectOptionNameIsEmpty,
     TypeOptionDataIsEmpty,
     InvalidData,
   ];

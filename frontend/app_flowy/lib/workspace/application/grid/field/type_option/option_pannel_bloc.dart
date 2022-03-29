@@ -1,13 +1,8 @@
-import 'dart:typed_data';
-
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-
 part 'option_pannel_bloc.freezed.dart';
 
 class OptionPannelBloc extends Bloc<OptionPannelEvent, OptionPannelState> {
@@ -16,13 +11,13 @@ class OptionPannelBloc extends Bloc<OptionPannelEvent, OptionPannelState> {
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
-            emit(state.copyWith(isAddingOption: false));
+            emit(state.copyWith(isEditingOption: false, newOptionName: Some(value.optionName)));
           },
           beginAddingOption: (_BeginAddingOption value) {
-            emit(state.copyWith(isAddingOption: true));
+            emit(state.copyWith(isEditingOption: true, newOptionName: none()));
           },
           endAddingOption: (_EndAddingOption value) {
-            emit(state.copyWith(isAddingOption: false));
+            emit(state.copyWith(isEditingOption: false, newOptionName: none()));
           },
         );
       },
@@ -46,11 +41,13 @@ class OptionPannelEvent with _$OptionPannelEvent {
 class OptionPannelState with _$OptionPannelState {
   const factory OptionPannelState({
     required List<SelectOption> options,
-    required bool isAddingOption,
+    required bool isEditingOption,
+    required Option<String> newOptionName,
   }) = _OptionPannelState;
 
   factory OptionPannelState.initial(List<SelectOption> options) => OptionPannelState(
         options: options,
-        isAddingOption: false,
+        isEditingOption: false,
+        newOptionName: none(),
       );
 }

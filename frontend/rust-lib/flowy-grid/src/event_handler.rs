@@ -1,5 +1,5 @@
 use crate::manager::GridManager;
-use crate::services::field::type_option_data_from_str;
+use crate::services::field::{type_option_data_from_str, SelectOption};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
@@ -86,6 +86,14 @@ pub(crate) async fn duplicate_field_handler(
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data), err)]
+pub(crate) async fn create_select_option_handler(
+    data: Data<CreateSelectOptionPayload>,
+) -> DataResult<SelectOption, FlowyError> {
+    let params: CreateSelectOptionParams = data.into_inner().try_into()?;
+    data_result(SelectOption::new(&params.option_name))
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

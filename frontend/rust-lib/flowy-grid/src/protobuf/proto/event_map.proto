@@ -9,7 +9,8 @@ enum GridEvent {
     DeleteField = 13;
     DuplicateField = 15;
     CreateEditFieldContext = 16;
-    CreateRow = 21;
-    GetRow = 22;
-    UpdateCell = 30;
+    CreateSelectOption = 30;
+    CreateRow = 50;
+    GetRow = 51;
+    UpdateCell = 70;
 }

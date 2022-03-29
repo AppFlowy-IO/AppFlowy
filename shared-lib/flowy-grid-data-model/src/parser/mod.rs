@@ -1,3 +1,3 @@
-mod id_parser;
+mod str_parser;
 
-pub use id_parser::*;
+pub use str_parser::*;

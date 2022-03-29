@@ -4,6 +4,7 @@ import 'package:flowy_sdk/log.dart';
 // ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event_map.pb.dart';

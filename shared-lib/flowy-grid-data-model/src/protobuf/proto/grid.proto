@@ -103,3 +103,6 @@ message QueryRowPayload {
     string block_id = 2;
     string row_id = 3;
 }
+message CreateSelectOptionPayload {
+    string option_name = 1;
+}

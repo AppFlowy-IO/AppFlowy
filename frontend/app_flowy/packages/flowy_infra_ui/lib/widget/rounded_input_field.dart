@@ -15,6 +15,7 @@ class RoundedInputField extends StatefulWidget {
   final String errorText;
   final TextStyle style;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onEditingComplete;
   final String? initialValue;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -22,6 +23,7 @@ class RoundedInputField extends StatefulWidget {
   final double height;
   final FocusNode? focusNode;
   final TextEditingController? controller;
+  final bool autoFocus;
 
   const RoundedInputField({
     Key? key,
@@ -32,6 +34,7 @@ class RoundedInputField extends StatefulWidget {
     this.obscureIcon,
     this.obscureHideIcon,
     this.onChanged,
+    this.onEditingComplete,
     this.normalBorderColor = Colors.transparent,
     this.errorBorderColor = Colors.transparent,
     this.focusBorderColor,
@@ -43,6 +46,7 @@ class RoundedInputField extends StatefulWidget {
     this.height = 48,
     this.focusNode,
     this.controller,
+    this.autoFocus = false,
   }) : super(key: key);
 
   @override
@@ -78,6 +82,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           controller: widget.controller,
           initialValue: widget.initialValue,
           focusNode: widget.focusNode,
+          autofocus: widget.autoFocus,
           onChanged: (value) {
             inputText = value;
             if (widget.onChanged != null) {
@@ -85,6 +90,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
             }
             setState(() {});
           },
+          onEditingComplete: widget.onEditingComplete,
           cursorColor: widget.cursorColor,
           obscureText: obscuteText,
           style: widget.style,

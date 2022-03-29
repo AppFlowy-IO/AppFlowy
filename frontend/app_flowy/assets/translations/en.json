@@ -167,6 +167,17 @@
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option"
+    },
+    "selectOption": {
+      "purpleColor": "Purple",
+      "pinkColor": "Pink",
+      "lightPinkColor": "Light Pink",
+      "orangeColor": "Orange",
+      "yellowColor": "Yellow",
+      "limeColor": "Lime",
+      "greenColor": "Green",
+      "aquaColor": "Aqua",
+      "blueColor": "Blue"
     }
   }
 }

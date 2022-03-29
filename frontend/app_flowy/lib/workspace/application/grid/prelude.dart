@@ -14,7 +14,7 @@ export 'field/switch_field_type_bloc.dart';
 // Field Type Option
 export 'field/type_option/date_bloc.dart';
 export 'field/type_option/number_bloc.dart';
-export 'field/type_option/selection_bloc.dart';
+export 'field/type_option/single_select_bloc.dart';
 
 // Cell
 export 'cell_bloc/text_cell_bloc.dart';

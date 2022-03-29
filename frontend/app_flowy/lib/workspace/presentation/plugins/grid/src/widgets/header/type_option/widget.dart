@@ -21,6 +21,7 @@ class NameTextField extends StatefulWidget {
 
 class _NameTextFieldState extends State<NameTextField> {
   late FocusNode _focusNode;
+  var isEdited = false;
   late TextEditingController _controller;
 
   @override
@@ -35,31 +36,53 @@ class _NameTextFieldState extends State<NameTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+
     return RoundedInputField(
-        controller: _controller,
-        focusNode: _focusNode,
-        height: 36,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        normalBorderColor: theme.shader4,
-        errorBorderColor: theme.red,
-        focusBorderColor: theme.main1,
-        cursorColor: theme.main1,
-        onChanged: (text) {
-          print(text);
-        });
+      controller: _controller,
+      focusNode: _focusNode,
+      autoFocus: true,
+      height: 36,
+      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+      normalBorderColor: theme.shader4,
+      focusBorderColor: theme.main1,
+      cursorColor: theme.main1,
+      onEditingComplete: () {
+        widget.onDone(_controller.text);
+      },
+    );
   }
 
   @override
   void dispose() {
     _focusNode.removeListener(notifyDidEndEditing);
+    _focusNode.dispose();
     super.dispose();
   }
 
   void notifyDidEndEditing() {
     if (_controller.text.isEmpty) {
-      // widget.onCanceled();
+      if (isEdited) {
+        widget.onCanceled();
+      }
+      isEdited = true;
     } else {
       widget.onDone(_controller.text);
     }
+  }
+}
+
+class TypeOptionSeparator extends StatelessWidget {
+  const TypeOptionSeparator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Container(
+        color: theme.shader4,
+        height: 0.25,
+      ),
+    );
   }
 }

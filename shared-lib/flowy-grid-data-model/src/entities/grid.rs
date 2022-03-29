@@ -1,5 +1,5 @@
 use crate::entities::{FieldMeta, FieldType, RowMeta};
-use crate::parser::NotEmptyUuid;
+use crate::parser::{NotEmptyStr, NotEmptyUuid};
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
 use std::collections::HashMap;
@@ -491,6 +491,27 @@ impl TryInto<QueryRowParams> for QueryRowPayload {
             grid_id: grid_id.0,
             block_id: block_id.0,
             row_id: row_id.0,
+        })
+    }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateSelectOptionPayload {
+    #[pb(index = 1)]
+    pub option_name: String,
+}
+
+pub struct CreateSelectOptionParams {
+    pub option_name: String,
+}
+
+impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
+        let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
+        Ok(CreateSelectOptionParams {
+            option_name: option_name.0,
         })
     }
 }
