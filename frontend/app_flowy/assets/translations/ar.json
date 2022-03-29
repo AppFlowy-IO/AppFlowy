@@ -2,9 +2,9 @@
   "appName": "AppFlowy",
   "defaultUsername": "أنا",
   "welcomeText": "مرحبًا بك في @: appName",
-  "githubStarText": "Star on GitHub",
-  "subscribeNewsletterText": "Subscribe to Newsletter",
-  "letsGoButtonText": "Let's Go",
+  "githubStarText": "أضف نجمة للمشروع في Github",
+  "subscribeNewsletterText": "إشترك في النشرة الإخبارية",
+  "letsGoButtonText": "ٌإبدآ الإستخدام",
   "title": "العنوان",
   "signUp": {
     "buttonText": "تسجيل",
@@ -41,7 +41,7 @@
     "copyLink": "نسخ الرابط"
   },
   "disclosureAction": {
-    "rename": "Rename",
+    "rename": "ٌعادة تسمية",
     "delete": "حذف",
     "duplicate": "مكرر"
   },
@@ -50,10 +50,10 @@
   "trash": {
     "text": "المهملات",
     "restoreAll": "استعادة الكل",
-    "deleteAll": "Delete All",
+    "deleteAll": "حذف الكل",
     "pageHeader": {
       "fileName": "اسم الملف",
-      "lastModified": "Last Modified",
+      "lastModified": "آخر تعديل",
       "created": "تم إنشاؤه"
     }
   },
@@ -65,7 +65,7 @@
   "DialCreatePageNameHint": "اسم الصفحة",
   "questionBubble": {
     "whatsNew": "ما الجديد؟",
-    "help": "Help & Support",
+    "help": " الدعم و طلب المساعدة",
     "debug": {
       "name": "معلومات التصحيح",
       "Success": "تم نسخ معلومات تصحيح الأخطاء إلى الحافظة!",
@@ -75,7 +75,7 @@
   "menuAppHeader": {
     "addPageTooltip": "أضف صفحة داخل الصفحة بسرعة",
     "defaultNewPageName": "بدون عنوان",
-    "renameDialog": "Rename"
+    "renameDialog": "اعاده تسمية"
   },
   "toolbar": {
     "undo": "تراجع",
