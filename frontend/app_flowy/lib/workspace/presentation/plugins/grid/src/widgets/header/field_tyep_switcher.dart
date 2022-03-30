@@ -79,7 +79,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
           final list = FieldTypeList(onSelectField: (fieldType) {
             context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.toFieldType(fieldType));
           });
-          _showOverlay(context, FieldTypeList.identifier(), list);
+          _showOverlay(context, list);
         },
         leftIcon: svg(field.fieldType.iconName(), color: theme.iconColor),
         rightIcon: svg("grid/more", color: theme.iconColor),
@@ -92,18 +92,27 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
     required Field field,
     required TypeOptionData data,
   }) {
-    final delegate = TypeOptionOperationDelegate(
-      didUpdateTypeOptionData: (data) {
-        context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.didUpdateTypeOptionData(data));
-      },
-      requireToShowOverlay: _showOverlay,
+    final overlayDelegate = TypeOptionOverlayDelegate(
+      showOverlay: _showOverlay,
       hideOverlay: _hideOverlay,
     );
-    final builder = _makeTypeOptionBuild(field: field, data: data, delegate: delegate);
+
+    final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
+      context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.didUpdateTypeOptionData(data));
+    });
+
+    final builder = _makeTypeOptionBuild(
+      field: field,
+      data: data,
+      overlayDelegate: overlayDelegate,
+      dataDelegate: dataDelegate,
+    );
+
     return builder.customWidget;
   }
 
-  void _showOverlay(BuildContext context, String identifier, Widget child) {
+  void _showOverlay(BuildContext context, Widget child, {VoidCallback? onRemoved}) {
+    final identifier = child.toString();
     if (currentOverlayIdentifier != null) {
       FlowyOverlay.of(context).remove(currentOverlayIdentifier!);
     }
@@ -112,7 +121,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: child,
-        constraints: BoxConstraints.loose(const Size(240, 400)),
+        constraints: BoxConstraints.loose(const Size(340, 400)),
       ),
       identifier: identifier,
       anchorContext: context,
@@ -136,19 +145,20 @@ abstract class TypeOptionBuilder {
 TypeOptionBuilder _makeTypeOptionBuild({
   required Field field,
   required TypeOptionData data,
-  required TypeOptionOperationDelegate delegate,
+  required TypeOptionOverlayDelegate overlayDelegate,
+  required TypeOptionDataDelegate dataDelegate,
 }) {
   switch (field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxTypeOptionBuilder(data);
     case FieldType.DateTime:
-      return DateTypeOptionBuilder(data, delegate);
+      return DateTypeOptionBuilder(data, overlayDelegate, dataDelegate);
     case FieldType.SingleSelect:
-      return SingleSelectTypeOptionBuilder(field.id, data, delegate);
+      return SingleSelectTypeOptionBuilder(field.id, data, overlayDelegate, dataDelegate);
     case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(data, delegate);
+      return MultiSelectTypeOptionBuilder(data, overlayDelegate);
     case FieldType.Number:
-      return NumberTypeOptionBuilder(data, delegate);
+      return NumberTypeOptionBuilder(data, overlayDelegate, dataDelegate);
     case FieldType.RichText:
       return RichTextTypeOptionBuilder(data);
 
@@ -163,17 +173,27 @@ abstract class TypeOptionWidget extends StatelessWidget {
 
 typedef TypeOptionData = Uint8List;
 typedef TypeOptionDataCallback = void Function(TypeOptionData typeOptionData);
-typedef ShowOverlayCallback = void Function(BuildContext anchorContext, String overlayIdentifier, Widget child);
+typedef ShowOverlayCallback = void Function(
+  BuildContext anchorContext,
+  Widget child, {
+  VoidCallback? onRemoved,
+});
 typedef HideOverlayCallback = void Function(BuildContext anchorContext);
 
-class TypeOptionOperationDelegate {
-  TypeOptionDataCallback didUpdateTypeOptionData;
-  ShowOverlayCallback requireToShowOverlay;
+class TypeOptionOverlayDelegate {
+  ShowOverlayCallback showOverlay;
   HideOverlayCallback hideOverlay;
-  TypeOptionOperationDelegate({
-    required this.didUpdateTypeOptionData,
-    required this.requireToShowOverlay,
+  TypeOptionOverlayDelegate({
+    required this.showOverlay,
     required this.hideOverlay,
+  });
+}
+
+class TypeOptionDataDelegate {
+  TypeOptionDataCallback didUpdateTypeOptionData;
+
+  TypeOptionDataDelegate({
+    required this.didUpdateTypeOptionData,
   });
 }
 

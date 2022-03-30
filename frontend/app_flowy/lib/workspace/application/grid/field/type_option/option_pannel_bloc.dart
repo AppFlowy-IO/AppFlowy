@@ -19,6 +19,12 @@ class OptionPannelBloc extends Bloc<OptionPannelEvent, OptionPannelState> {
           endAddingOption: (_EndAddingOption value) {
             emit(state.copyWith(isEditingOption: false, newOptionName: none()));
           },
+          updateOption: (_UpdateOption value) {
+            emit(state.copyWith(updateOption: Some(value.option)));
+          },
+          deleteOption: (_DeleteOption value) {
+            emit(state.copyWith(deleteOption: Some(value.option)));
+          },
         );
       },
     );
@@ -35,6 +41,8 @@ class OptionPannelEvent with _$OptionPannelEvent {
   const factory OptionPannelEvent.createOption(String optionName) = _CreateOption;
   const factory OptionPannelEvent.beginAddingOption() = _BeginAddingOption;
   const factory OptionPannelEvent.endAddingOption() = _EndAddingOption;
+  const factory OptionPannelEvent.updateOption(SelectOption option) = _UpdateOption;
+  const factory OptionPannelEvent.deleteOption(SelectOption option) = _DeleteOption;
 }
 
 @freezed
@@ -43,11 +51,15 @@ class OptionPannelState with _$OptionPannelState {
     required List<SelectOption> options,
     required bool isEditingOption,
     required Option<String> newOptionName,
+    required Option<SelectOption> updateOption,
+    required Option<SelectOption> deleteOption,
   }) = _OptionPannelState;
 
   factory OptionPannelState.initial(List<SelectOption> options) => OptionPannelState(
         options: options,
         isEditingOption: false,
         newOptionName: none(),
+        updateOption: none(),
+        deleteOption: none(),
       );
 }

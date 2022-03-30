@@ -17,22 +17,6 @@ class FieldTypeList extends StatelessWidget {
   final SelectFieldCallback onSelectField;
   const FieldTypeList({required this.onSelectField, Key? key}) : super(key: key);
 
-  static void show(BuildContext context, SelectFieldCallback onSelectField) {
-    final list = FieldTypeList(onSelectField: onSelectField);
-    FieldTypeList.hide(context);
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: list,
-        constraints: BoxConstraints.loose(const Size(140, 300)),
-      ),
-      identifier: FieldTypeList.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(-20, 0),
-    );
-  }
-
   static void hide(BuildContext context) {
     FlowyOverlay.of(context).remove(FieldTypeList.identifier());
   }

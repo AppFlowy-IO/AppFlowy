@@ -15,25 +15,29 @@ import 'package:easy_localization/easy_localization.dart' hide NumberFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class NumberTypeOptionBuilder extends TypeOptionBuilder {
-  NumberTypeOption typeOption;
-  TypeOptionOperationDelegate delegate;
+  final NumberTypeOptionWidget _widget;
 
   NumberTypeOptionBuilder(
     TypeOptionData typeOptionData,
-    this.delegate,
-  ) : typeOption = NumberTypeOption.fromBuffer(typeOptionData);
+    TypeOptionOverlayDelegate overlayDelegate,
+    TypeOptionDataDelegate dataDelegate,
+  ) : _widget = NumberTypeOptionWidget(
+          typeOption: NumberTypeOption.fromBuffer(typeOptionData),
+          dataDelegate: dataDelegate,
+          overlayDelegate: overlayDelegate,
+        );
 
   @override
-  Widget? get customWidget => NumberTypeOptionWidget(
-        typeOption: typeOption,
-        operationDelegate: delegate,
-      );
+  Widget? get customWidget => _widget;
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {
-  final TypeOptionOperationDelegate operationDelegate;
+  final TypeOptionDataDelegate dataDelegate;
+  final TypeOptionOverlayDelegate overlayDelegate;
   final NumberTypeOption typeOption;
-  const NumberTypeOptionWidget({required this.typeOption, required this.operationDelegate, Key? key}) : super(key: key);
+  const NumberTypeOptionWidget(
+      {required this.typeOption, required this.dataDelegate, required this.overlayDelegate, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-          listener: (context, state) => operationDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
+          listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
           builder: (context, state) {
             return FlowyButton(
               text: FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(), fontSize: 12),
@@ -53,7 +57,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 final list = NumberFormatList(onSelected: (format) {
                   context.read<NumberTypeOptionBloc>().add(NumberTypeOptionEvent.didSelectFormat(format));
                 });
-                operationDelegate.requireToShowOverlay(context, list.identifier(), list);
+                overlayDelegate.showOverlay(context, list);
               },
               rightIcon: svg("grid/more", color: theme.iconColor),
             );

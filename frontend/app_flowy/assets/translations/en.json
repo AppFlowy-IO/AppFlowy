@@ -177,7 +177,9 @@
       "limeColor": "Lime",
       "greenColor": "Green",
       "aquaColor": "Aqua",
-      "blueColor": "Blue"
+      "blueColor": "Blue",
+      "deleteTag": "Delete tag",
+      "colorPannelTitle": "Colors"
     }
   }
 }

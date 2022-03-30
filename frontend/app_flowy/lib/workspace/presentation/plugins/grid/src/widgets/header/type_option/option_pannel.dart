@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/option_pannel_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_tyep_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -11,18 +12,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
+import 'edit_option_pannel.dart';
 import 'widget.dart';
 
 class OptionPannel extends StatelessWidget {
   final List<SelectOption> options;
   final VoidCallback beginEdit;
   final Function(String optionName) createOptionCallback;
-  final Function(List<SelectOption>) updateOptionsCallback;
+  final Function(SelectOption) updateOptionCallback;
+  final Function(SelectOption) deleteOptionCallback;
+  final TypeOptionOverlayDelegate overlayDelegate;
+
   const OptionPannel({
     required this.options,
     required this.beginEdit,
     required this.createOptionCallback,
-    required this.updateOptionsCallback,
+    required this.updateOptionCallback,
+    required this.deleteOptionCallback,
+    required this.overlayDelegate,
     Key? key,
   }) : super(key: key);
 
@@ -39,6 +46,16 @@ class OptionPannel extends StatelessWidget {
             () => null,
             (optionName) => createOptionCallback(optionName),
           );
+
+          state.updateOption.fold(
+            () => null,
+            (updateOption) => updateOptionCallback(updateOption),
+          );
+
+          state.deleteOption.fold(
+            () => null,
+            (deleteOption) => deleteOptionCallback(deleteOption),
+          );
         },
         builder: (context, state) {
           List<Widget> children = [
@@ -46,7 +63,7 @@ class OptionPannel extends StatelessWidget {
             const OptionTitle(),
           ];
           if (state.isEditingOption) {
-            children.add(const _AddOptionTextField());
+            children.add(const _OptionNameTextField());
           }
 
           if (state.options.isEmpty && !state.isEditingOption) {
@@ -54,7 +71,7 @@ class OptionPannel extends StatelessWidget {
           }
 
           if (state.options.isNotEmpty) {
-            children.add(_OptionList(key: ObjectKey(state.options)));
+            children.add(_OptionList(overlayDelegate));
           }
 
           return Column(children: children);
@@ -105,14 +122,18 @@ class OptionTitle extends StatelessWidget {
 }
 
 class _OptionList extends StatelessWidget {
-  const _OptionList({Key? key}) : super(key: key);
+  final TypeOptionOverlayDelegate delegate;
+  const _OptionList(this.delegate, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OptionPannelBloc, OptionPannelState>(
+      buildWhen: (previous, current) {
+        return previous.options != current.options;
+      },
       builder: (context, state) {
         final optionItems = state.options.map((option) {
-          return _OptionItem(option: option);
+          return _makeOptionItem(context, option);
         }).toList();
 
         return ListView.separated(
@@ -129,11 +150,37 @@ class _OptionList extends StatelessWidget {
       },
     );
   }
+
+  _OptionItem _makeOptionItem(BuildContext context, SelectOption option) {
+    return _OptionItem(
+      option: option,
+      onEdited: (option) {
+        final pannel = EditSelectOptionPannel(
+          option: option,
+          onDeleted: () {
+            delegate.hideOverlay(context);
+            context.read<OptionPannelBloc>().add(OptionPannelEvent.deleteOption(option));
+          },
+          onUpdated: (updatedOption) {
+            delegate.hideOverlay(context);
+            context.read<OptionPannelBloc>().add(OptionPannelEvent.updateOption(updatedOption));
+          },
+          key: ValueKey(option.id),
+        );
+        delegate.showOverlay(context, pannel);
+      },
+    );
+  }
 }
 
 class _OptionItem extends StatelessWidget {
   final SelectOption option;
-  const _OptionItem({required this.option, Key? key}) : super(key: key);
+  final Function(SelectOption) onEdited;
+  const _OptionItem({
+    required this.option,
+    required this.onEdited,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +190,7 @@ class _OptionItem extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(option.name, fontSize: 12),
         hoverColor: theme.hover,
-        onTap: () {},
+        onTap: () => onEdited(option),
         rightIcon: svg("grid/details", color: theme.iconColor),
       ),
     );
@@ -170,8 +217,8 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _AddOptionTextField extends StatelessWidget {
-  const _AddOptionTextField({Key? key}) : super(key: key);
+class _OptionNameTextField extends StatelessWidget {
+  const _OptionNameTextField({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -12,11 +12,13 @@ class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
   SingleSelectTypeOptionBuilder(
     String fieldId,
     TypeOptionData typeOptionData,
-    TypeOptionOperationDelegate delegate,
+    TypeOptionOverlayDelegate overlayDelegate,
+    TypeOptionDataDelegate dataDelegate,
   ) : _widget = SingleSelectTypeOptionWidget(
-          fieldId,
-          SingleSelectTypeOption.fromBuffer(typeOptionData),
-          delegate,
+          fieldId: fieldId,
+          typeOption: SingleSelectTypeOption.fromBuffer(typeOptionData),
+          dataDelegate: dataDelegate,
+          overlayDelegate: overlayDelegate,
         );
 
   @override
@@ -26,27 +28,41 @@ class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
 class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   final String fieldId;
   final SingleSelectTypeOption typeOption;
-  final TypeOptionOperationDelegate delegate;
-  const SingleSelectTypeOptionWidget(this.fieldId, this.typeOption, this.delegate, {Key? key}) : super(key: key);
+  final TypeOptionOverlayDelegate overlayDelegate;
+  final TypeOptionDataDelegate dataDelegate;
+  const SingleSelectTypeOptionWidget({
+    required this.fieldId,
+    required this.typeOption,
+    required this.dataDelegate,
+    required this.overlayDelegate,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<SingleSelectTypeOptionBloc>(param1: typeOption, param2: fieldId),
       child: BlocConsumer<SingleSelectTypeOptionBloc, SingleSelectTypeOptionState>(
-        listener: (context, state) => delegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
+        listener: (context, state) {
+          dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());
+        },
         builder: (context, state) {
           return OptionPannel(
             options: state.typeOption.options,
             beginEdit: () {
-              delegate.hideOverlay(context);
+              overlayDelegate.hideOverlay(context);
             },
             createOptionCallback: (name) {
               context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.createOption(name));
             },
-            updateOptionsCallback: (options) {
-              context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.updateOptions(options));
+            updateOptionCallback: (updateOption) {
+              context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.updateOption(updateOption));
             },
+            deleteOptionCallback: (deleteOption) {
+              context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.deleteOption(deleteOption));
+            },
+            overlayDelegate: overlayDelegate,
+            key: ValueKey(state.typeOption.hashCode),
           );
         },
       ),

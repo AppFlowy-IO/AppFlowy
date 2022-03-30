@@ -9,7 +9,7 @@ import 'option_pannel.dart';
 
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
   MultiSelectTypeOption typeOption;
-  TypeOptionOperationDelegate delegate;
+  TypeOptionOverlayDelegate delegate;
 
   MultiSelectTypeOptionBuilder(TypeOptionData typeOptionData, this.delegate)
       : typeOption = MultiSelectTypeOption.fromBuffer(typeOptionData);
@@ -20,8 +20,8 @@ class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   final MultiSelectTypeOption typeOption;
-  final TypeOptionOperationDelegate delegate;
-  const MultiSelectTypeOptionWidget(this.typeOption, this.delegate, {Key? key}) : super(key: key);
+  final TypeOptionOverlayDelegate overlayDelegate;
+  const MultiSelectTypeOptionWidget(this.typeOption, this.overlayDelegate, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +32,14 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
           return OptionPannel(
             options: state.typeOption.options,
             beginEdit: () {
-              delegate.hideOverlay(context);
+              overlayDelegate.hideOverlay(context);
             },
             createOptionCallback: (name) {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.createOption(name));
             },
-            updateOptionsCallback: (options) {
-              context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.updateOptions(options));
-            },
+            updateOptionCallback: (updateOption) {},
+            deleteOptionCallback: (deleteOption) {},
+            overlayDelegate: overlayDelegate,
           );
         },
       ),

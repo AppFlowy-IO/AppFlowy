@@ -15,30 +15,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DateTypeOptionBuilder extends TypeOptionBuilder {
-  DateTypeOption typeOption;
-  TypeOptionOperationDelegate delegate;
+  final DateTypeOptionWidget _widget;
 
-  DateTypeOptionBuilder(TypeOptionData typeOptionData, this.delegate)
-      : typeOption = DateTypeOption.fromBuffer(typeOptionData);
+  DateTypeOptionBuilder(
+    TypeOptionData typeOptionData,
+    TypeOptionOverlayDelegate overlayDelegate,
+    TypeOptionDataDelegate dataDelegate,
+  ) : _widget = DateTypeOptionWidget(
+          typeOption: DateTypeOption.fromBuffer(typeOptionData),
+          dataDelegate: dataDelegate,
+          overlayDelegate: overlayDelegate,
+        );
 
   @override
-  Widget? get customWidget => DateTypeOptionWidget(
-        typeOption: typeOption,
-        operationDelegate: delegate,
-      );
+  Widget? get customWidget => _widget;
 }
 
 class DateTypeOptionWidget extends TypeOptionWidget {
   final DateTypeOption typeOption;
-  final TypeOptionOperationDelegate operationDelegate;
-  const DateTypeOptionWidget({required this.typeOption, required this.operationDelegate, Key? key}) : super(key: key);
+  final TypeOptionOverlayDelegate overlayDelegate;
+  final TypeOptionDataDelegate dataDelegate;
+  const DateTypeOptionWidget({
+    required this.typeOption,
+    required this.dataDelegate,
+    required this.overlayDelegate,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<DateTypeOptionBloc>(param1: typeOption),
       child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
-        listener: (context, state) => operationDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
+        listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
         builder: (context, state) {
           return Column(children: [
             _dateFormatButton(context),
@@ -61,7 +70,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           final list = DateFormatList(onSelected: (format) {
             context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
           });
-          operationDelegate.requireToShowOverlay(context, list.identifier(), list);
+          overlayDelegate.showOverlay(context, list);
         },
         rightIcon: svg("grid/more", color: theme.iconColor),
       ),
@@ -80,7 +89,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           final list = TimeFormatList(onSelected: (format) {
             context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
           });
-          operationDelegate.requireToShowOverlay(context, list.identifier(), list);
+          overlayDelegate.showOverlay(context, list);
         },
         rightIcon: svg("grid/more", color: theme.iconColor),
       ),

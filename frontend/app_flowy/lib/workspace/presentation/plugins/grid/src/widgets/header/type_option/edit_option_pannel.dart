@@ -1,18 +1,151 @@
+import 'package:app_flowy/workspace/application/grid/field/type_option/edit_option_bloc.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+
+class EditSelectOptionPannel extends StatelessWidget {
+  final SelectOption option;
+  final VoidCallback onDeleted;
+  final Function(SelectOption) onUpdated;
+  const EditSelectOptionPannel({
+    required this.option,
+    required this.onDeleted,
+    required this.onUpdated,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => EditOptionBloc(option: option),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<EditOptionBloc, EditOptionState>(
+            listenWhen: (p, c) => p.deleted != c.deleted,
+            listener: (context, state) {
+              state.deleted.fold(() => null, (_) => onDeleted());
+            },
+          ),
+          BlocListener<EditOptionBloc, EditOptionState>(
+            listenWhen: (p, c) => p.option != c.option,
+            listener: (context, state) {
+              onUpdated(state.option);
+            },
+          ),
+        ],
+        child: BlocBuilder<EditOptionBloc, EditOptionState>(
+          builder: (context, state) {
+            List<Widget> slivers = [
+              SliverToBoxAdapter(child: _OptionNameTextField(state.option.name)),
+              const SliverToBoxAdapter(child: VSpace(10)),
+              const SliverToBoxAdapter(child: _DeleteTag()),
+              const SliverToBoxAdapter(child: TypeOptionSeparator()),
+              const SliverToBoxAdapter(child: SelectOptionColorList()),
+            ];
+
+            return CustomScrollView(
+              slivers: slivers,
+              controller: ScrollController(),
+              physics: StyledScrollPhysics(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _DeleteTag extends StatelessWidget {
+  const _DeleteTag({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return SizedBox(
+      height: GridSize.typeOptionItemHeight,
+      child: FlowyButton(
+        text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr(), fontSize: 12),
+        hoverColor: theme.hover,
+        leftIcon: svg("grid/delete", color: theme.iconColor),
+        onTap: () {
+          context.read<EditOptionBloc>().add(const EditOptionEvent.delete());
+        },
+      ),
+    );
+  }
+}
+
+class _OptionNameTextField extends StatelessWidget {
+  final String name;
+  const _OptionNameTextField(this.name, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return NameTextField(
+      name: name,
+      onCanceled: () {},
+      onDone: (optionName) {
+        context.read<EditOptionBloc>().add(EditOptionEvent.updateName(optionName));
+      },
+    );
+  }
+}
 
 class SelectOptionColorList extends StatelessWidget {
   const SelectOptionColorList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final optionItems = SelectOptionColor.values.map((option) {
+      // Color color = option.color();
+      // var hex = option.color.value.toRadixString(16);
+      // if (hex.startsWith('ff')) {
+      //   hex = hex.substring(2);
+      // }
+      // hex = '#$hex';
+
+      return _SelectOptionColorItem(option: option, isSelected: true);
+    }).toList();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: GridSize.typeOptionContentInsets,
+          child: SizedBox(
+            height: GridSize.typeOptionItemHeight,
+            child: FlowyText.medium(
+              LocaleKeys.grid_selectOption_colorPannelTitle.tr(),
+              fontSize: 12,
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+        ListView.separated(
+          shrinkWrap: true,
+          controller: ScrollController(),
+          separatorBuilder: (context, index) {
+            return VSpace(GridSize.typeOptionSeparatorHeight);
+          },
+          itemCount: optionItems.length,
+          physics: StyledScrollPhysics(),
+          itemBuilder: (BuildContext context, int index) {
+            return optionItems[index];
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -24,12 +157,12 @@ class _SelectOptionColorItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-
     Widget? checkmark;
     if (isSelected) {
       checkmark = svg("grid/details", color: theme.iconColor);
     }
 
+    final String hex = '#${option.color(context).value.toRadixString(16)}';
     final colorIcon = SizedBox.square(
       dimension: 16,
       child: Container(
@@ -40,15 +173,17 @@ class _SelectOptionColorItem extends StatelessWidget {
       ),
     );
 
-    return FlowyButton(
-      text: FlowyText.medium(
-        option.name(),
-        fontSize: 12,
+    return SizedBox(
+      height: GridSize.typeOptionItemHeight,
+      child: FlowyButton(
+        text: FlowyText.medium(option.name(), fontSize: 12),
+        hoverColor: theme.hover,
+        leftIcon: colorIcon,
+        rightIcon: checkmark,
+        onTap: () {
+          context.read<EditOptionBloc>().add(EditOptionEvent.updateColor(hex));
+        },
       ),
-      hoverColor: theme.hover,
-      leftIcon: colorIcon,
-      rightIcon: checkmark,
-      onTap: () {},
     );
   }
 }
