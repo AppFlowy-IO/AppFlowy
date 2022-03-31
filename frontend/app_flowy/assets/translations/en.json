@@ -166,7 +166,8 @@
       "timeFormatTwentyFourHour": "24 hour",
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
-      "addOption": "Add option"
+      "addOption": "Add option",
+      "editProperty": "Edit property"
     },
     "selectOption": {
       "purpleColor": "Purple",

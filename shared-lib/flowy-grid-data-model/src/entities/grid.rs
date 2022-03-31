@@ -101,11 +101,14 @@ impl std::convert::From<&FieldMeta> for FieldOrder {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct CreateEditFieldContextParams {
+pub struct GetEditFieldContextParams {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
+    #[pb(index = 2, one_of)]
+    pub field_id: Option<String>,
+
+    #[pb(index = 3)]
     pub field_type: FieldType,
 }
 

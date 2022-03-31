@@ -374,47 +374,65 @@ class FieldOrder extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(1);
 }
 
-class CreateEditFieldContextParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateEditFieldContextParams', createEmptyInstance: create)
+enum GetEditFieldContextParams_OneOfFieldId {
+  fieldId, 
+  notSet
+}
+
+class GetEditFieldContextParams extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, GetEditFieldContextParams_OneOfFieldId> _GetEditFieldContextParams_OneOfFieldIdByTag = {
+    2 : GetEditFieldContextParams_OneOfFieldId.fieldId,
+    0 : GetEditFieldContextParams_OneOfFieldId.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GetEditFieldContextParams', createEmptyInstance: create)
+    ..oo(0, [2])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..e<$0.FieldType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..e<$0.FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
     ..hasRequiredFields = false
   ;
 
-  CreateEditFieldContextParams._() : super();
-  factory CreateEditFieldContextParams({
+  GetEditFieldContextParams._() : super();
+  factory GetEditFieldContextParams({
     $core.String? gridId,
+    $core.String? fieldId,
     $0.FieldType? fieldType,
   }) {
     final _result = create();
     if (gridId != null) {
       _result.gridId = gridId;
     }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
     if (fieldType != null) {
       _result.fieldType = fieldType;
     }
     return _result;
   }
-  factory CreateEditFieldContextParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CreateEditFieldContextParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GetEditFieldContextParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetEditFieldContextParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CreateEditFieldContextParams clone() => CreateEditFieldContextParams()..mergeFromMessage(this);
+  GetEditFieldContextParams clone() => GetEditFieldContextParams()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CreateEditFieldContextParams copyWith(void Function(CreateEditFieldContextParams) updates) => super.copyWith((message) => updates(message as CreateEditFieldContextParams)) as CreateEditFieldContextParams; // ignore: deprecated_member_use
+  GetEditFieldContextParams copyWith(void Function(GetEditFieldContextParams) updates) => super.copyWith((message) => updates(message as GetEditFieldContextParams)) as GetEditFieldContextParams; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CreateEditFieldContextParams create() => CreateEditFieldContextParams._();
-  CreateEditFieldContextParams createEmptyInstance() => create();
-  static $pb.PbList<CreateEditFieldContextParams> createRepeated() => $pb.PbList<CreateEditFieldContextParams>();
+  static GetEditFieldContextParams create() => GetEditFieldContextParams._();
+  GetEditFieldContextParams createEmptyInstance() => create();
+  static $pb.PbList<GetEditFieldContextParams> createRepeated() => $pb.PbList<GetEditFieldContextParams>();
   @$core.pragma('dart2js:noInline')
-  static CreateEditFieldContextParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateEditFieldContextParams>(create);
-  static CreateEditFieldContextParams? _defaultInstance;
+  static GetEditFieldContextParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetEditFieldContextParams>(create);
+  static GetEditFieldContextParams? _defaultInstance;
+
+  GetEditFieldContextParams_OneOfFieldId whichOneOfFieldId() => _GetEditFieldContextParams_OneOfFieldIdByTag[$_whichOneof(0)]!;
+  void clearOneOfFieldId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);
@@ -426,13 +444,22 @@ class CreateEditFieldContextParams extends $pb.GeneratedMessage {
   void clearGridId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $0.FieldType get fieldType => $_getN(1);
+  $core.String get fieldId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fieldType($0.FieldType v) { setField(2, v); }
+  set fieldId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasFieldType() => $_has(1);
+  $core.bool hasFieldId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearFieldType() => clearField(2);
+  void clearFieldId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $0.FieldType get fieldType => $_getN(2);
+  @$pb.TagNumber(3)
+  set fieldType($0.FieldType v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFieldType() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFieldType() => clearField(3);
 }
 
 class EditFieldContext extends $pb.GeneratedMessage {

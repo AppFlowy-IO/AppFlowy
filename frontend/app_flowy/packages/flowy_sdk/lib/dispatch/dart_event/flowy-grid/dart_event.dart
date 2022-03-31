@@ -120,13 +120,13 @@ class GridEventDuplicateField {
     }
 }
 
-class GridEventCreateEditFieldContext {
-     CreateEditFieldContextParams request;
-     GridEventCreateEditFieldContext(this.request);
+class GridEventGetEditFieldContext {
+     GetEditFieldContextParams request;
+     GridEventGetEditFieldContext(this.request);
 
     Future<Either<EditFieldContext, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.CreateEditFieldContext.toString()
+          ..event = GridEvent.GetEditFieldContext.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

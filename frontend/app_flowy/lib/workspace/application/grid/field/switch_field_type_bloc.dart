@@ -9,9 +9,9 @@ import 'field_service.dart';
 
 part 'switch_field_type_bloc.freezed.dart';
 
-class FieldTypeSwitchBloc extends Bloc<FieldTypeSwitchEvent, FieldTypeSwitchState> {
-  FieldTypeSwitchBloc(SwitchFieldContext editContext) : super(FieldTypeSwitchState.initial(editContext)) {
-    on<FieldTypeSwitchEvent>(
+class FieldSwitchBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
+  FieldSwitchBloc(SwitchFieldContext editContext) : super(FieldSwitchState.initial(editContext)) {
+    on<FieldSwitchEvent>(
       (event, emit) async {
         await event.map(
           toFieldType: (_ToFieldType value) async {
@@ -19,12 +19,8 @@ class FieldTypeSwitchBloc extends Bloc<FieldTypeSwitchEvent, FieldTypeSwitchStat
             final result = await fieldService.getEditFieldContext(value.fieldType);
             result.fold(
               (newEditContext) {
-                emit(
-                  state.copyWith(
-                    field: newEditContext.gridField,
-                    typeOptionData: Uint8List.fromList(newEditContext.typeOptionData),
-                  ),
-                );
+                final typeOptionData = Uint8List.fromList(newEditContext.typeOptionData);
+                emit(state.copyWith(field: newEditContext.gridField, typeOptionData: typeOptionData));
               },
               (err) => Log.error(err),
             );
@@ -44,20 +40,20 @@ class FieldTypeSwitchBloc extends Bloc<FieldTypeSwitchEvent, FieldTypeSwitchStat
 }
 
 @freezed
-class FieldTypeSwitchEvent with _$FieldTypeSwitchEvent {
-  const factory FieldTypeSwitchEvent.toFieldType(FieldType fieldType) = _ToFieldType;
-  const factory FieldTypeSwitchEvent.didUpdateTypeOptionData(Uint8List typeOptionData) = _DidUpdateTypeOptionData;
+class FieldSwitchEvent with _$FieldSwitchEvent {
+  const factory FieldSwitchEvent.toFieldType(FieldType fieldType) = _ToFieldType;
+  const factory FieldSwitchEvent.didUpdateTypeOptionData(Uint8List typeOptionData) = _DidUpdateTypeOptionData;
 }
 
 @freezed
-class FieldTypeSwitchState with _$FieldTypeSwitchState {
-  const factory FieldTypeSwitchState({
+class FieldSwitchState with _$FieldSwitchState {
+  const factory FieldSwitchState({
     required String gridId,
     required Field field,
     required Uint8List typeOptionData,
-  }) = _FieldTypeSwitchState;
+  }) = _FieldSwitchState;
 
-  factory FieldTypeSwitchState.initial(SwitchFieldContext switchContext) => FieldTypeSwitchState(
+  factory FieldSwitchState.initial(SwitchFieldContext switchContext) => FieldSwitchState(
         gridId: switchContext.gridId,
         field: switchContext.field,
         typeOptionData: Uint8List.fromList(switchContext.typeOptionData),

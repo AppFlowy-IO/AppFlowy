@@ -68,17 +68,21 @@ const FieldOrder$json = const {
 
 /// Descriptor for `FieldOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldOrderDescriptor = $convert.base64Decode('CgpGaWVsZE9yZGVyEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElk');
-@$core.Deprecated('Use createEditFieldContextParamsDescriptor instead')
-const CreateEditFieldContextParams$json = const {
-  '1': 'CreateEditFieldContextParams',
+@$core.Deprecated('Use getEditFieldContextParamsDescriptor instead')
+const GetEditFieldContextParams$json = const {
+  '1': 'GetEditFieldContextParams',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'field_type', '3': 2, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'fieldId'},
+    const {'1': 'field_type', '3': 3, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
+  ],
+  '8': const [
+    const {'1': 'one_of_field_id'},
   ],
 };
 
-/// Descriptor for `CreateEditFieldContextParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createEditFieldContextParamsDescriptor = $convert.base64Decode('ChxDcmVhdGVFZGl0RmllbGRDb250ZXh0UGFyYW1zEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIpCgpmaWVsZF90eXBlGAIgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGU=');
+/// Descriptor for `GetEditFieldContextParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getEditFieldContextParamsDescriptor = $convert.base64Decode('ChlHZXRFZGl0RmllbGRDb250ZXh0UGFyYW1zEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIbCghmaWVsZF9pZBgCIAEoCUgAUgdmaWVsZElkEikKCmZpZWxkX3R5cGUYAyABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZUIRCg9vbmVfb2ZfZmllbGRfaWQ=');
 @$core.Deprecated('Use editFieldContextDescriptor instead')
 const EditFieldContext$json = const {
   '1': 'EditFieldContext',

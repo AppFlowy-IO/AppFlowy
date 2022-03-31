@@ -53,24 +53,40 @@ impl ClientGridEditor {
             field,
             type_option_data,
             start_field_id,
-            ..
+            grid_id,
         } = params;
 
-        let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
-
-        let field_meta = FieldMeta {
-            id: field.id,
-            name: field.name,
-            desc: field.desc,
-            field_type: field.field_type,
-            frozen: field.frozen,
-            visibility: field.visibility,
-            width: field.width,
-            type_option_json,
-        };
-
         let _ = self
-            .modify(|grid| Ok(grid.create_field(field_meta, start_field_id)?))
+            .modify(|grid| {
+                if grid.contain_field(&field.id) {
+                    let changeset = FieldChangesetParams {
+                        field_id: field.id,
+                        grid_id,
+                        name: Some(field.name),
+                        desc: Some(field.desc),
+                        field_type: Some(field.field_type),
+                        frozen: Some(field.frozen),
+                        visibility: Some(field.visibility),
+                        width: Some(field.width),
+                        type_option_data: Some(type_option_data),
+                    };
+
+                    Ok(grid.update_field(changeset)?)
+                } else {
+                    let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
+                    let field_meta = FieldMeta {
+                        id: field.id,
+                        name: field.name,
+                        desc: field.desc,
+                        field_type: field.field_type,
+                        frozen: field.frozen,
+                        visibility: field.visibility,
+                        width: field.width,
+                        type_option_json,
+                    };
+                    Ok(grid.create_field(field_meta, start_field_id)?)
+                }
+            })
             .await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
@@ -114,6 +130,13 @@ impl ClientGridEditor {
         let _ = self.modify(|grid| Ok(grid.duplicate_field(field_id)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
+    }
+
+    pub async fn get_field(&self, field_id: &str) -> FlowyResult<Option<FieldMeta>> {
+        match self.pad.read().await.get_field(field_id) {
+            None => Ok(None),
+            Some(field_meta) => Ok(Some(field_meta.clone())),
+        }
     }
 
     pub async fn create_block(&self, grid_block: GridBlockMeta) -> FlowyResult<()> {

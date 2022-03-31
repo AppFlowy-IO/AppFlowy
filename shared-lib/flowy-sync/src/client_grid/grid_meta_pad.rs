@@ -45,7 +45,7 @@ impl GridMetaPad {
         self.modify_grid(|grid| {
             // Check if the field exists or not
             if grid.fields.iter().any(|field_meta| field_meta.id == new_field_meta.id) {
-                tracing::warn!("Duplicate grid field");
+                tracing::error!("Duplicate grid field");
                 return Ok(None);
             }
 

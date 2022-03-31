@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/date_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_tyep_switcher.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';

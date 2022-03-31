@@ -1,50 +1,38 @@
+import 'dart:typed_data';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'field_service.dart';
+import 'package:dartz/dartz.dart';
 
 part 'edit_field_bloc.freezed.dart';
 
-class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
+class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldService service;
+  final FieldContextLoader _loader;
 
-  EditFieldBloc({required Field field, required this.service})
-      : super(EditFieldState.initial(EditFieldContext.create()..gridField = field)) {
-    on<EditFieldEvent>(
+  FieldEditorBloc({
+    required this.service,
+    required FieldContextLoader fieldLoader,
+  })  : _loader = fieldLoader,
+        super(FieldEditorState.initial(service.gridId)) {
+    on<FieldEditorEvent>(
       (event, emit) async {
         await event.map(
-          initial: (_InitialField value) {},
-          updateFieldName: (_UpdateFieldName value) async {
-            final result = await service.updateField(fieldId: field.id, name: value.name);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
+          initial: (_InitialField value) async {
+            await _getEditFieldContext(emit);
           },
-          hideField: (_HideField value) async {
-            final result = await service.updateField(fieldId: field.id, visibility: false);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
+          updateName: (_UpdateName value) {
+            emit(state.copyWith(fieldName: value.name));
           },
-          deleteField: (_DeleteField value) async {
-            final result = await service.deleteField(fieldId: field.id);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
+          switchField: (_SwitchField value) {
+            emit(state.copyWith(field: Some(value.field), typeOptionData: value.typeOptionData));
           },
-          duplicateField: (_DuplicateField value) async {
-            final result = await service.duplicateField(fieldId: field.id);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
+          done: (_Done value) async {
+            await _saveField(emit);
           },
-          saveField: (_SaveField value) {},
         );
       },
     );
@@ -54,29 +42,59 @@ class EditFieldBloc extends Bloc<EditFieldEvent, EditFieldState> {
   Future<void> close() async {
     return super.close();
   }
+
+  Future<void> _saveField(Emitter<FieldEditorState> emit) async {
+    await state.field.fold(
+      () async => null,
+      (field) async {
+        field.name = state.fieldName;
+        final result = await service.createField(
+          field: field,
+          typeOptionData: state.typeOptionData,
+        );
+        result.fold((l) => null, (r) => null);
+      },
+    );
+  }
+
+  Future<void> _getEditFieldContext(Emitter<FieldEditorState> emit) async {
+    final result = await _loader.load();
+    result.fold(
+      (editContext) {
+        emit(state.copyWith(
+          field: Some(editContext.gridField),
+          typeOptionData: editContext.typeOptionData,
+          fieldName: editContext.gridField.name,
+        ));
+      },
+      (err) => Log.error(err),
+    );
+  }
 }
 
 @freezed
-class EditFieldEvent with _$EditFieldEvent {
-  const factory EditFieldEvent.initial() = _InitialField;
-  const factory EditFieldEvent.updateFieldName(String name) = _UpdateFieldName;
-  const factory EditFieldEvent.hideField() = _HideField;
-  const factory EditFieldEvent.duplicateField() = _DuplicateField;
-  const factory EditFieldEvent.deleteField() = _DeleteField;
-  const factory EditFieldEvent.saveField() = _SaveField;
+class FieldEditorEvent with _$FieldEditorEvent {
+  const factory FieldEditorEvent.initial() = _InitialField;
+  const factory FieldEditorEvent.updateName(String name) = _UpdateName;
+  const factory FieldEditorEvent.switchField(Field field, Uint8List typeOptionData) = _SwitchField;
+  const factory FieldEditorEvent.done() = _Done;
 }
 
 @freezed
-class EditFieldState with _$EditFieldState {
-  const factory EditFieldState({
-    required EditFieldContext editContext,
-    required String errorText,
+class FieldEditorState with _$FieldEditorState {
+  const factory FieldEditorState({
     required String fieldName,
-  }) = _EditFieldState;
+    required String gridId,
+    required String errorText,
+    required Option<Field> field,
+    required List<int> typeOptionData,
+  }) = _FieldEditorState;
 
-  factory EditFieldState.initial(EditFieldContext editContext) => EditFieldState(
-        editContext: editContext,
+  factory FieldEditorState.initial(String gridId) => FieldEditorState(
+        gridId: gridId,
+        fieldName: '',
+        field: none(),
         errorText: '',
-        fieldName: editContext.gridField.name,
+        typeOptionData: List<int>.empty(),
       );
 }

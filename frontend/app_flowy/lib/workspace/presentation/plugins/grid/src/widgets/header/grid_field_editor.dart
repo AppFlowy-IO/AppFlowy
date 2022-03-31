@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/field/create_field_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/edit_field_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/switch_field_type_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -7,19 +8,24 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_name_input.dart';
-import 'field_tyep_switcher.dart';
+import 'field_switcher.dart';
 
-class CreateFieldPannel extends FlowyOverlayDelegate {
+class FieldEditor extends FlowyOverlayDelegate {
   final String gridId;
-  final CreateFieldBloc _createFieldBloc;
-  CreateFieldPannel({required this.gridId, Key? key}) : _createFieldBloc = getIt<CreateFieldBloc>(param1: gridId) {
-    _createFieldBloc.add(const CreateFieldEvent.initial());
+  final FieldEditorBloc _fieldEditorBloc;
+  final FieldContextLoader? fieldContextLoader;
+  FieldEditor({
+    required this.gridId,
+    required this.fieldContextLoader,
+    Key? key,
+  }) : _fieldEditorBloc = getIt<FieldEditorBloc>(param1: gridId, param2: fieldContextLoader) {
+    _fieldEditorBloc.add(const FieldEditorEvent.initial());
   }
 
-  void show(BuildContext context, String gridId) {
+  void show(BuildContext context) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: _CreateFieldPannelWidget(_createFieldBloc),
+        child: _EditFieldPannelWidget(_fieldEditorBloc),
         constraints: BoxConstraints.loose(const Size(220, 400)),
       ),
       identifier: identifier(),
@@ -36,22 +42,22 @@ class CreateFieldPannel extends FlowyOverlayDelegate {
 
   @override
   void didRemove() {
-    _createFieldBloc.add(const CreateFieldEvent.done());
+    _fieldEditorBloc.add(const FieldEditorEvent.done());
   }
 
   @override
   bool asBarrier() => true;
 }
 
-class _CreateFieldPannelWidget extends StatelessWidget {
-  final CreateFieldBloc createFieldBloc;
-  const _CreateFieldPannelWidget(this.createFieldBloc, {Key? key}) : super(key: key);
+class _EditFieldPannelWidget extends StatelessWidget {
+  final FieldEditorBloc editorBloc;
+  const _EditFieldPannelWidget(this.editorBloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: createFieldBloc,
-      child: BlocBuilder<CreateFieldBloc, CreateFieldState>(
+      value: editorBloc,
+      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         builder: (context, state) {
           return state.field.fold(
             () => const SizedBox(width: 200),
@@ -62,7 +68,7 @@ class _CreateFieldPannelWidget extends StatelessWidget {
                 const VSpace(10),
                 const _FieldNameTextField(),
                 const VSpace(10),
-                _FieldTypeSwitcher(SwitchFieldContext(state.gridId, field, state.typeOptionData)),
+                _FieldSwitcher(SwitchFieldContext(state.gridId, field, state.typeOptionData)),
               ],
             ),
           );
@@ -72,16 +78,16 @@ class _CreateFieldPannelWidget extends StatelessWidget {
   }
 }
 
-class _FieldTypeSwitcher extends StatelessWidget {
+class _FieldSwitcher extends StatelessWidget {
   final SwitchFieldContext switchContext;
-  const _FieldTypeSwitcher(this.switchContext, {Key? key}) : super(key: key);
+  const _FieldSwitcher(this.switchContext, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FieldTypeSwitcher(
+    return FieldSwitcher(
       switchContext: switchContext,
-      onSelected: (field, typeOptionData) {
-        context.read<CreateFieldBloc>().add(CreateFieldEvent.switchField(field, typeOptionData));
+      onUpdated: (field, typeOptionData) {
+        context.read<FieldEditorBloc>().add(FieldEditorEvent.switchField(field, typeOptionData));
       },
     );
   }
@@ -92,14 +98,14 @@ class _FieldNameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CreateFieldBloc, CreateFieldState>(
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous.fieldName != current.fieldName,
       builder: (context, state) {
         return FieldNameTextField(
           name: state.fieldName,
-          errorText: context.read<CreateFieldBloc>().state.errorText,
+          errorText: context.read<FieldEditorBloc>().state.errorText,
           onNameChanged: (newName) {
-            context.read<CreateFieldBloc>().add(CreateFieldEvent.updateName(newName));
+            context.read<FieldEditorBloc>().add(FieldEditorEvent.updateName(newName));
           },
         );
       },

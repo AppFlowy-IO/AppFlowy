@@ -32,7 +32,7 @@ pub enum GridEvent {
     CreateField = 12,
     DeleteField = 13,
     DuplicateField = 15,
-    CreateEditFieldContext = 16,
+    GetEditFieldContext = 16,
     CreateSelectOption = 30,
     CreateRow = 50,
     GetRow = 51,
@@ -53,7 +53,7 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             12 => ::std::option::Option::Some(GridEvent::CreateField),
             13 => ::std::option::Option::Some(GridEvent::DeleteField),
             15 => ::std::option::Option::Some(GridEvent::DuplicateField),
-            16 => ::std::option::Option::Some(GridEvent::CreateEditFieldContext),
+            16 => ::std::option::Option::Some(GridEvent::GetEditFieldContext),
             30 => ::std::option::Option::Some(GridEvent::CreateSelectOption),
             50 => ::std::option::Option::Some(GridEvent::CreateRow),
             51 => ::std::option::Option::Some(GridEvent::GetRow),
@@ -71,7 +71,7 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             GridEvent::CreateField,
             GridEvent::DeleteField,
             GridEvent::DuplicateField,
-            GridEvent::CreateEditFieldContext,
+            GridEvent::GetEditFieldContext,
             GridEvent::CreateSelectOption,
             GridEvent::CreateRow,
             GridEvent::GetRow,
@@ -104,13 +104,13 @@ impl ::protobuf::reflect::ProtobufValue for GridEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xe4\x01\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
+    \n\x0fevent_map.proto*\xe1\x01\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
     \0\x12\x11\n\rGetGridBlocks\x10\x01\x12\r\n\tGetFields\x10\n\x12\x0f\n\
     \x0bUpdateField\x10\x0b\x12\x0f\n\x0bCreateField\x10\x0c\x12\x0f\n\x0bDe\
-    leteField\x10\r\x12\x12\n\x0eDuplicateField\x10\x0f\x12\x1a\n\x16CreateE\
-    ditFieldContext\x10\x10\x12\x16\n\x12CreateSelectOption\x10\x1e\x12\r\n\
-    \tCreateRow\x102\x12\n\n\x06GetRow\x103\x12\x0e\n\nUpdateCell\x10Fb\x06p\
-    roto3\
+    leteField\x10\r\x12\x12\n\x0eDuplicateField\x10\x0f\x12\x17\n\x13GetEdit\
+    FieldContext\x10\x10\x12\x16\n\x12CreateSelectOption\x10\x1e\x12\r\n\tCr\
+    eateRow\x102\x12\n\n\x06GetRow\x103\x12\x0e\n\nUpdateCell\x10Fb\x06proto\
+    3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

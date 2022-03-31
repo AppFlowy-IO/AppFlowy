@@ -74,7 +74,7 @@ TransitionBuilder overlayManagerBuilder() {
 
 abstract class FlowyOverlayDelegate {
   bool asBarrier() => false;
-  void didRemove();
+  void didRemove() => {};
 }
 
 class FlowyOverlay extends StatefulWidget {

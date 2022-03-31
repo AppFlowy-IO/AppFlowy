@@ -15,39 +15,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_list.dart';
 
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
 import 'type_option/single_select.dart';
 
-typedef SelectFieldCallback = void Function(Field, Uint8List);
+typedef UpdateFieldCallback = void Function(Field, Uint8List);
 
-class FieldTypeSwitcher extends StatefulWidget {
+class FieldSwitcher extends StatefulWidget {
   final SwitchFieldContext switchContext;
-  final SelectFieldCallback onSelected;
+  final UpdateFieldCallback onUpdated;
 
-  const FieldTypeSwitcher({
+  const FieldSwitcher({
     required this.switchContext,
-    required this.onSelected,
+    required this.onUpdated,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<FieldTypeSwitcher> createState() => _FieldTypeSwitcherState();
+  State<FieldSwitcher> createState() => _FieldSwitcherState();
 }
 
-class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
+class _FieldSwitcherState extends State<FieldSwitcher> {
   String? currentOverlayIdentifier;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldTypeSwitchBloc>(param1: widget.switchContext),
-      child: BlocBuilder<FieldTypeSwitchBloc, FieldTypeSwitchState>(
+      create: (context) => getIt<FieldSwitchBloc>(param1: widget.switchContext),
+      child: BlocConsumer<FieldSwitchBloc, FieldSwitchState>(
+        listener: (context, state) {
+          widget.onUpdated(state.field, state.typeOptionData);
+        },
         builder: (context, state) {
           List<Widget> children = [_switchFieldTypeButton(context, state.field)];
-
           final typeOptionWidget = _typeOptionWidget(
             context: context,
             field: state.field,
@@ -77,7 +79,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
         hoverColor: theme.hover,
         onTap: () {
           final list = FieldTypeList(onSelectField: (fieldType) {
-            context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.toFieldType(fieldType));
+            context.read<FieldSwitchBloc>().add(FieldSwitchEvent.toFieldType(fieldType));
           });
           _showOverlay(context, list);
         },
@@ -98,7 +100,7 @@ class _FieldTypeSwitcherState extends State<FieldTypeSwitcher> {
     );
 
     final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
-      context.read<FieldTypeSwitchBloc>().add(FieldTypeSwitchEvent.didUpdateTypeOptionData(data));
+      context.read<FieldSwitchBloc>().add(FieldSwitchEvent.didUpdateTypeOptionData(data));
     });
 
     final builder = _makeTypeOptionBuild(

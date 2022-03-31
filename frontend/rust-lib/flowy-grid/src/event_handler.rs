@@ -1,6 +1,7 @@
 use crate::manager::GridManager;
 use crate::services::field::{type_option_data_from_str, SelectOption};
-use flowy_error::FlowyError;
+use crate::services::grid_editor::ClientGridEditor;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
@@ -97,13 +98,14 @@ pub(crate) async fn create_select_option_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_edit_field_context_handler(
-    data: Data<CreateEditFieldContextParams>,
+pub(crate) async fn edit_edit_field_context_handler(
+    data: Data<GetEditFieldContextParams>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<EditFieldContext, FlowyError> {
-    let params: CreateEditFieldContextParams = data.into_inner();
+    let params: GetEditFieldContextParams = data.into_inner();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_meta = editor.default_field_meta(&params.field_type).await?;
+
+    let mut field_meta = get_or_create_field_meta(&params, editor).await?;
     let type_option_data = type_option_data_from_str(&field_meta.type_option_json, &field_meta.field_type);
     let field: Field = field_meta.into();
     let edit_context = EditFieldContext {
@@ -112,6 +114,19 @@ pub(crate) async fn create_edit_field_context_handler(
         type_option_data,
     };
     data_result(edit_context)
+}
+
+async fn get_or_create_field_meta(
+    params: &GetEditFieldContextParams,
+    editor: Arc<ClientGridEditor>,
+) -> FlowyResult<FieldMeta> {
+    if params.field_id.is_some() {
+        if let Some(field_meta) = editor.get_field(params.field_id.as_ref().unwrap()).await? {
+            return Ok(field_meta);
+        }
+    }
+
+    editor.default_field_meta(&params.field_type).await
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/field/edit_field_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/grid_field_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -86,13 +86,13 @@ extension _FieldActionExtension on FieldAction {
   void run(BuildContext context) {
     switch (this) {
       case FieldAction.hide:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.hideField());
+        context.read<GridFieldBloc>().add(const GridFieldEvent.hideField());
         break;
       case FieldAction.duplicate:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.duplicateField());
+        context.read<GridFieldBloc>().add(const GridFieldEvent.duplicateField());
         break;
       case FieldAction.delete:
-        context.read<EditFieldBloc>().add(const EditFieldEvent.deleteField());
+        context.read<GridFieldBloc>().add(const GridFieldEvent.deleteField());
         break;
     }
   }

@@ -9,7 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'create_field_pannel.dart';
+import 'grid_field_editor.dart';
 import 'grid_header_cell.dart';
 
 class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -113,10 +113,14 @@ class CreateFieldButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.hover,
-      onTap: () => CreateFieldPannel(gridId: gridId).show(context, gridId),
+      onTap: () => FieldEditor(
+        gridId: gridId,
+        fieldContextLoader: NewFieldContextLoader(gridId: gridId),
+      ).show(context),
       leftIcon: svg("home/add"),
     );
   }

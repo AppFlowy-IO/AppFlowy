@@ -26,9 +26,10 @@ message FieldIdentifierParams {
 message FieldOrder {
     string field_id = 1;
 }
-message CreateEditFieldContextParams {
+message GetEditFieldContextParams {
     string grid_id = 1;
-    FieldType field_type = 2;
+    oneof one_of_field_id { string field_id = 2; };
+    FieldType field_type = 3;
 }
 message EditFieldContext {
     string grid_id = 1;

@@ -11,11 +11,11 @@ class FieldService {
   FieldService({required this.gridId});
 
   Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(FieldType fieldType) {
-    final payload = CreateEditFieldContextParams.create()
+    final payload = GetEditFieldContextParams.create()
       ..gridId = gridId
       ..fieldType = fieldType;
 
-    return GridEventCreateEditFieldContext(payload).send();
+    return GridEventGetEditFieldContext(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> updateField({
@@ -107,4 +107,40 @@ class GridFieldData extends Equatable {
 
   @override
   List<Object> get props => [field.id];
+}
+
+abstract class FieldContextLoader {
+  Future<Either<EditFieldContext, FlowyError>> load();
+}
+
+class NewFieldContextLoader extends FieldContextLoader {
+  final String gridId;
+  NewFieldContextLoader({
+    required this.gridId,
+  });
+
+  @override
+  Future<Either<EditFieldContext, FlowyError>> load() {
+    final payload = GetEditFieldContextParams.create()
+      ..gridId = gridId
+      ..fieldType = FieldType.RichText;
+
+    return GridEventGetEditFieldContext(payload).send();
+  }
+}
+
+class FieldContextLoaderAdaptor extends FieldContextLoader {
+  final GridFieldData data;
+
+  FieldContextLoaderAdaptor(this.data);
+
+  @override
+  Future<Either<EditFieldContext, FlowyError>> load() {
+    final payload = GetEditFieldContextParams.create()
+      ..gridId = data.gridId
+      ..fieldId = data.field.id
+      ..fieldType = data.field.fieldType;
+
+    return GridEventGetEditFieldContext(payload).send();
+  }
 }
