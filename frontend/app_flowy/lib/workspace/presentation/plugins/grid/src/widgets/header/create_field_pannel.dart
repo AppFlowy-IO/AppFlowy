@@ -38,6 +38,9 @@ class CreateFieldPannel extends FlowyOverlayDelegate {
   void didRemove() {
     _createFieldBloc.add(const CreateFieldEvent.done());
   }
+
+  @override
+  bool asBarrier() => true;
 }
 
 class _CreateFieldPannelWidget extends StatelessWidget {

@@ -8,6 +8,24 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use selectOptionColorDescriptor instead')
+const SelectOptionColor$json = const {
+  '1': 'SelectOptionColor',
+  '2': const [
+    const {'1': 'Purple', '2': 0},
+    const {'1': 'Pink', '2': 1},
+    const {'1': 'LightPink', '2': 2},
+    const {'1': 'Orange', '2': 3},
+    const {'1': 'Yellow', '2': 4},
+    const {'1': 'Lime', '2': 5},
+    const {'1': 'Green', '2': 6},
+    const {'1': 'Aqua', '2': 7},
+    const {'1': 'Blue', '2': 8},
+  ],
+};
+
+/// Descriptor for `SelectOptionColor`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List selectOptionColorDescriptor = $convert.base64Decode('ChFTZWxlY3RPcHRpb25Db2xvchIKCgZQdXJwbGUQABIICgRQaW5rEAESDQoJTGlnaHRQaW5rEAISCgoGT3JhbmdlEAMSCgoGWWVsbG93EAQSCAoETGltZRAFEgkKBUdyZWVuEAYSCAoEQXF1YRAHEggKBEJsdWUQCA==');
 @$core.Deprecated('Use singleSelectTypeOptionDescriptor instead')
 const SingleSelectTypeOption$json = const {
   '1': 'SingleSelectTypeOption',
@@ -36,9 +54,9 @@ const SelectOption$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'color', '3': 3, '4': 1, '5': 9, '10': 'color'},
+    const {'1': 'color', '3': 3, '4': 1, '5': 14, '6': '.SelectOptionColor', '10': 'color'},
   ],
 };
 
 /// Descriptor for `SelectOption`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionDescriptor = $convert.base64Decode('CgxTZWxlY3RPcHRpb24SDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSFAoFY29sb3IYAyABKAlSBWNvbG9y');
+final $typed_data.Uint8List selectOptionDescriptor = $convert.base64Decode('CgxTZWxlY3RPcHRpb24SDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSKAoFY29sb3IYAyABKA4yEi5TZWxlY3RPcHRpb25Db2xvclIFY29sb3I=');

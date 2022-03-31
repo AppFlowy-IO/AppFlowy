@@ -430,7 +430,7 @@ pub struct SelectOption {
     // message fields
     pub id: ::std::string::String,
     pub name: ::std::string::String,
-    pub color: ::std::string::String,
+    pub color: SelectOptionColor,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -499,30 +499,19 @@ impl SelectOption {
         ::std::mem::replace(&mut self.name, ::std::string::String::new())
     }
 
-    // string color = 3;
+    // .SelectOptionColor color = 3;
 
 
-    pub fn get_color(&self) -> &str {
-        &self.color
+    pub fn get_color(&self) -> SelectOptionColor {
+        self.color
     }
     pub fn clear_color(&mut self) {
-        self.color.clear();
+        self.color = SelectOptionColor::Purple;
     }
 
     // Param is passed by value, moved
-    pub fn set_color(&mut self, v: ::std::string::String) {
+    pub fn set_color(&mut self, v: SelectOptionColor) {
         self.color = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_color(&mut self) -> &mut ::std::string::String {
-        &mut self.color
-    }
-
-    // Take field
-    pub fn take_color(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.color, ::std::string::String::new())
     }
 }
 
@@ -542,7 +531,7 @@ impl ::protobuf::Message for SelectOption {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
                 },
                 3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.color)?;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.color, 3, &mut self.unknown_fields)?
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -562,8 +551,8 @@ impl ::protobuf::Message for SelectOption {
         if !self.name.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.name);
         }
-        if !self.color.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.color);
+        if self.color != SelectOptionColor::Purple {
+            my_size += ::protobuf::rt::enum_size(3, self.color);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -577,8 +566,8 @@ impl ::protobuf::Message for SelectOption {
         if !self.name.is_empty() {
             os.write_string(2, &self.name)?;
         }
-        if !self.color.is_empty() {
-            os.write_string(3, &self.color)?;
+        if self.color != SelectOptionColor::Purple {
+            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.color))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -628,7 +617,7 @@ impl ::protobuf::Message for SelectOption {
                 |m: &SelectOption| { &m.name },
                 |m: &mut SelectOption| { &mut m.name },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SelectOptionColor>>(
                 "color",
                 |m: &SelectOption| { &m.color },
                 |m: &mut SelectOption| { &mut m.color },
@@ -651,7 +640,7 @@ impl ::protobuf::Clear for SelectOption {
     fn clear(&mut self) {
         self.id.clear();
         self.name.clear();
-        self.color.clear();
+        self.color = SelectOptionColor::Purple;
         self.unknown_fields.clear();
     }
 }
@@ -668,15 +657,90 @@ impl ::protobuf::reflect::ProtobufValue for SelectOption {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum SelectOptionColor {
+    Purple = 0,
+    Pink = 1,
+    LightPink = 2,
+    Orange = 3,
+    Yellow = 4,
+    Lime = 5,
+    Green = 6,
+    Aqua = 7,
+    Blue = 8,
+}
+
+impl ::protobuf::ProtobufEnum for SelectOptionColor {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SelectOptionColor> {
+        match value {
+            0 => ::std::option::Option::Some(SelectOptionColor::Purple),
+            1 => ::std::option::Option::Some(SelectOptionColor::Pink),
+            2 => ::std::option::Option::Some(SelectOptionColor::LightPink),
+            3 => ::std::option::Option::Some(SelectOptionColor::Orange),
+            4 => ::std::option::Option::Some(SelectOptionColor::Yellow),
+            5 => ::std::option::Option::Some(SelectOptionColor::Lime),
+            6 => ::std::option::Option::Some(SelectOptionColor::Green),
+            7 => ::std::option::Option::Some(SelectOptionColor::Aqua),
+            8 => ::std::option::Option::Some(SelectOptionColor::Blue),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SelectOptionColor] = &[
+            SelectOptionColor::Purple,
+            SelectOptionColor::Pink,
+            SelectOptionColor::LightPink,
+            SelectOptionColor::Orange,
+            SelectOptionColor::Yellow,
+            SelectOptionColor::Lime,
+            SelectOptionColor::Green,
+            SelectOptionColor::Aqua,
+            SelectOptionColor::Blue,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<SelectOptionColor>("SelectOptionColor", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for SelectOptionColor {
+}
+
+impl ::std::default::Default for SelectOptionColor {
+    fn default() -> Self {
+        SelectOptionColor::Purple
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SelectOptionColor {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x1bselection_type_option.proto\"f\n\x16SingleSelectTypeOption\x12'\n\
     \x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07options\x12#\n\rdis\
     able_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"e\n\x15MultiSelectType\
     Option\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07option\
-    s\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"H\n\x0cSe\
-    lectOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
-    \x18\x02\x20\x01(\tR\x04name\x12\x14\n\x05color\x18\x03\x20\x01(\tR\x05c\
-    olorb\x06proto3\
+    s\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"\\\n\x0cS\
+    electOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
+    \x18\x02\x20\x01(\tR\x04name\x12(\n\x05color\x18\x03\x20\x01(\x0e2\x12.S\
+    electOptionColorR\x05color*y\n\x11SelectOptionColor\x12\n\n\x06Purple\
+    \x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\x10\x02\x12\n\n\x06O\
+    range\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\x04Lime\x10\x05\x12\t\
+    \n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\x08\n\x04Blue\x10\x08b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

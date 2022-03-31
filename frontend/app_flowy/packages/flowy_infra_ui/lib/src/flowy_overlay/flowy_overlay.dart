@@ -1,10 +1,8 @@
 // ignore_for_file: unused_element
 
-import 'package:dartz/dartz.dart' show Tuple3;
+import 'dart:ui';
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui';
-
 export './overlay_container.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
@@ -75,6 +73,7 @@ TransitionBuilder overlayManagerBuilder() {
 }
 
 abstract class FlowyOverlayDelegate {
+  bool asBarrier() => false;
   void didRemove();
 }
 
@@ -110,8 +109,20 @@ class FlowyOverlay extends StatefulWidget {
   FlowyOverlayState createState() => FlowyOverlayState();
 }
 
+class OverlayItem {
+  Widget widget;
+  String identifier;
+  FlowyOverlayDelegate? delegate;
+
+  OverlayItem({
+    required this.widget,
+    required this.identifier,
+    this.delegate,
+  });
+}
+
 class FlowyOverlayState extends State<FlowyOverlay> {
-  List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
+  List<OverlayItem> _overlayList = [];
   FlowyOverlayStyle style = FlowyOverlayStyle();
 
   /// Insert a overlay widget which frame is set by the widget, not the component.
@@ -181,19 +192,32 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
   void remove(String identifier) {
     setState(() {
-      final index = _overlayList.indexWhere((ele) => ele.value2 == identifier);
+      final index = _overlayList.indexWhere((item) => item.identifier == identifier);
       if (index != -1) {
-        _overlayList.removeAt(index).value3?.didRemove();
+        _overlayList.removeAt(index).delegate?.didRemove();
       }
     });
   }
 
   void removeAll() {
     setState(() {
-      for (var ele in _overlayList.reversed) {
-        ele.value3?.didRemove();
+      if (_overlayList.isEmpty) {
+        return;
       }
-      _overlayList = [];
+
+      final reveredList = _overlayList.reversed.toList();
+      final firstItem = reveredList.removeAt(0);
+      firstItem.delegate?.didRemove();
+      _overlayList.remove(firstItem);
+
+      for (final element in reveredList) {
+        if (element.delegate?.asBarrier() ?? false) {
+          return;
+        } else {
+          element.delegate?.didRemove();
+          _overlayList.remove(element);
+        }
+      }
     });
   }
 
@@ -252,13 +276,17 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     }
 
     setState(() {
-      _overlayList.add(Tuple3(overlay, identifier, delegate));
+      _overlayList.add(OverlayItem(
+        widget: overlay,
+        identifier: identifier,
+        delegate: delegate,
+      ));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final overlays = _overlayList.map((ele) => ele.value1);
+    final overlays = _overlayList.map((item) => item.widget);
     List<Widget> children = <Widget>[widget.child];
 
     Widget? child;

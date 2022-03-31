@@ -9,6 +9,10 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'selection_type_option.pbenum.dart';
+
+export 'selection_type_option.pbenum.dart';
+
 class SingleSelectTypeOption extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SingleSelectTypeOption', createEmptyInstance: create)
     ..pc<SelectOption>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'options', $pb.PbFieldType.PM, subBuilder: SelectOption.create)
@@ -123,7 +127,7 @@ class SelectOption extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectOption', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'color')
+    ..e<SelectOptionColor>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'color', $pb.PbFieldType.OE, defaultOrMaker: SelectOptionColor.Purple, valueOf: SelectOptionColor.valueOf, enumValues: SelectOptionColor.values)
     ..hasRequiredFields = false
   ;
 
@@ -131,7 +135,7 @@ class SelectOption extends $pb.GeneratedMessage {
   factory SelectOption({
     $core.String? id,
     $core.String? name,
-    $core.String? color,
+    SelectOptionColor? color,
   }) {
     final _result = create();
     if (id != null) {
@@ -185,9 +189,9 @@ class SelectOption extends $pb.GeneratedMessage {
   void clearName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get color => $_getSZ(2);
+  SelectOptionColor get color => $_getN(2);
   @$pb.TagNumber(3)
-  set color($core.String v) { $_setString(2, v); }
+  set color(SelectOptionColor v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasColor() => $_has(2);
   @$pb.TagNumber(3)

@@ -195,7 +195,7 @@ class DocumentShareButton extends StatelessWidget {
   }
 }
 
-class ShareActions with ActionList<ShareActionWrapper> implements FlowyOverlayDelegate {
+class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<ShareAction>) onSelected;
   final _items = ShareAction.values.map((action) => ShareActionWrapper(action)).toList();
 

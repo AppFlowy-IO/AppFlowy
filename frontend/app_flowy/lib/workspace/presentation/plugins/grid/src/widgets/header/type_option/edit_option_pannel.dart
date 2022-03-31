@@ -50,13 +50,16 @@ class EditSelectOptionPannel extends StatelessWidget {
               const SliverToBoxAdapter(child: VSpace(10)),
               const SliverToBoxAdapter(child: _DeleteTag()),
               const SliverToBoxAdapter(child: TypeOptionSeparator()),
-              const SliverToBoxAdapter(child: SelectOptionColorList()),
+              SliverToBoxAdapter(child: SelectOptionColorList(selectedColor: state.option.color)),
             ];
 
-            return CustomScrollView(
-              slivers: slivers,
-              controller: ScrollController(),
-              physics: StyledScrollPhysics(),
+            return SizedBox(
+              width: 160,
+              child: CustomScrollView(
+                slivers: slivers,
+                controller: ScrollController(),
+                physics: StyledScrollPhysics(),
+              ),
             );
           },
         ),
@@ -102,19 +105,13 @@ class _OptionNameTextField extends StatelessWidget {
 }
 
 class SelectOptionColorList extends StatelessWidget {
-  const SelectOptionColorList({Key? key}) : super(key: key);
+  final SelectOptionColor selectedColor;
+  const SelectOptionColorList({required this.selectedColor, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final optionItems = SelectOptionColor.values.map((option) {
-      // Color color = option.color();
-      // var hex = option.color.value.toRadixString(16);
-      // if (hex.startsWith('ff')) {
-      //   hex = hex.substring(2);
-      // }
-      // hex = '#$hex';
-
-      return _SelectOptionColorItem(option: option, isSelected: true);
+    final optionItems = SelectOptionColor.values.map((color) {
+      return _SelectOptionColorItem(color: color, isSelected: selectedColor == color);
     }).toList();
 
     return Column(
@@ -150,24 +147,23 @@ class SelectOptionColorList extends StatelessWidget {
 }
 
 class _SelectOptionColorItem extends StatelessWidget {
-  final SelectOptionColor option;
+  final SelectOptionColor color;
   final bool isSelected;
-  const _SelectOptionColorItem({required this.option, required this.isSelected, Key? key}) : super(key: key);
+  const _SelectOptionColorItem({required this.color, required this.isSelected, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svg("grid/details", color: theme.iconColor);
+      checkmark = svg("grid/checkmark");
     }
 
-    final String hex = '#${option.color(context).value.toRadixString(16)}';
     final colorIcon = SizedBox.square(
       dimension: 16,
       child: Container(
         decoration: BoxDecoration(
-          color: option.color(context),
+          color: color.color(context),
           shape: BoxShape.circle,
         ),
       ),
@@ -176,75 +172,67 @@ class _SelectOptionColorItem extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(option.name(), fontSize: 12),
+        text: FlowyText.medium(color.optionName(), fontSize: 12),
         hoverColor: theme.hover,
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {
-          context.read<EditOptionBloc>().add(EditOptionEvent.updateColor(hex));
+          context.read<EditOptionBloc>().add(EditOptionEvent.updateColor(color));
         },
       ),
     );
   }
 }
 
-enum SelectOptionColor {
-  purple,
-  pink,
-  lightPink,
-  orange,
-  yellow,
-  lime,
-  green,
-  aqua,
-  blue,
-}
-
 extension SelectOptionColorExtension on SelectOptionColor {
   Color color(BuildContext context) {
     final theme = context.watch<AppTheme>();
     switch (this) {
-      case SelectOptionColor.purple:
+      case SelectOptionColor.Purple:
         return theme.tint1;
-      case SelectOptionColor.pink:
+      case SelectOptionColor.Pink:
         return theme.tint2;
-      case SelectOptionColor.lightPink:
+      case SelectOptionColor.LightPink:
         return theme.tint3;
-      case SelectOptionColor.orange:
+      case SelectOptionColor.Orange:
         return theme.tint4;
-      case SelectOptionColor.yellow:
+      case SelectOptionColor.Yellow:
         return theme.tint5;
-      case SelectOptionColor.lime:
+      case SelectOptionColor.Lime:
         return theme.tint6;
-      case SelectOptionColor.green:
+      case SelectOptionColor.Green:
         return theme.tint7;
-      case SelectOptionColor.aqua:
+      case SelectOptionColor.Aqua:
         return theme.tint8;
-      case SelectOptionColor.blue:
+      case SelectOptionColor.Blue:
         return theme.tint9;
+      default:
+        throw ArgumentError;
     }
   }
 
-  String name() {
+  String optionName() {
     switch (this) {
-      case SelectOptionColor.purple:
+      case SelectOptionColor.Purple:
         return LocaleKeys.grid_selectOption_purpleColor.tr();
-      case SelectOptionColor.pink:
+      case SelectOptionColor.Pink:
         return LocaleKeys.grid_selectOption_pinkColor.tr();
-      case SelectOptionColor.lightPink:
+      case SelectOptionColor.LightPink:
         return LocaleKeys.grid_selectOption_lightPinkColor.tr();
-      case SelectOptionColor.orange:
+      case SelectOptionColor.Orange:
         return LocaleKeys.grid_selectOption_orangeColor.tr();
-      case SelectOptionColor.yellow:
+      case SelectOptionColor.Yellow:
         return LocaleKeys.grid_selectOption_yellowColor.tr();
-      case SelectOptionColor.lime:
+      case SelectOptionColor.Lime:
         return LocaleKeys.grid_selectOption_limeColor.tr();
-      case SelectOptionColor.green:
+      case SelectOptionColor.Green:
         return LocaleKeys.grid_selectOption_greenColor.tr();
-      case SelectOptionColor.aqua:
+      case SelectOptionColor.Aqua:
         return LocaleKeys.grid_selectOption_aquaColor.tr();
-      case SelectOptionColor.blue:
+      case SelectOptionColor.Blue:
         return LocaleKeys.grid_selectOption_blueColor.tr();
+      default:
+        throw ArgumentError;
     }
   }
 }

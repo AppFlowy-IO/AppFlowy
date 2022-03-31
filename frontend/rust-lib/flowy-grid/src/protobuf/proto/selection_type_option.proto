@@ -11,5 +11,16 @@ message MultiSelectTypeOption {
 message SelectOption {
     string id = 1;
     string name = 2;
-    string color = 3;
+    SelectOptionColor color = 3;
+}
+enum SelectOptionColor {
+    Purple = 0;
+    Pink = 1;
+    LightPink = 2;
+    Orange = 3;
+    Yellow = 4;
+    Lime = 5;
+    Green = 6;
+    Aqua = 7;
+    Blue = 8;
 }

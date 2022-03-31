@@ -3,7 +3,7 @@ use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
 use crate::services::util::*;
 use bytes::Bytes;
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -151,7 +151,7 @@ pub struct SelectOption {
     pub name: String,
 
     #[pb(index = 3)]
-    pub color: String,
+    pub color: SelectOptionColor,
 }
 
 impl SelectOption {
@@ -159,8 +159,28 @@ impl SelectOption {
         SelectOption {
             id: uuid(),
             name: name.to_owned(),
-            color: "".to_string(),
+            color: SelectOptionColor::default(),
         }
+    }
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Debug, Clone)]
+#[repr(u8)]
+pub enum SelectOptionColor {
+    Purple = 0,
+    Pink = 1,
+    LightPink = 2,
+    Orange = 3,
+    Yellow = 4,
+    Lime = 5,
+    Green = 6,
+    Aqua = 7,
+    Blue = 8,
+}
+
+impl std::default::Default for SelectOptionColor {
+    fn default() -> Self {
+        SelectOptionColor::Purple
     }
 }
 
