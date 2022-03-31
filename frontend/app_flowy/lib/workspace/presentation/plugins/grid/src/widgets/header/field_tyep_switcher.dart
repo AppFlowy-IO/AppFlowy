@@ -156,7 +156,7 @@ TypeOptionBuilder _makeTypeOptionBuild({
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionBuilder(field.id, data, overlayDelegate, dataDelegate);
     case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(data, overlayDelegate);
+      return MultiSelectTypeOptionBuilder(field.id, data, overlayDelegate, dataDelegate);
     case FieldType.Number:
       return NumberTypeOptionBuilder(data, overlayDelegate, dataDelegate);
     case FieldType.RichText:

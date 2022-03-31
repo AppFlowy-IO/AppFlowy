@@ -221,8 +221,8 @@ void _resolveGridDeps(GetIt getIt) {
     (typeOption, fieldId) => SingleSelectTypeOptionBloc(typeOption, fieldId),
   );
 
-  getIt.registerFactoryParam<MultiSelectTypeOptionBloc, MultiSelectTypeOption, void>(
-    (typeOption, _) => MultiSelectTypeOptionBloc(typeOption),
+  getIt.registerFactoryParam<MultiSelectTypeOptionBloc, MultiSelectTypeOption, String>(
+    (typeOption, fieldId) => MultiSelectTypeOptionBloc(typeOption, fieldId),
   );
 
   getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(

@@ -8,26 +8,45 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'option_pannel.dart';
 
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
-  MultiSelectTypeOption typeOption;
-  TypeOptionOverlayDelegate delegate;
+  MultiSelectTypeOptionWidget _widget;
 
-  MultiSelectTypeOptionBuilder(TypeOptionData typeOptionData, this.delegate)
-      : typeOption = MultiSelectTypeOption.fromBuffer(typeOptionData);
+  MultiSelectTypeOptionBuilder(
+    String fieldId,
+    TypeOptionData typeOptionData,
+    TypeOptionOverlayDelegate overlayDelegate,
+    TypeOptionDataDelegate dataDelegate,
+  ) : _widget = MultiSelectTypeOptionWidget(
+          fieldId: fieldId,
+          typeOption: MultiSelectTypeOption.fromBuffer(typeOptionData),
+          overlayDelegate: overlayDelegate,
+          dataDelegate: dataDelegate,
+        );
 
   @override
-  Widget? get customWidget => MultiSelectTypeOptionWidget(typeOption, delegate);
+  Widget? get customWidget => _widget;
 }
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
+  final String fieldId;
   final MultiSelectTypeOption typeOption;
   final TypeOptionOverlayDelegate overlayDelegate;
-  const MultiSelectTypeOptionWidget(this.typeOption, this.overlayDelegate, {Key? key}) : super(key: key);
+  final TypeOptionDataDelegate dataDelegate;
+  const MultiSelectTypeOptionWidget({
+    required this.fieldId,
+    required this.typeOption,
+    required this.overlayDelegate,
+    required this.dataDelegate,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<MultiSelectTypeOptionBloc>(param1: typeOption),
-      child: BlocBuilder<MultiSelectTypeOptionBloc, MultiSelectTypeOptionState>(
+      create: (context) => getIt<MultiSelectTypeOptionBloc>(param1: typeOption, param2: fieldId),
+      child: BlocConsumer<MultiSelectTypeOptionBloc, MultiSelectTypeOptionState>(
+        listener: (context, state) {
+          dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());
+        },
         builder: (context, state) {
           return OptionPannel(
             options: state.typeOption.options,
@@ -37,9 +56,14 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
             createOptionCallback: (name) {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.createOption(name));
             },
-            updateOptionCallback: (updateOption) {},
-            deleteOptionCallback: (deleteOption) {},
+            updateOptionCallback: (updateOption) {
+              context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.updateOption(updateOption));
+            },
+            deleteOptionCallback: (deleteOption) {
+              context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.deleteOption(deleteOption));
+            },
             overlayDelegate: overlayDelegate,
+            key: ValueKey(state.typeOption.hashCode),
           );
         },
       ),
