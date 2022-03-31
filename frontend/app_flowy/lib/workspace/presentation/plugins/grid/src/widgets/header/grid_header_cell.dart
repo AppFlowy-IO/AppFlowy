@@ -7,7 +7,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'edit_field_pannel.dart';
+import 'field_detail_pannel.dart';
 
 class GridHeaderCell extends StatelessWidget {
   final GridFieldData fieldData;
@@ -18,7 +18,7 @@ class GridHeaderCell extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     final button = FlowyButton(
       hoverColor: theme.hover,
-      onTap: () => EditFieldPannel.show(context, fieldData),
+      onTap: () => FieldDetailPannel.show(context, fieldData),
       rightIcon: svg("editor/details", color: theme.iconColor),
       text: Padding(padding: GridSize.cellContentInsets, child: FlowyText.medium(fieldData.field.name, fontSize: 12)),
     );

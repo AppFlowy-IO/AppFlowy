@@ -2,6 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+import 'package:protobuf/protobuf.dart';
 
 part 'number_bloc.freezed.dart';
 
@@ -11,12 +12,18 @@ class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionS
       (event, emit) async {
         event.map(
           didSelectFormat: (_DidSelectFormat value) {
-            state.typeOption.format = value.format;
-            emit(state);
+            emit(state.copyWith(typeOption: _updateNumberFormat(value.format)));
           },
         );
       },
     );
+  }
+
+  NumberTypeOption _updateNumberFormat(NumberFormat format) {
+    state.typeOption.freeze();
+    return state.typeOption.rebuild((typeOption) {
+      typeOption.format = format;
+    });
   }
 
   @override

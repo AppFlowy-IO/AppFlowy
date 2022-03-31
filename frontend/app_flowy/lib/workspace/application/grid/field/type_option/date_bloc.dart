@@ -2,7 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-
+import 'package:protobuf/protobuf.dart';
 part 'date_bloc.freezed.dart';
 
 class DateTypeOptionBloc extends Bloc<DateTypeOptionEvent, DateTypeOptionState> {
@@ -11,16 +11,28 @@ class DateTypeOptionBloc extends Bloc<DateTypeOptionEvent, DateTypeOptionState> 
       (event, emit) async {
         event.map(
           didSelectDateFormat: (_DidSelectDateFormat value) {
-            state.typeOption.dateFormat = value.format;
-            emit(state);
+            emit(state.copyWith(typeOption: _updateDateFormat(value.format)));
           },
           didSelectTimeFormat: (_DidSelectTimeFormat value) {
-            state.typeOption.timeFormat = value.format;
-            emit(state);
+            emit(state.copyWith(typeOption: _updateTimeFormat(value.format)));
           },
         );
       },
     );
+  }
+
+  DateTypeOption _updateTimeFormat(TimeFormat format) {
+    state.typeOption.freeze();
+    return state.typeOption.rebuild((typeOption) {
+      typeOption.timeFormat = format;
+    });
+  }
+
+  DateTypeOption _updateDateFormat(DateFormat format) {
+    state.typeOption.freeze();
+    return state.typeOption.rebuild((typeOption) {
+      typeOption.dateFormat = format;
+    });
   }
 
   @override

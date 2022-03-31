@@ -50,15 +50,15 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
         builder: (context, state) {
           return Column(children: [
-            _dateFormatButton(context),
-            _timeFormatButton(context),
+            _dateFormatButton(context, state.typeOption.dateFormat),
+            _timeFormatButton(context, state.typeOption.timeFormat),
           ]);
         },
       ),
     );
   }
 
-  Widget _dateFormatButton(BuildContext context) {
+  Widget _dateFormatButton(BuildContext context, DateFormat dataFormat) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
@@ -67,9 +67,12 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         padding: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
         onTap: () {
-          final list = DateFormatList(onSelected: (format) {
-            context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
-          });
+          final list = DateFormatList(
+            selectedFormat: dataFormat,
+            onSelected: (format) {
+              context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
+            },
+          );
           overlayDelegate.showOverlay(context, list);
         },
         rightIcon: svg("grid/more", color: theme.iconColor),
@@ -77,7 +80,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
     );
   }
 
-  Widget _timeFormatButton(BuildContext context) {
+  Widget _timeFormatButton(BuildContext context, TimeFormat timeFormat) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
@@ -86,9 +89,11 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         padding: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
         onTap: () {
-          final list = TimeFormatList(onSelected: (format) {
-            context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
-          });
+          final list = TimeFormatList(
+              selectedFormat: timeFormat,
+              onSelected: (format) {
+                context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
+              });
           overlayDelegate.showOverlay(context, list);
         },
         rightIcon: svg("grid/more", color: theme.iconColor),
@@ -98,8 +103,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
 }
 
 class DateFormatList extends StatelessWidget {
+  final DateFormat selectedFormat;
   final Function(DateFormat format) onSelected;
-  const DateFormatList({required this.onSelected, Key? key}) : super(key: key);
+  const DateFormatList({required this.selectedFormat, required this.onSelected, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +115,8 @@ class DateFormatList extends StatelessWidget {
           onSelected: (format) {
             onSelected(format);
             FlowyOverlay.of(context).remove(identifier());
-          });
+          },
+          isSelected: selectedFormat == format);
     }).toList();
 
     return SizedBox(
@@ -134,18 +141,30 @@ class DateFormatList extends StatelessWidget {
 }
 
 class DateFormatItem extends StatelessWidget {
+  final bool isSelected;
   final DateFormat dateFormat;
   final Function(DateFormat format) onSelected;
-  const DateFormatItem({required this.dateFormat, required this.onSelected, Key? key}) : super(key: key);
+  const DateFormatItem({
+    required this.dateFormat,
+    required this.onSelected,
+    required this.isSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    Widget? checkmark;
+    if (isSelected) {
+      checkmark = svg("grid/checkmark");
+    }
+
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(dateFormat.title(), fontSize: 12),
         hoverColor: theme.hover,
+        rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
     );
@@ -170,13 +189,19 @@ extension DateFormatExtension on DateFormat {
 }
 
 class TimeFormatList extends StatelessWidget {
+  final TimeFormat selectedFormat;
   final Function(TimeFormat format) onSelected;
-  const TimeFormatList({required this.onSelected, Key? key}) : super(key: key);
+  const TimeFormatList({
+    required this.selectedFormat,
+    required this.onSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final formatItems = TimeFormat.values.map((format) {
       return TimeFormatItem(
+          isSelected: format == selectedFormat,
           timeFormat: format,
           onSelected: (format) {
             onSelected(format);
@@ -207,17 +232,29 @@ class TimeFormatList extends StatelessWidget {
 
 class TimeFormatItem extends StatelessWidget {
   final TimeFormat timeFormat;
+  final bool isSelected;
   final Function(TimeFormat format) onSelected;
-  const TimeFormatItem({required this.timeFormat, required this.onSelected, Key? key}) : super(key: key);
+  const TimeFormatItem({
+    required this.timeFormat,
+    required this.onSelected,
+    required this.isSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    Widget? checkmark;
+    if (isSelected) {
+      checkmark = svg("grid/checkmark");
+    }
+
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(timeFormat.title(), fontSize: 12),
         hoverColor: theme.hover,
+        rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),
     );
