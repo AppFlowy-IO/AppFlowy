@@ -3,7 +3,8 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    FieldChangesetParams, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
+    FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset, GridMeta,
+    RepeatedFieldOrder, TypeOptionDataEntry,
 };
 
 use lib_infra::uuid;
@@ -85,6 +86,37 @@ impl GridMetaPad {
                 duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
                 grid.fields.insert(index + 1, duplicate_field_meta);
                 Ok(Some(()))
+            }
+        })
+    }
+
+    pub fn switch_to_field<B>(
+        &mut self,
+        field_id: &str,
+        field_type: FieldType,
+        type_option_json_builder: B,
+    ) -> CollaborateResult<Option<GridChangeset>>
+    where
+        B: FnOnce(&FieldType) -> String,
+    {
+        self.modify_grid(|grid| {
+            //
+            match grid.fields.iter_mut().find(|field_meta| field_meta.id == field_id) {
+                None => {
+                    tracing::warn!("Can not find the field with id: {}", field_id);
+                    Ok(None)
+                }
+                Some(field_meta) => {
+                    if field_meta.get_type_option_str().is_none() {
+                        let type_option_json = type_option_json_builder(&field_type);
+                        field_meta
+                            .type_option_by_field_type_id
+                            .insert(&field_type, type_option_json);
+                    }
+
+                    field_meta.field_type = field_type;
+                    Ok(Some(()))
+                }
             }
         })
     }

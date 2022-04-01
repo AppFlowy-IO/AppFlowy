@@ -1,5 +1,5 @@
 use crate::manager::GridManager;
-use crate::services::field::{type_option_builder_from_json_str, SelectOption};
+use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str, SelectOption};
 use crate::services::grid_editor::ClientGridEditor;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
@@ -85,7 +85,19 @@ pub(crate) async fn switch_to_field_handler(
 ) -> DataResult<EditFieldContext, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let edit_context = editor.switch_to_field_type(&params.field_id, params.field_type).await?;
+    editor
+        .switch_to_field_type(&params.field_id, &params.field_type)
+        .await?;
+
+    let field_meta = editor.get_field(&params.field_id).await?;
+    let edit_context = make_field_edit_context(
+        &params.grid_id,
+        Some(params.field_id),
+        params.field_type,
+        editor,
+        field_meta,
+    )
+    .await?;
     data_result(edit_context)
 }
 
@@ -115,31 +127,46 @@ pub(crate) async fn get_field_context_handler(
 ) -> DataResult<EditFieldContext, FlowyError> {
     let params = data.into_inner();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let mut field_meta = get_or_create_field_meta(&params, editor).await?;
-    let s = field_meta.get_type_option_str().unwrap();
-    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
-    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+    let edit_context =
+        make_field_edit_context(&params.grid_id, params.field_id, params.field_type, editor, None).await?;
 
-    let field: Field = field_meta.into();
-    let edit_context = EditFieldContext {
-        grid_id: params.grid_id,
-        grid_field: field,
-        type_option_data,
-    };
     data_result(edit_context)
 }
 
+async fn make_field_edit_context(
+    grid_id: &str,
+    field_id: Option<String>,
+    field_type: FieldType,
+    editor: Arc<ClientGridEditor>,
+    field_meta: Option<FieldMeta>,
+) -> FlowyResult<EditFieldContext> {
+    let field_meta = field_meta.unwrap_or(get_or_create_field_meta(field_id, &field_type, editor).await?);
+    let s = field_meta
+        .get_type_option_str()
+        .unwrap_or_else(|| default_type_option_builder_from_type(&field_type).entry().json_str());
+
+    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
+    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+    let field: Field = field_meta.into();
+    Ok(EditFieldContext {
+        grid_id: grid_id.to_string(),
+        grid_field: field,
+        type_option_data,
+    })
+}
+
 async fn get_or_create_field_meta(
-    params: &GetEditFieldContextPayload,
+    field_id: Option<String>,
+    field_type: &FieldType,
     editor: Arc<ClientGridEditor>,
 ) -> FlowyResult<FieldMeta> {
-    if params.field_id.is_some() {
-        if let Some(field_meta) = editor.get_field(params.field_id.as_ref().unwrap()).await? {
+    if field_id.is_some() {
+        if let Some(field_meta) = editor.get_field(field_id.as_ref().unwrap()).await? {
             return Ok(field_meta);
         }
     }
 
-    editor.default_field_meta(&params.field_type).await
+    editor.create_next_field_meta(field_type).await
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

@@ -1,7 +1,10 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::field::{type_option_builder_from_bytes, FieldBuilder};
+use crate::services::field::{
+    default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
+    FieldBuilder,
+};
 use crate::services::row::*;
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -85,7 +88,7 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn default_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
+    pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.pad.read().await.fields().len() + 1);
         let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();
         Ok(field_meta)
@@ -95,7 +98,7 @@ impl ClientGridEditor {
         self.pad.read().await.contain_field(field_id)
     }
 
-    pub async fn update_field(&self, mut params: FieldChangesetParams) -> FlowyResult<()> {
+    pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let deserializer = match self.pad.read().await.get_field(&params.field_id) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_meta) => TypeOptionChangesetDeserializer(field_meta.field_type.clone()),
@@ -112,10 +115,15 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn switch_to_field_type(&self, field_id: &str, field_type: FieldType) -> FlowyResult<EditFieldContext> {
-        let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
+    pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
+        let type_option_json_builder =
+            |field_type: &FieldType| -> String { default_type_option_builder_from_type(field_type).entry().json_str() };
+
+        let _ = self
+            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
+            .await?;
         let _ = self.notify_did_update_fields().await?;
-        todo!()
+        Ok(())
     }
 
     pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
