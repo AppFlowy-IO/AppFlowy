@@ -2,7 +2,7 @@ use crate::impl_type_option;
 use crate::services::row::CellDataSerde;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use lazy_static::lazy_static;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;

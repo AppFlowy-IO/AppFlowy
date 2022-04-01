@@ -3,9 +3,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 use serde::{Deserialize, Serialize};
-use std::any::Any;
 use std::collections::HashMap;
-use std::ops::Deref;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
@@ -79,7 +77,7 @@ pub struct GridBlockMetaSerde {
     pub row_metas: Vec<RowMeta>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, Eq, PartialEq)]
 pub struct FieldMeta {
     #[pb(index = 1)]
     pub id: String,
@@ -120,11 +118,27 @@ impl FieldMeta {
         }
     }
 
-    pub fn get_type_option_str(&self) -> Option<String> {
-        match self.type_option_by_field_type_id.get(&self.field_type) {
-            None => None,
-            Some(s) => Some(s.to_owned()),
-        }
+    pub fn insert_type_option_entry<T: TypeOptionDataEntry + ?Sized>(&mut self, entry: &T) {
+        self.type_option_by_field_type_id
+            .insert(entry.field_type().type_id(), entry.json_str());
+    }
+
+    pub fn get_type_option_entry<T: TypeOptionDataEntity>(&self, field_type: Option<FieldType>) -> Option<T> {
+        let field_type = field_type.as_ref().unwrap_or(&self.field_type);
+        self.type_option_by_field_type_id
+            .get(&field_type.type_id())
+            .map(|s| T::from_json_str(s))
+    }
+
+    pub fn insert_type_option_str(&mut self, field_type: &FieldType, json_str: String) {
+        self.type_option_by_field_type_id.insert(field_type.type_id(), json_str);
+    }
+
+    pub fn get_type_option_str(&self, field_type: Option<FieldType>) -> Option<String> {
+        let field_type = field_type.as_ref().unwrap_or(&self.field_type);
+        self.type_option_by_field_type_id
+            .get(&field_type.type_id())
+            .map(|s| s.to_owned())
     }
 }
 
@@ -134,38 +148,28 @@ pub trait TypeOptionDataEntry {
     fn protobuf_bytes(&self) -> Bytes;
 }
 
-pub trait TypeOptionDataFrom {
+pub trait TypeOptionDataEntity {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf, PartialEq, Eq)]
 pub struct TypeOptionDataByFieldTypeId {
     #[pb(index = 1)]
     pub map: HashMap<String, String>,
 }
 
-impl TypeOptionDataByFieldTypeId {
-    pub fn insert_entry<T: TypeOptionDataEntry + ?Sized>(&mut self, entry: &T) {
-        self.map.insert(entry.field_type().type_id(), entry.json_str());
-    }
+impl std::ops::Deref for TypeOptionDataByFieldTypeId {
+    type Target = HashMap<String, String>;
 
-    pub fn insert(&mut self, field_type: &FieldType, json_str: String) {
-        self.map.insert(field_type.type_id(), json_str);
+    fn deref(&self) -> &Self::Target {
+        &self.map
     }
+}
 
-    pub fn get_entry<T: TypeOptionDataFrom>(&self, field_type: &FieldType) -> Option<T> {
-        match self.map.get(&field_type.type_id()) {
-            None => None,
-            Some(s) => Some(T::from_json_str(s)),
-        }
-    }
-
-    pub fn get(&self, field_type: &FieldType) -> Option<String> {
-        match self.map.get(&field_type.type_id()) {
-            None => None,
-            Some(s) => Some(s.to_owned()),
-        }
+impl std::ops::DerefMut for TypeOptionDataByFieldTypeId {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.map
     }
 }
 

@@ -6,7 +6,8 @@ use flowy_grid::services::field::{
 };
 use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangeset, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    TypeOptionDataEntry,
 };
 
 #[tokio::test]
@@ -55,7 +56,7 @@ async fn grid_create_duplicate_field() {
 async fn grid_update_field_with_empty_change() {
     let mut test = GridEditorTest::new().await;
     let (params, field_meta) = create_single_select_field(&test.grid_id);
-    let changeset = FieldChangeset {
+    let changeset = FieldChangesetParams {
         field_id: field_meta.id.clone(),
         grid_id: test.grid_id.clone(),
         name: None,
@@ -84,9 +85,9 @@ async fn grid_update_field() {
     let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let mut cloned_field = single_select_field.clone();
 
-    let mut single_select_type_options = SingleSelectTypeOption::from(&single_select_field);
-    single_select_type_options.options.push(SelectOption::new("Unknown"));
-    let changeset = FieldChangeset {
+    let mut single_select_type_option = SingleSelectTypeOption::from(&single_select_field);
+    single_select_type_option.options.push(SelectOption::new("Unknown"));
+    let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
         grid_id: test.grid_id.clone(),
         name: None,
@@ -95,12 +96,12 @@ async fn grid_update_field() {
         frozen: Some(true),
         visibility: None,
         width: Some(1000),
-        type_option_data: Some(single_select_type_options.clone().into()),
+        type_option_data: Some(single_select_type_option.protobuf_bytes().to_vec()),
     };
 
     cloned_field.frozen = true;
     cloned_field.width = 1000;
-    cloned_field.type_option_json = single_select_type_options.into();
+    cloned_field.insert_type_option_entry(&single_select_type_option);
 
     let scripts = vec![
         CreateField {

@@ -1,8 +1,6 @@
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{
-    Field, FieldMeta, FieldType, TypeOptionDataByFieldTypeId, TypeOptionDataEntry, TypeOptionDataFrom,
-};
+use flowy_grid_data_model::entities::{Field, FieldMeta, FieldType, TypeOptionDataByFieldTypeId, TypeOptionDataEntry};
 
 pub struct FieldBuilder {
     field_meta: FieldMeta,
@@ -71,9 +69,7 @@ impl FieldBuilder {
     pub fn build(self) -> FieldMeta {
         debug_assert_eq!(self.field_meta.field_type, self.type_option_builder.field_type());
         let mut field_meta = self.field_meta;
-        field_meta
-            .type_option_by_field_type_id
-            .insert_entry(self.type_option_builder.entry());
+        field_meta.insert_type_option_entry(self.type_option_builder.entry());
         field_meta
     }
 }

@@ -30,10 +30,7 @@ macro_rules! impl_type_option {
     ($target: ident, $field_type:expr) => {
         impl std::convert::From<&FieldMeta> for $target {
             fn from(field_meta: &FieldMeta) -> $target {
-                match field_meta
-                    .type_option_by_field_type_id
-                    .get_entry::<$target>(&$field_type)
-                {
+                match field_meta.get_type_option_entry::<$target>(Some($field_type)) {
                     None => $target::default(),
                     Some(target) => target,
                 }
@@ -66,7 +63,7 @@ macro_rules! impl_type_option {
             }
         }
 
-        impl TypeOptionDataFrom for $target {
+        impl TypeOptionDataEntity for $target {
             fn from_json_str(s: &str) -> $target {
                 match serde_json::from_str(s) {
                     Ok(obj) => obj,

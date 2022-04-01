@@ -4,13 +4,13 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset, GridMeta,
-    RepeatedFieldOrder, TypeOptionDataEntry,
+    RepeatedFieldOrder,
 };
 
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
-use std::string::FromUtf8Error;
+
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;
@@ -107,11 +107,9 @@ impl GridMetaPad {
                     Ok(None)
                 }
                 Some(field_meta) => {
-                    if field_meta.get_type_option_str().is_none() {
+                    if field_meta.get_type_option_str(Some(field_type.clone())).is_none() {
                         let type_option_json = type_option_json_builder(&field_type);
-                        field_meta
-                            .type_option_by_field_type_id
-                            .insert(&field_type, type_option_json);
+                        field_meta.insert_type_option_str(&field_type, type_option_json);
                     }
 
                     field_meta.field_type = field_type;
@@ -162,7 +160,8 @@ impl GridMetaPad {
             if let Some(type_option_data) = changeset.type_option_data {
                 match deserializer.deserialize(type_option_data) {
                     Ok(json_str) => {
-                        field.type_option_by_field_type_id.insert(&field.field_type, json_str);
+                        let field_type = field.field_type.clone();
+                        field.insert_type_option_str(&field_type, json_str);
                         is_changed = Some(())
                     }
                     Err(err) => {

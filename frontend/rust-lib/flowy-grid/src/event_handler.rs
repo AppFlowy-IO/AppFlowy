@@ -142,7 +142,7 @@ async fn make_field_edit_context(
 ) -> FlowyResult<EditFieldContext> {
     let field_meta = field_meta.unwrap_or(get_or_create_field_meta(field_id, &field_type, editor).await?);
     let s = field_meta
-        .get_type_option_str()
+        .get_type_option_str(None)
         .unwrap_or_else(|| default_type_option_builder_from_type(&field_type).entry().json_str());
 
     let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);

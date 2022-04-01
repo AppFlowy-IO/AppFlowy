@@ -3,10 +3,9 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellMetaChangeset, CreateFieldParams, Field, FieldChangeset, FieldMeta, FieldType, GridBlockMeta,
-    GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder,
+    BuildGridContext, CellMetaChangeset, CreateFieldParams, Field, FieldChangesetParams, FieldMeta, FieldType,
+    GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
 };
-use flowy_grid_data_model::parser::CreateFieldParams;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
 use flowy_test::helper::ViewTest;
@@ -22,7 +21,7 @@ pub enum EditorScript {
         params: CreateFieldParams,
     },
     UpdateField {
-        changeset: FieldChangeset,
+        changeset: FieldChangesetParams,
     },
     DeleteField {
         field_meta: FieldMeta,
@@ -255,6 +254,12 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
 
     let cloned_field_meta = field_meta.clone();
 
+    let type_option_data = field_meta
+        .get_type_option_entry::<RichTextTypeOption>(None)
+        .unwrap()
+        .protobuf_bytes()
+        .to_vec();
+
     let field = Field {
         id: field_meta.id,
         name: field_meta.name,
@@ -268,7 +273,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
         field,
-        type_option_data: field_meta.type_option_json.as_bytes().to_vec(),
+        type_option_data,
         start_field_id: None,
     };
     (params, cloned_field_meta)
@@ -281,6 +286,11 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
 
     let field_meta = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_meta = field_meta.clone();
+    let type_option_data = field_meta
+        .get_type_option_entry::<SingleSelectTypeOption>(None)
+        .unwrap()
+        .protobuf_bytes()
+        .to_vec();
 
     let field = Field {
         id: field_meta.id,
@@ -295,7 +305,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
         field,
-        type_option_data: field_meta.type_option_json.as_bytes().to_vec(),
+        type_option_data,
         start_field_id: None,
     };
     (params, cloned_field_meta)
