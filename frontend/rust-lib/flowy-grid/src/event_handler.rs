@@ -79,6 +79,17 @@ pub(crate) async fn delete_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn switch_to_field_handler(
+    data: Data<EditFieldPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<EditFieldContext, FlowyError> {
+    let params: EditFieldParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let edit_context = editor.switch_to_field_type(&params.field_id, params.field_type).await?;
+    data_result(edit_context)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -98,11 +109,11 @@ pub(crate) async fn create_select_option_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn edit_edit_field_context_handler(
-    data: Data<GetEditFieldContextParams>,
+pub(crate) async fn get_field_context_handler(
+    data: Data<GetEditFieldContextPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<EditFieldContext, FlowyError> {
-    let params: GetEditFieldContextParams = data.into_inner();
+    let params = data.into_inner();
     let editor = manager.get_grid_editor(&params.grid_id)?;
 
     let mut field_meta = get_or_create_field_meta(&params, editor).await?;
@@ -117,7 +128,7 @@ pub(crate) async fn edit_edit_field_context_handler(
 }
 
 async fn get_or_create_field_meta(
-    params: &GetEditFieldContextParams,
+    params: &GetEditFieldContextPayload,
     editor: Arc<ClientGridEditor>,
 ) -> FlowyResult<FieldMeta> {
     if params.field_id.is_some() {

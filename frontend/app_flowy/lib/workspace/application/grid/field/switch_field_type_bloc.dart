@@ -16,7 +16,7 @@ class FieldSwitchBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
         await event.map(
           toFieldType: (_ToFieldType value) async {
             final fieldService = FieldService(gridId: state.gridId);
-            final result = await fieldService.getEditFieldContext(value.fieldType);
+            final result = await fieldService.switchToField(state.field.id, value.fieldType);
             result.fold(
               (newEditContext) {
                 final typeOptionData = Uint8List.fromList(newEditContext.typeOptionData);

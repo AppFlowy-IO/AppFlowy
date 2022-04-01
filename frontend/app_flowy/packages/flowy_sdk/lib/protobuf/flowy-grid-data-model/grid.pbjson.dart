@@ -68,9 +68,9 @@ const FieldOrder$json = const {
 
 /// Descriptor for `FieldOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldOrderDescriptor = $convert.base64Decode('CgpGaWVsZE9yZGVyEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElk');
-@$core.Deprecated('Use getEditFieldContextParamsDescriptor instead')
-const GetEditFieldContextParams$json = const {
-  '1': 'GetEditFieldContextParams',
+@$core.Deprecated('Use getEditFieldContextPayloadDescriptor instead')
+const GetEditFieldContextPayload$json = const {
+  '1': 'GetEditFieldContextPayload',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'fieldId'},
@@ -81,8 +81,20 @@ const GetEditFieldContextParams$json = const {
   ],
 };
 
-/// Descriptor for `GetEditFieldContextParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getEditFieldContextParamsDescriptor = $convert.base64Decode('ChlHZXRFZGl0RmllbGRDb250ZXh0UGFyYW1zEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIbCghmaWVsZF9pZBgCIAEoCUgAUgdmaWVsZElkEikKCmZpZWxkX3R5cGUYAyABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZUIRCg9vbmVfb2ZfZmllbGRfaWQ=');
+/// Descriptor for `GetEditFieldContextPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getEditFieldContextPayloadDescriptor = $convert.base64Decode('ChpHZXRFZGl0RmllbGRDb250ZXh0UGF5bG9hZBIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSGwoIZmllbGRfaWQYAiABKAlIAFIHZmllbGRJZBIpCgpmaWVsZF90eXBlGAMgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGVCEQoPb25lX29mX2ZpZWxkX2lk');
+@$core.Deprecated('Use editFieldPayloadDescriptor instead')
+const EditFieldPayload$json = const {
+  '1': 'EditFieldPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'field_type', '3': 3, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
+  ],
+};
+
+/// Descriptor for `EditFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List editFieldPayloadDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIpCgpmaWVsZF90eXBlGAMgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGU=');
 @$core.Deprecated('Use editFieldContextDescriptor instead')
 const EditFieldContext$json = const {
   '1': 'EditFieldContext',

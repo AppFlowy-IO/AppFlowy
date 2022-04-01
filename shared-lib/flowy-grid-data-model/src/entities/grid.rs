@@ -101,7 +101,7 @@ impl std::convert::From<&FieldMeta> for FieldOrder {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GetEditFieldContextParams {
+pub struct GetEditFieldContextPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -110,6 +110,38 @@ pub struct GetEditFieldContextParams {
 
     #[pb(index = 3)]
     pub field_type: FieldType,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct EditFieldPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub field_type: FieldType,
+}
+
+pub struct EditFieldParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<EditFieldParams> for EditFieldPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<EditFieldParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(EditFieldParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+            field_type: self.field_type,
+        })
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]

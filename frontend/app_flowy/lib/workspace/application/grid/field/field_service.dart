@@ -10,12 +10,13 @@ class FieldService {
 
   FieldService({required this.gridId});
 
-  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(FieldType fieldType) {
-    final payload = GetEditFieldContextParams.create()
+  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+    final payload = EditFieldPayload.create()
       ..gridId = gridId
+      ..fieldId = fieldId
       ..fieldType = fieldType;
 
-    return GridEventGetEditFieldContext(payload).send();
+    return GridEventSwitchToField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> updateField({
@@ -58,6 +59,7 @@ class FieldService {
     return GridEventUpdateField(payload).send();
   }
 
+  // Create the field if it does not exist. Otherwise, update the field.
   Future<Either<Unit, FlowyError>> createField({
     required Field field,
     List<int>? typeOptionData,
@@ -121,7 +123,7 @@ class NewFieldContextLoader extends FieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> load() {
-    final payload = GetEditFieldContextParams.create()
+    final payload = GetEditFieldContextPayload.create()
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
@@ -136,7 +138,7 @@ class FieldContextLoaderAdaptor extends FieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> load() {
-    final payload = GetEditFieldContextParams.create()
+    final payload = GetEditFieldContextPayload.create()
       ..gridId = data.gridId
       ..fieldId = data.field.id
       ..fieldType = data.field.fieldType;

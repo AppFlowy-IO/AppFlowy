@@ -7,8 +7,9 @@ use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
-use flowy_sync::client_grid::{GridChangeset, GridMetaPad};
+use flowy_sync::client_grid::{GridChangeset, GridMetaPad, TypeOptionDataDeserializer};
 use flowy_sync::entities::revision::Revision;
+use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
@@ -59,6 +60,7 @@ impl ClientGridEditor {
         let _ = self
             .modify(|grid| {
                 if grid.contain_field(&field.id) {
+                    let deserializer = TypeOptionChangesetDeserializer(field.field_type.clone());
                     let changeset = FieldChangesetParams {
                         field_id: field.id,
                         grid_id,
@@ -70,8 +72,7 @@ impl ClientGridEditor {
                         width: Some(field.width),
                         type_option_data: Some(type_option_data),
                     };
-
-                    Ok(grid.update_field(changeset)?)
+                    Ok(grid.update_field(changeset, deserializer)?)
                 } else {
                     let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
                     let field_meta = FieldMeta {
@@ -103,19 +104,12 @@ impl ClientGridEditor {
     }
 
     pub async fn update_field(&self, mut params: FieldChangesetParams) -> FlowyResult<()> {
-        if let Some(type_option_data) = params.type_option_data {
-            match self.pad.read().await.get_field(&params.field_id) {
-                None => return Err(ErrorCode::FieldDoesNotExist.into()),
-                Some(field_meta) => {
-                    // The type_option_data is serialized by protobuf. But the type_option_data should be
-                    // serialized by utf-8 encoding. So we must transform the data here.
-                    let type_option_json = type_option_json_str_from_bytes(type_option_data, &field_meta.field_type);
-                    params.type_option_data = Some(type_option_json.as_bytes().to_vec());
-                }
-            }
-        }
+        let deserializer = match self.pad.read().await.get_field(&params.field_id) {
+            None => return Err(ErrorCode::FieldDoesNotExist.into()),
+            Some(field_meta) => TypeOptionChangesetDeserializer(field_meta.field_type.clone()),
+        };
 
-        let _ = self.modify(|grid| Ok(grid.update_field(params)?)).await?;
+        let _ = self.modify(|grid| Ok(grid.update_field(params, deserializer)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
     }
@@ -124,6 +118,12 @@ impl ClientGridEditor {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
         let _ = self.notify_did_update_fields().await?;
         Ok(())
+    }
+
+    pub async fn switch_to_field_type(&self, field_id: &str, field_type: FieldType) -> FlowyResult<EditFieldContext> {
+        let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
+        let _ = self.notify_did_update_fields().await?;
+        todo!()
     }
 
     pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
@@ -400,5 +400,16 @@ impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Ok(delta.to_delta_bytes())
+    }
+}
+
+struct TypeOptionChangesetDeserializer(FieldType);
+impl TypeOptionDataDeserializer for TypeOptionChangesetDeserializer {
+    fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
+        // The type_option_data is serialized by protobuf. But the type_option_data should be
+        // serialized by utf-8. So we must transform the data here.
+
+        let type_option_json = type_option_json_str_from_bytes(type_option_data, &self.0);
+        Ok(type_option_json)
     }
 }

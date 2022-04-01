@@ -16,6 +16,7 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent UpdateField = GridEvent._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateField');
   static const GridEvent CreateField = GridEvent._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateField');
   static const GridEvent DeleteField = GridEvent._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteField');
+  static const GridEvent SwitchToField = GridEvent._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SwitchToField');
   static const GridEvent DuplicateField = GridEvent._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateField');
   static const GridEvent GetEditFieldContext = GridEvent._(16, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetEditFieldContext');
   static const GridEvent CreateSelectOption = GridEvent._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateSelectOption');
@@ -30,6 +31,7 @@ class GridEvent extends $pb.ProtobufEnum {
     UpdateField,
     CreateField,
     DeleteField,
+    SwitchToField,
     DuplicateField,
     GetEditFieldContext,
     CreateSelectOption,

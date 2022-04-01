@@ -103,6 +103,23 @@ class GridEventDeleteField {
     }
 }
 
+class GridEventSwitchToField {
+     EditFieldPayload request;
+     GridEventSwitchToField(this.request);
+
+    Future<Either<EditFieldContext, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.SwitchToField.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(EditFieldContext.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventDuplicateField {
      FieldIdentifierPayload request;
      GridEventDuplicateField(this.request);
@@ -121,7 +138,7 @@ class GridEventDuplicateField {
 }
 
 class GridEventGetEditFieldContext {
-     GetEditFieldContextParams request;
+     GetEditFieldContextPayload request;
      GridEventGetEditFieldContext(this.request);
 
     Future<Either<EditFieldContext, FlowyError>> send() {

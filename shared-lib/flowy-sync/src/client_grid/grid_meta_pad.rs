@@ -20,6 +20,10 @@ pub struct GridMetaPad {
     pub(crate) delta: GridMetaDelta,
 }
 
+pub trait TypeOptionDataDeserializer {
+    fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String>;
+}
+
 impl GridMetaPad {
     pub fn from_delta(delta: GridMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
@@ -85,7 +89,11 @@ impl GridMetaPad {
         })
     }
 
-    pub fn update_field(&mut self, changeset: FieldChangesetParams) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_field<T: TypeOptionDataDeserializer>(
+        &mut self,
+        changeset: FieldChangesetParams,
+        deserializer: T,
+    ) -> CollaborateResult<Option<GridChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -120,7 +128,7 @@ impl GridMetaPad {
             }
 
             if let Some(type_option_data) = changeset.type_option_data {
-                match String::from_utf8(type_option_data) {
+                match deserializer.deserialize(type_option_data) {
                     Ok(type_option_json) => {
                         field.type_option_json = type_option_json;
                         is_changed = Some(())
