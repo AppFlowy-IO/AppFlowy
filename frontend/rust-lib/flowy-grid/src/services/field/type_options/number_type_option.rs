@@ -1,8 +1,8 @@
-use crate::impl_from_and_to_type_option;
+use crate::impl_type_option;
 use crate::services::row::CellDataSerde;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
 use lazy_static::lazy_static;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
@@ -22,7 +22,7 @@ lazy_static! {
 #[derive(Default)]
 pub struct NumberTypeOptionBuilder(NumberTypeOption);
 impl_into_box_type_option_builder!(NumberTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(NumberTypeOptionBuilder, NumberTypeOption);
+impl_builder_from_json_str_and_from_bytes!(NumberTypeOptionBuilder, NumberTypeOption);
 
 impl NumberTypeOptionBuilder {
     pub fn name(mut self, name: &str) -> Self {
@@ -51,12 +51,8 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 
@@ -78,7 +74,7 @@ pub struct NumberTypeOption {
     #[pb(index = 5)]
     pub name: String,
 }
-impl_from_and_to_type_option!(NumberTypeOption, FieldType::Number);
+impl_type_option!(NumberTypeOption, FieldType::Number);
 
 impl std::default::Default for NumberTypeOption {
     fn default() -> Self {

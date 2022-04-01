@@ -1,11 +1,11 @@
-use crate::impl_from_and_to_type_option;
+use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
 use crate::services::util::*;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -21,7 +21,7 @@ pub struct SingleSelectTypeOption {
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_from_and_to_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
+impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl CellDataSerde for SingleSelectTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
@@ -36,7 +36,7 @@ impl CellDataSerde for SingleSelectTypeOption {
 #[derive(Default)]
 pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOption);
 impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOption);
+impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOption);
 
 impl SingleSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
@@ -50,12 +50,8 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 
@@ -68,7 +64,7 @@ pub struct MultiSelectTypeOption {
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_from_and_to_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
+impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl CellDataSerde for MultiSelectTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
@@ -83,7 +79,7 @@ impl CellDataSerde for MultiSelectTypeOption {
 #[derive(Default)]
 pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
+impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
 impl MultiSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
         self.0.options.push(opt);
@@ -96,12 +92,8 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 

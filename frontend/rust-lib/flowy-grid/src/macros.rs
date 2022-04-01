@@ -9,15 +9,16 @@ macro_rules! impl_into_box_type_option_builder {
     };
 }
 
-macro_rules! impl_from_json_str_and_from_bytes {
+macro_rules! impl_builder_from_json_str_and_from_bytes {
     ($target: ident,$type_option: ident) => {
         impl $target {
-            pub fn from_json_str(s: &str) -> $target {
-                $target($type_option::from(s))
+            pub fn from_protobuf_bytes(bytes: Bytes) -> $target {
+                let type_option = $type_option::from_protobuf_bytes(bytes);
+                $target(type_option)
             }
 
-            pub fn from_bytes(bytes: Bytes) -> $target {
-                let type_option = $type_option::try_from(bytes).unwrap_or($type_option::default());
+            pub fn from_json_str(s: &str) -> $target {
+                let type_option = $type_option::from_json_str(s);
                 $target(type_option)
             }
         }
@@ -25,25 +26,49 @@ macro_rules! impl_from_json_str_and_from_bytes {
 }
 
 #[macro_export]
-macro_rules! impl_from_and_to_type_option {
+macro_rules! impl_type_option {
     ($target: ident, $field_type:expr) => {
-        impl_from_field_type_option!($target);
-        impl_to_field_type_option!($target, $field_type);
-    };
-}
-
-#[macro_export]
-macro_rules! impl_from_field_type_option {
-    ($target: ident) => {
         impl std::convert::From<&FieldMeta> for $target {
             fn from(field_meta: &FieldMeta) -> $target {
-                $target::from(field_meta.type_option_json.as_str())
+                match field_meta
+                    .type_option_by_field_type_id
+                    .get_entry::<$target>(&$field_type)
+                {
+                    None => $target::default(),
+                    Some(target) => target,
+                }
             }
         }
 
-        impl std::convert::From<&str> for $target {
-            fn from(type_option_str: &str) -> $target {
-                match serde_json::from_str(type_option_str) {
+        impl std::convert::From<$target> for String {
+            fn from(type_option: $target) -> String {
+                type_option.json_str()
+            }
+        }
+
+        impl TypeOptionDataEntry for $target {
+            fn field_type(&self) -> FieldType {
+                $field_type
+            }
+
+            fn json_str(&self) -> String {
+                match serde_json::to_string(&self) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        tracing::error!("Field type data convert to AnyData fail, error: {:?}", e);
+                        serde_json::to_string(&$target::default()).unwrap()
+                    }
+                }
+            }
+
+            fn protobuf_bytes(&self) -> Bytes {
+                self.clone().try_into().unwrap()
+            }
+        }
+
+        impl TypeOptionDataFrom for $target {
+            fn from_json_str(s: &str) -> $target {
+                match serde_json::from_str(s) {
                     Ok(obj) => obj,
                     Err(err) => {
                         tracing::error!("{} convert from any data failed, {:?}", stringify!($target), err);
@@ -51,28 +76,9 @@ macro_rules! impl_from_field_type_option {
                     }
                 }
             }
-        }
-    };
-}
 
-#[macro_export]
-macro_rules! impl_to_field_type_option {
-    ($target: ident, $field_type:expr) => {
-        impl $target {
-            pub fn field_type(&self) -> FieldType {
-                $field_type
-            }
-        }
-
-        impl std::convert::From<$target> for String {
-            fn from(field_description: $target) -> Self {
-                match serde_json::to_string(&field_description) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        tracing::error!("Field type data convert to AnyData fail, error: {:?}", e);
-                        serde_json::to_string(&$target::default()).unwrap()
-                    }
-                }
+            fn from_protobuf_bytes(bytes: Bytes) -> $target {
+                $target::try_from(bytes).unwrap_or($target::default())
             }
         }
     };

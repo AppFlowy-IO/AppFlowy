@@ -1,28 +1,24 @@
-use crate::impl_from_and_to_type_option;
+use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::CellDataSerde;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
 pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
 impl_into_box_type_option_builder!(RichTextTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOption);
+impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOption);
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 
@@ -31,7 +27,7 @@ pub struct RichTextTypeOption {
     #[pb(index = 1)]
     pub format: String,
 }
-impl_from_and_to_type_option!(RichTextTypeOption, FieldType::RichText);
+impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
 impl CellDataSerde for RichTextTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {

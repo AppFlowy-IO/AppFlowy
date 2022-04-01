@@ -1,16 +1,19 @@
-use crate::impl_from_and_to_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::impl_type_option;
+use crate::services::field::{
+    BoxTypeOptionBuilder, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+    SingleSelectTypeOption, TypeOptionBuilder,
+};
 use crate::services::row::CellDataSerde;
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
 pub struct CheckboxTypeOptionBuilder(CheckboxTypeOption);
 impl_into_box_type_option_builder!(CheckboxTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(CheckboxTypeOptionBuilder, CheckboxTypeOption);
+impl_builder_from_json_str_and_from_bytes!(CheckboxTypeOptionBuilder, CheckboxTypeOption);
 
 impl CheckboxTypeOptionBuilder {
     pub fn set_selected(mut self, is_selected: bool) -> Self {
@@ -24,12 +27,8 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 
@@ -38,7 +37,7 @@ pub struct CheckboxTypeOption {
     #[pb(index = 1)]
     pub is_selected: bool,
 }
-impl_from_and_to_type_option!(CheckboxTypeOption, FieldType::Checkbox);
+impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 
 impl CellDataSerde for CheckboxTypeOption {
     fn deserialize_cell_data(&self, data: String) -> String {
@@ -47,8 +46,8 @@ impl CellDataSerde for CheckboxTypeOption {
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
         let s = match string_to_bool(data) {
-            true => "1",
-            false => "0",
+            true => "No",
+            false => "Yes",
         };
         Ok(s.to_owned())
     }

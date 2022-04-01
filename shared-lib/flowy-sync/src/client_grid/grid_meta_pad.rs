@@ -129,8 +129,8 @@ impl GridMetaPad {
 
             if let Some(type_option_data) = changeset.type_option_data {
                 match deserializer.deserialize(type_option_data) {
-                    Ok(type_option_json) => {
-                        field.type_option_json = type_option_json;
+                    Ok(json_str) => {
+                        field.type_option_by_field_type_id.insert(&field.field_type, json_str);
                         is_changed = Some(())
                     }
                     Err(err) => {

@@ -1,8 +1,11 @@
 use crate::parser::NotEmptyUuid;
+use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 use serde::{Deserialize, Serialize};
+use std::any::Any;
 use std::collections::HashMap;
+use std::ops::Deref;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 36;
@@ -76,7 +79,7 @@ pub struct GridBlockMetaSerde {
     pub row_metas: Vec<RowMeta>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct FieldMeta {
     #[pb(index = 1)]
     pub id: String,
@@ -100,7 +103,7 @@ pub struct FieldMeta {
     pub width: i32,
 
     #[pb(index = 8)]
-    pub type_option_json: String,
+    pub type_option_by_field_type_id: TypeOptionDataByFieldTypeId,
 }
 
 impl FieldMeta {
@@ -113,7 +116,55 @@ impl FieldMeta {
             frozen: false,
             visibility: true,
             width: DEFAULT_FIELD_WIDTH,
-            type_option_json: Default::default(),
+            type_option_by_field_type_id: Default::default(),
+        }
+    }
+
+    pub fn get_type_option_str(&self) -> Option<String> {
+        match self.type_option_by_field_type_id.get(&self.field_type) {
+            None => None,
+            Some(s) => Some(s.to_owned()),
+        }
+    }
+}
+
+pub trait TypeOptionDataEntry {
+    fn field_type(&self) -> FieldType;
+    fn json_str(&self) -> String;
+    fn protobuf_bytes(&self) -> Bytes;
+}
+
+pub trait TypeOptionDataFrom {
+    fn from_json_str(s: &str) -> Self;
+    fn from_protobuf_bytes(bytes: Bytes) -> Self;
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
+pub struct TypeOptionDataByFieldTypeId {
+    #[pb(index = 1)]
+    pub map: HashMap<String, String>,
+}
+
+impl TypeOptionDataByFieldTypeId {
+    pub fn insert_entry<T: TypeOptionDataEntry + ?Sized>(&mut self, entry: &T) {
+        self.map.insert(entry.field_type().type_id(), entry.json_str());
+    }
+
+    pub fn insert(&mut self, field_type: &FieldType, json_str: String) {
+        self.map.insert(field_type.type_id(), json_str);
+    }
+
+    pub fn get_entry<T: TypeOptionDataFrom>(&self, field_type: &FieldType) -> Option<T> {
+        match self.map.get(&field_type.type_id()) {
+            None => None,
+            Some(s) => Some(T::from_json_str(s)),
+        }
+    }
+
+    pub fn get(&self, field_type: &FieldType) -> Option<String> {
+        match self.map.get(&field_type.type_id()) {
+            None => None,
+            Some(s) => Some(s.to_owned()),
         }
     }
 }

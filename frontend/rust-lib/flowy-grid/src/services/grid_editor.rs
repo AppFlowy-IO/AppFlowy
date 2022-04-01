@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::field::{type_option_json_str_from_bytes, FieldBuilder};
+use crate::services::field::{type_option_builder_from_bytes, FieldBuilder};
 use crate::services::row::*;
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -74,17 +74,9 @@ impl ClientGridEditor {
                     };
                     Ok(grid.update_field(changeset, deserializer)?)
                 } else {
-                    let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
-                    let field_meta = FieldMeta {
-                        id: field.id,
-                        name: field.name,
-                        desc: field.desc,
-                        field_type: field.field_type,
-                        frozen: field.frozen,
-                        visibility: field.visibility,
-                        width: field.width,
-                        type_option_json,
-                    };
+                    // let type_option_json = type_option_json_str_from_bytes(type_option_data, &field.field_type);
+                    let builder = type_option_builder_from_bytes(type_option_data, &field.field_type);
+                    let field_meta = FieldBuilder::from_field(field, builder).build();
                     Ok(grid.create_field(field_meta, start_field_id)?)
                 }
             })
@@ -409,7 +401,7 @@ impl TypeOptionDataDeserializer for TypeOptionChangesetDeserializer {
         // The type_option_data is serialized by protobuf. But the type_option_data should be
         // serialized by utf-8. So we must transform the data here.
 
-        let type_option_json = type_option_json_str_from_bytes(type_option_data, &self.0);
-        Ok(type_option_json)
+        let builder = type_option_builder_from_bytes(type_option_data, &self.0);
+        Ok(builder.entry().json_str())
     }
 }

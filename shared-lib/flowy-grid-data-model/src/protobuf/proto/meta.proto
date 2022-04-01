@@ -22,7 +22,10 @@ message FieldMeta {
     bool frozen = 5;
     bool visibility = 6;
     int32 width = 7;
-    string type_option_json = 8;
+    TypeOptionDataByFieldTypeId type_option_by_field_type_id = 8;
+}
+message TypeOptionDataByFieldTypeId {
+    map<string, string> map = 1;
 }
 message FieldChangesetPayload {
     string field_id = 1;

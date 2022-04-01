@@ -69,12 +69,33 @@ const FieldMeta$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_option_json', '3': 8, '4': 1, '5': 9, '10': 'typeOptionJson'},
+    const {'1': 'type_option_by_field_type_id', '3': 8, '4': 1, '5': 11, '6': '.TypeOptionDataByFieldTypeId', '10': 'typeOptionByFieldTypeId'},
   ],
 };
 
 /// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSKAoQdHlwZV9vcHRpb25fanNvbhgIIAEoCVIOdHlwZU9wdGlvbkpzb24=');
+final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSWwocdHlwZV9vcHRpb25fYnlfZmllbGRfdHlwZV9pZBgIIAEoCzIcLlR5cGVPcHRpb25EYXRhQnlGaWVsZFR5cGVJZFIXdHlwZU9wdGlvbkJ5RmllbGRUeXBlSWQ=');
+@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
+const TypeOptionDataByFieldTypeId$json = const {
+  '1': 'TypeOptionDataByFieldTypeId',
+  '2': const [
+    const {'1': 'map', '3': 1, '4': 3, '5': 11, '6': '.TypeOptionDataByFieldTypeId.MapEntry', '10': 'map'},
+  ],
+  '3': const [TypeOptionDataByFieldTypeId_MapEntry$json],
+};
+
+@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
+const TypeOptionDataByFieldTypeId_MapEntry$json = const {
+  '1': 'MapEntry',
+  '2': const [
+    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': const {'7': true},
+};
+
+/// Descriptor for `TypeOptionDataByFieldTypeId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List typeOptionDataByFieldTypeIdDescriptor = $convert.base64Decode('ChtUeXBlT3B0aW9uRGF0YUJ5RmllbGRUeXBlSWQSNwoDbWFwGAEgAygLMiUuVHlwZU9wdGlvbkRhdGFCeUZpZWxkVHlwZUlkLk1hcEVudHJ5UgNtYXAaNgoITWFwRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');
 @$core.Deprecated('Use fieldChangesetPayloadDescriptor instead')
 const FieldChangesetPayload$json = const {
   '1': 'FieldChangesetPayload',

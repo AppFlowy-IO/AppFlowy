@@ -1,5 +1,5 @@
 use crate::manager::GridManager;
-use crate::services::field::{type_option_data_from_str, SelectOption};
+use crate::services::field::{type_option_builder_from_json_str, SelectOption};
 use crate::services::grid_editor::ClientGridEditor;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
@@ -115,9 +115,11 @@ pub(crate) async fn get_field_context_handler(
 ) -> DataResult<EditFieldContext, FlowyError> {
     let params = data.into_inner();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-
     let mut field_meta = get_or_create_field_meta(&params, editor).await?;
-    let type_option_data = type_option_data_from_str(&field_meta.type_option_json, &field_meta.field_type);
+    let s = field_meta.get_type_option_str().unwrap();
+    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
+    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+
     let field: Field = field_meta.into();
     let edit_context = EditFieldContext {
         grid_id: params.grid_id,

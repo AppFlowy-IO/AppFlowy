@@ -1,15 +1,14 @@
-use crate::impl_from_and_to_type_option;
+use crate::impl_type_option;
 use crate::services::row::CellDataSerde;
 use bytes::Bytes;
-
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry, TypeOptionDataFrom};
 use serde::{Deserialize, Serialize};
 
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, RichTextTypeOption, TypeOptionBuilder};
 use strum_macros::EnumIter;
 
 // Date
@@ -21,7 +20,7 @@ pub struct DateTypeOption {
     #[pb(index = 2)]
     pub time_format: TimeFormat,
 }
-impl_from_and_to_type_option!(DateTypeOption, FieldType::DateTime);
+impl_type_option!(DateTypeOption, FieldType::DateTime);
 
 impl DateTypeOption {
     #[allow(dead_code)]
@@ -66,7 +65,7 @@ impl CellDataSerde for DateTypeOption {
 #[derive(Default)]
 pub struct DateTypeOptionBuilder(DateTypeOption);
 impl_into_box_type_option_builder!(DateTypeOptionBuilder);
-impl_from_json_str_and_from_bytes!(DateTypeOptionBuilder, DateTypeOption);
+impl_builder_from_json_str_and_from_bytes!(DateTypeOptionBuilder, DateTypeOption);
 
 impl DateTypeOptionBuilder {
     pub fn date_format(mut self, date_format: DateFormat) -> Self {
@@ -84,12 +83,8 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
         self.0.field_type()
     }
 
-    fn build_type_option_str(&self) -> String {
-        self.0.clone().into()
-    }
-
-    fn build_type_option_data(&self) -> Bytes {
-        self.0.clone().try_into().unwrap()
+    fn entry(&self) -> &dyn TypeOptionDataEntry {
+        &self.0
     }
 }
 

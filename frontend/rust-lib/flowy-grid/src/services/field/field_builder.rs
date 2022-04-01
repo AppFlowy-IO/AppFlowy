@@ -1,6 +1,8 @@
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{
+    Field, FieldMeta, FieldType, TypeOptionDataByFieldTypeId, TypeOptionDataEntry, TypeOptionDataFrom,
+};
 
 pub struct FieldBuilder {
     field_meta: FieldMeta,
@@ -22,6 +24,23 @@ impl FieldBuilder {
     pub fn from_field_type(field_type: &FieldType) -> Self {
         let type_option_builder = default_type_option_builder_from_type(field_type);
         Self::new(type_option_builder)
+    }
+
+    pub fn from_field(field: Field, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
+        let field_meta = FieldMeta {
+            id: field.id,
+            name: field.name,
+            desc: field.desc,
+            field_type: field.field_type,
+            frozen: field.frozen,
+            visibility: field.visibility,
+            width: field.width,
+            type_option_by_field_type_id: TypeOptionDataByFieldTypeId::default(),
+        };
+        Self {
+            field_meta,
+            type_option_builder,
+        }
     }
 
     pub fn name(mut self, name: &str) -> Self {
@@ -52,16 +71,16 @@ impl FieldBuilder {
     pub fn build(self) -> FieldMeta {
         debug_assert_eq!(self.field_meta.field_type, self.type_option_builder.field_type());
         let mut field_meta = self.field_meta;
-        let type_option_json = self.type_option_builder.build_type_option_str();
-        field_meta.type_option_json = type_option_json;
+        field_meta
+            .type_option_by_field_type_id
+            .insert_entry(self.type_option_builder.entry());
         field_meta
     }
 }
 
 pub trait TypeOptionBuilder {
     fn field_type(&self) -> FieldType;
-    fn build_type_option_str(&self) -> String;
-    fn build_type_option_data(&self) -> Bytes;
+    fn entry(&self) -> &dyn TypeOptionDataEntry;
 }
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
@@ -88,23 +107,14 @@ pub fn type_option_builder_from_json_str(s: &str, field_type: &FieldType) -> Box
     }
 }
 
-pub fn type_option_builder_from_bytes(bytes: Bytes, field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
+pub fn type_option_builder_from_bytes<T: Into<Bytes>>(bytes: T, field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
+    let bytes = bytes.into();
     match field_type {
-        FieldType::RichText => Box::new(RichTextTypeOptionBuilder::from_bytes(bytes)),
-        FieldType::Number => Box::new(NumberTypeOptionBuilder::from_bytes(bytes)),
-        FieldType::DateTime => Box::new(DateTypeOptionBuilder::from_bytes(bytes)),
-        FieldType::SingleSelect => Box::new(SingleSelectTypeOptionBuilder::from_bytes(bytes)),
-        FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_bytes(bytes)),
-        FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_bytes(bytes)),
+        FieldType::RichText => Box::new(RichTextTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::Number => Box::new(NumberTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::DateTime => Box::new(DateTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::SingleSelect => Box::new(SingleSelectTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::MultiSelect => Box::new(MultiSelectTypeOptionBuilder::from_protobuf_bytes(bytes)),
+        FieldType::Checkbox => Box::new(CheckboxTypeOptionBuilder::from_protobuf_bytes(bytes)),
     }
-}
-
-pub fn type_option_data_from_str(s: &str, field_type: &FieldType) -> Vec<u8> {
-    let builder = type_option_builder_from_json_str(s, field_type);
-    builder.build_type_option_data().to_vec()
-}
-
-pub fn type_option_json_str_from_bytes(bytes: Vec<u8>, field_type: &FieldType) -> String {
-    let builder = type_option_builder_from_bytes(Bytes::from(bytes), field_type);
-    builder.build_type_option_str()
 }

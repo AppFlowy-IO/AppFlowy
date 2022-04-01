@@ -215,7 +215,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
-    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionJson')
+    ..aOM<TypeOptionDataByFieldTypeId>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionByFieldTypeId', subBuilder: TypeOptionDataByFieldTypeId.create)
     ..hasRequiredFields = false
   ;
 
@@ -228,7 +228,7 @@ class FieldMeta extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
-    $core.String? typeOptionJson,
+    TypeOptionDataByFieldTypeId? typeOptionByFieldTypeId,
   }) {
     final _result = create();
     if (id != null) {
@@ -252,8 +252,8 @@ class FieldMeta extends $pb.GeneratedMessage {
     if (width != null) {
       _result.width = width;
     }
-    if (typeOptionJson != null) {
-      _result.typeOptionJson = typeOptionJson;
+    if (typeOptionByFieldTypeId != null) {
+      _result.typeOptionByFieldTypeId = typeOptionByFieldTypeId;
     }
     return _result;
   }
@@ -342,13 +342,56 @@ class FieldMeta extends $pb.GeneratedMessage {
   void clearWidth() => clearField(7);
 
   @$pb.TagNumber(8)
-  $core.String get typeOptionJson => $_getSZ(7);
+  TypeOptionDataByFieldTypeId get typeOptionByFieldTypeId => $_getN(7);
   @$pb.TagNumber(8)
-  set typeOptionJson($core.String v) { $_setString(7, v); }
+  set typeOptionByFieldTypeId(TypeOptionDataByFieldTypeId v) { setField(8, v); }
   @$pb.TagNumber(8)
-  $core.bool hasTypeOptionJson() => $_has(7);
+  $core.bool hasTypeOptionByFieldTypeId() => $_has(7);
   @$pb.TagNumber(8)
-  void clearTypeOptionJson() => clearField(8);
+  void clearTypeOptionByFieldTypeId() => clearField(8);
+  @$pb.TagNumber(8)
+  TypeOptionDataByFieldTypeId ensureTypeOptionByFieldTypeId() => $_ensure(7);
+}
+
+class TypeOptionDataByFieldTypeId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TypeOptionDataByFieldTypeId', createEmptyInstance: create)
+    ..m<$core.String, $core.String>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'map', entryClassName: 'TypeOptionDataByFieldTypeId.MapEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OS)
+    ..hasRequiredFields = false
+  ;
+
+  TypeOptionDataByFieldTypeId._() : super();
+  factory TypeOptionDataByFieldTypeId({
+    $core.Map<$core.String, $core.String>? map,
+  }) {
+    final _result = create();
+    if (map != null) {
+      _result.map.addAll(map);
+    }
+    return _result;
+  }
+  factory TypeOptionDataByFieldTypeId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TypeOptionDataByFieldTypeId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TypeOptionDataByFieldTypeId clone() => TypeOptionDataByFieldTypeId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TypeOptionDataByFieldTypeId copyWith(void Function(TypeOptionDataByFieldTypeId) updates) => super.copyWith((message) => updates(message as TypeOptionDataByFieldTypeId)) as TypeOptionDataByFieldTypeId; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TypeOptionDataByFieldTypeId create() => TypeOptionDataByFieldTypeId._();
+  TypeOptionDataByFieldTypeId createEmptyInstance() => create();
+  static $pb.PbList<TypeOptionDataByFieldTypeId> createRepeated() => $pb.PbList<TypeOptionDataByFieldTypeId>();
+  @$core.pragma('dart2js:noInline')
+  static TypeOptionDataByFieldTypeId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TypeOptionDataByFieldTypeId>(create);
+  static TypeOptionDataByFieldTypeId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.Map<$core.String, $core.String> get map => $_getMap(0);
 }
 
 enum FieldChangesetPayload_OneOfName {
