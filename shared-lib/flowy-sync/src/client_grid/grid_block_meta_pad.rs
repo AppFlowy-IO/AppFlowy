@@ -24,8 +24,7 @@ pub struct GridBlockMetaPad {
 impl GridBlockMetaPad {
     pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        tracing::info!("delta: {}", delta);
-        tracing::info!("{}", s);
+        tracing::trace!("{}", s);
         let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             CollaborateError::internal().context(msg)

@@ -6,6 +6,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'cell_builder.dart';
 import 'cell_container.dart';
 
@@ -19,10 +20,12 @@ class GridRowWidget extends StatefulWidget {
 
 class _GridRowWidgetState extends State<GridRowWidget> {
   late RowBloc _rowBloc;
+  late RowRegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
     _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
+    _rowStateNotifier = RowRegionStateNotifier();
     super.initState();
   }
 
@@ -30,25 +33,28 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (p) => _rowBloc.add(const RowEvent.activeRow()),
-        onExit: (p) => _rowBloc.add(const RowEvent.disactiveRow()),
-        child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowHeight != c.rowHeight,
-          builder: (context, state) {
-            return SizedBox(
-              height: _rowBloc.state.rowHeight,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: const [
-                  _RowLeading(),
-                  _RowCells(),
-                  _RowTrailing(),
-                ],
-              ),
-            );
-          },
+      child: ChangeNotifierProvider.value(
+        value: _rowStateNotifier,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (p) => _rowStateNotifier.onEnter = true,
+          onExit: (p) => _rowStateNotifier.onEnter = false,
+          child: BlocBuilder<RowBloc, RowState>(
+            buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+            builder: (context, state) {
+              return SizedBox(
+                height: _rowBloc.state.rowHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: const [
+                    _RowLeading(),
+                    _RowCells(),
+                    _RowTrailing(),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -57,6 +63,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   @override
   Future<void> dispose() async {
     _rowBloc.close();
+    _rowStateNotifier.dispose();
     super.dispose();
   }
 }
@@ -66,10 +73,9 @@ class _RowLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<RowBloc, RowState, bool>(
-      selector: (state) => state.active,
-      builder: (context, isActive) {
-        return SizedBox(width: GridSize.leadingHeaderPadding, child: isActive ? _activeWidget() : null);
+    return Consumer<RowRegionStateNotifier>(
+      builder: (context, state, _) {
+        return SizedBox(width: GridSize.leadingHeaderPadding, child: state.onEnter ? _activeWidget() : null);
       },
     );
   }
@@ -132,4 +138,17 @@ class _RowCells extends StatelessWidget {
       },
     );
   }
+}
+
+class RowRegionStateNotifier extends ChangeNotifier {
+  bool _onEnter = false;
+
+  set onEnter(bool value) {
+    if (_onEnter != value) {
+      _onEnter = value;
+      notifyListeners();
+    }
+  }
+
+  bool get onEnter => _onEnter;
 }

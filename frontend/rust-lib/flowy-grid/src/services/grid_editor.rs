@@ -233,7 +233,7 @@ impl ClientGridEditor {
         }
     }
 
-    pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_cell(&self, mut changeset: CellMetaChangeset) -> FlowyResult<()> {
         if let Some(cell_data) = changeset.data.as_ref() {
             match self.pad.read().await.get_field(&changeset.field_id) {
                 None => {
@@ -241,7 +241,8 @@ impl ClientGridEditor {
                         .context(format!("Can not find the field with id: {}", &changeset.field_id)));
                 }
                 Some(field_meta) => {
-                    let _ = serialize_cell_data(cell_data, field_meta)?;
+                    let cell_data = serialize_cell_data(cell_data, field_meta)?;
+                    changeset.data = Some(cell_data);
                 }
             }
         }
@@ -300,7 +301,8 @@ impl ClientGridEditor {
 
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
         let block_ids = match block_ids {
-            None =>  self.pad
+            None => self
+                .pad
                 .read()
                 .await
                 .get_block_metas()

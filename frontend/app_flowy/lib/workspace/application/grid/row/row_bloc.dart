@@ -41,12 +41,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: (_CreateRow value) {
             rowService.createRow();
           },
-          activeRow: (_ActiveRow value) {
-            emit(state.copyWith(active: true));
-          },
-          disactiveRow: (_DisactiveRow value) {
-            emit(state.copyWith(active: false));
-          },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fields: value.fields));
             add(const RowEvent.didUpdateCell());
@@ -133,8 +127,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.activeRow() = _ActiveRow;
-  const factory RowEvent.disactiveRow() = _DisactiveRow;
   const factory RowEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
   const factory RowEvent.didUpdateCell() = _DidUpdateCell;
 }
@@ -143,7 +135,6 @@ class RowEvent with _$RowEvent {
 class RowState with _$RowState {
   const factory RowState({
     required String rowId,
-    required bool active,
     required double rowHeight,
     required List<Field> fields,
     required Future<Option<Row>> row,
@@ -152,7 +143,6 @@ class RowState with _$RowState {
 
   factory RowState.initial(GridRowData data) => RowState(
         rowId: data.rowId,
-        active: false,
         rowHeight: data.height,
         fields: data.fields,
         row: Future(() => none()),
