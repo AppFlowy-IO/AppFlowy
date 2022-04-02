@@ -22,7 +22,7 @@ impl RowIdsPerBlock {
     }
 }
 
-pub struct GridBlockMetaData {
+pub struct GridBlockSnapshot {
     pub(crate) block_id: String,
     pub row_metas: Vec<Arc<RowMeta>>,
 }
@@ -38,20 +38,6 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
             .push(row_id);
     });
     map.into_values().collect::<Vec<_>>()
-}
-
-pub(crate) fn make_grid_blocks(block_meta_snapshots: Vec<GridBlockMetaData>) -> FlowyResult<RepeatedGridBlock> {
-    Ok(block_meta_snapshots
-        .into_iter()
-        .map(|block_meta_data| {
-            let row_orders = make_row_orders_from_row_metas(&block_meta_data.row_metas);
-            GridBlock {
-                id: block_meta_data.block_id,
-                row_orders,
-            }
-        })
-        .collect::<Vec<GridBlock>>()
-        .into())
 }
 
 #[inline(always)]
@@ -101,25 +87,36 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<Ro
     row_metas.iter().map(make_row).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_grid_block_from_block_metas(
-    block_ids: &[String],
-    block_meta_data_vec: Vec<GridBlockMetaData>,
+pub(crate) fn make_grid_blocks(
+    block_ids: Option<Vec<String>>,
+    block_snapshots: Vec<GridBlockSnapshot>,
 ) -> FlowyResult<RepeatedGridBlock> {
-    let block_meta_data_map: HashMap<&String, &Vec<Arc<RowMeta>>> = block_meta_data_vec
-        .iter()
-        .map(|data| (&data.block_id, &data.row_metas))
-        .collect();
+    match block_ids {
+        None => Ok(block_snapshots
+            .into_iter()
+            .map(|snapshot| {
+                let row_orders = make_row_orders_from_row_metas(&snapshot.row_metas);
+                GridBlock::new(&snapshot.block_id, row_orders)
+            })
+            .collect::<Vec<GridBlock>>()
+            .into()),
+        Some(block_ids) => {
+            let block_meta_data_map: HashMap<&String, &Vec<Arc<RowMeta>>> = block_snapshots
+                .iter()
+                .map(|data| (&data.block_id, &data.row_metas))
+                .collect();
 
-    let mut grid_blocks = vec![];
-    for block_id in block_ids {
-        match block_meta_data_map.get(&block_id) {
-            None => {}
-            Some(row_metas) => {
-                let row_orders = make_row_orders_from_row_metas(row_metas);
-                grid_blocks.push(GridBlock::new(block_id, row_orders));
+            let mut grid_blocks = vec![];
+            for block_id in block_ids {
+                match block_meta_data_map.get(&block_id) {
+                    None => {}
+                    Some(row_metas) => {
+                        let row_orders = make_row_orders_from_row_metas(row_metas);
+                        grid_blocks.push(GridBlock::new(&block_id, row_orders));
+                    }
+                }
             }
+            Ok(grid_blocks.into())
         }
     }
-
-    Ok(grid_blocks.into())
 }

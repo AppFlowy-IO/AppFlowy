@@ -69,7 +69,7 @@ impl GridBlockMetaChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct GridBlockMetaSerde {
+pub struct GridBlockMetaData {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -431,13 +431,13 @@ pub struct BuildGridContext {
     pub block_metas: GridBlockMeta,
 
     #[pb(index = 3)]
-    pub block_meta_data: GridBlockMetaSerde,
+    pub block_meta_data: GridBlockMetaData,
 }
 
 impl std::default::Default for BuildGridContext {
     fn default() -> Self {
         let grid_block = GridBlockMeta::new();
-        let grid_block_meta_data = GridBlockMetaSerde {
+        let grid_block_meta_data = GridBlockMetaData {
             block_id: grid_block.block_id.clone(),
             row_metas: vec![],
         };

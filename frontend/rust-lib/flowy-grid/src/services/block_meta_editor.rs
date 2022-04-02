@@ -1,12 +1,12 @@
-use crate::manager::GridUser;
-use crate::services::row::{make_cell, make_row_ids_per_block, GridBlockMetaData};
-use bytes::Bytes;
-
 use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::manager::GridUser;
+use crate::services::row::{make_cell, make_row_ids_per_block, GridBlockSnapshot};
+use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, RowMeta, RowMetaChangeset, RowOrder,
+    CellMeta, FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, RowMeta,
+    RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{
@@ -116,7 +116,8 @@ impl GridBlockMetaEditorManager {
 
     pub async fn get_row(&self, block_id: &str, row_id: &str) -> FlowyResult<Option<Arc<RowMeta>>> {
         let editor = self.get_editor(block_id).await?;
-        let mut row_metas = editor.get_row_metas(Some(vec![row_id.to_owned()])).await?;
+        let row_ids = vec![row_id.to_owned()];
+        let mut row_metas = editor.get_row_metas(&Some(row_ids)).await?;
         if row_metas.is_empty() {
             Ok(None)
         } else {
@@ -131,42 +132,35 @@ impl GridBlockMetaEditorManager {
         Ok(())
     }
 
-    pub(crate) async fn get_block_meta_data_from_blocks(
-        &self,
-        grid_blocks: Vec<GridBlockMeta>,
-    ) -> FlowyResult<Vec<GridBlockMetaData>> {
+    pub(crate) async fn make_block_snapshots(&self, block_ids: Vec<String>) -> FlowyResult<Vec<GridBlockSnapshot>> {
         let mut snapshots = vec![];
-        for grid_block in grid_blocks {
-            let editor = self.get_editor(&grid_block.block_id).await?;
-            let row_metas = editor.get_row_metas(None).await?;
+        for block_id in block_ids {
+            let editor = self.get_editor(&block_id).await?;
+            let row_metas = editor.get_row_metas(&None).await?;
             row_metas.iter().for_each(|row_meta| {
                 self.block_id_by_row_id
                     .insert(row_meta.id.clone(), row_meta.block_id.clone());
             });
 
-            snapshots.push(GridBlockMetaData {
-                block_id: grid_block.block_id,
-                row_metas,
-            });
+            snapshots.push(GridBlockSnapshot { block_id, row_metas });
         }
         Ok(snapshots)
     }
 
-    pub(crate) async fn get_block_meta_data(&self, block_ids: &[String]) -> FlowyResult<Vec<GridBlockMetaData>> {
-        let mut snapshots = vec![];
+    // Optimization: Using the shared memory(Arc, Cow,etc.) to reduce memory usage.
+    pub async fn get_cell_metas(
+        &self,
+        block_ids: Option<String>,
+        field_id: &str,
+        row_ids: Option<Vec<String>>,
+    ) -> FlowyResult<Vec<CellMeta>> {
+        let mut block_cell_metas = vec![];
         for block_id in block_ids {
-            let editor = self.get_editor(block_id).await?;
-            let row_metas = editor.get_row_metas(None).await?;
-            row_metas.iter().for_each(|row_meta| {
-                self.block_id_by_row_id
-                    .insert(row_meta.id.clone(), row_meta.block_id.clone());
-            });
-            snapshots.push(GridBlockMetaData {
-                block_id: block_id.clone(),
-                row_metas,
-            });
+            let editor = self.get_editor(&block_id).await?;
+            let cell_metas = editor.get_cell_metas(field_id, &row_ids).await?;
+            block_cell_metas.extend(cell_metas);
         }
-        Ok(snapshots)
+        Ok(block_cell_metas)
     }
 
     async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
@@ -178,10 +172,7 @@ impl GridBlockMetaEditorManager {
                 );
                 Err(FlowyError::internal().context(msg))
             }
-            Some(block_id) => {
-                let editor = self.get_editor(&block_id).await?;
-                Ok(editor)
-            }
+            Some(block_id) => Ok(self.get_editor(&block_id).await?),
         }
     }
 
@@ -301,7 +292,8 @@ impl ClientGridBlockMetaEditor {
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<RowMeta> {
         let row_id = changeset.row_id.clone();
         let _ = self.modify(|pad| Ok(pad.update_row(changeset)?)).await?;
-        let mut row_metas = self.get_row_metas(Some(vec![row_id.clone()])).await?;
+        let row_ids = vec![row_id.clone()];
+        let mut row_metas = self.get_row_metas(&Some(row_ids)).await?;
         debug_assert_eq!(row_metas.len(), 1);
 
         if row_metas.is_empty() {
@@ -312,12 +304,17 @@ impl ClientGridBlockMetaEditor {
         }
     }
 
-    pub async fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
+    pub async fn get_row_metas(&self, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
         let row_metas = self.pad.read().await.get_row_metas(row_ids)?;
         Ok(row_metas)
     }
 
-    pub async fn get_row_orders(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn get_cell_metas(&self, field_id: &str, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<CellMeta>> {
+        let cell_metas = self.pad.read().await.get_cell_metas(field_id, row_ids)?;
+        Ok(cell_metas)
+    }
+
+    pub async fn get_row_orders(&self, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<RowOrder>> {
         let row_orders = self
             .pad
             .read()

@@ -1,10 +1,11 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{GridBlockMetaSerde, RowMeta, RowMetaChangeset};
+use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -25,12 +26,12 @@ impl GridBlockMetaPad {
         let s = delta.to_str()?;
         tracing::info!("delta: {}", delta);
         tracing::info!("{}", s);
-        let block_meta: GridBlockMetaSerde = serde_json::from_str(&s).map_err(|e| {
+        let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             CollaborateError::internal().context(msg)
         })?;
-        let block_id = block_meta.block_id;
-        let rows = block_meta
+        let block_id = meta_data.block_id;
+        let rows = meta_data
             .row_metas
             .into_iter()
             .map(Arc::new)
@@ -78,7 +79,7 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
+    pub fn get_row_metas(&self, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
         match row_ids {
             None => Ok(self.row_metas.to_vec()),
             Some(row_ids) => {
@@ -100,6 +101,18 @@ impl GridBlockMetaPad {
                     .collect::<Vec<_>>())
             }
         }
+    }
+
+    pub fn get_cell_metas(&self, field_id: &str, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<CellMeta>> {
+        let rows = self.get_row_metas(row_ids)?;
+        let cell_metas = rows
+            .iter()
+            .flat_map(|row| {
+                let cell_meta = row.cell_by_field_id.get(field_id)?;
+                Some(cell_meta.clone())
+            })
+            .collect::<Vec<CellMeta>>();
+        Ok(cell_metas)
     }
 
     pub fn number_of_rows(&self) -> i32 {
@@ -186,12 +199,12 @@ pub struct GridBlockMetaChange {
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaSerde) -> GridBlockMetaDelta {
+pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaData) -> GridBlockMetaDelta {
     let json = serde_json::to_string(&grid_block_meta_data).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaSerde) -> RepeatedRevision {
+pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaData) -> RepeatedRevision {
     let delta = make_block_meta_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
@@ -200,7 +213,7 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 
 impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
-        let block_meta_data = GridBlockMetaSerde {
+        let block_meta_data = GridBlockMetaData {
             block_id: uuid(),
             row_metas: vec![],
         };

@@ -212,7 +212,7 @@ impl GridMetaPad {
         }
     }
 
-    pub fn create_block(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid| {
             if grid.block_metas.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -235,11 +235,11 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_blocks(&self) -> Vec<GridBlockMeta> {
+    pub fn get_block_metas(&self) -> Vec<GridBlockMeta> {
         self.grid_meta.block_metas.clone()
     }
 
-    pub fn update_block(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_block_meta(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;

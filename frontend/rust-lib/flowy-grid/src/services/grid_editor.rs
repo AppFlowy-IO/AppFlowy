@@ -37,8 +37,9 @@ impl ClientGridEditor {
         let rev_manager = Arc::new(rev_manager);
         let pad = Arc::new(RwLock::new(grid_pad));
 
-        let block_meta_manager =
-            Arc::new(GridBlockMetaEditorManager::new(grid_id, &user, pad.read().await.get_blocks().clone()).await?);
+        let block_meta_manager = Arc::new(
+            GridBlockMetaEditorManager::new(grid_id, &user, pad.read().await.get_block_metas().clone()).await?,
+        );
 
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
@@ -113,8 +114,11 @@ impl ClientGridEditor {
     }
 
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
-        let type_option_json_builder =
-            |field_type: &FieldType| -> String { default_type_option_builder_from_type(field_type).entry().json_str() };
+        // let cell_metas = self.block_meta_manager.get_cell_metas(None, field_id, None).await?;
+
+        let type_option_json_builder = |field_type: &FieldType| -> String {
+            return default_type_option_builder_from_type(field_type).entry().json_str();
+        };
 
         let _ = self
             .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
@@ -137,12 +141,12 @@ impl ClientGridEditor {
     }
 
     pub async fn create_block(&self, grid_block: GridBlockMeta) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_block(grid_block)?)).await?;
+        let _ = self.modify(|grid| Ok(grid.create_block_meta(grid_block)?)).await?;
         Ok(())
     }
 
     pub async fn update_block(&self, changeset: GridBlockMetaChangeset) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.update_block(changeset)?)).await?;
+        let _ = self.modify(|grid| Ok(grid.update_block_meta(changeset)?)).await?;
         Ok(())
     }
 
@@ -192,12 +196,15 @@ impl ClientGridEditor {
 
     pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRow> {
         let block_ids = vec![block_id.to_owned()];
-        let mut block_meta_data_vec = self.get_block_meta_data_vec(Some(&block_ids)).await?;
-        debug_assert_eq!(block_meta_data_vec.len(), 1);
-        if block_meta_data_vec.len() == 1 {
-            let block_meta_data = block_meta_data_vec.pop().unwrap();
+        let mut grid_block_snapshot = self.grid_block_snapshots(Some(block_ids)).await?;
+
+        // For the moment, we only support one block.
+        // We can save the rows into multiple blocks and load them asynchronously in the future.
+        debug_assert_eq!(grid_block_snapshot.len(), 1);
+        if grid_block_snapshot.len() == 1 {
+            let snapshot = grid_block_snapshot.pop().unwrap();
             let field_metas = self.get_field_metas(None).await?;
-            let rows = make_rows_from_row_metas(&field_metas, &block_meta_data.row_metas);
+            let rows = make_rows_from_row_metas(&field_metas, &snapshot.row_metas);
             Ok(rows.into())
         } else {
             Ok(vec![].into())
@@ -240,15 +247,12 @@ impl ClientGridEditor {
     }
 
     pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedGridBlock> {
-        let block_meta_data_vec = self.get_block_meta_data_vec(block_ids.as_ref()).await?;
-        match block_ids {
-            None => make_grid_blocks(block_meta_data_vec),
-            Some(block_ids) => make_grid_block_from_block_metas(&block_ids, block_meta_data_vec),
-        }
+        let block_snapshots = self.grid_block_snapshots(block_ids.clone()).await?;
+        make_grid_blocks(block_ids, block_snapshots)
     }
 
     pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockMeta>> {
-        let grid_blocks = self.pad.read().await.get_blocks();
+        let grid_blocks = self.pad.read().await.get_block_metas();
         Ok(grid_blocks)
     }
 
@@ -266,7 +270,7 @@ impl ClientGridEditor {
             .pad
             .read()
             .await
-            .get_blocks()
+            .get_block_metas()
             .into_iter()
             .map(|grid_block_meta| GridBlockOrder {
                 block_id: grid_block_meta.block_id,
@@ -285,27 +289,18 @@ impl ClientGridEditor {
         Ok(field_metas)
     }
 
-    pub async fn get_block_meta_data_vec(
-        &self,
-        block_ids: Option<&Vec<String>>,
-    ) -> FlowyResult<Vec<GridBlockMetaData>> {
-        match block_ids {
-            None => {
-                let grid_blocks = self.pad.read().await.get_blocks();
-                let row_metas_per_block = self
-                    .block_meta_manager
-                    .get_block_meta_data_from_blocks(grid_blocks)
-                    .await?;
-                Ok(row_metas_per_block)
-            }
-            Some(block_ids) => {
-                let row_metas_per_block = self
-                    .block_meta_manager
-                    .get_block_meta_data(block_ids.as_slice())
-                    .await?;
-                Ok(row_metas_per_block)
-            }
-        }
+    pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
+        let block_ids = block_ids.unwrap_or(
+            self.pad
+                .read()
+                .await
+                .get_block_metas()
+                .into_iter()
+                .map(|block_meta| block_meta.block_id)
+                .collect::<Vec<String>>(),
+        );
+        let snapshots = self.block_meta_manager.make_block_snapshots(block_ids).await?;
+        Ok(snapshots)
     }
 
     pub async fn delta_bytes(&self) -> Bytes {
@@ -347,7 +342,7 @@ impl ClientGridEditor {
     }
 
     async fn block_id(&self) -> FlowyResult<String> {
-        match self.pad.read().await.get_blocks().last() {
+        match self.pad.read().await.get_block_metas().last() {
             None => Err(FlowyError::internal().context("There is no grid block in this grid")),
             Some(grid_block) => Ok(grid_block.block_id.clone()),
         }

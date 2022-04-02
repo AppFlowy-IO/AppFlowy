@@ -10,7 +10,7 @@ message GridBlockMeta {
     int32 start_row_index = 2;
     int32 row_count = 3;
 }
-message GridBlockMetaSerde {
+message GridBlockMetaData {
     string block_id = 1;
     repeated RowMeta row_metas = 2;
 }
@@ -68,7 +68,7 @@ message CellMetaChangeset {
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;
     GridBlockMeta block_metas = 2;
-    GridBlockMetaSerde block_meta_data = 3;
+    GridBlockMetaData block_meta_data = 3;
 }
 enum FieldType {
     RichText = 0;

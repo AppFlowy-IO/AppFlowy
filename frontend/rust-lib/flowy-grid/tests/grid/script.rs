@@ -238,7 +238,7 @@ impl GridEditorTest {
 
 async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
     editor
-        .get_block_meta_data_vec(None)
+        .grid_block_snapshots(None)
         .await
         .unwrap()
         .pop()
