@@ -148,9 +148,10 @@ impl GridBlockMetaEditorManager {
     }
 
     // Optimization: Using the shared memory(Arc, Cow,etc.) to reduce memory usage.
+    #[allow(dead_code)]
     pub async fn get_cell_metas(
         &self,
-        block_ids: Option<String>,
+        block_ids: Vec<String>,
         field_id: &str,
         row_ids: Option<Vec<String>>,
     ) -> FlowyResult<Vec<CellMeta>> {

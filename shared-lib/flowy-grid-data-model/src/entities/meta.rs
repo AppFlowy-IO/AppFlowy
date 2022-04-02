@@ -246,6 +246,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
 #[derive(
     Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumCountMacro, EnumString, EnumIter, Display, Serialize, Deserialize,
 )]
+#[repr(u8)]
 pub enum FieldType {
     RichText = 0,
     Number = 1,
@@ -277,18 +278,6 @@ impl FieldType {
     pub fn type_id(&self) -> String {
         let ty = self.clone();
         format!("{}", ty as u8)
-    }
-
-    pub fn from_type_id(type_id: &str) -> Result<FieldType, String> {
-        match type_id {
-            "0" => Ok(FieldType::RichText),
-            "1" => Ok(FieldType::Number),
-            "2" => Ok(FieldType::DateTime),
-            "3" => Ok(FieldType::SingleSelect),
-            "4" => Ok(FieldType::MultiSelect),
-            "5" => Ok(FieldType::Checkbox),
-            _ => Err(format!("Invalid type_id: {}", type_id)),
-        }
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::impl_type_option;
-use crate::services::row::CellDataSerde;
+use crate::services::row::{CellDataSerde, TypeOptionCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
@@ -7,6 +7,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use strum_macros::EnumIter;
@@ -32,25 +33,34 @@ impl DateTypeOption {
     fn today_from_native(&self, naive: chrono::NaiveDateTime) -> String {
         let utc: chrono::DateTime<chrono::Utc> = chrono::DateTime::from_utc(naive, chrono::Utc);
         let local: chrono::DateTime<chrono::Local> = chrono::DateTime::from(utc);
-
-        let fmt_str = format!("{} {}", self.date_format.format_str(), self.time_format.format_str());
-        let output = format!("{}", local.format_with_items(StrftimeItems::new(&fmt_str)));
+        let output = format!("{}", local.format_with_items(StrftimeItems::new(&self.fmt_str())));
         output
+    }
+
+    fn fmt_str(&self) -> String {
+        format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
     }
 }
 
 impl CellDataSerde for DateTypeOption {
-    fn deserialize_cell_data(&self, data: String) -> String {
-        match data.parse::<i64>() {
-            Ok(timestamp) => {
-                let native = NaiveDateTime::from_timestamp(timestamp, 0);
-                self.today_from_native(native)
+    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
+            if !type_option_cell_data.is_date() {
+                return String::new();
             }
-            Err(e) => {
-                tracing::debug!("DateDescription format {} fail. error: {:?}", data, e);
-                String::new()
+
+            let cell_data = type_option_cell_data.data;
+            if let Ok(timestamp) = cell_data.parse::<i64>() {
+                let native = NaiveDateTime::from_timestamp(timestamp, 0);
+                return self.today_from_native(native);
+            }
+
+            if NaiveDateTime::parse_from_str(&cell_data, &self.fmt_str()).is_ok() {
+                return cell_data;
             }
         }
+
+        String::new()
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
@@ -58,7 +68,8 @@ impl CellDataSerde for DateTypeOption {
             tracing::error!("Parse {} to i64 failed: {}", data, e);
             return Err(FlowyError::internal().context(e));
         };
-        Ok(data.to_owned())
+
+        Ok(TypeOptionCellData::new(data, self.field_type()).json())
     }
 }
 
@@ -172,56 +183,59 @@ impl std::default::Default for TimeFormat {
 
 #[cfg(test)]
 mod tests {
+    use crate::services::field::FieldBuilder;
     use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::CellDataSerde;
+    use crate::services::row::{CellDataSerde, TypeOptionCellData};
+    use flowy_grid_data_model::entities::FieldType;
     use strum::IntoEnumIterator;
 
     #[test]
-    fn date_description_date_format_test() {
-        let mut description = DateTypeOption::default();
-        let _timestamp = 1647251762;
+    fn date_description_invalid_input_test() {
+        let type_option = DateTypeOption::default();
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
+        assert_eq!(
+            "".to_owned(),
+            type_option.deserialize_cell_data("1e".to_owned(), &field_meta)
+        );
+    }
 
+    #[test]
+    fn date_description_date_format_test() {
+        let mut type_option = DateTypeOption::default();
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
         for date_format in DateFormat::iter() {
-            description.date_format = date_format;
+            type_option.date_format = date_format;
             match date_format {
                 DateFormat::Friendly => {
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.today_from_timestamp(1647251762)
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("Mar 14,2022 17:56"), &field_meta)
                     );
                 }
                 DateFormat::US => {
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        description.today_from_timestamp(1647251762)
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("2022/03/14 17:56"), &field_meta)
                     );
                 }
                 DateFormat::ISO => {
                     assert_eq!(
                         "2022-03-14 17:56".to_owned(),
-                        description.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "2022-03-14 17:56".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 DateFormat::Local => {
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        description.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                 }
             }
@@ -230,28 +244,29 @@ mod tests {
 
     #[test]
     fn date_description_time_format_test() {
-        let mut description = DateTypeOption::default();
+        let mut type_option = DateTypeOption::default();
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
         for time_format in TimeFormat::iter() {
-            description.time_format = time_format;
+            type_option.time_format = time_format;
             match time_format {
                 TimeFormat::TwentyFourHour => {
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.today_from_timestamp(1647251762)
+                        type_option.today_from_timestamp(1647251762)
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 TimeFormat::TwelveHour => {
                     assert_eq!(
                         "Mar 14,2022 05:56:02 PM".to_owned(),
-                        description.today_from_timestamp(1647251762)
+                        type_option.today_from_timestamp(1647251762)
                     );
                     assert_eq!(
                         "Mar 14,2022 05:56:02 PM".to_owned(),
-                        description.deserialize_cell_data("1647251762".to_owned())
+                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
                     );
                 }
             }
@@ -263,5 +278,9 @@ mod tests {
     fn date_description_invalid_data_test() {
         let type_option = DateTypeOption::default();
         type_option.serialize_cell_data("he").unwrap();
+    }
+
+    fn data(s: &str) -> String {
+        TypeOptionCellData::new(s, FieldType::DateTime).json()
     }
 }

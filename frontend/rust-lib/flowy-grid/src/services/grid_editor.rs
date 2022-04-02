@@ -114,7 +114,16 @@ impl ClientGridEditor {
     }
 
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
-        // let cell_metas = self.block_meta_manager.get_cell_metas(None, field_id, None).await?;
+        // let block_ids = self
+        //     .get_block_metas()
+        //     .await?
+        //     .into_iter()
+        //     .map(|block_meta| block_meta.block_id)
+        //     .collect();
+        // let cell_metas = self
+        //     .block_meta_manager
+        //     .get_cell_metas(block_ids, field_id, None)
+        //     .await?;
 
         let type_option_json_builder = |field_type: &FieldType| -> String {
             return default_type_option_builder_from_type(field_type).entry().json_str();
@@ -290,15 +299,16 @@ impl ClientGridEditor {
     }
 
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
-        let block_ids = block_ids.unwrap_or(
-            self.pad
+        let block_ids = match block_ids {
+            None =>  self.pad
                 .read()
                 .await
                 .get_block_metas()
                 .into_iter()
                 .map(|block_meta| block_meta.block_id)
                 .collect::<Vec<String>>(),
-        );
+            Some(block_ids) => block_ids,
+        };
         let snapshots = self.block_meta_manager.make_block_snapshots(block_ids).await?;
         Ok(snapshots)
     }

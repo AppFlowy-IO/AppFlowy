@@ -1,10 +1,10 @@
 use crate::impl_type_option;
-use crate::services::row::CellDataSerde;
+use crate::services::row::{CellDataSerde, TypeOptionCellData};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use lazy_static::lazy_static;
-use rust_decimal::prelude::Zero;
+
 use rust_decimal::Decimal;
 use rusty_money::iso::{Currency, CNY, EUR, USD};
 use serde::{Deserialize, Serialize};
@@ -76,6 +76,42 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
+impl CellDataSerde for NumberTypeOption {
+    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
+            if type_option_cell_data.is_date() {
+                return String::new();
+            }
+
+            let cell_data = type_option_cell_data.data;
+            match self.format {
+                NumberFormat::Number => {
+                    if cell_data.parse::<i64>().is_ok() {
+                        cell_data
+                    } else {
+                        String::new()
+                    }
+                }
+                NumberFormat::USD => self.money_from_str(&cell_data, USD),
+                NumberFormat::CNY => self.money_from_str(&cell_data, CNY),
+                NumberFormat::EUR => self.money_from_str(&cell_data, EUR),
+            }
+        } else {
+            String::new()
+        }
+    }
+
+    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
+        let data = self.strip_symbol(data);
+
+        if !data.chars().all(char::is_numeric) {
+            return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+        }
+
+        Ok(TypeOptionCellData::new(&data, self.field_type()).json())
+    }
+}
+
 impl std::default::Default for NumberTypeOption {
     fn default() -> Self {
         let format = NumberFormat::default();
@@ -96,22 +132,21 @@ impl NumberTypeOption {
         self.symbol = format.symbol();
     }
 
-    fn decimal_from_str(&self, s: &str) -> Decimal {
-        let mut decimal = Decimal::from_str(s).unwrap_or_else(|_| Decimal::zero());
-        match decimal.set_scale(self.scale) {
-            Ok(_) => {}
-            Err(e) => {
-                tracing::error!("Set decimal scale failed: {:?}", e);
-            }
-        }
-        decimal.set_sign_positive(self.sign_positive);
-        decimal
-    }
-
     fn money_from_str(&self, s: &str, currency: &'static Currency) -> String {
-        let decimal = self.decimal_from_str(s);
-        let money = rusty_money::Money::from_decimal(decimal, currency);
-        money.to_string()
+        match Decimal::from_str(s) {
+            Ok(mut decimal) => {
+                match decimal.set_scale(self.scale) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        tracing::error!("Set decimal scale failed: {:?}", e);
+                    }
+                }
+                decimal.set_sign_positive(self.sign_positive);
+                let money = rusty_money::Money::from_decimal(decimal, currency);
+                money.to_string()
+            }
+            Err(_) => String::new(),
+        }
     }
 
     fn strip_symbol(&self, s: &str) -> String {
@@ -158,26 +193,6 @@ impl NumberFormat {
     }
 }
 
-impl CellDataSerde for NumberTypeOption {
-    fn deserialize_cell_data(&self, data: String) -> String {
-        match self.format {
-            NumberFormat::Number => data,
-            NumberFormat::USD => self.money_from_str(&data, USD),
-            NumberFormat::CNY => self.money_from_str(&data, CNY),
-            NumberFormat::EUR => self.money_from_str(&data, EUR),
-        }
-    }
-
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let data = self.strip_symbol(data);
-
-        if !data.chars().all(char::is_numeric) {
-            return Err(FlowyError::invalid_data().context("Should only contain numbers"));
-        }
-        Ok(data)
-    }
-}
-
 fn make_strip_symbol() -> Vec<String> {
     let mut symbols = vec![",".to_owned(), ".".to_owned()];
     for format in NumberFormat::iter() {
@@ -188,46 +203,69 @@ fn make_strip_symbol() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use crate::services::field::FieldBuilder;
     use crate::services::field::{NumberFormat, NumberTypeOption};
-    use crate::services::row::CellDataSerde;
+    use crate::services::row::{CellDataSerde, TypeOptionCellData};
+    use flowy_grid_data_model::entities::FieldType;
     use strum::IntoEnumIterator;
+
+    #[test]
+    fn number_description_invalid_input_test() {
+        let type_option = NumberTypeOption::default();
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
+        assert_eq!("".to_owned(), type_option.deserialize_cell_data(data(""), &field_meta));
+        assert_eq!(
+            "".to_owned(),
+            type_option.deserialize_cell_data(data("abc"), &field_meta)
+        );
+    }
 
     #[test]
     fn number_description_test() {
         let mut type_option = NumberTypeOption::default();
-        assert_eq!(type_option.serialize_cell_data("¥18,443").unwrap(), "18443".to_owned());
-        assert_eq!(type_option.serialize_cell_data("$18,443").unwrap(), "18443".to_owned());
-        assert_eq!(type_option.serialize_cell_data("€18.443").unwrap(), "18443".to_owned());
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
+        assert_eq!(type_option.strip_symbol("¥18,443"), "18443".to_owned());
+        assert_eq!(type_option.strip_symbol("$18,443"), "18443".to_owned());
+        assert_eq!(type_option.strip_symbol("€18.443"), "18443".to_owned());
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "$18,443".to_owned()
+                    );
+                    assert_eq!(type_option.deserialize_cell_data(data(""), &field_meta), "".to_owned());
+                    assert_eq!(
+                        type_option.deserialize_cell_data(data("abc"), &field_meta),
+                        "".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "€18.443".to_owned()
                     );
                 }
             }
         }
+    }
+
+    fn data(s: &str) -> String {
+        TypeOptionCellData::new(s, FieldType::Number).json()
     }
 
     #[test]
@@ -236,31 +274,32 @@ mod tests {
             scale: 1,
             ..Default::default()
         };
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "$1,844.3".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "¥1,844.3".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "€1.844,3".to_owned()
                     );
                 }
@@ -274,31 +313,32 @@ mod tests {
             sign_positive: false,
             ..Default::default()
         };
+        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "-$18,443".to_owned()
                     );
                 }
                 NumberFormat::CNY => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "-¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.deserialize_cell_data("18443".to_owned()),
+                        type_option.deserialize_cell_data(data("18443"), &field_meta),
                         "-€18.443".to_owned()
                     );
                 }

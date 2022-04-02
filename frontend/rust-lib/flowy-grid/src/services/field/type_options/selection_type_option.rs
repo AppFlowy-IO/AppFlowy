@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::CellDataSerde;
+use crate::services::row::{CellDataSerde, TypeOptionCellData};
 use crate::services::util::*;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -8,6 +8,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use uuid::Uuid;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
@@ -24,12 +25,25 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl CellDataSerde for SingleSelectTypeOption {
-    fn deserialize_cell_data(&self, data: String) -> String {
-        data
+    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
+            if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
+                return String::new();
+            }
+
+            let option_id = type_option_cell_data.data;
+            match self.options.iter().find(|option| option.id == option_id) {
+                None => String::new(),
+                Some(option) => option.name.clone(),
+            }
+        } else {
+            String::new()
+        }
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        single_select_option_id_from_data(data.to_owned())
+        let data = single_select_option_id_from_data(data.to_owned())?;
+        Ok(TypeOptionCellData::new(&data, self.field_type()).json())
     }
 }
 
@@ -67,12 +81,32 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl CellDataSerde for MultiSelectTypeOption {
-    fn deserialize_cell_data(&self, data: String) -> String {
-        data
+    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
+            if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
+                return String::new();
+            }
+
+            match select_option_ids(type_option_cell_data.data) {
+                Ok(option_ids) => {
+                    //
+                    self.options
+                        .iter()
+                        .filter(|option| option_ids.contains(&option.id))
+                        .map(|option| option.name.clone())
+                        .collect::<Vec<String>>()
+                        .join(SELECTION_IDS_SEPARATOR)
+                }
+                Err(_) => String::new(),
+            }
+        } else {
+            String::new()
+        }
     }
 
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        multi_select_option_id_from_data(data.to_owned())
+        let data = multi_select_option_id_from_data(data.to_owned())?;
+        Ok(TypeOptionCellData::new(&data, self.field_type()).json())
     }
 }
 

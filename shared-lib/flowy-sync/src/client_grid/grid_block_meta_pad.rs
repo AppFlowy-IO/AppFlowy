@@ -5,7 +5,7 @@ use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowM
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
