@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
 import 'date_cell.dart';
 import 'number_cell.dart';
-import 'selection_cell.dart';
+import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
 Widget buildGridCell(String rowId, Field field, FutureCellData cellData) {

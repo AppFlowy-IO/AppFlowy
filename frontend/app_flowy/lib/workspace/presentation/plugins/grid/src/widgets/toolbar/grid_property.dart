@@ -97,14 +97,9 @@ class _GridPropertyCell extends StatelessWidget {
               hoverColor: theme.hover,
               leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
               onTap: () {
-                final fieldCellContext = GridFieldCellContext(
-                  gridId: gridId,
-                  field: field,
-                );
-
                 FieldEditor(
                   gridId: gridId,
-                  fieldContextLoader: FieldContextLoaderAdaptor(fieldCellContext),
+                  fieldContextLoader: FieldContextLoaderAdaptor(gridId: gridId, field: field),
                 ).show(context, anchorDirection: AnchorDirection.bottomRight);
               },
             ),

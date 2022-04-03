@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
-import 'widgets/content/grid_row.dart';
+import 'widgets/row/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
@@ -101,7 +101,7 @@ class _FlowyGridState extends State<FlowyGrid> {
                   controller: _scrollController.verticalController,
                   slivers: [
                     _renderToolbar(gridId),
-                    _renderHeader(gridId),
+                    GridHeader(gridId: gridId, fields: List.from(state.fields)),
                     _renderRows(context),
                     const GridFooter(),
                   ],
@@ -140,21 +140,6 @@ class _FlowyGridState extends State<FlowyGrid> {
         return SliverToBoxAdapter(
           child: GridToolbar(toolbarContext: toolbarContext),
         );
-      },
-    );
-  }
-
-  Widget _renderHeader(String gridId) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields.length != current.fields.length,
-      builder: (context, state) {
-        return GridHeader(gridId: gridId, fields: List.from(state.fields));
-
-        // return SliverPersistentHeader(
-        //   delegate: GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
-        //   floating: true,
-        //   pinned: true,
-        // );
       },
     );
   }

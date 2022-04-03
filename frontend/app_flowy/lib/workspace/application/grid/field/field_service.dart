@@ -132,16 +132,20 @@ class NewFieldContextLoader extends FieldContextLoader {
 }
 
 class FieldContextLoaderAdaptor extends FieldContextLoader {
-  final GridFieldCellContext data;
+  final String gridId;
+  final Field field;
 
-  FieldContextLoaderAdaptor(this.data);
+  FieldContextLoaderAdaptor({
+    required this.gridId,
+    required this.field,
+  });
 
   @override
   Future<Either<EditFieldContext, FlowyError>> load() {
     final payload = GetEditFieldContextPayload.create()
-      ..gridId = data.gridId
-      ..fieldId = data.field.id
-      ..fieldType = data.field.fieldType;
+      ..gridId = gridId
+      ..fieldId = field.id
+      ..fieldType = field.fieldType;
 
     return GridEventGetEditFieldContext(payload).send();
   }

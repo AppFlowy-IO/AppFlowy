@@ -100,6 +100,12 @@ impl std::convert::From<&FieldMeta> for FieldOrder {
     }
 }
 
+impl std::convert::From<&str> for FieldOrder {
+    fn from(s: &str) -> Self {
+        FieldOrder { field_id: s.to_owned() }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GetEditFieldContextPayload {
     #[pb(index = 1)]
@@ -190,6 +196,12 @@ impl std::ops::Deref for RepeatedFieldOrder {
     type Target = Vec<FieldOrder>;
     fn deref(&self) -> &Self::Target {
         &self.items
+    }
+}
+
+impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
+    fn from(field_orders: Vec<FieldOrder>) -> Self {
+        RepeatedFieldOrder { items: field_orders }
     }
 }
 

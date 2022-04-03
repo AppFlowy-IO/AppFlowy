@@ -97,6 +97,7 @@ impl ClientGridEditor {
     }
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+        let field_id = params.field_id.clone();
         let deserializer = match self.pad.read().await.get_field(&params.field_id) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_meta) => TypeOptionChangesetDeserializer(field_meta.field_type.clone()),
@@ -104,6 +105,7 @@ impl ClientGridEditor {
 
         let _ = self.modify(|grid| Ok(grid.update_field(params, deserializer)?)).await?;
         let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_field(&field_id).await?;
         Ok(())
     }
 
@@ -133,6 +135,7 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
             .await?;
         let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_field(field_id).await?;
         Ok(())
     }
 
@@ -294,7 +297,19 @@ impl ClientGridEditor {
     }
 
     pub async fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<FieldMeta>> {
-        let mut field_metas = self.pad.read().await.get_field_metas(field_orders)?;
+        let expected_len = match field_orders.as_ref() {
+            None => 0,
+            Some(field_orders) => field_orders.len(),
+        };
+
+        let field_metas = self.pad.read().await.get_field_metas(field_orders)?;
+        debug_assert!(field_metas.len() == expected_len);
+        if field_metas.len() != expected_len {
+            tracing::error!(
+                "This is a bug. The len of the field_metas should equal to {}",
+                expected_len
+            );
+        }
         // field_metas.retain(|field_meta| field_meta.visibility);
         Ok(field_metas)
     }
@@ -366,6 +381,20 @@ impl ClientGridEditor {
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateFields)
             .payload(repeated_field)
             .send();
+        Ok(())
+    }
+
+    async fn notify_did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+        let field_orders: RepeatedFieldOrder = vec![FieldOrder::from(field_id)].into();
+        let mut field_metas = self.get_field_metas(Some(field_orders)).await?;
+        debug_assert!(field_metas.len() == 1);
+
+        if let Some(field_meta) = field_metas.pop() {
+            send_dart_notification(&self.grid_id, GridNotification::DidUpdateField)
+                .payload(field_meta)
+                .send();
+        }
+
         Ok(())
     }
 }

@@ -49,7 +49,10 @@ class GridFieldCell extends StatelessWidget {
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
       gridId: fieldCellContext.gridId,
-      fieldContextLoader: FieldContextLoaderAdaptor(fieldCellContext),
+      fieldContextLoader: FieldContextLoaderAdaptor(
+        gridId: fieldCellContext.gridId,
+        field: fieldCellContext.field,
+      ),
     ).show(context);
   }
 }

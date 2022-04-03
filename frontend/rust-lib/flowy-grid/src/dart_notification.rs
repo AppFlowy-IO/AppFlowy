@@ -5,13 +5,11 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 #[derive(ProtoBuf_Enum, Debug)]
 pub enum GridNotification {
     Unknown = 0,
-
-    GridDidCreateBlock = 11,
-
+    DidCreateBlock = 11,
     DidUpdateRow = 20,
-
     GridDidUpdateCells = 30,
     DidUpdateFields = 40,
+    DidUpdateField = 41,
 }
 
 impl std::default::Default for GridNotification {

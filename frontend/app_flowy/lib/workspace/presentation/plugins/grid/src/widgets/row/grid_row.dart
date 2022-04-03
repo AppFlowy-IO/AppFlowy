@@ -1,14 +1,13 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'cell_builder.dart';
-import 'cell_container.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRowData data;

@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/edit_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/selection.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -181,58 +182,5 @@ class _SelectOptionColorCell extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-extension SelectOptionColorExtension on SelectOptionColor {
-  Color color(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    switch (this) {
-      case SelectOptionColor.Purple:
-        return theme.tint1;
-      case SelectOptionColor.Pink:
-        return theme.tint2;
-      case SelectOptionColor.LightPink:
-        return theme.tint3;
-      case SelectOptionColor.Orange:
-        return theme.tint4;
-      case SelectOptionColor.Yellow:
-        return theme.tint5;
-      case SelectOptionColor.Lime:
-        return theme.tint6;
-      case SelectOptionColor.Green:
-        return theme.tint7;
-      case SelectOptionColor.Aqua:
-        return theme.tint8;
-      case SelectOptionColor.Blue:
-        return theme.tint9;
-      default:
-        throw ArgumentError;
-    }
-  }
-
-  String optionName() {
-    switch (this) {
-      case SelectOptionColor.Purple:
-        return LocaleKeys.grid_selectOption_purpleColor.tr();
-      case SelectOptionColor.Pink:
-        return LocaleKeys.grid_selectOption_pinkColor.tr();
-      case SelectOptionColor.LightPink:
-        return LocaleKeys.grid_selectOption_lightPinkColor.tr();
-      case SelectOptionColor.Orange:
-        return LocaleKeys.grid_selectOption_orangeColor.tr();
-      case SelectOptionColor.Yellow:
-        return LocaleKeys.grid_selectOption_yellowColor.tr();
-      case SelectOptionColor.Lime:
-        return LocaleKeys.grid_selectOption_limeColor.tr();
-      case SelectOptionColor.Green:
-        return LocaleKeys.grid_selectOption_greenColor.tr();
-      case SelectOptionColor.Aqua:
-        return LocaleKeys.grid_selectOption_aquaColor.tr();
-      case SelectOptionColor.Blue:
-        return LocaleKeys.grid_selectOption_blueColor.tr();
-      default:
-        throw ArgumentError;
-    }
   }
 }
