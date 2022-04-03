@@ -110,7 +110,7 @@ class AppendRowButton extends StatelessWidget {
       width: 22,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
-      icon: svg("home/add"),
+      icon: svgWidget("home/add"),
     );
   }
 }

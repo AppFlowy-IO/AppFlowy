@@ -83,8 +83,8 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
           });
           _showOverlay(context, list);
         },
-        leftIcon: svg(field.fieldType.iconName(), color: theme.iconColor),
-        rightIcon: svg("grid/more", color: theme.iconColor),
+        leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+        rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );
   }

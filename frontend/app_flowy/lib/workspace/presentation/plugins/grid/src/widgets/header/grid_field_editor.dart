@@ -25,7 +25,7 @@ class FieldEditor extends FlowyOverlayDelegate {
   void show(BuildContext context) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: _EditFieldPannelWidget(_fieldEditorBloc),
+        child: _FieldEditorWidget(_fieldEditorBloc),
         constraints: BoxConstraints.loose(const Size(220, 400)),
       ),
       identifier: identifier(),
@@ -49,9 +49,9 @@ class FieldEditor extends FlowyOverlayDelegate {
   bool asBarrier() => true;
 }
 
-class _EditFieldPannelWidget extends StatelessWidget {
+class _FieldEditorWidget extends StatelessWidget {
   final FieldEditorBloc editorBloc;
-  const _EditFieldPannelWidget(this.editorBloc, {Key? key}) : super(key: key);
+  const _FieldEditorWidget(this.editorBloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

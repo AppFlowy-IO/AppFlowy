@@ -13,6 +13,7 @@ import 'layout/sizes.dart';
 import 'widgets/content/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
+import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
   final View view;
@@ -99,6 +100,7 @@ class _FlowyGridState extends State<FlowyGrid> {
                   physics: StyledScrollPhysics(),
                   controller: _scrollController.verticalController,
                   slivers: [
+                    SliverToBoxAdapter(child: GridToolbar(gridId: gridId)),
                     _buildHeader(gridId),
                     _buildRows(context),
                     const GridFooter(),

@@ -29,13 +29,13 @@ class TrashCell extends StatelessWidget {
         FlowyIconButton(
           width: 16,
           onPressed: onRestore,
-          icon: svg("editor/restore", color: theme.iconColor),
+          icon: svgWidget("editor/restore", color: theme.iconColor),
         ),
         const HSpace(20),
         FlowyIconButton(
           width: 16,
           onPressed: onDelete,
-          icon: svg("editor/delete", color: theme.iconColor),
+          icon: svgWidget("editor/delete", color: theme.iconColor),
         ),
       ],
     );

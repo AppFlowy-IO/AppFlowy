@@ -9,7 +9,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FieldOperationList extends StatelessWidget {
-  final List<FieldActionItem> actions;
+  final List<FieldActionCell> actions;
   const FieldOperationList({required this.actions, Key? key}) : super(key: key);
 
   @override
@@ -27,12 +27,12 @@ class FieldOperationList extends StatelessWidget {
   }
 }
 
-class FieldActionItem extends StatelessWidget {
+class FieldActionCell extends StatelessWidget {
   final String fieldId;
   final VoidCallback onTap;
   final FieldAction action;
 
-  const FieldActionItem({
+  const FieldActionCell({
     required this.fieldId,
     required this.action,
     required this.onTap,
@@ -49,7 +49,7 @@ class FieldActionItem extends StatelessWidget {
         action.run(context);
         onTap();
       },
-      leftIcon: svg(action.iconName(), color: theme.iconColor),
+      leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
     );
   }
 }

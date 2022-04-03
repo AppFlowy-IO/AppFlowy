@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,13 +14,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
 
-class FieldTypeList extends StatelessWidget {
+class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
   final SelectFieldCallback onSelectField;
   const FieldTypeList({required this.onSelectField, Key? key}) : super(key: key);
-
-  static void hide(BuildContext context) {
-    FlowyOverlay.of(context).remove(FieldTypeList.identifier());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +37,7 @@ class FieldTypeList extends StatelessWidget {
         controller: ScrollController(),
         itemCount: cells.length,
         separatorBuilder: (context, index) {
-          return const VSpace(10);
+          return VSpace(GridSize.typeOptionSeparatorHeight);
         },
         physics: StyledScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
@@ -69,12 +66,12 @@ class FieldTypeCell extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return SizedBox(
-      height: 26,
+      height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(fieldType.title(), fontSize: 12),
         hoverColor: theme.hover,
         onTap: () => onSelectField(fieldType),
-        leftIcon: svg(fieldType.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(fieldType.iconName(), color: theme.iconColor),
       ),
     );
   }

@@ -121,7 +121,7 @@ class CreateFieldButton extends StatelessWidget {
         gridId: gridId,
         fieldContextLoader: NewFieldContextLoader(gridId: gridId),
       ).show(context),
-      leftIcon: svg("home/add"),
+      leftIcon: svgWidget("home/add"),
     );
   }
 }

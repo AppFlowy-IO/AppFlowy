@@ -75,7 +75,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           );
           overlayDelegate.showOverlay(context, list);
         },
-        rightIcon: svg("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );
   }
@@ -96,7 +96,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
               });
           overlayDelegate.showOverlay(context, list);
         },
-        rightIcon: svg("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );
   }
@@ -156,7 +156,7 @@ class DateFormatItem extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svg("grid/checkmark");
+      checkmark = svgWidget("grid/checkmark");
     }
 
     return SizedBox(
@@ -246,7 +246,7 @@ class TimeFormatItem extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svg("grid/checkmark");
+      checkmark = svgWidget("grid/checkmark");
     }
 
     return SizedBox(

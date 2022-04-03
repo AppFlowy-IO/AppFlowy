@@ -39,7 +39,7 @@ class _AddRowButton extends StatelessWidget {
       text: const FlowyText.medium('New row', fontSize: 12),
       hoverColor: theme.hover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
-      leftIcon: svg("home/add"),
+      leftIcon: svgWidget("home/add"),
     );
   }
 }

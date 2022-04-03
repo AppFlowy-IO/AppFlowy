@@ -59,7 +59,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 });
                 overlayDelegate.showOverlay(context, list);
               },
-              rightIcon: svg("grid/more", color: theme.iconColor),
+              rightIcon: svgWidget("grid/more", color: theme.iconColor),
             );
           },
         ),
@@ -76,8 +76,8 @@ class NumberFormatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatItems = NumberFormat.values.map((format) {
-      return NumberFormatItem(
+    final cells = NumberFormat.values.map((format) {
+      return NumberFormatCell(
           format: format,
           onSelected: (format) {
             onSelected(format);
@@ -93,9 +93,9 @@ class NumberFormatList extends StatelessWidget {
         separatorBuilder: (context, index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
-        itemCount: formatItems.length,
+        itemCount: cells.length,
         itemBuilder: (BuildContext context, int index) {
-          return formatItems[index];
+          return cells[index];
         },
       ),
     );
@@ -106,10 +106,10 @@ class NumberFormatList extends StatelessWidget {
   }
 }
 
-class NumberFormatItem extends StatelessWidget {
+class NumberFormatCell extends StatelessWidget {
   final NumberFormat format;
   final Function(NumberFormat format) onSelected;
-  const NumberFormatItem({required this.format, required this.onSelected, Key? key}) : super(key: key);
+  const NumberFormatCell({required this.format, required this.onSelected, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class NumberFormatItem extends StatelessWidget {
         text: FlowyText.medium(format.title(), fontSize: 12),
         hoverColor: theme.hover,
         onTap: () => onSelected(format),
-        leftIcon: svg(format.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(format.iconName(), color: theme.iconColor),
       ),
     );
   }

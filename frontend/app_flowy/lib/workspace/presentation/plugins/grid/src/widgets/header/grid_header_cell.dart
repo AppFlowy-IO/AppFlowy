@@ -19,13 +19,16 @@ class GridHeaderCell extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     final button = FlowyButton(
       hoverColor: theme.hover,
-      onTap: () => GridFieldActionSheet.show(context, fieldData, () {
-        FieldEditor(
-          gridId: fieldData.gridId,
-          fieldContextLoader: FieldContextLoaderAdaptor(fieldData),
-        ).show(context);
-      }),
-      rightIcon: svg("editor/details", color: theme.iconColor),
+      onTap: () => GridFieldActionSheet(
+        fieldData: fieldData,
+        onEdited: () {
+          FieldEditor(
+            gridId: fieldData.gridId,
+            fieldContextLoader: FieldContextLoaderAdaptor(fieldData),
+          ).show(context);
+        },
+      ).show(context),
+      rightIcon: svgWidget("editor/details", color: theme.iconColor),
       text: Padding(padding: GridSize.cellContentInsets, child: FlowyText.medium(fieldData.field.name, fontSize: 12)),
     );
 

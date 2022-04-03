@@ -17,16 +17,16 @@ class GridFieldActionSheet extends StatelessWidget with FlowyOverlayDelegate {
   final VoidCallback onEdited;
   const GridFieldActionSheet({required this.fieldData, required this.onEdited, Key? key}) : super(key: key);
 
-  static void show(BuildContext overlayContext, GridFieldData fieldData, final VoidCallback onEdited) {
-    final editor = GridFieldActionSheet(fieldData: fieldData, onEdited: onEdited);
+  void show(BuildContext overlayContext) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
-        child: editor,
+        child: this,
         constraints: BoxConstraints.loose(const Size(240, 200)),
       ),
-      identifier: editor.identifier(),
+      identifier: identifier(),
       anchorContext: overlayContext,
       anchorDirection: AnchorDirection.bottomWithLeftAligned,
+      delegate: this,
     );
   }
 
@@ -56,7 +56,9 @@ class GridFieldActionSheet extends StatelessWidget with FlowyOverlayDelegate {
   }
 
   @override
-  bool asBarrier() => true;
+  bool asBarrier() {
+    return true;
+  }
 }
 
 class _EditFieldButton extends StatelessWidget {
@@ -90,7 +92,7 @@ class _FieldOperationList extends StatelessWidget {
   Widget build(BuildContext context) {
     final actions = FieldAction.values
         .map(
-          (action) => FieldActionItem(
+          (action) => FieldActionCell(
             fieldId: fieldData.field.id,
             action: action,
             onTap: onDismissed,

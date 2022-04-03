@@ -32,7 +32,7 @@ class ViewDisclosureButton extends StatelessWidget with ActionList<ViewDisclosur
         onTap();
         show(context);
       },
-      icon: svg("editor/details", color: theme.iconColor),
+      icon: svgWidget("editor/details", color: theme.iconColor),
     );
   }
 

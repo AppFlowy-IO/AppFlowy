@@ -79,7 +79,7 @@ class _DeleteTag extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr(), fontSize: 12),
         hoverColor: theme.hover,
-        leftIcon: svg("grid/delete", color: theme.iconColor),
+        leftIcon: svgWidget("grid/delete", color: theme.iconColor),
         onTap: () {
           context.read<EditOptionBloc>().add(const EditOptionEvent.delete());
         },
@@ -110,8 +110,8 @@ class SelectOptionColorList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final optionItems = SelectOptionColor.values.map((color) {
-      return _SelectOptionColorItem(color: color, isSelected: selectedColor == color);
+    final cells = SelectOptionColor.values.map((color) {
+      return _SelectOptionColorCell(color: color, isSelected: selectedColor == color);
     }).toList();
 
     return Column(
@@ -135,10 +135,10 @@ class SelectOptionColorList extends StatelessWidget {
           separatorBuilder: (context, index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
-          itemCount: optionItems.length,
+          itemCount: cells.length,
           physics: StyledScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            return optionItems[index];
+            return cells[index];
           },
         ),
       ],
@@ -146,17 +146,17 @@ class SelectOptionColorList extends StatelessWidget {
   }
 }
 
-class _SelectOptionColorItem extends StatelessWidget {
+class _SelectOptionColorCell extends StatelessWidget {
   final SelectOptionColor color;
   final bool isSelected;
-  const _SelectOptionColorItem({required this.color, required this.isSelected, Key? key}) : super(key: key);
+  const _SelectOptionColorCell({required this.color, required this.isSelected, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svg("grid/checkmark");
+      checkmark = svgWidget("grid/checkmark");
     }
 
     final colorIcon = SizedBox.square(

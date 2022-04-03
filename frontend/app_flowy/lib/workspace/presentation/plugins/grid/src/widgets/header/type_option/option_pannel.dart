@@ -132,8 +132,8 @@ class _OptionList extends StatelessWidget {
         return previous.options != current.options;
       },
       builder: (context, state) {
-        final optionItems = state.options.map((option) {
-          return _makeOptionItem(context, option);
+        final cells = state.options.map((option) {
+          return _makeOptionCell(context, option);
         }).toList();
 
         return ListView.separated(
@@ -142,17 +142,17 @@ class _OptionList extends StatelessWidget {
           separatorBuilder: (context, index) {
             return VSpace(GridSize.typeOptionSeparatorHeight);
           },
-          itemCount: optionItems.length,
+          itemCount: cells.length,
           itemBuilder: (BuildContext context, int index) {
-            return optionItems[index];
+            return cells[index];
           },
         );
       },
     );
   }
 
-  _OptionItem _makeOptionItem(BuildContext context, SelectOption option) {
-    return _OptionItem(
+  _OptionCell _makeOptionCell(BuildContext context, SelectOption option) {
+    return _OptionCell(
       option: option,
       onEdited: (option) {
         final pannel = EditSelectOptionPannel(
@@ -173,10 +173,10 @@ class _OptionList extends StatelessWidget {
   }
 }
 
-class _OptionItem extends StatelessWidget {
+class _OptionCell extends StatelessWidget {
   final SelectOption option;
   final Function(SelectOption) onEdited;
-  const _OptionItem({
+  const _OptionCell({
     required this.option,
     required this.onEdited,
     Key? key,
@@ -191,7 +191,7 @@ class _OptionItem extends StatelessWidget {
         text: FlowyText.medium(option.name, fontSize: 12),
         hoverColor: theme.hover,
         onTap: () => onEdited(option),
-        rightIcon: svg("grid/details", color: theme.iconColor),
+        rightIcon: svgWidget("grid/details", color: theme.iconColor),
       ),
     );
   }
@@ -211,7 +211,7 @@ class _AddOptionButton extends StatelessWidget {
         onTap: () {
           context.read<OptionPannelBloc>().add(const OptionPannelEvent.beginAddingOption());
         },
-        leftIcon: svg("home/add", color: theme.iconColor),
+        leftIcon: svgWidget("home/add", color: theme.iconColor),
       ),
     );
   }

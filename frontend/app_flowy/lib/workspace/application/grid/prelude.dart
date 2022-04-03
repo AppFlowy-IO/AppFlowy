@@ -23,3 +23,6 @@ export 'cell_bloc/selection_cell_bloc.dart';
 export 'cell_bloc/date_cell_bloc.dart';
 export 'cell_bloc/checkbox_cell_bloc.dart';
 export 'cell_bloc/cell_service.dart';
+
+// Setting
+export 'setting/setting_bloc.dart';

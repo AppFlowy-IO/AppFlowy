@@ -170,8 +170,8 @@ class PasswordTextField extends StatelessWidget {
         return RoundedInputField(
           obscureText: true,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          obscureIcon: svg("home/hide"),
-          obscureHideIcon: svg("home/show"),
+          obscureIcon: svgWidget("home/hide"),
+          obscureHideIcon: svgWidget("home/show"),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
           normalBorderColor: theme.shader4,
           errorBorderColor: theme.red,

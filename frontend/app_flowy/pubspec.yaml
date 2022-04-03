@@ -113,6 +113,7 @@ flutter:
     - assets/images/editor/
     - assets/images/grid/
     - assets/images/grid/field/
+    - assets/images/grid/setting/
     - assets/translations/
   #   - images/a_dot_ham.jpeg
 

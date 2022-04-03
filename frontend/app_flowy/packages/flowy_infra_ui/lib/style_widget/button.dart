@@ -11,6 +11,7 @@ class FlowyButton extends StatelessWidget {
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Color hoverColor;
+  final bool isSelected;
   const FlowyButton({
     Key? key,
     required this.text,
@@ -19,6 +20,7 @@ class FlowyButton extends StatelessWidget {
     this.leftIcon,
     this.rightIcon,
     this.hoverColor = Colors.transparent,
+    this.isSelected = false,
   }) : super(key: key);
 
   @override
@@ -27,6 +29,7 @@ class FlowyButton extends StatelessWidget {
       onTap: onTap,
       child: FlowyHover(
         config: HoverDisplayConfig(borderRadius: Corners.s6Border, hoverColor: hoverColor),
+        setSelected: () => isSelected,
         builder: (context, onHover) => _render(),
       ),
     );
