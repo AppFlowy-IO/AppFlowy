@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/grid/field/edit_field_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/switch_field_type_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_switch_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -22,7 +22,11 @@ class FieldEditor extends FlowyOverlayDelegate {
     _fieldEditorBloc.add(const FieldEditorEvent.initial());
   }
 
-  void show(BuildContext context) {
+  void show(
+    BuildContext context, {
+    AnchorDirection anchorDirection = AnchorDirection.bottomWithLeftAligned,
+  }) {
+    FlowyOverlay.of(context).remove(identifier());
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: _FieldEditorWidget(_fieldEditorBloc),
@@ -30,7 +34,7 @@ class FieldEditor extends FlowyOverlayDelegate {
       ),
       identifier: identifier(),
       anchorContext: context,
-      anchorDirection: AnchorDirection.bottomWithLeftAligned,
+      anchorDirection: anchorDirection,
       style: FlowyOverlayStyle(blur: false),
       delegate: this,
     );

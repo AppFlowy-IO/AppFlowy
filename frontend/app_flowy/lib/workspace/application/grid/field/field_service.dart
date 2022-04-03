@@ -98,11 +98,11 @@ class FieldService {
   }
 }
 
-class GridFieldData extends Equatable {
+class GridFieldCellContext extends Equatable {
   final String gridId;
   final Field field;
 
-  const GridFieldData({
+  const GridFieldCellContext({
     required this.gridId,
     required this.field,
   });
@@ -132,7 +132,7 @@ class NewFieldContextLoader extends FieldContextLoader {
 }
 
 class FieldContextLoaderAdaptor extends FieldContextLoader {
-  final GridFieldData data;
+  final GridFieldCellContext data;
 
   FieldContextLoaderAdaptor(this.data);
 

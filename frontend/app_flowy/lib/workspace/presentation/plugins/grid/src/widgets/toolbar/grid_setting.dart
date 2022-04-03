@@ -7,34 +7,57 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 
+import 'grid_property.dart';
+
 class GridSettingContext {
   final String gridId;
+  final List<Field> fields;
+
   GridSettingContext({
     required this.gridId,
+    required this.fields,
   });
 }
 
-class GridSettingList extends StatelessWidget with FlowyOverlayDelegate {
+class GridSettingList extends StatelessWidget {
   final GridSettingContext settingContext;
-  const GridSettingList({required this.settingContext, Key? key}) : super(key: key);
+  final Function(GridSettingAction, GridSettingContext) onAction;
+  const GridSettingList({required this.settingContext, required this.onAction, Key? key}) : super(key: key);
 
-  void show(BuildContext context) {
+  static void show(BuildContext context, GridSettingContext settingContext) {
+    final list = GridSettingList(
+      settingContext: settingContext,
+      onAction: (action, settingContext) {
+        switch (action) {
+          case GridSettingAction.filter:
+            // TODO: Handle this case.
+            break;
+          case GridSettingAction.sortBy:
+            // TODO: Handle this case.
+            break;
+          case GridSettingAction.properties:
+            GridPropertyList(gridId: settingContext.gridId, fields: settingContext.fields).show(context);
+            break;
+        }
+      },
+    );
+
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: this,
+        child: list,
         constraints: BoxConstraints.loose(const Size(140, 400)),
       ),
-      identifier: identifier(),
+      identifier: list.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomRight,
       style: FlowyOverlayStyle(blur: false),
-      delegate: this,
     );
   }
 
@@ -46,17 +69,8 @@ class GridSettingList extends StatelessWidget with FlowyOverlayDelegate {
         listenWhen: (previous, current) => previous.selectedAction != current.selectedAction,
         listener: (context, state) {
           state.selectedAction.foldLeft(null, (_, action) {
-            switch (action) {
-              case GridSettingAction.filter:
-                // TODO: Handle this case.
-                break;
-              case GridSettingAction.sortBy:
-                // TODO: Handle this case.
-                break;
-              case GridSettingAction.properties:
-                // TODO: Handle this case.
-                break;
-            }
+            FlowyOverlay.of(context).remove(identifier());
+            onAction(action, settingContext);
           });
         },
         child: BlocBuilder<GridSettingBloc, GridSettingState>(

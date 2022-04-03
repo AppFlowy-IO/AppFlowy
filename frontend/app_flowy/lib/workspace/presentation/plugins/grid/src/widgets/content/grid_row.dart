@@ -124,6 +124,7 @@ class _RowCells extends StatelessWidget {
       buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
         final children = state.fields
+            .where((field) => field.visibility)
             .map((field) => CellContainer(
                   width: field.width.toDouble(),
                   child: buildGridCell(

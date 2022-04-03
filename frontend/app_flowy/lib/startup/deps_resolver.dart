@@ -165,8 +165,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<GridFieldBloc, GridFieldData, void>(
-    (data, _) => GridFieldBloc(
+  getIt.registerFactoryParam<FieldActionSheetBloc, GridFieldCellContext, void>(
+    (data, _) => FieldActionSheetBloc(
       field: data.field,
       service: FieldService(gridId: data.gridId),
     ),
@@ -214,8 +214,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldSwitchBloc, SwitchFieldContext, void>(
-    (context, _) => FieldSwitchBloc(context),
+  getIt.registerFactoryParam<FieldSwitcherBloc, SwitchFieldContext, void>(
+    (context, _) => FieldSwitcherBloc(context),
   );
 
   getIt.registerFactoryParam<SingleSelectTypeOptionBloc, SingleSelectTypeOption, String>(
@@ -232,5 +232,9 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<NumberTypeOptionBloc, NumberTypeOption, void>(
     (typeOption, _) => NumberTypeOptionBloc(typeOption: typeOption),
+  );
+
+  getIt.registerFactoryParam<GridPropertyBloc, String, List<Field>>(
+    (gridId, fields) => GridPropertyBloc(gridId: gridId, fields: fields),
   );
 }

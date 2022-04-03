@@ -100,9 +100,9 @@ class _FlowyGridState extends State<FlowyGrid> {
                   physics: StyledScrollPhysics(),
                   controller: _scrollController.verticalController,
                   slivers: [
-                    SliverToBoxAdapter(child: GridToolbar(gridId: gridId)),
-                    _buildHeader(gridId),
-                    _buildRows(context),
+                    _renderToolbar(gridId),
+                    _renderHeader(gridId),
+                    _renderRows(context),
                     const GridFooter(),
                   ],
                 ),
@@ -129,12 +129,27 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _buildHeader(String gridId) {
+  Widget _renderToolbar(String gridId) {
+    return BlocBuilder<GridBloc, GridState>(
+      builder: (context, state) {
+        final toolbarContext = GridToolbarContext(
+          gridId: gridId,
+          fields: state.fields,
+        );
+
+        return SliverToBoxAdapter(
+          child: GridToolbar(toolbarContext: toolbarContext),
+        );
+      },
+    );
+  }
+
+  Widget _renderHeader(String gridId) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
         return SliverPersistentHeader(
-          delegate: GridHeaderDelegate(gridId: gridId, fields: state.fields),
+          delegate: GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
           floating: true,
           pinned: true,
         );
@@ -142,7 +157,7 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _buildRows(BuildContext context) {
+  Widget _renderRows(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) {
         final rowChanged = previous.rows.length != current.rows.length;

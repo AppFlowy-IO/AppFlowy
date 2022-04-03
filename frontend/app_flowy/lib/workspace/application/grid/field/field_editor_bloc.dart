@@ -7,7 +7,7 @@ import 'dart:async';
 import 'field_service.dart';
 import 'package:dartz/dartz.dart';
 
-part 'edit_field_bloc.freezed.dart';
+part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldService service;

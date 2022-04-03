@@ -27,6 +27,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
           createField: (_CreateField value) {},
           insertField: (_InsertField value) {},
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+            value.fields.retainWhere((field) => field.visibility);
             emit(state.copyWith(fields: value.fields));
           },
         );
@@ -64,5 +65,8 @@ class GridHeaderEvent with _$GridHeaderEvent {
 class GridHeaderState with _$GridHeaderState {
   const factory GridHeaderState({required List<Field> fields}) = _GridHeaderState;
 
-  factory GridHeaderState.initial(List<Field> fields) => GridHeaderState(fields: fields);
+  factory GridHeaderState.initial(List<Field> fields) {
+    fields.retainWhere((field) => field.visibility);
+    return GridHeaderState(fields: fields);
+  }
 }

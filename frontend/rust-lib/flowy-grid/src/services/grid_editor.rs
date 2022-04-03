@@ -295,7 +295,7 @@ impl ClientGridEditor {
 
     pub async fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> FlowyResult<Vec<FieldMeta>> {
         let mut field_metas = self.pad.read().await.get_field_metas(field_orders)?;
-        field_metas.retain(|field_meta| field_meta.visibility);
+        // field_metas.retain(|field_meta| field_meta.visibility);
         Ok(field_metas)
     }
 

@@ -7,10 +7,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'field_service.dart';
 
-part 'switch_field_type_bloc.freezed.dart';
+part 'field_switch_bloc.freezed.dart';
 
-class FieldSwitchBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
-  FieldSwitchBloc(SwitchFieldContext editContext) : super(FieldSwitchState.initial(editContext)) {
+class FieldSwitcherBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
+  FieldSwitcherBloc(SwitchFieldContext editContext) : super(FieldSwitchState.initial(editContext)) {
     on<FieldSwitchEvent>(
       (event, emit) async {
         await event.map(

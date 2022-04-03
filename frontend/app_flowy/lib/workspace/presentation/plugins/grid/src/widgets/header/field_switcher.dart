@@ -15,7 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_list.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
+import 'field_type_extension.dart';
 
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
@@ -43,8 +44,8 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldSwitchBloc>(param1: widget.switchContext),
-      child: BlocConsumer<FieldSwitchBloc, FieldSwitchState>(
+      create: (context) => getIt<FieldSwitcherBloc>(param1: widget.switchContext),
+      child: BlocConsumer<FieldSwitcherBloc, FieldSwitchState>(
         listener: (context, state) {
           widget.onUpdated(state.field, state.typeOptionData);
         },
@@ -79,7 +80,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
         hoverColor: theme.hover,
         onTap: () {
           final list = FieldTypeList(onSelectField: (fieldType) {
-            context.read<FieldSwitchBloc>().add(FieldSwitchEvent.toFieldType(fieldType));
+            context.read<FieldSwitcherBloc>().add(FieldSwitchEvent.toFieldType(fieldType));
           });
           _showOverlay(context, list);
         },
@@ -100,7 +101,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
     );
 
     final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
-      context.read<FieldSwitchBloc>().add(FieldSwitchEvent.didUpdateTypeOptionData(data));
+      context.read<FieldSwitcherBloc>().add(FieldSwitchEvent.didUpdateTypeOptionData(data));
     });
 
     final builder = _makeTypeOptionBuild(

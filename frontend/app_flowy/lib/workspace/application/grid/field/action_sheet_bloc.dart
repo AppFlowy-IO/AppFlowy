@@ -5,14 +5,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'field_service.dart';
 
-part 'grid_field_bloc.freezed.dart';
+part 'action_sheet_bloc.freezed.dart';
 
-class GridFieldBloc extends Bloc<GridFieldEvent, GridFieldState> {
+class FieldActionSheetBloc extends Bloc<ActionSheetEvent, ActionSheetState> {
   final FieldService service;
 
-  GridFieldBloc({required Field field, required this.service})
-      : super(GridFieldState.initial(EditFieldContext.create()..gridField = field)) {
-    on<GridFieldEvent>(
+  FieldActionSheetBloc({required Field field, required this.service})
+      : super(ActionSheetState.initial(EditFieldContext.create()..gridField = field)) {
+    on<ActionSheetEvent>(
       (event, emit) async {
         await event.map(
           updateFieldName: (_UpdateFieldName value) async {
@@ -56,23 +56,23 @@ class GridFieldBloc extends Bloc<GridFieldEvent, GridFieldState> {
 }
 
 @freezed
-class GridFieldEvent with _$GridFieldEvent {
-  const factory GridFieldEvent.updateFieldName(String name) = _UpdateFieldName;
-  const factory GridFieldEvent.hideField() = _HideField;
-  const factory GridFieldEvent.duplicateField() = _DuplicateField;
-  const factory GridFieldEvent.deleteField() = _DeleteField;
-  const factory GridFieldEvent.saveField() = _SaveField;
+class ActionSheetEvent with _$ActionSheetEvent {
+  const factory ActionSheetEvent.updateFieldName(String name) = _UpdateFieldName;
+  const factory ActionSheetEvent.hideField() = _HideField;
+  const factory ActionSheetEvent.duplicateField() = _DuplicateField;
+  const factory ActionSheetEvent.deleteField() = _DeleteField;
+  const factory ActionSheetEvent.saveField() = _SaveField;
 }
 
 @freezed
-class GridFieldState with _$GridFieldState {
-  const factory GridFieldState({
+class ActionSheetState with _$ActionSheetState {
+  const factory ActionSheetState({
     required EditFieldContext editContext,
     required String errorText,
     required String fieldName,
-  }) = _GridFieldState;
+  }) = _ActionSheetState;
 
-  factory GridFieldState.initial(EditFieldContext editContext) => GridFieldState(
+  factory ActionSheetState.initial(EditFieldContext editContext) => ActionSheetState(
         editContext: editContext,
         errorText: '',
         fieldName: editContext.gridField.name,

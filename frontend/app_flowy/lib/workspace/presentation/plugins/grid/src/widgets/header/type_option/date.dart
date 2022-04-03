@@ -109,8 +109,8 @@ class DateFormatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatItems = DateFormat.values.map((format) {
-      return DateFormatItem(
+    final cells = DateFormat.values.map((format) {
+      return DateFormatCell(
           dateFormat: format,
           onSelected: (format) {
             onSelected(format);
@@ -127,9 +127,9 @@ class DateFormatList extends StatelessWidget {
         separatorBuilder: (context, index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
-        itemCount: formatItems.length,
+        itemCount: cells.length,
         itemBuilder: (BuildContext context, int index) {
-          return formatItems[index];
+          return cells[index];
         },
       ),
     );
@@ -140,11 +140,11 @@ class DateFormatList extends StatelessWidget {
   }
 }
 
-class DateFormatItem extends StatelessWidget {
+class DateFormatCell extends StatelessWidget {
   final bool isSelected;
   final DateFormat dateFormat;
   final Function(DateFormat format) onSelected;
-  const DateFormatItem({
+  const DateFormatCell({
     required this.dateFormat,
     required this.onSelected,
     required this.isSelected,
@@ -199,8 +199,8 @@ class TimeFormatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatItems = TimeFormat.values.map((format) {
-      return TimeFormatItem(
+    final cells = TimeFormat.values.map((format) {
+      return TimeFormatCell(
           isSelected: format == selectedFormat,
           timeFormat: format,
           onSelected: (format) {
@@ -217,9 +217,9 @@ class TimeFormatList extends StatelessWidget {
         separatorBuilder: (context, index) {
           return VSpace(GridSize.typeOptionSeparatorHeight);
         },
-        itemCount: formatItems.length,
+        itemCount: cells.length,
         itemBuilder: (BuildContext context, int index) {
-          return formatItems[index];
+          return cells[index];
         },
       ),
     );
@@ -230,11 +230,11 @@ class TimeFormatList extends StatelessWidget {
   }
 }
 
-class TimeFormatItem extends StatelessWidget {
+class TimeFormatCell extends StatelessWidget {
   final TimeFormat timeFormat;
   final bool isSelected;
   final Function(TimeFormat format) onSelected;
-  const TimeFormatItem({
+  const TimeFormatCell({
     required this.timeFormat,
     required this.onSelected,
     required this.isSelected,

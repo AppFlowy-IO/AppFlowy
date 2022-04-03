@@ -9,8 +9,8 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'grid_field_editor.dart';
-import 'grid_header_cell.dart';
+import 'field_editor.dart';
+import 'field_cell.dart';
 
 class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String gridId;
@@ -55,8 +55,8 @@ class GridHeader extends StatelessWidget {
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         builder: (context, state) {
           final cells = state.fields.map(
-            (field) => GridHeaderCell(
-              GridFieldData(gridId: gridId, field: field),
+            (field) => GridFieldCell(
+              GridFieldCellContext(gridId: gridId, field: field),
             ),
           );
 
