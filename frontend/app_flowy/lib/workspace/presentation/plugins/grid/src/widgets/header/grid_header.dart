@@ -12,15 +12,41 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
-class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
+class GridHeader extends StatelessWidget {
+  final String gridId;
+  final List<Field> fields;
+  const GridHeader({Key? key, required this.gridId, required this.fields}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final bloc = getIt<GridHeaderBloc>(param1: gridId, param2: fields);
+        bloc.add(const GridHeaderEvent.initial());
+        return bloc;
+      },
+      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
+        builder: (context, state) {
+          return SliverPersistentHeader(
+            delegate: _GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
+            floating: true,
+            pinned: true,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String gridId;
   final List<Field> fields;
 
-  GridHeaderDelegate({required this.gridId, required this.fields});
+  _GridHeaderDelegate({required this.gridId, required this.fields});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return GridHeader(gridId: gridId, fields: fields, key: ObjectKey(fields));
+    return _GridHeaderWidget(gridId: gridId, fields: fields, key: ObjectKey(fields));
   }
 
   @override
@@ -31,47 +57,42 @@ class GridHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is GridHeaderDelegate) {
+    if (oldDelegate is _GridHeaderDelegate) {
       return fields != oldDelegate.fields;
     }
-    return false;
+    return true;
   }
 }
 
-class GridHeader extends StatelessWidget {
-  final List<Field> fields;
+class _GridHeaderWidget extends StatelessWidget {
   final String gridId;
-  const GridHeader({required this.gridId, required this.fields, Key? key}) : super(key: key);
+  final List<Field> fields;
+
+  const _GridHeaderWidget({required this.gridId, required this.fields, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return BlocProvider(
-      create: (context) {
-        final bloc = getIt<GridHeaderBloc>(param1: gridId, param2: fields);
-        bloc.add(const GridHeaderEvent.initial());
-        return bloc;
+    return BlocBuilder<GridHeaderBloc, GridHeaderState>(
+      builder: (context, state) {
+        final cells = state.fields.map(
+          (field) => GridFieldCell(
+            GridFieldCellContext(gridId: gridId, field: field),
+          ),
+        );
+
+        final row = Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _HeaderLeading(),
+            ...cells,
+            _HeaderTrailing(gridId: gridId),
+          ],
+          key: UniqueKey(),
+        );
+
+        return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
       },
-      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        builder: (context, state) {
-          final cells = state.fields.map(
-            (field) => GridFieldCell(
-              GridFieldCellContext(gridId: gridId, field: field),
-            ),
-          );
-
-          final row = Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _HeaderLeading(),
-              ...cells,
-              _HeaderTrailing(gridId: gridId),
-            ],
-          );
-
-          return Container(color: theme.surface, child: row);
-        },
-      ),
     );
   }
 }

@@ -38,7 +38,7 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   Future<void> dispose() async {
-    await _cellBloc.close();
+    _cellBloc.close();
     super.dispose();
   }
 }

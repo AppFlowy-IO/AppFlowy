@@ -148,11 +148,13 @@ class _FlowyGridState extends State<FlowyGrid> {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
-        return SliverPersistentHeader(
-          delegate: GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
-          floating: true,
-          pinned: true,
-        );
+        return GridHeader(gridId: gridId, fields: List.from(state.fields));
+
+        // return SliverPersistentHeader(
+        //   delegate: GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
+        //   floating: true,
+        //   pinned: true,
+        // );
       },
     );
   }

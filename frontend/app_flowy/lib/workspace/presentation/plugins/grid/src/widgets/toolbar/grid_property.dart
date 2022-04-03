@@ -42,7 +42,8 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<GridPropertyBloc>(param1: gridId, param2: fields),
+      create: (context) =>
+          getIt<GridPropertyBloc>(param1: gridId, param2: fields)..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
           final cells = state.fields.map((field) {
