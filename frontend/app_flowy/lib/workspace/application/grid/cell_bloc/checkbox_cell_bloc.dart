@@ -9,11 +9,11 @@ part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   final CellService service;
-  // final FutureCellData cellData;
+  // final CellData cellData;
 
   CheckboxCellBloc({
     required this.service,
-    required FutureCellData cellData,
+    required CellData cellData,
   }) : super(CheckboxCellState.initial()) {
     on<CheckboxCellEvent>(
       (event, emit) async {

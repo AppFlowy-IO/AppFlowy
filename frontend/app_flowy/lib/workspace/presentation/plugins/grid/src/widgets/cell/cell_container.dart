@@ -38,7 +38,7 @@ class CellContainer extends StatelessWidget {
             ),
             decoration: _makeBoxDecoration(context, state),
             padding: GridSize.cellContentInsets,
-            child: Center(child: IntrinsicHeight(child: child)),
+            child: Center(child: child),
           );
         },
       ),

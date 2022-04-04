@@ -157,7 +157,7 @@ class _FlowyGridState extends State<FlowyGrid> {
             (context, index) {
               final blockRow = context.read<GridBloc>().state.rows[index];
               final fields = context.read<GridBloc>().state.fields;
-              final rowData = GridRowData.fromBlockRow(blockRow, fields);
+              final rowData = RowData.fromBlockRow(blockRow, fields);
               return GridRowWidget(data: rowData, key: ValueKey(rowData.rowId));
             },
             childCount: context.read<GridBloc>().state.rows.length,

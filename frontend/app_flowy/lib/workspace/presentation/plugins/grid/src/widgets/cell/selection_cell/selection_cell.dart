@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'extension.dart';
+import 'selection_editor.dart';
 
 class SingleSelectCell extends StatefulWidget {
-  final FutureCellData cellData;
+  final CellData cellData;
 
   const SingleSelectCell({
     required this.cellData,
@@ -20,30 +21,28 @@ class SingleSelectCell extends StatefulWidget {
 }
 
 class _SingleSelectCellState extends State<SingleSelectCell> {
-  late CellFocusNode _focusNode;
   late SelectionCellBloc _cellBloc;
-  late TextEditingController _controller;
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData);
-    _controller = TextEditingController();
-    _focusNode = CellFocusNode();
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _focusNode.addCallback(context, () {
-      Log.info(_focusNode.hasFocus);
-    });
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
         builder: (context, state) {
-          return SelectOptionTextField(
-            focusNode: _focusNode,
-            controller: _controller,
+          final children = state.selectedOptions.map((option) => SelectOptionTag(option: option)).toList();
+          return SizedBox.expand(
+            child: InkWell(
+              onTap: () {
+                SelectionEditor.show(context, state.cellData, state.options, state.selectedOptions);
+              },
+              child: Row(children: children),
+            ),
           );
         },
       ),
@@ -53,14 +52,13 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
-    _focusNode.dispose();
     super.dispose();
   }
 }
 
 //----------------------------------------------------------------
 class MultiSelectCell extends StatefulWidget {
-  final FutureCellData cellData;
+  final CellData cellData;
 
   const MultiSelectCell({
     required this.cellData,

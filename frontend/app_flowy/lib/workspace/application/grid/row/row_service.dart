@@ -29,16 +29,14 @@ class RowService {
   }
 }
 
-typedef FutureCellData = GridCellData;
-
-class GridCellData extends Equatable {
+class CellData extends Equatable {
   final String gridId;
   final String rowId;
   final String blockId;
   final Field field;
   final Cell? cell;
 
-  const GridCellData({
+  const CellData({
     required this.rowId,
     required this.gridId,
     required this.blockId,

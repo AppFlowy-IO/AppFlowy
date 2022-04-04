@@ -186,7 +186,8 @@
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
       "colorPannelTitle": "Colors",
-      "pannelTitle": "Select an option"
+      "pannelTitle": "Select an option or create one",
+      "searchOption": "Search for an option"
     }
   }
 }

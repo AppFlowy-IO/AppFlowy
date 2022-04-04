@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
-pub const DEFAULT_ROW_HEIGHT: i32 = 36;
+pub const DEFAULT_ROW_HEIGHT: i32 = 42;
 pub const DEFAULT_FIELD_WIDTH: i32 = 150;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]

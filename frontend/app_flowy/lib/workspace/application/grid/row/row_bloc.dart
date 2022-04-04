@@ -13,14 +13,14 @@ import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
-typedef CellDataMap = LinkedHashMap<String, GridCellData>;
+typedef CellDataMap = LinkedHashMap<String, CellData>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService rowService;
   final RowListener rowlistener;
   final GridFieldsListener fieldListener;
 
-  RowBloc({required GridRowData rowData, required this.rowlistener})
+  RowBloc({required RowData rowData, required this.rowlistener})
       : rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,
@@ -112,7 +112,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     var map = CellDataMap.new();
     for (final field in state.fields) {
       if (field.visibility) {
-        map[field.id] = GridCellData(
+        map[field.id] = CellData(
           rowId: row.id,
           gridId: rowService.gridId,
           blockId: rowService.blockId,
@@ -143,7 +143,7 @@ class RowState with _$RowState {
     required Option<CellDataMap> cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(GridRowData data) => RowState(
+  factory RowState.initial(RowData data) => RowState(
         rowId: data.rowId,
         rowHeight: data.height,
         fields: data.fields,

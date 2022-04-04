@@ -9,7 +9,7 @@ part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellService service;
-  final FutureCellData cellData;
+  final CellData cellData;
 
   DateCellBloc({
     required this.service,

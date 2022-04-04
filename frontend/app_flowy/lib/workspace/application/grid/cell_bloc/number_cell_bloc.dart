@@ -12,7 +12,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   NumberCellBloc({
     required this.service,
-    required FutureCellData cellData,
+    required CellData cellData,
   }) : super(NumberCellState.initial()) {
     on<NumberCellEvent>(
       (event, emit) async {

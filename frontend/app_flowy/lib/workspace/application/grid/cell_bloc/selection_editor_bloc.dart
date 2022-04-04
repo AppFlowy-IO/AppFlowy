@@ -11,16 +11,18 @@ import 'cell_service.dart';
 
 part 'selection_editor_bloc.freezed.dart';
 
-class SelectionEditorBloc extends Bloc<SelectionEditorEvent, SelectionEditorState> {
+class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final CellService service = CellService();
   final FieldListener _listener;
 
-  SelectionEditorBloc({
+  SelectOptionEditorBloc({
     required String gridId,
     required Field field,
+    required List<SelectOption> options,
+    required List<SelectOption> selectedOptions,
   })  : _listener = FieldListener(fieldId: field.id),
-        super(SelectionEditorState.initial(gridId, field)) {
-    on<SelectionEditorEvent>(
+        super(SelectOptionEditorState.initial(gridId, field, options, selectedOptions)) {
+    on<SelectOptionEditorEvent>(
       (event, emit) async {
         await event.map(
           initial: (_Initial value) async {
@@ -34,6 +36,7 @@ class SelectionEditorBloc extends Bloc<SelectionEditorEvent, SelectionEditorStat
           didReceiveOptions: (_DidReceiveOptions value) {
             emit(state.copyWith(options: value.options));
           },
+          newOption: (_newOption value) {},
         );
       },
     );
@@ -48,7 +51,7 @@ class SelectionEditorBloc extends Bloc<SelectionEditorEvent, SelectionEditorStat
   void _startListening() {
     _listener.updateFieldNotifier.addPublishListener((result) {
       result.fold(
-        (field) => add(SelectionEditorEvent.didReceiveFieldUpdate(field)),
+        (field) => add(SelectOptionEditorEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
     });
@@ -70,7 +73,7 @@ class SelectionEditorBloc extends Bloc<SelectionEditorEvent, SelectionEditorStat
             Log.error("Invalid field type, expect single select or multiple select");
             break;
         }
-        add(SelectionEditorEvent.didReceiveOptions(options));
+        add(SelectOptionEditorEvent.didReceiveOptions(options));
       },
       (err) => Log.error(err),
     );
@@ -78,25 +81,33 @@ class SelectionEditorBloc extends Bloc<SelectionEditorEvent, SelectionEditorStat
 }
 
 @freezed
-class SelectionEditorEvent with _$SelectionEditorEvent {
-  const factory SelectionEditorEvent.initial() = _Initial;
-  const factory SelectionEditorEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
-  const factory SelectionEditorEvent.didReceiveOptions(List<SelectOption> options) = _DidReceiveOptions;
+class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
+  const factory SelectOptionEditorEvent.initial() = _Initial;
+  const factory SelectOptionEditorEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
+  const factory SelectOptionEditorEvent.didReceiveOptions(List<SelectOption> options) = _DidReceiveOptions;
+  const factory SelectOptionEditorEvent.newOption(String optionName) = _newOption;
 }
 
 @freezed
-class SelectionEditorState with _$SelectionEditorState {
-  const factory SelectionEditorState({
+class SelectOptionEditorState with _$SelectOptionEditorState {
+  const factory SelectOptionEditorState({
     required String gridId,
     required Field field,
     required List<SelectOption> options,
-  }) = _SelectionEditorState;
+    required List<SelectOption> selectedOptions,
+  }) = _SelectOptionEditorState;
 
-  factory SelectionEditorState.initial(String gridId, Field field) {
-    return SelectionEditorState(
+  factory SelectOptionEditorState.initial(
+    String gridId,
+    Field field,
+    List<SelectOption> options,
+    List<SelectOption> selectedOptions,
+  ) {
+    return SelectOptionEditorState(
       gridId: gridId,
       field: field,
-      options: [],
+      options: options,
+      selectedOptions: selectedOptions,
     );
   }
 }

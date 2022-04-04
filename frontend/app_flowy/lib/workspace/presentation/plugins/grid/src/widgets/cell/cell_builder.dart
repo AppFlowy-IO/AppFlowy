@@ -7,7 +7,7 @@ import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
-Widget buildGridCell(FutureCellData cellData) {
+Widget buildGridCell(CellData cellData) {
   final key = ValueKey(cellData.field.id + cellData.rowId);
   switch (cellData.field.fieldType) {
     case FieldType.Checkbox:

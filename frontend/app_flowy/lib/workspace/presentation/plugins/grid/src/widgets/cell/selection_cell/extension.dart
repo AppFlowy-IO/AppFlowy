@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -61,10 +64,19 @@ extension SelectOptionColorExtension on SelectOptionColor {
 }
 
 class SelectOptionTextField extends StatelessWidget {
-  final TextEditingController _controller;
   final FocusNode _focusNode;
+  final TextEditingController _controller;
+  final TextfieldTagsController tagController;
+  final LinkedHashMap<String, SelectOption> optionMap;
+  final double distanceToText;
+
+  final Function(String) onNewTag;
 
   SelectOptionTextField({
+    required this.optionMap,
+    required this.distanceToText,
+    required this.tagController,
+    required this.onNewTag,
     TextEditingController? controller,
     FocusNode? focusNode,
     Key? key,
@@ -74,26 +86,45 @@ class SelectOptionTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+
     return TextFieldTags(
       textEditingController: _controller,
-      initialTags: ["abc", "bdf"],
+      textfieldTagsController: tagController,
+      initialTags: optionMap.keys.toList(),
       focusNode: _focusNode,
       textSeparators: const [' ', ','],
       inputfieldBuilder: (BuildContext context, editController, focusNode, error, onChanged, onSubmitted) {
         return ((context, sc, tags, onTagDelegate) {
+          tags.retainWhere((name) => optionMap.containsKey(name) == false);
+          if (tags.isNotEmpty) {
+            assert(tags.length == 1);
+            onNewTag(tags.first);
+          }
+
           return TextField(
             controller: editController,
             focusNode: focusNode,
             onChanged: onChanged,
             onSubmitted: onSubmitted,
-            onEditingComplete: () => focusNode.unfocus(),
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: theme.shader3, width: 1.0),
+                borderRadius: Corners.s10Border,
+              ),
               isDense: true,
-              prefixIcon: _renderTags(tags, sc),
+              prefixIcon: _renderTags(sc),
+              hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
+              prefixIconConstraints: BoxConstraints(maxWidth: distanceToText),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.main1,
+                  width: 1.0,
+                ),
+                borderRadius: Corners.s10Border,
+              ),
             ),
           );
         });
@@ -101,41 +132,26 @@ class SelectOptionTextField extends StatelessWidget {
     );
   }
 
-  Widget? _renderTags(List<String> tags, ScrollController sc) {
-    if (tags.isEmpty) {
+  Widget? _renderTags(ScrollController sc) {
+    if (optionMap.isEmpty) {
       return null;
     }
 
-    return SingleChildScrollView(
-      controller: sc,
-      scrollDirection: Axis.horizontal,
-      child: Row(children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 74, 137, 92),
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(6.0),
-          ),
-          child: FlowyText.medium("efc", fontSize: 12),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 74, 137, 92),
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(6.0),
-          ),
-          child: FlowyText.medium("abc", fontSize: 12),
-          margin: const EdgeInsets.symmetric(horizontal: 5.0),
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-        )
-      ]),
+    final children = optionMap.values.map((option) => SelectOptionTag(option: option)).toList();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SingleChildScrollView(
+        controller: sc,
+        scrollDirection: Axis.horizontal,
+        child: Row(children: children),
+      ),
     );
   }
 }
 
-class SelectionBadge extends StatelessWidget {
+class SelectOptionTag extends StatelessWidget {
   final SelectOption option;
-  const SelectionBadge({required this.option, Key? key}) : super(key: key);
+  const SelectOptionTag({required this.option, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,9 +159,11 @@ class SelectionBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: option.color.make(context),
         shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(8.0),
       ),
-      child: FlowyText.medium(option.name, fontSize: 12),
+      child: Center(child: FlowyText.medium(option.name, fontSize: 12)),
+      margin: const EdgeInsets.symmetric(horizontal: 3.0),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
     );
   }
 }

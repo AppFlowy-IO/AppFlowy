@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final GridRowData data;
+  final RowData data;
   const GridRowWidget({required this.data, Key? key}) : super(key: key);
 
   @override

@@ -151,7 +151,7 @@ void _resolveGridDeps(GetIt getIt) {
     (view, _) => GridBloc(view: view, service: GridService()),
   );
 
-  getIt.registerFactoryParam<RowBloc, GridRowData, void>(
+  getIt.registerFactoryParam<RowBloc, RowData, void>(
     (data, _) => RowBloc(
       rowData: data,
       rowlistener: RowListener(rowId: data.rowId),
@@ -179,35 +179,35 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, FutureCellData, void>(
+  getIt.registerFactoryParam<TextCellBloc, CellData, void>(
     (cellData, _) => TextCellBloc(
       service: CellService(),
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, FutureCellData, void>(
+  getIt.registerFactoryParam<SelectionCellBloc, CellData, void>(
     (cellData, _) => SelectionCellBloc(
       service: CellService(),
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, FutureCellData, void>(
+  getIt.registerFactoryParam<NumberCellBloc, CellData, void>(
     (cellData, _) => NumberCellBloc(
       service: CellService(),
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, FutureCellData, void>(
+  getIt.registerFactoryParam<DateCellBloc, CellData, void>(
     (cellData, _) => DateCellBloc(
       service: CellService(),
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, FutureCellData, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, CellData, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellData: cellData,

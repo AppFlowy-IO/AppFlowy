@@ -44,7 +44,7 @@ class FlowyText extends StatelessWidget {
         softWrap: false,
         textAlign: textAlign,
         style: TextStyle(
-          color: theme.textColor,
+          color: color ?? theme.textColor,
           fontWeight: fontWeight,
           fontSize: fontSize + 2,
           fontFamily: 'Mulish',
