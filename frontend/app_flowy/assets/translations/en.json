@@ -185,7 +185,8 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPannelTitle": "Colors"
+      "colorPannelTitle": "Colors",
+      "pannelTitle": "Select an option"
     }
   }
 }

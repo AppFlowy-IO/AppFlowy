@@ -1,6 +1,9 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
 import 'package:flutter/material.dart';
+
+import 'extension.dart';
 
 class SingleSelectCell extends StatefulWidget {
   final FutureCellData cellData;
@@ -15,22 +18,31 @@ class SingleSelectCell extends StatefulWidget {
 }
 
 class _SingleSelectCellState extends State<SingleSelectCell> {
+  late CellFocusNode _focusNode;
   late SelectionCellBloc _cellBloc;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData);
+    _controller = TextEditingController();
+    _focusNode = CellFocusNode();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    _focusNode.addCallback(context, () {});
+    return SelectOptionTextField(
+      focusNode: _focusNode,
+      controller: _controller,
+    );
   }
 
   @override
   Future<void> dispose() async {
     _cellBloc.close();
+    _focusNode.dispose();
     super.dispose();
   }
 }

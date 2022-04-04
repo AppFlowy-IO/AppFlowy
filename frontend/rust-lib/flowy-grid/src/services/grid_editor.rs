@@ -303,12 +303,12 @@ impl ClientGridEditor {
         };
 
         let field_metas = self.pad.read().await.get_field_metas(field_orders)?;
-        debug_assert!(field_metas.len() == expected_len);
-        if field_metas.len() != expected_len {
+        if expected_len != 0 && field_metas.len() != expected_len {
             tracing::error!(
                 "This is a bug. The len of the field_metas should equal to {}",
                 expected_len
             );
+            debug_assert!(field_metas.len() == expected_len);
         }
         // field_metas.retain(|field_meta| field_meta.visibility);
         Ok(field_metas)

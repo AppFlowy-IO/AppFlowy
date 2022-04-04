@@ -46,7 +46,7 @@ class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeaderWidget(gridId: gridId, fields: fields, key: ObjectKey(fields));
+    return _GridHeaderWidget(gridId: gridId, fields: fields);
   }
 
   @override
@@ -73,27 +73,22 @@ class _GridHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return BlocBuilder<GridHeaderBloc, GridHeaderState>(
-      builder: (context, state) {
-        final cells = state.fields.map(
-          (field) => GridFieldCell(
-            GridFieldCellContext(gridId: gridId, field: field),
-          ),
-        );
-
-        final row = Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _HeaderLeading(),
-            ...cells,
-            _HeaderTrailing(gridId: gridId),
-          ],
-          key: UniqueKey(),
-        );
-
-        return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
-      },
+    final cells = fields.map(
+      (field) => GridFieldCell(
+        GridFieldCellContext(gridId: gridId, field: field),
+      ),
     );
+
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _HeaderLeading(),
+        ...cells,
+        _HeaderTrailing(gridId: gridId),
+      ],
+    );
+
+    return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
   }
 }
 

@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cell_container.dart';
 
-/// The interface of base cell.
-
-class GridTextCell extends StatefulWidget {
+class GridTextCell extends GridCell {
   final FutureCellData cellData;
   const GridTextCell({
     required this.cellData,
@@ -19,21 +17,23 @@ class GridTextCell extends StatefulWidget {
 }
 
 class _GridTextCellState extends State<GridTextCell> {
-  late TextEditingController _controller;
-  Timer? _delayOperation;
-  final _focusNode = FocusNode();
   late TextCellBloc _cellBloc;
+  late TextEditingController _controller;
+  late CellFocusNode _focusNode;
+  Timer? _delayOperation;
 
   @override
   void initState() {
     _cellBloc = getIt<TextCellBloc>(param1: widget.cellData);
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode.addListener(save);
+    _focusNode = CellFocusNode();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    _focusNode.addCallback(context, focusChanged);
+
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
@@ -46,16 +46,8 @@ class _GridTextCellState extends State<GridTextCell> {
           return TextField(
             controller: _controller,
             focusNode: _focusNode,
-            onChanged: (value) {
-              Log.info("On change");
-              save();
-            },
-            onEditingComplete: () {
-              Log.info("On complete");
-            },
-            onSubmitted: (value) {
-              Log.info("On submit");
-            },
+            onChanged: (value) => focusChanged(),
+            onEditingComplete: () => _focusNode.unfocus(),
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: const InputDecoration(
@@ -72,18 +64,18 @@ class _GridTextCellState extends State<GridTextCell> {
   @override
   Future<void> dispose() async {
     _cellBloc.close();
-    _focusNode.removeListener(save);
     _focusNode.dispose();
     super.dispose();
   }
 
-  Future<void> save() async {
-    _delayOperation?.cancel();
-    _delayOperation = Timer(const Duration(milliseconds: 300), () {
-      if (_cellBloc.isClosed == false) {
-        _cellBloc.add(TextCellEvent.updateText(_controller.text));
-      }
-    });
-    // and later, before the timer goes off...
+  Future<void> focusChanged() async {
+    if (mounted) {
+      _delayOperation?.cancel();
+      _delayOperation = Timer(const Duration(milliseconds: 300), () {
+        if (_cellBloc.isClosed == false) {
+          _cellBloc.add(TextCellEvent.updateText(_controller.text));
+        }
+      });
+    }
   }
 }

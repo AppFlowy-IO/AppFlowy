@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/edit_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/selection.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -164,7 +164,7 @@ class _SelectOptionColorCell extends StatelessWidget {
       dimension: 16,
       child: Container(
         decoration: BoxDecoration(
-          color: color.color(context),
+          color: color.make(context),
           shape: BoxShape.circle,
         ),
       ),
