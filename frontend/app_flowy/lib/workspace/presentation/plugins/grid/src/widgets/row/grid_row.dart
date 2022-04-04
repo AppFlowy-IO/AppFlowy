@@ -122,17 +122,19 @@ class _RowCells extends StatelessWidget {
     return BlocBuilder<RowBloc, RowState>(
       buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
-        final children = state.fields
-            .where((field) => field.visibility)
-            .map((field) => CellContainer(
-                  width: field.width.toDouble(),
-                  child: buildGridCell(
-                    state.rowId,
-                    field,
-                    state.cellDataMap?[field.id],
-                  ),
-                ))
-            .toList();
+        final List<Widget> children = state.cellDataMap.fold(
+          () => [],
+          (dataMap) {
+            return dataMap.values.map(
+              (value) {
+                return CellContainer(
+                  width: value.field.width.toDouble(),
+                  child: buildGridCell(value),
+                );
+              },
+            ).toList();
+          },
+        );
 
         return Row(children: children);
       },

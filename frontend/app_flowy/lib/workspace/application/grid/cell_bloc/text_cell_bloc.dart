@@ -33,17 +33,15 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   }
 
   void updateCellContent(String content) {
-    if (state.cellData != null) {
-      final fieldId = state.cellData!.field.id;
-      final gridId = state.cellData!.gridId;
-      final rowId = state.cellData!.rowId;
-      service.updateCell(
-        data: content,
-        fieldId: fieldId,
-        gridId: gridId,
-        rowId: rowId,
-      );
-    }
+    final fieldId = state.cellData.field.id;
+    final gridId = state.cellData.gridId;
+    final rowId = state.cellData.rowId;
+    service.updateCell(
+      data: content,
+      fieldId: fieldId,
+      gridId: gridId,
+      rowId: rowId,
+    );
   }
 
   @override
@@ -67,7 +65,7 @@ class TextCellState with _$TextCellState {
   }) = _TextCellState;
 
   factory TextCellState.initial(FutureCellData cellData) => TextCellState(
-        content: cellData?.cell?.content ?? "",
+        content: cellData.cell?.content ?? "",
         cellData: cellData,
       );
 }

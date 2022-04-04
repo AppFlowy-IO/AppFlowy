@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
@@ -8,12 +7,9 @@ import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
-Widget buildGridCell(String rowId, Field field, FutureCellData cellData) {
-  if (cellData == null) {
-    return const SizedBox();
-  }
-  final key = ValueKey(field.id + rowId);
-  switch (field.fieldType) {
+Widget buildGridCell(FutureCellData cellData) {
+  final key = ValueKey(cellData.field.id + cellData.rowId);
+  switch (cellData.field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxCell(cellData: cellData, key: key);
     case FieldType.DateTime:

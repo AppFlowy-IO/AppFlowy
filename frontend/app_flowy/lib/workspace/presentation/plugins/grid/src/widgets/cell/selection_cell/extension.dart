@@ -79,19 +79,13 @@ class SelectOptionTextField extends StatelessWidget {
       initialTags: ["abc", "bdf"],
       focusNode: _focusNode,
       textSeparators: const [' ', ','],
-      inputfieldBuilder: (
-        BuildContext context,
-        TextEditingController editController,
-        FocusNode focusNode,
-        String? error,
-        void Function(String)? onChanged,
-        void Function(String)? onSubmitted,
-      ) {
+      inputfieldBuilder: (BuildContext context, editController, focusNode, error, onChanged, onSubmitted) {
         return ((context, sc, tags, onTagDelegate) {
           return TextField(
             controller: editController,
             focusNode: focusNode,
-            onChanged: (value) {},
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
             onEditingComplete: () => focusNode.unfocus(),
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -131,6 +125,8 @@ class SelectOptionTextField extends StatelessWidget {
             borderRadius: BorderRadius.circular(6.0),
           ),
           child: FlowyText.medium("abc", fontSize: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         )
       ]),
     );

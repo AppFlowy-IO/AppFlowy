@@ -114,20 +114,3 @@ class _SelectionCell extends StatelessWidget {
     );
   }
 }
-
-class SelectionBadge extends StatelessWidget {
-  final SelectOption option;
-  const SelectionBadge({required this.option, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: option.color.make(context),
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      child: FlowyText.medium(option.name, fontSize: 12),
-    );
-  }
-}

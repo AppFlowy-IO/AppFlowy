@@ -13,7 +13,7 @@ import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
-typedef CellDataMap = HashMap<String, GridCellData>;
+typedef CellDataMap = LinkedHashMap<String, GridCellData>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService rowService;
@@ -48,10 +48,10 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           didUpdateCell: (_DidUpdateCell value) async {
             final optionRow = await state.row;
             final CellDataMap cellDataMap = optionRow.fold(
-              () => HashMap.identity(),
+              () => CellDataMap.identity(),
               (row) => _makeCellDatas(row),
             );
-            emit(state.copyWith(cellDataMap: cellDataMap));
+            emit(state.copyWith(cellDataMap: Some(cellDataMap)));
           },
         );
       },
@@ -111,13 +111,15 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   CellDataMap _makeCellDatas(Row row) {
     var map = CellDataMap.new();
     for (final field in state.fields) {
-      map[field.id] = GridCellData(
-        rowId: row.id,
-        gridId: rowService.gridId,
-        blockId: rowService.blockId,
-        cell: row.cellByFieldId[field.id],
-        field: field,
-      );
+      if (field.visibility) {
+        map[field.id] = GridCellData(
+          rowId: row.id,
+          gridId: rowService.gridId,
+          blockId: rowService.blockId,
+          cell: row.cellByFieldId[field.id],
+          field: field,
+        );
+      }
     }
     return map;
   }
@@ -138,7 +140,7 @@ class RowState with _$RowState {
     required double rowHeight,
     required List<Field> fields,
     required Future<Option<Row>> row,
-    required CellDataMap? cellDataMap,
+    required Option<CellDataMap> cellDataMap,
   }) = _RowState;
 
   factory RowState.initial(GridRowData data) => RowState(
@@ -146,6 +148,6 @@ class RowState with _$RowState {
         rowHeight: data.height,
         fields: data.fields,
         row: Future(() => none()),
-        cellDataMap: null,
+        cellDataMap: none(),
       );
 }
