@@ -1,5 +1,5 @@
-use crate::services::row::serialize_cell_data;
-use bytes::Bytes;
+use crate::services::row::apply_cell_data_changeset;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
 use std::collections::HashMap;
@@ -36,7 +36,7 @@ impl<'a> CreateRowMetaBuilder<'a> {
                 Err(FlowyError::internal().context(msg))
             }
             Some(field_meta) => {
-                let data = serialize_cell_data(&data, field_meta)?;
+                let data = apply_cell_data_changeset(&data, None, field_meta)?;
                 let cell = CellMeta::new(field_id, data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())

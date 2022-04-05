@@ -12,7 +12,6 @@ use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait GridUser: Send + Sync {
     fn user_id(&self) -> Result<String, FlowyError>;

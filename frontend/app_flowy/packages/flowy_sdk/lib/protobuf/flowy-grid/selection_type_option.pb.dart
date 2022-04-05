@@ -210,20 +210,21 @@ enum SelectOptionChangesetPayload_OneOfDeleteOptionId {
 
 class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfInsertOptionId> _SelectOptionChangesetPayload_OneOfInsertOptionIdByTag = {
-    3 : SelectOptionChangesetPayload_OneOfInsertOptionId.insertOptionId,
+    4 : SelectOptionChangesetPayload_OneOfInsertOptionId.insertOptionId,
     0 : SelectOptionChangesetPayload_OneOfInsertOptionId.notSet
   };
   static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfDeleteOptionId> _SelectOptionChangesetPayload_OneOfDeleteOptionIdByTag = {
-    4 : SelectOptionChangesetPayload_OneOfDeleteOptionId.deleteOptionId,
+    5 : SelectOptionChangesetPayload_OneOfDeleteOptionId.deleteOptionId,
     0 : SelectOptionChangesetPayload_OneOfDeleteOptionId.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectOptionChangesetPayload', createEmptyInstance: create)
-    ..oo(0, [3])
-    ..oo(1, [4])
+    ..oo(0, [4])
+    ..oo(1, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertOptionId')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteOptionId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertOptionId')
+    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteOptionId')
     ..hasRequiredFields = false
   ;
 
@@ -231,6 +232,7 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   factory SelectOptionChangesetPayload({
     $core.String? gridId,
     $core.String? rowId,
+    $core.String? fieldId,
     $core.String? insertOptionId,
     $core.String? deleteOptionId,
   }) {
@@ -240,6 +242,9 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
     }
     if (rowId != null) {
       _result.rowId = rowId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
     }
     if (insertOptionId != null) {
       _result.insertOptionId = insertOptionId;
@@ -295,22 +300,31 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   void clearRowId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get insertOptionId => $_getSZ(2);
+  $core.String get fieldId => $_getSZ(2);
   @$pb.TagNumber(3)
-  set insertOptionId($core.String v) { $_setString(2, v); }
+  set fieldId($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasInsertOptionId() => $_has(2);
+  $core.bool hasFieldId() => $_has(2);
   @$pb.TagNumber(3)
-  void clearInsertOptionId() => clearField(3);
+  void clearFieldId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get deleteOptionId => $_getSZ(3);
+  $core.String get insertOptionId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set deleteOptionId($core.String v) { $_setString(3, v); }
+  set insertOptionId($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasDeleteOptionId() => $_has(3);
+  $core.bool hasInsertOptionId() => $_has(3);
   @$pb.TagNumber(4)
-  void clearDeleteOptionId() => clearField(4);
+  void clearInsertOptionId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get deleteOptionId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set deleteOptionId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasDeleteOptionId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDeleteOptionId() => clearField(5);
 }
 
 class SelectOptionContext extends $pb.GeneratedMessage {

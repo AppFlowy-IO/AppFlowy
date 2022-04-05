@@ -22,9 +22,6 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-type RowId = String;
-type BlockId = String;
-
 pub(crate) struct GridBlockMetaEditorManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
@@ -145,6 +142,11 @@ impl GridBlockMetaEditorManager {
         for block_id in block_ids {
             let editor = self.get_editor(&block_id).await?;
             let row_metas = editor.get_row_metas(None).await?;
+
+            row_metas.iter().for_each(|row| {
+                let _ = self.persistence.insert_or_update(&row.block_id, &row.id);
+            });
+
             snapshots.push(GridBlockSnapshot { block_id, row_metas });
         }
         Ok(snapshots)

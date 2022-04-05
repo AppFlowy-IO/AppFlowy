@@ -19,10 +19,6 @@ message FieldIdentifierPayload {
     string field_id = 1;
     string grid_id = 2;
 }
-message FieldIdentifierParams {
-    string field_id = 1;
-    string grid_id = 2;
-}
 message FieldOrder {
     string field_id = 1;
 }
@@ -74,6 +70,11 @@ message Cell {
     string field_id = 1;
     string content = 2;
 }
+message CellIdentifierPayload {
+    string grid_id = 1;
+    string field_id = 2;
+    string row_id = 3;
+}
 message RepeatedCell {
     repeated Cell items = 1;
 }
@@ -106,9 +107,9 @@ message QueryGridBlocksPayload {
 }
 message QueryRowPayload {
     string grid_id = 1;
-    string block_id = 2;
     string row_id = 3;
 }
 message CreateSelectOptionPayload {
     string option_name = 1;
+    bool selected = 2;
 }

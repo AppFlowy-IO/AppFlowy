@@ -10,18 +10,26 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
     module = module
         .event(GridEvent::GetGridData, get_grid_data_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
+        // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::CreateField, create_field_handler)
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
-        .event(GridEvent::GetEditFieldContext, get_field_context_handler)
-        .event(GridEvent::CreateSelectOption, create_select_option_handler)
+        // Row
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
+        // Cell
         .event(GridEvent::UpdateCell, update_cell_handler)
-        .event(GridEvent::InsertSelectOption, insert_select_option_handler);
+        // SelectOption
+        .event(GridEvent::CreateSelectOption, create_select_option_handler)
+        .event(GridEvent::GetSelectOptions, get_select_option_handler)
+        .event(
+            GridEvent::ApplySelectOptionChangeset,
+            apply_select_option_changeset_handler,
+        )
+        .event(GridEvent::GetEditFieldContext, get_field_context_handler);
 
     module
 }
@@ -59,7 +67,7 @@ pub enum GridEvent {
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     CreateSelectOption = 30,
 
-    #[event(input = "FieldIdentifierPayload", output = "SelectOptionContext")]
+    #[event(input = "CellIdentifierPayload", output = "SelectOptionContext")]
     GetSelectOptions = 31,
 
     #[event(input = "CreateRowPayload", output = "Row")]
@@ -71,6 +79,6 @@ pub enum GridEvent {
     #[event(input = "CellMetaChangeset")]
     UpdateCell = 70,
 
-    #[event(input = "InsertSelectOptionPayload")]
-    InsertSelectOption = 71,
+    #[event(input = "SelectOptionChangesetPayload")]
+    ApplySelectOptionChangeset = 71,
 }

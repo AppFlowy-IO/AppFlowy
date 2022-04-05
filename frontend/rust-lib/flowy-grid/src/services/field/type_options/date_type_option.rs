@@ -1,11 +1,11 @@
 use crate::impl_type_option;
-use crate::services::row::{CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -43,7 +43,7 @@ impl DateTypeOption {
 }
 
 impl CellDataOperation for DateTypeOption {
-    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_date() {
                 return String::new();
@@ -63,13 +63,18 @@ impl CellDataOperation for DateTypeOption {
         String::new()
     }
 
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        if let Err(e) = data.parse::<i64>() {
-            tracing::error!("Parse {} to i64 failed: {}", data, e);
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.into();
+        if let Err(e) = changeset.parse::<i64>() {
+            tracing::error!("Parse {} to i64 failed: {}", changeset.to_string(), e);
             return Err(FlowyError::internal().context(e));
         };
 
-        Ok(TypeOptionCellData::new(data, self.field_type()).json())
+        Ok(TypeOptionCellData::new(changeset, self.field_type()).json())
     }
 }
 
@@ -195,7 +200,7 @@ mod tests {
         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
         assert_eq!(
             "".to_owned(),
-            type_option.deserialize_cell_data("1e".to_owned(), &field_meta)
+            type_option.decode_cell_data("1e".to_owned(), &field_meta)
         );
     }
 
@@ -209,33 +214,33 @@ mod tests {
                 DateFormat::Friendly => {
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("Mar 14,2022 17:56"), &field_meta)
+                        type_option.decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
                     );
                 }
                 DateFormat::US => {
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("2022/03/14 17:56"), &field_meta)
+                        type_option.decode_cell_data(data("2022/03/14 17:56"), &field_meta)
                     );
                 }
                 DateFormat::ISO => {
                     assert_eq!(
                         "2022-03-14 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 DateFormat::Local => {
                     assert_eq!(
                         "2022/03/14 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
             }
@@ -256,7 +261,7 @@ mod tests {
                     );
                     assert_eq!(
                         "Mar 14,2022 17:56".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 TimeFormat::TwelveHour => {
@@ -266,7 +271,7 @@ mod tests {
                     );
                     assert_eq!(
                         "Mar 14,2022 05:56:02 PM".to_owned(),
-                        type_option.deserialize_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
             }
@@ -277,7 +282,7 @@ mod tests {
     #[should_panic]
     fn date_description_invalid_data_test() {
         let type_option = DateTypeOption::default();
-        type_option.serialize_cell_data("he").unwrap();
+        type_option.apply_changeset("he").unwrap();
     }
 
     fn data(s: &str) -> String {

@@ -1,11 +1,13 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use crate::services::util::*;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{
+    CellMeta, CellMetaChangeset, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry,
+};
 use flowy_grid_data_model::parser::{NotEmptyStr, NotEmptyUuid};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
@@ -25,26 +27,66 @@ pub struct SingleSelectTypeOption {
 }
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
+impl SingleSelectTypeOption {
+    pub fn select_option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+        let select_options = make_select_context_from(cell_meta, &self.options);
+        SelectOptionContext {
+            options: self.options.clone(),
+            select_options,
+        }
+    }
+}
+
+fn make_select_context_from(cell_meta: &Option<CellMeta>, options: &Vec<SelectOption>) -> Vec<SelectOption> {
+    match cell_meta {
+        None => vec![],
+        Some(cell_meta) => {
+            if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&cell_meta.data) {
+                select_option_ids(type_option_cell_data.data)
+                    .into_iter()
+                    .flat_map(|option_id| options.iter().find(|option| option.id == option_id).cloned())
+                    .collect()
+            } else {
+                vec![]
+            }
+        }
+    }
+}
+
 impl CellDataOperation for SingleSelectTypeOption {
-    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
+            if !type_option_cell_data.is_single_select() {
                 return String::new();
             }
 
-            let option_id = type_option_cell_data.data;
-            match self.options.iter().find(|option| option.id == option_id) {
+            match select_option_ids(type_option_cell_data.data).pop() {
                 None => String::new(),
-                Some(option) => option.name.clone(),
+                Some(option_id) => match self.options.iter().find(|option| option.id == option_id) {
+                    None => String::new(),
+                    Some(option) => option.name.clone(),
+                },
             }
         } else {
             String::new()
         }
     }
 
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let data = single_select_option_id_from_data(data.to_owned())?;
-        Ok(TypeOptionCellData::new(&data, self.field_type()).json())
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        _cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.into();
+        let select_option_changeset: SelectOptionChangeset = serde_json::from_str(&changeset)?;
+        let new_cell_data: String;
+        if let Some(insert_option_id) = select_option_changeset.insert_option_id {
+            new_cell_data = insert_option_id;
+        } else {
+            new_cell_data = "".to_string()
+        }
+
+        return Ok(TypeOptionCellData::new(&new_cell_data, self.field_type()).json());
     }
 }
 
@@ -81,33 +123,59 @@ pub struct MultiSelectTypeOption {
 }
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
+impl MultiSelectTypeOption {
+    pub fn select_option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+        todo!()
+    }
+}
+
 impl CellDataOperation for MultiSelectTypeOption {
-    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
+            if !type_option_cell_data.is_multi_select() {
                 return String::new();
             }
-
-            match select_option_ids(type_option_cell_data.data) {
-                Ok(option_ids) => {
-                    //
-                    self.options
-                        .iter()
-                        .filter(|option| option_ids.contains(&option.id))
-                        .map(|option| option.name.clone())
-                        .collect::<Vec<String>>()
-                        .join(SELECTION_IDS_SEPARATOR)
-                }
-                Err(_) => String::new(),
-            }
+            let option_ids = select_option_ids(type_option_cell_data.data);
+            self.options
+                .iter()
+                .filter(|option| option_ids.contains(&option.id))
+                .map(|option| option.name.clone())
+                .collect::<Vec<String>>()
+                .join(SELECTION_IDS_SEPARATOR)
         } else {
             String::new()
         }
     }
 
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let data = multi_select_option_id_from_data(data.to_owned())?;
-        Ok(TypeOptionCellData::new(&data, self.field_type()).json())
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.into();
+        let select_option_changeset: SelectOptionChangeset = serde_json::from_str(&changeset)?;
+        let new_cell_data: String;
+        match cell_meta {
+            None => {
+                new_cell_data = select_option_changeset
+                    .insert_option_id
+                    .unwrap_or_else(|| "".to_owned());
+            }
+            Some(cell_meta) => {
+                let mut selected_options = select_option_ids(cell_meta.data);
+                if let Some(insert_option_id) = select_option_changeset.insert_option_id {
+                    selected_options.push(insert_option_id);
+                }
+
+                if let Some(delete_option_id) = select_option_changeset.delete_option_id {
+                    selected_options.retain(|id| id != &delete_option_id);
+                }
+
+                new_cell_data = selected_options.join(SELECTION_IDS_SEPARATOR);
+            }
+        }
+
+        Ok(TypeOptionCellData::new(&new_cell_data, self.field_type()).json())
     }
 }
 
@@ -132,41 +200,10 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     }
 }
 
-fn single_select_option_id_from_data(data: String) -> FlowyResult<String> {
-    let select_option_ids = select_option_ids(data)?;
-    if select_option_ids.is_empty() {
-        return Ok("".to_owned());
-    }
-
-    Ok(select_option_ids.split_first().unwrap().0.to_string())
-}
-
-fn multi_select_option_id_from_data(data: String) -> FlowyResult<String> {
-    let select_option_ids = select_option_ids(data)?;
-    Ok(select_option_ids.join(SELECTION_IDS_SEPARATOR))
-}
-
-fn select_option_ids(mut data: String) -> FlowyResult<Vec<String>> {
-    data.retain(|c| !c.is_whitespace());
-    let select_option_ids = data.split(SELECTION_IDS_SEPARATOR).collect::<Vec<&str>>();
-    if select_option_ids
-        .par_iter()
-        .find_first(|option_id| match Uuid::parse_str(option_id) {
-            Ok(_) => false,
-            Err(e) => {
-                tracing::error!("{}", e);
-                true
-            }
-        })
-        .is_some()
-    {
-        let msg = format!(
-            "Invalid selection id string: {}. It should consist of the uuid string and separated by comma",
-            data
-        );
-        return Err(FlowyError::internal().context(msg));
-    }
-    Ok(select_option_ids.iter().map(|id| id.to_string()).collect::<Vec<_>>())
+fn select_option_ids(data: String) -> Vec<String> {
+    data.split(SELECTION_IDS_SEPARATOR)
+        .map(|id| id.to_string())
+        .collect::<Vec<String>>()
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -209,13 +246,34 @@ pub struct SelectOptionChangesetPayload {
     pub delete_option_id: Option<String>,
 }
 
-#[derive(Clone)]
 pub struct SelectOptionChangesetParams {
     pub grid_id: String,
     pub field_id: String,
     pub row_id: String,
     pub insert_option_id: Option<String>,
     pub delete_option_id: Option<String>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct SelectOptionChangeset {
+    pub insert_option_id: Option<String>,
+    pub delete_option_id: Option<String>,
+}
+
+impl std::convert::From<SelectOptionChangesetParams> for CellMetaChangeset {
+    fn from(params: SelectOptionChangesetParams) -> Self {
+        let changeset = SelectOptionChangeset {
+            insert_option_id: params.insert_option_id,
+            delete_option_id: params.delete_option_id,
+        };
+        let s = serde_json::to_string(&changeset).unwrap();
+        CellMetaChangeset {
+            grid_id: params.grid_id,
+            row_id: params.row_id,
+            field_id: params.field_id,
+            data: Some(s),
+        }
+    }
 }
 
 impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
@@ -228,7 +286,7 @@ impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
         let insert_option_id = match self.insert_option_id {
             None => None,
             Some(insert_option_id) => Some(
-                NotEmptyStr::parse(insert_option_id)
+                NotEmptyUuid::parse(insert_option_id)
                     .map_err(|_| ErrorCode::OptionIdIsEmpty)?
                     .0,
             ),
@@ -237,7 +295,7 @@ impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
         let delete_option_id = match self.delete_option_id {
             None => None,
             Some(delete_option_id) => Some(
-                NotEmptyStr::parse(delete_option_id)
+                NotEmptyUuid::parse(delete_option_id)
                     .map_err(|_| ErrorCode::OptionIdIsEmpty)?
                     .0,
             ),
@@ -291,9 +349,9 @@ mod tests {
     #[should_panic]
     fn selection_description_test() {
         let type_option = SingleSelectTypeOption::default();
-        assert_eq!(type_option.serialize_cell_data("1,2,3").unwrap(), "1".to_owned());
+        assert_eq!(type_option.apply_changeset("1,2,3").unwrap(), "1".to_owned());
 
         let type_option = MultiSelectTypeOption::default();
-        assert_eq!(type_option.serialize_cell_data("1,2,3").unwrap(), "1,2,3".to_owned());
+        assert_eq!(type_option.apply_changeset("1,2,3").unwrap(), "1,2,3".to_owned());
     }
 }

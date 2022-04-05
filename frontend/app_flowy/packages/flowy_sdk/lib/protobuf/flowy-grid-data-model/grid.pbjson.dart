@@ -47,17 +47,6 @@ const FieldIdentifierPayload$json = const {
 
 /// Descriptor for `FieldIdentifierPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldIdentifierPayloadDescriptor = $convert.base64Decode('ChZGaWVsZElkZW50aWZpZXJQYXlsb2FkEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhcKB2dyaWRfaWQYAiABKAlSBmdyaWRJZA==');
-@$core.Deprecated('Use fieldIdentifierParamsDescriptor instead')
-const FieldIdentifierParams$json = const {
-  '1': 'FieldIdentifierParams',
-  '2': const [
-    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
-  ],
-};
-
-/// Descriptor for `FieldIdentifierParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldIdentifierParamsDescriptor = $convert.base64Decode('ChVGaWVsZElkZW50aWZpZXJQYXJhbXMSGQoIZmllbGRfaWQYASABKAlSB2ZpZWxkSWQSFwoHZ3JpZF9pZBgCIAEoCVIGZ3JpZElk');
 @$core.Deprecated('Use fieldOrderDescriptor instead')
 const FieldOrder$json = const {
   '1': 'FieldOrder',
@@ -214,6 +203,18 @@ const Cell$json = const {
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQ=');
+@$core.Deprecated('Use cellIdentifierPayloadDescriptor instead')
+const CellIdentifierPayload$json = const {
+  '1': 'CellIdentifierPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'row_id', '3': 3, '4': 1, '5': 9, '10': 'rowId'},
+  ],
+};
+
+/// Descriptor for `CellIdentifierPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cellIdentifierPayloadDescriptor = $convert.base64Decode('ChVDZWxsSWRlbnRpZmllclBheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhkKCGZpZWxkX2lkGAIgASgJUgdmaWVsZElkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
 @$core.Deprecated('Use repeatedCellDescriptor instead')
 const RepeatedCell$json = const {
   '1': 'RepeatedCell',
@@ -311,20 +312,20 @@ const QueryRowPayload$json = const {
   '1': 'QueryRowPayload',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'block_id', '3': 2, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'row_id', '3': 3, '4': 1, '5': 9, '10': 'rowId'},
   ],
 };
 
 /// Descriptor for `QueryRowPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryRowPayloadDescriptor = $convert.base64Decode('Cg9RdWVyeVJvd1BheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhkKCGJsb2NrX2lkGAIgASgJUgdibG9ja0lkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
+final $typed_data.Uint8List queryRowPayloadDescriptor = $convert.base64Decode('Cg9RdWVyeVJvd1BheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
 @$core.Deprecated('Use createSelectOptionPayloadDescriptor instead')
 const CreateSelectOptionPayload$json = const {
   '1': 'CreateSelectOptionPayload',
   '2': const [
     const {'1': 'option_name', '3': 1, '4': 1, '5': 9, '10': 'optionName'},
+    const {'1': 'selected', '3': 2, '4': 1, '5': 8, '10': 'selected'},
   ],
 };
 
 /// Descriptor for `CreateSelectOptionPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createSelectOptionPayloadDescriptor = $convert.base64Decode('ChlDcmVhdGVTZWxlY3RPcHRpb25QYXlsb2FkEh8KC29wdGlvbl9uYW1lGAEgASgJUgpvcHRpb25OYW1l');
+final $typed_data.Uint8List createSelectOptionPayloadDescriptor = $convert.base64Decode('ChlDcmVhdGVTZWxlY3RPcHRpb25QYXlsb2FkEh8KC29wdGlvbl9uYW1lGAEgASgJUgpvcHRpb25OYW1lEhoKCHNlbGVjdGVkGAIgASgIUghzZWxlY3RlZA==');

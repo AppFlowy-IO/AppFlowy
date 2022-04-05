@@ -10,8 +10,10 @@ class TypeOptionService {
     required this.fieldId,
   });
 
-  Future<Either<SelectOption, FlowyError>> createOption(String name) {
-    final payload = CreateSelectOptionPayload.create()..optionName = name;
+  Future<Either<SelectOption, FlowyError>> createOption(String name, {bool selected = false}) {
+    final payload = CreateSelectOptionPayload.create()
+      ..optionName = name
+      ..selected = selected;
     return GridEventCreateSelectOption(payload).send();
   }
 }

@@ -39,7 +39,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
-                SelectionEditor.show(context, state.cellData, state.options, state.selectedOptions);
+                SelectOptionEditor.show(context, state.cellData, state.options, state.selectedOptions);
               },
               child: Row(children: children),
             ),

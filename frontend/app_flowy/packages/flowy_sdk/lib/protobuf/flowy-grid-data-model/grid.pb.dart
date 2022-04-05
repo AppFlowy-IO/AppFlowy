@@ -266,67 +266,6 @@ class FieldIdentifierPayload extends $pb.GeneratedMessage {
   void clearGridId() => clearField(2);
 }
 
-class FieldIdentifierParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldIdentifierParams', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..hasRequiredFields = false
-  ;
-
-  FieldIdentifierParams._() : super();
-  factory FieldIdentifierParams({
-    $core.String? fieldId,
-    $core.String? gridId,
-  }) {
-    final _result = create();
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
-    }
-    if (gridId != null) {
-      _result.gridId = gridId;
-    }
-    return _result;
-  }
-  factory FieldIdentifierParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory FieldIdentifierParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  FieldIdentifierParams clone() => FieldIdentifierParams()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  FieldIdentifierParams copyWith(void Function(FieldIdentifierParams) updates) => super.copyWith((message) => updates(message as FieldIdentifierParams)) as FieldIdentifierParams; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static FieldIdentifierParams create() => FieldIdentifierParams._();
-  FieldIdentifierParams createEmptyInstance() => create();
-  static $pb.PbList<FieldIdentifierParams> createRepeated() => $pb.PbList<FieldIdentifierParams>();
-  @$core.pragma('dart2js:noInline')
-  static FieldIdentifierParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldIdentifierParams>(create);
-  static FieldIdentifierParams? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get fieldId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set fieldId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasFieldId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearFieldId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get gridId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set gridId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasGridId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearGridId() => clearField(2);
-}
-
 class FieldOrder extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldOrder', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
@@ -1085,6 +1024,81 @@ class Cell extends $pb.GeneratedMessage {
   void clearContent() => clearField(2);
 }
 
+class CellIdentifierPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellIdentifierPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..hasRequiredFields = false
+  ;
+
+  CellIdentifierPayload._() : super();
+  factory CellIdentifierPayload({
+    $core.String? gridId,
+    $core.String? fieldId,
+    $core.String? rowId,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    return _result;
+  }
+  factory CellIdentifierPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CellIdentifierPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CellIdentifierPayload clone() => CellIdentifierPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CellIdentifierPayload copyWith(void Function(CellIdentifierPayload) updates) => super.copyWith((message) => updates(message as CellIdentifierPayload)) as CellIdentifierPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CellIdentifierPayload create() => CellIdentifierPayload._();
+  CellIdentifierPayload createEmptyInstance() => create();
+  static $pb.PbList<CellIdentifierPayload> createRepeated() => $pb.PbList<CellIdentifierPayload>();
+  @$core.pragma('dart2js:noInline')
+  static CellIdentifierPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellIdentifierPayload>(create);
+  static CellIdentifierPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get fieldId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set fieldId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get rowId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set rowId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRowId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRowId() => clearField(3);
+}
+
 class RepeatedCell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedCell', createEmptyInstance: create)
     ..pc<Cell>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Cell.create)
@@ -1566,7 +1580,6 @@ class QueryGridBlocksPayload extends $pb.GeneratedMessage {
 class QueryRowPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryRowPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..hasRequiredFields = false
   ;
@@ -1574,15 +1587,11 @@ class QueryRowPayload extends $pb.GeneratedMessage {
   QueryRowPayload._() : super();
   factory QueryRowPayload({
     $core.String? gridId,
-    $core.String? blockId,
     $core.String? rowId,
   }) {
     final _result = create();
     if (gridId != null) {
       _result.gridId = gridId;
-    }
-    if (blockId != null) {
-      _result.blockId = blockId;
     }
     if (rowId != null) {
       _result.rowId = rowId;
@@ -1619,21 +1628,12 @@ class QueryRowPayload extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearGridId() => clearField(1);
 
-  @$pb.TagNumber(2)
-  $core.String get blockId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set blockId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasBlockId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearBlockId() => clearField(2);
-
   @$pb.TagNumber(3)
-  $core.String get rowId => $_getSZ(2);
+  $core.String get rowId => $_getSZ(1);
   @$pb.TagNumber(3)
-  set rowId($core.String v) { $_setString(2, v); }
+  set rowId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(3)
-  $core.bool hasRowId() => $_has(2);
+  $core.bool hasRowId() => $_has(1);
   @$pb.TagNumber(3)
   void clearRowId() => clearField(3);
 }
@@ -1641,16 +1641,21 @@ class QueryRowPayload extends $pb.GeneratedMessage {
 class CreateSelectOptionPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateSelectOptionPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'optionName')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selected')
     ..hasRequiredFields = false
   ;
 
   CreateSelectOptionPayload._() : super();
   factory CreateSelectOptionPayload({
     $core.String? optionName,
+    $core.bool? selected,
   }) {
     final _result = create();
     if (optionName != null) {
       _result.optionName = optionName;
+    }
+    if (selected != null) {
+      _result.selected = selected;
     }
     return _result;
   }
@@ -1683,5 +1688,14 @@ class CreateSelectOptionPayload extends $pb.GeneratedMessage {
   $core.bool hasOptionName() => $_has(0);
   @$pb.TagNumber(1)
   void clearOptionName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get selected => $_getBF(1);
+  @$pb.TagNumber(2)
+  set selected($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSelected() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSelected() => clearField(2);
 }
 

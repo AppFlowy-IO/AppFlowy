@@ -5,7 +5,6 @@ use diesel::SqliteConnection;
 use flowy_database::{
     prelude::*,
     schema::{kv_table, kv_table::dsl},
-    ConnectionPool,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::Arc;

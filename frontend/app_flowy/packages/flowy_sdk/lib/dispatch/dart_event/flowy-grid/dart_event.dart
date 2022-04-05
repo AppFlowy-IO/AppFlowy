@@ -172,7 +172,7 @@ class GridEventCreateSelectOption {
 }
 
 class GridEventGetSelectOptions {
-     FieldIdentifierPayload request;
+     CellIdentifierPayload request;
      GridEventGetSelectOptions(this.request);
 
     Future<Either<SelectOptionContext, FlowyError>> send() {
@@ -239,13 +239,13 @@ class GridEventUpdateCell {
     }
 }
 
-class GridEventInsertSelectOption {
-     InsertSelectOptionPayload request;
-     GridEventInsertSelectOption(this.request);
+class GridEventApplySelectOptionChangeset {
+     SelectOptionChangesetPayload request;
+     GridEventApplySelectOptionChangeset(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.InsertSelectOption.toString()
+          ..event = GridEvent.ApplySelectOptionChangeset.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

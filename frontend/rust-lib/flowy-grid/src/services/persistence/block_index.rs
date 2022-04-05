@@ -3,7 +3,6 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use flowy_database::{
     prelude::*,
     schema::{grid_block_index_table, grid_block_index_table::dsl},
-    ConnectionPool,
 };
 use flowy_error::FlowyResult;
 use std::sync::Arc;

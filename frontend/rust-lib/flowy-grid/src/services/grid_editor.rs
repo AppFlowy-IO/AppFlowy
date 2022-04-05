@@ -1,9 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::GridBlockMetaEditorManager;
-use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder, SelectOptionChangesetParams,
-};
+use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::*;
 use bytes::Bytes;
@@ -40,7 +38,7 @@ impl ClientGridEditor {
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let pad = Arc::new(RwLock::new(grid_pad));
-        let blocks = pad.read().await.get_block_metas().clone();
+        let blocks = pad.read().await.get_block_metas();
 
         let block_meta_manager = Arc::new(GridBlockMetaEditorManager::new(grid_id, &user, blocks, persistence).await?);
         Ok(Arc::new(Self {
@@ -100,7 +98,7 @@ impl ClientGridEditor {
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let field_id = params.field_id.clone();
-        let deserializer = match self.pad.read().await.get_field(&params.field_id) {
+        let deserializer = match self.pad.read().await.get_field(params.field_id.as_str()) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_meta) => TypeOptionChangesetDeserializer(field_meta.field_type.clone()),
         };
@@ -147,11 +145,27 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn get_field(&self, field_id: &str) -> FlowyResult<Option<FieldMeta>> {
-        match self.pad.read().await.get_field(field_id) {
-            None => Ok(None),
-            Some(field_meta) => Ok(Some(field_meta.clone())),
+    pub async fn get_field_metas<T>(&self, field_orders: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
+    where
+        T: Into<FieldOrder>,
+    {
+        if field_orders.is_none() {
+            let field_metas = self.pad.read().await.get_field_metas(None)?;
+            return Ok(field_metas);
         }
+
+        let to_field_orders = |item: Vec<T>| item.into_iter().map(|data| data.into()).collect();
+        let field_orders = field_orders.map_or(vec![], to_field_orders);
+        let expected_len = field_orders.len();
+        let field_metas = self.pad.read().await.get_field_metas(Some(field_orders))?;
+        if expected_len != 0 && field_metas.len() != expected_len {
+            tracing::error!(
+                "This is a bug. The len of the field_metas should equal to {}",
+                expected_len
+            );
+            debug_assert!(field_metas.len() == expected_len);
+        }
+        Ok(field_metas)
     }
 
     pub async fn create_block(&self, grid_block: GridBlockMeta) -> FlowyResult<()> {
@@ -217,7 +231,7 @@ impl ClientGridEditor {
         debug_assert_eq!(grid_block_snapshot.len(), 1);
         if grid_block_snapshot.len() == 1 {
             let snapshot = grid_block_snapshot.pop().unwrap();
-            let field_metas = self.get_field_metas(None).await?;
+            let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
             let rows = make_rows_from_row_metas(&field_metas, &snapshot.row_metas);
             Ok(rows.into())
         } else {
@@ -229,7 +243,7 @@ impl ClientGridEditor {
         match self.block_meta_manager.get_row_meta(row_id).await? {
             None => Ok(None),
             Some(row_meta) => {
-                let field_metas = self.get_field_metas(None).await?;
+                let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
                 let row_metas = vec![row_meta];
                 let mut rows = make_rows_from_row_metas(&field_metas, &row_metas);
                 debug_assert!(rows.len() == 1);
@@ -249,32 +263,30 @@ impl ClientGridEditor {
         }
     }
 
-    pub async fn apply_select_option(&self, params: SelectOptionChangesetParams) -> FlowyResult<()> {
-        let cell_meta = self.get_cell_meta(&params.row_id, &params.field_id).await?;
-        todo!()
-    }
-
     pub async fn update_cell(&self, mut changeset: CellMetaChangeset) -> FlowyResult<()> {
-        if let Some(cell_data) = changeset.data.as_ref() {
-            match self.pad.read().await.get_field(&changeset.field_id) {
-                None => {
-                    let msg = format!("Can not find the field with id: {}", &changeset.field_id);
-                    return Err(FlowyError::internal().context(msg));
-                }
-                Some(field_meta) => {
-                    let cell_data = serialize_cell_data(cell_data, field_meta)?;
-                    changeset.data = Some(cell_data);
-                }
-            }
+        if changeset.data.as_ref().is_none() {
+            return Ok(());
         }
 
-        let field_metas = self.get_field_metas(None).await?;
-        let row_changeset: RowMetaChangeset = changeset.into();
-        let _ = self
-            .block_meta_manager
-            .update_row_cells(&field_metas, row_changeset)
-            .await?;
-        Ok(())
+        let cell_data_changeset = changeset.data.unwrap();
+        let cell_meta = self.get_cell_meta(&changeset.row_id, &changeset.field_id).await?;
+        match self.pad.read().await.get_field(&changeset.field_id) {
+            None => {
+                let msg = format!("Field not found with id: {}", &changeset.field_id);
+                return Err(FlowyError::internal().context(msg));
+            }
+            Some(field_meta) => {
+                // Update the changeset.data property with the return value.
+                changeset.data = Some(apply_cell_data_changeset(cell_data_changeset, cell_meta, field_meta)?);
+                let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
+                let row_changeset: RowMetaChangeset = changeset.into();
+                let _ = self
+                    .block_meta_manager
+                    .update_row_cells(&field_metas, row_changeset)
+                    .await?;
+                Ok(())
+            }
+        }
     }
 
     pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedGridBlock> {
@@ -312,23 +324,6 @@ impl ClientGridEditor {
             field_orders,
             block_orders,
         })
-    }
-
-    pub async fn get_field_metas(&self, field_orders: Option<Vec<FieldOrder>>) -> FlowyResult<Vec<FieldMeta>> {
-        let expected_len = match field_orders.as_ref() {
-            None => 0,
-            Some(field_orders) => field_orders.len(),
-        };
-
-        let field_metas = self.pad.read().await.get_field_metas(field_orders)?;
-        if expected_len != 0 && field_metas.len() != expected_len {
-            tracing::error!(
-                "This is a bug. The len of the field_metas should equal to {}",
-                expected_len
-            );
-            debug_assert!(field_metas.len() == expected_len);
-        }
-        Ok(field_metas)
     }
 
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
@@ -393,7 +388,7 @@ impl ClientGridEditor {
     }
 
     async fn notify_did_update_fields(&self) -> FlowyResult<()> {
-        let field_metas = self.get_field_metas(None).await?;
+        let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
         let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateFields)
             .payload(repeated_field)
@@ -402,8 +397,7 @@ impl ClientGridEditor {
     }
 
     async fn notify_did_update_field(&self, field_id: &str) -> FlowyResult<()> {
-        let field_order = FieldOrder::from(field_id);
-        let mut field_metas = self.get_field_metas(Some(field_order.into())).await?;
+        let mut field_metas = self.get_field_metas(Some(vec![field_id])).await?;
         debug_assert!(field_metas.len() == 1);
 
         if let Some(field_meta) = field_metas.pop() {

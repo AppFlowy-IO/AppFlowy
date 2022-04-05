@@ -1,7 +1,7 @@
 use crate::manager::GridManager;
 use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_json_str, SelectOption,
-    SelectOptionChangesetParams, SelectOptionChangesetPayload,
+    default_type_option_builder_from_type, type_option_builder_from_json_str, MultiSelectTypeOption, SelectOption,
+    SelectOptionChangesetParams, SelectOptionChangesetPayload, SelectOptionContext, SingleSelectTypeOption,
 };
 use crate::services::grid_editor::ClientGridEditor;
 use flowy_error::{FlowyError, FlowyResult};
@@ -93,7 +93,10 @@ pub(crate) async fn switch_to_field_handler(
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
-    let field_meta = editor.get_field(&params.field_id).await?;
+    let field_meta = editor
+        .get_field_metas(Some(vec![params.field_id.as_str()]))
+        .await?
+        .pop();
     let edit_context = make_field_edit_context(
         &params.grid_id,
         Some(params.field_id),
@@ -122,6 +125,44 @@ pub(crate) async fn create_select_option_handler(
 ) -> DataResult<SelectOption, FlowyError> {
     let params: CreateSelectOptionParams = data.into_inner().try_into()?;
     data_result(SelectOption::new(&params.option_name))
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_select_option_handler(
+    data: Data<CellIdentifierPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<SelectOptionContext, FlowyError> {
+    let params: CellIdentifierParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    match editor
+        .get_field_metas(Some(vec![params.field_id.as_str()]))
+        .await?
+        .pop()
+    {
+        None => {
+            tracing::error!("Can't find the corresponding field with id: {}", params.field_id);
+            data_result(SelectOptionContext::default())
+        }
+        Some(field_meta) => {
+            let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
+            match field_meta.field_type {
+                FieldType::SingleSelect => {
+                    let type_option = SingleSelectTypeOption::from(&field_meta);
+                    let select_option_context = type_option.select_option_context(&cell_meta);
+                    data_result(select_option_context)
+                }
+                FieldType::MultiSelect => {
+                    let type_option = MultiSelectTypeOption::from(&field_meta);
+                    let select_option_context = type_option.select_option_context(&cell_meta);
+                    data_result(select_option_context)
+                }
+                ty => {
+                    tracing::error!("Unsupported field type: {:?} for this handler", ty);
+                    data_result(SelectOptionContext::default())
+                }
+            }
+        }
+    }
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -164,13 +205,13 @@ async fn get_or_create_field_meta(
     field_type: &FieldType,
     editor: Arc<ClientGridEditor>,
 ) -> FlowyResult<FieldMeta> {
-    if field_id.is_some() {
-        if let Some(field_meta) = editor.get_field(field_id.as_ref().unwrap()).await? {
-            return Ok(field_meta);
-        }
+    match field_id {
+        None => editor.create_next_field_meta(field_type).await,
+        Some(field_id) => match editor.get_field_metas(Some(vec![field_id.as_str()])).await?.pop() {
+            None => editor.create_next_field_meta(field_type).await,
+            Some(field_meta) => Ok(field_meta),
+        },
     }
-
-    editor.create_next_field_meta(field_type).await
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -180,7 +221,7 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<Row, FlowyError> {
     let params: QueryRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_row(&params.block_id, &params.row_id).await? {
+    match editor.get_row(&params.row_id).await? {
         None => Err(FlowyError::record_not_found().context("Can not find the row")),
         Some(row) => data_result(row),
     }
@@ -209,12 +250,13 @@ pub(crate) async fn update_cell_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn insert_select_option_handler(
+pub(crate) async fn apply_select_option_changeset_handler(
     data: Data<SelectOptionChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.insert_select_option(params).await?;
+    let changeset: CellMetaChangeset = params.into();
+    let _ = editor.update_cell(changeset).await?;
     Ok(())
 }

@@ -1,10 +1,10 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -41,7 +41,7 @@ const YES: &str = "Yes";
 const NO: &str = "No";
 
 impl CellDataOperation for CheckboxTypeOption {
-    fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_text() || !type_option_cell_data.is_checkbox() {
                 return String::new();
@@ -55,8 +55,13 @@ impl CellDataOperation for CheckboxTypeOption {
         String::new()
     }
 
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let s = match string_to_bool(data) {
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.into();
+        let s = match string_to_bool(&changeset) {
             true => YES,
             false => NO,
         };
@@ -89,16 +94,16 @@ mod tests {
         let type_option = CheckboxTypeOption::default();
         let field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
-        assert_eq!(type_option.serialize_cell_data("true").unwrap(), "1".to_owned());
-        assert_eq!(type_option.serialize_cell_data("1").unwrap(), "1".to_owned());
-        assert_eq!(type_option.serialize_cell_data("yes").unwrap(), "1".to_owned());
+        assert_eq!(type_option.apply_changeset("true").unwrap(), "1".to_owned());
+        assert_eq!(type_option.apply_changeset("1").unwrap(), "1".to_owned());
+        assert_eq!(type_option.apply_changeset("yes").unwrap(), "1".to_owned());
 
-        assert_eq!(type_option.serialize_cell_data("false").unwrap(), "0".to_owned());
-        assert_eq!(type_option.serialize_cell_data("no").unwrap(), "0".to_owned());
-        assert_eq!(type_option.serialize_cell_data("123").unwrap(), "0".to_owned());
+        assert_eq!(type_option.apply_changeset("false").unwrap(), "0".to_owned());
+        assert_eq!(type_option.apply_changeset("no").unwrap(), "0".to_owned());
+        assert_eq!(type_option.apply_changeset("123").unwrap(), "0".to_owned());
 
         assert_eq!(
-            type_option.deserialize_cell_data("1".to_owned(), &field_meta),
+            type_option.decode_cell_data("1".to_owned(), &field_meta),
             "1".to_owned()
         );
     }

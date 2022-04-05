@@ -21,12 +21,12 @@ import 'extension.dart';
 
 const double _editorPannelWidth = 300;
 
-class SelectionEditor extends StatelessWidget {
+class SelectOptionEditor extends StatelessWidget {
   final CellData cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
 
-  const SelectionEditor({
+  const SelectOptionEditor({
     required this.cellData,
     required this.options,
     required this.selectedOptions,
@@ -34,15 +34,14 @@ class SelectionEditor extends StatelessWidget {
   }) : super(key: key);
 
   static String identifier() {
-    return (SelectionEditor).toString();
+    return (SelectOptionEditor).toString();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SelectOptionEditorBloc(
-        gridId: cellData.gridId,
-        field: cellData.field,
+        cellData: cellData,
         options: options,
         selectedOptions: selectedOptions,
       ),
@@ -68,8 +67,8 @@ class SelectionEditor extends StatelessWidget {
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) {
-    SelectionEditor.hide(context);
-    final editor = SelectionEditor(
+    SelectOptionEditor.hide(context);
+    final editor = SelectOptionEditor(
       cellData: cellData,
       options: options,
       selectedOptions: selectedOptions,
@@ -81,7 +80,7 @@ class SelectionEditor extends StatelessWidget {
         child: SizedBox(width: _editorPannelWidth, child: editor),
         constraints: BoxConstraints.loose(const Size(_editorPannelWidth, 300)),
       ),
-      identifier: SelectionEditor.identifier(),
+      identifier: SelectOptionEditor.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
     );
@@ -177,7 +176,9 @@ class _SelectOptionCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+        },
         child: FlowyHover(
           config: HoverDisplayConfig(hoverColor: theme.hover),
           builder: (_, onHover) {

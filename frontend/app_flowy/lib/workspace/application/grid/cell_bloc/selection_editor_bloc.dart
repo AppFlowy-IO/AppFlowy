@@ -41,15 +41,15 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
             emit(state.copyWith(options: value.options));
           },
           newOption: (_NewOption value) async {
-            final result = await _typeOptionService.createOption(value.optionName);
+            final result = await _typeOptionService.createOption(value.optionName, selected: true);
             result.fold((l) => null, (err) => Log.error(err));
           },
           selectOption: (_SelectOption value) {
-            _cellService.updateCell(
+            _cellService.addSelectOpiton(
               gridId: state.gridId,
-              fieldId: state.fieldId,
+              fieldId: state.field.id,
               rowId: state.rowId,
-              data: data,
+              optionId: value.optionId,
             );
           },
         );

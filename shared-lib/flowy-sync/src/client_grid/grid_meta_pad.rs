@@ -4,7 +4,6 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset, GridMeta,
-    RepeatedFieldOrder,
 };
 
 use lib_infra::uuid;

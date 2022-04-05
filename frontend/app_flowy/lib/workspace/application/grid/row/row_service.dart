@@ -22,7 +22,6 @@ class RowService {
   Future<Either<Row, FlowyError>> getRow() {
     QueryRowPayload payload = QueryRowPayload.create()
       ..gridId = gridId
-      ..blockId = blockId
       ..rowId = rowId;
 
     return GridEventGetRow(payload).send();

@@ -66,8 +66,9 @@ const SelectOptionChangesetPayload$json = const {
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
-    const {'1': 'insert_option_id', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'insertOptionId'},
-    const {'1': 'delete_option_id', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'deleteOptionId'},
+    const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'insert_option_id', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'insertOptionId'},
+    const {'1': 'delete_option_id', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'deleteOptionId'},
   ],
   '8': const [
     const {'1': 'one_of_insert_option_id'},
@@ -76,7 +77,7 @@ const SelectOptionChangesetPayload$json = const {
 };
 
 /// Descriptor for `SelectOptionChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEioKEGluc2VydF9vcHRpb25faWQYAyABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgEIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
+final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEioKEGluc2VydF9vcHRpb25faWQYBCABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgFIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
 @$core.Deprecated('Use selectOptionContextDescriptor instead')
 const SelectOptionContext$json = const {
   '1': 'SelectOptionContext',

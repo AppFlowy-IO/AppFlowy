@@ -11,12 +11,13 @@ import 'cell_service.dart';
 part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
-  final CellService service;
+  final CellService _service;
 
   SelectionCellBloc({
-    required this.service,
+    required CellService service,
     required CellData cellData,
-  }) : super(SelectionCellState.initial(cellData)) {
+  })  : _service = service,
+        super(SelectionCellState.initial(cellData)) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(
@@ -37,30 +38,17 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   }
 
   void _loadOptions() async {
-    final result = await FieldContextLoaderAdaptor(
+    final result = await _service.getSelectOpitonContext(
       gridId: state.cellData.gridId,
-      field: state.cellData.field,
-    ).load();
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+    );
 
     result.fold(
-      (context) {
-        List<SelectOption> options = [];
-        switch (state.cellData.field.fieldType) {
-          case FieldType.MultiSelect:
-            options.addAll(MultiSelectTypeOption.fromBuffer(context.typeOptionData).options);
-            break;
-          case FieldType.SingleSelect:
-            options.addAll(SingleSelectTypeOption.fromBuffer(context.typeOptionData).options);
-            break;
-          default:
-            Log.error("Invalid field type, expect single select or multiple select");
-            break;
-        }
-
-        final ids = state.cellData.cell?.content.split(',');
-        final selectedOptions = ids?.map((id) => options.firstWhere((option) => option.id == id)).toList() ?? [];
-        add(SelectionCellEvent.didReceiveOptions(options, selectedOptions));
-      },
+      (selectOptionContext) => add(SelectionCellEvent.didReceiveOptions(
+        selectOptionContext.options,
+        selectOptionContext.selectOptions,
+      )),
       (err) => Log.error(err),
     );
   }

@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
     MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataOperation, CreateRowMetaBuilder};
+use flowy_grid::services::row::{apply_cell_data_changeset, decode_cell_data, CellDataOperation, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
     TypeOptionDataEntry,
@@ -242,21 +242,21 @@ async fn grid_row_add_cells_test() {
     for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
-                let data = serialize_cell_data("hello world", field).unwrap();
+                let data = apply_cell_data_changeset("hello world", field).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::Number => {
-                let data = serialize_cell_data("¥18,443", field).unwrap();
+                let data = apply_cell_data_changeset("¥18,443", field).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::DateTime => {
-                let data = serialize_cell_data("1647251762", field).unwrap();
+                let data = apply_cell_data_changeset("1647251762", field).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::SingleSelect => {
                 let type_option = SingleSelectTypeOption::from(field);
                 let options = type_option.options.first().unwrap();
-                let data = type_option.serialize_cell_data(&options.id).unwrap();
+                let data = type_option.apply_changeset(&options.id).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::MultiSelect => {
@@ -267,11 +267,11 @@ async fn grid_row_add_cells_test() {
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
                     .join(SELECTION_IDS_SEPARATOR);
-                let data = type_option.serialize_cell_data(&options).unwrap();
+                let data = type_option.apply_changeset(&options).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
             FieldType::Checkbox => {
-                let data = serialize_cell_data("false", field).unwrap();
+                let data = apply_cell_data_changeset("false", field).unwrap();
                 builder.add_cell(&field.id, data).unwrap();
             }
         }
@@ -357,7 +357,7 @@ async fn grid_row_add_date_cell_test() {
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        deserialize_cell_data(cell_data.data.clone(), &date_field).unwrap(),
+        decode_cell_data(cell_data.data.clone(), &date_field).unwrap(),
         "2022/03/16 08:31",
     );
     let scripts = vec![CreateRow { context }];

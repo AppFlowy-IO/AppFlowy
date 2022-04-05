@@ -64,12 +64,8 @@ pub struct FieldIdentifierPayload {
     pub grid_id: String,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldIdentifierParams {
-    #[pb(index = 1)]
     pub field_id: String,
-
-    #[pb(index = 2)]
     pub grid_id: String,
 }
 
@@ -92,12 +88,6 @@ pub struct FieldOrder {
     pub field_id: String,
 }
 
-impl std::convert::Into<Vec<FieldOrder>> for FieldOrder {
-    fn into(self) -> Vec<FieldOrder> {
-        vec![self]
-    }
-}
-
 impl std::convert::From<&FieldMeta> for FieldOrder {
     fn from(field_meta: &FieldMeta) -> Self {
         Self {
@@ -109,6 +99,12 @@ impl std::convert::From<&FieldMeta> for FieldOrder {
 impl std::convert::From<&str> for FieldOrder {
     fn from(s: &str) -> Self {
         FieldOrder { field_id: s.to_owned() }
+    }
+}
+
+impl std::convert::From<String> for FieldOrder {
+    fn from(s: String) -> Self {
+        FieldOrder { field_id: s }
     }
 }
 
@@ -208,6 +204,14 @@ impl std::ops::Deref for RepeatedFieldOrder {
 impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
     fn from(field_orders: Vec<FieldOrder>) -> Self {
         RepeatedFieldOrder { items: field_orders }
+    }
+}
+
+impl std::convert::From<String> for RepeatedFieldOrder {
+    fn from(s: String) -> Self {
+        RepeatedFieldOrder {
+            items: vec![FieldOrder::from(s)],
+        }
     }
 }
 
@@ -327,6 +331,39 @@ impl Cell {
     }
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellIdentifierPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub row_id: String,
+}
+
+pub struct CellIdentifierParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub row_id: String,
+}
+
+impl TryInto<CellIdentifierParams> for CellIdentifierPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CellIdentifierParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        Ok(CellIdentifierParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+            row_id: row_id.0,
+        })
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedCell {
     #[pb(index = 1)]
@@ -430,7 +467,6 @@ pub struct CreateFieldPayload {
     pub start_field_id: Option<String>,
 }
 
-#[derive(Default, Clone)]
 pub struct CreateFieldParams {
     pub grid_id: String,
     pub field: Field,
@@ -468,7 +504,6 @@ pub struct QueryFieldPayload {
     pub field_orders: RepeatedFieldOrder,
 }
 
-#[derive(Default)]
 pub struct QueryFieldParams {
     pub grid_id: String,
     pub field_orders: RepeatedFieldOrder,
@@ -495,7 +530,6 @@ pub struct QueryGridBlocksPayload {
     pub block_orders: Vec<GridBlockOrder>,
 }
 
-#[derive(Default)]
 pub struct QueryGridBlocksParams {
     pub grid_id: String,
     pub block_orders: Vec<GridBlockOrder>,
@@ -518,17 +552,12 @@ pub struct QueryRowPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
-    pub block_id: String,
-
     #[pb(index = 3)]
     pub row_id: String,
 }
 
-#[derive(Default)]
 pub struct QueryRowParams {
     pub grid_id: String,
-    pub block_id: String,
     pub row_id: String,
 }
 
@@ -537,12 +566,10 @@ impl TryInto<QueryRowParams> for QueryRowPayload {
 
     fn try_into(self) -> Result<QueryRowParams, Self::Error> {
         let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let block_id = NotEmptyUuid::parse(self.block_id).map_err(|_| ErrorCode::BlockIdIsEmpty)?;
         let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
         Ok(QueryRowParams {
             grid_id: grid_id.0,
-            block_id: block_id.0,
             row_id: row_id.0,
         })
     }
@@ -552,10 +579,14 @@ impl TryInto<QueryRowParams> for QueryRowPayload {
 pub struct CreateSelectOptionPayload {
     #[pb(index = 1)]
     pub option_name: String,
+
+    #[pb(index = 2)]
+    pub selected: bool,
 }
 
 pub struct CreateSelectOptionParams {
     pub option_name: String,
+    pub selected: bool,
 }
 
 impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
@@ -565,6 +596,7 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
         let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
         Ok(CreateSelectOptionParams {
             option_name: option_name.0,
+            selected: self.selected,
         })
     }
 }

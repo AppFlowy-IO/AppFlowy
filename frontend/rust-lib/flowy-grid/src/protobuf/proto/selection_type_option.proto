@@ -16,8 +16,9 @@ message SelectOption {
 message SelectOptionChangesetPayload {
     string grid_id = 1;
     string row_id = 2;
-    oneof one_of_insert_option_id { string insert_option_id = 3; };
-    oneof one_of_delete_option_id { string delete_option_id = 4; };
+    string field_id = 3;
+    oneof one_of_insert_option_id { string insert_option_id = 4; };
+    oneof one_of_delete_option_id { string delete_option_id = 5; };
 }
 message SelectOptionContext {
     repeated SelectOption options = 1;

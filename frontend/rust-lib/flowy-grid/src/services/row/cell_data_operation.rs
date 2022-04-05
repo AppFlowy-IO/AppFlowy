@@ -1,16 +1,44 @@
 use crate::services::field::*;
-use bytes::Bytes;
+use std::fmt::Formatter;
+
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
 pub trait CellDataOperation {
-    fn deserialize_cell_data(&self, data: String, field_meta: &FieldMeta) -> String;
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError>;
-    // fn apply_changeset()
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> String;
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError>;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
+pub struct CellDataChangeset(String);
+
+impl std::fmt::Display for CellDataChangeset {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
+impl<T: AsRef<str>> std::convert::From<T> for CellDataChangeset {
+    fn from(s: T) -> Self {
+        let s = s.as_ref().to_owned();
+        CellDataChangeset(s)
+    }
+}
+
+impl std::ops::Deref for CellDataChangeset {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TypeOptionCellData {
     pub data: String,
     pub field_type: FieldType,
@@ -26,9 +54,9 @@ impl std::str::FromStr for TypeOptionCellData {
 }
 
 impl TypeOptionCellData {
-    pub fn new(data: &str, field_type: FieldType) -> Self {
+    pub fn new<T: ToString>(data: T, field_type: FieldType) -> Self {
         TypeOptionCellData {
-            data: data.to_owned(),
+            data: data.to_string(),
             field_type,
         }
     }
@@ -62,25 +90,34 @@ impl TypeOptionCellData {
     }
 }
 
-pub fn serialize_cell_data(data: &str, field_meta: &FieldMeta) -> Result<String, FlowyError> {
+/// The function,apply_cell_data_changeset, will apply the cell_data_changeset.
+///
+/// The cell_data_changeset will be deserialized into specific data base on the FieldType.
+pub fn apply_cell_data_changeset<T: Into<CellDataChangeset>>(
+    changeset: T,
+    cell_meta: Option<CellMeta>,
+    field_meta: &FieldMeta,
+) -> Result<String, FlowyError> {
     match field_meta.field_type {
-        FieldType::RichText => RichTextTypeOption::from(field_meta).serialize_cell_data(data),
-        FieldType::Number => NumberTypeOption::from(field_meta).serialize_cell_data(data),
-        FieldType::DateTime => DateTypeOption::from(field_meta).serialize_cell_data(data),
-        FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).serialize_cell_data(data),
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).serialize_cell_data(data),
-        FieldType::Checkbox => CheckboxTypeOption::from(field_meta).serialize_cell_data(data),
+        FieldType::RichText => RichTextTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::Number => NumberTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::DateTime => DateTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
     }
 }
 
-pub fn deserialize_cell_data(data: String, field_meta: &FieldMeta) -> Result<String, FlowyError> {
+#[tracing::instrument(level = "trace", skip(field_meta, data), fields(content), err)]
+pub fn decode_cell_data(data: String, field_meta: &FieldMeta) -> Result<String, FlowyError> {
     let s = match field_meta.field_type {
-        FieldType::RichText => RichTextTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
-        FieldType::Number => NumberTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
-        FieldType::DateTime => DateTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
-        FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
-        FieldType::Checkbox => CheckboxTypeOption::from(field_meta).deserialize_cell_data(data, field_meta),
+        FieldType::RichText => RichTextTypeOption::from(field_meta).decode_cell_data(data, field_meta),
+        FieldType::Number => NumberTypeOption::from(field_meta).decode_cell_data(data, field_meta),
+        FieldType::DateTime => DateTypeOption::from(field_meta).decode_cell_data(data, field_meta),
+        FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).decode_cell_data(data, field_meta),
+        FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).decode_cell_data(data, field_meta),
+        FieldType::Checkbox => CheckboxTypeOption::from(field_meta).decode_cell_data(data, field_meta),
     };
+    tracing::Span::current().record("content", &format!("{:?}: {}", field_meta.field_type, s).as_str());
     Ok(s)
 }

@@ -1,10 +1,10 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{deserialize_cell_data, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{decode_cell_data, CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -31,14 +31,14 @@ pub struct RichTextTypeOption {
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
 impl CellDataOperation for RichTextTypeOption {
-    fn deserialize_cell_data(&self, data: String, field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date()
                 || type_option_cell_data.is_single_select()
                 || type_option_cell_data.is_multi_select()
                 || type_option_cell_data.is_number()
             {
-                deserialize_cell_data(data, field_meta).unwrap_or_else(|_| "".to_owned())
+                decode_cell_data(data, field_meta).unwrap_or_else(|_| "".to_owned())
             } else {
                 type_option_cell_data.data
             }
@@ -47,8 +47,12 @@ impl CellDataOperation for RichTextTypeOption {
         }
     }
 
-    fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError> {
-        let data = data.to_owned();
+    fn apply_changeset<T: Into<CellDataChangeset>>(
+        &self,
+        changeset: T,
+        cell_meta: Option<CellMeta>,
+    ) -> Result<String, FlowyError> {
+        let data = changeset.into();
         if data.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
@@ -72,7 +76,7 @@ mod tests {
         let date_time_field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         let data = TypeOptionCellData::new("1647251762", FieldType::DateTime).json();
         assert_eq!(
-            type_option.deserialize_cell_data(data, &date_time_field_meta),
+            type_option.decode_cell_data(data, &date_time_field_meta),
             "Mar 14,2022 17:56".to_owned()
         );
 
@@ -83,7 +87,7 @@ mod tests {
         let single_select_field_meta = FieldBuilder::new(single_select).build();
         let data = TypeOptionCellData::new(&done_option_id, FieldType::SingleSelect).json();
         assert_eq!(
-            type_option.deserialize_cell_data(data, &single_select_field_meta),
+            type_option.decode_cell_data(data, &single_select_field_meta),
             "Done".to_owned()
         );
 
@@ -103,7 +107,7 @@ mod tests {
         )
         .json();
         assert_eq!(
-            type_option.deserialize_cell_data(data, &multi_select_field_meta),
+            type_option.decode_cell_data(data, &multi_select_field_meta),
             "Google,Facebook".to_owned()
         );
 
@@ -112,7 +116,7 @@ mod tests {
         let number_field_meta = FieldBuilder::new(number).build();
         let data = TypeOptionCellData::new("18443", FieldType::Number).json();
         assert_eq!(
-            type_option.deserialize_cell_data(data, &number_field_meta),
+            type_option.decode_cell_data(data, &number_field_meta),
             "$18,443".to_owned()
         );
     }
