@@ -80,7 +80,7 @@ class GridBlockListener {
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateRow:
+      case GridNotification.DidUpdateBlock:
         result.fold(
           (payload) => blockUpdateNotifier.value = left([GridBlockOrder.fromBuffer(payload)]),
           (error) => blockUpdateNotifier.value = right(error),

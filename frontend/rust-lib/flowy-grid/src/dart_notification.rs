@@ -6,8 +6,8 @@ const OBSERVABLE_CATEGORY: &str = "Grid";
 pub enum GridNotification {
     Unknown = 0,
     DidCreateBlock = 11,
-    DidUpdateRow = 20,
-    GridDidUpdateCells = 30,
+    DidUpdateBlock = 20,
+    DidUpdateRow = 30,
     DidUpdateFields = 40,
     DidUpdateField = 41,
 }

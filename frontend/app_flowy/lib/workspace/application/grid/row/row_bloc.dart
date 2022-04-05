@@ -36,26 +36,40 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           initial: (_InitialRow value) async {
             _startListening();
             await _loadRow(emit);
-            add(const RowEvent.didUpdateCell());
           },
           createRow: (_CreateRow value) {
             rowService.createRow();
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fields: value.fields));
-            add(const RowEvent.didUpdateCell());
+          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) async {
+            await _handleFieldUpdate(emit, value);
           },
-          didUpdateCell: (_DidUpdateCell value) async {
-            final optionRow = await state.row;
-            final CellDataMap cellDataMap = optionRow.fold(
-              () => CellDataMap.identity(),
-              (row) => _makeCellDatas(row),
-            );
-            emit(state.copyWith(cellDataMap: Some(cellDataMap)));
+          didUpdateRow: (_DidUpdateRow value) async {
+            _handleRowUpdate(value, emit);
           },
         );
       },
     );
+  }
+
+  void _handleRowUpdate(_DidUpdateRow value, Emitter<RowState> emit) {
+    final CellDataMap cellDataMap = _makeCellDatas(value.row);
+    emit(state.copyWith(
+      row: Future(() => Some(value.row)),
+      cellDataMap: Some(cellDataMap),
+    ));
+  }
+
+  Future<void> _handleFieldUpdate(Emitter<RowState> emit, _DidReceiveFieldUpdate value) async {
+    final optionRow = await state.row;
+    final CellDataMap cellDataMap = optionRow.fold(
+      () => CellDataMap.identity(),
+      (row) => _makeCellDatas(row),
+    );
+
+    emit(state.copyWith(
+      fields: value.fields,
+      cellDataMap: Some(cellDataMap),
+    ));
   }
 
   @override
@@ -68,18 +82,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   Future<void> _startListening() async {
     rowlistener.updateRowNotifier.addPublishListener((result) {
       result.fold(
-        (row) {
-          //
-        },
-        (err) => Log.error(err),
-      );
-    });
-
-    rowlistener.updateCellNotifier.addPublishListener((result) {
-      result.fold(
-        (repeatedCell) {
-          Log.info("$repeatedCell");
-        },
+        (row) => add(RowEvent.didUpdateRow(row)),
         (err) => Log.error(err),
       );
     });
@@ -96,16 +99,12 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    final Future<Option<Row>> row = rowService.getRow().then((result) {
+    rowService.getRow().then((result) {
       return result.fold(
-        (row) => Some(row),
-        (err) {
-          Log.error(err);
-          return none();
-        },
+        (row) => add(RowEvent.didUpdateRow(row)),
+        (err) => Log.error(err),
       );
     });
-    emit(state.copyWith(row: row));
   }
 
   CellDataMap _makeCellDatas(Row row) {
@@ -130,7 +129,7 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
-  const factory RowEvent.didUpdateCell() = _DidUpdateCell;
+  const factory RowEvent.didUpdateRow(Row row) = _DidUpdateRow;
 }
 
 @freezed

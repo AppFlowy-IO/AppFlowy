@@ -9,13 +9,11 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 import 'package:dartz/dartz.dart';
 
-typedef UpdateCellNotifiedValue = Either<RepeatedCell, FlowyError>;
 typedef UpdateRowNotifiedValue = Either<Row, FlowyError>;
 typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
 
 class RowListener {
   final String rowId;
-  PublishNotifier<UpdateCellNotifiedValue> updateCellNotifier = PublishNotifier();
   PublishNotifier<UpdateRowNotifiedValue> updateRowNotifier = PublishNotifier();
   StreamSubscription<SubscribeObject>? _subscription;
   GridNotificationParser? _parser;
@@ -35,10 +33,10 @@ class RowListener {
 
   void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.GridDidUpdateCells:
+      case GridNotification.DidUpdateRow:
         result.fold(
-          (payload) => updateCellNotifier.value = left(RepeatedCell.fromBuffer(payload)),
-          (error) => updateCellNotifier.value = right(error),
+          (payload) => updateRowNotifier.value = left(Row.fromBuffer(payload)),
+          (error) => updateRowNotifier.value = right(error),
         );
         break;
       default:
@@ -49,7 +47,6 @@ class RowListener {
   Future<void> stop() async {
     _parser = null;
     await _subscription?.cancel();
-    updateCellNotifier.dispose();
     updateRowNotifier.dispose();
   }
 }

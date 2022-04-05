@@ -1,12 +1,12 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::persistence::block_index::BlockIndexPersistence;
-use crate::services::row::{make_block_row_ids, make_cell_by_field_id, GridBlockSnapshot};
+use crate::services::row::{make_block_row_ids, make_cell_by_field_id, make_rows_from_row_metas, GridBlockSnapshot};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, RowMeta,
+    CellMeta, FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, Row, RowMeta,
     RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
@@ -120,9 +120,10 @@ impl GridBlockMetaEditorManager {
     }
 
     pub async fn update_row_cells(&self, field_metas: &[FieldMeta], changeset: RowMetaChangeset) -> FlowyResult<()> {
-        let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
+        let row_id = changeset.row_id.clone();
+        let editor = self.get_editor_from_row_id(&row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
-        self.notify_did_update_cells(changeset, field_metas)?;
+        self.notify_did_update_row(&row_id, field_metas).await?;
         Ok(())
     }
 
@@ -171,35 +172,49 @@ impl GridBlockMetaEditorManager {
 
     async fn notify_block_did_update_row(&self, block_id: &str) -> FlowyResult<()> {
         let block_order: GridBlockOrder = block_id.into();
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateRow)
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateBlock)
             .payload(block_order)
             .send();
         Ok(())
     }
 
-    fn notify_did_update_cells(&self, changeset: RowMetaChangeset, field_metas: &[FieldMeta]) -> FlowyResult<()> {
-        let field_meta_map = field_metas
-            .iter()
-            .map(|field_meta| (&field_meta.id, field_meta))
-            .collect::<HashMap<&String, &FieldMeta>>();
-
-        let mut cells = vec![];
-        changeset
-            .cell_by_field_id
-            .into_iter()
-            .for_each(
-                |(field_id, cell_meta)| match make_cell_by_field_id(&field_meta_map, field_id, cell_meta) {
-                    None => {}
-                    Some((_, cell)) => cells.push(cell),
-                },
-            );
-
-        if !cells.is_empty() {
-            send_dart_notification(&changeset.row_id, GridNotification::GridDidUpdateCells)
-                .payload(RepeatedCell::from(cells))
-                .send();
+    async fn notify_did_update_row(&self, row_id: &str, field_metas: &[FieldMeta]) -> FlowyResult<()> {
+        match self.get_row_meta(row_id).await? {
+            None => {}
+            Some(row_meta) => {
+                let row_metas = vec![row_meta];
+                if let Some(row) = make_rows_from_row_metas(&field_metas, &row_metas).pop() {
+                    send_dart_notification(row_id, GridNotification::DidUpdateRow)
+                        .payload(row)
+                        .send();
+                }
+            }
         }
         Ok(())
+
+        //
+        // let field_meta_map = field_metas
+        //     .iter()
+        //     .map(|field_meta| (&field_meta.id, field_meta))
+        //     .collect::<HashMap<&String, &FieldMeta>>();
+        //
+        // let mut cells = vec![];
+        // changeset
+        //     .cell_by_field_id
+        //     .into_iter()
+        //     .for_each(
+        //         |(field_id, cell_meta)| match make_cell_by_field_id(&field_meta_map, field_id, cell_meta) {
+        //             None => {}
+        //             Some((_, cell)) => cells.push(cell),
+        //         },
+        //     );
+        //
+        // if !cells.is_empty() {
+        //     send_dart_notification(&changeset.row_id, GridNotification::DidUpdateRow)
+        //         .payload(RepeatedCell::from(cells))
+        //         .send();
+        // }
+        // Ok(())
     }
 }
 
