@@ -36,6 +36,7 @@ enum ErrorCode {
     GridIdIsEmpty = 410;
     BlockIdIsEmpty = 420;
     RowIdIsEmpty = 430;
+    OptionIdIsEmpty = 431;
     FieldIdIsEmpty = 440;
     FieldDoesNotExist = 441;
     SelectOptionNameIsEmpty = 442;

@@ -42,6 +42,7 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
+    #[tracing::instrument(level = "debug", skip_all, err)]
     pub fn create_field(
         &mut self,
         new_field_meta: FieldMeta,
@@ -186,7 +187,7 @@ impl GridMetaPad {
         self.grid_meta.fields.iter().map(FieldOrder::from).collect()
     }
 
-    pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
+    pub fn get_field_metas(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<FieldMeta>> {
         match field_orders {
             None => Ok(self.grid_meta.fields.clone()),
             Some(field_orders) => {

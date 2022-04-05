@@ -657,6 +657,585 @@ impl ::protobuf::reflect::ProtobufValue for SelectOption {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct SelectOptionChangesetPayload {
+    // message fields
+    pub grid_id: ::std::string::String,
+    pub row_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_insert_option_id: ::std::option::Option<SelectOptionChangesetPayload_oneof_one_of_insert_option_id>,
+    pub one_of_delete_option_id: ::std::option::Option<SelectOptionChangesetPayload_oneof_one_of_delete_option_id>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SelectOptionChangesetPayload {
+    fn default() -> &'a SelectOptionChangesetPayload {
+        <SelectOptionChangesetPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum SelectOptionChangesetPayload_oneof_one_of_insert_option_id {
+    insert_option_id(::std::string::String),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum SelectOptionChangesetPayload_oneof_one_of_delete_option_id {
+    delete_option_id(::std::string::String),
+}
+
+impl SelectOptionChangesetPayload {
+    pub fn new() -> SelectOptionChangesetPayload {
+        ::std::default::Default::default()
+    }
+
+    // string grid_id = 1;
+
+
+    pub fn get_grid_id(&self) -> &str {
+        &self.grid_id
+    }
+    pub fn clear_grid_id(&mut self) {
+        self.grid_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_grid_id(&mut self, v: ::std::string::String) {
+        self.grid_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
+        &mut self.grid_id
+    }
+
+    // Take field
+    pub fn take_grid_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    }
+
+    // string row_id = 2;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+
+    // string insert_option_id = 3;
+
+
+    pub fn get_insert_option_id(&self) -> &str {
+        match self.one_of_insert_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_insert_option_id(&mut self) {
+        self.one_of_insert_option_id = ::std::option::Option::None;
+    }
+
+    pub fn has_insert_option_id(&self) -> bool {
+        match self.one_of_insert_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_insert_option_id(&mut self, v: ::std::string::String) {
+        self.one_of_insert_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_insert_option_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(_)) = self.one_of_insert_option_id {
+        } else {
+            self.one_of_insert_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(::std::string::String::new()));
+        }
+        match self.one_of_insert_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_insert_option_id(&mut self) -> ::std::string::String {
+        if self.has_insert_option_id() {
+            match self.one_of_insert_option_id.take() {
+                ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+
+    // string delete_option_id = 4;
+
+
+    pub fn get_delete_option_id(&self) -> &str {
+        match self.one_of_delete_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_delete_option_id(&mut self) {
+        self.one_of_delete_option_id = ::std::option::Option::None;
+    }
+
+    pub fn has_delete_option_id(&self) -> bool {
+        match self.one_of_delete_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_delete_option_id(&mut self, v: ::std::string::String) {
+        self.one_of_delete_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_delete_option_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(_)) = self.one_of_delete_option_id {
+        } else {
+            self.one_of_delete_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(::std::string::String::new()));
+        }
+        match self.one_of_delete_option_id {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_delete_option_id(&mut self) -> ::std::string::String {
+        if self.has_delete_option_id() {
+            match self.one_of_delete_option_id.take() {
+                ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for SelectOptionChangesetPayload {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_insert_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(is.read_string()?));
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_delete_option_id = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.grid_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
+        }
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.row_id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_insert_option_id {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(3, &v);
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_delete_option_id {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(4, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.grid_id.is_empty() {
+            os.write_string(1, &self.grid_id)?;
+        }
+        if !self.row_id.is_empty() {
+            os.write_string(2, &self.row_id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_insert_option_id {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref v) => {
+                    os.write_string(3, v)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_delete_option_id {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref v) => {
+                    os.write_string(4, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SelectOptionChangesetPayload {
+        SelectOptionChangesetPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "grid_id",
+                |m: &SelectOptionChangesetPayload| { &m.grid_id },
+                |m: &mut SelectOptionChangesetPayload| { &mut m.grid_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &SelectOptionChangesetPayload| { &m.row_id },
+                |m: &mut SelectOptionChangesetPayload| { &mut m.row_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "insert_option_id",
+                SelectOptionChangesetPayload::has_insert_option_id,
+                SelectOptionChangesetPayload::get_insert_option_id,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "delete_option_id",
+                SelectOptionChangesetPayload::has_delete_option_id,
+                SelectOptionChangesetPayload::get_delete_option_id,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SelectOptionChangesetPayload>(
+                "SelectOptionChangesetPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SelectOptionChangesetPayload {
+        static instance: ::protobuf::rt::LazyV2<SelectOptionChangesetPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SelectOptionChangesetPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for SelectOptionChangesetPayload {
+    fn clear(&mut self) {
+        self.grid_id.clear();
+        self.row_id.clear();
+        self.one_of_insert_option_id = ::std::option::Option::None;
+        self.one_of_delete_option_id = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SelectOptionChangesetPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SelectOptionChangesetPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct SelectOptionContext {
+    // message fields
+    pub options: ::protobuf::RepeatedField<SelectOption>,
+    pub select_options: ::protobuf::RepeatedField<SelectOption>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SelectOptionContext {
+    fn default() -> &'a SelectOptionContext {
+        <SelectOptionContext as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SelectOptionContext {
+    pub fn new() -> SelectOptionContext {
+        ::std::default::Default::default()
+    }
+
+    // repeated .SelectOption options = 1;
+
+
+    pub fn get_options(&self) -> &[SelectOption] {
+        &self.options
+    }
+    pub fn clear_options(&mut self) {
+        self.options.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_options(&mut self, v: ::protobuf::RepeatedField<SelectOption>) {
+        self.options = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_options(&mut self) -> &mut ::protobuf::RepeatedField<SelectOption> {
+        &mut self.options
+    }
+
+    // Take field
+    pub fn take_options(&mut self) -> ::protobuf::RepeatedField<SelectOption> {
+        ::std::mem::replace(&mut self.options, ::protobuf::RepeatedField::new())
+    }
+
+    // repeated .SelectOption select_options = 2;
+
+
+    pub fn get_select_options(&self) -> &[SelectOption] {
+        &self.select_options
+    }
+    pub fn clear_select_options(&mut self) {
+        self.select_options.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_select_options(&mut self, v: ::protobuf::RepeatedField<SelectOption>) {
+        self.select_options = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_select_options(&mut self) -> &mut ::protobuf::RepeatedField<SelectOption> {
+        &mut self.select_options
+    }
+
+    // Take field
+    pub fn take_select_options(&mut self) -> ::protobuf::RepeatedField<SelectOption> {
+        ::std::mem::replace(&mut self.select_options, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for SelectOptionContext {
+    fn is_initialized(&self) -> bool {
+        for v in &self.options {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.select_options {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.options)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.select_options)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.options {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        for value in &self.select_options {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.options {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        for v in &self.select_options {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SelectOptionContext {
+        SelectOptionContext::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
+                "options",
+                |m: &SelectOptionContext| { &m.options },
+                |m: &mut SelectOptionContext| { &mut m.options },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
+                "select_options",
+                |m: &SelectOptionContext| { &m.select_options },
+                |m: &mut SelectOptionContext| { &mut m.select_options },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SelectOptionContext>(
+                "SelectOptionContext",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static SelectOptionContext {
+        static instance: ::protobuf::rt::LazyV2<SelectOptionContext> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SelectOptionContext::new)
+    }
+}
+
+impl ::protobuf::Clear for SelectOptionContext {
+    fn clear(&mut self) {
+        self.options.clear();
+        self.select_options.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SelectOptionContext {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SelectOptionContext {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum SelectOptionColor {
     Purple = 0,
@@ -736,11 +1315,18 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     s\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\x0cdisableColor\"\\\n\x0cS\
     electOption\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
     \x18\x02\x20\x01(\tR\x04name\x12(\n\x05color\x18\x03\x20\x01(\x0e2\x12.S\
-    electOptionColorR\x05color*y\n\x11SelectOptionColor\x12\n\n\x06Purple\
-    \x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\x10\x02\x12\n\n\x06O\
-    range\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\x04Lime\x10\x05\x12\t\
-    \n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\x08\n\x04Blue\x10\x08b\
-    \x06proto3\
+    electOptionColorR\x05color\"\xdc\x01\n\x1cSelectOptionChangesetPayload\
+    \x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\
+    \x18\x02\x20\x01(\tR\x05rowId\x12*\n\x10insert_option_id\x18\x03\x20\x01\
+    (\tH\0R\x0einsertOptionId\x12*\n\x10delete_option_id\x18\x04\x20\x01(\tH\
+    \x01R\x0edeleteOptionIdB\x19\n\x17one_of_insert_option_idB\x19\n\x17one_\
+    of_delete_option_id\"t\n\x13SelectOptionContext\x12'\n\x07options\x18\
+    \x01\x20\x03(\x0b2\r.SelectOptionR\x07options\x124\n\x0eselect_options\
+    \x18\x02\x20\x03(\x0b2\r.SelectOptionR\rselectOptions*y\n\x11SelectOptio\
+    nColor\x12\n\n\x06Purple\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightP\
+    ink\x10\x02\x12\n\n\x06Orange\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\
+    \n\x04Lime\x10\x05\x12\t\n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\
+    \x12\x08\n\x04Blue\x10\x08b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

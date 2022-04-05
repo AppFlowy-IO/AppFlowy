@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{deserialize_cell_data, CellDataSerde, TypeOptionCellData};
+use crate::services::row::{deserialize_cell_data, CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
@@ -30,7 +30,7 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataSerde for RichTextTypeOption {
+impl CellDataOperation for RichTextTypeOption {
     fn deserialize_cell_data(&self, data: String, field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date()
@@ -61,7 +61,7 @@ impl CellDataSerde for RichTextTypeOption {
 mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
-    use crate::services::row::{CellDataSerde, TypeOptionCellData};
+    use crate::services::row::{CellDataOperation, TypeOptionCellData};
     use flowy_grid_data_model::entities::FieldType;
 
     #[test]

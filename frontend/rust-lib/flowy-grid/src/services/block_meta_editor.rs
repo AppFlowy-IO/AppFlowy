@@ -1,6 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
-use crate::services::row::{make_cell, make_row_ids_per_block, GridBlockSnapshot};
+use crate::services::persistence::block_index::BlockIndexPersistence;
+use crate::services::row::{make_block_row_ids, make_cell_by_field_id, GridBlockSnapshot};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
@@ -28,20 +29,24 @@ pub(crate) struct GridBlockMetaEditorManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
     editor_map: DashMap<String, Arc<ClientGridBlockMetaEditor>>,
-    block_id_by_row_id: DashMap<BlockId, RowId>,
+    persistence: Arc<BlockIndexPersistence>,
 }
 
 impl GridBlockMetaEditorManager {
-    pub(crate) async fn new(grid_id: &str, user: &Arc<dyn GridUser>, blocks: Vec<GridBlockMeta>) -> FlowyResult<Self> {
+    pub(crate) async fn new(
+        grid_id: &str,
+        user: &Arc<dyn GridUser>,
+        blocks: Vec<GridBlockMeta>,
+        persistence: Arc<BlockIndexPersistence>,
+    ) -> FlowyResult<Self> {
         let editor_map = make_block_meta_editor_map(user, blocks).await?;
         let user = user.clone();
-        let block_id_by_row_id = DashMap::new();
         let grid_id = grid_id.to_owned();
         let manager = Self {
             grid_id,
             user,
             editor_map,
-            block_id_by_row_id,
+            persistence,
         };
         Ok(manager)
     }
@@ -60,14 +65,18 @@ impl GridBlockMetaEditorManager {
         }
     }
 
+    async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
+        let block_id = self.persistence.get_block_id(row_id)?;
+        Ok(self.get_editor(&block_id).await?)
+    }
+
     pub(crate) async fn create_row(
         &self,
         block_id: &str,
         row_meta: RowMeta,
         start_row_id: Option<String>,
     ) -> FlowyResult<i32> {
-        self.block_id_by_row_id
-            .insert(row_meta.id.clone(), row_meta.block_id.clone());
+        let _ = self.persistence.insert_or_update(&row_meta.block_id, &row_meta.id)?;
         let editor = self.get_editor(&row_meta.block_id).await?;
         let row_count = editor.create_row(row_meta, start_row_id).await?;
         self.notify_block_did_update_row(block_id).await?;
@@ -83,7 +92,7 @@ impl GridBlockMetaEditorManager {
             let editor = self.get_editor(&block_id).await?;
             let mut row_count = 0;
             for row in &row_metas {
-                self.block_id_by_row_id.insert(row.id.clone(), row.block_id.clone());
+                let _ = self.persistence.insert_or_update(&row.block_id, &row.id)?;
                 row_count = editor.create_row(row.clone(), None).await?;
             }
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
@@ -95,12 +104,11 @@ impl GridBlockMetaEditorManager {
 
     pub(crate) async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<Vec<GridBlockMetaChangeset>> {
         let mut changesets = vec![];
-        let row_ids_per_blocks = make_row_ids_per_block(&row_orders);
-        for row_ids_per_block in row_ids_per_blocks {
-            let editor = self.get_editor(&row_ids_per_block.block_id).await?;
-            let row_count = editor.delete_rows(row_ids_per_block.row_ids).await?;
+        for block_row_ids in make_block_row_ids(&row_orders) {
+            let editor = self.get_editor(&block_row_ids.block_id).await?;
+            let row_count = editor.delete_rows(block_row_ids.row_ids).await?;
 
-            let changeset = GridBlockMetaChangeset::from_row_count(&row_ids_per_block.block_id, row_count);
+            let changeset = GridBlockMetaChangeset::from_row_count(&block_row_ids.block_id, row_count);
             changesets.push(changeset);
         }
 
@@ -114,10 +122,17 @@ impl GridBlockMetaEditorManager {
         Ok(())
     }
 
-    pub async fn get_row(&self, block_id: &str, row_id: &str) -> FlowyResult<Option<Arc<RowMeta>>> {
-        let editor = self.get_editor(block_id).await?;
+    pub async fn update_row_cells(&self, field_metas: &[FieldMeta], changeset: RowMetaChangeset) -> FlowyResult<()> {
+        let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
+        let _ = editor.update_row(changeset.clone()).await?;
+        self.notify_did_update_cells(changeset, field_metas)?;
+        Ok(())
+    }
+
+    pub async fn get_row_meta(&self, row_id: &str) -> FlowyResult<Option<Arc<RowMeta>>> {
+        let editor = self.get_editor_from_row_id(row_id).await?;
         let row_ids = vec![row_id.to_owned()];
-        let mut row_metas = editor.get_row_metas(&Some(row_ids)).await?;
+        let mut row_metas = editor.get_row_metas(Some(row_ids)).await?;
         if row_metas.is_empty() {
             Ok(None)
         } else {
@@ -125,23 +140,11 @@ impl GridBlockMetaEditorManager {
         }
     }
 
-    pub async fn update_cells(&self, field_metas: &[FieldMeta], changeset: RowMetaChangeset) -> FlowyResult<()> {
-        let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
-        let _ = editor.update_row(changeset.clone()).await?;
-        self.notify_did_update_cells(changeset, field_metas)?;
-        Ok(())
-    }
-
     pub(crate) async fn make_block_snapshots(&self, block_ids: Vec<String>) -> FlowyResult<Vec<GridBlockSnapshot>> {
         let mut snapshots = vec![];
         for block_id in block_ids {
             let editor = self.get_editor(&block_id).await?;
-            let row_metas = editor.get_row_metas(&None).await?;
-            row_metas.iter().for_each(|row_meta| {
-                self.block_id_by_row_id
-                    .insert(row_meta.id.clone(), row_meta.block_id.clone());
-            });
-
+            let row_metas = editor.get_row_metas(None).await?;
             snapshots.push(GridBlockSnapshot { block_id, row_metas });
         }
         Ok(snapshots)
@@ -164,19 +167,6 @@ impl GridBlockMetaEditorManager {
         Ok(block_cell_metas)
     }
 
-    async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
-        match self.block_id_by_row_id.get(row_id) {
-            None => {
-                let msg = format!(
-                    "Update Row failed. Can't find the corresponding block with row_id: {}",
-                    row_id
-                );
-                Err(FlowyError::internal().context(msg))
-            }
-            Some(block_id) => Ok(self.get_editor(&block_id).await?),
-        }
-    }
-
     async fn notify_block_did_update_row(&self, block_id: &str) -> FlowyResult<()> {
         let block_order: GridBlockOrder = block_id.into();
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateRow)
@@ -196,7 +186,7 @@ impl GridBlockMetaEditorManager {
             .cell_by_field_id
             .into_iter()
             .for_each(
-                |(field_id, cell_meta)| match make_cell(&field_meta_map, field_id, cell_meta) {
+                |(field_id, cell_meta)| match make_cell_by_field_id(&field_meta_map, field_id, cell_meta) {
                     None => {}
                     Some((_, cell)) => cells.push(cell),
                 },
@@ -290,23 +280,13 @@ impl ClientGridBlockMetaEditor {
         Ok(row_count)
     }
 
-    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<RowMeta> {
-        let row_id = changeset.row_id.clone();
+    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
         let _ = self.modify(|pad| Ok(pad.update_row(changeset)?)).await?;
-        let row_ids = vec![row_id.clone()];
-        let mut row_metas = self.get_row_metas(&Some(row_ids)).await?;
-        debug_assert_eq!(row_metas.len(), 1);
-
-        if row_metas.is_empty() {
-            return Err(FlowyError::record_not_found().context(format!("Can't find the row with id: {}", &row_id)));
-        } else {
-            let a = (**row_metas.pop().as_ref().unwrap()).clone();
-            Ok(a)
-        }
+        Ok(())
     }
 
-    pub async fn get_row_metas(&self, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
-        let row_metas = self.pad.read().await.get_row_metas(row_ids)?;
+    pub async fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
+        let row_metas = self.pad.read().await.get_row_metas(&row_ids)?;
         Ok(row_metas)
     }
 

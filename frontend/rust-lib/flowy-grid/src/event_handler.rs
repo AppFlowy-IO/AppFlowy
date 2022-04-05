@@ -1,5 +1,8 @@
 use crate::manager::GridManager;
-use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str, SelectOption};
+use crate::services::field::{
+    default_type_option_builder_from_type, type_option_builder_from_json_str, SelectOption,
+    SelectOptionChangesetParams, SelectOptionChangesetPayload,
+};
 use crate::services::grid_editor::ClientGridEditor;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
@@ -40,7 +43,8 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedField, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_metas = editor.get_field_metas(Some(params.field_orders)).await?;
+    let field_orders = params.field_orders.items;
+    let field_metas = editor.get_field_metas(Some(field_orders)).await?;
     let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
@@ -201,5 +205,16 @@ pub(crate) async fn update_cell_handler(
     let changeset: CellMetaChangeset = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id)?;
     let _ = editor.update_cell(changeset).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn insert_select_option_handler(
+    data: Data<SelectOptionChangesetPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: SelectOptionChangesetParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor.insert_select_option(params).await?;
     Ok(())
 }

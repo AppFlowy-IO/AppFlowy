@@ -60,3 +60,31 @@ const SelectOption$json = const {
 
 /// Descriptor for `SelectOption`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List selectOptionDescriptor = $convert.base64Decode('CgxTZWxlY3RPcHRpb24SDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSKAoFY29sb3IYAyABKA4yEi5TZWxlY3RPcHRpb25Db2xvclIFY29sb3I=');
+@$core.Deprecated('Use selectOptionChangesetPayloadDescriptor instead')
+const SelectOptionChangesetPayload$json = const {
+  '1': 'SelectOptionChangesetPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'insert_option_id', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'insertOptionId'},
+    const {'1': 'delete_option_id', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'deleteOptionId'},
+  ],
+  '8': const [
+    const {'1': 'one_of_insert_option_id'},
+    const {'1': 'one_of_delete_option_id'},
+  ],
+};
+
+/// Descriptor for `SelectOptionChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEioKEGluc2VydF9vcHRpb25faWQYAyABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgEIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
+@$core.Deprecated('Use selectOptionContextDescriptor instead')
+const SelectOptionContext$json = const {
+  '1': 'SelectOptionContext',
+  '2': const [
+    const {'1': 'options', '3': 1, '4': 3, '5': 11, '6': '.SelectOption', '10': 'options'},
+    const {'1': 'select_options', '3': 2, '4': 3, '5': 11, '6': '.SelectOption', '10': 'selectOptions'},
+  ],
+};
+
+/// Descriptor for `SelectOptionContext`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectOptionContextDescriptor = $convert.base64Decode('ChNTZWxlY3RPcHRpb25Db250ZXh0EicKB29wdGlvbnMYASADKAsyDS5TZWxlY3RPcHRpb25SB29wdGlvbnMSNAoOc2VsZWN0X29wdGlvbnMYAiADKAsyDS5TZWxlY3RPcHRpb25SDXNlbGVjdE9wdGlvbnM=');

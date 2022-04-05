@@ -2,6 +2,7 @@ use crate::FlowyError;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_grid::manager::{GridManager, GridUser};
+use flowy_grid::services::persistence::GridDatabase;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
@@ -16,9 +17,20 @@ pub struct GridDepsResolver();
 
 impl GridDepsResolver {
     pub fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
-        let user = Arc::new(GridUserImpl(user_session));
+        let user = Arc::new(GridUserImpl(user_session.clone()));
         let rev_web_socket = Arc::new(GridWebSocket(ws_conn));
-        Arc::new(GridManager::new(user, rev_web_socket))
+        Arc::new(GridManager::new(
+            user,
+            rev_web_socket,
+            Arc::new(GridDatabaseImpl(user_session)),
+        ))
+    }
+}
+
+struct GridDatabaseImpl(Arc<UserSession>);
+impl GridDatabase for GridDatabaseImpl {
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
+        self.0.db_pool().map_err(|e| FlowyError::internal().context(e))
     }
 }
 

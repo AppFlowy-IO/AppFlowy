@@ -171,6 +171,23 @@ class GridEventCreateSelectOption {
     }
 }
 
+class GridEventGetSelectOptions {
+     FieldIdentifierPayload request;
+     GridEventGetSelectOptions(this.request);
+
+    Future<Either<SelectOptionContext, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetSelectOptions.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(SelectOptionContext.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventCreateRow {
      CreateRowPayload request;
      GridEventCreateRow(this.request);
@@ -212,6 +229,23 @@ class GridEventUpdateCell {
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = GridEvent.UpdateCell.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventInsertSelectOption {
+     InsertSelectOptionPayload request;
+     GridEventInsertSelectOption(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.InsertSelectOption.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

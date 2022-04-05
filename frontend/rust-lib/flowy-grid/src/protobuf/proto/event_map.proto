@@ -11,7 +11,9 @@ enum GridEvent {
     DuplicateField = 15;
     GetEditFieldContext = 16;
     CreateSelectOption = 30;
+    GetSelectOptions = 31;
     CreateRow = 50;
     GetRow = 51;
     UpdateCell = 70;
+    InsertSelectOption = 71;
 }

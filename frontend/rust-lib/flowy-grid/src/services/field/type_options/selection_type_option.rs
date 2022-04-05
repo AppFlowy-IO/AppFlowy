@@ -1,11 +1,12 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataSerde, TypeOptionCellData};
+use crate::services::row::{CellDataOperation, TypeOptionCellData};
 use crate::services::util::*;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::parser::{NotEmptyStr, NotEmptyUuid};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -24,7 +25,7 @@ pub struct SingleSelectTypeOption {
 }
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
-impl CellDataSerde for SingleSelectTypeOption {
+impl CellDataOperation for SingleSelectTypeOption {
     fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
@@ -80,7 +81,7 @@ pub struct MultiSelectTypeOption {
 }
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
-impl CellDataSerde for MultiSelectTypeOption {
+impl CellDataOperation for MultiSelectTypeOption {
     fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_single_select() || !type_option_cell_data.is_multi_select() {
@@ -190,6 +191,77 @@ impl SelectOption {
     }
 }
 
+#[derive(Clone, Debug, Default, ProtoBuf)]
+pub struct SelectOptionChangesetPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
+    pub field_id: String,
+
+    #[pb(index = 4, one_of)]
+    pub insert_option_id: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub delete_option_id: Option<String>,
+}
+
+#[derive(Clone)]
+pub struct SelectOptionChangesetParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub row_id: String,
+    pub insert_option_id: Option<String>,
+    pub delete_option_id: Option<String>,
+}
+
+impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<SelectOptionChangesetParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let insert_option_id = match self.insert_option_id {
+            None => None,
+            Some(insert_option_id) => Some(
+                NotEmptyStr::parse(insert_option_id)
+                    .map_err(|_| ErrorCode::OptionIdIsEmpty)?
+                    .0,
+            ),
+        };
+
+        let delete_option_id = match self.delete_option_id {
+            None => None,
+            Some(delete_option_id) => Some(
+                NotEmptyStr::parse(delete_option_id)
+                    .map_err(|_| ErrorCode::OptionIdIsEmpty)?
+                    .0,
+            ),
+        };
+
+        Ok(SelectOptionChangesetParams {
+            grid_id: grid_id.0,
+            row_id: row_id.0,
+            field_id: field_id.0,
+            insert_option_id,
+            delete_option_id,
+        })
+    }
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
+pub struct SelectOptionContext {
+    #[pb(index = 1)]
+    pub options: Vec<SelectOption>,
+
+    #[pb(index = 2)]
+    pub select_options: Vec<SelectOption>,
+}
+
 #[derive(ProtoBuf_Enum, Serialize, Deserialize, Debug, Clone)]
 #[repr(u8)]
 pub enum SelectOptionColor {
@@ -213,7 +285,7 @@ impl std::default::Default for SelectOptionColor {
 #[cfg(test)]
 mod tests {
     use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-    use crate::services::row::CellDataSerde;
+    use crate::services::row::CellDataOperation;
 
     #[test]
     #[should_panic]

@@ -1,5 +1,5 @@
 use crate::impl_type_option;
-use crate::services::row::{CellDataSerde, TypeOptionCellData};
+use crate::services::row::{CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
@@ -42,7 +42,7 @@ impl DateTypeOption {
     }
 }
 
-impl CellDataSerde for DateTypeOption {
+impl CellDataOperation for DateTypeOption {
     fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_date() {
@@ -185,7 +185,7 @@ impl std::default::Default for TimeFormat {
 mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::{CellDataSerde, TypeOptionCellData};
+    use crate::services::row::{CellDataOperation, TypeOptionCellData};
     use flowy_grid_data_model::entities::FieldType;
     use strum::IntoEnumIterator;
 

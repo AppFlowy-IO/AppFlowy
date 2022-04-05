@@ -92,6 +92,12 @@ pub struct FieldOrder {
     pub field_id: String,
 }
 
+impl std::convert::Into<Vec<FieldOrder>> for FieldOrder {
+    fn into(self) -> Vec<FieldOrder> {
+        vec![self]
+    }
+}
+
 impl std::convert::From<&FieldMeta> for FieldOrder {
     fn from(field_meta: &FieldMeta) -> Self {
         Self {

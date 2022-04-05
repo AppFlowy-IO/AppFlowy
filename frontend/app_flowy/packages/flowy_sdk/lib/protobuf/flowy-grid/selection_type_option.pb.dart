@@ -198,3 +198,167 @@ class SelectOption extends $pb.GeneratedMessage {
   void clearColor() => clearField(3);
 }
 
+enum SelectOptionChangesetPayload_OneOfInsertOptionId {
+  insertOptionId, 
+  notSet
+}
+
+enum SelectOptionChangesetPayload_OneOfDeleteOptionId {
+  deleteOptionId, 
+  notSet
+}
+
+class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfInsertOptionId> _SelectOptionChangesetPayload_OneOfInsertOptionIdByTag = {
+    3 : SelectOptionChangesetPayload_OneOfInsertOptionId.insertOptionId,
+    0 : SelectOptionChangesetPayload_OneOfInsertOptionId.notSet
+  };
+  static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfDeleteOptionId> _SelectOptionChangesetPayload_OneOfDeleteOptionIdByTag = {
+    4 : SelectOptionChangesetPayload_OneOfDeleteOptionId.deleteOptionId,
+    0 : SelectOptionChangesetPayload_OneOfDeleteOptionId.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectOptionChangesetPayload', createEmptyInstance: create)
+    ..oo(0, [3])
+    ..oo(1, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertOptionId')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteOptionId')
+    ..hasRequiredFields = false
+  ;
+
+  SelectOptionChangesetPayload._() : super();
+  factory SelectOptionChangesetPayload({
+    $core.String? gridId,
+    $core.String? rowId,
+    $core.String? insertOptionId,
+    $core.String? deleteOptionId,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    if (insertOptionId != null) {
+      _result.insertOptionId = insertOptionId;
+    }
+    if (deleteOptionId != null) {
+      _result.deleteOptionId = deleteOptionId;
+    }
+    return _result;
+  }
+  factory SelectOptionChangesetPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SelectOptionChangesetPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SelectOptionChangesetPayload clone() => SelectOptionChangesetPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SelectOptionChangesetPayload copyWith(void Function(SelectOptionChangesetPayload) updates) => super.copyWith((message) => updates(message as SelectOptionChangesetPayload)) as SelectOptionChangesetPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SelectOptionChangesetPayload create() => SelectOptionChangesetPayload._();
+  SelectOptionChangesetPayload createEmptyInstance() => create();
+  static $pb.PbList<SelectOptionChangesetPayload> createRepeated() => $pb.PbList<SelectOptionChangesetPayload>();
+  @$core.pragma('dart2js:noInline')
+  static SelectOptionChangesetPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SelectOptionChangesetPayload>(create);
+  static SelectOptionChangesetPayload? _defaultInstance;
+
+  SelectOptionChangesetPayload_OneOfInsertOptionId whichOneOfInsertOptionId() => _SelectOptionChangesetPayload_OneOfInsertOptionIdByTag[$_whichOneof(0)]!;
+  void clearOneOfInsertOptionId() => clearField($_whichOneof(0));
+
+  SelectOptionChangesetPayload_OneOfDeleteOptionId whichOneOfDeleteOptionId() => _SelectOptionChangesetPayload_OneOfDeleteOptionIdByTag[$_whichOneof(1)]!;
+  void clearOneOfDeleteOptionId() => clearField($_whichOneof(1));
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get rowId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set rowId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRowId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRowId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get insertOptionId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set insertOptionId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasInsertOptionId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearInsertOptionId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get deleteOptionId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set deleteOptionId($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDeleteOptionId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDeleteOptionId() => clearField(4);
+}
+
+class SelectOptionContext extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectOptionContext', createEmptyInstance: create)
+    ..pc<SelectOption>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'options', $pb.PbFieldType.PM, subBuilder: SelectOption.create)
+    ..pc<SelectOption>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectOptions', $pb.PbFieldType.PM, subBuilder: SelectOption.create)
+    ..hasRequiredFields = false
+  ;
+
+  SelectOptionContext._() : super();
+  factory SelectOptionContext({
+    $core.Iterable<SelectOption>? options,
+    $core.Iterable<SelectOption>? selectOptions,
+  }) {
+    final _result = create();
+    if (options != null) {
+      _result.options.addAll(options);
+    }
+    if (selectOptions != null) {
+      _result.selectOptions.addAll(selectOptions);
+    }
+    return _result;
+  }
+  factory SelectOptionContext.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SelectOptionContext.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SelectOptionContext clone() => SelectOptionContext()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SelectOptionContext copyWith(void Function(SelectOptionContext) updates) => super.copyWith((message) => updates(message as SelectOptionContext)) as SelectOptionContext; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SelectOptionContext create() => SelectOptionContext._();
+  SelectOptionContext createEmptyInstance() => create();
+  static $pb.PbList<SelectOptionContext> createRepeated() => $pb.PbList<SelectOptionContext>();
+  @$core.pragma('dart2js:noInline')
+  static SelectOptionContext getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SelectOptionContext>(create);
+  static SelectOptionContext? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<SelectOption> get options => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.List<SelectOption> get selectOptions => $_getList(1);
+}
+

@@ -95,6 +95,8 @@ pub enum ErrorCode {
     BlockIdIsEmpty = 420,
     #[display(fmt = "Row id is empty")]
     RowIdIsEmpty = 430,
+    #[display(fmt = "Select option id is empty")]
+    OptionIdIsEmpty = 431,
     #[display(fmt = "Field id is empty")]
     FieldIdIsEmpty = 440,
     #[display(fmt = "Field doesn't exist")]

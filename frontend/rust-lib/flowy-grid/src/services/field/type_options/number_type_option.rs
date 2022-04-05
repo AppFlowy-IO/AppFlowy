@@ -1,5 +1,5 @@
 use crate::impl_type_option;
-use crate::services::row::{CellDataSerde, TypeOptionCellData};
+use crate::services::row::{CellDataOperation, TypeOptionCellData};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
@@ -76,7 +76,7 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
-impl CellDataSerde for NumberTypeOption {
+impl CellDataOperation for NumberTypeOption {
     fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date() {
@@ -205,7 +205,7 @@ fn make_strip_symbol() -> Vec<String> {
 mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{NumberFormat, NumberTypeOption};
-    use crate::services::row::{CellDataSerde, TypeOptionCellData};
+    use crate::services::row::{CellDataOperation, TypeOptionCellData};
     use flowy_grid_data_model::entities::FieldType;
     use strum::IntoEnumIterator;
 

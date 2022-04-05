@@ -20,7 +20,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::CreateSelectOption, create_select_option_handler)
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
-        .event(GridEvent::UpdateCell, update_cell_handler);
+        .event(GridEvent::UpdateCell, update_cell_handler)
+        .event(GridEvent::InsertSelectOption, insert_select_option_handler);
 
     module
 }
@@ -58,6 +59,9 @@ pub enum GridEvent {
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     CreateSelectOption = 30,
 
+    #[event(input = "FieldIdentifierPayload", output = "SelectOptionContext")]
+    GetSelectOptions = 31,
+
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 50,
 
@@ -66,4 +70,7 @@ pub enum GridEvent {
 
     #[event(input = "CellMetaChangeset")]
     UpdateCell = 70,
+
+    #[event(input = "InsertSelectOptionPayload")]
+    InsertSelectOption = 71,
 }

@@ -8,14 +8,14 @@ use std::collections::HashMap;
 
 use std::sync::Arc;
 
-pub(crate) struct RowIdsPerBlock {
+pub(crate) struct BlockRowIds {
     pub(crate) block_id: String,
     pub(crate) row_ids: Vec<String>,
 }
 
-impl RowIdsPerBlock {
+impl BlockRowIds {
     pub fn new(block_id: &str) -> Self {
-        RowIdsPerBlock {
+        BlockRowIds {
             block_id: block_id.to_owned(),
             row_ids: vec![],
         }
@@ -27,13 +27,13 @@ pub struct GridBlockSnapshot {
     pub row_metas: Vec<Arc<RowMeta>>,
 }
 
-pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBlock> {
-    let mut map: HashMap<&String, RowIdsPerBlock> = HashMap::new();
+pub(crate) fn make_block_row_ids(row_orders: &[RowOrder]) -> Vec<BlockRowIds> {
+    let mut map: HashMap<&String, BlockRowIds> = HashMap::new();
     row_orders.iter().for_each(|row_order| {
         let block_id = &row_order.block_id;
         let row_id = row_order.row_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| RowIdsPerBlock::new(block_id))
+            .or_insert_with(|| BlockRowIds::new(block_id))
             .row_ids
             .push(row_id);
     });
@@ -41,17 +41,29 @@ pub(crate) fn make_row_ids_per_block(row_orders: &[RowOrder]) -> Vec<RowIdsPerBl
 }
 
 #[inline(always)]
-pub fn make_cell(
+pub fn make_cell_by_field_id(
     field_map: &HashMap<&String, &FieldMeta>,
     field_id: String,
-    raw_cell: CellMeta,
+    cell_meta: CellMeta,
 ) -> Option<(String, Cell)> {
     let field_meta = field_map.get(&field_id)?;
-    match deserialize_cell_data(raw_cell.data, field_meta) {
+    match deserialize_cell_data(cell_meta.data, field_meta) {
         Ok(content) => {
             let cell = Cell::new(&field_id, content);
             Some((field_id, cell))
         }
+        Err(e) => {
+            tracing::error!("{}", e);
+            None
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub fn make_cell(field_id: &str, field_meta: &FieldMeta, row_meta: &RowMeta) -> Option<Cell> {
+    let cell_meta = row_meta.cell_by_field_id.get(field_id)?.clone();
+    match deserialize_cell_data(cell_meta.data, field_meta) {
+        Ok(content) => Some(Cell::new(&field_id, content)),
         Err(e) => {
             tracing::error!("{}", e);
             None
@@ -74,7 +86,7 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<Ro
             .cell_by_field_id
             .clone()
             .into_par_iter()
-            .flat_map(|(field_id, raw_cell)| make_cell(&field_meta_map, field_id, raw_cell))
+            .flat_map(|(field_id, cell_meta)| make_cell_by_field_id(&field_meta_map, field_id, cell_meta))
             .collect::<HashMap<String, Cell>>();
 
         Row {

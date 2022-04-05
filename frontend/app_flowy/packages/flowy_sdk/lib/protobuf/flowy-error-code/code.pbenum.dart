@@ -45,6 +45,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode GridIdIsEmpty = ErrorCode._(410, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridIdIsEmpty');
   static const ErrorCode BlockIdIsEmpty = ErrorCode._(420, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockIdIsEmpty');
   static const ErrorCode RowIdIsEmpty = ErrorCode._(430, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
+  static const ErrorCode OptionIdIsEmpty = ErrorCode._(431, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OptionIdIsEmpty');
   static const ErrorCode FieldIdIsEmpty = ErrorCode._(440, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldIdIsEmpty');
   static const ErrorCode FieldDoesNotExist = ErrorCode._(441, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldDoesNotExist');
   static const ErrorCode SelectOptionNameIsEmpty = ErrorCode._(442, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SelectOptionNameIsEmpty');
@@ -87,6 +88,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     GridIdIsEmpty,
     BlockIdIsEmpty,
     RowIdIsEmpty,
+    OptionIdIsEmpty,
     FieldIdIsEmpty,
     FieldDoesNotExist,
     SelectOptionNameIsEmpty,

@@ -13,6 +13,16 @@ message SelectOption {
     string name = 2;
     SelectOptionColor color = 3;
 }
+message SelectOptionChangesetPayload {
+    string grid_id = 1;
+    string row_id = 2;
+    oneof one_of_insert_option_id { string insert_option_id = 3; };
+    oneof one_of_delete_option_id { string delete_option_id = 4; };
+}
+message SelectOptionContext {
+    repeated SelectOption options = 1;
+    repeated SelectOption select_options = 2;
+}
 enum SelectOptionColor {
     Purple = 0;
     Pink = 1;

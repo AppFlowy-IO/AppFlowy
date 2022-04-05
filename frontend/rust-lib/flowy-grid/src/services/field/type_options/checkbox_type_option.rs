@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataSerde, TypeOptionCellData};
+use crate::services::row::{CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
@@ -40,7 +40,7 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellDataSerde for CheckboxTypeOption {
+impl CellDataOperation for CheckboxTypeOption {
     fn deserialize_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_text() || !type_option_cell_data.is_checkbox() {
@@ -81,7 +81,7 @@ fn string_to_bool(bool_str: &str) -> bool {
 mod tests {
     use crate::services::field::CheckboxTypeOption;
     use crate::services::field::FieldBuilder;
-    use crate::services::row::CellDataSerde;
+    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::entities::FieldType;
 
     #[test]

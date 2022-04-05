@@ -1,11 +1,13 @@
 use crate::services::field::*;
+use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 
-pub trait CellDataSerde {
+pub trait CellDataOperation {
     fn deserialize_cell_data(&self, data: String, field_meta: &FieldMeta) -> String;
     fn serialize_cell_data(&self, data: &str) -> Result<String, FlowyError>;
+    // fn apply_changeset()
 }
 
 #[derive(Serialize, Deserialize)]
@@ -60,7 +62,6 @@ impl TypeOptionCellData {
     }
 }
 
-#[allow(dead_code)]
 pub fn serialize_cell_data(data: &str, field_meta: &FieldMeta) -> Result<String, FlowyError> {
     match field_meta.field_type {
         FieldType::RichText => RichTextTypeOption::from(field_meta).serialize_cell_data(data),

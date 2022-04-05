@@ -1,5 +1,7 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::GridKVPersistence;
+use crate::services::persistence::block_index::BlockIndexPersistence;
+use crate::services::persistence::kv::GridKVPersistence;
+use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -21,20 +23,24 @@ pub trait GridUser: Send + Sync {
 pub struct GridManager {
     editor_map: Arc<GridEditorMap>,
     grid_user: Arc<dyn GridUser>,
-    kv_persistence: Arc<RwLock<Option<Arc<GridKVPersistence>>>>,
+    block_index_persistence: Arc<BlockIndexPersistence>,
+    kv_persistence: Arc<GridKVPersistence>,
 }
 
 impl GridManager {
-    pub fn new(grid_user: Arc<dyn GridUser>, _rev_web_socket: Arc<dyn RevisionWebSocket>) -> Self {
+    pub fn new(
+        grid_user: Arc<dyn GridUser>,
+        _rev_web_socket: Arc<dyn RevisionWebSocket>,
+        database: Arc<dyn GridDatabase>,
+    ) -> Self {
         let grid_editors = Arc::new(GridEditorMap::new());
-
-        // kv_persistence will be initialized after first access.
-        // See get_kv_persistence function below
-        let kv_persistence = Arc::new(RwLock::new(None));
+        let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
+        let block_index_persistence = Arc::new(BlockIndexPersistence::new(database));
         Self {
             editor_map: grid_editors,
             grid_user,
             kv_persistence,
+            block_index_persistence,
         }
     }
 
@@ -111,7 +117,8 @@ impl GridManager {
     ) -> Result<Arc<ClientGridEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager).await?;
+        let grid_editor =
+            ClientGridEditor::new(grid_id, user, rev_manager, self.block_index_persistence.clone()).await?;
         Ok(grid_editor)
     }
 
@@ -134,20 +141,6 @@ impl GridManager {
         let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_d, disk_cache));
         let rev_manager = RevisionManager::new(&user_id, block_d, rev_persistence);
         Ok(rev_manager)
-    }
-
-    #[allow(dead_code)]
-    async fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
-        let read_guard = self.kv_persistence.read().await;
-        if read_guard.is_some() {
-            return Ok(read_guard.clone().unwrap());
-        }
-        drop(read_guard);
-
-        let pool = self.grid_user.db_pool()?;
-        let kv_persistence = Arc::new(GridKVPersistence::new(pool));
-        *self.kv_persistence.write().await = Some(kv_persistence.clone());
-        Ok(kv_persistence)
     }
 }
 

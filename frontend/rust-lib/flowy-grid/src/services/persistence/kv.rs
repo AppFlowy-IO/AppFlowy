@@ -1,3 +1,4 @@
+use crate::services::persistence::GridDatabase;
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use bytes::Bytes;
 use diesel::SqliteConnection;
@@ -29,19 +30,19 @@ pub trait KVTransaction {
 }
 
 pub struct GridKVPersistence {
-    pool: Arc<ConnectionPool>,
+    database: Arc<dyn GridDatabase>,
 }
 
 impl GridKVPersistence {
-    pub fn new(pool: Arc<ConnectionPool>) -> Self {
-        Self { pool }
+    pub fn new(database: Arc<dyn GridDatabase>) -> Self {
+        Self { database }
     }
 
     pub fn begin_transaction<F, O>(&self, f: F) -> FlowyResult<O>
     where
         F: for<'a> FnOnce(SqliteTransaction<'a>) -> FlowyResult<O>,
     {
-        let conn = self.pool.get()?;
+        let conn = self.database.db_connection()?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             let sql_transaction = SqliteTransaction { conn: &conn };
             f(sql_transaction)

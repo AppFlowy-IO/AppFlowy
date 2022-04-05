@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
     MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowMetaBuilder};
+use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataOperation, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
     CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
     TypeOptionDataEntry,
