@@ -3724,6 +3724,331 @@ impl ::protobuf::reflect::ProtobufValue for CellIdentifierPayload {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct CellNotificationData {
+    // message fields
+    pub grid_id: ::std::string::String,
+    pub field_id: ::std::string::String,
+    pub row_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_content: ::std::option::Option<CellNotificationData_oneof_one_of_content>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CellNotificationData {
+    fn default() -> &'a CellNotificationData {
+        <CellNotificationData as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum CellNotificationData_oneof_one_of_content {
+    content(::std::string::String),
+}
+
+impl CellNotificationData {
+    pub fn new() -> CellNotificationData {
+        ::std::default::Default::default()
+    }
+
+    // string grid_id = 1;
+
+
+    pub fn get_grid_id(&self) -> &str {
+        &self.grid_id
+    }
+    pub fn clear_grid_id(&mut self) {
+        self.grid_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_grid_id(&mut self, v: ::std::string::String) {
+        self.grid_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
+        &mut self.grid_id
+    }
+
+    // Take field
+    pub fn take_grid_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    }
+
+    // string field_id = 2;
+
+
+    pub fn get_field_id(&self) -> &str {
+        &self.field_id
+    }
+    pub fn clear_field_id(&mut self) {
+        self.field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_id(&mut self, v: ::std::string::String) {
+        self.field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.field_id
+    }
+
+    // Take field
+    pub fn take_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    }
+
+    // string row_id = 3;
+
+
+    pub fn get_row_id(&self) -> &str {
+        &self.row_id
+    }
+    pub fn clear_row_id(&mut self) {
+        self.row_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_row_id(&mut self, v: ::std::string::String) {
+        self.row_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
+        &mut self.row_id
+    }
+
+    // Take field
+    pub fn take_row_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
+    }
+
+    // string content = 4;
+
+
+    pub fn get_content(&self) -> &str {
+        match self.one_of_content {
+            ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_content(&mut self) {
+        self.one_of_content = ::std::option::Option::None;
+    }
+
+    pub fn has_content(&self) -> bool {
+        match self.one_of_content {
+            ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_content(&mut self, v: ::std::string::String) {
+        self.one_of_content = ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_content(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(_)) = self.one_of_content {
+        } else {
+            self.one_of_content = ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(::std::string::String::new()));
+        }
+        match self.one_of_content {
+            ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_content(&mut self) -> ::std::string::String {
+        if self.has_content() {
+            match self.one_of_content.take() {
+                ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for CellNotificationData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_content = ::std::option::Option::Some(CellNotificationData_oneof_one_of_content::content(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.grid_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
+        }
+        if !self.field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.field_id);
+        }
+        if !self.row_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.row_id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_content {
+            match v {
+                &CellNotificationData_oneof_one_of_content::content(ref v) => {
+                    my_size += ::protobuf::rt::string_size(4, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.grid_id.is_empty() {
+            os.write_string(1, &self.grid_id)?;
+        }
+        if !self.field_id.is_empty() {
+            os.write_string(2, &self.field_id)?;
+        }
+        if !self.row_id.is_empty() {
+            os.write_string(3, &self.row_id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_content {
+            match v {
+                &CellNotificationData_oneof_one_of_content::content(ref v) => {
+                    os.write_string(4, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CellNotificationData {
+        CellNotificationData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "grid_id",
+                |m: &CellNotificationData| { &m.grid_id },
+                |m: &mut CellNotificationData| { &mut m.grid_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "field_id",
+                |m: &CellNotificationData| { &m.field_id },
+                |m: &mut CellNotificationData| { &mut m.field_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "row_id",
+                |m: &CellNotificationData| { &m.row_id },
+                |m: &mut CellNotificationData| { &mut m.row_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "content",
+                CellNotificationData::has_content,
+                CellNotificationData::get_content,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CellNotificationData>(
+                "CellNotificationData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CellNotificationData {
+        static instance: ::protobuf::rt::LazyV2<CellNotificationData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CellNotificationData::new)
+    }
+}
+
+impl ::protobuf::Clear for CellNotificationData {
+    fn clear(&mut self) {
+        self.grid_id.clear();
+        self.field_id.clear();
+        self.row_id.clear();
+        self.one_of_content = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CellNotificationData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CellNotificationData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct RepeatedCell {
     // message fields
     pub items: ::protobuf::RepeatedField<Cell>,
@@ -5806,26 +6131,30 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\x20\x01(\tR\x07\
     content\"b\n\x15CellIdentifierPayload\x12\x17\n\x07grid_id\x18\x01\x20\
     \x01(\tR\x06gridId\x12\x19\n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\
-    \x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\"+\n\x0cRepeatedCell\
-    \x12\x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11Cre\
-    ateGridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06\
-    GridId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlock\
-    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayl\
-    oad\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_\
-    row_id\x18\x02\x20\x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\
-    \"\xb6\x01\n\x12CreateFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\
-    \tR\x06gridId\x12\x1c\n\x05field\x18\x02\x20\x01(\x0b2\x06.FieldR\x05fie\
-    ld\x12(\n\x10type_option_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\
-    \x12&\n\x0estart_field_id\x18\x04\x20\x01(\tH\0R\x0cstartFieldIdB\x17\n\
-    \x15one_of_start_field_id\"d\n\x11QueryFieldPayload\x12\x17\n\x07grid_id\
-    \x18\x01\x20\x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\x20\x01(\
-    \x0b2\x13.RepeatedFieldOrderR\x0bfieldOrders\"e\n\x16QueryGridBlocksPayl\
-    oad\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_o\
-    rders\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrderR\x0bblockOrders\"A\n\x0fQ\
-    ueryRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\
-    \x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\"X\n\x19CreateSelectOption\
-    Payload\x12\x1f\n\x0boption_name\x18\x01\x20\x01(\tR\noptionName\x12\x1a\
-    \n\x08selected\x18\x02\x20\x01(\x08R\x08selectedb\x06proto3\
+    \x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\"\x8f\x01\n\x14CellNot\
+    ificationData\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x19\
+    \n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\x12\x15\n\x06row_id\x18\
+    \x03\x20\x01(\tR\x05rowId\x12\x1a\n\x07content\x18\x04\x20\x01(\tH\0R\
+    \x07contentB\x10\n\x0eone_of_content\"+\n\x0cRepeatedCell\x12\x1b\n\x05i\
+    tems\x18\x01\x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateGridPayload\
+    \x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\
+    \n\x05value\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\
+    \x05value\x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\
+    \n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_row_id\x18\
+    \x02\x20\x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\"\xb6\x01\
+    \n\x12CreateFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gri\
+    dId\x12\x1c\n\x05field\x18\x02\x20\x01(\x0b2\x06.FieldR\x05field\x12(\n\
+    \x10type_option_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\x12&\n\x0es\
+    tart_field_id\x18\x04\x20\x01(\tH\0R\x0cstartFieldIdB\x17\n\x15one_of_st\
+    art_field_id\"d\n\x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\
+    \x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.Repe\
+    atedFieldOrderR\x0bfieldOrders\"e\n\x16QueryGridBlocksPayload\x12\x17\n\
+    \x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_orders\x18\x02\
+    \x20\x03(\x0b2\x0f.GridBlockOrderR\x0bblockOrders\"A\n\x0fQueryRowPayloa\
+    d\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\
+    \x18\x03\x20\x01(\tR\x05rowId\"X\n\x19CreateSelectOptionPayload\x12\x1f\
+    \n\x0boption_name\x18\x01\x20\x01(\tR\noptionName\x12\x1a\n\x08selected\
+    \x18\x02\x20\x01(\x08R\x08selectedb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

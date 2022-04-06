@@ -3,10 +3,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
-import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
-import 'package:flowy_sdk/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
@@ -62,23 +60,18 @@ class GridBlockService {
 class GridBlockListener {
   final String gridId;
   PublishNotifier<Either<List<GridBlockOrder>, FlowyError>> blockUpdateNotifier = PublishNotifier(comparable: null);
-  StreamSubscription<SubscribeObject>? _subscription;
-  GridNotificationParser? _parser;
+  GridNotificationListener? _listener;
 
   GridBlockListener({required this.gridId});
 
   void start() {
-    _parser = GridNotificationParser(
-      id: gridId,
-      callback: (ty, result) {
-        _handleObservableType(ty, result);
-      },
+    _listener = GridNotificationListener(
+      objectId: gridId,
+      handler: _handler,
     );
-
-    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
-  void _handleObservableType(GridNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case GridNotification.DidUpdateBlock:
         result.fold(
@@ -93,8 +86,7 @@ class GridBlockListener {
   }
 
   Future<void> stop() async {
-    _parser = null;
-    await _subscription?.cancel();
+    await _listener?.stop();
     blockUpdateNotifier.dispose();
   }
 }

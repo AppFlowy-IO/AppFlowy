@@ -132,7 +132,7 @@ pub(crate) async fn get_select_option_handler(
     data: Data<CellIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<SelectOptionContext, FlowyError> {
-    let params: CellIdentifierParams = data.into_inner().try_into()?;
+    let params: CellIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor
         .get_field_metas(Some(vec![params.field_id.as_str()]))

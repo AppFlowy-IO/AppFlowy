@@ -215,6 +215,22 @@ const CellIdentifierPayload$json = const {
 
 /// Descriptor for `CellIdentifierPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellIdentifierPayloadDescriptor = $convert.base64Decode('ChVDZWxsSWRlbnRpZmllclBheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhkKCGZpZWxkX2lkGAIgASgJUgdmaWVsZElkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
+@$core.Deprecated('Use cellNotificationDataDescriptor instead')
+const CellNotificationData$json = const {
+  '1': 'CellNotificationData',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'row_id', '3': 3, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'content', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'content'},
+  ],
+  '8': const [
+    const {'1': 'one_of_content'},
+  ],
+};
+
+/// Descriptor for `CellNotificationData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cellNotificationDataDescriptor = $convert.base64Decode('ChRDZWxsTm90aWZpY2F0aW9uRGF0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSGQoIZmllbGRfaWQYAiABKAlSB2ZpZWxkSWQSFQoGcm93X2lkGAMgASgJUgVyb3dJZBIaCgdjb250ZW50GAQgASgJSABSB2NvbnRlbnRCEAoOb25lX29mX2NvbnRlbnQ=');
 @$core.Deprecated('Use repeatedCellDescriptor instead')
 const RepeatedCell$json = const {
   '1': 'RepeatedCell',

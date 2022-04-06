@@ -31,14 +31,12 @@ class RowService {
 class CellData extends Equatable {
   final String gridId;
   final String rowId;
-  final String blockId;
   final Field field;
   final Cell? cell;
 
   const CellData({
     required this.rowId,
     required this.gridId,
-    required this.blockId,
     required this.field,
     required this.cell,
   });

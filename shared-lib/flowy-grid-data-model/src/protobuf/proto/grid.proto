@@ -75,6 +75,12 @@ message CellIdentifierPayload {
     string field_id = 2;
     string row_id = 3;
 }
+message CellNotificationData {
+    string grid_id = 1;
+    string field_id = 2;
+    string row_id = 3;
+    oneof one_of_content { string content = 4; };
+}
 message RepeatedCell {
     repeated Cell items = 1;
 }

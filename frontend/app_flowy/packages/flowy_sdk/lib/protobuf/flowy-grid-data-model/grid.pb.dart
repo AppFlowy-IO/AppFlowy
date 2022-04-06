@@ -1099,6 +1099,108 @@ class CellIdentifierPayload extends $pb.GeneratedMessage {
   void clearRowId() => clearField(3);
 }
 
+enum CellNotificationData_OneOfContent {
+  content, 
+  notSet
+}
+
+class CellNotificationData extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CellNotificationData_OneOfContent> _CellNotificationData_OneOfContentByTag = {
+    4 : CellNotificationData_OneOfContent.content,
+    0 : CellNotificationData_OneOfContent.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellNotificationData', createEmptyInstance: create)
+    ..oo(0, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..hasRequiredFields = false
+  ;
+
+  CellNotificationData._() : super();
+  factory CellNotificationData({
+    $core.String? gridId,
+    $core.String? fieldId,
+    $core.String? rowId,
+    $core.String? content,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    if (content != null) {
+      _result.content = content;
+    }
+    return _result;
+  }
+  factory CellNotificationData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CellNotificationData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CellNotificationData clone() => CellNotificationData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CellNotificationData copyWith(void Function(CellNotificationData) updates) => super.copyWith((message) => updates(message as CellNotificationData)) as CellNotificationData; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CellNotificationData create() => CellNotificationData._();
+  CellNotificationData createEmptyInstance() => create();
+  static $pb.PbList<CellNotificationData> createRepeated() => $pb.PbList<CellNotificationData>();
+  @$core.pragma('dart2js:noInline')
+  static CellNotificationData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellNotificationData>(create);
+  static CellNotificationData? _defaultInstance;
+
+  CellNotificationData_OneOfContent whichOneOfContent() => _CellNotificationData_OneOfContentByTag[$_whichOneof(0)]!;
+  void clearOneOfContent() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get fieldId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set fieldId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get rowId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set rowId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRowId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRowId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get content => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set content($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasContent() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearContent() => clearField(4);
+}
+
 class RepeatedCell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedCell', createEmptyInstance: create)
     ..pc<Cell>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Cell.create)

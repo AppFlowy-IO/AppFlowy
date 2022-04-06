@@ -114,7 +114,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
         map[field.id] = CellData(
           rowId: row.id,
           gridId: rowService.gridId,
-          blockId: rowService.blockId,
           cell: row.cellByFieldId[field.id],
           field: field,
         );

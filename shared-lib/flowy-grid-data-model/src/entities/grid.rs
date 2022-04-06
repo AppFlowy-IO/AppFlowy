@@ -343,25 +343,40 @@ pub struct CellIdentifierPayload {
     pub row_id: String,
 }
 
-pub struct CellIdentifierParams {
+pub struct CellIdentifier {
     pub grid_id: String,
     pub field_id: String,
     pub row_id: String,
 }
 
-impl TryInto<CellIdentifierParams> for CellIdentifierPayload {
+impl TryInto<CellIdentifier> for CellIdentifierPayload {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CellIdentifierParams, Self::Error> {
+    fn try_into(self) -> Result<CellIdentifier, Self::Error> {
         let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        Ok(CellIdentifierParams {
+        Ok(CellIdentifier {
             grid_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
         })
     }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellNotificationData {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub row_id: String,
+
+    #[pb(index = 4, one_of)]
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

@@ -278,12 +278,7 @@ impl ClientGridEditor {
             Some(field_meta) => {
                 // Update the changeset.data property with the return value.
                 changeset.data = Some(apply_cell_data_changeset(cell_data_changeset, cell_meta, field_meta)?);
-                let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
-                let row_changeset: RowMetaChangeset = changeset.into();
-                let _ = self
-                    .block_meta_manager
-                    .update_row_cells(&field_metas, row_changeset)
-                    .await?;
+                let _ = self.block_meta_manager.update_cell(changeset).await?;
                 Ok(())
             }
         }

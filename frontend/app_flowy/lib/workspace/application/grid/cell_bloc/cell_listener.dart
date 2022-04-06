@@ -7,27 +7,25 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 
-typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<CellNotificationData, FlowyError>;
 
-class GridFieldsListener {
-  final String gridId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateFieldsNotifier = PublishNotifier();
+class CellListener {
+  final String rowId;
+  final String fieldId;
+  PublishNotifier<UpdateFieldNotifiedValue> updateCellNotifier = PublishNotifier();
   GridNotificationListener? _listener;
-  GridFieldsListener({required this.gridId});
+  CellListener({required this.rowId, required this.fieldId});
 
   void start() {
-    _listener = GridNotificationListener(
-      objectId: gridId,
-      handler: _handler,
-    );
+    _listener = GridNotificationListener(objectId: "$rowId:$fieldId", handler: _handler);
   }
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateFields:
+      case GridNotification.DidUpdateCell:
         result.fold(
-          (payload) => updateFieldsNotifier.value = left(RepeatedField.fromBuffer(payload).items),
-          (error) => updateFieldsNotifier.value = right(error),
+          (payload) => updateCellNotifier.value = left(CellNotificationData.fromBuffer(payload)),
+          (error) => updateCellNotifier.value = right(error),
         );
         break;
       default:
@@ -37,6 +35,6 @@ class GridFieldsListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldsNotifier.dispose();
+    updateCellNotifier.dispose();
   }
 }

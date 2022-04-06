@@ -6,8 +6,8 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, Row, RowMeta,
-    RowMetaChangeset, RowOrder,
+    CellIdentifier, CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta,
+    GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, Row, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{
@@ -119,11 +119,19 @@ impl GridBlockMetaEditorManager {
         Ok(())
     }
 
-    pub async fn update_row_cells(&self, field_metas: &[FieldMeta], changeset: RowMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
         let editor = self.get_editor_from_row_id(&row_id).await?;
-        let _ = editor.update_row(changeset.clone()).await?;
-        self.notify_did_update_row(&row_id, field_metas).await?;
+        let row_changeset: RowMetaChangeset = changeset.clone().into();
+        let _ = editor.update_row(row_changeset).await?;
+
+        let cell_notification_data = CellNotificationData {
+            grid_id: changeset.grid_id,
+            field_id: changeset.field_id,
+            row_id: changeset.row_id,
+            content: changeset.data,
+        };
+        self.notify_did_update_cell(cell_notification_data).await?;
         Ok(())
     }
 
@@ -174,6 +182,14 @@ impl GridBlockMetaEditorManager {
         let block_order: GridBlockOrder = block_id.into();
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateBlock)
             .payload(block_order)
+            .send();
+        Ok(())
+    }
+
+    async fn notify_did_update_cell(&self, data: CellNotificationData) -> FlowyResult<()> {
+        let id = format!("{}:{}", data.row_id, data.field_id);
+        send_dart_notification(&id, GridNotification::DidUpdateCell)
+            .payload(data)
             .send();
         Ok(())
     }
