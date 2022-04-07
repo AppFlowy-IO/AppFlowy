@@ -63,6 +63,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
+    _delayOperation?.cancel();
     _cellBloc.close();
     _focusNode.dispose();
     super.dispose();
@@ -72,7 +73,7 @@ class _GridTextCellState extends State<GridTextCell> {
     if (mounted) {
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 300), () {
-        if (_cellBloc.isClosed == false) {
+        if (_cellBloc.isClosed == false && _controller.text != _cellBloc.state.content) {
           _cellBloc.add(TextCellEvent.updateText(_controller.text));
         }
       });

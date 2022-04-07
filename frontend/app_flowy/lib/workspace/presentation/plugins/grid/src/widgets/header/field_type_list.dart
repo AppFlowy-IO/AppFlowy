@@ -19,7 +19,7 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
 
   @override
   Widget build(BuildContext context) {
-    final cells = FieldType.values.map((fieldType) {
+    final cells = FieldType.values.where((ty) => ty != FieldType.DateTime).map((fieldType) {
       return FieldTypeCell(
         fieldType: fieldType,
         onSelectField: (fieldType) {

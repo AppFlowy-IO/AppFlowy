@@ -194,7 +194,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<NumberCellBloc, CellData, void>(
     (cellData, _) => NumberCellBloc(
-      service: CellService(),
       cellData: cellData,
     ),
   );

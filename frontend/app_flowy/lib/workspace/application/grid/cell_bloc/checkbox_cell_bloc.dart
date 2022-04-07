@@ -26,7 +26,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
             _startListening();
           },
           select: (_Selected value) async {
-            service.updateCell(
+            _service.updateCell(
               gridId: state.cellData.gridId,
               fieldId: state.cellData.field.id,
               rowId: state.cellData.rowId,
@@ -43,6 +43,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   @override
   Future<void> close() async {
+    await _listener.stop();
     return super.close();
   }
 
