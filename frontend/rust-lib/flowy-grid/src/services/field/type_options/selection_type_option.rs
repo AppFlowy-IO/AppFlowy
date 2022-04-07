@@ -85,8 +85,10 @@ impl CellDataOperation for SingleSelectTypeOption {
         let select_option_changeset: SelectOptionCellChangeset = serde_json::from_str(&changeset)?;
         let new_cell_data: String;
         if let Some(insert_option_id) = select_option_changeset.insert_option_id {
+            tracing::trace!("Insert single select option: {}", &insert_option_id);
             new_cell_data = insert_option_id;
         } else {
+            tracing::trace!("Delete single select option");
             new_cell_data = "".to_string()
         }
 
@@ -126,6 +128,15 @@ pub struct MultiSelectTypeOption {
     pub disable_color: bool,
 }
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
+
+impl MultiSelectTypeOption {
+    pub fn get_cell_data(&self, cell_meta: &CellMeta) -> String {
+        match TypeOptionCellData::from_str(&cell_meta.data) {
+            Ok(type_option) => type_option.data,
+            Err(_) => String::new(),
+        }
+    }
+}
 
 impl SelectOptionOperation for MultiSelectTypeOption {
     fn insert_option(&mut self, new_option: SelectOption) {
@@ -185,16 +196,24 @@ impl CellDataOperation for MultiSelectTypeOption {
                     .unwrap_or_else(|| "".to_owned());
             }
             Some(cell_meta) => {
-                let mut selected_options = select_option_ids(cell_meta.data);
+                let cell_data = self.get_cell_data(&cell_meta);
+                let mut selected_options = select_option_ids(cell_data);
                 if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-                    selected_options.push(insert_option_id);
+                    tracing::trace!("Insert multi select option: {}", &insert_option_id);
+                    if selected_options.contains(&insert_option_id) {
+                        selected_options.retain(|id| id != &insert_option_id);
+                    } else {
+                        selected_options.push(insert_option_id);
+                    }
                 }
 
                 if let Some(delete_option_id) = select_option_changeset.delete_option_id {
+                    tracing::trace!("Delete multi select option: {}", &delete_option_id);
                     selected_options.retain(|id| id != &delete_option_id);
                 }
 
                 new_cell_data = selected_options.join(SELECTION_IDS_SEPARATOR);
+                tracing::trace!("Multi select cell data: {}", &new_cell_data);
             }
         }
 

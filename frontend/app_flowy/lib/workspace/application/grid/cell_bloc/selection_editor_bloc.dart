@@ -15,6 +15,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   final SelectOptionService _selectOptionService;
   final FieldListener _fieldListener;
   final CellListener _cellListener;
+  Timer? _delayOperation;
 
   SelectOptionEditorBloc({
     required CellData cellData,
@@ -59,6 +60,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   @override
   Future<void> close() async {
+    _delayOperation?.cancel();
     await _fieldListener.stop();
     await _cellListener.stop();
     return super.close();
@@ -106,18 +108,24 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _loadOptions() async {
-    final result = await _selectOptionService.getOpitonContext(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
-    );
+    _delayOperation?.cancel();
+    _delayOperation = Timer(
+      const Duration(milliseconds: 300),
+      () async {
+        final result = await _selectOptionService.getOpitonContext(
+          gridId: state.gridId,
+          fieldId: state.field.id,
+          rowId: state.rowId,
+        );
 
-    result.fold(
-      (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
-        selectOptionContext.options,
-        selectOptionContext.selectOptions,
-      )),
-      (err) => Log.error(err),
+        result.fold(
+          (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
+            selectOptionContext.options,
+            selectOptionContext.selectOptions,
+          )),
+          (err) => Log.error(err),
+        );
+      },
     );
   }
 

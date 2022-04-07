@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'option_pannel.dart';
 
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
-  MultiSelectTypeOptionWidget _widget;
+  final MultiSelectTypeOptionWidget _widget;
 
   MultiSelectTypeOptionBuilder(
     String fieldId,

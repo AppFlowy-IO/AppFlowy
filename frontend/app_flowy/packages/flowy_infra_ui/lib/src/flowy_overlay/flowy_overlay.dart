@@ -122,7 +122,7 @@ class OverlayItem {
 }
 
 class FlowyOverlayState extends State<FlowyOverlay> {
-  List<OverlayItem> _overlayList = [];
+  final List<OverlayItem> _overlayList = [];
   FlowyOverlayStyle style = FlowyOverlayStyle();
 
   /// Insert a overlay widget which frame is set by the widget, not the component.
