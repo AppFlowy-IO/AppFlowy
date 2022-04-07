@@ -1,19 +1,17 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 
 class TypeOptionService {
-  String fieldId;
+  final String fieldId;
   TypeOptionService({
     required this.fieldId,
   });
 
-  Future<Either<SelectOption, FlowyError>> createOption(String name, {bool selected = false}) {
-    final payload = CreateSelectOptionPayload.create()
-      ..optionName = name
-      ..selected = selected;
-    return GridEventCreateSelectOption(payload).send();
+  Future<Either<SelectOption, FlowyError>> newOption(String name, {bool selected = false}) {
+    final payload = SelectOptionName.create()..name = name;
+    return GridEventNewSelectOption(payload).send();
   }
 }

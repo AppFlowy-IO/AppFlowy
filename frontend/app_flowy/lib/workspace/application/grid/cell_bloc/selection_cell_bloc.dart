@@ -1,22 +1,21 @@
 import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell_bloc/select_option_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'cell_service.dart';
 
 part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
-  final CellService _service;
+  final SelectOptionService _service;
   final CellListener _listener;
 
   SelectionCellBloc({
-    required CellService service,
     required CellData cellData,
-  })  : _service = service,
+  })  : _service = SelectOptionService(),
         _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         super(SelectionCellState.initial(cellData)) {
     on<SelectionCellEvent>(
@@ -41,7 +40,7 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   }
 
   void _loadOptions() async {
-    final result = await _service.getSelectOpitonContext(
+    final result = await _service.getOpitonContext(
       gridId: state.cellData.gridId,
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,

@@ -188,7 +188,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<SelectionCellBloc, CellData, void>(
     (cellData, _) => SelectionCellBloc(
-      service: CellService(),
       cellData: cellData,
     ),
   );

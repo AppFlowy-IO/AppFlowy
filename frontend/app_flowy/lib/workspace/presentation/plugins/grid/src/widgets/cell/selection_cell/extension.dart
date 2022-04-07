@@ -67,13 +67,16 @@ class SelectOptionTextField extends StatelessWidget {
   final FocusNode _focusNode;
   final TextEditingController _controller;
   final TextfieldTagsController tagController;
-  final LinkedHashMap<String, SelectOption> optionMap;
+  final List<SelectOption> options;
+  final LinkedHashMap<String, SelectOption> selectedOptionMap;
+
   final double distanceToText;
 
   final Function(String) onNewTag;
 
   SelectOptionTextField({
-    required this.optionMap,
+    required this.options,
+    required this.selectedOptionMap,
     required this.distanceToText,
     required this.tagController,
     required this.onNewTag,
@@ -91,12 +94,14 @@ class SelectOptionTextField extends StatelessWidget {
     return TextFieldTags(
       textEditingController: _controller,
       textfieldTagsController: tagController,
-      initialTags: optionMap.keys.toList(),
+      initialTags: selectedOptionMap.keys.toList(),
       focusNode: _focusNode,
       textSeparators: const [' ', ','],
       inputfieldBuilder: (BuildContext context, editController, focusNode, error, onChanged, onSubmitted) {
         return ((context, sc, tags, onTagDelegate) {
-          tags.retainWhere((name) => optionMap.containsKey(name) == false);
+          tags.retainWhere((name) {
+            return options.where((option) => option.name == name).isEmpty;
+          });
           if (tags.isNotEmpty) {
             assert(tags.length == 1);
             onNewTag(tags.first);
@@ -133,11 +138,11 @@ class SelectOptionTextField extends StatelessWidget {
   }
 
   Widget? _renderTags(ScrollController sc) {
-    if (optionMap.isEmpty) {
+    if (selectedOptionMap.isEmpty) {
       return null;
     }
 
-    final children = optionMap.values.map((option) => SelectOptionTag(option: option)).toList();
+    final children = selectedOptionMap.values.map((option) => SelectOptionTag(option: option)).toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(

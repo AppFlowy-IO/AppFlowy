@@ -24,7 +24,7 @@ class GridFieldsListener {
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateFields:
+      case GridNotification.DidUpdateGrid:
         result.fold(
           (payload) => updateFieldsNotifier.value = left(RepeatedField.fromBuffer(payload).items),
           (error) => updateFieldsNotifier.value = right(error),

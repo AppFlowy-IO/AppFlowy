@@ -6,8 +6,8 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellIdentifier, CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta,
-    GridBlockMetaChangeset, GridBlockOrder, RepeatedCell, Row, RowMeta, RowMetaChangeset, RowOrder,
+    CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset,
+    GridBlockOrder, RepeatedCell, Row, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{

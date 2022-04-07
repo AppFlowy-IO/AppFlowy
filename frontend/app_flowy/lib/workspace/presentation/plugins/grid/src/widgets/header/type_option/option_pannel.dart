@@ -165,7 +165,6 @@ class _OptionList extends StatelessWidget {
             delegate.hideOverlay(context);
             context.read<OptionPannelBloc>().add(OptionPannelEvent.updateOption(updatedOption));
           },
-          key: ValueKey(option.id),
         );
         delegate.showOverlay(context, pannel);
       },

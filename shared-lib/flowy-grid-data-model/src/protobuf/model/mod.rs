@@ -4,5 +4,8 @@
 mod grid;
 pub use grid::*;
 
+mod type_option;
+pub use type_option::*;
+
 mod meta;
 pub use meta::*;

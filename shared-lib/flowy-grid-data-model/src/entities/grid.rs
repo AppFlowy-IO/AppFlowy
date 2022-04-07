@@ -56,33 +56,6 @@ impl std::convert::From<FieldMeta> for Field {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldIdentifierPayload {
-    #[pb(index = 1)]
-    pub field_id: String,
-
-    #[pb(index = 2)]
-    pub grid_id: String,
-}
-
-pub struct FieldIdentifierParams {
-    pub field_id: String,
-    pub grid_id: String,
-}
-
-impl TryInto<FieldIdentifierParams> for FieldIdentifierPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<FieldIdentifierParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(FieldIdentifierParams {
-            grid_id: grid_id.0,
-            field_id: field_id.0,
-        })
-    }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
     pub field_id: String,
@@ -332,39 +305,6 @@ impl Cell {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct CellIdentifierPayload {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
-    pub field_id: String,
-
-    #[pb(index = 3)]
-    pub row_id: String,
-}
-
-pub struct CellIdentifier {
-    pub grid_id: String,
-    pub field_id: String,
-    pub row_id: String,
-}
-
-impl TryInto<CellIdentifier> for CellIdentifierPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<CellIdentifier, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        Ok(CellIdentifier {
-            grid_id: grid_id.0,
-            field_id: field_id.0,
-            row_id: row_id.0,
-        })
-    }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellNotificationData {
     #[pb(index = 1)]
     pub grid_id: String,
@@ -558,60 +498,6 @@ impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
         Ok(QueryGridBlocksParams {
             grid_id: grid_id.0,
             block_orders: self.block_orders,
-        })
-    }
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct QueryRowPayload {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 3)]
-    pub row_id: String,
-}
-
-pub struct QueryRowParams {
-    pub grid_id: String,
-    pub row_id: String,
-}
-
-impl TryInto<QueryRowParams> for QueryRowPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<QueryRowParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-
-        Ok(QueryRowParams {
-            grid_id: grid_id.0,
-            row_id: row_id.0,
-        })
-    }
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct CreateSelectOptionPayload {
-    #[pb(index = 1)]
-    pub option_name: String,
-
-    #[pb(index = 2)]
-    pub selected: bool,
-}
-
-pub struct CreateSelectOptionParams {
-    pub option_name: String,
-    pub selected: bool,
-}
-
-impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
-        let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
-        Ok(CreateSelectOptionParams {
-            option_name: option_name.0,
-            selected: self.selected,
         })
     }
 }

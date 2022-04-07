@@ -3,10 +3,12 @@ import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/selection_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -21,7 +23,7 @@ import 'extension.dart';
 
 const double _editorPannelWidth = 300;
 
-class SelectOptionEditor extends StatelessWidget {
+class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
   final CellData cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
@@ -44,7 +46,7 @@ class SelectOptionEditor extends StatelessWidget {
         cellData: cellData,
         options: options,
         selectedOptions: selectedOptions,
-      ),
+      )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
           return CustomScrollView(
@@ -83,12 +85,16 @@ class SelectOptionEditor extends StatelessWidget {
       identifier: SelectOptionEditor.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
+      delegate: editor,
     );
   }
 
   static void hide(BuildContext context) {
     FlowyOverlay.of(context).remove(identifier());
   }
+
+  @override
+  bool asBarrier() => true;
 }
 
 class _OptionList extends StatelessWidget {
@@ -126,18 +132,19 @@ class _TextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<SelectOptionEditorBloc, SelectOptionEditorState>(
       listener: (context, state) {},
-      buildWhen: (previous, current) => previous.field.id != current.field.id,
       builder: (context, state) {
         final optionMap = LinkedHashMap<String, SelectOption>.fromIterable(state.selectedOptions,
             key: (option) => option.name, value: (option) => option);
+
         return SizedBox(
           height: 42,
           child: SelectOptionTextField(
-            optionMap: optionMap,
+            options: state.options,
+            selectedOptionMap: optionMap,
             distanceToText: _editorPannelWidth * 0.7,
             tagController: _tagController,
-            onNewTag: (newTagName) {
-              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.newOption(newTagName));
+            onNewTag: (tagName) {
+              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.newOption(tagName));
             },
           ),
         );
@@ -188,7 +195,12 @@ class _SelectOptionCell extends StatelessWidget {
             ];
 
             if (onHover) {
-              children.add(svgWidget("editor/details", color: theme.iconColor));
+              children.add(FlowyIconButton(
+                width: 28,
+                onPressed: () => _showEditOptionPannel(context),
+                iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                icon: svgWidget("editor/details", color: theme.iconColor),
+              ));
             }
 
             return Padding(
@@ -198,6 +210,32 @@ class _SelectOptionCell extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  void _showEditOptionPannel(BuildContext context) {
+    final pannel = EditSelectOptionPannel(
+      option: option,
+      onDeleted: () {
+        context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.deleteOption(option));
+      },
+      onUpdated: (updatedOption) {
+        context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.updateOption(updatedOption));
+      },
+      // key: ValueKey(option.id),
+    );
+    final overlayIdentifier = pannel.toString();
+
+    FlowyOverlay.of(context).remove(overlayIdentifier);
+    FlowyOverlay.of(context).insertWithAnchor(
+      widget: OverlayContainer(
+        child: pannel,
+        constraints: BoxConstraints.loose(const Size(200, 300)),
+      ),
+      identifier: overlayIdentifier,
+      anchorContext: context,
+      anchorDirection: AnchorDirection.rightWithCenterAligned,
+      anchorOffset: Offset(2 * overlayContainerPadding.left, 0),
     );
   }
 }

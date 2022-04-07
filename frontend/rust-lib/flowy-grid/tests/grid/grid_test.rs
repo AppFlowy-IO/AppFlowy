@@ -59,13 +59,7 @@ async fn grid_update_field_with_empty_change() {
     let changeset = FieldChangesetParams {
         field_id: field_meta.id.clone(),
         grid_id: test.grid_id.clone(),
-        name: None,
-        desc: None,
-        field_type: None,
-        frozen: None,
-        visibility: None,
-        width: None,
-        type_option_data: None,
+        ..Default::default()
     };
 
     let scripts = vec![
@@ -90,13 +84,10 @@ async fn grid_update_field() {
     let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
         grid_id: test.grid_id.clone(),
-        name: None,
-        desc: None,
-        field_type: None,
         frozen: Some(true),
-        visibility: None,
         width: Some(1000),
         type_option_data: Some(single_select_type_option.protobuf_bytes().to_vec()),
+        ..Default::default()
     };
 
     cloned_field.frozen = true;

@@ -22,7 +22,7 @@ class SingleSelectTypeOptionBloc extends Bloc<SingleSelectTypeOptionEvent, Singl
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
-            final result = await service.createOption(value.optionName);
+            final result = await service.newOption(value.optionName);
             result.fold(
               (option) {
                 emit(state.copyWith(typeOption: _insertOption(option)));

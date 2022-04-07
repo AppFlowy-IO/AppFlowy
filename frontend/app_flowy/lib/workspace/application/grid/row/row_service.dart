@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 
 class RowService {
   final String gridId;
@@ -20,7 +21,7 @@ class RowService {
   }
 
   Future<Either<Row, FlowyError>> getRow() {
-    QueryRowPayload payload = QueryRowPayload.create()
+    final payload = RowIdentifierPayload.create()
       ..gridId = gridId
       ..rowId = rowId;
 

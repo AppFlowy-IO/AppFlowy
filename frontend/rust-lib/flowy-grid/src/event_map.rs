@@ -23,11 +23,12 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Cell
         .event(GridEvent::UpdateCell, update_cell_handler)
         // SelectOption
-        .event(GridEvent::CreateSelectOption, create_select_option_handler)
-        .event(GridEvent::GetSelectOptions, get_select_option_handler)
+        .event(GridEvent::NewSelectOption, new_select_option_handler)
+        .event(GridEvent::ApplySelectOptionChangeset, select_option_changeset_handler)
+        .event(GridEvent::GetSelectOptionContext, get_select_option_handler)
         .event(
-            GridEvent::ApplySelectOptionChangeset,
-            apply_select_option_changeset_handler,
+            GridEvent::ApplySelectOptionCellChangeset,
+            select_option_cell_changeset_handler,
         )
         .event(GridEvent::GetEditFieldContext, get_field_context_handler);
 
@@ -64,21 +65,24 @@ pub enum GridEvent {
     #[event(input = "GetEditFieldContextPayload", output = "EditFieldContext")]
     GetEditFieldContext = 16,
 
-    #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
-    CreateSelectOption = 30,
+    #[event(input = "SelectOptionName", output = "SelectOption")]
+    NewSelectOption = 30,
 
     #[event(input = "CellIdentifierPayload", output = "SelectOptionContext")]
-    GetSelectOptions = 31,
+    GetSelectOptionContext = 31,
+
+    #[event(input = "SelectOptionChangesetPayload")]
+    ApplySelectOptionChangeset = 32,
 
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 50,
 
-    #[event(input = "QueryRowPayload", output = "Row")]
+    #[event(input = "RowIdentifierPayload", output = "Row")]
     GetRow = 51,
 
     #[event(input = "CellMetaChangeset")]
     UpdateCell = 70,
 
-    #[event(input = "SelectOptionChangesetPayload")]
-    ApplySelectOptionChangeset = 71,
+    #[event(input = "SelectOptionCellChangesetPayload")]
+    ApplySelectOptionCellChangeset = 71,
 }

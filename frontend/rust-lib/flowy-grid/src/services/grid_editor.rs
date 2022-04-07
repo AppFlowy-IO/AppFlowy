@@ -8,7 +8,7 @@ use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
-use flowy_sync::client_grid::{GridChangeset, GridMetaPad, TypeOptionDataDeserializer};
+use flowy_sync::client_grid::{GridChangeset, GridMetaPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_delta_from_revisions;
@@ -61,7 +61,7 @@ impl ClientGridEditor {
         let _ = self
             .modify(|grid| {
                 if grid.contain_field(&field.id) {
-                    let deserializer = TypeOptionChangesetDeserializer(field.field_type.clone());
+                    let deserializer = TypeOptionJsonDeserializer(field.field_type.clone());
                     let changeset = FieldChangesetParams {
                         field_id: field.id,
                         grid_id,
@@ -82,7 +82,7 @@ impl ClientGridEditor {
                 }
             })
             .await?;
-        let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_grid().await?;
         Ok(())
     }
 
@@ -98,20 +98,27 @@ impl ClientGridEditor {
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let field_id = params.field_id.clone();
-        let deserializer = match self.pad.read().await.get_field(params.field_id.as_str()) {
+        let json_deserializer = match self.pad.read().await.get_field(params.field_id.as_str()) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
-            Some(field_meta) => TypeOptionChangesetDeserializer(field_meta.field_type.clone()),
+            Some(field_meta) => TypeOptionJsonDeserializer(field_meta.field_type.clone()),
         };
 
-        let _ = self.modify(|grid| Ok(grid.update_field(params, deserializer)?)).await?;
-        let _ = self.notify_did_update_fields().await?;
+        let _ = self
+            .modify(|grid| Ok(grid.update_field(params, json_deserializer)?))
+            .await?;
+        let _ = self.notify_did_update_grid().await?;
         let _ = self.notify_did_update_field(&field_id).await?;
+        Ok(())
+    }
+
+    pub async fn replace_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
+        let _ = self.modify(|pad| Ok(pad.replace_field(field_meta)?)).await?;
         Ok(())
     }
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.delete_field(field_id)?)).await?;
-        let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_grid().await?;
         Ok(())
     }
 
@@ -134,28 +141,33 @@ impl ClientGridEditor {
         let _ = self
             .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
             .await?;
-        let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_grid().await?;
         let _ = self.notify_did_update_field(field_id).await?;
         Ok(())
     }
 
     pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid| Ok(grid.duplicate_field(field_id)?)).await?;
-        let _ = self.notify_did_update_fields().await?;
+        let _ = self.notify_did_update_grid().await?;
         Ok(())
     }
 
-    pub async fn get_field_metas<T>(&self, field_orders: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
+    pub async fn get_field_meta(&self, field_id: &str) -> Option<FieldMeta> {
+        let field_meta = self.pad.read().await.get_field(field_id)?.clone();
+        return Some(field_meta);
+    }
+
+    pub async fn get_field_metas<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
     where
         T: Into<FieldOrder>,
     {
-        if field_orders.is_none() {
+        if field_ids.is_none() {
             let field_metas = self.pad.read().await.get_field_metas(None)?;
             return Ok(field_metas);
         }
 
         let to_field_orders = |item: Vec<T>| item.into_iter().map(|data| data.into()).collect();
-        let field_orders = field_orders.map_or(vec![], to_field_orders);
+        let field_orders = field_ids.map_or(vec![], to_field_orders);
         let expected_len = field_orders.len();
         let field_metas = self.pad.read().await.get_field_metas(Some(field_orders))?;
         if expected_len != 0 && field_metas.len() != expected_len {
@@ -382,10 +394,10 @@ impl ClientGridEditor {
         }
     }
 
-    async fn notify_did_update_fields(&self) -> FlowyResult<()> {
+    async fn notify_did_update_grid(&self) -> FlowyResult<()> {
         let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
         let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateFields)
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGrid)
             .payload(repeated_field)
             .send();
         Ok(())
@@ -442,12 +454,10 @@ impl RevisionCompactor for GridRevisionCompactor {
     }
 }
 
-struct TypeOptionChangesetDeserializer(FieldType);
-impl TypeOptionDataDeserializer for TypeOptionChangesetDeserializer {
+struct TypeOptionJsonDeserializer(FieldType);
+impl JsonDeserializer for TypeOptionJsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
-        // The type_option_data is serialized by protobuf. But the type_option_data should be
-        // serialized by utf-8. So we must transform the data here.
-
+        // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
         Ok(builder.entry().json_str())
     }

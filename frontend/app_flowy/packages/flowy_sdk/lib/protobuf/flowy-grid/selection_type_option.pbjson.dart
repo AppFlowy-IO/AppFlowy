@@ -64,6 +64,22 @@ final $typed_data.Uint8List selectOptionDescriptor = $convert.base64Decode('CgxT
 const SelectOptionChangesetPayload$json = const {
   '1': 'SelectOptionChangesetPayload',
   '2': const [
+    const {'1': 'cell_identifier', '3': 1, '4': 1, '5': 11, '6': '.CellIdentifierPayload', '10': 'cellIdentifier'},
+    const {'1': 'insert_option', '3': 2, '4': 1, '5': 11, '6': '.SelectOption', '9': 0, '10': 'insertOption'},
+    const {'1': 'delete_option', '3': 3, '4': 1, '5': 11, '6': '.SelectOption', '9': 1, '10': 'deleteOption'},
+  ],
+  '8': const [
+    const {'1': 'one_of_insert_option'},
+    const {'1': 'one_of_delete_option'},
+  ],
+};
+
+/// Descriptor for `SelectOptionChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEj8KD2NlbGxfaWRlbnRpZmllchgBIAEoCzIWLkNlbGxJZGVudGlmaWVyUGF5bG9hZFIOY2VsbElkZW50aWZpZXISNAoNaW5zZXJ0X29wdGlvbhgCIAEoCzINLlNlbGVjdE9wdGlvbkgAUgxpbnNlcnRPcHRpb24SNAoNZGVsZXRlX29wdGlvbhgDIAEoCzINLlNlbGVjdE9wdGlvbkgBUgxkZWxldGVPcHRpb25CFgoUb25lX29mX2luc2VydF9vcHRpb25CFgoUb25lX29mX2RlbGV0ZV9vcHRpb24=');
+@$core.Deprecated('Use selectOptionCellChangesetPayloadDescriptor instead')
+const SelectOptionCellChangesetPayload$json = const {
+  '1': 'SelectOptionCellChangesetPayload',
+  '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
@@ -76,8 +92,8 @@ const SelectOptionChangesetPayload$json = const {
   ],
 };
 
-/// Descriptor for `SelectOptionChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEioKEGluc2VydF9vcHRpb25faWQYBCABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgFIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
+/// Descriptor for `SelectOptionCellChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectOptionCellChangesetPayloadDescriptor = $convert.base64Decode('CiBTZWxlY3RPcHRpb25DZWxsQ2hhbmdlc2V0UGF5bG9hZBIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSFQoGcm93X2lkGAIgASgJUgVyb3dJZBIZCghmaWVsZF9pZBgDIAEoCVIHZmllbGRJZBIqChBpbnNlcnRfb3B0aW9uX2lkGAQgASgJSABSDmluc2VydE9wdGlvbklkEioKEGRlbGV0ZV9vcHRpb25faWQYBSABKAlIAVIOZGVsZXRlT3B0aW9uSWRCGQoXb25lX29mX2luc2VydF9vcHRpb25faWRCGQoXb25lX29mX2RlbGV0ZV9vcHRpb25faWQ=');
 @$core.Deprecated('Use selectOptionContextDescriptor instead')
 const SelectOptionContext$json = const {
   '1': 'SelectOptionContext',

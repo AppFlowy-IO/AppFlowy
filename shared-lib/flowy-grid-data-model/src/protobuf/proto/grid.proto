@@ -15,10 +15,6 @@ message Field {
     bool visibility = 6;
     int32 width = 7;
 }
-message FieldIdentifierPayload {
-    string field_id = 1;
-    string grid_id = 2;
-}
 message FieldOrder {
     string field_id = 1;
 }
@@ -70,11 +66,6 @@ message Cell {
     string field_id = 1;
     string content = 2;
 }
-message CellIdentifierPayload {
-    string grid_id = 1;
-    string field_id = 2;
-    string row_id = 3;
-}
 message CellNotificationData {
     string grid_id = 1;
     string field_id = 2;
@@ -110,12 +101,4 @@ message QueryFieldPayload {
 message QueryGridBlocksPayload {
     string grid_id = 1;
     repeated GridBlockOrder block_orders = 2;
-}
-message QueryRowPayload {
-    string grid_id = 1;
-    string row_id = 3;
-}
-message CreateSelectOptionPayload {
-    string option_name = 1;
-    bool selected = 2;
 }

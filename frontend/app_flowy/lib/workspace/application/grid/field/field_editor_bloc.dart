@@ -48,7 +48,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
       () async => null,
       (field) async {
         field.name = state.fieldName;
-        final result = await service.createField(
+        final result = await service.insertField(
           field: field,
           typeOptionData: state.typeOptionData,
         );

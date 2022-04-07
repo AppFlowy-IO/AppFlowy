@@ -103,6 +103,10 @@ pub enum ErrorCode {
     FieldDoesNotExist = 441,
     #[display(fmt = "The name of the option should not be empty")]
     SelectOptionNameIsEmpty = 442,
+    #[display(fmt = "Field not exists")]
+    FieldNotExists = 443,
+    #[display(fmt = "The operation in this field is invalid")]
+    FieldInvalidOperation = 444,
 
     #[display(fmt = "Field's type option data should not be empty")]
     TypeOptionDataIsEmpty = 450,

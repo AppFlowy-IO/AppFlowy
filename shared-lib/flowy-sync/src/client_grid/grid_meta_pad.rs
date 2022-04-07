@@ -20,7 +20,7 @@ pub struct GridMetaPad {
     pub(crate) delta: GridMetaDelta,
 }
 
-pub trait TypeOptionDataDeserializer {
+pub trait JsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String>;
 }
 
@@ -47,47 +47,55 @@ impl GridMetaPad {
         new_field_meta: FieldMeta,
         start_field_id: Option<String>,
     ) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| {
+        self.modify_grid(|grid_meta| {
             // Check if the field exists or not
-            if grid.fields.iter().any(|field_meta| field_meta.id == new_field_meta.id) {
+            if grid_meta
+                .fields
+                .iter()
+                .any(|field_meta| field_meta.id == new_field_meta.id)
+            {
                 tracing::error!("Duplicate grid field");
                 return Ok(None);
             }
 
             let insert_index = match start_field_id {
                 None => None,
-                Some(start_field_id) => grid.fields.iter().position(|field| field.id == start_field_id),
+                Some(start_field_id) => grid_meta.fields.iter().position(|field| field.id == start_field_id),
             };
 
             match insert_index {
-                None => grid.fields.push(new_field_meta),
-                Some(index) => grid.fields.insert(index, new_field_meta),
+                None => grid_meta.fields.push(new_field_meta),
+                Some(index) => grid_meta.fields.insert(index, new_field_meta),
             }
             Ok(Some(()))
         })
     }
 
     pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
-            None => Ok(None),
-            Some(index) => {
-                grid.fields.remove(index);
-                Ok(Some(()))
-            }
-        })
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    grid_meta.fields.remove(index);
+                    Ok(Some(()))
+                }
+            },
+        )
     }
 
     pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
-            None => Ok(None),
-            Some(index) => {
-                let mut duplicate_field_meta = grid.fields[index].clone();
-                duplicate_field_meta.id = uuid();
-                duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
-                grid.fields.insert(index + 1, duplicate_field_meta);
-                Ok(Some(()))
-            }
-        })
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    let mut duplicate_field_meta = grid_meta.fields[index].clone();
+                    duplicate_field_meta.id = uuid();
+                    duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
+                    grid_meta.fields.insert(index + 1, duplicate_field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
     }
 
     pub fn switch_to_field<B>(
@@ -99,9 +107,9 @@ impl GridMetaPad {
     where
         B: FnOnce(&FieldType) -> String,
     {
-        self.modify_grid(|grid| {
+        self.modify_grid(|grid_meta| {
             //
-            match grid.fields.iter_mut().find(|field_meta| field_meta.id == field_id) {
+            match grid_meta.fields.iter_mut().find(|field_meta| field_meta.id == field_id) {
                 None => {
                     tracing::warn!("Can not find the field with id: {}", field_id);
                     Ok(None)
@@ -119,7 +127,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn update_field<T: TypeOptionDataDeserializer>(
+    pub fn update_field<T: JsonDeserializer>(
         &mut self,
         changeset: FieldChangesetParams,
         deserializer: T,
@@ -178,6 +186,19 @@ impl GridMetaPad {
         self.grid_meta.fields.iter().find(|field| field.id == field_id)
     }
 
+    pub fn replace_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_meta.id) {
+                None => Ok(None),
+                Some(index) => {
+                    grid_meta.fields.remove(index);
+                    grid_meta.fields.insert(index, field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
     pub fn contain_field(&self, field_id: &str) -> bool {
         self.grid_meta.fields.iter().any(|field| field.id == field_id)
     }
@@ -213,13 +234,13 @@ impl GridMetaPad {
     }
 
     pub fn create_block_meta(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| {
-            if grid.block_metas.iter().any(|b| b.block_id == block.block_id) {
+        self.modify_grid(|grid_meta| {
+            if grid_meta.block_metas.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
-                match grid.block_metas.last() {
-                    None => grid.block_metas.push(block),
+                match grid_meta.block_metas.last() {
+                    None => grid_meta.block_metas.push(block),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -227,7 +248,7 @@ impl GridMetaPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid.block_metas.push(block);
+                        grid_meta.block_metas.push(block);
                     }
                 }
                 Ok(Some(()))
@@ -299,28 +320,34 @@ impl GridMetaPad {
     where
         F: FnOnce(&mut GridBlockMeta) -> CollaborateResult<Option<()>>,
     {
-        self.modify_grid(
-            |grid| match grid.block_metas.iter().position(|block| block.block_id == block_id) {
+        self.modify_grid(|grid_meta| {
+            match grid_meta
+                .block_metas
+                .iter()
+                .position(|block| block.block_id == block_id)
+            {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid.block_metas[index]),
-            },
-        )
+                Some(index) => f(&mut grid_meta.block_metas[index]),
+            }
+        })
     }
 
     pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut FieldMeta) -> CollaborateResult<Option<()>>,
     {
-        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
-            None => {
-                tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
-                Ok(None)
-            }
-            Some(index) => f(&mut grid.fields[index]),
-        })
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => {
+                    tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
+                    Ok(None)
+                }
+                Some(index) => f(&mut grid_meta.fields[index]),
+            },
+        )
     }
 }
 

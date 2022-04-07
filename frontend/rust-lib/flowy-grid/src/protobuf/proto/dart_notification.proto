@@ -6,6 +6,6 @@ enum GridNotification {
     DidUpdateBlock = 20;
     DidUpdateRow = 30;
     DidUpdateCell = 31;
-    DidUpdateFields = 40;
+    DidUpdateGrid = 40;
     DidUpdateField = 41;
 }

@@ -90,9 +90,8 @@ impl TypeOptionCellData {
     }
 }
 
-/// The function,apply_cell_data_changeset, will apply the cell_data_changeset.
-///
-/// The cell_data_changeset will be deserialized into specific data base on the FieldType.
+/// The changeset will be deserialized into specific data base on the FieldType.
+/// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
 pub fn apply_cell_data_changeset<T: Into<CellDataChangeset>>(
     changeset: T,
     cell_meta: Option<CellMeta>,

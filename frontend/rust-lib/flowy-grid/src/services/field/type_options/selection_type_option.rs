@@ -1,4 +1,5 @@
 use crate::impl_type_option;
+use crate::services::cell::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use crate::services::util::*;
@@ -16,6 +17,12 @@ use uuid::Uuid;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
+pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
+    fn insert_option(&mut self, new_option: SelectOption);
+    fn delete_option(&mut self, delete_option: SelectOption);
+    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext;
+}
+
 // Single select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct SingleSelectTypeOption {
@@ -27,28 +34,27 @@ pub struct SingleSelectTypeOption {
 }
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
-impl SingleSelectTypeOption {
-    pub fn select_option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+impl SelectOptionOperation for SingleSelectTypeOption {
+    fn insert_option(&mut self, new_option: SelectOption) {
+        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
+            self.options.remove(index);
+            self.options.insert(index, new_option);
+        } else {
+            self.options.insert(0, new_option);
+        }
+    }
+
+    fn delete_option(&mut self, delete_option: SelectOption) {
+        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
+            self.options.remove(index);
+        }
+    }
+
+    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
         let select_options = make_select_context_from(cell_meta, &self.options);
         SelectOptionContext {
             options: self.options.clone(),
             select_options,
-        }
-    }
-}
-
-fn make_select_context_from(cell_meta: &Option<CellMeta>, options: &Vec<SelectOption>) -> Vec<SelectOption> {
-    match cell_meta {
-        None => vec![],
-        Some(cell_meta) => {
-            if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&cell_meta.data) {
-                select_option_ids(type_option_cell_data.data)
-                    .into_iter()
-                    .flat_map(|option_id| options.iter().find(|option| option.id == option_id).cloned())
-                    .collect()
-            } else {
-                vec![]
-            }
         }
     }
 }
@@ -78,7 +84,7 @@ impl CellDataOperation for SingleSelectTypeOption {
         _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
-        let select_option_changeset: SelectOptionChangeset = serde_json::from_str(&changeset)?;
+        let select_option_changeset: SelectOptionCellChangeset = serde_json::from_str(&changeset)?;
         let new_cell_data: String;
         if let Some(insert_option_id) = select_option_changeset.insert_option_id {
             new_cell_data = insert_option_id;
@@ -123,9 +129,28 @@ pub struct MultiSelectTypeOption {
 }
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
-impl MultiSelectTypeOption {
-    pub fn select_option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
-        todo!()
+impl SelectOptionOperation for MultiSelectTypeOption {
+    fn insert_option(&mut self, new_option: SelectOption) {
+        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
+            self.options.remove(index);
+            self.options.insert(index, new_option);
+        } else {
+            self.options.insert(0, new_option);
+        }
+    }
+
+    fn delete_option(&mut self, delete_option: SelectOption) {
+        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
+            self.options.remove(index);
+        }
+    }
+
+    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+        let select_options = make_select_context_from(cell_meta, &self.options);
+        SelectOptionContext {
+            options: self.options.clone(),
+            select_options,
+        }
     }
 }
 
@@ -153,7 +178,7 @@ impl CellDataOperation for MultiSelectTypeOption {
         cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
-        let select_option_changeset: SelectOptionChangeset = serde_json::from_str(&changeset)?;
+        let select_option_changeset: SelectOptionCellChangeset = serde_json::from_str(&changeset)?;
         let new_cell_data: String;
         match cell_meta {
             None => {
@@ -231,6 +256,37 @@ impl SelectOption {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPayload {
     #[pb(index = 1)]
+    pub cell_identifier: CellIdentifierPayload,
+
+    #[pb(index = 2, one_of)]
+    pub insert_option: Option<SelectOption>,
+
+    #[pb(index = 3, one_of)]
+    pub delete_option: Option<SelectOption>,
+}
+
+pub struct SelectOptionChangeset {
+    pub cell_identifier: CellIdentifier,
+    pub insert_option: Option<SelectOption>,
+    pub delete_option: Option<SelectOption>,
+}
+
+impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<SelectOptionChangeset, Self::Error> {
+        let cell_identifier = self.cell_identifier.try_into()?;
+        Ok(SelectOptionChangeset {
+            cell_identifier,
+            insert_option: self.insert_option,
+            delete_option: self.delete_option,
+        })
+    }
+}
+
+#[derive(Clone, Debug, Default, ProtoBuf)]
+pub struct SelectOptionCellChangesetPayload {
+    #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
@@ -246,7 +302,7 @@ pub struct SelectOptionChangesetPayload {
     pub delete_option_id: Option<String>,
 }
 
-pub struct SelectOptionChangesetParams {
+pub struct SelectOptionCellChangesetParams {
     pub grid_id: String,
     pub field_id: String,
     pub row_id: String,
@@ -255,14 +311,34 @@ pub struct SelectOptionChangesetParams {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct SelectOptionChangeset {
+pub struct SelectOptionCellChangeset {
     pub insert_option_id: Option<String>,
     pub delete_option_id: Option<String>,
 }
 
-impl std::convert::From<SelectOptionChangesetParams> for CellMetaChangeset {
-    fn from(params: SelectOptionChangesetParams) -> Self {
-        let changeset = SelectOptionChangeset {
+impl SelectOptionCellChangeset {
+    pub fn from_insert(option_id: &str) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_id: Some(option_id.to_string()),
+            delete_option_id: None,
+        }
+    }
+
+    pub fn from_delete(option_id: &str) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_id: None,
+            delete_option_id: Some(option_id.to_string()),
+        }
+    }
+
+    pub fn cell_data(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+}
+
+impl std::convert::From<SelectOptionCellChangesetParams> for CellMetaChangeset {
+    fn from(params: SelectOptionCellChangesetParams) -> Self {
+        let changeset = SelectOptionCellChangeset {
             insert_option_id: params.insert_option_id,
             delete_option_id: params.delete_option_id,
         };
@@ -276,10 +352,10 @@ impl std::convert::From<SelectOptionChangesetParams> for CellMetaChangeset {
     }
 }
 
-impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
+impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPayload {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<SelectOptionChangesetParams, Self::Error> {
+    fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
         let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
         let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
@@ -301,7 +377,7 @@ impl TryInto<SelectOptionChangesetParams> for SelectOptionChangesetPayload {
             ),
         };
 
-        Ok(SelectOptionChangesetParams {
+        Ok(SelectOptionCellChangesetParams {
             grid_id: grid_id.0,
             row_id: row_id.0,
             field_id: field_id.0,
@@ -337,6 +413,22 @@ pub enum SelectOptionColor {
 impl std::default::Default for SelectOptionColor {
     fn default() -> Self {
         SelectOptionColor::Purple
+    }
+}
+
+fn make_select_context_from(cell_meta: &Option<CellMeta>, options: &Vec<SelectOption>) -> Vec<SelectOption> {
+    match cell_meta {
+        None => vec![],
+        Some(cell_meta) => {
+            if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&cell_meta.data) {
+                select_option_ids(type_option_cell_data.data)
+                    .into_iter()
+                    .flat_map(|option_id| options.iter().find(|option| option.id == option_id).cloned())
+                    .collect()
+            } else {
+                vec![]
+            }
+        }
     }
 }
 

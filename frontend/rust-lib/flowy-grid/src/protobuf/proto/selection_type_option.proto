@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "cell_entities.proto";
 
 message SingleSelectTypeOption {
     repeated SelectOption options = 1;
@@ -14,6 +15,11 @@ message SelectOption {
     SelectOptionColor color = 3;
 }
 message SelectOptionChangesetPayload {
+    CellIdentifierPayload cell_identifier = 1;
+    oneof one_of_insert_option { SelectOption insert_option = 2; };
+    oneof one_of_delete_option { SelectOption delete_option = 3; };
+}
+message SelectOptionCellChangesetPayload {
     string grid_id = 1;
     string row_id = 2;
     string field_id = 3;
