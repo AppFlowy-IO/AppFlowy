@@ -104,7 +104,7 @@ impl CellDataOperation for NumberTypeOption {
     fn apply_changeset<T: Into<CellDataChangeset>>(
         &self,
         changeset: T,
-        cell_meta: Option<CellMeta>,
+        _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
         let data = self.strip_symbol(changeset);

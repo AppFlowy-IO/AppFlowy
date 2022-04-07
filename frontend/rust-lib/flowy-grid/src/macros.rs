@@ -52,7 +52,7 @@ macro_rules! impl_type_option {
                 match serde_json::to_string(&self) {
                     Ok(s) => s,
                     Err(e) => {
-                        tracing::error!("Field type data convert to AnyData fail, error: {:?}", e);
+                        tracing::error!("Field type data serialize to json fail, error: {:?}", e);
                         serde_json::to_string(&$target::default()).unwrap()
                     }
                 }

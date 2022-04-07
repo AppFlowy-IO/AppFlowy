@@ -66,7 +66,7 @@ impl CellDataOperation for DateTypeOption {
     fn apply_changeset<T: Into<CellDataChangeset>>(
         &self,
         changeset: T,
-        cell_meta: Option<CellMeta>,
+        _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
         if let Err(e) = changeset.parse::<i64>() {
@@ -282,7 +282,7 @@ mod tests {
     #[should_panic]
     fn date_description_invalid_data_test() {
         let type_option = DateTypeOption::default();
-        type_option.apply_changeset("he").unwrap();
+        type_option.apply_changeset("he", None).unwrap();
     }
 
     fn data(s: &str) -> String {

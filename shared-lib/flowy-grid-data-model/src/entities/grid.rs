@@ -1,5 +1,5 @@
 use crate::entities::{FieldMeta, FieldType, RowMeta};
-use crate::parser::{NotEmptyStr, NotEmptyUuid};
+use crate::parser::NotEmptyUuid;
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
 use std::collections::HashMap;
@@ -422,6 +422,7 @@ pub struct CreateFieldPayload {
     pub start_field_id: Option<String>,
 }
 
+#[derive(Clone)]
 pub struct CreateFieldParams {
     pub grid_id: String,
     pub field: Field,

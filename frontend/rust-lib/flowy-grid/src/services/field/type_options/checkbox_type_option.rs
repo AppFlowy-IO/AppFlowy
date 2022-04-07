@@ -43,7 +43,7 @@ const NO: &str = "No";
 impl CellDataOperation for CheckboxTypeOption {
     fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if !type_option_cell_data.is_text() || !type_option_cell_data.is_checkbox() {
+            if !type_option_cell_data.is_checkbox() {
                 return String::new();
             }
             let cell_data = type_option_cell_data.data;
@@ -58,7 +58,7 @@ impl CellDataOperation for CheckboxTypeOption {
     fn apply_changeset<T: Into<CellDataChangeset>>(
         &self,
         changeset: T,
-        cell_meta: Option<CellMeta>,
+        _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
         let s = match string_to_bool(&changeset) {
@@ -84,6 +84,7 @@ fn string_to_bool(bool_str: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use crate::services::field::type_options::checkbox_type_option::{NO, YES};
     use crate::services::field::CheckboxTypeOption;
     use crate::services::field::FieldBuilder;
     use crate::services::row::CellDataOperation;
@@ -94,17 +95,22 @@ mod tests {
         let type_option = CheckboxTypeOption::default();
         let field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
-        assert_eq!(type_option.apply_changeset("true").unwrap(), "1".to_owned());
-        assert_eq!(type_option.apply_changeset("1").unwrap(), "1".to_owned());
-        assert_eq!(type_option.apply_changeset("yes").unwrap(), "1".to_owned());
+        let data = type_option.apply_changeset("true", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
 
-        assert_eq!(type_option.apply_changeset("false").unwrap(), "0".to_owned());
-        assert_eq!(type_option.apply_changeset("no").unwrap(), "0".to_owned());
-        assert_eq!(type_option.apply_changeset("123").unwrap(), "0".to_owned());
+        let data = type_option.apply_changeset("1", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
 
-        assert_eq!(
-            type_option.decode_cell_data("1".to_owned(), &field_meta),
-            "1".to_owned()
-        );
+        let data = type_option.apply_changeset("yes", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
+
+        let data = type_option.apply_changeset("false", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
+
+        let data = type_option.apply_changeset("no", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
+
+        let data = type_option.apply_changeset("123", None).unwrap();
+        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
     }
 }

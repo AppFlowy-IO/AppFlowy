@@ -1,5 +1,6 @@
 use crate::services::row::apply_cell_data_changeset;
 
+use crate::services::field::SelectOptionCellChangeset;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
 use std::collections::HashMap;
@@ -37,6 +38,22 @@ impl<'a> CreateRowMetaBuilder<'a> {
             }
             Some(field_meta) => {
                 let data = apply_cell_data_changeset(&data, None, field_meta)?;
+                let cell = CellMeta::new(field_id, data);
+                self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
+                Ok(())
+            }
+        }
+    }
+
+    pub fn add_select_option_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
+        match self.field_meta_map.get(&field_id.to_owned()) {
+            None => {
+                let msg = format!("Invalid field_id: {}", field_id);
+                Err(FlowyError::internal().context(msg))
+            }
+            Some(field_meta) => {
+                let cell_data = SelectOptionCellChangeset::from_insert(&data).cell_data();
+                let data = apply_cell_data_changeset(&cell_data, None, field_meta)?;
                 let cell = CellMeta::new(field_id, data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())

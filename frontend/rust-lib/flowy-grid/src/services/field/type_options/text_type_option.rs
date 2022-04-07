@@ -50,7 +50,7 @@ impl CellDataOperation for RichTextTypeOption {
     fn apply_changeset<T: Into<CellDataChangeset>>(
         &self,
         changeset: T,
-        cell_meta: Option<CellMeta>,
+        _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let data = changeset.into();
         if data.len() > 10000 {
@@ -85,29 +85,25 @@ mod tests {
         let done_option_id = done_option.id.clone();
         let single_select = SingleSelectTypeOptionBuilder::default().option(done_option);
         let single_select_field_meta = FieldBuilder::new(single_select).build();
-        let data = TypeOptionCellData::new(&done_option_id, FieldType::SingleSelect).json();
+        let cell_data = TypeOptionCellData::new(&done_option_id, FieldType::SingleSelect).json();
         assert_eq!(
-            type_option.decode_cell_data(data, &single_select_field_meta),
+            type_option.decode_cell_data(cell_data, &single_select_field_meta),
             "Done".to_owned()
         );
 
         // Multiple select
         let google_option = SelectOption::new("Google");
-        let google_option_id = google_option.id.clone();
         let facebook_option = SelectOption::new("Facebook");
-        let face_option_id = facebook_option.id.clone();
+        let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
+        let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).cell_data();
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option)
-            .option(facebook_option)
-            .option(SelectOption::new("Twitter"));
+            .option(facebook_option);
         let multi_select_field_meta = FieldBuilder::new(multi_select).build();
-        let data = TypeOptionCellData::new(
-            &vec![google_option_id, face_option_id].join(SELECTION_IDS_SEPARATOR),
-            FieldType::SingleSelect,
-        )
-        .json();
+        let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_meta);
+        let cell_data = multi_type_option.apply_changeset(cell_data_changeset, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(data, &multi_select_field_meta),
+            type_option.decode_cell_data(cell_data, &multi_select_field_meta),
             "Google,Facebook".to_owned()
         );
 

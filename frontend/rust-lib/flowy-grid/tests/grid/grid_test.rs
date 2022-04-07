@@ -2,7 +2,7 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+    MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{apply_cell_data_changeset, decode_cell_data, CellDataOperation, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
@@ -233,97 +233,36 @@ async fn grid_row_add_cells_test() {
     for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
-                let data = apply_cell_data_changeset("hello world", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
             }
             FieldType::Number => {
-                let data = apply_cell_data_changeset("¥18,443", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
             }
             FieldType::DateTime => {
-                let data = apply_cell_data_changeset("1647251762", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "1647251762".to_owned()).unwrap();
             }
             FieldType::SingleSelect => {
                 let type_option = SingleSelectTypeOption::from(field);
-                let options = type_option.options.first().unwrap();
-                let data = type_option.apply_changeset(&options.id).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                let option = type_option.options.first().unwrap();
+                builder.add_select_option_cell(&field.id, option.id.clone()).unwrap();
             }
             FieldType::MultiSelect => {
                 let type_option = MultiSelectTypeOption::from(field);
-                let options = type_option
+                let ops_ids = type_option
                     .options
                     .iter()
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
                     .join(SELECTION_IDS_SEPARATOR);
-                let data = type_option.apply_changeset(&options).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_select_option_cell(&field.id, ops_ids).unwrap();
             }
             FieldType::Checkbox => {
-                let data = apply_cell_data_changeset("false", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "false".to_string()).unwrap();
             }
         }
     }
     let context = builder.build();
     let scripts = vec![CreateRow { context }, AssertGridMetaPad];
-    test.run_scripts(scripts).await;
-}
-
-#[tokio::test]
-async fn grid_row_add_selection_cell_test() {
-    let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowMetaBuilder::new(&test.field_metas);
-    let uuid = uuid::Uuid::new_v4().to_string();
-    let mut single_select_field_id = "".to_string();
-    let mut multi_select_field_id = "".to_string();
-    for field in &test.field_metas {
-        match field.field_type {
-            FieldType::SingleSelect => {
-                single_select_field_id = field.id.clone();
-                // The element must be parsed as uuid
-                assert!(builder.add_cell(&field.id, "data".to_owned()).is_err());
-                // // The data should not be empty
-                assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
-                // The element must be parsed as uuid
-                assert!(builder.add_cell(&field.id, "1,2,3".to_owned()).is_err(),);
-                // The separator must be comma
-                assert!(builder.add_cell(&field.id, format!("{}. {}", &uuid, &uuid),).is_err());
-                //
-
-                assert!(builder.add_cell(&field.id, uuid.clone()).is_ok());
-                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
-            }
-            FieldType::MultiSelect => {
-                multi_select_field_id = field.id.clone();
-                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
-            }
-            _ => {}
-        }
-    }
-    let context = builder.build();
-    assert_eq!(
-        &context
-            .cell_by_field_id
-            .get(&single_select_field_id)
-            .as_ref()
-            .unwrap()
-            .data,
-        &uuid
-    );
-    assert_eq!(
-        context
-            .cell_by_field_id
-            .get(&multi_select_field_id)
-            .as_ref()
-            .unwrap()
-            .data,
-        format!("{},{}", &uuid, &uuid)
-    );
-
-    let scripts = vec![CreateRow { context }];
     test.run_scripts(scripts).await;
 }
 
@@ -375,11 +314,11 @@ async fn grid_cell_update() {
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
                         let type_option = SingleSelectTypeOption::from(field_meta);
-                        type_option.options.first().unwrap().id.clone()
+                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
                     }
                     FieldType::MultiSelect => {
                         let type_option = MultiSelectTypeOption::from(field_meta);
-                        type_option.options.first().unwrap().id.clone()
+                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
                     }
                     FieldType::Checkbox => "1".to_string(),
                 };
@@ -400,8 +339,8 @@ async fn grid_cell_update() {
                     FieldType::RichText => ("1".to_string().repeat(10001), true),
                     FieldType::Number => ("abc".to_string(), true),
                     FieldType::DateTime => ("abc".to_string(), true),
-                    FieldType::SingleSelect => ("abc".to_string(), true),
-                    FieldType::MultiSelect => ("abc".to_string(), true),
+                    FieldType::SingleSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
+                    FieldType::MultiSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
                     FieldType::Checkbox => ("2".to_string(), false),
                 };
 

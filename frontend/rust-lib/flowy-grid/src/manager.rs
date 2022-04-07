@@ -23,6 +23,7 @@ pub struct GridManager {
     editor_map: Arc<GridEditorMap>,
     grid_user: Arc<dyn GridUser>,
     block_index_persistence: Arc<BlockIndexPersistence>,
+    #[allow(dead_code)]
     kv_persistence: Arc<GridKVPersistence>,
 }
 
@@ -181,12 +182,21 @@ pub async fn make_grid_view_data(
         block_metas: vec![build_context.block_metas],
     };
 
+    // Create grid
     let grid_meta_delta = make_grid_delta(&grid_meta);
     let grid_delta_data = grid_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
 
+    // Indexing the block's rows
+    build_context.block_meta_data.row_metas.iter().for_each(|row| {
+        let _ = grid_manager
+            .block_index_persistence
+            .insert_or_update(&row.block_id, &row.id);
+    });
+
+    // Create grid's block
     let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
     let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =

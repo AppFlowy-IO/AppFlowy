@@ -396,7 +396,7 @@ impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
         let field_id = changeset.field_id;
         let cell_meta = CellMeta {
             field_id: field_id.clone(),
-            data: changeset.data.unwrap_or("".to_owned()),
+            data: changeset.data.unwrap_or_else(|| "".to_owned()),
         };
         cell_by_field_id.insert(field_id, cell_meta);
 

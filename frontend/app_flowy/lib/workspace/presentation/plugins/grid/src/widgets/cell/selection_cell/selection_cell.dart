@@ -72,13 +72,28 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData);
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return BlocProvider.value(
+      value: _cellBloc,
+      child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
+        builder: (context, state) {
+          final children = state.selectedOptions.map((option) => SelectOptionTag(option: option)).toList();
+          return SizedBox.expand(
+            child: InkWell(
+              onTap: () {
+                SelectOptionEditor.show(context, state.cellData, state.options, state.selectedOptions);
+              },
+              child: Row(children: children),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override

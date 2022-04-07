@@ -1,6 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
-use crate::services::block_meta_editor::GridBlockMetaEditorManager;
+use crate::services::block_meta_manager::GridBlockMetaEditorManager;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::*;
@@ -154,7 +154,7 @@ impl ClientGridEditor {
 
     pub async fn get_field_meta(&self, field_id: &str) -> Option<FieldMeta> {
         let field_meta = self.pad.read().await.get_field(field_id)?.clone();
-        return Some(field_meta);
+        Some(field_meta)
     }
 
     pub async fn get_field_metas<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
@@ -285,7 +285,7 @@ impl ClientGridEditor {
         match self.pad.read().await.get_field(&changeset.field_id) {
             None => {
                 let msg = format!("Field not found with id: {}", &changeset.field_id);
-                return Err(FlowyError::internal().context(msg));
+                Err(FlowyError::internal().context(msg))
             }
             Some(field_meta) => {
                 // Update the changeset.data property with the return value.
