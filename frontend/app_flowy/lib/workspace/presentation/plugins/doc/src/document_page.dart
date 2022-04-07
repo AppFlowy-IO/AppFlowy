@@ -61,6 +61,7 @@ class _DocumentPageState extends State<DocumentPage> {
   @override
   Future<void> dispose() async {
     documentBloc.close();
+    _focusNode.dispose();
     super.dispose();
   }
 

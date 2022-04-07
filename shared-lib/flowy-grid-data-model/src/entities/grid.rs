@@ -1,5 +1,7 @@
 use crate::entities::{FieldMeta, FieldType, RowMeta};
+use crate::parser::NotEmptyUuid;
 use flowy_derive::ProtoBuf;
+use flowy_error_code::ErrorCode;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -39,6 +41,20 @@ pub struct Field {
     pub width: i32,
 }
 
+impl std::convert::From<FieldMeta> for Field {
+    fn from(field_meta: FieldMeta) -> Self {
+        Self {
+            id: field_meta.id,
+            name: field_meta.name,
+            desc: field_meta.desc,
+            field_type: field_meta.field_type,
+            frozen: field_meta.frozen,
+            visibility: field_meta.visibility,
+            width: field_meta.width,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
@@ -53,18 +69,72 @@ impl std::convert::From<&FieldMeta> for FieldOrder {
     }
 }
 
-impl std::convert::From<FieldMeta> for Field {
-    fn from(field_meta: FieldMeta) -> Self {
-        Self {
-            id: field_meta.id,
-            name: field_meta.name,
-            desc: field_meta.desc,
-            field_type: field_meta.field_type,
-            frozen: field_meta.frozen,
-            visibility: field_meta.visibility,
-            width: field_meta.width,
-        }
+impl std::convert::From<&str> for FieldOrder {
+    fn from(s: &str) -> Self {
+        FieldOrder { field_id: s.to_owned() }
     }
+}
+
+impl std::convert::From<String> for FieldOrder {
+    fn from(s: String) -> Self {
+        FieldOrder { field_id: s }
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GetEditFieldContextPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub field_id: Option<String>,
+
+    #[pb(index = 3)]
+    pub field_type: FieldType,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct EditFieldPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub field_type: FieldType,
+}
+
+pub struct EditFieldParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<EditFieldParams> for EditFieldPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<EditFieldParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(EditFieldParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+            field_type: self.field_type,
+        })
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct EditFieldContext {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub grid_field: Field,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -101,6 +171,20 @@ impl std::ops::Deref for RepeatedFieldOrder {
     type Target = Vec<FieldOrder>;
     fn deref(&self) -> &Self::Target {
         &self.items
+    }
+}
+
+impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
+    fn from(field_orders: Vec<FieldOrder>) -> Self {
+        RepeatedFieldOrder { items: field_orders }
+    }
+}
+
+impl std::convert::From<String> for RepeatedFieldOrder {
+    fn from(s: String) -> Self {
+        RepeatedFieldOrder {
+            items: vec![FieldOrder::from(s)],
+        }
     }
 }
 
@@ -178,10 +262,16 @@ pub struct GridBlockOrder {
     pub block_id: String,
 }
 
+impl std::convert::From<&str> for GridBlockOrder {
+    fn from(s: &str) -> Self {
+        GridBlockOrder { block_id: s.to_owned() }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
-    pub block_id: String,
+    pub id: String,
 
     #[pb(index = 2)]
     pub row_orders: Vec<RowOrder>,
@@ -190,7 +280,7 @@ pub struct GridBlock {
 impl GridBlock {
     pub fn new(block_id: &str, row_orders: Vec<RowOrder>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            id: block_id.to_owned(),
             row_orders,
         }
     }
@@ -212,6 +302,21 @@ impl Cell {
             content,
         }
     }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellNotificationData {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub row_id: String,
+
+    #[pb(index = 4, one_of)]
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -269,6 +374,12 @@ impl AsRef<str> for GridBlockId {
     }
 }
 
+impl std::convert::From<&str> for GridBlockId {
+    fn from(s: &str) -> Self {
+        GridBlockId { value: s.to_owned() }
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct CreateRowPayload {
     #[pb(index = 1)]
@@ -276,6 +387,68 @@ pub struct CreateRowPayload {
 
     #[pb(index = 2, one_of)]
     pub start_row_id: Option<String>,
+}
+
+#[derive(Default)]
+pub struct CreateRowParams {
+    pub grid_id: String,
+    pub start_row_id: Option<String>,
+}
+
+impl TryInto<CreateRowParams> for CreateRowPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateRowParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        Ok(CreateRowParams {
+            grid_id: grid_id.0,
+            start_row_id: self.start_row_id,
+        })
+    }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateFieldPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field: Field,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+
+    #[pb(index = 4, one_of)]
+    pub start_field_id: Option<String>,
+}
+
+#[derive(Clone)]
+pub struct CreateFieldParams {
+    pub grid_id: String,
+    pub field: Field,
+    pub type_option_data: Vec<u8>,
+    pub start_field_id: Option<String>,
+}
+
+impl TryInto<CreateFieldParams> for CreateFieldPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let _ = NotEmptyUuid::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+
+        let start_field_id = match self.start_field_id {
+            None => None,
+            Some(id) => Some(NotEmptyUuid::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
+        };
+
+        Ok(CreateFieldParams {
+            grid_id: grid_id.0,
+            field: self.field,
+            type_option_data: self.type_option_data,
+            start_field_id,
+        })
+    }
 }
 
 #[derive(ProtoBuf, Default)]
@@ -287,6 +460,23 @@ pub struct QueryFieldPayload {
     pub field_orders: RepeatedFieldOrder,
 }
 
+pub struct QueryFieldParams {
+    pub grid_id: String,
+    pub field_orders: RepeatedFieldOrder,
+}
+
+impl TryInto<QueryFieldParams> for QueryFieldPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<QueryFieldParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        Ok(QueryFieldParams {
+            grid_id: grid_id.0,
+            field_orders: self.field_orders,
+        })
+    }
+}
+
 #[derive(ProtoBuf, Default)]
 pub struct QueryGridBlocksPayload {
     #[pb(index = 1)]
@@ -296,14 +486,19 @@ pub struct QueryGridBlocksPayload {
     pub block_orders: Vec<GridBlockOrder>,
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct QueryRowPayload {
-    #[pb(index = 1)]
+pub struct QueryGridBlocksParams {
     pub grid_id: String,
+    pub block_orders: Vec<GridBlockOrder>,
+}
 
-    #[pb(index = 2)]
-    pub block_id: String,
+impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
+    type Error = ErrorCode;
 
-    #[pb(index = 3)]
-    pub row_id: String,
+    fn try_into(self) -> Result<QueryGridBlocksParams, Self::Error> {
+        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        Ok(QueryGridBlocksParams {
+            grid_id: grid_id.0,
+            block_orders: self.block_orders,
+        })
+    }
 }

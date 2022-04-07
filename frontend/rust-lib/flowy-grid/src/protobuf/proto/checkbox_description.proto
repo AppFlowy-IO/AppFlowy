@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message CheckboxDescription {
-    bool is_selected = 1;
-}

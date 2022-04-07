@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,7 @@ class GridPluginBuilder implements PluginBuilder {
 
 class GridPluginConfig implements PluginConfig {
   @override
-  bool get creatable => false;
+  bool get creatable => true;
 }
 
 class GridPlugin extends Plugin {
@@ -56,7 +56,7 @@ class GridPluginDisplay extends PluginDisplay {
   GridPluginDisplay({required View view, Key? key}) : _view = view;
 
   @override
-  Widget get leftBarItem => const FlowyText.medium("Grid demo", fontSize: 12);
+  Widget get leftBarItem => ViewLeftBarItem(view: _view);
 
   @override
   Widget buildWidget() => GridPage(view: _view);

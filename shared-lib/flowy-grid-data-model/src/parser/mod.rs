@@ -1,5 +1,3 @@
-mod grid;
-mod id;
+mod str_parser;
 
-pub use grid::*;
-pub use id::*;
+pub use str_parser::*;

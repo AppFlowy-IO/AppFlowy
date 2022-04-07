@@ -12,7 +12,6 @@ import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
 import 'package:flowy_sdk/rust_stream.dart';
 
-
 typedef UserProfileUpdatedNotifierValue = Either<UserProfile, FlowyError>;
 typedef AuthNotifierValue = Either<Unit, FlowyError>;
 typedef WorkspaceUpdatedNotifierValue = Either<List<Workspace>, FlowyError>;
@@ -23,8 +22,8 @@ class UserListener {
   final authDidChangedNotifier = PublishNotifier<AuthNotifierValue>();
   final workspaceUpdatedNotifier = PublishNotifier<WorkspaceUpdatedNotifierValue>();
 
-  late FolderNotificationParser _workspaceParser;
-  late UserNotificationParser _userParser;
+  FolderNotificationParser? _workspaceParser;
+  UserNotificationParser? _userParser;
   late UserProfile _user;
   UserListener({
     required UserProfile user,
@@ -36,12 +35,14 @@ class UserListener {
     _workspaceParser = FolderNotificationParser(id: _user.token, callback: _notificationCallback);
     _userParser = UserNotificationParser(id: _user.token, callback: _userNotificationCallback);
     _subscription = RustStreamReceiver.listen((observable) {
-      _workspaceParser.parse(observable);
-      _userParser.parse(observable);
+      _workspaceParser?.parse(observable);
+      _userParser?.parse(observable);
     });
   }
 
   Future<void> stop() async {
+    _workspaceParser = null;
+    _userParser = null;
     await _subscription?.cancel();
     profileUpdatedNotifier.dispose();
     authDidChangedNotifier.dispose();

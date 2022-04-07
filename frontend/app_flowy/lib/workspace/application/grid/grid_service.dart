@@ -3,7 +3,6 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 
 class GridService {
   Future<Either<Grid, FlowyError>> openGrid({required String gridId}) async {
@@ -13,9 +12,9 @@ class GridService {
     return GridEventGetGridData(payload).send();
   }
 
-  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? upperRowId}) {
+  Future<Either<Row, FlowyError>> createRow({required String gridId, Option<String>? startRowId}) {
     CreateRowPayload payload = CreateRowPayload.create()..gridId = gridId;
-    upperRowId?.fold(() => null, (id) => payload.startRowId = id);
+    startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return GridEventCreateRow(payload).send();
   }
 
@@ -33,23 +32,4 @@ class GridService {
       ..fieldOrders = RepeatedFieldOrder(items: fieldOrders);
     return GridEventGetFields(payload).send();
   }
-}
-
-class GridRowData extends Equatable {
-  final String gridId;
-  final String rowId;
-  final String blockId;
-  final List<Field> fields;
-  final double height;
-
-  const GridRowData({
-    required this.gridId,
-    required this.rowId,
-    required this.blockId,
-    required this.fields,
-    required this.height,
-  });
-
-  @override
-  List<Object> get props => [rowId];
 }

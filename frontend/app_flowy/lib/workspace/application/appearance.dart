@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
@@ -5,13 +7,12 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:async/async.dart';
 
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   AppearanceSettings setting;
   AppTheme _theme;
   Locale _locale;
-  CancelableOperation? _saveOperation;
+  Timer? _saveOperation;
 
   AppearanceSettingModel(this.setting)
       : _theme = AppTheme.fromName(name: setting.theme),
@@ -21,12 +22,10 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   Locale get locale => _locale;
 
   Future<void> save() async {
-    _saveOperation?.cancel;
-    _saveOperation = CancelableOperation.fromFuture(
-      Future.delayed(const Duration(seconds: 1), () async {
-        await UserSettingsService().setAppearanceSettings(setting);
-      }),
-    );
+    _saveOperation?.cancel();
+    _saveOperation = Timer(const Duration(seconds: 2), () async {
+      await UserSettingsService().setAppearanceSettings(setting);
+    });
   }
 
   @override

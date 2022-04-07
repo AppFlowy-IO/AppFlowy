@@ -18,6 +18,21 @@ message Field {
 message FieldOrder {
     string field_id = 1;
 }
+message GetEditFieldContextPayload {
+    string grid_id = 1;
+    oneof one_of_field_id { string field_id = 2; };
+    FieldType field_type = 3;
+}
+message EditFieldPayload {
+    string grid_id = 1;
+    string field_id = 2;
+    FieldType field_type = 3;
+}
+message EditFieldContext {
+    string grid_id = 1;
+    Field grid_field = 2;
+    bytes type_option_data = 3;
+}
 message RepeatedField {
     repeated Field items = 1;
 }
@@ -44,12 +59,18 @@ message GridBlockOrder {
     string block_id = 1;
 }
 message GridBlock {
-    string block_id = 1;
+    string id = 1;
     repeated RowOrder row_orders = 2;
 }
 message Cell {
     string field_id = 1;
     string content = 2;
+}
+message CellNotificationData {
+    string grid_id = 1;
+    string field_id = 2;
+    string row_id = 3;
+    oneof one_of_content { string content = 4; };
 }
 message RepeatedCell {
     repeated Cell items = 1;
@@ -67,6 +88,12 @@ message CreateRowPayload {
     string grid_id = 1;
     oneof one_of_start_row_id { string start_row_id = 2; };
 }
+message CreateFieldPayload {
+    string grid_id = 1;
+    Field field = 2;
+    bytes type_option_data = 3;
+    oneof one_of_start_field_id { string start_field_id = 4; };
+}
 message QueryFieldPayload {
     string grid_id = 1;
     RepeatedFieldOrder field_orders = 2;
@@ -74,9 +101,4 @@ message QueryFieldPayload {
 message QueryGridBlocksPayload {
     string grid_id = 1;
     repeated GridBlockOrder block_orders = 2;
-}
-message QueryRowPayload {
-    string grid_id = 1;
-    string block_id = 2;
-    string row_id = 3;
 }

@@ -28,7 +28,7 @@ class AddButton extends StatelessWidget {
           onSelected: onSelected,
         ).show(context);
       },
-      icon: svg("home/add").padding(horizontal: 3, vertical: 3),
+      icon: svgWidget("home/add").padding(horizontal: 3, vertical: 3),
     );
   }
 }

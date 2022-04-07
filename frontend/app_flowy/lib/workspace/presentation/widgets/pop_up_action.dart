@@ -24,8 +24,8 @@ abstract class ActionList<T extends ActionItem> {
   FlowyOverlayDelegate? get delegate;
 
   void show(
-    BuildContext buildContext,
-    BuildContext anchorContext, {
+    BuildContext buildContext, {
+    BuildContext? anchorContext,
     AnchorDirection anchorDirection = AnchorDirection.bottomRight,
     Offset? anchorOffset,
   }) {
@@ -47,7 +47,7 @@ abstract class ActionList<T extends ActionItem> {
       identifier: identifier,
       itemCount: widgets.length,
       itemBuilder: (context, index) => widgets[index],
-      anchorContext: anchorContext,
+      anchorContext: anchorContext ?? buildContext,
       anchorDirection: anchorDirection,
       width: maxWidth,
       height: widgets.length * (itemHeight + ActionListSizes.padding * 2),

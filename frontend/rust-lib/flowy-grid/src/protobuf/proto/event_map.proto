@@ -4,7 +4,18 @@ enum GridEvent {
     GetGridData = 0;
     GetGridBlocks = 1;
     GetFields = 10;
-    CreateRow = 11;
-    GetRow = 12;
-    UpdateCell = 20;
+    UpdateField = 11;
+    CreateField = 12;
+    DeleteField = 13;
+    SwitchToField = 14;
+    DuplicateField = 15;
+    GetEditFieldContext = 16;
+    NewSelectOption = 30;
+    GetSelectOptionContext = 31;
+    ApplySelectOptionChangeset = 32;
+    CreateRow = 50;
+    GetRow = 51;
+    GetCell = 70;
+    UpdateCell = 71;
+    ApplySelectOptionCellChangeset = 72;
 }

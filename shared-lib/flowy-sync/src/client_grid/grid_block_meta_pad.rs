@@ -1,10 +1,11 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{GridBlockMetaSerde, RowMeta, RowMetaChangeset};
+use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -23,14 +24,13 @@ pub struct GridBlockMetaPad {
 impl GridBlockMetaPad {
     pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        tracing::info!("delta: {}", delta);
-        tracing::info!("{}", s);
-        let block_meta: GridBlockMetaSerde = serde_json::from_str(&s).map_err(|e| {
+        tracing::trace!("{}", s);
+        let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             CollaborateError::internal().context(msg)
         })?;
-        let block_id = block_meta.block_id;
-        let rows = block_meta
+        let block_id = meta_data.block_id;
+        let rows = meta_data
             .row_metas
             .into_iter()
             .map(Arc::new)
@@ -47,20 +47,21 @@ impl GridBlockMetaPad {
         Self::from_delta(block_delta)
     }
 
-    pub fn add_row(
+    #[tracing::instrument(level = "trace", skip(self, row), err)]
+    pub fn add_row_meta(
         &mut self,
         row: RowMeta,
         start_row_id: Option<String>,
     ) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
-            if let Some(upper_row_id) = start_row_id {
-                if upper_row_id.is_empty() {
+            if let Some(start_row_id) = start_row_id {
+                if start_row_id.is_empty() {
                     rows.insert(0, Arc::new(row));
                     return Ok(Some(()));
                 }
 
-                if let Some(index) = rows.iter().position(|row| row.id == upper_row_id) {
-                    rows.insert(index, Arc::new(row));
+                if let Some(index) = rows.iter().position(|row| row.id == start_row_id) {
+                    rows.insert(index + 1, Arc::new(row));
                     return Ok(Some(()));
                 }
             }
@@ -77,7 +78,7 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn get_rows(&self, row_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
+    pub fn get_row_metas(&self, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
         match row_ids {
             None => Ok(self.row_metas.to_vec()),
             Some(row_ids) => {
@@ -99,6 +100,18 @@ impl GridBlockMetaPad {
                     .collect::<Vec<_>>())
             }
         }
+    }
+
+    pub fn get_cell_metas(&self, field_id: &str, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<CellMeta>> {
+        let rows = self.get_row_metas(row_ids)?;
+        let cell_metas = rows
+            .iter()
+            .flat_map(|row| {
+                let cell_meta = row.cell_by_field_id.get(field_id)?;
+                Some(cell_meta.clone())
+            })
+            .collect::<Vec<CellMeta>>();
+        Ok(cell_metas)
     }
 
     pub fn number_of_rows(&self) -> i32 {
@@ -185,12 +198,12 @@ pub struct GridBlockMetaChange {
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaSerde) -> GridBlockMetaDelta {
+pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaData) -> GridBlockMetaDelta {
     let json = serde_json::to_string(&grid_block_meta_data).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaSerde) -> RepeatedRevision {
+pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaData) -> RepeatedRevision {
     let delta = make_block_meta_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
@@ -199,7 +212,7 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 
 impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
-        let block_meta_data = GridBlockMetaSerde {
+        let block_meta_data = GridBlockMetaData {
             block_id: uuid(),
             row_metas: vec![],
         };
@@ -229,7 +242,7 @@ mod tests {
             visibility: false,
         };
 
-        let change = pad.add_row(row, None).unwrap().unwrap();
+        let change = pad.add_row_meta(row, None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
@@ -243,19 +256,19 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let change = pad.add_row(row_1.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row(row_2.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":106},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
+        let change = pad.add_row_meta(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":114},{"insert":"3\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false},{\"id\":\""},{"retain":72}]"#
@@ -283,9 +296,9 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let _ = pad.add_row(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.row_metas[0], row_3);
         assert_eq!(*pad.row_metas[1], row_1);
@@ -299,9 +312,9 @@ mod tests {
         let row_2 = test_row_meta("2", &pad);
         let row_3 = test_row_meta("3", &pad);
 
-        let _ = pad.add_row(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row(row_3.clone(), Some("".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row_3.clone(), Some("".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.row_metas[0], row_3);
         assert_eq!(*pad.row_metas[1], row_1);
@@ -320,7 +333,7 @@ mod tests {
             visibility: false,
         };
 
-        let _ = pad.add_row(row.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
         let change = pad.delete_rows(&[row.id]).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
@@ -348,7 +361,7 @@ mod tests {
             cell_by_field_id: Default::default(),
         };
 
-        let _ = pad.add_row(row, None).unwrap().unwrap();
+        let _ = pad.add_row_meta(row, None).unwrap().unwrap();
         let change = pad.update_row(changeset).unwrap().unwrap();
 
         assert_eq!(

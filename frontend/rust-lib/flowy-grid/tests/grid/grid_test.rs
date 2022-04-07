@@ -1,32 +1,34 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
-use flowy_grid::services::cell::*;
-use flowy_grid::services::row::{deserialize_cell_data, serialize_cell_data, CellDataSerde, CreateRowMetaBuilder};
+use flowy_grid::services::field::{
+    MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+};
+use flowy_grid::services::row::{apply_cell_data_changeset, decode_cell_data, CellDataOperation, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangeset, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    TypeOptionDataEntry,
 };
 
 #[tokio::test]
 async fn grid_create_field() {
     let mut test = GridEditorTest::new().await;
-    let text_field = create_text_field();
-    let single_select_field = create_single_select_field();
-
+    let (text_field_params, text_field_meta) = create_text_field(&test.grid_id);
+    let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let scripts = vec![
         CreateField {
-            field_meta: text_field.clone(),
+            params: text_field_params,
         },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: text_field,
+            field_meta: text_field_meta,
         },
     ];
     test.run_scripts(scripts).await;
 
     let scripts = vec![
         CreateField {
-            field_meta: single_select_field.clone(),
+            params: single_select_params,
         },
         AssertFieldEqual {
             field_index: test.field_count,
@@ -39,16 +41,12 @@ async fn grid_create_field() {
 #[tokio::test]
 async fn grid_create_duplicate_field() {
     let mut test = GridEditorTest::new().await;
-    let text_field = create_text_field();
+    let (params, _) = create_text_field(&test.grid_id);
     let field_count = test.field_count;
     let expected_field_count = field_count + 1;
     let scripts = vec![
-        CreateField {
-            field_meta: text_field.clone(),
-        },
-        CreateField {
-            field_meta: text_field.clone(),
-        },
+        CreateField { params: params.clone() },
+        CreateField { params },
         AssertFieldCount(expected_field_count),
     ];
     test.run_scripts(scripts).await;
@@ -57,26 +55,19 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let mut test = GridEditorTest::new().await;
-    let single_select_field = create_single_select_field();
-    let changeset = FieldChangeset {
-        field_id: single_select_field.id.clone(),
-        name: None,
-        desc: None,
-        field_type: None,
-        frozen: None,
-        visibility: None,
-        width: None,
-        type_options: None,
+    let (params, field_meta) = create_single_select_field(&test.grid_id);
+    let changeset = FieldChangesetParams {
+        field_id: field_meta.id.clone(),
+        grid_id: test.grid_id.clone(),
+        ..Default::default()
     };
 
     let scripts = vec![
-        CreateField {
-            field_meta: single_select_field.clone(),
-        },
+        CreateField { params },
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: single_select_field,
+            field_meta,
         },
     ];
     test.run_scripts(scripts).await;
@@ -85,29 +76,27 @@ async fn grid_update_field_with_empty_change() {
 #[tokio::test]
 async fn grid_update_field() {
     let mut test = GridEditorTest::new().await;
-    let single_select_field = create_single_select_field();
+    let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let mut cloned_field = single_select_field.clone();
 
-    let mut single_select_type_options = SingleSelectDescription::from(&single_select_field);
-    single_select_type_options.options.push(SelectOption::new("Unknown"));
-    let changeset = FieldChangeset {
+    let mut single_select_type_option = SingleSelectTypeOption::from(&single_select_field);
+    single_select_type_option.options.push(SelectOption::new("Unknown"));
+    let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
-        name: None,
-        desc: None,
-        field_type: None,
+        grid_id: test.grid_id.clone(),
         frozen: Some(true),
-        visibility: None,
         width: Some(1000),
-        type_options: Some(single_select_type_options.clone().into()),
+        type_option_data: Some(single_select_type_option.protobuf_bytes().to_vec()),
+        ..Default::default()
     };
 
     cloned_field.frozen = true;
     cloned_field.width = 1000;
-    cloned_field.type_options = single_select_type_options.into();
+    cloned_field.insert_type_option_entry(&single_select_type_option);
 
     let scripts = vec![
         CreateField {
-            field_meta: single_select_field.clone(),
+            params: single_select_params,
         },
         UpdateField { changeset },
         AssertFieldEqual {
@@ -122,11 +111,9 @@ async fn grid_update_field() {
 async fn grid_delete_field() {
     let mut test = GridEditorTest::new().await;
     let expected_field_count = test.field_count;
-    let text_field = create_text_field();
+    let (text_params, text_field) = create_text_field(&test.grid_id);
     let scripts = vec![
-        CreateField {
-            field_meta: text_field.clone(),
-        },
+        CreateField { params: text_params },
         DeleteField { field_meta: text_field },
         AssertFieldCount(expected_field_count),
     ];
@@ -246,97 +233,36 @@ async fn grid_row_add_cells_test() {
     for field in &test.field_metas {
         match field.field_type {
             FieldType::RichText => {
-                let data = serialize_cell_data("hello world", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
             }
             FieldType::Number => {
-                let data = serialize_cell_data("¥18,443", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
             }
             FieldType::DateTime => {
-                let data = serialize_cell_data("1647251762", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "1647251762".to_owned()).unwrap();
             }
             FieldType::SingleSelect => {
-                let description = SingleSelectDescription::from(field);
-                let options = description.options.first().unwrap();
-                let data = description.serialize_cell_data(&options.id).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                let type_option = SingleSelectTypeOption::from(field);
+                let option = type_option.options.first().unwrap();
+                builder.add_select_option_cell(&field.id, option.id.clone()).unwrap();
             }
             FieldType::MultiSelect => {
-                let description = MultiSelectDescription::from(field);
-                let options = description
+                let type_option = MultiSelectTypeOption::from(field);
+                let ops_ids = type_option
                     .options
                     .iter()
                     .map(|option| option.id.clone())
                     .collect::<Vec<_>>()
                     .join(SELECTION_IDS_SEPARATOR);
-                let data = description.serialize_cell_data(&options).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_select_option_cell(&field.id, ops_ids).unwrap();
             }
             FieldType::Checkbox => {
-                let data = serialize_cell_data("false", field).unwrap();
-                builder.add_cell(&field.id, data).unwrap();
+                builder.add_cell(&field.id, "false".to_string()).unwrap();
             }
         }
     }
     let context = builder.build();
     let scripts = vec![CreateRow { context }, AssertGridMetaPad];
-    test.run_scripts(scripts).await;
-}
-
-#[tokio::test]
-async fn grid_row_add_selection_cell_test() {
-    let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowMetaBuilder::new(&test.field_metas);
-    let uuid = uuid::Uuid::new_v4().to_string();
-    let mut single_select_field_id = "".to_string();
-    let mut multi_select_field_id = "".to_string();
-    for field in &test.field_metas {
-        match field.field_type {
-            FieldType::SingleSelect => {
-                single_select_field_id = field.id.clone();
-                // The element must be parsed as uuid
-                assert!(builder.add_cell(&field.id, "data".to_owned()).is_err());
-                // // The data should not be empty
-                assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
-                // The element must be parsed as uuid
-                assert!(builder.add_cell(&field.id, "1,2,3".to_owned()).is_err(),);
-                // The separator must be comma
-                assert!(builder.add_cell(&field.id, format!("{}. {}", &uuid, &uuid),).is_err());
-                //
-
-                assert!(builder.add_cell(&field.id, uuid.clone()).is_ok());
-                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
-            }
-            FieldType::MultiSelect => {
-                multi_select_field_id = field.id.clone();
-                assert!(builder.add_cell(&field.id, format!("{},   {}", &uuid, &uuid)).is_ok());
-            }
-            _ => {}
-        }
-    }
-    let context = builder.build();
-    assert_eq!(
-        &context
-            .cell_by_field_id
-            .get(&single_select_field_id)
-            .as_ref()
-            .unwrap()
-            .data,
-        &uuid
-    );
-    assert_eq!(
-        context
-            .cell_by_field_id
-            .get(&multi_select_field_id)
-            .as_ref()
-            .unwrap()
-            .data,
-        format!("{},{}", &uuid, &uuid)
-    );
-
-    let scripts = vec![CreateRow { context }];
     test.run_scripts(scripts).await;
 }
 
@@ -361,7 +287,7 @@ async fn grid_row_add_date_cell_test() {
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        deserialize_cell_data(cell_data.data.clone(), &date_field).unwrap(),
+        decode_cell_data(cell_data.data.clone(), &date_field).unwrap(),
         "2022/03/16 08:31",
     );
     let scripts = vec![CreateRow { context }];
@@ -387,12 +313,12 @@ async fn grid_cell_update() {
                     FieldType::Number => "123".to_string(),
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
-                        let description = SingleSelectDescription::from(field_meta);
-                        description.options.first().unwrap().id.clone()
+                        let type_option = SingleSelectTypeOption::from(field_meta);
+                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
                     }
                     FieldType::MultiSelect => {
-                        let description = MultiSelectDescription::from(field_meta);
-                        description.options.first().unwrap().id.clone()
+                        let type_option = MultiSelectTypeOption::from(field_meta);
+                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
                     }
                     FieldType::Checkbox => "1".to_string(),
                 };
@@ -413,8 +339,8 @@ async fn grid_cell_update() {
                     FieldType::RichText => ("1".to_string().repeat(10001), true),
                     FieldType::Number => ("abc".to_string(), true),
                     FieldType::DateTime => ("abc".to_string(), true),
-                    FieldType::SingleSelect => ("abc".to_string(), true),
-                    FieldType::MultiSelect => ("abc".to_string(), true),
+                    FieldType::SingleSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
+                    FieldType::MultiSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
                     FieldType::Checkbox => ("2".to_string(), false),
                 };
 

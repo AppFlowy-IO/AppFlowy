@@ -1,18 +1,16 @@
 use bytes::Bytes;
-use flowy_sync::client_grid::GridBuilder;
-use std::collections::HashMap;
-
-use flowy_grid::services::cell::*;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellMetaChangeset, FieldChangeset, FieldMeta, FieldType, GridBlockMeta, GridBlockMetaChangeset,
-    RowMeta, RowMetaChangeset, RowOrder,
+    BuildGridContext, CellMetaChangeset, CreateFieldParams, Field, FieldChangesetParams, FieldMeta, FieldOrder,
+    FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
 };
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
+use flowy_sync::client_grid::GridBuilder;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
@@ -20,10 +18,10 @@ use tokio::time::sleep;
 
 pub enum EditorScript {
     CreateField {
-        field_meta: FieldMeta,
+        params: CreateFieldParams,
     },
     UpdateField {
-        changeset: FieldChangeset,
+        changeset: FieldChangesetParams,
     },
     DeleteField {
         field_meta: FieldMeta,
@@ -91,7 +89,7 @@ impl GridEditorTest {
         let view_data: Bytes = build_context.try_into().unwrap();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
-        let field_metas = editor.get_field_metas(None).await.unwrap();
+        let field_metas = editor.get_field_metas::<FieldOrder>(None).await.unwrap();
         let grid_blocks = editor.get_block_metas().await.unwrap();
         let row_metas = get_row_metas(&editor).await;
 
@@ -121,35 +119,39 @@ impl GridEditorTest {
         let _cache = rev_manager.revision_cache().await;
 
         match script {
-            EditorScript::CreateField { field_meta } => {
-                if !self.editor.contain_field(&field_meta).await {
+            EditorScript::CreateField { params } => {
+                if !self.editor.contain_field(&params.field.id).await {
                     self.field_count += 1;
                 }
-                self.editor.create_field(field_meta).await.unwrap();
-                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
+
+                self.editor.create_field(params).await.unwrap();
+                self.field_metas = self.editor.get_field_metas::<FieldOrder>(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_metas.len());
             }
             EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
-                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
+                self.field_metas = self.editor.get_field_metas::<FieldOrder>(None).await.unwrap();
             }
             EditorScript::DeleteField { field_meta } => {
-                if self.editor.contain_field(&field_meta).await {
+                if self.editor.contain_field(&field_meta.id).await {
                     self.field_count -= 1;
                 }
 
                 self.editor.delete_field(&field_meta.id).await.unwrap();
-                self.field_metas = self.editor.get_field_metas(None).await.unwrap();
+                self.field_metas = self.editor.get_field_metas::<FieldOrder>(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_metas.len());
             }
             EditorScript::AssertFieldCount(count) => {
-                assert_eq!(self.editor.get_field_metas(None).await.unwrap().len(), count);
+                assert_eq!(
+                    self.editor.get_field_metas::<FieldOrder>(None).await.unwrap().len(),
+                    count
+                );
             }
             EditorScript::AssertFieldEqual {
                 field_index,
                 field_meta,
             } => {
-                let field_metas = self.editor.get_field_metas(None).await.unwrap();
+                let field_metas = self.editor.get_field_metas::<FieldOrder>(None).await.unwrap();
                 assert_eq!(field_metas[field_index].clone(), field_meta);
             }
             EditorScript::CreateBlock { block } => {
@@ -239,7 +241,7 @@ impl GridEditorTest {
 
 async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
     editor
-        .get_block_meta_data_vec(None)
+        .grid_block_snapshots(None)
         .await
         .unwrap()
         .pop()
@@ -247,81 +249,108 @@ async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
         .row_metas
 }
 
-pub fn create_text_field() -> FieldMeta {
-    FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
+    let field_meta = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
-        .field_type(FieldType::RichText)
-        .build()
+        .build();
+
+    let cloned_field_meta = field_meta.clone();
+
+    let type_option_data = field_meta
+        .get_type_option_entry::<RichTextTypeOption>(None)
+        .unwrap()
+        .protobuf_bytes()
+        .to_vec();
+
+    let field = Field {
+        id: field_meta.id,
+        name: field_meta.name,
+        desc: field_meta.desc,
+        field_type: field_meta.field_type,
+        frozen: field_meta.frozen,
+        visibility: field_meta.visibility,
+        width: field_meta.width,
+    };
+
+    let params = CreateFieldParams {
+        grid_id: grid_id.to_owned(),
+        field,
+        type_option_data,
+        start_field_id: None,
+    };
+    (params, cloned_field_meta)
 }
 
-pub fn create_single_select_field() -> FieldMeta {
-    let single_select = SingleSelectTypeOptionsBuilder::default()
+pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
+    let single_select = SingleSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));
 
-    FieldBuilder::new(single_select)
-        .name("Name")
-        .visibility(true)
-        .field_type(FieldType::SingleSelect)
-        .build()
+    let field_meta = FieldBuilder::new(single_select).name("Name").visibility(true).build();
+    let cloned_field_meta = field_meta.clone();
+    let type_option_data = field_meta
+        .get_type_option_entry::<SingleSelectTypeOption>(None)
+        .unwrap()
+        .protobuf_bytes()
+        .to_vec();
+
+    let field = Field {
+        id: field_meta.id,
+        name: field_meta.name,
+        desc: field_meta.desc,
+        field_type: field_meta.field_type,
+        frozen: field_meta.frozen,
+        visibility: field_meta.visibility,
+        width: field_meta.width,
+    };
+
+    let params = CreateFieldParams {
+        grid_id: grid_id.to_owned(),
+        field,
+        type_option_data,
+        start_field_id: None,
+    };
+    (params, cloned_field_meta)
 }
 
 fn make_template_1_grid() -> BuildGridContext {
-    let text_field = FieldBuilder::new(RichTextTypeOptionsBuilder::default())
+    let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
-        .field_type(FieldType::RichText)
         .build();
 
     // Single Select
-    let single_select = SingleSelectTypeOptionsBuilder::default()
+    let single_select = SingleSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Live"))
         .option(SelectOption::new("Completed"))
         .option(SelectOption::new("Planned"))
         .option(SelectOption::new("Paused"));
-    let single_select_field = FieldBuilder::new(single_select)
-        .name("Status")
-        .visibility(true)
-        .field_type(FieldType::SingleSelect)
-        .build();
+    let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
 
     // MultiSelect
-    let multi_select = MultiSelectTypeOptionsBuilder::default()
+    let multi_select = MultiSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Google"))
         .option(SelectOption::new("Facebook"))
         .option(SelectOption::new("Twitter"));
     let multi_select_field = FieldBuilder::new(multi_select)
         .name("Platform")
         .visibility(true)
-        .field_type(FieldType::MultiSelect)
         .build();
 
     // Number
-    let number = NumberTypeOptionsBuilder::default().set_format(NumberFormat::USD);
-    let number_field = FieldBuilder::new(number)
-        .name("Price")
-        .visibility(true)
-        .field_type(FieldType::Number)
-        .build();
+    let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
+    let number_field = FieldBuilder::new(number).name("Price").visibility(true).build();
 
     // Date
-    let date = DateTypeOptionsBuilder::default()
+    let date = DateTypeOptionBuilder::default()
         .date_format(DateFormat::US)
         .time_format(TimeFormat::TwentyFourHour);
-    let date_field = FieldBuilder::new(date)
-        .name("Time")
-        .visibility(true)
-        .field_type(FieldType::DateTime)
-        .build();
+    let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
 
     // Checkbox
-    let checkbox = CheckboxTypeOptionsBuilder::default();
-    let checkbox_field = FieldBuilder::new(checkbox)
-        .name("is done")
-        .visibility(true)
-        .field_type(FieldType::Checkbox)
-        .build();
+    let checkbox = CheckboxTypeOptionBuilder::default();
+    let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
 
     GridBuilder::default()
         .add_field(text_field)

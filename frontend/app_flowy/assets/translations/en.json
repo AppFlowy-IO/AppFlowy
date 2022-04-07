@@ -141,5 +141,53 @@
       "lightLabel": "Light Mode",
       "darkLabel": "Dark Mode"
     }
+  },
+  "grid": {
+    "settings": {
+      "filter": "Filter",
+      "sortBy": "Sort by",
+      "Properties": "Properties"
+    },
+    "field": {
+      "hide": "Hide",
+      "insertLeft": "Insert Left",
+      "insertRight": "Insert Right",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Checkbox",
+      "dateFieldName": "Date",
+      "numberFieldName": "Numbers",
+      "singleSelectFieldName": "Select",
+      "multiSelectFieldName": "Multiselect",
+      "numberFormat": " Number format",
+      "dateFormat": " Date format",
+      "dateFormatFriendly": "Month Day,Year",
+      "dateFormatISO": "Year-Month-Day",
+      "dateFormatLocal": "Month/Month/Day",
+      "dateFormatUS": "Month/Month/Day",
+      "timeFormat": " Time format",
+      "timeFormatTwelveHour": "12 hour",
+      "timeFormatTwentyFourHour": "24 hour",
+      "addSelectOption": "Add an option",
+      "optionTitle": "Options",
+      "addOption": "Add option",
+      "editProperty": "Edit property"
+    },
+    "selectOption": {
+      "purpleColor": "Purple",
+      "pinkColor": "Pink",
+      "lightPinkColor": "Light Pink",
+      "orangeColor": "Orange",
+      "yellowColor": "Yellow",
+      "limeColor": "Lime",
+      "greenColor": "Green",
+      "aquaColor": "Aqua",
+      "blueColor": "Blue",
+      "deleteTag": "Delete tag",
+      "colorPannelTitle": "Colors",
+      "pannelTitle": "Select an option or create one",
+      "searchOption": "Search for an option"
+    }
   }
 }

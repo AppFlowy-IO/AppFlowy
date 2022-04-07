@@ -18,7 +18,7 @@ class ViewListener {
   PublishNotifier<UpdateViewNotifiedValue> updatedNotifier = PublishNotifier<UpdateViewNotifiedValue>();
   PublishNotifier<DeleteViewNotifyValue> deletedNotifier = PublishNotifier<DeleteViewNotifyValue>();
   PublishNotifier<RestoreViewNotifiedValue> restoredNotifier = PublishNotifier<RestoreViewNotifiedValue>();
-  late FolderNotificationParser _parser;
+  FolderNotificationParser? _parser;
   View view;
 
   ViewListener({
@@ -33,7 +33,7 @@ class ViewListener {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
@@ -62,6 +62,7 @@ class ViewListener {
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     updatedNotifier.dispose();
     deletedNotifier.dispose();

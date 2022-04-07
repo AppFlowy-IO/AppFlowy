@@ -4,18 +4,16 @@ import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
-typedef IsOnSelected = bool Function();
-
 class FlowyHover extends StatefulWidget {
   final HoverDisplayConfig config;
   final HoverBuilder builder;
-  final IsOnSelected? isOnSelected;
+  final bool Function()? setSelected;
 
   const FlowyHover({
     Key? key,
     required this.builder,
     required this.config,
-    this.isOnSelected,
+    this.setSelected,
   }) : super(key: key);
 
   @override
@@ -29,23 +27,20 @@ class _FlowyHoverState extends State<FlowyHover> {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (p) => setOnHover(true),
-      onExit: (p) => setOnHover(false),
+      onEnter: (p) => setState(() => _onHover = true),
+      onExit: (p) => setState(() => _onHover = false),
       child: render(),
     );
   }
 
-  void setOnHover(bool value) => setState(() => _onHover = value);
-
   Widget render() {
     var showHover = _onHover;
-
-    if (showHover == false && widget.isOnSelected != null) {
-      showHover = widget.isOnSelected!();
+    if (!showHover && widget.setSelected != null) {
+      showHover = widget.setSelected!();
     }
 
     if (showHover) {
-      return FlowyHoverBackground(
+      return FlowyHoverContainer(
         config: widget.config,
         child: widget.builder(context, _onHover),
       );
@@ -68,12 +63,11 @@ class HoverDisplayConfig {
       required this.hoverColor});
 }
 
-class FlowyHoverBackground extends StatelessWidget {
+class FlowyHoverContainer extends StatelessWidget {
   final HoverDisplayConfig config;
-
   final Widget child;
 
-  const FlowyHoverBackground({
+  const FlowyHoverContainer({
     Key? key,
     required this.child,
     required this.config,

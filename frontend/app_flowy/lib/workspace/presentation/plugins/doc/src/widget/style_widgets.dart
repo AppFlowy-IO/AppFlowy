@@ -51,7 +51,7 @@ class _FlowyEditorCheckboxState extends State<FlowyEditorCheckbox> {
 
   @override
   Widget build(BuildContext context) {
-    final icon = isChecked ? svg('editor/editor_check') : svg('editor/editor_uncheck');
+    final icon = isChecked ? svgWidget('editor/editor_check') : svgWidget('editor/editor_uncheck');
     return Align(
       alignment: Alignment.centerLeft,
       child: FlowyIconButton(

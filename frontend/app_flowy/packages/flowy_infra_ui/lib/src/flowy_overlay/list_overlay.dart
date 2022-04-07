@@ -1,8 +1,5 @@
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:provider/provider.dart';
 
 class ListOverlayFooter {
   Widget widget;
@@ -35,36 +32,29 @@ class ListOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     const padding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
     double totalHeight = height + padding.vertical;
     if (footer != null) {
       totalHeight = totalHeight + footer!.height + footer!.padding.vertical;
     }
 
-    return Material(
-      type: MaterialType.transparency,
-      child: Container(
-        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.1)),
-        constraints: BoxConstraints.tight(Size(width, totalHeight)),
-        child: Padding(
-          padding: padding,
-          child: Column(
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemBuilder: itemBuilder,
-                itemCount: itemCount,
-                controller: controller,
-              ),
-              if (footer != null)
-                Padding(
-                  padding: footer!.padding,
-                  child: footer!.widget,
-                ),
-            ],
+    return OverlayContainer(
+      constraints: BoxConstraints.tight(Size(width, totalHeight)),
+      padding: padding,
+      child: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+            controller: controller,
           ),
-        ),
+          if (footer != null)
+            Padding(
+              padding: footer!.padding,
+              child: footer!.widget,
+            ),
+        ],
       ),
     );
   }
@@ -100,40 +90,6 @@ class ListOverlay extends StatelessWidget {
       delegate: delegate,
       overlapBehaviour: overlapBehaviour,
       anchorOffset: anchorOffset,
-      style: style,
-    );
-  }
-
-  static void showWithRect(
-    BuildContext context, {
-    required BuildContext anchorContext,
-    required String identifier,
-    required IndexedWidgetBuilder itemBuilder,
-    int? itemCount,
-    ScrollController? controller,
-    double maxWidth = double.infinity,
-    double maxHeight = double.infinity,
-    required Offset anchorPosition,
-    required Size anchorSize,
-    AnchorDirection? anchorDirection,
-    FlowyOverlayDelegate? delegate,
-    OverlapBehaviour? overlapBehaviour,
-    FlowyOverlayStyle? style,
-  }) {
-    FlowyOverlay.of(context).insertWithRect(
-      widget: ListOverlay(
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
-        controller: controller,
-        width: maxWidth,
-        height: maxHeight,
-      ),
-      identifier: identifier,
-      anchorPosition: anchorPosition,
-      anchorSize: anchorSize,
-      anchorDirection: anchorDirection,
-      delegate: delegate,
-      overlapBehaviour: overlapBehaviour,
       style: style,
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 
-class GridColumnData {
+class GridHeaderData {
+  final String gridId;
   final List<Field> fields;
 
-  GridColumnData({required this.fields});
+  GridHeaderData({required this.gridId, required this.fields});
 }

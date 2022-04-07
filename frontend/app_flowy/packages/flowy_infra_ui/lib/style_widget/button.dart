@@ -8,15 +8,19 @@ class FlowyButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onTap;
   final EdgeInsets padding;
-  final Widget? icon;
+  final Widget? leftIcon;
+  final Widget? rightIcon;
   final Color hoverColor;
+  final bool isSelected;
   const FlowyButton({
     Key? key,
     required this.text,
     this.onTap,
-    this.padding = const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-    this.icon,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    this.leftIcon,
+    this.rightIcon,
     this.hoverColor = Colors.transparent,
+    this.isSelected = false,
   }) : super(key: key);
 
   @override
@@ -24,7 +28,8 @@ class FlowyButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: FlowyHover(
-        config: HoverDisplayConfig(borderRadius: Corners.s5Border, hoverColor: hoverColor),
+        config: HoverDisplayConfig(borderRadius: Corners.s6Border, hoverColor: hoverColor),
+        setSelected: () => isSelected,
         builder: (context, onHover) => _render(),
       ),
     );
@@ -33,16 +38,22 @@ class FlowyButton extends StatelessWidget {
   Widget _render() {
     List<Widget> children = List.empty(growable: true);
 
-    if (icon != null) {
-      children.add(SizedBox.fromSize(size: const Size.square(16), child: icon!));
+    if (leftIcon != null) {
+      children.add(SizedBox.fromSize(size: const Size.square(16), child: leftIcon!));
       children.add(const HSpace(6));
     }
 
-    children.add(Align(child: text));
+    children.add(Expanded(child: text));
+
+    if (rightIcon != null) {
+      children.add(SizedBox.fromSize(size: const Size.square(16), child: rightIcon!));
+    }
 
     return Padding(
       padding: padding,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: children,
       ),
     );

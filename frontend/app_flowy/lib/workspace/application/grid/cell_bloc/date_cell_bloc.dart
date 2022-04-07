@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -8,10 +9,12 @@ part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellService service;
+  final CellData cellData;
 
   DateCellBloc({
     required this.service,
-  }) : super(DateCellState.initial(service.context.cell)) {
+    required this.cellData,
+  }) : super(DateCellState.initial()) {
     on<DateCellEvent>(
       (event, emit) async {
         await event.map(
@@ -28,15 +31,15 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 }
 
 @freezed
-abstract class DateCellEvent with _$DateCellEvent {
+class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
 }
 
 @freezed
-abstract class DateCellState with _$DateCellState {
+class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required Cell? cell,
+    Cell? cell,
   }) = _DateCellState;
 
-  factory DateCellState.initial(Cell? cell) => DateCellState(cell: cell);
+  factory DateCellState.initial() => const DateCellState();
 }

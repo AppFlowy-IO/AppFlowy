@@ -1,5 +1,7 @@
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::kv_persistence::GridKVPersistence;
+use crate::services::persistence::block_index::BlockIndexPersistence;
+use crate::services::persistence::kv::GridKVPersistence;
+use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -10,7 +12,6 @@ use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait GridUser: Send + Sync {
     fn user_id(&self) -> Result<String, FlowyError>;
@@ -21,20 +22,25 @@ pub trait GridUser: Send + Sync {
 pub struct GridManager {
     editor_map: Arc<GridEditorMap>,
     grid_user: Arc<dyn GridUser>,
-    kv_persistence: Arc<RwLock<Option<Arc<GridKVPersistence>>>>,
+    block_index_persistence: Arc<BlockIndexPersistence>,
+    #[allow(dead_code)]
+    kv_persistence: Arc<GridKVPersistence>,
 }
 
 impl GridManager {
-    pub fn new(grid_user: Arc<dyn GridUser>, _rev_web_socket: Arc<dyn RevisionWebSocket>) -> Self {
+    pub fn new(
+        grid_user: Arc<dyn GridUser>,
+        _rev_web_socket: Arc<dyn RevisionWebSocket>,
+        database: Arc<dyn GridDatabase>,
+    ) -> Self {
         let grid_editors = Arc::new(GridEditorMap::new());
-
-        // kv_persistence will be initialized after first access.
-        // See get_kv_persistence function below
-        let kv_persistence = Arc::new(RwLock::new(None));
+        let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
+        let block_index_persistence = Arc::new(BlockIndexPersistence::new(database));
         Self {
             editor_map: grid_editors,
             grid_user,
             kv_persistence,
+            block_index_persistence,
         }
     }
 
@@ -83,7 +89,7 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    // #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
         match self.editor_map.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
@@ -111,7 +117,8 @@ impl GridManager {
     ) -> Result<Arc<ClientGridEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let grid_editor = ClientGridEditor::new(grid_id, user, rev_manager).await?;
+        let grid_editor =
+            ClientGridEditor::new(grid_id, user, rev_manager, self.block_index_persistence.clone()).await?;
         Ok(grid_editor)
     }
 
@@ -134,20 +141,6 @@ impl GridManager {
         let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_d, disk_cache));
         let rev_manager = RevisionManager::new(&user_id, block_d, rev_persistence);
         Ok(rev_manager)
-    }
-
-    #[allow(dead_code)]
-    async fn get_kv_persistence(&self) -> FlowyResult<Arc<GridKVPersistence>> {
-        let read_guard = self.kv_persistence.read().await;
-        if read_guard.is_some() {
-            return Ok(read_guard.clone().unwrap());
-        }
-        drop(read_guard);
-
-        let pool = self.grid_user.db_pool()?;
-        let kv_persistence = Arc::new(GridKVPersistence::new(pool));
-        *self.kv_persistence.write().await = Some(kv_persistence.clone());
-        Ok(kv_persistence)
     }
 }
 
@@ -189,12 +182,21 @@ pub async fn make_grid_view_data(
         block_metas: vec![build_context.block_metas],
     };
 
+    // Create grid
     let grid_meta_delta = make_grid_delta(&grid_meta);
     let grid_delta_data = grid_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
 
+    // Indexing the block's rows
+    build_context.block_meta_data.row_metas.iter().for_each(|row| {
+        let _ = grid_manager
+            .block_index_persistence
+            .insert_or_update(&row.block_id, &row.id);
+    });
+
+    // Create grid's block
     let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
     let block_meta_delta_data = grid_block_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =

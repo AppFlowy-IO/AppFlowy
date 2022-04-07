@@ -61,12 +61,6 @@ abstract class PluginConfig {
 }
 
 abstract class PluginDisplay<T> with NavigationItem {
-  @override
-  Widget get leftBarItem;
-
-  @override
-  Widget? get rightBarItem;
-
   List<NavigationItem> get navigationItems;
 
   PublishNotifier<T>? get notifier => null;

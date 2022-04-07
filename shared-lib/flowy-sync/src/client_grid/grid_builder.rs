@@ -41,7 +41,7 @@ fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
 mod tests {
 
     use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMetaSerde, GridMeta};
+    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMetaData, GridMeta};
 
     #[test]
     fn create_default_grid_test() {
@@ -64,6 +64,6 @@ mod tests {
         let _: GridMeta = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
 
         let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
-        let _: GridBlockMetaSerde = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
+        let _: GridBlockMetaData = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
     }
 }

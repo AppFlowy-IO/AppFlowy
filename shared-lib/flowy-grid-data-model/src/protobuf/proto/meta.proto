@@ -10,7 +10,7 @@ message GridBlockMeta {
     int32 start_row_index = 2;
     int32 row_count = 3;
 }
-message GridBlockMetaSerde {
+message GridBlockMetaData {
     string block_id = 1;
     repeated RowMeta row_metas = 2;
 }
@@ -22,17 +22,21 @@ message FieldMeta {
     bool frozen = 5;
     bool visibility = 6;
     int32 width = 7;
-    string type_options = 8;
+    TypeOptionDataByFieldTypeId type_option_by_field_type_id = 8;
 }
-message FieldChangeset {
+message TypeOptionDataByFieldTypeId {
+    map<string, string> map = 1;
+}
+message FieldChangesetPayload {
     string field_id = 1;
-    oneof one_of_name { string name = 2; };
-    oneof one_of_desc { string desc = 3; };
-    oneof one_of_field_type { FieldType field_type = 4; };
-    oneof one_of_frozen { bool frozen = 5; };
-    oneof one_of_visibility { bool visibility = 6; };
-    oneof one_of_width { int32 width = 7; };
-    oneof one_of_type_options { string type_options = 8; };
+    string grid_id = 2;
+    oneof one_of_name { string name = 3; };
+    oneof one_of_desc { string desc = 4; };
+    oneof one_of_field_type { FieldType field_type = 5; };
+    oneof one_of_frozen { bool frozen = 6; };
+    oneof one_of_visibility { bool visibility = 7; };
+    oneof one_of_width { int32 width = 8; };
+    oneof one_of_type_option_data { bytes type_option_data = 9; };
 }
 message AnyData {
     string type_id = 1;
@@ -64,7 +68,7 @@ message CellMetaChangeset {
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;
     GridBlockMeta block_metas = 2;
-    GridBlockMetaSerde block_meta_data = 3;
+    GridBlockMetaData block_meta_data = 3;
 }
 enum FieldType {
     RichText = 0;

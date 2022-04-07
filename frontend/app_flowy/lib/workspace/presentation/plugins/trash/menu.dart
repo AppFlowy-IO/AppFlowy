@@ -36,7 +36,7 @@ class MenuTrash extends StatelessWidget {
         child: Selector<AppearanceSettingModel, AppTheme>(
           selector: (ctx, notifier) => notifier.theme,
           builder: (ctx, theme, child) =>
-              SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
+              SizedBox(width: 16, height: 16, child: svgWidget("home/trash", color: theme.iconColor)),
         ),
       ),
       const HSpace(6),

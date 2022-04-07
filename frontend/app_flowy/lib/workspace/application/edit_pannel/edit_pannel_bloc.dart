@@ -1,7 +1,6 @@
 import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'edit_pannel_bloc.freezed.dart';

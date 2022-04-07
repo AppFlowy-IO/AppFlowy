@@ -1,5 +1,3 @@
-mod builder;
-mod description;
+pub(crate) mod cell_entities;
 
-pub use builder::*;
-pub use description::*;
+pub use cell_entities::*;

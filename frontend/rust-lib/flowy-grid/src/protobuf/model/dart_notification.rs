@@ -26,10 +26,12 @@
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum GridNotification {
     Unknown = 0,
-    GridDidUpdateBlock = 10,
-    GridDidCreateBlock = 11,
-    GridDidUpdateCells = 20,
-    GridDidUpdateFields = 30,
+    DidCreateBlock = 11,
+    DidUpdateBlock = 20,
+    DidUpdateRow = 30,
+    DidUpdateCell = 31,
+    DidUpdateGrid = 40,
+    DidUpdateField = 41,
 }
 
 impl ::protobuf::ProtobufEnum for GridNotification {
@@ -40,10 +42,12 @@ impl ::protobuf::ProtobufEnum for GridNotification {
     fn from_i32(value: i32) -> ::std::option::Option<GridNotification> {
         match value {
             0 => ::std::option::Option::Some(GridNotification::Unknown),
-            10 => ::std::option::Option::Some(GridNotification::GridDidUpdateBlock),
-            11 => ::std::option::Option::Some(GridNotification::GridDidCreateBlock),
-            20 => ::std::option::Option::Some(GridNotification::GridDidUpdateCells),
-            30 => ::std::option::Option::Some(GridNotification::GridDidUpdateFields),
+            11 => ::std::option::Option::Some(GridNotification::DidCreateBlock),
+            20 => ::std::option::Option::Some(GridNotification::DidUpdateBlock),
+            30 => ::std::option::Option::Some(GridNotification::DidUpdateRow),
+            31 => ::std::option::Option::Some(GridNotification::DidUpdateCell),
+            40 => ::std::option::Option::Some(GridNotification::DidUpdateGrid),
+            41 => ::std::option::Option::Some(GridNotification::DidUpdateField),
             _ => ::std::option::Option::None
         }
     }
@@ -51,10 +55,12 @@ impl ::protobuf::ProtobufEnum for GridNotification {
     fn values() -> &'static [Self] {
         static values: &'static [GridNotification] = &[
             GridNotification::Unknown,
-            GridNotification::GridDidUpdateBlock,
-            GridNotification::GridDidCreateBlock,
-            GridNotification::GridDidUpdateCells,
-            GridNotification::GridDidUpdateFields,
+            GridNotification::DidCreateBlock,
+            GridNotification::DidUpdateBlock,
+            GridNotification::DidUpdateRow,
+            GridNotification::DidUpdateCell,
+            GridNotification::DidUpdateGrid,
+            GridNotification::DidUpdateField,
         ];
         values
     }
@@ -83,10 +89,11 @@ impl ::protobuf::reflect::ProtobufValue for GridNotification {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x17dart_notification.proto*\x80\x01\n\x10GridNotification\x12\x0b\n\
-    \x07Unknown\x10\0\x12\x16\n\x12GridDidUpdateBlock\x10\n\x12\x16\n\x12Gri\
-    dDidCreateBlock\x10\x0b\x12\x16\n\x12GridDidUpdateCells\x10\x14\x12\x17\
-    \n\x13GridDidUpdateFields\x10\x1eb\x06proto3\
+    \n\x17dart_notification.proto*\x93\x01\n\x10GridNotification\x12\x0b\n\
+    \x07Unknown\x10\0\x12\x12\n\x0eDidCreateBlock\x10\x0b\x12\x12\n\x0eDidUp\
+    dateBlock\x10\x14\x12\x10\n\x0cDidUpdateRow\x10\x1e\x12\x11\n\rDidUpdate\
+    Cell\x10\x1f\x12\x11\n\rDidUpdateGrid\x10(\x12\x12\n\x0eDidUpdateField\
+    \x10)b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

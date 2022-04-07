@@ -47,17 +47,17 @@ const GridBlockMeta$json = const {
 
 /// Descriptor for `GridBlockMeta`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridBlockMetaDescriptor = $convert.base64Decode('Cg1HcmlkQmxvY2tNZXRhEhkKCGJsb2NrX2lkGAEgASgJUgdibG9ja0lkEiYKD3N0YXJ0X3Jvd19pbmRleBgCIAEoBVINc3RhcnRSb3dJbmRleBIbCglyb3dfY291bnQYAyABKAVSCHJvd0NvdW50');
-@$core.Deprecated('Use gridBlockMetaSerdeDescriptor instead')
-const GridBlockMetaSerde$json = const {
-  '1': 'GridBlockMetaSerde',
+@$core.Deprecated('Use gridBlockMetaDataDescriptor instead')
+const GridBlockMetaData$json = const {
+  '1': 'GridBlockMetaData',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
     const {'1': 'row_metas', '3': 2, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rowMetas'},
   ],
 };
 
-/// Descriptor for `GridBlockMetaSerde`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockMetaSerdeDescriptor = $convert.base64Decode('ChJHcmlkQmxvY2tNZXRhU2VyZGUSGQoIYmxvY2tfaWQYASABKAlSB2Jsb2NrSWQSJQoJcm93X21ldGFzGAIgAygLMgguUm93TWV0YVIIcm93TWV0YXM=');
+/// Descriptor for `GridBlockMetaData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockMetaDataDescriptor = $convert.base64Decode('ChFHcmlkQmxvY2tNZXRhRGF0YRIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIlCglyb3dfbWV0YXMYAiADKAsyCC5Sb3dNZXRhUghyb3dNZXRhcw==');
 @$core.Deprecated('Use fieldMetaDescriptor instead')
 const FieldMeta$json = const {
   '1': 'FieldMeta',
@@ -69,24 +69,46 @@ const FieldMeta$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '10': 'typeOptions'},
+    const {'1': 'type_option_by_field_type_id', '3': 8, '4': 1, '5': 11, '6': '.TypeOptionDataByFieldTypeId', '10': 'typeOptionByFieldTypeId'},
   ],
 };
 
 /// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSIQoMdHlwZV9vcHRpb25zGAggASgJUgt0eXBlT3B0aW9ucw==');
-@$core.Deprecated('Use fieldChangesetDescriptor instead')
-const FieldChangeset$json = const {
-  '1': 'FieldChangeset',
+final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSWwocdHlwZV9vcHRpb25fYnlfZmllbGRfdHlwZV9pZBgIIAEoCzIcLlR5cGVPcHRpb25EYXRhQnlGaWVsZFR5cGVJZFIXdHlwZU9wdGlvbkJ5RmllbGRUeXBlSWQ=');
+@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
+const TypeOptionDataByFieldTypeId$json = const {
+  '1': 'TypeOptionDataByFieldTypeId',
+  '2': const [
+    const {'1': 'map', '3': 1, '4': 3, '5': 11, '6': '.TypeOptionDataByFieldTypeId.MapEntry', '10': 'map'},
+  ],
+  '3': const [TypeOptionDataByFieldTypeId_MapEntry$json],
+};
+
+@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
+const TypeOptionDataByFieldTypeId_MapEntry$json = const {
+  '1': 'MapEntry',
+  '2': const [
+    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': const {'7': true},
+};
+
+/// Descriptor for `TypeOptionDataByFieldTypeId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List typeOptionDataByFieldTypeIdDescriptor = $convert.base64Decode('ChtUeXBlT3B0aW9uRGF0YUJ5RmllbGRUeXBlSWQSNwoDbWFwGAEgAygLMiUuVHlwZU9wdGlvbkRhdGFCeUZpZWxkVHlwZUlkLk1hcEVudHJ5UgNtYXAaNgoITWFwRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');
+@$core.Deprecated('Use fieldChangesetPayloadDescriptor instead')
+const FieldChangesetPayload$json = const {
+  '1': 'FieldChangesetPayload',
   '2': const [
     const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
-    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'desc'},
-    const {'1': 'field_type', '3': 4, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
-    const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
-    const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
-    const {'1': 'width', '3': 7, '4': 1, '5': 5, '9': 5, '10': 'width'},
-    const {'1': 'type_options', '3': 8, '4': 1, '5': 9, '9': 6, '10': 'typeOptions'},
+    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'desc', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'desc'},
+    const {'1': 'field_type', '3': 5, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
+    const {'1': 'frozen', '3': 6, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
+    const {'1': 'visibility', '3': 7, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
+    const {'1': 'width', '3': 8, '4': 1, '5': 5, '9': 5, '10': 'width'},
+    const {'1': 'type_option_data', '3': 9, '4': 1, '5': 12, '9': 6, '10': 'typeOptionData'},
   ],
   '8': const [
     const {'1': 'one_of_name'},
@@ -95,12 +117,12 @@ const FieldChangeset$json = const {
     const {'1': 'one_of_frozen'},
     const {'1': 'one_of_visibility'},
     const {'1': 'one_of_width'},
-    const {'1': 'one_of_type_options'},
+    const {'1': 'one_of_type_option_data'},
   ],
 };
 
-/// Descriptor for `FieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldChangesetDescriptor = $convert.base64Decode('Cg5GaWVsZENoYW5nZXNldBIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEisKCmZpZWxkX3R5cGUYBCABKA4yCi5GaWVsZFR5cGVIAlIJZmllbGRUeXBlEhgKBmZyb3plbhgFIAEoCEgDUgZmcm96ZW4SIAoKdmlzaWJpbGl0eRgGIAEoCEgEUgp2aXNpYmlsaXR5EhYKBXdpZHRoGAcgASgFSAVSBXdpZHRoEiMKDHR5cGVfb3B0aW9ucxgIIAEoCUgGUgt0eXBlT3B0aW9uc0INCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIVChNvbmVfb2ZfdHlwZV9vcHRpb25z');
+/// Descriptor for `FieldChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldChangesetPayloadDescriptor = $convert.base64Decode('ChVGaWVsZENoYW5nZXNldFBheWxvYWQSGQoIZmllbGRfaWQYASABKAlSB2ZpZWxkSWQSFwoHZ3JpZF9pZBgCIAEoCVIGZ3JpZElkEhQKBG5hbWUYAyABKAlIAFIEbmFtZRIUCgRkZXNjGAQgASgJSAFSBGRlc2MSKwoKZmllbGRfdHlwZRgFIAEoDjIKLkZpZWxkVHlwZUgCUglmaWVsZFR5cGUSGAoGZnJvemVuGAYgASgISANSBmZyb3plbhIgCgp2aXNpYmlsaXR5GAcgASgISARSCnZpc2liaWxpdHkSFgoFd2lkdGgYCCABKAVIBVIFd2lkdGgSKgoQdHlwZV9vcHRpb25fZGF0YRgJIAEoDEgGUg50eXBlT3B0aW9uRGF0YUINCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIZChdvbmVfb2ZfdHlwZV9vcHRpb25fZGF0YQ==');
 @$core.Deprecated('Use anyDataDescriptor instead')
 const AnyData$json = const {
   '1': 'AnyData',
@@ -198,9 +220,9 @@ const BuildGridContext$json = const {
   '2': const [
     const {'1': 'field_metas', '3': 1, '4': 3, '5': 11, '6': '.FieldMeta', '10': 'fieldMetas'},
     const {'1': 'block_metas', '3': 2, '4': 1, '5': 11, '6': '.GridBlockMeta', '10': 'blockMetas'},
-    const {'1': 'block_meta_data', '3': 3, '4': 1, '5': 11, '6': '.GridBlockMetaSerde', '10': 'blockMetaData'},
+    const {'1': 'block_meta_data', '3': 3, '4': 1, '5': 11, '6': '.GridBlockMetaData', '10': 'blockMetaData'},
   ],
 };
 
 /// Descriptor for `BuildGridContext`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List buildGridContextDescriptor = $convert.base64Decode('ChBCdWlsZEdyaWRDb250ZXh0EisKC2ZpZWxkX21ldGFzGAEgAygLMgouRmllbGRNZXRhUgpmaWVsZE1ldGFzEi8KC2Jsb2NrX21ldGFzGAIgASgLMg4uR3JpZEJsb2NrTWV0YVIKYmxvY2tNZXRhcxI7Cg9ibG9ja19tZXRhX2RhdGEYAyABKAsyEy5HcmlkQmxvY2tNZXRhU2VyZGVSDWJsb2NrTWV0YURhdGE=');
+final $typed_data.Uint8List buildGridContextDescriptor = $convert.base64Decode('ChBCdWlsZEdyaWRDb250ZXh0EisKC2ZpZWxkX21ldGFzGAEgAygLMgouRmllbGRNZXRhUgpmaWVsZE1ldGFzEi8KC2Jsb2NrX21ldGFzGAIgASgLMg4uR3JpZEJsb2NrTWV0YVIKYmxvY2tNZXRhcxI6Cg9ibG9ja19tZXRhX2RhdGEYAyABKAsyEi5HcmlkQmxvY2tNZXRhRGF0YVINYmxvY2tNZXRhRGF0YQ==');

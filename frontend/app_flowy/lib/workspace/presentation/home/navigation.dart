@@ -97,7 +97,7 @@ class FlowyNavigation extends StatelessWidget {
                   notifier.value = false;
                 },
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: svg("home/hide_menu", color: theme.iconColor),
+                icon: svgWidget("home/hide_menu", color: theme.iconColor),
               ),
             );
           } else {

@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dar
 import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
-import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/bar_title.dart';
 import 'package:flowy_infra_ui/style_widget/close_button.dart';
@@ -11,15 +10,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class EditPannel extends StatelessWidget {
-  late final EditPannelContext editContext;
+  final EditPannelContext pannelContext;
   final VoidCallback onEndEdit;
-  EditPannel({
+  const EditPannel({
     Key? key,
-    required Option<EditPannelContext> context,
+    required this.pannelContext,
     required this.onEndEdit,
-  }) : super(key: key) {
-    editContext = context.fold(() => const BlankEditPannelContext(), (c) => c);
-  }
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +31,7 @@ class EditPannel extends StatelessWidget {
               children: [
                 EditPannelTopBar(onClose: () => onEndEdit()),
                 Expanded(
-                  child: editContext.child,
+                  child: pannelContext.child,
                 ),
               ],
             );

@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/tasks/prelude.dart';
-import 'package:app_flowy/startup/home_deps_resolver.dart';
-import 'package:app_flowy/startup/user_deps_resolver.dart';
+import 'package:app_flowy/startup/deps_resolver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -62,8 +61,7 @@ Future<void> initGetIt(
   getIt.registerLazySingleton<AppLauncher>(() => AppLauncher(env, getIt));
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await UserDepsResolver.resolve(getIt);
-  await HomeDepsResolver.resolve(getIt);
+  await DependencyResolver.resolve(getIt);
 }
 
 class LaunchContext {

@@ -11,17 +11,21 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class GridNotification extends $pb.ProtobufEnum {
   static const GridNotification Unknown = GridNotification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const GridNotification GridDidUpdateBlock = GridNotification._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateBlock');
-  static const GridNotification GridDidCreateBlock = GridNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidCreateBlock');
-  static const GridNotification GridDidUpdateCells = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateCells');
-  static const GridNotification GridDidUpdateFields = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridDidUpdateFields');
+  static const GridNotification DidCreateBlock = GridNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidCreateBlock');
+  static const GridNotification DidUpdateBlock = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateBlock');
+  static const GridNotification DidUpdateRow = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateRow');
+  static const GridNotification DidUpdateCell = GridNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateCell');
+  static const GridNotification DidUpdateGrid = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGrid');
+  static const GridNotification DidUpdateField = GridNotification._(41, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateField');
 
   static const $core.List<GridNotification> values = <GridNotification> [
     Unknown,
-    GridDidUpdateBlock,
-    GridDidCreateBlock,
-    GridDidUpdateCells,
-    GridDidUpdateFields,
+    DidCreateBlock,
+    DidUpdateBlock,
+    DidUpdateRow,
+    DidUpdateCell,
+    DidUpdateGrid,
+    DidUpdateField,
   ];
 
   static final $core.Map<$core.int, GridNotification> _byValue = $pb.ProtobufEnum.initByValue(values);

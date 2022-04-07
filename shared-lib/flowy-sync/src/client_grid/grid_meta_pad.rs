@@ -3,11 +3,13 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    FieldChangeset, FieldMeta, FieldOrder, GridBlockMeta, GridBlockMetaChangeset, GridMeta, RepeatedFieldOrder,
+    FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset, GridMeta,
 };
+
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
+
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;
@@ -16,6 +18,10 @@ pub type GridDeltaBuilder = PlainTextDeltaBuilder;
 pub struct GridMetaPad {
     pub(crate) grid_meta: Arc<GridMeta>,
     pub(crate) delta: GridMetaDelta,
+}
+
+pub trait JsonDeserializer {
+    fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String>;
 }
 
 impl GridMetaPad {
@@ -35,67 +41,97 @@ impl GridMetaPad {
         Self::from_delta(grid_delta)
     }
 
-    pub fn create_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| {
-            if grid.fields.contains(&field_meta) {
-                tracing::warn!("Duplicate grid field");
-                Ok(None)
-            } else {
-                grid.fields.push(field_meta);
-                Ok(Some(()))
+    #[tracing::instrument(level = "debug", skip_all, err)]
+    pub fn create_field(
+        &mut self,
+        new_field_meta: FieldMeta,
+        start_field_id: Option<String>,
+    ) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(|grid_meta| {
+            // Check if the field exists or not
+            if grid_meta
+                .fields
+                .iter()
+                .any(|field_meta| field_meta.id == new_field_meta.id)
+            {
+                tracing::error!("Duplicate grid field");
+                return Ok(None);
             }
+
+            let insert_index = match start_field_id {
+                None => None,
+                Some(start_field_id) => grid_meta.fields.iter().position(|field| field.id == start_field_id),
+            };
+
+            match insert_index {
+                None => grid_meta.fields.push(new_field_meta),
+                Some(index) => grid_meta.fields.insert(index, new_field_meta),
+            }
+            Ok(Some(()))
         })
     }
 
     pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
-            None => Ok(None),
-            Some(index) => {
-                grid.fields.remove(index);
-                Ok(Some(()))
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    grid_meta.fields.remove(index);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
+    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    let mut duplicate_field_meta = grid_meta.fields[index].clone();
+                    duplicate_field_meta.id = uuid();
+                    duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
+                    grid_meta.fields.insert(index + 1, duplicate_field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
+    pub fn switch_to_field<B>(
+        &mut self,
+        field_id: &str,
+        field_type: FieldType,
+        type_option_json_builder: B,
+    ) -> CollaborateResult<Option<GridChangeset>>
+    where
+        B: FnOnce(&FieldType) -> String,
+    {
+        self.modify_grid(|grid_meta| {
+            //
+            match grid_meta.fields.iter_mut().find(|field_meta| field_meta.id == field_id) {
+                None => {
+                    tracing::warn!("Can not find the field with id: {}", field_id);
+                    Ok(None)
+                }
+                Some(field_meta) => {
+                    if field_meta.get_type_option_str(Some(field_type.clone())).is_none() {
+                        let type_option_json = type_option_json_builder(&field_type);
+                        field_meta.insert_type_option_str(&field_type, type_option_json);
+                    }
+
+                    field_meta.field_type = field_type;
+                    Ok(Some(()))
+                }
             }
         })
     }
 
-    pub fn contain_field(&self, field_id: &str) -> bool {
-        self.grid_meta.fields.iter().any(|field| field.id == field_id)
-    }
-
-    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
-        self.grid_meta.fields.iter().find(|field| field.id == field_id)
-    }
-
-    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
-        self.grid_meta.fields.iter().map(FieldOrder::from).collect()
-    }
-
-    pub fn get_field_metas(&self, field_orders: Option<RepeatedFieldOrder>) -> CollaborateResult<Vec<FieldMeta>> {
-        match field_orders {
-            None => Ok(self.grid_meta.fields.clone()),
-            Some(field_orders) => {
-                let field_by_field_id = self
-                    .grid_meta
-                    .fields
-                    .iter()
-                    .map(|field| (&field.id, field))
-                    .collect::<HashMap<&String, &FieldMeta>>();
-
-                let fields = field_orders
-                    .iter()
-                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
-                        None => {
-                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
-                            None
-                        }
-                        Some(field) => Some((*field).clone()),
-                    })
-                    .collect::<Vec<FieldMeta>>();
-                Ok(fields)
-            }
-        }
-    }
-
-    pub fn update_field(&mut self, changeset: FieldChangeset) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_field<T: JsonDeserializer>(
+        &mut self,
+        changeset: FieldChangesetParams,
+        deserializer: T,
+    ) -> CollaborateResult<Option<GridChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -129,23 +165,82 @@ impl GridMetaPad {
                 is_changed = Some(())
             }
 
-            if let Some(type_options) = changeset.type_options {
-                field.type_options = type_options;
-                is_changed = Some(())
+            if let Some(type_option_data) = changeset.type_option_data {
+                match deserializer.deserialize(type_option_data) {
+                    Ok(json_str) => {
+                        let field_type = field.field_type.clone();
+                        field.insert_type_option_str(&field_type, json_str);
+                        is_changed = Some(())
+                    }
+                    Err(err) => {
+                        tracing::error!("Deserialize data to type option json failed: {}", err);
+                    }
+                }
             }
 
             Ok(is_changed)
         })
     }
 
-    pub fn create_block(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(|grid| {
-            if grid.block_metas.iter().any(|b| b.block_id == block.block_id) {
+    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
+        self.grid_meta.fields.iter().find(|field| field.id == field_id)
+    }
+
+    pub fn replace_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_meta.id) {
+                None => Ok(None),
+                Some(index) => {
+                    grid_meta.fields.remove(index);
+                    grid_meta.fields.insert(index, field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
+    pub fn contain_field(&self, field_id: &str) -> bool {
+        self.grid_meta.fields.iter().any(|field| field.id == field_id)
+    }
+
+    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
+        self.grid_meta.fields.iter().map(FieldOrder::from).collect()
+    }
+
+    pub fn get_field_metas(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<FieldMeta>> {
+        match field_orders {
+            None => Ok(self.grid_meta.fields.clone()),
+            Some(field_orders) => {
+                let field_by_field_id = self
+                    .grid_meta
+                    .fields
+                    .iter()
+                    .map(|field| (&field.id, field))
+                    .collect::<HashMap<&String, &FieldMeta>>();
+
+                let fields = field_orders
+                    .iter()
+                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                        None => {
+                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
+                            None
+                        }
+                        Some(field) => Some((*field).clone()),
+                    })
+                    .collect::<Vec<FieldMeta>>();
+                Ok(fields)
+            }
+        }
+    }
+
+    pub fn create_block_meta(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(|grid_meta| {
+            if grid_meta.block_metas.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
-                match grid.block_metas.last() {
-                    None => grid.block_metas.push(block),
+                match grid_meta.block_metas.last() {
+                    None => grid_meta.block_metas.push(block),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -153,7 +248,7 @@ impl GridMetaPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid.block_metas.push(block);
+                        grid_meta.block_metas.push(block);
                     }
                 }
                 Ok(Some(()))
@@ -161,11 +256,11 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_blocks(&self) -> Vec<GridBlockMeta> {
+    pub fn get_block_metas(&self) -> Vec<GridBlockMeta> {
         self.grid_meta.block_metas.clone()
     }
 
-    pub fn update_block(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_block_meta(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
@@ -225,28 +320,34 @@ impl GridMetaPad {
     where
         F: FnOnce(&mut GridBlockMeta) -> CollaborateResult<Option<()>>,
     {
-        self.modify_grid(
-            |grid| match grid.block_metas.iter().position(|block| block.block_id == block_id) {
+        self.modify_grid(|grid_meta| {
+            match grid_meta
+                .block_metas
+                .iter()
+                .position(|block| block.block_id == block_id)
+            {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid.block_metas[index]),
-            },
-        )
+                Some(index) => f(&mut grid_meta.block_metas[index]),
+            }
+        })
     }
 
     pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut FieldMeta) -> CollaborateResult<Option<()>>,
     {
-        self.modify_grid(|grid| match grid.fields.iter().position(|field| field.id == field_id) {
-            None => {
-                tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
-                Ok(None)
-            }
-            Some(index) => f(&mut grid.fields[index]),
-        })
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => {
+                    tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
+                    Ok(None)
+                }
+                Some(index) => f(&mut grid_meta.fields[index]),
+            },
+        )
     }
 }
 

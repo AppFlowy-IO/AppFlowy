@@ -63,13 +63,11 @@ class _StyledSingleChildScrollViewState extends State<StyledSingleChildScrollVie
       barSize: widget.barSize,
       trackColor: widget.trackColor,
       handleColor: widget.handleColor,
-      child: SizedBox.expand(
-        child: SingleChildScrollView(
-          scrollDirection: widget.axis,
-          physics: StyledScrollPhysics(),
-          controller: scrollController,
-          child: widget.child,
-        ),
+      child: SingleChildScrollView(
+        scrollDirection: widget.axis,
+        physics: StyledScrollPhysics(),
+        controller: scrollController,
+        child: widget.child,
       ),
     );
   }
