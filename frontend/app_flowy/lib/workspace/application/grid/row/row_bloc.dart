@@ -52,7 +52,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   void _handleRowUpdate(_DidUpdateRow value, Emitter<RowState> emit) {
-    final CellDataMap cellDataMap = _makeCellDatas(value.row);
+    final CellDataMap cellDataMap = _makeCellDatas(value.row, state.fields);
     emit(state.copyWith(
       row: Future(() => Some(value.row)),
       cellDataMap: Some(cellDataMap),
@@ -63,7 +63,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     final optionRow = await state.row;
     final CellDataMap cellDataMap = optionRow.fold(
       () => CellDataMap.identity(),
-      (row) => _makeCellDatas(row),
+      (row) => _makeCellDatas(row, value.fields),
     );
 
     emit(state.copyWith(
@@ -107,9 +107,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     });
   }
 
-  CellDataMap _makeCellDatas(Row row) {
+  CellDataMap _makeCellDatas(Row row, List<Field> fields) {
     var map = CellDataMap.new();
-    for (final field in state.fields) {
+    for (final field in fields) {
       if (field.visibility) {
         map[field.id] = CellData(
           rowId: row.id,

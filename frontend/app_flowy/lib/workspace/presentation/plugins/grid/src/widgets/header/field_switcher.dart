@@ -7,6 +7,8 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart';
@@ -17,20 +19,26 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
 import 'field_type_extension.dart';
-
+import 'package:dartz/dartz.dart' show Either;
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
 import 'type_option/single_select.dart';
 
 typedef UpdateFieldCallback = void Function(Field, Uint8List);
+typedef SwitchToFieldCallback = Future<Either<EditFieldContext, FlowyError>> Function(
+  String fieldId,
+  FieldType fieldType,
+);
 
 class FieldSwitcher extends StatefulWidget {
   final SwitchFieldContext switchContext;
   final UpdateFieldCallback onUpdated;
+  final SwitchToFieldCallback onSwitchToField;
 
   const FieldSwitcher({
     required this.switchContext,
     required this.onUpdated,
+    required this.onSwitchToField,
     Key? key,
   }) : super(key: key);
 
@@ -79,8 +87,20 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         hoverColor: theme.hover,
         onTap: () {
-          final list = FieldTypeList(onSelectField: (fieldType) {
-            context.read<FieldSwitcherBloc>().add(FieldSwitchEvent.toFieldType(fieldType));
+          final list = FieldTypeList(onSelectField: (newFieldType) {
+            widget.onSwitchToField(field.id, newFieldType).then((result) {
+              result.fold(
+                (editFieldContext) {
+                  context.read<FieldSwitcherBloc>().add(
+                        FieldSwitchEvent.toFieldType(
+                          editFieldContext.gridField,
+                          editFieldContext.typeOptionData,
+                        ),
+                      );
+                },
+                (err) => Log.error(err),
+              );
+            });
           });
           _showOverlay(context, list);
         },

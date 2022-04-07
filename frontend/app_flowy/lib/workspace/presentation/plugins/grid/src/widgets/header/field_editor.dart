@@ -5,6 +5,7 @@ import 'package:app_flowy/workspace/application/grid/field/field_switch_bloc.dar
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_name_input.dart';
@@ -13,7 +14,7 @@ import 'field_switcher.dart';
 class FieldEditor extends FlowyOverlayDelegate {
   final String gridId;
   final FieldEditorBloc _fieldEditorBloc;
-  final FieldContextLoader? fieldContextLoader;
+  final EditFieldContextLoader fieldContextLoader;
   FieldEditor({
     required this.gridId,
     required this.fieldContextLoader,
@@ -29,7 +30,7 @@ class FieldEditor extends FlowyOverlayDelegate {
     FlowyOverlay.of(context).remove(identifier());
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: _FieldEditorWidget(_fieldEditorBloc),
+        child: _FieldEditorWidget(_fieldEditorBloc, fieldContextLoader),
         constraints: BoxConstraints.loose(const Size(220, 400)),
       ),
       identifier: identifier(),
@@ -55,7 +56,8 @@ class FieldEditor extends FlowyOverlayDelegate {
 
 class _FieldEditorWidget extends StatelessWidget {
   final FieldEditorBloc editorBloc;
-  const _FieldEditorWidget(this.editorBloc, {Key? key}) : super(key: key);
+  final EditFieldContextLoader fieldContextLoader;
+  const _FieldEditorWidget(this.editorBloc, this.fieldContextLoader, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,7 @@ class _FieldEditorWidget extends StatelessWidget {
                 const VSpace(10),
                 const _FieldNameTextField(),
                 const VSpace(10),
-                _FieldSwitcher(SwitchFieldContext(state.gridId, field, state.typeOptionData)),
+                _renderSwitchButton(context, field, state),
               ],
             ),
           );
@@ -80,16 +82,13 @@ class _FieldEditorWidget extends StatelessWidget {
       ),
     );
   }
-}
 
-class _FieldSwitcher extends StatelessWidget {
-  final SwitchFieldContext switchContext;
-  const _FieldSwitcher(this.switchContext, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _renderSwitchButton(BuildContext context, Field field, FieldEditorState state) {
     return FieldSwitcher(
-      switchContext: switchContext,
+      switchContext: SwitchFieldContext(state.gridId, field, state.typeOptionData),
+      onSwitchToField: (fieldId, fieldType) {
+        return fieldContextLoader.switchToField(fieldId, fieldType);
+      },
       onUpdated: (field, typeOptionData) {
         context.read<FieldEditorBloc>().add(FieldEditorEvent.switchField(field, typeOptionData));
       },

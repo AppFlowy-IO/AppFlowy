@@ -172,7 +172,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldEditorBloc, String, FieldContextLoader>(
+  getIt.registerFactoryParam<FieldEditorBloc, String, EditFieldContextLoader>(
     (gridId, fieldLoader) => FieldEditorBloc(
       service: FieldService(gridId: gridId),
       fieldLoader: fieldLoader,

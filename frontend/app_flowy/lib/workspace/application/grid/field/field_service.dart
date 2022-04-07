@@ -112,11 +112,13 @@ class GridFieldCellContext extends Equatable {
   List<Object> get props => [field.id];
 }
 
-abstract class FieldContextLoader {
+abstract class EditFieldContextLoader {
   Future<Either<EditFieldContext, FlowyError>> load();
+
+  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType);
 }
 
-class NewFieldContextLoader extends FieldContextLoader {
+class NewFieldContextLoader extends EditFieldContextLoader {
   final String gridId;
   NewFieldContextLoader({
     required this.gridId,
@@ -130,9 +132,18 @@ class NewFieldContextLoader extends FieldContextLoader {
 
     return GridEventGetEditFieldContext(payload).send();
   }
+
+  @override
+  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+    final payload = GetEditFieldContextPayload.create()
+      ..gridId = gridId
+      ..fieldType = fieldType;
+
+    return GridEventGetEditFieldContext(payload).send();
+  }
 }
 
-class FieldContextLoaderAdaptor extends FieldContextLoader {
+class FieldContextLoaderAdaptor extends EditFieldContextLoader {
   final String gridId;
   final Field field;
 
@@ -149,5 +160,11 @@ class FieldContextLoaderAdaptor extends FieldContextLoader {
       ..fieldType = field.fieldType;
 
     return GridEventGetEditFieldContext(payload).send();
+  }
+
+  @override
+  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) async {
+    final fieldService = FieldService(gridId: gridId);
+    return fieldService.switchToField(fieldId, fieldType);
   }
 }

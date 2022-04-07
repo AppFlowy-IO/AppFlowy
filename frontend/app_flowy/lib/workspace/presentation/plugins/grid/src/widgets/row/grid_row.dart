@@ -19,12 +19,12 @@ class GridRowWidget extends StatefulWidget {
 
 class _GridRowWidgetState extends State<GridRowWidget> {
   late RowBloc _rowBloc;
-  late RowRegionStateNotifier _rowStateNotifier;
+  late _RegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
     _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
-    _rowStateNotifier = RowRegionStateNotifier();
+    _rowStateNotifier = _RegionStateNotifier();
     super.initState();
   }
 
@@ -72,7 +72,7 @@ class _RowLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<RowRegionStateNotifier>(
+    return Consumer<_RegionStateNotifier>(
       builder: (context, state, _) {
         return SizedBox(width: GridSize.leadingHeaderPadding, child: state.onEnter ? _activeWidget() : null);
       },
@@ -140,7 +140,7 @@ class _RowCells extends StatelessWidget {
   }
 }
 
-class RowRegionStateNotifier extends ChangeNotifier {
+class _RegionStateNotifier extends ChangeNotifier {
   bool _onEnter = false;
 
   set onEnter(bool value) {

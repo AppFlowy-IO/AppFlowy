@@ -11,11 +11,11 @@ part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final FieldService service;
-  final FieldContextLoader _loader;
+  final EditFieldContextLoader _loader;
 
   FieldEditorBloc({
     required this.service,
-    required FieldContextLoader fieldLoader,
+    required EditFieldContextLoader fieldLoader,
   })  : _loader = fieldLoader,
         super(FieldEditorState.initial(service.gridId)) {
     on<FieldEditorEvent>(

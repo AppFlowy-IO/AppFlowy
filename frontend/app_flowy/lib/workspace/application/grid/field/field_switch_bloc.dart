@@ -1,11 +1,8 @@
 import 'dart:typed_data';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'field_service.dart';
 
 part 'field_switch_bloc.freezed.dart';
 
@@ -15,15 +12,10 @@ class FieldSwitcherBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
       (event, emit) async {
         await event.map(
           toFieldType: (_ToFieldType value) async {
-            final fieldService = FieldService(gridId: state.gridId);
-            final result = await fieldService.switchToField(state.field.id, value.fieldType);
-            result.fold(
-              (newEditContext) {
-                final typeOptionData = Uint8List.fromList(newEditContext.typeOptionData);
-                emit(state.copyWith(field: newEditContext.gridField, typeOptionData: typeOptionData));
-              },
-              (err) => Log.error(err),
-            );
+            emit(state.copyWith(
+              field: value.field,
+              typeOptionData: Uint8List.fromList(value.typeOptionData),
+            ));
           },
           didUpdateTypeOptionData: (_DidUpdateTypeOptionData value) {
             emit(state.copyWith(typeOptionData: value.typeOptionData));
@@ -41,7 +33,7 @@ class FieldSwitcherBloc extends Bloc<FieldSwitchEvent, FieldSwitchState> {
 
 @freezed
 class FieldSwitchEvent with _$FieldSwitchEvent {
-  const factory FieldSwitchEvent.toFieldType(FieldType fieldType) = _ToFieldType;
+  const factory FieldSwitchEvent.toFieldType(Field field, List<int> typeOptionData) = _ToFieldType;
   const factory FieldSwitchEvent.didUpdateTypeOptionData(Uint8List typeOptionData) = _DidUpdateTypeOptionData;
 }
 

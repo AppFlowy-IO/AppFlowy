@@ -11,12 +11,12 @@ part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   final FieldService service;
-  final GridFieldsListener fieldListener;
+  final GridFieldsListener _fieldListener;
 
   GridHeaderBloc({
     required GridHeaderData data,
     required this.service,
-  })  : fieldListener = GridFieldsListener(gridId: data.gridId),
+  })  : _fieldListener = GridFieldsListener(gridId: data.gridId),
         super(GridHeaderState.initial(data.fields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
@@ -36,19 +36,19 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _startListening() async {
-    fieldListener.updateFieldsNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
         (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
         (err) => Log.error(err),
       );
     });
 
-    fieldListener.start();
+    _fieldListener.start();
   }
 
   @override
   Future<void> close() async {
-    await fieldListener.stop();
+    await _fieldListener.stop();
     return super.close();
   }
 }
