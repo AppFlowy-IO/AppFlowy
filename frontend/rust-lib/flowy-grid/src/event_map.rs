@@ -21,6 +21,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
         // Cell
+        .event(GridEvent::GetCell, get_cell_handler)
         .event(GridEvent::UpdateCell, update_cell_handler)
         // SelectOption
         .event(GridEvent::NewSelectOption, new_select_option_handler)
@@ -80,9 +81,12 @@ pub enum GridEvent {
     #[event(input = "RowIdentifierPayload", output = "Row")]
     GetRow = 51,
 
+    #[event(input = "CellIdentifierPayload", output = "Cell")]
+    GetCell = 70,
+
     #[event(input = "CellMetaChangeset")]
-    UpdateCell = 70,
+    UpdateCell = 71,
 
     #[event(input = "SelectOptionCellChangesetPayload")]
-    ApplySelectOptionCellChangeset = 71,
+    ApplySelectOptionCellChangeset = 72,
 }

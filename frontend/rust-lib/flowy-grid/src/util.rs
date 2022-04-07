@@ -1,5 +1,5 @@
 use crate::services::field::*;
-use flowy_grid_data_model::entities::BuildGridContext;
+use flowy_grid_data_model::entities::{BuildGridContext, FieldType};
 use flowy_sync::client_grid::GridBuilder;
 
 pub fn make_default_grid() -> BuildGridContext {
@@ -25,10 +25,16 @@ pub fn make_default_grid() -> BuildGridContext {
         .visibility(true)
         .build();
 
+    let checkbox_field = FieldBuilder::from_field_type(&FieldType::Checkbox)
+        .name("isReady")
+        .visibility(true)
+        .build();
+
     GridBuilder::default()
         .add_field(text_field)
         .add_field(single_select_field)
         .add_field(multi_select_field)
+        .add_field(checkbox_field)
         .add_empty_row()
         .add_empty_row()
         .add_empty_row()

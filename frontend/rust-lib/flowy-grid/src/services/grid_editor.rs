@@ -1,6 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_manager::GridBlockMetaEditorManager;
+use crate::services::cell::CellIdentifier;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::*;
@@ -262,6 +263,12 @@ impl ClientGridEditor {
                 Ok(rows.pop())
             }
         }
+    }
+
+    pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
+        let field_meta = self.get_field_meta(&params.field_id).await?;
+        let row_meta = self.block_meta_manager.get_row_meta(&params.row_id).await.ok()??;
+        make_cell(&params.field_id, &field_meta, &row_meta)
     }
 
     pub async fn get_cell_meta(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellMeta>> {

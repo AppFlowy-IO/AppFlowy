@@ -15,6 +15,7 @@ enum GridEvent {
     ApplySelectOptionChangeset = 32;
     CreateRow = 50;
     GetRow = 51;
-    UpdateCell = 70;
-    ApplySelectOptionCellChangeset = 71;
+    GetCell = 70;
+    UpdateCell = 71;
+    ApplySelectOptionCellChangeset = 72;
 }

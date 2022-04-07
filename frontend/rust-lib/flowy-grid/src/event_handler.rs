@@ -191,6 +191,19 @@ pub(crate) async fn create_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_cell_handler(
+    data: Data<CellIdentifierPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<Cell, FlowyError> {
+    let params: CellIdentifier = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    match editor.get_cell(&params).await {
+        None => data_result(Cell::new(&params.field_id, "".to_owned())),
+        Some(cell) => data_result(cell),
+    }
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_cell_handler(
     data: Data<CellMetaChangeset>,
     manager: AppData<Arc<GridManager>>,
