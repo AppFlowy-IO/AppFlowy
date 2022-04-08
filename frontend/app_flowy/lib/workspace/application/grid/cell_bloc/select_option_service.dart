@@ -32,7 +32,7 @@ class SelectOptionService {
     );
   }
 
-  Future<Either<Unit, FlowyError>> insert({
+  Future<Either<Unit, FlowyError>> update({
     required String gridId,
     required String fieldId,
     required String rowId,
@@ -43,7 +43,7 @@ class SelectOptionService {
       ..fieldId = fieldId
       ..rowId = rowId;
     final payload = SelectOptionChangesetPayload.create()
-      ..insertOption = option
+      ..updateOption = option
       ..cellIdentifier = cellIdentifier;
     return GridEventApplySelectOptionChangeset(payload).send();
   }

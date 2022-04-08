@@ -17,7 +17,8 @@ message SelectOption {
 message SelectOptionChangesetPayload {
     CellIdentifierPayload cell_identifier = 1;
     oneof one_of_insert_option { SelectOption insert_option = 2; };
-    oneof one_of_delete_option { SelectOption delete_option = 3; };
+    oneof one_of_update_option { SelectOption update_option = 3; };
+    oneof one_of_delete_option { SelectOption delete_option = 4; };
 }
 message SelectOptionCellChangesetPayload {
     string grid_id = 1;

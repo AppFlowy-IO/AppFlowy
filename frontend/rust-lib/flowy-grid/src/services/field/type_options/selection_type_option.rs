@@ -279,12 +279,16 @@ pub struct SelectOptionChangesetPayload {
     pub insert_option: Option<SelectOption>,
 
     #[pb(index = 3, one_of)]
+    pub update_option: Option<SelectOption>,
+
+    #[pb(index = 4, one_of)]
     pub delete_option: Option<SelectOption>,
 }
 
 pub struct SelectOptionChangeset {
     pub cell_identifier: CellIdentifier,
     pub insert_option: Option<SelectOption>,
+    pub update_option: Option<SelectOption>,
     pub delete_option: Option<SelectOption>,
 }
 
@@ -296,6 +300,7 @@ impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayload {
         Ok(SelectOptionChangeset {
             cell_identifier,
             insert_option: self.insert_option,
+            update_option: self.update_option,
             delete_option: self.delete_option,
         })
     }
@@ -324,6 +329,7 @@ pub struct SelectOptionCellChangesetParams {
     pub field_id: String,
     pub row_id: String,
     pub insert_option_id: Option<String>,
+
     pub delete_option_id: Option<String>,
 }
 

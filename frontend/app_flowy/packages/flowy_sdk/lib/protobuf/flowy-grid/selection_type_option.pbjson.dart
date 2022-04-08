@@ -66,16 +66,18 @@ const SelectOptionChangesetPayload$json = const {
   '2': const [
     const {'1': 'cell_identifier', '3': 1, '4': 1, '5': 11, '6': '.CellIdentifierPayload', '10': 'cellIdentifier'},
     const {'1': 'insert_option', '3': 2, '4': 1, '5': 11, '6': '.SelectOption', '9': 0, '10': 'insertOption'},
-    const {'1': 'delete_option', '3': 3, '4': 1, '5': 11, '6': '.SelectOption', '9': 1, '10': 'deleteOption'},
+    const {'1': 'update_option', '3': 3, '4': 1, '5': 11, '6': '.SelectOption', '9': 1, '10': 'updateOption'},
+    const {'1': 'delete_option', '3': 4, '4': 1, '5': 11, '6': '.SelectOption', '9': 2, '10': 'deleteOption'},
   ],
   '8': const [
     const {'1': 'one_of_insert_option'},
+    const {'1': 'one_of_update_option'},
     const {'1': 'one_of_delete_option'},
   ],
 };
 
 /// Descriptor for `SelectOptionChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEj8KD2NlbGxfaWRlbnRpZmllchgBIAEoCzIWLkNlbGxJZGVudGlmaWVyUGF5bG9hZFIOY2VsbElkZW50aWZpZXISNAoNaW5zZXJ0X29wdGlvbhgCIAEoCzINLlNlbGVjdE9wdGlvbkgAUgxpbnNlcnRPcHRpb24SNAoNZGVsZXRlX29wdGlvbhgDIAEoCzINLlNlbGVjdE9wdGlvbkgBUgxkZWxldGVPcHRpb25CFgoUb25lX29mX2luc2VydF9vcHRpb25CFgoUb25lX29mX2RlbGV0ZV9vcHRpb24=');
+final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.base64Decode('ChxTZWxlY3RPcHRpb25DaGFuZ2VzZXRQYXlsb2FkEj8KD2NlbGxfaWRlbnRpZmllchgBIAEoCzIWLkNlbGxJZGVudGlmaWVyUGF5bG9hZFIOY2VsbElkZW50aWZpZXISNAoNaW5zZXJ0X29wdGlvbhgCIAEoCzINLlNlbGVjdE9wdGlvbkgAUgxpbnNlcnRPcHRpb24SNAoNdXBkYXRlX29wdGlvbhgDIAEoCzINLlNlbGVjdE9wdGlvbkgBUgx1cGRhdGVPcHRpb24SNAoNZGVsZXRlX29wdGlvbhgEIAEoCzINLlNlbGVjdE9wdGlvbkgCUgxkZWxldGVPcHRpb25CFgoUb25lX29mX2luc2VydF9vcHRpb25CFgoUb25lX29mX3VwZGF0ZV9vcHRpb25CFgoUb25lX29mX2RlbGV0ZV9vcHRpb24=');
 @$core.Deprecated('Use selectOptionCellChangesetPayloadDescriptor instead')
 const SelectOptionCellChangesetPayload$json = const {
   '1': 'SelectOptionCellChangesetPayload',

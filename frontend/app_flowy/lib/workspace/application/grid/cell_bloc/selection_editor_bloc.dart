@@ -88,7 +88,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _updateOption(SelectOption option) async {
-    final result = await _selectOptionService.insert(
+    final result = await _selectOptionService.update(
       gridId: state.gridId,
       fieldId: state.field.id,
       rowId: state.rowId,

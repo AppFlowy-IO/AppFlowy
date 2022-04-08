@@ -157,7 +157,8 @@ class SelectOptionTextField extends StatelessWidget {
 
 class SelectOptionTag extends StatelessWidget {
   final SelectOption option;
-  const SelectOptionTag({required this.option, Key? key}) : super(key: key);
+  final bool isSelected;
+  const SelectOptionTag({required this.option, this.isSelected = false, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

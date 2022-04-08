@@ -663,6 +663,7 @@ pub struct SelectOptionChangesetPayload {
     pub cell_identifier: ::protobuf::SingularPtrField<super::cell_entities::CellIdentifierPayload>,
     // message oneof groups
     pub one_of_insert_option: ::std::option::Option<SelectOptionChangesetPayload_oneof_one_of_insert_option>,
+    pub one_of_update_option: ::std::option::Option<SelectOptionChangesetPayload_oneof_one_of_update_option>,
     pub one_of_delete_option: ::std::option::Option<SelectOptionChangesetPayload_oneof_one_of_delete_option>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -678,6 +679,11 @@ impl<'a> ::std::default::Default for &'a SelectOptionChangesetPayload {
 #[derive(Clone,PartialEq,Debug)]
 pub enum SelectOptionChangesetPayload_oneof_one_of_insert_option {
     insert_option(SelectOption),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum SelectOptionChangesetPayload_oneof_one_of_update_option {
+    update_option(SelectOption),
 }
 
 #[derive(Clone,PartialEq,Debug)]
@@ -772,7 +778,56 @@ impl SelectOptionChangesetPayload {
         }
     }
 
-    // .SelectOption delete_option = 3;
+    // .SelectOption update_option = 3;
+
+
+    pub fn get_update_option(&self) -> &SelectOption {
+        match self.one_of_update_option {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(ref v)) => v,
+            _ => <SelectOption as ::protobuf::Message>::default_instance(),
+        }
+    }
+    pub fn clear_update_option(&mut self) {
+        self.one_of_update_option = ::std::option::Option::None;
+    }
+
+    pub fn has_update_option(&self) -> bool {
+        match self.one_of_update_option {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_update_option(&mut self, v: SelectOption) {
+        self.one_of_update_option = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_update_option(&mut self) -> &mut SelectOption {
+        if let ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(_)) = self.one_of_update_option {
+        } else {
+            self.one_of_update_option = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(SelectOption::new()));
+        }
+        match self.one_of_update_option {
+            ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_update_option(&mut self) -> SelectOption {
+        if self.has_update_option() {
+            match self.one_of_update_option.take() {
+                ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            SelectOption::new()
+        }
+    }
+
+    // .SelectOption delete_option = 4;
 
 
     pub fn get_delete_option(&self) -> &SelectOption {
@@ -834,6 +889,11 @@ impl ::protobuf::Message for SelectOptionChangesetPayload {
                 return false;
             }
         }
+        if let Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(ref v)) = self.one_of_update_option {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
         if let Some(SelectOptionChangesetPayload_oneof_one_of_delete_option::delete_option(ref v)) = self.one_of_delete_option {
             if !v.is_initialized() {
                 return false;
@@ -859,6 +919,12 @@ impl ::protobuf::Message for SelectOptionChangesetPayload {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
+                    self.one_of_update_option = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(is.read_message()?));
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
                     self.one_of_delete_option = ::std::option::Option::Some(SelectOptionChangesetPayload_oneof_one_of_delete_option::delete_option(is.read_message()?));
                 },
                 _ => {
@@ -880,6 +946,14 @@ impl ::protobuf::Message for SelectOptionChangesetPayload {
         if let ::std::option::Option::Some(ref v) = self.one_of_insert_option {
             match v {
                 &SelectOptionChangesetPayload_oneof_one_of_insert_option::insert_option(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_update_option {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(ref v) => {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
                 },
@@ -913,10 +987,19 @@ impl ::protobuf::Message for SelectOptionChangesetPayload {
                 },
             };
         }
+        if let ::std::option::Option::Some(ref v) = self.one_of_update_option {
+            match v {
+                &SelectOptionChangesetPayload_oneof_one_of_update_option::update_option(ref v) => {
+                    os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+            };
+        }
         if let ::std::option::Option::Some(ref v) = self.one_of_delete_option {
             match v {
                 &SelectOptionChangesetPayload_oneof_one_of_delete_option::delete_option(ref v) => {
-                    os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
                 },
@@ -971,6 +1054,11 @@ impl ::protobuf::Message for SelectOptionChangesetPayload {
                 SelectOptionChangesetPayload::get_insert_option,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, SelectOption>(
+                "update_option",
+                SelectOptionChangesetPayload::has_update_option,
+                SelectOptionChangesetPayload::get_update_option,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, SelectOption>(
                 "delete_option",
                 SelectOptionChangesetPayload::has_delete_option,
                 SelectOptionChangesetPayload::get_delete_option,
@@ -993,6 +1081,7 @@ impl ::protobuf::Clear for SelectOptionChangesetPayload {
     fn clear(&mut self) {
         self.cell_identifier.clear();
         self.one_of_insert_option = ::std::option::Option::None;
+        self.one_of_update_option = ::std::option::Option::None;
         self.one_of_delete_option = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
@@ -1710,24 +1799,26 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \r.SelectOptionR\x07options\x12#\n\rdisable_color\x18\x02\x20\x01(\x08R\
     \x0cdisableColor\"\\\n\x0cSelectOption\x12\x0e\n\x02id\x18\x01\x20\x01(\
     \tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12(\n\x05color\
-    \x18\x03\x20\x01(\x0e2\x12.SelectOptionColorR\x05color\"\xfb\x01\n\x1cSe\
+    \x18\x03\x20\x01(\x0e2\x12.SelectOptionColorR\x05color\"\xc9\x02\n\x1cSe\
     lectOptionChangesetPayload\x12?\n\x0fcell_identifier\x18\x01\x20\x01(\
     \x0b2\x16.CellIdentifierPayloadR\x0ecellIdentifier\x124\n\rinsert_option\
-    \x18\x02\x20\x01(\x0b2\r.SelectOptionH\0R\x0cinsertOption\x124\n\rdelete\
-    _option\x18\x03\x20\x01(\x0b2\r.SelectOptionH\x01R\x0cdeleteOptionB\x16\
-    \n\x14one_of_insert_optionB\x16\n\x14one_of_delete_option\"\xfb\x01\n\
-    \x20SelectOptionCellChangesetPayload\x12\x17\n\x07grid_id\x18\x01\x20\
-    \x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\
-    \x19\n\x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12*\n\x10insert_optio\
-    n_id\x18\x04\x20\x01(\tH\0R\x0einsertOptionId\x12*\n\x10delete_option_id\
-    \x18\x05\x20\x01(\tH\x01R\x0edeleteOptionIdB\x19\n\x17one_of_insert_opti\
-    on_idB\x19\n\x17one_of_delete_option_id\"t\n\x13SelectOptionContext\x12'\
-    \n\x07options\x18\x01\x20\x03(\x0b2\r.SelectOptionR\x07options\x124\n\
-    \x0eselect_options\x18\x02\x20\x03(\x0b2\r.SelectOptionR\rselectOptions*\
-    y\n\x11SelectOptionColor\x12\n\n\x06Purple\x10\0\x12\x08\n\x04Pink\x10\
-    \x01\x12\r\n\tLightPink\x10\x02\x12\n\n\x06Orange\x10\x03\x12\n\n\x06Yel\
-    low\x10\x04\x12\x08\n\x04Lime\x10\x05\x12\t\n\x05Green\x10\x06\x12\x08\n\
-    \x04Aqua\x10\x07\x12\x08\n\x04Blue\x10\x08b\x06proto3\
+    \x18\x02\x20\x01(\x0b2\r.SelectOptionH\0R\x0cinsertOption\x124\n\rupdate\
+    _option\x18\x03\x20\x01(\x0b2\r.SelectOptionH\x01R\x0cupdateOption\x124\
+    \n\rdelete_option\x18\x04\x20\x01(\x0b2\r.SelectOptionH\x02R\x0cdeleteOp\
+    tionB\x16\n\x14one_of_insert_optionB\x16\n\x14one_of_update_optionB\x16\
+    \n\x14one_of_delete_option\"\xfb\x01\n\x20SelectOptionCellChangesetPaylo\
+    ad\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_i\
+    d\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\
+    \x07fieldId\x12*\n\x10insert_option_id\x18\x04\x20\x01(\tH\0R\x0einsertO\
+    ptionId\x12*\n\x10delete_option_id\x18\x05\x20\x01(\tH\x01R\x0edeleteOpt\
+    ionIdB\x19\n\x17one_of_insert_option_idB\x19\n\x17one_of_delete_option_i\
+    d\"t\n\x13SelectOptionContext\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.\
+    SelectOptionR\x07options\x124\n\x0eselect_options\x18\x02\x20\x03(\x0b2\
+    \r.SelectOptionR\rselectOptions*y\n\x11SelectOptionColor\x12\n\n\x06Purp\
+    le\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\x10\x02\x12\n\n\
+    \x06Orange\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\x04Lime\x10\x05\
+    \x12\t\n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\x08\n\x04Blue\
+    \x10\x08b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
