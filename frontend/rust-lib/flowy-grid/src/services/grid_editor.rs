@@ -58,7 +58,7 @@ impl ClientGridEditor {
             start_field_id,
             grid_id,
         } = params;
-
+        let field_id = field.id.clone();
         let _ = self
             .modify(|grid| {
                 if grid.contain_field(&field.id) {
@@ -84,6 +84,7 @@ impl ClientGridEditor {
             })
             .await?;
         let _ = self.notify_did_update_grid().await?;
+        let _ = self.notify_did_update_field(&field_id).await?;
         Ok(())
     }
 
@@ -409,12 +410,13 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     async fn notify_did_update_field(&self, field_id: &str) -> FlowyResult<()> {
         let mut field_metas = self.get_field_metas(Some(vec![field_id])).await?;
         debug_assert!(field_metas.len() == 1);
 
         if let Some(field_meta) = field_metas.pop() {
-            send_dart_notification(&self.grid_id, GridNotification::DidUpdateField)
+            send_dart_notification(&field_id, GridNotification::DidUpdateField)
                 .payload(field_meta)
                 .send();
         }
