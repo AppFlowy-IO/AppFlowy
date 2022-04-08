@@ -4,6 +4,7 @@ import 'package:app_flowy/workspace/application/grid/cell_bloc/selection_editor_
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -53,7 +54,9 @@ class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
             shrinkWrap: true,
             slivers: [
               SliverToBoxAdapter(child: _TextField()),
-              const SliverToBoxAdapter(child: VSpace(10)),
+              const SliverToBoxAdapter(child: VSpace(6)),
+              const SliverToBoxAdapter(child: TypeOptionSeparator()),
+              const SliverToBoxAdapter(child: VSpace(6)),
               const SliverToBoxAdapter(child: _Title()),
               const SliverToBoxAdapter(child: _OptionList()),
             ],
@@ -104,7 +107,9 @@ class _OptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        final cells = state.options.map((option) => _SelectOptionCell(option)).toList();
+        final cells = state.options.map((option) {
+          return _SelectOptionCell(option, state.selectedOptions.contains(option));
+        }).toList();
         final list = ListView.separated(
           shrinkWrap: true,
           controller: ScrollController(),
@@ -175,7 +180,8 @@ class _Title extends StatelessWidget {
 
 class _SelectOptionCell extends StatelessWidget {
   final SelectOption option;
-  const _SelectOptionCell(this.option, {Key? key}) : super(key: key);
+  final bool isSelected;
+  const _SelectOptionCell(this.option, this.isSelected, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -193,6 +199,10 @@ class _SelectOptionCell extends StatelessWidget {
               SelectOptionTag(option: option),
               const Spacer(),
             ];
+
+            if (isSelected) {
+              children.add(svgWidget("grid/checkmark"));
+            }
 
             if (onHover) {
               children.add(FlowyIconButton(

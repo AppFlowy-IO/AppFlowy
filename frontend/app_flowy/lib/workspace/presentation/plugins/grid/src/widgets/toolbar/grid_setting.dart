@@ -37,10 +37,8 @@ class GridSettingList extends StatelessWidget {
       onAction: (action, settingContext) {
         switch (action) {
           case GridSettingAction.filter:
-            // TODO: Handle this case.
             break;
           case GridSettingAction.sortBy:
-            // TODO: Handle this case.
             break;
           case GridSettingAction.properties:
             GridPropertyList(gridId: settingContext.gridId, fields: settingContext.fields).show(context);
@@ -130,7 +128,7 @@ class _SettingItem extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         isSelected: isSelected,
-        text: FlowyText.medium(action.title(), fontSize: 12),
+        text: FlowyText.medium(action.title(), fontSize: 12, color: action.enable() ? null : theme.shader4),
         hoverColor: theme.hover,
         onTap: () {
           context.read<GridSettingBloc>().add(GridSettingEvent.performAction(action));
@@ -161,6 +159,15 @@ extension _GridSettingExtension on GridSettingAction {
         return LocaleKeys.grid_settings_sortBy.tr();
       case GridSettingAction.properties:
         return LocaleKeys.grid_settings_Properties.tr();
+    }
+  }
+
+  bool enable() {
+    switch (this) {
+      case GridSettingAction.properties:
+        return true;
+      default:
+        return false;
     }
   }
 }

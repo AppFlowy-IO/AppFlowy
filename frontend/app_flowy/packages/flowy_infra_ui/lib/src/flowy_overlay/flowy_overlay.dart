@@ -322,7 +322,9 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     // //   'app content was created above the Navigator with the WidgetsApp builder parameter.',
     // // );
     // // ...
+
     return MaterialApp(
+      theme: Theme.of(context),
       debugShowCheckedModeBanner: false,
       home: Stack(
         children: children..addAll(overlays),
