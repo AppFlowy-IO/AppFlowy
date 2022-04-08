@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell_bloc/selection_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/cell_option_pannel.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -225,7 +225,7 @@ class _SelectOptionCell extends StatelessWidget {
   }
 
   void _showEditOptionPannel(BuildContext context) {
-    final pannel = EditSelectOptionPannel(
+    final pannel = CellSelectOptionPannel(
       option: option,
       onDeleted: () {
         context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.deleteOption(option));

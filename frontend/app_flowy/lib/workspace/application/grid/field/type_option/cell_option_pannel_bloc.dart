@@ -4,11 +4,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'package:dartz/dartz.dart';
-part 'edit_option_bloc.freezed.dart';
+part 'cell_option_pannel_bloc.freezed.dart';
 
-class EditOptionBloc extends Bloc<EditOptionEvent, EditOptionState> {
-  EditOptionBloc({required SelectOption option}) : super(EditOptionState.initial(option)) {
-    on<EditOptionEvent>(
+class CellOptionPannelBloc extends Bloc<CellOptionPannelEvent, CellOptionPannelState> {
+  CellOptionPannelBloc({required SelectOption option}) : super(CellOptionPannelState.initial(option)) {
+    on<CellOptionPannelEvent>(
       (event, emit) async {
         event.map(
           updateName: (_UpdateName value) {
@@ -46,20 +46,20 @@ class EditOptionBloc extends Bloc<EditOptionEvent, EditOptionState> {
 }
 
 @freezed
-class EditOptionEvent with _$EditOptionEvent {
-  const factory EditOptionEvent.updateName(String name) = _UpdateName;
-  const factory EditOptionEvent.updateColor(SelectOptionColor color) = _UpdateColor;
-  const factory EditOptionEvent.delete() = _Delete;
+class CellOptionPannelEvent with _$CellOptionPannelEvent {
+  const factory CellOptionPannelEvent.updateName(String name) = _UpdateName;
+  const factory CellOptionPannelEvent.updateColor(SelectOptionColor color) = _UpdateColor;
+  const factory CellOptionPannelEvent.delete() = _Delete;
 }
 
 @freezed
-class EditOptionState with _$EditOptionState {
-  const factory EditOptionState({
+class CellOptionPannelState with _$CellOptionPannelState {
+  const factory CellOptionPannelState({
     required SelectOption option,
     required Option<bool> deleted,
   }) = _EditOptionState;
 
-  factory EditOptionState.initial(SelectOption option) => EditOptionState(
+  factory CellOptionPannelState.initial(SelectOption option) => CellOptionPannelState(
         option: option,
         deleted: none(),
       );

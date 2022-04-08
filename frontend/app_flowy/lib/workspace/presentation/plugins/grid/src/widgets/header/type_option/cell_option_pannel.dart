@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/field/type_option/edit_option_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/cell_option_pannel_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
@@ -14,11 +14,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-class EditSelectOptionPannel extends StatelessWidget {
+class CellSelectOptionPannel extends StatelessWidget {
   final SelectOption option;
   final VoidCallback onDeleted;
   final Function(SelectOption) onUpdated;
-  const EditSelectOptionPannel({
+  const CellSelectOptionPannel({
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
@@ -28,23 +28,23 @@ class EditSelectOptionPannel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EditOptionBloc(option: option),
+      create: (context) => CellOptionPannelBloc(option: option),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<EditOptionBloc, EditOptionState>(
+          BlocListener<CellOptionPannelBloc, CellOptionPannelState>(
             listenWhen: (p, c) => p.deleted != c.deleted,
             listener: (context, state) {
               state.deleted.fold(() => null, (_) => onDeleted());
             },
           ),
-          BlocListener<EditOptionBloc, EditOptionState>(
+          BlocListener<CellOptionPannelBloc, CellOptionPannelState>(
             listenWhen: (p, c) => p.option != c.option,
             listener: (context, state) {
               onUpdated(state.option);
             },
           ),
         ],
-        child: BlocBuilder<EditOptionBloc, EditOptionState>(
+        child: BlocBuilder<CellOptionPannelBloc, CellOptionPannelState>(
           builder: (context, state) {
             List<Widget> slivers = [
               SliverToBoxAdapter(child: _OptionNameTextField(state.option.name)),
@@ -82,7 +82,7 @@ class _DeleteTag extends StatelessWidget {
         hoverColor: theme.hover,
         leftIcon: svgWidget("grid/delete", color: theme.iconColor),
         onTap: () {
-          context.read<EditOptionBloc>().add(const EditOptionEvent.delete());
+          context.read<CellOptionPannelBloc>().add(const CellOptionPannelEvent.delete());
         },
       ),
     );
@@ -99,7 +99,9 @@ class _OptionNameTextField extends StatelessWidget {
       name: name,
       onCanceled: () {},
       onDone: (optionName) {
-        context.read<EditOptionBloc>().add(EditOptionEvent.updateName(optionName));
+        if (name != optionName) {
+          context.read<CellOptionPannelBloc>().add(CellOptionPannelEvent.updateName(optionName));
+        }
       },
     );
   }
@@ -178,7 +180,7 @@ class _SelectOptionColorCell extends StatelessWidget {
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {
-          context.read<EditOptionBloc>().add(EditOptionEvent.updateColor(color));
+          context.read<CellOptionPannelBloc>().add(CellOptionPannelEvent.updateColor(color));
         },
       ),
     );

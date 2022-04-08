@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-part 'option_pannel_bloc.freezed.dart';
+part 'field_option_pannel_bloc.freezed.dart';
 
-class OptionPannelBloc extends Bloc<OptionPannelEvent, OptionPannelState> {
-  OptionPannelBloc({required List<SelectOption> options}) : super(OptionPannelState.initial(options)) {
-    on<OptionPannelEvent>(
+class FieldOptionPannelBloc extends Bloc<FieldOptionPannelEvent, FieldOptionPannelState> {
+  FieldOptionPannelBloc({required List<SelectOption> options}) : super(FieldOptionPannelState.initial(options)) {
+    on<FieldOptionPannelEvent>(
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
@@ -37,25 +37,25 @@ class OptionPannelBloc extends Bloc<OptionPannelEvent, OptionPannelState> {
 }
 
 @freezed
-class OptionPannelEvent with _$OptionPannelEvent {
-  const factory OptionPannelEvent.createOption(String optionName) = _CreateOption;
-  const factory OptionPannelEvent.beginAddingOption() = _BeginAddingOption;
-  const factory OptionPannelEvent.endAddingOption() = _EndAddingOption;
-  const factory OptionPannelEvent.updateOption(SelectOption option) = _UpdateOption;
-  const factory OptionPannelEvent.deleteOption(SelectOption option) = _DeleteOption;
+class FieldOptionPannelEvent with _$FieldOptionPannelEvent {
+  const factory FieldOptionPannelEvent.createOption(String optionName) = _CreateOption;
+  const factory FieldOptionPannelEvent.beginAddingOption() = _BeginAddingOption;
+  const factory FieldOptionPannelEvent.endAddingOption() = _EndAddingOption;
+  const factory FieldOptionPannelEvent.updateOption(SelectOption option) = _UpdateOption;
+  const factory FieldOptionPannelEvent.deleteOption(SelectOption option) = _DeleteOption;
 }
 
 @freezed
-class OptionPannelState with _$OptionPannelState {
-  const factory OptionPannelState({
+class FieldOptionPannelState with _$FieldOptionPannelState {
+  const factory FieldOptionPannelState({
     required List<SelectOption> options,
     required bool isEditingOption,
     required Option<String> newOptionName,
     required Option<SelectOption> updateOption,
     required Option<SelectOption> deleteOption,
-  }) = _OptionPannelState;
+  }) = _FieldOptionPannelState;
 
-  factory OptionPannelState.initial(List<SelectOption> options) => OptionPannelState(
+  factory FieldOptionPannelState.initial(List<SelectOption> options) => FieldOptionPannelState(
         options: options,
         isEditingOption: false,
         newOptionName: none(),

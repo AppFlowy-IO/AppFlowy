@@ -113,7 +113,9 @@ impl ClientGridEditor {
     }
 
     pub async fn replace_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
+        let field_id = field_meta.id.clone();
         let _ = self.modify(|pad| Ok(pad.replace_field(field_meta)?)).await?;
+        let _ = self.notify_did_update_field(&field_id).await?;
         Ok(())
     }
 
