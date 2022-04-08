@@ -51,8 +51,8 @@ class GridFieldCellActionSheet extends StatelessWidget with FlowyOverlayDelegate
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (GridFieldCellActionSheet).toString();
   }
 
   @override

@@ -81,7 +81,7 @@ class NumberFormatList extends StatelessWidget {
           format: format,
           onSelected: (format) {
             onSelected(format);
-            FlowyOverlay.of(context).remove(identifier());
+            FlowyOverlay.of(context).remove(NumberFormatList.identifier());
           });
     }).toList();
 
@@ -101,8 +101,8 @@ class NumberFormatList extends StatelessWidget {
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (NumberFormatList).toString();
   }
 }
 

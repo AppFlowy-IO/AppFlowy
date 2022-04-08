@@ -4,11 +4,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'package:dartz/dartz.dart';
-part 'cell_option_pannel_bloc.freezed.dart';
+part 'edit_select_option_bloc.freezed.dart';
 
-class CellOptionPannelBloc extends Bloc<CellOptionPannelEvent, CellOptionPannelState> {
-  CellOptionPannelBloc({required SelectOption option}) : super(CellOptionPannelState.initial(option)) {
-    on<CellOptionPannelEvent>(
+class EditSelectOptionBloc extends Bloc<EditSelectOptionEvent, EditSelectOptionState> {
+  EditSelectOptionBloc({required SelectOption option}) : super(EditSelectOptionState.initial(option)) {
+    on<EditSelectOptionEvent>(
       (event, emit) async {
         event.map(
           updateName: (_UpdateName value) {
@@ -46,20 +46,20 @@ class CellOptionPannelBloc extends Bloc<CellOptionPannelEvent, CellOptionPannelS
 }
 
 @freezed
-class CellOptionPannelEvent with _$CellOptionPannelEvent {
-  const factory CellOptionPannelEvent.updateName(String name) = _UpdateName;
-  const factory CellOptionPannelEvent.updateColor(SelectOptionColor color) = _UpdateColor;
-  const factory CellOptionPannelEvent.delete() = _Delete;
+class EditSelectOptionEvent with _$EditSelectOptionEvent {
+  const factory EditSelectOptionEvent.updateName(String name) = _UpdateName;
+  const factory EditSelectOptionEvent.updateColor(SelectOptionColor color) = _UpdateColor;
+  const factory EditSelectOptionEvent.delete() = _Delete;
 }
 
 @freezed
-class CellOptionPannelState with _$CellOptionPannelState {
-  const factory CellOptionPannelState({
+class EditSelectOptionState with _$EditSelectOptionState {
+  const factory EditSelectOptionState({
     required SelectOption option,
     required Option<bool> deleted,
-  }) = _EditOptionState;
+  }) = _EditSelectOptionState;
 
-  factory CellOptionPannelState.initial(SelectOption option) => CellOptionPannelState(
+  factory EditSelectOptionState.initial(SelectOption option) => EditSelectOptionState(
         option: option,
         deleted: none(),
       );

@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-import 'cell_option_pannel.dart';
+import 'edit_option_pannel.dart';
 import 'widget.dart';
 
 class FieldSelectOptionPannel extends StatelessWidget {
@@ -155,7 +155,7 @@ class _OptionList extends StatelessWidget {
     return _OptionCell(
       option: option,
       onEdited: (option) {
-        final pannel = CellSelectOptionPannel(
+        final pannel = EditSelectOptionPannel(
           option: option,
           onDeleted: () {
             delegate.hideOverlay(context);
@@ -165,6 +165,7 @@ class _OptionList extends StatelessWidget {
             delegate.hideOverlay(context);
             context.read<FieldOptionPannelBloc>().add(FieldOptionPannelEvent.updateOption(updatedOption));
           },
+          key: ValueKey(option.id),
         );
         delegate.showOverlay(context, pannel);
       },

@@ -41,8 +41,8 @@ class FieldEditor extends FlowyOverlayDelegate {
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (FieldEditor).toString();
   }
 
   @override
