@@ -28,7 +28,7 @@ impl GridBuilder {
 fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
     let field_ids = fields.iter().map(|field| &field.id).collect::<Vec<&String>>();
     for row in rows {
-        let cell_field_ids = row.cell_by_field_id.keys().into_iter().collect::<Vec<&String>>();
+        let cell_field_ids = row.cells.keys().into_iter().collect::<Vec<&String>>();
         if cell_field_ids != field_ids {
             let msg = format!("{:?} contains invalid cells", row);
             return Err(CollaborateError::internal().context(msg));

@@ -69,24 +69,14 @@ const FieldMeta$json = const {
     const {'1': 'frozen', '3': 5, '4': 1, '5': 8, '10': 'frozen'},
     const {'1': 'visibility', '3': 6, '4': 1, '5': 8, '10': 'visibility'},
     const {'1': 'width', '3': 7, '4': 1, '5': 5, '10': 'width'},
-    const {'1': 'type_option_by_field_type_id', '3': 8, '4': 1, '5': 11, '6': '.TypeOptionDataByFieldTypeId', '10': 'typeOptionByFieldTypeId'},
+    const {'1': 'type_options', '3': 8, '4': 3, '5': 11, '6': '.FieldMeta.TypeOptionsEntry', '10': 'typeOptions'},
   ],
+  '3': const [FieldMeta_TypeOptionsEntry$json],
 };
 
-/// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSWwocdHlwZV9vcHRpb25fYnlfZmllbGRfdHlwZV9pZBgIIAEoCzIcLlR5cGVPcHRpb25EYXRhQnlGaWVsZFR5cGVJZFIXdHlwZU9wdGlvbkJ5RmllbGRUeXBlSWQ=');
-@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
-const TypeOptionDataByFieldTypeId$json = const {
-  '1': 'TypeOptionDataByFieldTypeId',
-  '2': const [
-    const {'1': 'map', '3': 1, '4': 3, '5': 11, '6': '.TypeOptionDataByFieldTypeId.MapEntry', '10': 'map'},
-  ],
-  '3': const [TypeOptionDataByFieldTypeId_MapEntry$json],
-};
-
-@$core.Deprecated('Use typeOptionDataByFieldTypeIdDescriptor instead')
-const TypeOptionDataByFieldTypeId_MapEntry$json = const {
-  '1': 'MapEntry',
+@$core.Deprecated('Use fieldMetaDescriptor instead')
+const FieldMeta_TypeOptionsEntry$json = const {
+  '1': 'TypeOptionsEntry',
   '2': const [
     const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
     const {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
@@ -94,8 +84,8 @@ const TypeOptionDataByFieldTypeId_MapEntry$json = const {
   '7': const {'7': true},
 };
 
-/// Descriptor for `TypeOptionDataByFieldTypeId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List typeOptionDataByFieldTypeIdDescriptor = $convert.base64Decode('ChtUeXBlT3B0aW9uRGF0YUJ5RmllbGRUeXBlSWQSNwoDbWFwGAEgAygLMiUuVHlwZU9wdGlvbkRhdGFCeUZpZWxkVHlwZUlkLk1hcEVudHJ5UgNtYXAaNgoITWFwRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');
+/// Descriptor for `FieldMeta`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldMetaDescriptor = $convert.base64Decode('CglGaWVsZE1ldGESDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIpCgpmaWVsZF90eXBlGAQgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSFgoGZnJvemVuGAUgASgIUgZmcm96ZW4SHgoKdmlzaWJpbGl0eRgGIAEoCFIKdmlzaWJpbGl0eRIUCgV3aWR0aBgHIAEoBVIFd2lkdGgSPgoMdHlwZV9vcHRpb25zGAggAygLMhsuRmllbGRNZXRhLlR5cGVPcHRpb25zRW50cnlSC3R5cGVPcHRpb25zGj4KEFR5cGVPcHRpb25zRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');
 @$core.Deprecated('Use fieldChangesetPayloadDescriptor instead')
 const FieldChangesetPayload$json = const {
   '1': 'FieldChangesetPayload',
@@ -140,16 +130,16 @@ const RowMeta$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'block_id', '3': 2, '4': 1, '5': 9, '10': 'blockId'},
-    const {'1': 'cell_by_field_id', '3': 3, '4': 3, '5': 11, '6': '.RowMeta.CellByFieldIdEntry', '10': 'cellByFieldId'},
+    const {'1': 'cells', '3': 3, '4': 3, '5': 11, '6': '.RowMeta.CellsEntry', '10': 'cells'},
     const {'1': 'height', '3': 4, '4': 1, '5': 5, '10': 'height'},
     const {'1': 'visibility', '3': 5, '4': 1, '5': 8, '10': 'visibility'},
   ],
-  '3': const [RowMeta_CellByFieldIdEntry$json],
+  '3': const [RowMeta_CellsEntry$json],
 };
 
 @$core.Deprecated('Use rowMetaDescriptor instead')
-const RowMeta_CellByFieldIdEntry$json = const {
-  '1': 'CellByFieldIdEntry',
+const RowMeta_CellsEntry$json = const {
+  '1': 'CellsEntry',
   '2': const [
     const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
     const {'1': 'value', '3': 2, '4': 1, '5': 11, '6': '.CellMeta', '10': 'value'},
@@ -158,7 +148,7 @@ const RowMeta_CellByFieldIdEntry$json = const {
 };
 
 /// Descriptor for `RowMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List rowMetaDescriptor = $convert.base64Decode('CgdSb3dNZXRhEg4KAmlkGAEgASgJUgJpZBIZCghibG9ja19pZBgCIAEoCVIHYmxvY2tJZBJEChBjZWxsX2J5X2ZpZWxkX2lkGAMgAygLMhsuUm93TWV0YS5DZWxsQnlGaWVsZElkRW50cnlSDWNlbGxCeUZpZWxkSWQSFgoGaGVpZ2h0GAQgASgFUgZoZWlnaHQSHgoKdmlzaWJpbGl0eRgFIAEoCFIKdmlzaWJpbGl0eRpLChJDZWxsQnlGaWVsZElkRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSHwoFdmFsdWUYAiABKAsyCS5DZWxsTWV0YVIFdmFsdWU6AjgB');
+final $typed_data.Uint8List rowMetaDescriptor = $convert.base64Decode('CgdSb3dNZXRhEg4KAmlkGAEgASgJUgJpZBIZCghibG9ja19pZBgCIAEoCVIHYmxvY2tJZBIpCgVjZWxscxgDIAMoCzITLlJvd01ldGEuQ2VsbHNFbnRyeVIFY2VsbHMSFgoGaGVpZ2h0GAQgASgFUgZoZWlnaHQSHgoKdmlzaWJpbGl0eRgFIAEoCFIKdmlzaWJpbGl0eRpDCgpDZWxsc0VudHJ5EhAKA2tleRgBIAEoCVIDa2V5Eh8KBXZhbHVlGAIgASgLMgkuQ2VsbE1ldGFSBXZhbHVlOgI4AQ==');
 @$core.Deprecated('Use rowMetaChangesetDescriptor instead')
 const RowMetaChangeset$json = const {
   '1': 'RowMetaChangeset',
@@ -191,13 +181,12 @@ final $typed_data.Uint8List rowMetaChangesetDescriptor = $convert.base64Decode('
 const CellMeta$json = const {
   '1': 'CellMeta',
   '2': const [
-    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'data', '3': 2, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 1, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `CellMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellMetaDescriptor = $convert.base64Decode('CghDZWxsTWV0YRIZCghmaWVsZF9pZBgBIAEoCVIHZmllbGRJZBISCgRkYXRhGAIgASgJUgRkYXRh');
+final $typed_data.Uint8List cellMetaDescriptor = $convert.base64Decode('CghDZWxsTWV0YRISCgRkYXRhGAEgASgJUgRkYXRh');
 @$core.Deprecated('Use cellMetaChangesetDescriptor instead')
 const CellMetaChangeset$json = const {
   '1': 'CellMetaChangeset',

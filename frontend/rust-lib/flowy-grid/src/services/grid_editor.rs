@@ -279,7 +279,7 @@ impl ClientGridEditor {
         match row_meta {
             None => Ok(None),
             Some(row_meta) => {
-                let cell_meta = row_meta.cell_by_field_id.get(field_id).cloned();
+                let cell_meta = row_meta.cells.get(field_id).cloned();
                 Ok(cell_meta)
             }
         }

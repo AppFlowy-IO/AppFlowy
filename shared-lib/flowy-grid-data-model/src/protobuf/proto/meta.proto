@@ -22,10 +22,7 @@ message FieldMeta {
     bool frozen = 5;
     bool visibility = 6;
     int32 width = 7;
-    TypeOptionDataByFieldTypeId type_option_by_field_type_id = 8;
-}
-message TypeOptionDataByFieldTypeId {
-    map<string, string> map = 1;
+    map<string, string> type_options = 8;
 }
 message FieldChangesetPayload {
     string field_id = 1;
@@ -45,7 +42,7 @@ message AnyData {
 message RowMeta {
     string id = 1;
     string block_id = 2;
-    map<string, CellMeta> cell_by_field_id = 3;
+    map<string, CellMeta> cells = 3;
     int32 height = 4;
     bool visibility = 5;
 }
@@ -56,8 +53,7 @@ message RowMetaChangeset {
     map<string, CellMeta> cell_by_field_id = 4;
 }
 message CellMeta {
-    string field_id = 1;
-    string data = 2;
+    string data = 1;
 }
 message CellMetaChangeset {
     string grid_id = 1;

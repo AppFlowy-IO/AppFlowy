@@ -24,9 +24,9 @@ pub struct GridBlockMetaPad {
 impl GridBlockMetaPad {
     pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        tracing::trace!("{}", s);
         let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
+            tracing::error!("{}", s);
             CollaborateError::internal().context(msg)
         })?;
         let block_id = meta_data.block_id;
@@ -107,7 +107,7 @@ impl GridBlockMetaPad {
         let cell_metas = rows
             .iter()
             .flat_map(|row| {
-                let cell_meta = row.cell_by_field_id.get(field_id)?;
+                let cell_meta = row.cells.get(field_id)?;
                 Some(cell_meta.clone())
             })
             .collect::<Vec<CellMeta>>();
@@ -135,7 +135,7 @@ impl GridBlockMetaPad {
             if !changeset.cell_by_field_id.is_empty() {
                 is_changed = Some(());
                 changeset.cell_by_field_id.into_iter().for_each(|(field_id, cell)| {
-                    row.cell_by_field_id.insert(field_id, cell);
+                    row.cells.insert(field_id, cell);
                 })
             }
 
@@ -237,7 +237,7 @@ mod tests {
         let row = RowMeta {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
-            cell_by_field_id: Default::default(),
+            cells: Default::default(),
             height: 0,
             visibility: false,
         };
@@ -283,7 +283,7 @@ mod tests {
         RowMeta {
             id: id.to_string(),
             block_id: pad.block_id.clone(),
-            cell_by_field_id: Default::default(),
+            cells: Default::default(),
             height: 0,
             visibility: false,
         }
@@ -328,7 +328,7 @@ mod tests {
         let row = RowMeta {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
-            cell_by_field_id: Default::default(),
+            cells: Default::default(),
             height: 0,
             visibility: false,
         };
@@ -349,7 +349,7 @@ mod tests {
         let row = RowMeta {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
-            cell_by_field_id: Default::default(),
+            cells: Default::default(),
             height: 0,
             visibility: false,
         };

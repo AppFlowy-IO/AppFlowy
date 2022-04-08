@@ -727,7 +727,7 @@ pub struct FieldMeta {
     pub frozen: bool,
     pub visibility: bool,
     pub width: i32,
-    pub type_option_by_field_type_id: ::protobuf::SingularPtrField<TypeOptionDataByFieldTypeId>,
+    pub type_options: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -882,47 +882,34 @@ impl FieldMeta {
         self.width = v;
     }
 
-    // .TypeOptionDataByFieldTypeId type_option_by_field_type_id = 8;
+    // repeated .FieldMeta.TypeOptionsEntry type_options = 8;
 
 
-    pub fn get_type_option_by_field_type_id(&self) -> &TypeOptionDataByFieldTypeId {
-        self.type_option_by_field_type_id.as_ref().unwrap_or_else(|| <TypeOptionDataByFieldTypeId as ::protobuf::Message>::default_instance())
+    pub fn get_type_options(&self) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        &self.type_options
     }
-    pub fn clear_type_option_by_field_type_id(&mut self) {
-        self.type_option_by_field_type_id.clear();
-    }
-
-    pub fn has_type_option_by_field_type_id(&self) -> bool {
-        self.type_option_by_field_type_id.is_some()
+    pub fn clear_type_options(&mut self) {
+        self.type_options.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_type_option_by_field_type_id(&mut self, v: TypeOptionDataByFieldTypeId) {
-        self.type_option_by_field_type_id = ::protobuf::SingularPtrField::some(v);
+    pub fn set_type_options(&mut self, v: ::std::collections::HashMap<::std::string::String, ::std::string::String>) {
+        self.type_options = v;
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_type_option_by_field_type_id(&mut self) -> &mut TypeOptionDataByFieldTypeId {
-        if self.type_option_by_field_type_id.is_none() {
-            self.type_option_by_field_type_id.set_default();
-        }
-        self.type_option_by_field_type_id.as_mut().unwrap()
+    pub fn mut_type_options(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        &mut self.type_options
     }
 
     // Take field
-    pub fn take_type_option_by_field_type_id(&mut self) -> TypeOptionDataByFieldTypeId {
-        self.type_option_by_field_type_id.take().unwrap_or_else(|| TypeOptionDataByFieldTypeId::new())
+    pub fn take_type_options(&mut self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        ::std::mem::replace(&mut self.type_options, ::std::collections::HashMap::new())
     }
 }
 
 impl ::protobuf::Message for FieldMeta {
     fn is_initialized(&self) -> bool {
-        for v in &self.type_option_by_field_type_id {
-            if !v.is_initialized() {
-                return false;
-            }
-        };
         true
     }
 
@@ -964,7 +951,7 @@ impl ::protobuf::Message for FieldMeta {
                     self.width = tmp;
                 },
                 8 => {
-                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.type_option_by_field_type_id)?;
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(wire_type, is, &mut self.type_options)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -999,10 +986,7 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             my_size += ::protobuf::rt::value_size(7, self.width, ::protobuf::wire_format::WireTypeVarint);
         }
-        if let Some(ref v) = self.type_option_by_field_type_id.as_ref() {
-            let len = v.compute_size();
-            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
-        }
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(8, &self.type_options);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -1030,11 +1014,7 @@ impl ::protobuf::Message for FieldMeta {
         if self.width != 0 {
             os.write_int32(7, self.width)?;
         }
-        if let Some(ref v) = self.type_option_by_field_type_id.as_ref() {
-            os.write_tag(8, ::protobuf::wire_format::WireTypeLengthDelimited)?;
-            os.write_raw_varint32(v.get_cached_size())?;
-            v.write_to_with_cached_sizes(os)?;
-        }
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(8, &self.type_options, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -1108,10 +1088,10 @@ impl ::protobuf::Message for FieldMeta {
                 |m: &FieldMeta| { &m.width },
                 |m: &mut FieldMeta| { &mut m.width },
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<TypeOptionDataByFieldTypeId>>(
-                "type_option_by_field_type_id",
-                |m: &FieldMeta| { &m.type_option_by_field_type_id },
-                |m: &mut FieldMeta| { &mut m.type_option_by_field_type_id },
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(
+                "type_options",
+                |m: &FieldMeta| { &m.type_options },
+                |m: &mut FieldMeta| { &mut m.type_options },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FieldMeta>(
                 "FieldMeta",
@@ -1136,7 +1116,7 @@ impl ::protobuf::Clear for FieldMeta {
         self.frozen = false;
         self.visibility = false;
         self.width = 0;
-        self.type_option_by_field_type_id.clear();
+        self.type_options.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1148,160 +1128,6 @@ impl ::std::fmt::Debug for FieldMeta {
 }
 
 impl ::protobuf::reflect::ProtobufValue for FieldMeta {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct TypeOptionDataByFieldTypeId {
-    // message fields
-    pub map: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a TypeOptionDataByFieldTypeId {
-    fn default() -> &'a TypeOptionDataByFieldTypeId {
-        <TypeOptionDataByFieldTypeId as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl TypeOptionDataByFieldTypeId {
-    pub fn new() -> TypeOptionDataByFieldTypeId {
-        ::std::default::Default::default()
-    }
-
-    // repeated .TypeOptionDataByFieldTypeId.MapEntry map = 1;
-
-
-    pub fn get_map(&self) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
-        &self.map
-    }
-    pub fn clear_map(&mut self) {
-        self.map.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_map(&mut self, v: ::std::collections::HashMap<::std::string::String, ::std::string::String>) {
-        self.map = v;
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_map(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, ::std::string::String> {
-        &mut self.map
-    }
-
-    // Take field
-    pub fn take_map(&mut self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
-        ::std::mem::replace(&mut self.map, ::std::collections::HashMap::new())
-    }
-}
-
-impl ::protobuf::Message for TypeOptionDataByFieldTypeId {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(wire_type, is, &mut self.map)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(1, &self.map);
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(1, &self.map, os)?;
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> TypeOptionDataByFieldTypeId {
-        TypeOptionDataByFieldTypeId::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(
-                "map",
-                |m: &TypeOptionDataByFieldTypeId| { &m.map },
-                |m: &mut TypeOptionDataByFieldTypeId| { &mut m.map },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TypeOptionDataByFieldTypeId>(
-                "TypeOptionDataByFieldTypeId",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static TypeOptionDataByFieldTypeId {
-        static instance: ::protobuf::rt::LazyV2<TypeOptionDataByFieldTypeId> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(TypeOptionDataByFieldTypeId::new)
-    }
-}
-
-impl ::protobuf::Clear for TypeOptionDataByFieldTypeId {
-    fn clear(&mut self) {
-        self.map.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for TypeOptionDataByFieldTypeId {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for TypeOptionDataByFieldTypeId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -2186,7 +2012,7 @@ pub struct RowMeta {
     // message fields
     pub id: ::std::string::String,
     pub block_id: ::std::string::String,
-    pub cell_by_field_id: ::std::collections::HashMap<::std::string::String, CellMeta>,
+    pub cells: ::std::collections::HashMap<::std::string::String, CellMeta>,
     pub height: i32,
     pub visibility: bool,
     // special fields
@@ -2257,29 +2083,29 @@ impl RowMeta {
         ::std::mem::replace(&mut self.block_id, ::std::string::String::new())
     }
 
-    // repeated .RowMeta.CellByFieldIdEntry cell_by_field_id = 3;
+    // repeated .RowMeta.CellsEntry cells = 3;
 
 
-    pub fn get_cell_by_field_id(&self) -> &::std::collections::HashMap<::std::string::String, CellMeta> {
-        &self.cell_by_field_id
+    pub fn get_cells(&self) -> &::std::collections::HashMap<::std::string::String, CellMeta> {
+        &self.cells
     }
-    pub fn clear_cell_by_field_id(&mut self) {
-        self.cell_by_field_id.clear();
+    pub fn clear_cells(&mut self) {
+        self.cells.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_cell_by_field_id(&mut self, v: ::std::collections::HashMap<::std::string::String, CellMeta>) {
-        self.cell_by_field_id = v;
+    pub fn set_cells(&mut self, v: ::std::collections::HashMap<::std::string::String, CellMeta>) {
+        self.cells = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_cell_by_field_id(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, CellMeta> {
-        &mut self.cell_by_field_id
+    pub fn mut_cells(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, CellMeta> {
+        &mut self.cells
     }
 
     // Take field
-    pub fn take_cell_by_field_id(&mut self) -> ::std::collections::HashMap<::std::string::String, CellMeta> {
-        ::std::mem::replace(&mut self.cell_by_field_id, ::std::collections::HashMap::new())
+    pub fn take_cells(&mut self) -> ::std::collections::HashMap<::std::string::String, CellMeta> {
+        ::std::mem::replace(&mut self.cells, ::std::collections::HashMap::new())
     }
 
     // int32 height = 4;
@@ -2329,7 +2155,7 @@ impl ::protobuf::Message for RowMeta {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.block_id)?;
                 },
                 3 => {
-                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(wire_type, is, &mut self.cell_by_field_id)?;
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(wire_type, is, &mut self.cells)?;
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -2363,7 +2189,7 @@ impl ::protobuf::Message for RowMeta {
         if !self.block_id.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.block_id);
         }
-        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cell_by_field_id);
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cells);
         if self.height != 0 {
             my_size += ::protobuf::rt::value_size(4, self.height, ::protobuf::wire_format::WireTypeVarint);
         }
@@ -2382,7 +2208,7 @@ impl ::protobuf::Message for RowMeta {
         if !self.block_id.is_empty() {
             os.write_string(2, &self.block_id)?;
         }
-        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cell_by_field_id, os)?;
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(3, &self.cells, os)?;
         if self.height != 0 {
             os.write_int32(4, self.height)?;
         }
@@ -2438,9 +2264,9 @@ impl ::protobuf::Message for RowMeta {
                 |m: &mut RowMeta| { &mut m.block_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<CellMeta>>(
-                "cell_by_field_id",
-                |m: &RowMeta| { &m.cell_by_field_id },
-                |m: &mut RowMeta| { &mut m.cell_by_field_id },
+                "cells",
+                |m: &RowMeta| { &m.cells },
+                |m: &mut RowMeta| { &mut m.cells },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
                 "height",
@@ -2470,7 +2296,7 @@ impl ::protobuf::Clear for RowMeta {
     fn clear(&mut self) {
         self.id.clear();
         self.block_id.clear();
-        self.cell_by_field_id.clear();
+        self.cells.clear();
         self.height = 0;
         self.visibility = false;
         self.unknown_fields.clear();
@@ -2803,7 +2629,6 @@ impl ::protobuf::reflect::ProtobufValue for RowMetaChangeset {
 #[derive(PartialEq,Clone,Default)]
 pub struct CellMeta {
     // message fields
-    pub field_id: ::std::string::String,
     pub data: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -2821,33 +2646,7 @@ impl CellMeta {
         ::std::default::Default::default()
     }
 
-    // string field_id = 1;
-
-
-    pub fn get_field_id(&self) -> &str {
-        &self.field_id
-    }
-    pub fn clear_field_id(&mut self) {
-        self.field_id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_field_id(&mut self, v: ::std::string::String) {
-        self.field_id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.field_id
-    }
-
-    // Take field
-    pub fn take_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
-    }
-
-    // string data = 2;
+    // string data = 1;
 
 
     pub fn get_data(&self) -> &str {
@@ -2884,9 +2683,6 @@ impl ::protobuf::Message for CellMeta {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
-                },
-                2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
                 },
                 _ => {
@@ -2901,11 +2697,8 @@ impl ::protobuf::Message for CellMeta {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.field_id);
-        }
         if !self.data.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.data);
+            my_size += ::protobuf::rt::string_size(1, &self.data);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -2913,11 +2706,8 @@ impl ::protobuf::Message for CellMeta {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.field_id.is_empty() {
-            os.write_string(1, &self.field_id)?;
-        }
         if !self.data.is_empty() {
-            os.write_string(2, &self.data)?;
+            os.write_string(1, &self.data)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -2958,11 +2748,6 @@ impl ::protobuf::Message for CellMeta {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "field_id",
-                |m: &CellMeta| { &m.field_id },
-                |m: &mut CellMeta| { &mut m.field_id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "data",
                 |m: &CellMeta| { &m.data },
                 |m: &mut CellMeta| { &mut m.data },
@@ -2983,7 +2768,6 @@ impl ::protobuf::Message for CellMeta {
 
 impl ::protobuf::Clear for CellMeta {
     fn clear(&mut self) {
-        self.field_id.clear();
         self.data.clear();
         self.unknown_fields.clear();
     }
@@ -3676,55 +3460,52 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ockId\x12&\n\x0fstart_row_index\x18\x02\x20\x01(\x05R\rstartRowIndex\x12\
     \x1b\n\trow_count\x18\x03\x20\x01(\x05R\x08rowCount\"U\n\x11GridBlockMet\
     aData\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12%\n\trow_m\
-    etas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\x99\x02\n\tFieldMe\
+    etas\x18\x02\x20\x03(\x0b2\x08.RowMetaR\x08rowMetas\"\xbc\x02\n\tFieldMe\
     ta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\
     \x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12)\
     \n\nfield_type\x18\x04\x20\x01(\x0e2\n.FieldTypeR\tfieldType\x12\x16\n\
     \x06frozen\x18\x05\x20\x01(\x08R\x06frozen\x12\x1e\n\nvisibility\x18\x06\
     \x20\x01(\x08R\nvisibility\x12\x14\n\x05width\x18\x07\x20\x01(\x05R\x05w\
-    idth\x12[\n\x1ctype_option_by_field_type_id\x18\x08\x20\x01(\x0b2\x1c.Ty\
-    peOptionDataByFieldTypeIdR\x17typeOptionByFieldTypeId\"\x8e\x01\n\x1bTyp\
-    eOptionDataByFieldTypeId\x127\n\x03map\x18\x01\x20\x03(\x0b2%.TypeOption\
-    DataByFieldTypeId.MapEntryR\x03map\x1a6\n\x08MapEntry\x12\x10\n\x03key\
-    \x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05va\
-    lue:\x028\x01\"\xa8\x03\n\x15FieldChangesetPayload\x12\x19\n\x08field_id\
-    \x18\x01\x20\x01(\tR\x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\
-    \x06gridId\x12\x14\n\x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\
-    \x04desc\x18\x04\x20\x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\
-    \x01(\x0e2\n.FieldTypeH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\
-    \x01(\x08H\x03R\x06frozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\
-    \x04R\nvisibility\x12\x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\
-    \x12*\n\x10type_option_data\x18\t\x20\x01(\x0cH\x06R\x0etypeOptionDataB\
-    \r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x13\n\x11one_of_field_typeB\x0f\
-    \n\rone_of_frozenB\x13\n\x11one_of_visibilityB\x0e\n\x0cone_of_widthB\
-    \x19\n\x17one_of_type_option_data\"8\n\x07AnyData\x12\x17\n\x07type_id\
-    \x18\x01\x20\x01(\tR\x06typeId\x12\x14\n\x05value\x18\x02\x20\x01(\x0cR\
-    \x05value\"\xff\x01\n\x07RowMeta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02\
-    id\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\x12D\n\x10cell_b\
-    y_field_id\x18\x03\x20\x03(\x0b2\x1b.RowMeta.CellByFieldIdEntryR\rcellBy\
-    FieldId\x12\x16\n\x06height\x18\x04\x20\x01(\x05R\x06height\x12\x1e\n\nv\
-    isibility\x18\x05\x20\x01(\x08R\nvisibility\x1aK\n\x12CellByFieldIdEntry\
-    \x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\
-    \x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01\"\xa7\x02\n\x10RowMetaChan\
-    geset\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\x12\x18\n\x06heig\
-    ht\x18\x02\x20\x01(\x05H\0R\x06height\x12\x20\n\nvisibility\x18\x03\x20\
-    \x01(\x08H\x01R\nvisibility\x12M\n\x10cell_by_field_id\x18\x04\x20\x03(\
-    \x0b2$.RowMetaChangeset.CellByFieldIdEntryR\rcellByFieldId\x1aK\n\x12Cel\
-    lByFieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1f\n\
-    \x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\x01B\x0f\n\ro\
-    ne_of_heightB\x13\n\x11one_of_visibility\"9\n\x08CellMeta\x12\x19\n\x08f\
-    ield_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x12\n\x04data\x18\x02\x20\x01\
-    (\tR\x04data\"\x83\x01\n\x11CellMetaChangeset\x12\x17\n\x07grid_id\x18\
-    \x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05ro\
-    wId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04da\
-    ta\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data\"\xac\x01\n\x10Bui\
-    ldGridContext\x12+\n\x0bfield_metas\x18\x01\x20\x03(\x0b2\n.FieldMetaR\n\
-    fieldMetas\x12/\n\x0bblock_metas\x18\x02\x20\x01(\x0b2\x0e.GridBlockMeta\
-    R\nblockMetas\x12:\n\x0fblock_meta_data\x18\x03\x20\x01(\x0b2\x12.GridBl\
-    ockMetaDataR\rblockMetaData*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\
-    \x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSi\
-    ngleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbo\
-    x\x10\x05b\x06proto3\
+    idth\x12>\n\x0ctype_options\x18\x08\x20\x03(\x0b2\x1b.FieldMeta.TypeOpti\
+    onsEntryR\x0btypeOptions\x1a>\n\x10TypeOptionsEntry\x12\x10\n\x03key\x18\
+    \x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\
+    \x028\x01\"\xa8\x03\n\x15FieldChangesetPayload\x12\x19\n\x08field_id\x18\
+    \x01\x20\x01(\tR\x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06\
+    gridId\x12\x14\n\x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04des\
+    c\x18\x04\x20\x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\
+    \x0e2\n.FieldTypeH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\
+    \x08H\x03R\x06frozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nv\
+    isibility\x12\x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\x12*\n\
+    \x10type_option_data\x18\t\x20\x01(\x0cH\x06R\x0etypeOptionDataB\r\n\x0b\
+    one_of_nameB\r\n\x0bone_of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_\
+    of_frozenB\x13\n\x11one_of_visibilityB\x0e\n\x0cone_of_widthB\x19\n\x17o\
+    ne_of_type_option_data\"8\n\x07AnyData\x12\x17\n\x07type_id\x18\x01\x20\
+    \x01(\tR\x06typeId\x12\x14\n\x05value\x18\x02\x20\x01(\x0cR\x05value\"\
+    \xdc\x01\n\x07RowMeta\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x19\
+    \n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\x12)\n\x05cells\x18\x03\
+    \x20\x03(\x0b2\x13.RowMeta.CellsEntryR\x05cells\x12\x16\n\x06height\x18\
+    \x04\x20\x01(\x05R\x06height\x12\x1e\n\nvisibility\x18\x05\x20\x01(\x08R\
+    \nvisibility\x1aC\n\nCellsEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03\
+    key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\x05value:\x028\
+    \x01\"\xa7\x02\n\x10RowMetaChangeset\x12\x15\n\x06row_id\x18\x01\x20\x01\
+    (\tR\x05rowId\x12\x18\n\x06height\x18\x02\x20\x01(\x05H\0R\x06height\x12\
+    \x20\n\nvisibility\x18\x03\x20\x01(\x08H\x01R\nvisibility\x12M\n\x10cell\
+    _by_field_id\x18\x04\x20\x03(\x0b2$.RowMetaChangeset.CellByFieldIdEntryR\
+    \rcellByFieldId\x1aK\n\x12CellByFieldIdEntry\x12\x10\n\x03key\x18\x01\
+    \x20\x01(\tR\x03key\x12\x1f\n\x05value\x18\x02\x20\x01(\x0b2\t.CellMetaR\
+    \x05value:\x028\x01B\x0f\n\rone_of_heightB\x13\n\x11one_of_visibility\"\
+    \x1e\n\x08CellMeta\x12\x12\n\x04data\x18\x01\x20\x01(\tR\x04data\"\x83\
+    \x01\n\x11CellMetaChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06\
+    gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08fie\
+    ld_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\
+    \tH\0R\x04dataB\r\n\x0bone_of_data\"\xac\x01\n\x10BuildGridContext\x12+\
+    \n\x0bfield_metas\x18\x01\x20\x03(\x0b2\n.FieldMetaR\nfieldMetas\x12/\n\
+    \x0bblock_metas\x18\x02\x20\x01(\x0b2\x0e.GridBlockMetaR\nblockMetas\x12\
+    :\n\x0fblock_meta_data\x18\x03\x20\x01(\x0b2\x12.GridBlockMetaDataR\rblo\
+    ckMetaData*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\
+    \x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\
+    \x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06prot\
+    o3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

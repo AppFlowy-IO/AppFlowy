@@ -38,7 +38,7 @@ impl<'a> CreateRowMetaBuilder<'a> {
             }
             Some(field_meta) => {
                 let data = apply_cell_data_changeset(&data, None, field_meta)?;
-                let cell = CellMeta::new(field_id, data);
+                let cell = CellMeta::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
             }
@@ -54,7 +54,7 @@ impl<'a> CreateRowMetaBuilder<'a> {
             Some(field_meta) => {
                 let cell_data = SelectOptionCellChangeset::from_insert(&data).cell_data();
                 let data = apply_cell_data_changeset(&cell_data, None, field_meta)?;
-                let cell = CellMeta::new(field_id, data);
+                let cell = CellMeta::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
             }
@@ -82,7 +82,7 @@ pub fn make_row_meta_from_context(block_id: &str, payload: CreateRowMetaPayload)
     RowMeta {
         id: payload.row_id,
         block_id: block_id.to_owned(),
-        cell_by_field_id: payload.cell_by_field_id,
+        cells: payload.cell_by_field_id,
         height: payload.height,
         visibility: payload.visibility,
     }

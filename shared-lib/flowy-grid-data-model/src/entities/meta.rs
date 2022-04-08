@@ -101,7 +101,10 @@ pub struct FieldMeta {
     pub width: i32,
 
     #[pb(index = 8)]
-    pub type_option_by_field_type_id: TypeOptionDataByFieldTypeId,
+    /// type_options contains key/value pairs
+    /// key: id of the FieldType
+    /// value: type option data string
+    pub type_options: HashMap<String, String>,
 }
 
 impl FieldMeta {
@@ -114,31 +117,28 @@ impl FieldMeta {
             frozen: false,
             visibility: true,
             width: DEFAULT_FIELD_WIDTH,
-            type_option_by_field_type_id: Default::default(),
+            type_options: Default::default(),
         }
     }
 
     pub fn insert_type_option_entry<T: TypeOptionDataEntry + ?Sized>(&mut self, entry: &T) {
-        self.type_option_by_field_type_id
-            .insert(entry.field_type().type_id(), entry.json_str());
+        self.type_options.insert(entry.field_type().type_id(), entry.json_str());
     }
 
     pub fn get_type_option_entry<T: TypeOptionDataEntity>(&self, field_type: Option<FieldType>) -> Option<T> {
         let field_type = field_type.as_ref().unwrap_or(&self.field_type);
-        self.type_option_by_field_type_id
+        self.type_options
             .get(&field_type.type_id())
             .map(|s| T::from_json_str(s))
     }
 
     pub fn insert_type_option_str(&mut self, field_type: &FieldType, json_str: String) {
-        self.type_option_by_field_type_id.insert(field_type.type_id(), json_str);
+        self.type_options.insert(field_type.type_id(), json_str);
     }
 
     pub fn get_type_option_str(&self, field_type: Option<FieldType>) -> Option<String> {
         let field_type = field_type.as_ref().unwrap_or(&self.field_type);
-        self.type_option_by_field_type_id
-            .get(&field_type.type_id())
-            .map(|s| s.to_owned())
+        self.type_options.get(&field_type.type_id()).map(|s| s.to_owned())
     }
 }
 
@@ -151,26 +151,6 @@ pub trait TypeOptionDataEntry {
 pub trait TypeOptionDataEntity {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf, PartialEq, Eq)]
-pub struct TypeOptionDataByFieldTypeId {
-    #[pb(index = 1)]
-    pub map: HashMap<String, String>,
-}
-
-impl std::ops::Deref for TypeOptionDataByFieldTypeId {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.map
-    }
-}
-
-impl std::ops::DerefMut for TypeOptionDataByFieldTypeId {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.map
-    }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -321,7 +301,10 @@ pub struct RowMeta {
     pub block_id: String,
 
     #[pb(index = 3)]
-    pub cell_by_field_id: HashMap<String, CellMeta>,
+    /// cells contains key/value pairs.
+    /// key: field id,
+    /// value: CellMeta
+    pub cells: HashMap<String, CellMeta>,
 
     #[pb(index = 4)]
     pub height: i32,
@@ -335,7 +318,7 @@ impl RowMeta {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             block_id: block_id.to_owned(),
-            cell_by_field_id: Default::default(),
+            cells: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
             visibility: true,
         }
@@ -360,18 +343,12 @@ pub struct RowMetaChangeset {
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct CellMeta {
     #[pb(index = 1)]
-    pub field_id: String,
-
-    #[pb(index = 2)]
     pub data: String,
 }
 
 impl CellMeta {
-    pub fn new(field_id: &str, data: String) -> Self {
-        Self {
-            field_id: field_id.to_string(),
-            data,
-        }
+    pub fn new(data: String) -> Self {
+        Self { data }
     }
 }
 
@@ -395,7 +372,6 @@ impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_meta = CellMeta {
-            field_id: field_id.clone(),
             data: changeset.data.unwrap_or_else(|| "".to_owned()),
         };
         cell_by_field_id.insert(field_id, cell_meta);
@@ -404,7 +380,7 @@ impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
             row_id: changeset.row_id,
             height: None,
             visibility: None,
-            cell_by_field_id,
+            cell_by_field_id: cell_by_field_id,
         }
     }
 }

@@ -61,7 +61,7 @@ pub fn make_cell_by_field_id(
 
 #[allow(dead_code)]
 pub fn make_cell(field_id: &str, field_meta: &FieldMeta, row_meta: &RowMeta) -> Option<Cell> {
-    let cell_meta = row_meta.cell_by_field_id.get(field_id)?.clone();
+    let cell_meta = row_meta.cells.get(field_id)?.clone();
     match decode_cell_data(cell_meta.data, field_meta) {
         Ok(content) => Some(Cell::new(field_id, content)),
         Err(e) => {
@@ -83,7 +83,7 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<Ro
 
     let make_row = |row_meta: &Arc<RowMeta>| {
         let cell_by_field_id = row_meta
-            .cell_by_field_id
+            .cells
             .clone()
             .into_par_iter()
             .flat_map(|(field_id, cell_meta)| make_cell_by_field_id(&field_meta_map, field_id, cell_meta))
