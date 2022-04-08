@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/field/type_option/edit_option_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/edit_select_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
@@ -28,23 +28,23 @@ class EditSelectOptionPannel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EditOptionBloc(option: option),
+      create: (context) => EditSelectOptionBloc(option: option),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<EditOptionBloc, EditOptionState>(
+          BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
             listenWhen: (p, c) => p.deleted != c.deleted,
             listener: (context, state) {
               state.deleted.fold(() => null, (_) => onDeleted());
             },
           ),
-          BlocListener<EditOptionBloc, EditOptionState>(
+          BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
             listenWhen: (p, c) => p.option != c.option,
             listener: (context, state) {
               onUpdated(state.option);
             },
           ),
         ],
-        child: BlocBuilder<EditOptionBloc, EditOptionState>(
+        child: BlocBuilder<EditSelectOptionBloc, EditSelectOptionState>(
           builder: (context, state) {
             List<Widget> slivers = [
               SliverToBoxAdapter(child: _OptionNameTextField(state.option.name)),
@@ -82,7 +82,7 @@ class _DeleteTag extends StatelessWidget {
         hoverColor: theme.hover,
         leftIcon: svgWidget("grid/delete", color: theme.iconColor),
         onTap: () {
-          context.read<EditOptionBloc>().add(const EditOptionEvent.delete());
+          context.read<EditSelectOptionBloc>().add(const EditSelectOptionEvent.delete());
         },
       ),
     );
@@ -99,7 +99,9 @@ class _OptionNameTextField extends StatelessWidget {
       name: name,
       onCanceled: () {},
       onDone: (optionName) {
-        context.read<EditOptionBloc>().add(EditOptionEvent.updateName(optionName));
+        if (name != optionName) {
+          context.read<EditSelectOptionBloc>().add(EditSelectOptionEvent.updateName(optionName));
+        }
       },
     );
   }
@@ -178,7 +180,7 @@ class _SelectOptionColorCell extends StatelessWidget {
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {
-          context.read<EditOptionBloc>().add(EditOptionEvent.updateColor(color));
+          context.read<EditSelectOptionBloc>().add(EditSelectOptionEvent.updateColor(color));
         },
       ),
     );

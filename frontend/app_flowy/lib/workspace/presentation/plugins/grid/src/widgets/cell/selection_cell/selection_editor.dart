@@ -18,19 +18,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import 'extension.dart';
 
 const double _editorPannelWidth = 300;
 
-class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
+class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final CellData cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
 
-  const SelectOptionEditor({
+  const SelectOptionCellEditor({
     required this.cellData,
     required this.options,
     required this.selectedOptions,
@@ -38,7 +37,7 @@ class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
   }) : super(key: key);
 
   static String identifier() {
-    return (SelectOptionEditor).toString();
+    return (SelectOptionCellEditor).toString();
   }
 
   @override
@@ -73,8 +72,8 @@ class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) {
-    SelectOptionEditor.hide(context);
-    final editor = SelectOptionEditor(
+    SelectOptionCellEditor.remove(context);
+    final editor = SelectOptionCellEditor(
       cellData: cellData,
       options: options,
       selectedOptions: selectedOptions,
@@ -86,14 +85,14 @@ class SelectOptionEditor extends StatelessWidget with FlowyOverlayDelegate {
         child: SizedBox(width: _editorPannelWidth, child: editor),
         constraints: BoxConstraints.loose(const Size(_editorPannelWidth, 300)),
       ),
-      identifier: SelectOptionEditor.identifier(),
+      identifier: SelectOptionCellEditor.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
       delegate: editor,
     );
   }
 
-  static void hide(BuildContext context) {
+  static void remove(BuildContext context) {
     FlowyOverlay.of(context).remove(identifier());
   }
 
@@ -208,7 +207,7 @@ class _SelectOptionCell extends StatelessWidget {
             if (onHover) {
               children.add(FlowyIconButton(
                 width: 30,
-                onPressed: () => _showEditOptionPannel(context),
+                onPressed: () => _showEditPannel(context),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                 icon: svgWidget("editor/details", color: theme.iconColor),
               ));
@@ -224,7 +223,7 @@ class _SelectOptionCell extends StatelessWidget {
     );
   }
 
-  void _showEditOptionPannel(BuildContext context) {
+  void _showEditPannel(BuildContext context) {
     final pannel = EditSelectOptionPannel(
       option: option,
       onDeleted: () {
@@ -233,9 +232,9 @@ class _SelectOptionCell extends StatelessWidget {
       onUpdated: (updatedOption) {
         context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.updateOption(updatedOption));
       },
-      // key: ValueKey(option.id),
+      key: ValueKey(option.id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
     );
-    final overlayIdentifier = pannel.toString();
+    final overlayIdentifier = (EditSelectOptionPannel).toString();
 
     FlowyOverlay.of(context).remove(overlayIdentifier);
     FlowyOverlay.of(context).insertWithAnchor(

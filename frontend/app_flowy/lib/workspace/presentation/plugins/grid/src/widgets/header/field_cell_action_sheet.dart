@@ -13,9 +13,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class GridFieldCellActionSheet extends StatelessWidget with FlowyOverlayDelegate {
-  final GridFieldCellContext fieldCellContext;
+  final GridFieldCellContext cellContext;
   final VoidCallback onEdited;
-  const GridFieldCellActionSheet({required this.fieldCellContext, required this.onEdited, Key? key}) : super(key: key);
+  const GridFieldCellActionSheet({required this.cellContext, required this.onEdited, Key? key}) : super(key: key);
 
   void show(BuildContext overlayContext) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
@@ -33,7 +33,7 @@ class GridFieldCellActionSheet extends StatelessWidget with FlowyOverlayDelegate
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldActionSheetBloc>(param1: fieldCellContext),
+      create: (context) => getIt<FieldActionSheetBloc>(param1: cellContext),
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -44,15 +44,15 @@ class GridFieldCellActionSheet extends StatelessWidget with FlowyOverlayDelegate
               },
             ),
             const VSpace(6),
-            _FieldOperationList(fieldCellContext, () => FlowyOverlay.of(context).remove(identifier())),
+            _FieldOperationList(cellContext, () => FlowyOverlay.of(context).remove(identifier())),
           ],
         ),
       ),
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (GridFieldCellActionSheet).toString();
   }
 
   @override

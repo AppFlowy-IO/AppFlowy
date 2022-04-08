@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/field/field_cell_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra/image.dart';
@@ -12,46 +13,55 @@ import 'field_cell_action_sheet.dart';
 import 'field_editor.dart';
 
 class GridFieldCell extends StatelessWidget {
-  final GridFieldCellContext fieldCellContext;
-  const GridFieldCell(this.fieldCellContext, {Key? key}) : super(key: key);
+  final GridFieldCellContext cellContext;
+  const GridFieldCell(this.cellContext, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final field = fieldCellContext.field;
 
-    final button = FlowyButton(
-      hoverColor: theme.hover,
-      onTap: () => _showActionSheet(context),
-      rightIcon: svgWidget("editor/details", color: theme.iconColor),
-      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-      text: FlowyText.medium(field.name, fontSize: 12),
-      padding: GridSize.cellContentInsets,
-    );
+    return BlocProvider(
+      create: (context) => FieldCellBloc(cellContext: cellContext)..add(const FieldCellEvent.initial()),
+      child: BlocBuilder<FieldCellBloc, FieldCellState>(
+        builder: (context, state) {
+          final button = FlowyButton(
+            hoverColor: theme.hover,
+            onTap: () => _showActionSheet(context),
+            rightIcon: svgWidget("editor/details", color: theme.iconColor),
+            leftIcon: svgWidget(state.field.fieldType.iconName(), color: theme.iconColor),
+            text: FlowyText.medium(state.field.name, fontSize: 12),
+            padding: GridSize.cellContentInsets,
+          );
 
-    final borderSide = BorderSide(color: theme.shader4, width: 0.4);
-    final decoration = BoxDecoration(border: Border(top: borderSide, right: borderSide, bottom: borderSide));
+          final borderSide = BorderSide(color: theme.shader4, width: 0.4);
+          final decoration = BoxDecoration(border: Border(top: borderSide, right: borderSide, bottom: borderSide));
 
-    return Container(
-      width: field.width.toDouble(),
-      decoration: decoration,
-      child: button,
+          return Container(
+            width: state.field.width.toDouble(),
+            decoration: decoration,
+            child: button,
+          );
+        },
+      ),
     );
   }
 
   void _showActionSheet(BuildContext context) {
+    final state = context.read<FieldCellBloc>().state;
     GridFieldCellActionSheet(
-      fieldCellContext: fieldCellContext,
+      cellContext: GridFieldCellContext(gridId: state.gridId, field: state.field),
       onEdited: () => _showFieldEditor(context),
     ).show(context);
   }
 
   void _showFieldEditor(BuildContext context) {
+    final state = context.read<FieldCellBloc>().state;
+
     FieldEditor(
-      gridId: fieldCellContext.gridId,
+      gridId: state.gridId,
       fieldContextLoader: FieldContextLoaderAdaptor(
-        gridId: fieldCellContext.gridId,
-        field: fieldCellContext.field,
+        gridId: state.gridId,
+        field: state.field,
       ),
     ).show(context);
   }

@@ -5,7 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'option_pannel.dart';
+import 'field_option_pannel.dart';
 
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
   final MultiSelectTypeOptionWidget _widget;
@@ -48,7 +48,7 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
           dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());
         },
         builder: (context, state) {
-          return OptionPannel(
+          return FieldSelectOptionPannel(
             options: state.typeOption.options,
             beginEdit: () {
               overlayDelegate.hideOverlay(context);

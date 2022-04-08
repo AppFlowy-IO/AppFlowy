@@ -114,7 +114,7 @@ class DateFormatList extends StatelessWidget {
           dateFormat: format,
           onSelected: (format) {
             onSelected(format);
-            FlowyOverlay.of(context).remove(identifier());
+            FlowyOverlay.of(context).remove(DateFormatList.identifier());
           },
           isSelected: selectedFormat == format);
     }).toList();
@@ -135,8 +135,8 @@ class DateFormatList extends StatelessWidget {
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (DateFormatList).toString();
   }
 }
 
@@ -205,7 +205,7 @@ class TimeFormatList extends StatelessWidget {
           timeFormat: format,
           onSelected: (format) {
             onSelected(format);
-            FlowyOverlay.of(context).remove(identifier());
+            FlowyOverlay.of(context).remove(TimeFormatList.identifier());
           });
     }).toList();
 
@@ -225,8 +225,8 @@ class TimeFormatList extends StatelessWidget {
     );
   }
 
-  String identifier() {
-    return toString();
+  static String identifier() {
+    return (TimeFormatList).toString();
   }
 }
 

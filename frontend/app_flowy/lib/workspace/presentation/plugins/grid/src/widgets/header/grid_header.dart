@@ -58,7 +58,7 @@ class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     if (oldDelegate is _GridHeaderDelegate) {
-      return fields != oldDelegate.fields;
+      return fields.length != oldDelegate.fields.length;
     }
     return true;
   }

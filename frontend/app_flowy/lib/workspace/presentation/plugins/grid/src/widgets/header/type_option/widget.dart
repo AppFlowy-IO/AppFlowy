@@ -60,13 +60,12 @@ class _NameTextFieldState extends State<NameTextField> {
   }
 
   void notifyDidEndEditing() {
-    if (_controller.text.isEmpty) {
-      if (isEdited) {
+    if (!_focusNode.hasFocus) {
+      if (_controller.text.isEmpty) {
         widget.onCanceled();
+      } else {
+        widget.onDone(_controller.text);
       }
-      isEdited = true;
-    } else {
-      widget.onDone(_controller.text);
     }
   }
 }
