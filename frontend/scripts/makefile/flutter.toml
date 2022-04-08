@@ -5,16 +5,16 @@ linux_alias = "appflowy-linux"
 
 [tasks.appflowy-macos]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product", "create-release-archive"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product", "create-release-archive"] }
 script_runner = "@shell"
 
 [tasks.appflowy-dev]
@@ -24,16 +24,16 @@ linux_alias = "appflowy-linux-dev"
 
 [tasks.appflowy-macos-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["code_generation", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.copy-to-product]
@@ -44,7 +44,7 @@ linux_alias = "copy-to-product-linux"
 [tasks.copy-to-product-macos]
 script = [
   """
-  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}
   output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
   if [ -d "${output_path}" ]; then
     rm -rf ${output_path}/
@@ -61,7 +61,7 @@ script_runner = "@shell"
 [tasks.copy-to-product-linux]
 script = [
   """
-  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}
   output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
   if [ -d "${output_path}" ]; then
     rm -rf ${output_path}/
@@ -81,7 +81,7 @@ script_runner = "@shell"
 [tasks.copy-to-product-windows]
 script = [
   """
-  product_path= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
+  product_path= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}
   output_path= set ${product_path}/${TARGET_OS}
   if is_path_exists ${output_path}
     rm -r ${output_path}/
@@ -91,6 +91,18 @@ script = [
   product= set ${PRODUCT_NAME}
   glob_cp  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/runner/${FLUTTER_OUTPUT_DIR}/**/* \
   ${output_path}/${product}
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.set-app-version]
+script = [
+  """
+  if is_empty ${APP_VERSION}
+    APP_VERSION = set ${CURRENT_APP_VERSION}
+    set_env APP_VERSION ${CURRENT_APP_VERSION}
+  end
+  echo APP_VERSION: ${APP_VERSION}
   """,
 ]
 script_runner = "@duckscript"
@@ -129,7 +141,7 @@ script = [
   cd app_flowy/
   flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${VERSION}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
   """,
 ]
 script_runner = "@shell"
