@@ -365,11 +365,8 @@ impl ClientGridEditor {
         F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChangeset>>,
     {
         let mut write_guard = self.pad.write().await;
-        match f(&mut *write_guard)? {
-            None => {}
-            Some(change) => {
-                let _ = self.apply_change(change).await?;
-            }
+        if let Some(changeset) = f(&mut *write_guard)? {
+            let _ = self.apply_change(changeset).await?;
         }
         Ok(())
     }

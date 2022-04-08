@@ -231,8 +231,13 @@ pub(crate) async fn select_option_changeset_handler(
     if let Some(mut field_meta) = editor.get_field_meta(&changeset.cell_identifier.field_id).await {
         let mut type_option = select_option_operation(&field_meta)?;
         let mut cell_data = None;
+
         if let Some(option) = changeset.insert_option {
             cell_data = Some(SelectOptionCellChangeset::from_insert(&option.id).cell_data());
+            type_option.insert_option(option);
+        }
+
+        if let Some(option) = changeset.update_option {
             type_option.insert_option(option);
         }
 

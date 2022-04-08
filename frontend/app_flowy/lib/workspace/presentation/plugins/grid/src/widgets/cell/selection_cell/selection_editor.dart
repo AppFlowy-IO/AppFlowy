@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import 'extension.dart';
@@ -196,7 +197,7 @@ class _SelectOptionCell extends StatelessWidget {
           config: HoverDisplayConfig(hoverColor: theme.hover),
           builder: (_, onHover) {
             List<Widget> children = [
-              SelectOptionTag(option: option),
+              SelectOptionTag(option: option, isSelected: isSelected),
               const Spacer(),
             ];
 
@@ -206,7 +207,7 @@ class _SelectOptionCell extends StatelessWidget {
 
             if (onHover) {
               children.add(FlowyIconButton(
-                width: 28,
+                width: 30,
                 onPressed: () => _showEditOptionPannel(context),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                 icon: svgWidget("editor/details", color: theme.iconColor),

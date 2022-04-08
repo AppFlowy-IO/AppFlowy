@@ -16,12 +16,12 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
   final GridService service;
-  late GridFieldsListener _fieldListener;
-  late GridBlockService _blockService;
+  final GridFieldsListener _fieldListener;
+  GridBlockService? _blockService;
 
-  GridBloc({required this.view, required this.service}) : super(GridState.initial()) {
-    _fieldListener = GridFieldsListener(gridId: view.id);
-
+  GridBloc({required this.view, required this.service})
+      : _fieldListener = GridFieldsListener(gridId: view.id),
+        super(GridState.initial()) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
@@ -48,7 +48,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _fieldListener.stop();
-    await _blockService.stop();
+    await _blockService?.stop();
     return super.close();
   }
 
@@ -70,7 +70,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       blockOrders: grid.blockOrders,
     );
 
-    _blockService.blocksUpdateNotifier?.addPublishListener((result) {
+    _blockService?.blocksUpdateNotifier?.addPublishListener((result) {
       result.fold(
         (blockMap) => add(GridEvent.didReceiveRowUpdate(_buildRows(blockMap))),
         (err) => Log.error('$err'),

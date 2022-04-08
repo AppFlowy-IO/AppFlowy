@@ -205,6 +205,11 @@ enum SelectOptionChangesetPayload_OneOfInsertOption {
   notSet
 }
 
+enum SelectOptionChangesetPayload_OneOfUpdateOption {
+  updateOption, 
+  notSet
+}
+
 enum SelectOptionChangesetPayload_OneOfDeleteOption {
   deleteOption, 
   notSet
@@ -215,16 +220,22 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
     2 : SelectOptionChangesetPayload_OneOfInsertOption.insertOption,
     0 : SelectOptionChangesetPayload_OneOfInsertOption.notSet
   };
+  static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfUpdateOption> _SelectOptionChangesetPayload_OneOfUpdateOptionByTag = {
+    3 : SelectOptionChangesetPayload_OneOfUpdateOption.updateOption,
+    0 : SelectOptionChangesetPayload_OneOfUpdateOption.notSet
+  };
   static const $core.Map<$core.int, SelectOptionChangesetPayload_OneOfDeleteOption> _SelectOptionChangesetPayload_OneOfDeleteOptionByTag = {
-    3 : SelectOptionChangesetPayload_OneOfDeleteOption.deleteOption,
+    4 : SelectOptionChangesetPayload_OneOfDeleteOption.deleteOption,
     0 : SelectOptionChangesetPayload_OneOfDeleteOption.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SelectOptionChangesetPayload', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
+    ..oo(2, [4])
     ..aOM<$0.CellIdentifierPayload>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellIdentifier', subBuilder: $0.CellIdentifierPayload.create)
     ..aOM<SelectOption>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertOption', subBuilder: SelectOption.create)
-    ..aOM<SelectOption>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteOption', subBuilder: SelectOption.create)
+    ..aOM<SelectOption>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'updateOption', subBuilder: SelectOption.create)
+    ..aOM<SelectOption>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deleteOption', subBuilder: SelectOption.create)
     ..hasRequiredFields = false
   ;
 
@@ -232,6 +243,7 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   factory SelectOptionChangesetPayload({
     $0.CellIdentifierPayload? cellIdentifier,
     SelectOption? insertOption,
+    SelectOption? updateOption,
     SelectOption? deleteOption,
   }) {
     final _result = create();
@@ -240,6 +252,9 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
     }
     if (insertOption != null) {
       _result.insertOption = insertOption;
+    }
+    if (updateOption != null) {
+      _result.updateOption = updateOption;
     }
     if (deleteOption != null) {
       _result.deleteOption = deleteOption;
@@ -270,8 +285,11 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   SelectOptionChangesetPayload_OneOfInsertOption whichOneOfInsertOption() => _SelectOptionChangesetPayload_OneOfInsertOptionByTag[$_whichOneof(0)]!;
   void clearOneOfInsertOption() => clearField($_whichOneof(0));
 
-  SelectOptionChangesetPayload_OneOfDeleteOption whichOneOfDeleteOption() => _SelectOptionChangesetPayload_OneOfDeleteOptionByTag[$_whichOneof(1)]!;
-  void clearOneOfDeleteOption() => clearField($_whichOneof(1));
+  SelectOptionChangesetPayload_OneOfUpdateOption whichOneOfUpdateOption() => _SelectOptionChangesetPayload_OneOfUpdateOptionByTag[$_whichOneof(1)]!;
+  void clearOneOfUpdateOption() => clearField($_whichOneof(1));
+
+  SelectOptionChangesetPayload_OneOfDeleteOption whichOneOfDeleteOption() => _SelectOptionChangesetPayload_OneOfDeleteOptionByTag[$_whichOneof(2)]!;
+  void clearOneOfDeleteOption() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)
   $0.CellIdentifierPayload get cellIdentifier => $_getN(0);
@@ -296,15 +314,26 @@ class SelectOptionChangesetPayload extends $pb.GeneratedMessage {
   SelectOption ensureInsertOption() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  SelectOption get deleteOption => $_getN(2);
+  SelectOption get updateOption => $_getN(2);
   @$pb.TagNumber(3)
-  set deleteOption(SelectOption v) { setField(3, v); }
+  set updateOption(SelectOption v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasDeleteOption() => $_has(2);
+  $core.bool hasUpdateOption() => $_has(2);
   @$pb.TagNumber(3)
-  void clearDeleteOption() => clearField(3);
+  void clearUpdateOption() => clearField(3);
   @$pb.TagNumber(3)
-  SelectOption ensureDeleteOption() => $_ensure(2);
+  SelectOption ensureUpdateOption() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  SelectOption get deleteOption => $_getN(3);
+  @$pb.TagNumber(4)
+  set deleteOption(SelectOption v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDeleteOption() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDeleteOption() => clearField(4);
+  @$pb.TagNumber(4)
+  SelectOption ensureDeleteOption() => $_ensure(3);
 }
 
 enum SelectOptionCellChangesetPayload_OneOfInsertOptionId {
