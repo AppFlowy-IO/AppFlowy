@@ -98,7 +98,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,
             hintStyle: TextStyle(color: widget.normalBorderColor),
-            border: OutlineInputBorder(
+            enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: borderColor,
                 width: 1.0,

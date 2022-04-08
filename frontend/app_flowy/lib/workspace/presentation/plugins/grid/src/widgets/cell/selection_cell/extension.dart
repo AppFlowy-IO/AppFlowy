@@ -108,6 +108,7 @@ class SelectOptionTextField extends StatelessWidget {
           }
 
           return TextField(
+            autofocus: true,
             controller: editController,
             focusNode: focusNode,
             onChanged: onChanged,
@@ -115,8 +116,8 @@ class SelectOptionTextField extends StatelessWidget {
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: theme.shader3, width: 1.0),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: theme.main1, width: 1.0),
                 borderRadius: Corners.s10Border,
               ),
               isDense: true,
