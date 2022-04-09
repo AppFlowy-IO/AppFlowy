@@ -3,6 +3,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use std::collections::HashMap;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
@@ -224,7 +225,17 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
 }
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumCountMacro, EnumString, EnumIter, Display, Serialize, Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    ProtoBuf_Enum,
+    EnumCountMacro,
+    EnumString,
+    EnumIter,
+    Display,
+    Serialize_repr,
+    Deserialize_repr,
 )]
 #[repr(u8)]
 pub enum FieldType {

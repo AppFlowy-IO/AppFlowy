@@ -156,6 +156,7 @@ impl GridBlockMetaPad {
                 match cal_diff::<PlainTextAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
+                        tracing::trace!("[GridBlockMeta] Composing change {}", delta.to_delta_str());
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
                     }
