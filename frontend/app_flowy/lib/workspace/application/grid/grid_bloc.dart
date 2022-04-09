@@ -79,7 +79,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
-    final result = await service.openGrid(gridId: view.id);
+    final result = await service.loadGrid(gridId: view.id);
     return Future(
       () => result.fold(
         (grid) async => await _loadFields(grid, emit),

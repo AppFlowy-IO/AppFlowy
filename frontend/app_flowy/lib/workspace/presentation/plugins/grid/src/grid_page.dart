@@ -155,24 +155,37 @@ class _FlowyGridState extends State<FlowyGrid> {
         return rowChanged;
       },
       builder: (context, state) {
-        return SliverAnimatedList(
-          key: _key,
-          initialItemCount: context.read<GridBloc>().state.rows.length,
-          itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+        return SliverList(
+            delegate: SliverChildBuilderDelegate(
+          (context, index) {
             final blockRow = context.read<GridBloc>().state.rows[index];
             final fields = context.read<GridBloc>().state.fields;
             final rowData = RowData.fromBlockRow(blockRow, fields);
-            return _renderRow(rowData, animation);
+            return GridRowWidget(data: rowData, key: ValueKey(rowData.rowId));
           },
-        );
+          childCount: context.read<GridBloc>().state.rows.length,
+          addRepaintBoundaries: true,
+          addAutomaticKeepAlives: true,
+        ));
+
+        // return SliverAnimatedList(
+        //   key: _key,
+        //   initialItemCount: context.read<GridBloc>().state.rows.length,
+        //   itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+        //     final blockRow = context.read<GridBloc>().state.rows[index];
+        //     final fields = context.read<GridBloc>().state.fields;
+        //     final rowData = RowData.fromBlockRow(blockRow, fields);
+        //     return _renderRow(rowData, animation);
+        //   },
+        // );
       },
     );
   }
 
-  Widget _renderRow(RowData rowData, Animation<double> animation) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
-    );
-  }
+  // Widget _renderRow(RowData rowData, Animation<double> animation) {
+  //   return SizeTransition(
+  //     sizeFactor: animation,
+  //     child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
+  //   );
+  // }
 }

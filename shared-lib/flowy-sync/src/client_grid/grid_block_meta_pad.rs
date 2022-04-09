@@ -30,11 +30,7 @@ impl GridBlockMetaPad {
             CollaborateError::internal().context(msg)
         })?;
         let block_id = meta_data.block_id;
-        let rows = meta_data
-            .row_metas
-            .into_iter()
-            .map(Arc::new)
-            .collect::<Vec<Arc<RowMeta>>>();
+        let rows = meta_data.rows.into_iter().map(Arc::new).collect::<Vec<Arc<RowMeta>>>();
         Ok(Self {
             block_id,
             row_metas: rows,
@@ -215,13 +211,13 @@ impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
         let block_meta_data = GridBlockMetaData {
             block_id: uuid(),
-            row_metas: vec![],
+            rows: vec![],
         };
 
         let delta = make_block_meta_delta(&block_meta_data);
         GridBlockMetaPad {
             block_id: block_meta_data.block_id,
-            row_metas: block_meta_data.row_metas.into_iter().map(Arc::new).collect::<Vec<_>>(),
+            row_metas: block_meta_data.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
             delta,
         }
     }

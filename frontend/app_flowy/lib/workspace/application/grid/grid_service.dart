@@ -5,7 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class GridService {
-  Future<Either<Grid, FlowyError>> openGrid({required String gridId}) async {
+  Future<Either<loadGrid, FlowyError>> loadGrid({required String gridId}) async {
     await FolderEventSetLatestView(ViewId(value: gridId)).send();
 
     final payload = GridId(value: gridId);
@@ -16,14 +16,6 @@ class GridService {
     CreateRowPayload payload = CreateRowPayload.create()..gridId = gridId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return GridEventCreateRow(payload).send();
-  }
-
-  Future<Either<RepeatedGridBlock, FlowyError>> getGridBlocks(
-      {required String gridId, required List<GridBlockOrder> blockOrders}) {
-    final payload = QueryGridBlocksPayload.create()
-      ..gridId = gridId
-      ..blockOrders.addAll(blockOrders);
-    return GridEventGetGridBlocks(payload).send();
   }
 
   Future<Either<RepeatedField, FlowyError>> getFields({required String gridId, required List<FieldOrder> fieldOrders}) {

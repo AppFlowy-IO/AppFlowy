@@ -179,7 +179,7 @@ pub async fn make_grid_view_data(
     let grid_meta = GridMeta {
         grid_id: view_id.to_string(),
         fields: build_context.field_metas,
-        block_metas: vec![build_context.block_metas],
+        blocks: vec![build_context.block_metas],
     };
 
     // Create grid
@@ -190,7 +190,7 @@ pub async fn make_grid_view_data(
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
 
     // Indexing the block's rows
-    build_context.block_meta_data.row_metas.iter().for_each(|row| {
+    build_context.block_meta_data.rows.iter().for_each(|row| {
         let _ = grid_manager
             .block_index_persistence
             .insert_or_update(&row.block_id, &row.id);
