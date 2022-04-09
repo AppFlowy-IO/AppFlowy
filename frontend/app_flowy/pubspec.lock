@@ -512,7 +512,7 @@ packages:
       name: fluttertoast
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.0.8"
+    version: "8.0.9"
   freezed:
     dependency: "direct dev"
     description:
@@ -1031,6 +1031,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  simple_gesture_detector:
+    dependency: transitive
+    description:
+      name: simple_gesture_detector
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   sized_context:
     dependency: "direct main"
     description:
@@ -1120,6 +1127,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.1+2"
+  table_calendar:
+    dependency: "direct main"
+    description:
+      name: table_calendar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.5"
   term_glyph:
     dependency: transitive
     description:

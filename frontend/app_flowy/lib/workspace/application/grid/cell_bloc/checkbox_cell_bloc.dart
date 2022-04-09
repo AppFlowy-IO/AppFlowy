@@ -26,15 +26,10 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
             _startListening();
           },
           select: (_Selected value) async {
-            _service.updateCell(
-              gridId: state.cellData.gridId,
-              fieldId: state.cellData.field.id,
-              rowId: state.cellData.rowId,
-              data: !state.isSelected ? "Yes" : "No",
-            );
+            _updateCellData();
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(isSelected: isSelected(value.cell)));
+            emit(state.copyWith(isSelected: _isSelected(value.cell)));
           },
         );
       },
@@ -50,21 +45,32 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   void _startListening() {
     _listener.updateCellNotifier.addPublishListener((result) {
       result.fold(
-        (notificationData) async {
-          final result = await _service.getCell(
-            gridId: state.cellData.gridId,
-            fieldId: state.cellData.field.id,
-            rowId: state.cellData.rowId,
-          );
-          result.fold(
-            (cell) => add(CheckboxCellEvent.didReceiveCellUpdate(cell)),
-            (err) => Log.error(err),
-          );
-        },
+        (notificationData) async => await _loadCellData(),
         (err) => Log.error(err),
       );
     });
     _listener.start();
+  }
+
+  Future<void> _loadCellData() async {
+    final result = await _service.getCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+    );
+    result.fold(
+      (cell) => add(CheckboxCellEvent.didReceiveCellUpdate(cell)),
+      (err) => Log.error(err),
+    );
+  }
+
+  void _updateCellData() {
+    _service.updateCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+      data: !state.isSelected ? "Yes" : "No",
+    );
   }
 }
 
@@ -83,11 +89,11 @@ class CheckboxCellState with _$CheckboxCellState {
   }) = _CheckboxCellState;
 
   factory CheckboxCellState.initial(CellData cellData) {
-    return CheckboxCellState(cellData: cellData, isSelected: isSelected(cellData.cell));
+    return CheckboxCellState(cellData: cellData, isSelected: _isSelected(cellData.cell));
   }
 }
 
-bool isSelected(Cell? cell) {
+bool _isSelected(Cell? cell) {
   final content = cell?.content ?? "";
   return content == "Yes";
 }

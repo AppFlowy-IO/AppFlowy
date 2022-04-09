@@ -1,5 +1,7 @@
+import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -8,17 +10,28 @@ import 'cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final CellService service;
-  final CellData cellData;
+  final CellService _service;
+  final CellListener _listener;
 
-  DateCellBloc({
-    required this.service,
-    required this.cellData,
-  }) : super(DateCellState.initial()) {
+  DateCellBloc({required CellData cellData})
+      : _service = CellService(),
+        _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        super(DateCellState.initial(cellData)) {
     on<DateCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {},
+        event.map(
+          initial: (_InitialCell value) {
+            _startListening();
+          },
+          selectDay: (_SelectDay value) {
+            _updateCellData(value.day);
+          },
+          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
+            emit(state.copyWith(
+              cellData: state.cellData.copyWith(cell: value.cell),
+              content: value.cell.content,
+            ));
+          },
         );
       },
     );
@@ -26,20 +39,60 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   @override
   Future<void> close() async {
+    await _listener.stop();
     return super.close();
+  }
+
+  void _startListening() {
+    _listener.updateCellNotifier.addPublishListener((result) {
+      result.fold(
+        (notificationData) => _loadCellData(),
+        (err) => Log.error(err),
+      );
+    });
+    _listener.start();
+  }
+
+  Future<void> _loadCellData() async {
+    final result = await _service.getCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+    );
+    result.fold(
+      (cell) => add(DateCellEvent.didReceiveCellUpdate(cell)),
+      (err) => Log.error(err),
+    );
+  }
+
+  void _updateCellData(DateTime day) {
+    final data = day.millisecondsSinceEpoch ~/ 1000;
+    _service.updateCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+      data: data.toString(),
+    );
   }
 }
 
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
+  const factory DateCellEvent.selectDay(DateTime day) = _SelectDay;
+  const factory DateCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    Cell? cell,
+    required CellData cellData,
+    required String content,
+    DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial() => const DateCellState();
+  factory DateCellState.initial(CellData cellData) => DateCellState(
+        cellData: cellData,
+        content: cellData.cell?.content ?? "",
+      );
 }

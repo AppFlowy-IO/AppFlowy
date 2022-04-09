@@ -69,9 +69,8 @@ impl CellDataOperation for DateTypeOption {
         _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
-        if let Err(e) = changeset.parse::<i64>() {
-            tracing::error!("Parse {} to i64 failed: {}", changeset.to_string(), e);
-            return Err(FlowyError::internal().context(e));
+        if changeset.parse::<f64>().is_err() || changeset.parse::<i64>().is_err() {
+            return Err(FlowyError::internal().context(format!("Parse {} failed", changeset.to_string())));
         };
 
         Ok(TypeOptionCellData::new(changeset, self.field_type()).json())
