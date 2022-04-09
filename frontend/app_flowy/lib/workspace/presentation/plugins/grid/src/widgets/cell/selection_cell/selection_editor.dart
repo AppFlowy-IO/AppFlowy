@@ -36,10 +36,6 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
     Key? key,
   }) : super(key: key);
 
-  static String identifier() {
-    return (SelectOptionCellEditor).toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -94,6 +90,10 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   static void remove(BuildContext context) {
     FlowyOverlay.of(context).remove(identifier());
+  }
+
+  static String identifier() {
+    return (SelectOptionCellEditor).toString();
   }
 
   @override

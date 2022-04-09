@@ -86,7 +86,12 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
-                SelectOptionCellEditor.show(context, state.cellData, state.options, state.selectedOptions);
+                SelectOptionCellEditor.show(
+                  context,
+                  state.cellData,
+                  state.options,
+                  state.selectedOptions,
+                );
               },
               child: Row(children: children),
             ),

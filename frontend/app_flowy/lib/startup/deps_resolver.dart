@@ -200,7 +200,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<DateCellBloc, CellData, void>(
     (cellData, _) => DateCellBloc(
-      service: CellService(),
       cellData: cellData,
     ),
   );

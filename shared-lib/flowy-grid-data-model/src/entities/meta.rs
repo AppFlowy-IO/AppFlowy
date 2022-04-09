@@ -8,7 +8,6 @@ use std::collections::HashMap;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 42;
-pub const DEFAULT_FIELD_WIDTH: i32 = 150;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct GridMeta {
@@ -110,6 +109,7 @@ pub struct FieldMeta {
 
 impl FieldMeta {
     pub fn new(name: &str, desc: &str, field_type: FieldType) -> Self {
+        let width = field_type.default_cell_width();
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             name: name.to_string(),
@@ -117,7 +117,7 @@ impl FieldMeta {
             field_type,
             frozen: false,
             visibility: true,
-            width: DEFAULT_FIELD_WIDTH,
+            width,
             type_options: Default::default(),
         }
     }
@@ -269,6 +269,13 @@ impl FieldType {
     pub fn type_id(&self) -> String {
         let ty = self.clone();
         format!("{}", ty as u8)
+    }
+
+    pub fn default_cell_width(&self) -> i32 {
+        match self {
+            FieldType::DateTime => 180,
+            _ => 150,
+        }
     }
 }
 
