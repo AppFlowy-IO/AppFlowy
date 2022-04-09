@@ -2,7 +2,7 @@ use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::ClientGridBlockMetaEditor;
 use crate::services::persistence::block_index::BlockIndexPersistence;
-use crate::services::row::{make_block_row_ids, make_rows_from_row_metas, GridBlockSnapshot};
+use crate::services::row::{make_block_rows, make_rows_from_row_metas, GridBlockSnapshot};
 
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
@@ -94,11 +94,11 @@ impl GridBlockMetaEditorManager {
 
     pub(crate) async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<Vec<GridBlockMetaChangeset>> {
         let mut changesets = vec![];
-        for block_row_ids in make_block_row_ids(&row_orders) {
-            let editor = self.get_editor(&block_row_ids.block_id).await?;
-            let row_count = editor.delete_rows(block_row_ids.row_ids).await?;
+        for block_row in make_block_rows(&row_orders) {
+            let editor = self.get_editor(&block_row.block_id).await?;
+            let row_count = editor.delete_rows(block_row.row_ids).await?;
 
-            let changeset = GridBlockMetaChangeset::from_row_count(&block_row_ids.block_id, row_count);
+            let changeset = GridBlockMetaChangeset::from_row_count(&block_row.block_id, row_count);
             changesets.push(changeset);
         }
 

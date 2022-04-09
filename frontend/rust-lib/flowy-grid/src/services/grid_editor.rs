@@ -267,6 +267,13 @@ impl ClientGridEditor {
             }
         }
     }
+    pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+
+    pub async fn duplicate_row(&self, row_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
 
     pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
         let field_meta = self.get_field_meta(&params.field_id).await?;
@@ -315,6 +322,11 @@ impl ClientGridEditor {
         let grid_blocks = self.pad.read().await.get_block_metas();
         Ok(grid_blocks)
     }
+
+    // pub async fn get_field_metas<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
+    //     where
+    //         T: Into<FieldOrder>,
+    // {
 
     pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
         let changesets = self.block_meta_manager.delete_rows(row_orders).await?;

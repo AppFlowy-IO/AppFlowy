@@ -8,14 +8,14 @@ use std::collections::HashMap;
 
 use std::sync::Arc;
 
-pub(crate) struct BlockRowIds {
+pub(crate) struct BlockRows {
     pub(crate) block_id: String,
     pub(crate) row_ids: Vec<String>,
 }
 
-impl BlockRowIds {
+impl BlockRows {
     pub fn new(block_id: &str) -> Self {
-        BlockRowIds {
+        BlockRows {
             block_id: block_id.to_owned(),
             row_ids: vec![],
         }
@@ -27,13 +27,13 @@ pub struct GridBlockSnapshot {
     pub row_metas: Vec<Arc<RowMeta>>,
 }
 
-pub(crate) fn make_block_row_ids(row_orders: &[RowOrder]) -> Vec<BlockRowIds> {
-    let mut map: HashMap<&String, BlockRowIds> = HashMap::new();
+pub(crate) fn make_block_rows(row_orders: &[RowOrder]) -> Vec<BlockRows> {
+    let mut map: HashMap<&String, BlockRows> = HashMap::new();
     row_orders.iter().for_each(|row_order| {
         let block_id = &row_order.block_id;
         let row_id = row_order.row_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| BlockRowIds::new(block_id))
+            .or_insert_with(|| BlockRows::new(block_id))
             .row_ids
             .push(row_id);
     });
