@@ -39,6 +39,8 @@ pub enum GridEvent {
     ApplySelectOptionChangeset = 32,
     CreateRow = 50,
     GetRow = 51,
+    DeleteRow = 52,
+    DuplicateRow = 53,
     GetCell = 70,
     UpdateCell = 71,
     ApplySelectOptionCellChangeset = 72,
@@ -65,6 +67,8 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             32 => ::std::option::Option::Some(GridEvent::ApplySelectOptionChangeset),
             50 => ::std::option::Option::Some(GridEvent::CreateRow),
             51 => ::std::option::Option::Some(GridEvent::GetRow),
+            52 => ::std::option::Option::Some(GridEvent::DeleteRow),
+            53 => ::std::option::Option::Some(GridEvent::DuplicateRow),
             70 => ::std::option::Option::Some(GridEvent::GetCell),
             71 => ::std::option::Option::Some(GridEvent::UpdateCell),
             72 => ::std::option::Option::Some(GridEvent::ApplySelectOptionCellChangeset),
@@ -88,6 +92,8 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             GridEvent::ApplySelectOptionChangeset,
             GridEvent::CreateRow,
             GridEvent::GetRow,
+            GridEvent::DeleteRow,
+            GridEvent::DuplicateRow,
             GridEvent::GetCell,
             GridEvent::UpdateCell,
             GridEvent::ApplySelectOptionCellChangeset,
@@ -119,15 +125,16 @@ impl ::protobuf::reflect::ProtobufValue for GridEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xde\x02\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
+    \n\x0fevent_map.proto*\xff\x02\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
     \0\x12\x11\n\rGetGridBlocks\x10\x01\x12\r\n\tGetFields\x10\n\x12\x0f\n\
     \x0bUpdateField\x10\x0b\x12\x0f\n\x0bCreateField\x10\x0c\x12\x0f\n\x0bDe\
     leteField\x10\r\x12\x11\n\rSwitchToField\x10\x0e\x12\x12\n\x0eDuplicateF\
     ield\x10\x0f\x12\x17\n\x13GetEditFieldContext\x10\x10\x12\x13\n\x0fNewSe\
     lectOption\x10\x1e\x12\x1a\n\x16GetSelectOptionContext\x10\x1f\x12\x1e\n\
     \x1aApplySelectOptionChangeset\x10\x20\x12\r\n\tCreateRow\x102\x12\n\n\
-    \x06GetRow\x103\x12\x0b\n\x07GetCell\x10F\x12\x0e\n\nUpdateCell\x10G\x12\
-    \"\n\x1eApplySelectOptionCellChangeset\x10Hb\x06proto3\
+    \x06GetRow\x103\x12\r\n\tDeleteRow\x104\x12\x10\n\x0cDuplicateRow\x105\
+    \x12\x0b\n\x07GetCell\x10F\x12\x0e\n\nUpdateCell\x10G\x12\"\n\x1eApplySe\
+    lectOptionCellChangeset\x10Hb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

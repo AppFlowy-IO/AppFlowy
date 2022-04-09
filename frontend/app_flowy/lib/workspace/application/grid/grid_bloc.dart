@@ -111,7 +111,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       rows.addAll(gridBlock.rowOrders.map(
         (rowOrder) => GridBlockRow(
           gridId: view.id,
-          blockId: gridBlock.id,
           rowId: rowOrder.rowId,
           height: rowOrder.height.toDouble(),
         ),

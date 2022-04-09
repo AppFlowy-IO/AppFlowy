@@ -20,6 +20,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Row
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
+        .event(GridEvent::DeleteRow, delete_row_handler)
+        .event(GridEvent::DuplicateRow, duplicate_row_handler)
         // Cell
         .event(GridEvent::GetCell, get_cell_handler)
         .event(GridEvent::UpdateCell, update_cell_handler)
@@ -80,6 +82,12 @@ pub enum GridEvent {
 
     #[event(input = "RowIdentifierPayload", output = "Row")]
     GetRow = 51,
+
+    #[event(input = "RowIdentifierPayload")]
+    DeleteRow = 52,
+
+    #[event(input = "RowIdentifierPayload")]
+    DuplicateRow = 53,
 
     #[event(input = "CellIdentifierPayload", output = "Cell")]
     GetCell = 70,

@@ -23,7 +23,7 @@ class GridFieldCellActionSheet extends StatelessWidget with FlowyOverlayDelegate
         child: this,
         constraints: BoxConstraints.loose(const Size(240, 200)),
       ),
-      identifier: identifier(),
+      identifier: GridFieldCellActionSheet.identifier(),
       anchorContext: overlayContext,
       anchorDirection: AnchorDirection.bottomWithLeftAligned,
       delegate: this,
@@ -68,7 +68,7 @@ class _EditFieldButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return BlocBuilder<FieldActionSheetBloc, ActionSheetState>(
+    return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
           height: GridSize.typeOptionItemHeight,
@@ -100,16 +100,6 @@ class _FieldOperationList extends StatelessWidget {
         )
         .toList();
 
-    return FieldOperationList(actions: actions);
-  }
-}
-
-class FieldOperationList extends StatelessWidget {
-  final List<FieldActionCell> actions;
-  const FieldOperationList({required this.actions, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     return GridView(
       // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
       shrinkWrap: true,
@@ -182,13 +172,13 @@ extension _FieldActionExtension on FieldAction {
   void run(BuildContext context) {
     switch (this) {
       case FieldAction.hide:
-        context.read<FieldActionSheetBloc>().add(const ActionSheetEvent.hideField());
+        context.read<FieldActionSheetBloc>().add(const FieldActionSheetEvent.hideField());
         break;
       case FieldAction.duplicate:
-        context.read<FieldActionSheetBloc>().add(const ActionSheetEvent.duplicateField());
+        context.read<FieldActionSheetBloc>().add(const FieldActionSheetEvent.duplicateField());
         break;
       case FieldAction.delete:
-        context.read<FieldActionSheetBloc>().add(const ActionSheetEvent.deleteField());
+        context.read<FieldActionSheetBloc>().add(const FieldActionSheetEvent.deleteField());
         break;
     }
   }

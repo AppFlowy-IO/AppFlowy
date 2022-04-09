@@ -10,9 +10,8 @@ part 'row_service.freezed.dart';
 class RowService {
   final String gridId;
   final String rowId;
-  final String blockId;
 
-  RowService({required this.gridId, required this.rowId, required this.blockId});
+  RowService({required this.gridId, required this.rowId});
 
   Future<Either<Row, FlowyError>> createRow() {
     CreateRowPayload payload = CreateRowPayload.create()
@@ -28,6 +27,22 @@ class RowService {
       ..rowId = rowId;
 
     return GridEventGetRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> deleteRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDeleteRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> duplicateRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDuplicateRow(payload).send();
   }
 }
 
@@ -46,7 +61,6 @@ class RowData with _$RowData {
   const factory RowData({
     required String gridId,
     required String rowId,
-    required String blockId,
     required List<Field> fields,
     required double height,
   }) = _RowData;
@@ -55,7 +69,6 @@ class RowData with _$RowData {
     return RowData(
       gridId: row.gridId,
       rowId: row.rowId,
-      blockId: row.blockId,
       fields: fields,
       height: row.height,
     );
@@ -67,7 +80,6 @@ class GridBlockRow with _$GridBlockRow {
   const factory GridBlockRow({
     required String gridId,
     required String rowId,
-    required String blockId,
     required double height,
   }) = _GridBlockRow;
 }

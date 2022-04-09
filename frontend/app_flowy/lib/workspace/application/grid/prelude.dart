@@ -7,7 +7,7 @@ export 'data.dart';
 // Field
 export 'field/field_service.dart';
 export 'field/grid_header_bloc.dart';
-export 'field/action_sheet_bloc.dart';
+export 'field/field_action_sheet_bloc.dart';
 export 'field/field_editor_bloc.dart';
 export 'field/field_switch_bloc.dart';
 

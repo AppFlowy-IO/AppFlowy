@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
-import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,19 +15,14 @@ part 'row_bloc.freezed.dart';
 typedef CellDataMap = LinkedHashMap<String, CellData>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
-  final RowService rowService;
-  final RowListener rowlistener;
-  final GridFieldsListener fieldListener;
+  final RowService _rowService;
+  final RowListener _rowlistener;
+  final GridFieldsListener _fieldListener;
 
-  RowBloc({required RowData rowData, required this.rowlistener})
-      : rowService = RowService(
-          gridId: rowData.gridId,
-          blockId: rowData.blockId,
-          rowId: rowData.rowId,
-        ),
-        fieldListener = GridFieldsListener(
-          gridId: rowData.gridId,
-        ),
+  RowBloc({required RowData rowData})
+      : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
+        _fieldListener = GridFieldsListener(gridId: rowData.gridId),
+        _rowlistener = RowListener(rowId: rowData.rowId),
         super(RowState.initial(rowData)) {
     on<RowEvent>(
       (event, emit) async {
@@ -38,7 +32,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _loadRow(emit);
           },
           createRow: (_CreateRow value) {
-            rowService.createRow();
+            _rowService.createRow();
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) async {
             await _handleFieldUpdate(emit, value);
@@ -52,7 +46,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   void _handleRowUpdate(_DidUpdateRow value, Emitter<RowState> emit) {
-    final CellDataMap cellDataMap = _makeCellDatas(value.row, state.fields);
+    final CellDataMap cellDataMap = _makeCellDatas(value.row, state.rowData.fields);
     emit(state.copyWith(
       row: Future(() => Some(value.row)),
       cellDataMap: Some(cellDataMap),
@@ -67,39 +61,39 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     );
 
     emit(state.copyWith(
-      fields: value.fields,
+      rowData: state.rowData.copyWith(fields: value.fields),
       cellDataMap: Some(cellDataMap),
     ));
   }
 
   @override
   Future<void> close() async {
-    await rowlistener.stop();
-    await fieldListener.stop();
+    await _rowlistener.stop();
+    await _fieldListener.stop();
     return super.close();
   }
 
   Future<void> _startListening() async {
-    rowlistener.updateRowNotifier.addPublishListener((result) {
+    _rowlistener.updateRowNotifier.addPublishListener((result) {
       result.fold(
         (row) => add(RowEvent.didUpdateRow(row)),
         (err) => Log.error(err),
       );
     });
 
-    fieldListener.updateFieldsNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
         (fields) => add(RowEvent.didReceiveFieldUpdate(fields)),
         (err) => Log.error(err),
       );
     });
 
-    rowlistener.start();
-    fieldListener.start();
+    _rowlistener.start();
+    _fieldListener.start();
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    rowService.getRow().then((result) {
+    _rowService.getRow().then((result) {
       return result.fold(
         (row) => add(RowEvent.didUpdateRow(row)),
         (err) => Log.error(err),
@@ -113,7 +107,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       if (field.visibility) {
         map[field.id] = CellData(
           rowId: row.id,
-          gridId: rowService.gridId,
+          gridId: _rowService.gridId,
           cell: row.cellByFieldId[field.id],
           field: field,
         );
@@ -134,17 +128,13 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required String rowId,
-    required double rowHeight,
-    required List<Field> fields,
+    required RowData rowData,
     required Future<Option<Row>> row,
     required Option<CellDataMap> cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(RowData data) => RowState(
-        rowId: data.rowId,
-        rowHeight: data.height,
-        fields: data.fields,
+  factory RowState.initial(RowData rowData) => RowState(
+        rowData: rowData,
         row: Future(() => none()),
         cellDataMap: none(),
       );

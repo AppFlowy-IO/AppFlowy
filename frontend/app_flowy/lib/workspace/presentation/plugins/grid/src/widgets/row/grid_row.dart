@@ -5,9 +5,12 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/p
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+
+import 'row_action_sheet.dart';
 
 class GridRowWidget extends StatefulWidget {
   final RowData data;
@@ -39,10 +42,10 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           onEnter: (p) => _rowStateNotifier.onEnter = true,
           onExit: (p) => _rowStateNotifier.onEnter = false,
           child: BlocBuilder<RowBloc, RowState>(
-            buildWhen: (p, c) => p.rowHeight != c.rowHeight,
+            buildWhen: (p, c) => p.rowData.height != c.rowData.height,
             builder: (context, state) {
               return SizedBox(
-                height: _rowBloc.state.rowHeight,
+                height: _rowBloc.state.rowData.height,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: const [
@@ -83,7 +86,8 @@ class _RowLeading extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: const [
-        AppendRowButton(),
+        _InsertRowButton(),
+        _DeleteRowButton(),
       ],
     );
   }
@@ -98,18 +102,38 @@ class _RowTrailing extends StatelessWidget {
   }
 }
 
-class AppendRowButton extends StatelessWidget {
-  const AppendRowButton({Key? key}) : super(key: key);
+class _InsertRowButton extends StatelessWidget {
+  const _InsertRowButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
       hoverColor: theme.hover,
-      width: 22,
+      width: 20,
+      height: 30,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
       icon: svgWidget("home/add"),
+    );
+  }
+}
+
+class _DeleteRowButton extends StatelessWidget {
+  const _DeleteRowButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return FlowyIconButton(
+      hoverColor: theme.hover,
+      width: 20,
+      height: 30,
+      onPressed: () => GridRowActionSheet(
+        rowData: context.read<RowBloc>().state.rowData,
+      ).show(context),
+      iconPadding: const EdgeInsets.all(3),
+      icon: svgWidget("editor/details"),
     );
   }
 }

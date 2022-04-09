@@ -180,6 +180,22 @@ pub(crate) async fn get_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn delete_row_handler(
+    data: Data<RowIdentifierPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<Row, FlowyError> {
+    todo!()
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn duplicate_row_handler(
+    data: Data<RowIdentifierPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<Row, FlowyError> {
+    todo!()
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn create_row_handler(
     data: Data<CreateRowPayload>,
     manager: AppData<Arc<GridManager>>,

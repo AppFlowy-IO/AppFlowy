@@ -154,7 +154,6 @@ void _resolveGridDeps(GetIt getIt) {
   getIt.registerFactoryParam<RowBloc, RowData, void>(
     (data, _) => RowBloc(
       rowData: data,
-      rowlistener: RowListener(rowId: data.rowId),
     ),
   );
 
