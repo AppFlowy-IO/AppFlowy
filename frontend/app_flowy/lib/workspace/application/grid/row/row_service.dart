@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -40,4 +39,35 @@ class CellData with _$CellData {
     required Field field,
     Cell? cell,
   }) = _CellData;
+}
+
+@freezed
+class RowData with _$RowData {
+  const factory RowData({
+    required String gridId,
+    required String rowId,
+    required String blockId,
+    required List<Field> fields,
+    required double height,
+  }) = _RowData;
+
+  factory RowData.fromBlockRow(GridBlockRow row, List<Field> fields) {
+    return RowData(
+      gridId: row.gridId,
+      rowId: row.rowId,
+      blockId: row.blockId,
+      fields: fields,
+      height: row.height,
+    );
+  }
+}
+
+@freezed
+class GridBlockRow with _$GridBlockRow {
+  const factory GridBlockRow({
+    required String gridId,
+    required String rowId,
+    required String blockId,
+    required double height,
+  }) = _GridBlockRow;
 }

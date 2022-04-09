@@ -16,9 +16,28 @@ use std::str::FromStr;
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
 pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
-    fn insert_option(&mut self, new_option: SelectOption);
-    fn delete_option(&mut self, delete_option: SelectOption);
+    fn insert_option(&mut self, new_option: SelectOption) {
+        let options = self.mut_options();
+        if let Some(index) = options
+            .iter()
+            .position(|option| option.id == new_option.id || option.name == new_option.name)
+        {
+            options.remove(index);
+            options.insert(index, new_option);
+        } else {
+            options.insert(0, new_option);
+        }
+    }
+
+    fn delete_option(&mut self, delete_option: SelectOption) {
+        let options = self.mut_options();
+        if let Some(index) = options.iter().position(|option| option.id == delete_option.id) {
+            options.remove(index);
+        }
+    }
+
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext;
+    fn mut_options(&mut self) -> &mut Vec<SelectOption>;
 }
 
 // Single select
@@ -33,27 +52,16 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl SelectOptionOperation for SingleSelectTypeOption {
-    fn insert_option(&mut self, new_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
-            self.options.remove(index);
-            self.options.insert(index, new_option);
-        } else {
-            self.options.insert(0, new_option);
-        }
-    }
-
-    fn delete_option(&mut self, delete_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
-            self.options.remove(index);
-        }
-    }
-
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
         let select_options = make_select_context_from(cell_meta, &self.options);
         SelectOptionContext {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+        &mut self.options
     }
 }
 
@@ -139,27 +147,16 @@ impl MultiSelectTypeOption {
 }
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn insert_option(&mut self, new_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
-            self.options.remove(index);
-            self.options.insert(index, new_option);
-        } else {
-            self.options.insert(0, new_option);
-        }
-    }
-
-    fn delete_option(&mut self, delete_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
-            self.options.remove(index);
-        }
-    }
-
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
         let select_options = make_select_context_from(cell_meta, &self.options);
         SelectOptionContext {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+        &mut self.options
     }
 }
 

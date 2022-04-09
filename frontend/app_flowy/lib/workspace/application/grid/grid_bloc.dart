@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -6,7 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:equatable/equatable.dart';
 import 'grid_block_service.dart';
 import 'field/grid_listenr.dart';
 import 'grid_service.dart';
@@ -153,47 +153,4 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
-}
-
-class GridBlockRow {
-  final String gridId;
-  final String rowId;
-  final String blockId;
-  final double height;
-
-  const GridBlockRow({
-    required this.gridId,
-    required this.rowId,
-    required this.blockId,
-    required this.height,
-  });
-}
-
-class RowData extends Equatable {
-  final String gridId;
-  final String rowId;
-  final String blockId;
-  final List<Field> fields;
-  final double height;
-
-  const RowData({
-    required this.gridId,
-    required this.rowId,
-    required this.blockId,
-    required this.fields,
-    required this.height,
-  });
-
-  factory RowData.fromBlockRow(GridBlockRow row, List<Field> fields) {
-    return RowData(
-      gridId: row.gridId,
-      rowId: row.rowId,
-      blockId: row.blockId,
-      fields: fields,
-      height: row.height,
-    );
-  }
-
-  @override
-  List<Object> get props => [rowId, fields];
 }
