@@ -44,7 +44,7 @@ class _DateCellState extends State<DateCell> {
               child: MouseRegion(
                 opaque: false,
                 cursor: SystemMouseCursors.click,
-                child: FlowyText.medium(state.content, fontSize: 12),
+                child: Center(child: FlowyText.medium(state.content, fontSize: 12)),
               ),
             ),
           );
@@ -99,6 +99,7 @@ class _CellCalendar extends StatefulWidget {
 }
 
 class _CellCalendarState extends State<_CellCalendar> {
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -108,7 +109,8 @@ class _CellCalendarState extends State<_CellCalendar> {
       firstDay: kFirstDay,
       lastDay: kLastDay,
       focusedDay: _focusedDay,
-      calendarFormat: CalendarFormat.month,
+      calendarFormat: _calendarFormat,
+      headerStyle: const HeaderStyle(formatButtonVisible: false),
       selectedDayPredicate: (day) {
         return isSameDay(_selectedDay, day);
       },
@@ -122,7 +124,11 @@ class _CellCalendarState extends State<_CellCalendar> {
           });
         }
       },
-      onFormatChanged: (format) {},
+      onFormatChanged: (format) {
+        setState(() {
+          _calendarFormat = format;
+        });
+      },
       onPageChanged: (focusedDay) {
         _focusedDay = focusedDay;
       },

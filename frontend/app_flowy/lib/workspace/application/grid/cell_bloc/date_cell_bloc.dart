@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
@@ -11,11 +12,13 @@ part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellService _service;
-  final CellListener _listener;
+  final CellListener _cellListener;
+  final FieldListener _fieldListener;
 
   DateCellBloc({required CellData cellData})
       : _service = CellService(),
-        _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        _fieldListener = FieldListener(fieldId: cellData.field.id),
         super(DateCellState.initial(cellData)) {
     on<DateCellEvent>(
       (event, emit) async {
@@ -39,18 +42,27 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    await _cellListener.stop();
+    await _fieldListener.stop();
     return super.close();
   }
 
   void _startListening() {
-    _listener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier.addPublishListener((result) {
       result.fold(
         (notificationData) => _loadCellData(),
         (err) => Log.error(err),
       );
     });
-    _listener.start();
+    _cellListener.start();
+
+    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+      result.fold(
+        (field) => _loadCellData(),
+        (err) => Log.error(err),
+      );
+    });
+    _fieldListener.start();
   }
 
   Future<void> _loadCellData() async {
