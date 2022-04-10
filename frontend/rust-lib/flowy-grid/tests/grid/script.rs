@@ -258,7 +258,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
     let cloned_field_meta = field_meta.clone();
 
     let type_option_data = field_meta
-        .get_type_option_entry::<RichTextTypeOption>(None)
+        .get_type_option_entry::<RichTextTypeOption>(&field_meta.field_type)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -290,7 +290,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
     let field_meta = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_meta = field_meta.clone();
     let type_option_data = field_meta
-        .get_type_option_entry::<SingleSelectTypeOption>(None)
+        .get_type_option_entry::<SingleSelectTypeOption>(&field_meta.field_type)
         .unwrap()
         .protobuf_bytes()
         .to_vec();

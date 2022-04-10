@@ -7,7 +7,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_grid_data_model::entities::{
-    CellMeta, CellMetaChangeset, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry,
+    CellMeta, CellMetaChangeset, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 use flowy_grid_data_model::parser::NotEmptyUuid;
 use serde::{Deserialize, Serialize};

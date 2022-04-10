@@ -122,12 +122,14 @@ impl FieldMeta {
         }
     }
 
-    pub fn insert_type_option_entry<T: TypeOptionDataEntry + ?Sized>(&mut self, entry: &T) {
+    pub fn insert_type_option_entry<T>(&mut self, entry: &T)
+    where
+        T: TypeOptionDataEntry + ?Sized,
+    {
         self.type_options.insert(entry.field_type().type_id(), entry.json_str());
     }
 
-    pub fn get_type_option_entry<T: TypeOptionDataEntity>(&self, field_type: Option<FieldType>) -> Option<T> {
-        let field_type = field_type.as_ref().unwrap_or(&self.field_type);
+    pub fn get_type_option_entry<T: TypeOptionDataDeserializer>(&self, field_type: &FieldType) -> Option<T> {
         self.type_options
             .get(&field_type.type_id())
             .map(|s| T::from_json_str(s))
@@ -149,7 +151,7 @@ pub trait TypeOptionDataEntry {
     fn protobuf_bytes(&self) -> Bytes;
 }
 
-pub trait TypeOptionDataEntity {
+pub trait TypeOptionDataDeserializer {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;
 }
