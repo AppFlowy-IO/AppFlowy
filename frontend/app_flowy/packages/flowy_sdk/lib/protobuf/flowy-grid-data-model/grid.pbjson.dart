@@ -171,6 +171,19 @@ const GridBlockOrder$json = const {
 
 /// Descriptor for `GridBlockOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridBlockOrderDescriptor = $convert.base64Decode('Cg5HcmlkQmxvY2tPcmRlchIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIoCgpyb3dfb3JkZXJzGAIgAygLMgkuUm93T3JkZXJSCXJvd09yZGVycw==');
+@$core.Deprecated('Use gridBlockOrderChangesetDescriptor instead')
+const GridBlockOrderChangeset$json = const {
+  '1': 'GridBlockOrderChangeset',
+  '2': const [
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'inserted_rows', '3': 2, '4': 3, '5': 11, '6': '.RowOrder', '10': 'insertedRows'},
+    const {'1': 'deleted_rows', '3': 3, '4': 3, '5': 11, '6': '.RowOrder', '10': 'deletedRows'},
+    const {'1': 'updated_rows', '3': 4, '4': 3, '5': 11, '6': '.RowOrder', '10': 'updatedRows'},
+  ],
+};
+
+/// Descriptor for `GridBlockOrderChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridBlockOrderChangesetDescriptor = $convert.base64Decode('ChdHcmlkQmxvY2tPcmRlckNoYW5nZXNldBIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIuCg1pbnNlcnRlZF9yb3dzGAIgAygLMgkuUm93T3JkZXJSDGluc2VydGVkUm93cxIsCgxkZWxldGVkX3Jvd3MYAyADKAsyCS5Sb3dPcmRlclILZGVsZXRlZFJvd3MSLAoMdXBkYXRlZF9yb3dzGAQgAygLMgkuUm93T3JkZXJSC3VwZGF0ZWRSb3dz');
 @$core.Deprecated('Use gridBlockDescriptor instead')
 const GridBlock$json = const {
   '1': 'GridBlock',

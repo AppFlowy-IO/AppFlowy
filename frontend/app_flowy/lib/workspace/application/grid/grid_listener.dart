@@ -9,7 +9,8 @@ import 'package:app_flowy/core/notification_helper.dart';
 
 class GridListener {
   final String gridId;
-  PublishNotifier<Either<List<GridBlockOrder>, FlowyError>> rowsUpdateNotifier = PublishNotifier(comparable: null);
+  PublishNotifier<Either<List<GridBlockOrderChangeset>, FlowyError>> rowsUpdateNotifier =
+      PublishNotifier(comparable: null);
   GridNotificationListener? _listener;
 
   GridListener({required this.gridId});
@@ -23,9 +24,9 @@ class GridListener {
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateBlock:
+      case GridNotification.DidUpdateGridBlock:
         result.fold(
-          (payload) => rowsUpdateNotifier.value = left([GridBlockOrder.fromBuffer(payload)]),
+          (payload) => rowsUpdateNotifier.value = left([GridBlockOrderChangeset.fromBuffer(payload)]),
           (error) => rowsUpdateNotifier.value = right(error),
         );
         break;

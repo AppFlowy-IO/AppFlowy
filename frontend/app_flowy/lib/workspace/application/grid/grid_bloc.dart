@@ -7,7 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'grid_block_service.dart';
 import 'field/grid_listenr.dart';
 import 'grid_listener.dart';
 import 'grid_service.dart';
@@ -70,8 +69,16 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   void _startListening() {
     _gridListener.rowsUpdateNotifier.addPublishListener((result) {
-      result.fold((blockOrders) {
-        add(GridEvent.didReceiveRowUpdate(_buildRows(blockOrders)));
+      result.fold((gridBlockChangeset) {
+        for (final changeset in gridBlockChangeset) {
+          if (changeset.insertedRows.isNotEmpty) {}
+
+          if (changeset.deletedRows.isNotEmpty) {}
+
+          if (changeset.updatedRows.isNotEmpty) {}
+        }
+
+        // add(GridEvent.didReceiveRowUpdate(_buildRows(blockOrders)));
       }, (err) => Log.error(err));
     });
     _gridListener.start();

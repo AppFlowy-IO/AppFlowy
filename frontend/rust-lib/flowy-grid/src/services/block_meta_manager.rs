@@ -9,7 +9,7 @@ use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
     CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset,
-    GridBlockOrder, RowMeta, RowMetaChangeset, RowOrder,
+    GridBlockOrder, GridBlockOrderChangeset, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
@@ -70,8 +70,12 @@ impl GridBlockMetaEditorManager {
     ) -> FlowyResult<i32> {
         let _ = self.persistence.insert_or_update(&row_meta.block_id, &row_meta.id)?;
         let editor = self.get_editor(&row_meta.block_id).await?;
+        let row_order = RowOrder::from(&row_meta);
         let row_count = editor.create_row(row_meta, start_row_id).await?;
-        self.notify_block_did_update_row(block_id).await?;
+
+        let _ = self
+            .notify_block_did_update_row(GridBlockOrderChangeset::from_update(block_id, vec![row_order]))
+            .await?;
         Ok(row_count)
     }
 
@@ -81,14 +85,18 @@ impl GridBlockMetaEditorManager {
     ) -> FlowyResult<Vec<GridBlockMetaChangeset>> {
         let mut changesets = vec![];
         for (block_id, row_metas) in rows_by_block_id {
+            let mut inserted_row_orders = vec![];
             let editor = self.get_editor(&block_id).await?;
             let mut row_count = 0;
-            for row in &row_metas {
+            for row in row_metas {
                 let _ = self.persistence.insert_or_update(&row.block_id, &row.id)?;
-                row_count = editor.create_row(row.clone(), None).await?;
+                inserted_row_orders.push(RowOrder::from(&row));
+                row_count = editor.create_row(row, None).await?;
             }
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
-            let _ = self.notify_block_did_update_row(&block_id).await?;
+            let _ = self
+                .notify_block_did_update_row(GridBlockOrderChangeset::from_insert(&block_id, inserted_row_orders))
+                .await?;
         }
 
         Ok(changesets)
@@ -97,7 +105,19 @@ impl GridBlockMetaEditorManager {
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
-        let _ = self.notify_block_did_update_row(&editor.block_id).await?;
+
+        match editor
+            .get_row_orders(Some(vec![Cow::Borrowed(&changeset.row_id)]))
+            .await?
+            .pop()
+        {
+            None => {}
+            Some(row_order) => {
+                let block_order_changeset = GridBlockOrderChangeset::from_update(&editor.block_id, vec![row_order]);
+                let _ = self.notify_block_did_update_row(block_order_changeset).await?;
+            }
+        }
+
         Ok(())
     }
 
@@ -177,11 +197,10 @@ impl GridBlockMetaEditorManager {
         Ok(block_cell_metas)
     }
 
-    async fn notify_block_did_update_row(&self, block_id: &str) -> FlowyResult<()> {
-        // let block_order: GridBlockOrder = block_id.into();
-        // send_dart_notification(&self.grid_id, GridNotification::DidUpdateBlock)
-        //     .payload(block_order)
-        //     .send();
+    async fn notify_block_did_update_row(&self, changeset: GridBlockOrderChangeset) -> FlowyResult<()> {
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
+            .payload(changeset)
+            .send();
         Ok(())
     }
 

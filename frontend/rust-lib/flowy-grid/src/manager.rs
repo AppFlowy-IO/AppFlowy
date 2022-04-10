@@ -110,6 +110,7 @@ impl GridManager {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self, pool), err)]
     async fn make_grid_editor(
         &self,
         grid_id: &str,
@@ -175,11 +176,11 @@ pub async fn make_grid_view_data(
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    let block_id = build_context.block_metas.block_id.clone();
+    let block_id = build_context.block_meta.block_id.clone();
     let grid_meta = GridMeta {
         grid_id: view_id.to_string(),
         fields: build_context.field_metas,
-        blocks: vec![build_context.block_metas],
+        blocks: vec![build_context.block_meta],
     };
 
     // Create grid

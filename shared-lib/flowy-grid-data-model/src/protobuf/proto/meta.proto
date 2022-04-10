@@ -63,7 +63,7 @@ message CellMetaChangeset {
 }
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;
-    GridBlockMeta block_metas = 2;
+    GridBlockMeta block_meta = 2;
     GridBlockMetaData block_meta_data = 3;
 }
 enum FieldType {

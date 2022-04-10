@@ -1014,7 +1014,7 @@ class CellMetaChangeset extends $pb.GeneratedMessage {
 class BuildGridContext extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BuildGridContext', createEmptyInstance: create)
     ..pc<FieldMeta>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldMetas', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
-    ..aOM<GridBlockMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetas', subBuilder: GridBlockMeta.create)
+    ..aOM<GridBlockMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMeta', subBuilder: GridBlockMeta.create)
     ..aOM<GridBlockMetaData>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetaData', subBuilder: GridBlockMetaData.create)
     ..hasRequiredFields = false
   ;
@@ -1022,15 +1022,15 @@ class BuildGridContext extends $pb.GeneratedMessage {
   BuildGridContext._() : super();
   factory BuildGridContext({
     $core.Iterable<FieldMeta>? fieldMetas,
-    GridBlockMeta? blockMetas,
+    GridBlockMeta? blockMeta,
     GridBlockMetaData? blockMetaData,
   }) {
     final _result = create();
     if (fieldMetas != null) {
       _result.fieldMetas.addAll(fieldMetas);
     }
-    if (blockMetas != null) {
-      _result.blockMetas = blockMetas;
+    if (blockMeta != null) {
+      _result.blockMeta = blockMeta;
     }
     if (blockMetaData != null) {
       _result.blockMetaData = blockMetaData;
@@ -1062,15 +1062,15 @@ class BuildGridContext extends $pb.GeneratedMessage {
   $core.List<FieldMeta> get fieldMetas => $_getList(0);
 
   @$pb.TagNumber(2)
-  GridBlockMeta get blockMetas => $_getN(1);
+  GridBlockMeta get blockMeta => $_getN(1);
   @$pb.TagNumber(2)
-  set blockMetas(GridBlockMeta v) { setField(2, v); }
+  set blockMeta(GridBlockMeta v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBlockMetas() => $_has(1);
+  $core.bool hasBlockMeta() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBlockMetas() => clearField(2);
+  void clearBlockMeta() => clearField(2);
   @$pb.TagNumber(2)
-  GridBlockMeta ensureBlockMetas() => $_ensure(1);
+  GridBlockMeta ensureBlockMeta() => $_ensure(1);
 
   @$pb.TagNumber(3)
   GridBlockMetaData get blockMetaData => $_getN(2);

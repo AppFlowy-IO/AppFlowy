@@ -274,6 +274,50 @@ impl GridBlockOrder {
     }
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct GridBlockOrderChangeset {
+    #[pb(index = 1)]
+    pub block_id: String,
+
+    #[pb(index = 2)]
+    pub inserted_rows: Vec<RowOrder>,
+
+    #[pb(index = 3)]
+    pub deleted_rows: Vec<RowOrder>,
+
+    #[pb(index = 4)]
+    pub updated_rows: Vec<RowOrder>,
+}
+
+impl GridBlockOrderChangeset {
+    pub fn from_insert(block_id: &str, inserted_rows: Vec<RowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows,
+            deleted_rows: vec![],
+            updated_rows: vec![],
+        }
+    }
+
+    pub fn from_delete(block_id: &str, deleted_rows: Vec<RowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows: vec![],
+            deleted_rows,
+            updated_rows: vec![],
+        }
+    }
+
+    pub fn from_update(block_id: &str, updated_rows: Vec<RowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows: vec![],
+            deleted_rows: vec![],
+            updated_rows,
+        }
+    }
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]

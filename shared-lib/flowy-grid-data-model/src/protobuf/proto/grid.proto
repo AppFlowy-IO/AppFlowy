@@ -59,6 +59,12 @@ message GridBlockOrder {
     string block_id = 1;
     repeated RowOrder row_orders = 2;
 }
+message GridBlockOrderChangeset {
+    string block_id = 1;
+    repeated RowOrder inserted_rows = 2;
+    repeated RowOrder deleted_rows = 3;
+    repeated RowOrder updated_rows = 4;
+}
 message GridBlock {
     string id = 1;
     repeated RowOrder row_orders = 2;

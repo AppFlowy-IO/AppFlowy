@@ -16,7 +16,7 @@ pub type GridBlockMetaDeltaBuilder = PlainTextDeltaBuilder;
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GridBlockMetaPad {
     block_id: String,
-    row_metas: Vec<Arc<RowMeta>>,
+    rows: Vec<Arc<RowMeta>>,
 
     #[serde(skip)]
     pub(crate) delta: GridBlockMetaDelta,
@@ -32,11 +32,7 @@ impl GridBlockMetaPad {
         })?;
         let block_id = meta_data.block_id;
         let rows = meta_data.rows.into_iter().map(Arc::new).collect::<Vec<Arc<RowMeta>>>();
-        Ok(Self {
-            block_id,
-            row_metas: rows,
-            delta,
-        })
+        Ok(Self { block_id, rows, delta })
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
@@ -80,10 +76,10 @@ impl GridBlockMetaPad {
         T: AsRef<str> + ToOwned + ?Sized,
     {
         match row_ids {
-            None => Ok(self.row_metas.to_vec()),
+            None => Ok(self.rows.to_vec()),
             Some(row_ids) => {
                 let row_map = self
-                    .row_metas
+                    .rows
                     .iter()
                     .map(|row| (row.id.as_str(), row.clone()))
                     .collect::<HashMap<&str, Arc<RowMeta>>>();
@@ -122,7 +118,7 @@ impl GridBlockMetaPad {
     }
 
     pub fn number_of_rows(&self) -> i32 {
-        self.row_metas.len() as i32
+        self.rows.len() as i32
     }
 
     pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {
@@ -155,7 +151,7 @@ impl GridBlockMetaPad {
         F: for<'a> FnOnce(&'a mut Vec<Arc<RowMeta>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
-        match f(&mut self.row_metas)? {
+        match f(&mut self.rows)? {
             None => Ok(None),
             Some(_) => {
                 let old = cloned_self.to_json()?;
@@ -228,7 +224,7 @@ impl std::default::Default for GridBlockMetaPad {
         let delta = make_block_meta_delta(&block_meta_data);
         GridBlockMetaPad {
             block_id: block_meta_data.block_id,
-            row_metas: block_meta_data.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
+            rows: block_meta_data.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
             delta,
         }
     }
@@ -254,7 +250,7 @@ mod tests {
         let change = pad.add_row_meta(row, None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
     }
 
@@ -268,24 +264,24 @@ mod tests {
         let change = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":29},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":106},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":90},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_meta(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":114},{"insert":"3\",\"block_id\":\"1\",\"cell_by_field_id\":{},\"height\":0,\"visibility\":false},{\"id\":\""},{"retain":72}]"#
+            r#"[{"retain":157},{"insert":",{\"id\":\"3\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        assert_eq!(*pad.row_metas[0], row_1);
-        assert_eq!(*pad.row_metas[1], row_3);
-        assert_eq!(*pad.row_metas[2], row_2);
+        assert_eq!(*pad.rows[0], row_1);
+        assert_eq!(*pad.rows[1], row_2);
+        assert_eq!(*pad.rows[2], row_3);
     }
 
     fn test_row_meta(id: &str, pad: &GridBlockMetaPad) -> RowMeta {
@@ -309,9 +305,9 @@ mod tests {
         let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         let _ = pad.add_row_meta(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
 
-        assert_eq!(*pad.row_metas[0], row_3);
-        assert_eq!(*pad.row_metas[1], row_1);
-        assert_eq!(*pad.row_metas[2], row_2);
+        assert_eq!(*pad.rows[0], row_3);
+        assert_eq!(*pad.rows[1], row_1);
+        assert_eq!(*pad.rows[2], row_2);
     }
 
     #[test]
@@ -325,9 +321,9 @@ mod tests {
         let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         let _ = pad.add_row_meta(row_3.clone(), Some("".to_string())).unwrap().unwrap();
 
-        assert_eq!(*pad.row_metas[0], row_3);
-        assert_eq!(*pad.row_metas[1], row_1);
-        assert_eq!(*pad.row_metas[2], row_2);
+        assert_eq!(*pad.rows[0], row_3);
+        assert_eq!(*pad.rows[1], row_1);
+        assert_eq!(*pad.rows[2], row_2);
     }
 
     #[test]
@@ -346,7 +342,7 @@ mod tests {
         let change = pad.delete_rows(vec![Cow::Borrowed(&row.id)]).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":29},{"delete":77},{"retain":2}]"#
+            r#"[{"retain":24},{"delete":66},{"retain":2}]"#
         );
 
         assert_eq!(pad.delta_str(), pre_delta_str);
@@ -375,18 +371,17 @@ mod tests {
 
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":85},{"insert":"10"},{"retain":15},{"insert":"tru"},{"delete":4},{"retain":4}]"#
+            r#"[{"retain":69},{"insert":"10"},{"retain":15},{"insert":"tru"},{"delete":4},{"retain":4}]"#
         );
 
         assert_eq!(
             pad.to_json().unwrap(),
-            r#"{"block_id":"1","row_metas":[{"id":"1","block_id":"1","cell_by_field_id":{},"height":100,"visibility":true}]}"#
+            r#"{"block_id":"1","rows":[{"id":"1","block_id":"1","cells":{},"height":100,"visibility":true}]}"#
         );
     }
 
     fn test_pad() -> GridBlockMetaPad {
-        let delta =
-            GridBlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"row_metas\":[]}"}]"#).unwrap();
+        let delta = GridBlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
         GridBlockMetaPad::from_delta(delta).unwrap()
     }
 }
