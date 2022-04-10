@@ -1,12 +1,13 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'extension.dart';
 import 'selection_editor.dart';
 
-class SingleSelectCell extends StatefulWidget {
+class SingleSelectCell extends GridCell {
   final CellData cellData;
 
   const SingleSelectCell({
@@ -37,7 +38,14 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
-                SelectOptionCellEditor.show(context, state.cellData, state.options, state.selectedOptions);
+                widget.setFocus(context, true);
+                SelectOptionCellEditor.show(
+                  context,
+                  state.cellData,
+                  state.options,
+                  state.selectedOptions,
+                  () => widget.setFocus(context, false),
+                );
               },
               child: Row(children: children),
             ),
@@ -55,7 +63,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends StatefulWidget {
+class MultiSelectCell extends GridCell {
   final CellData cellData;
 
   const MultiSelectCell({
@@ -86,11 +94,13 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
+                widget.setFocus(context, true);
                 SelectOptionCellEditor.show(
                   context,
                   state.cellData,
                   state.options,
                   state.selectedOptions,
+                  () => widget.setFocus(context, false),
                 );
               },
               child: Row(children: children),

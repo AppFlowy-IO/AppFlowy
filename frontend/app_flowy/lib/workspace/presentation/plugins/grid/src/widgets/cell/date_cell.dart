@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/widgets.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:window_size/window_size.dart';
 
-class DateCell extends StatefulWidget {
+class DateCell extends GridCell {
   final CellData cellData;
 
   const DateCell({
@@ -37,10 +38,16 @@ class _DateCellState extends State<DateCell> {
           return SizedBox.expand(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => _CellCalendar.show(
-                context,
-                onSelected: (day) => context.read<DateCellBloc>().add(DateCellEvent.selectDay(day)),
-              ),
+              onTap: () {
+                widget.setFocus(context, true);
+                _CellCalendar.show(
+                  context,
+                  onSelected: (day) {
+                    widget.setFocus(context, false);
+                    context.read<DateCellBloc>().add(DateCellEvent.selectDay(day));
+                  },
+                );
+              },
               child: MouseRegion(
                 opaque: false,
                 cursor: SystemMouseCursors.click,
