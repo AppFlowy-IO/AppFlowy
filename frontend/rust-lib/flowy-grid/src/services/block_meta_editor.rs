@@ -42,17 +42,30 @@ impl ClientGridBlockMetaEditor {
         })
     }
 
-    pub(crate) async fn create_row(&self, row: RowMeta, start_row_id: Option<String>) -> FlowyResult<i32> {
+    /// return current number of rows and the inserted index. The inserted index will be None if the start_row_id is None
+    pub(crate) async fn create_row(
+        &self,
+        row: RowMeta,
+        start_row_id: Option<String>,
+    ) -> FlowyResult<(i32, Option<i32>)> {
         let mut row_count = 0;
+        let mut row_index = None;
         let _ = self
             .modify(|pad| {
+                if let Some(start_row_id) = start_row_id.as_ref() {
+                    match pad.index_of_row(start_row_id) {
+                        None => {}
+                        Some(index) => row_index = Some(index + 1),
+                    }
+                }
+
                 let change = pad.add_row_meta(row, start_row_id)?;
                 row_count = pad.number_of_rows();
                 Ok(change)
             })
             .await?;
 
-        Ok(row_count)
+        Ok((row_count, row_index))
     }
 
     pub async fn delete_rows(&self, ids: Vec<Cow<'_, String>>) -> FlowyResult<i32> {
@@ -89,7 +102,10 @@ impl ClientGridBlockMetaEditor {
         Ok(cell_metas)
     }
 
-    pub async fn get_row_orders(&self, row_ids: Option<Vec<Cow<'_, String>>>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn get_row_orders<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowOrder>>
+    where
+        T: AsRef<str> + ToOwned + ?Sized,
+    {
         let row_orders = self
             .pad
             .read()

@@ -65,21 +65,12 @@ class RowData with _$RowData {
     required double height,
   }) = _RowData;
 
-  factory RowData.fromBlockRow(GridBlockRow row, List<Field> fields) {
+  factory RowData.fromBlockRow(String gridId, RowOrder row, List<Field> fields) {
     return RowData(
-      gridId: row.gridId,
+      gridId: gridId,
       rowId: row.rowId,
       fields: fields,
-      height: row.height,
+      height: row.height.toDouble(),
     );
   }
-}
-
-@freezed
-class GridBlockRow with _$GridBlockRow {
-  const factory GridBlockRow({
-    required String gridId,
-    required String rowId,
-    required double height,
-  }) = _GridBlockRow;
 }

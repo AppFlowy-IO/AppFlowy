@@ -48,14 +48,11 @@ impl GridBlockMetaPad {
     ) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
             if let Some(start_row_id) = start_row_id {
-                if start_row_id.is_empty() {
-                    rows.insert(0, Arc::new(row));
-                    return Ok(Some(()));
-                }
-
-                if let Some(index) = rows.iter().position(|row| row.id == start_row_id) {
-                    rows.insert(index + 1, Arc::new(row));
-                    return Ok(Some(()));
+                if !start_row_id.is_empty() {
+                    if let Some(index) = rows.iter().position(|row| row.id == start_row_id) {
+                        rows.insert(index + 1, Arc::new(row));
+                        return Ok(Some(()));
+                    }
                 }
             }
 
@@ -119,6 +116,13 @@ impl GridBlockMetaPad {
 
     pub fn number_of_rows(&self) -> i32 {
         self.rows.len() as i32
+    }
+
+    pub fn index_of_row(&self, row_id: &str) -> Option<i32> {
+        self.rows
+            .iter()
+            .position(|row| row.id == row_id)
+            .map(|index| index as i32)
     }
 
     pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {

@@ -4,7 +4,7 @@ use flowy_grid_data_model::entities::{
     Cell, CellMeta, FieldMeta, GridBlock, GridBlockOrder, RepeatedGridBlock, Row, RowMeta, RowOrder,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use std::borrow::Cow;
+
 use std::collections::HashMap;
 
 use std::sync::Arc;

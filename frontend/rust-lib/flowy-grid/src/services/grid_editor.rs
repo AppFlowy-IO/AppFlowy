@@ -268,11 +268,12 @@ impl ClientGridEditor {
         }
     }
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
-        todo!()
+        let _ = self.block_meta_manager.delete_row(row_id).await?;
+        Ok(())
     }
 
-    pub async fn duplicate_row(&self, row_id: &str) -> FlowyResult<()> {
-        todo!()
+    pub async fn duplicate_row(&self, _row_id: &str) -> FlowyResult<()> {
+        Ok(())
     }
 
     pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
@@ -429,7 +430,7 @@ impl ClientGridEditor {
         debug_assert!(field_metas.len() == 1);
 
         if let Some(field_meta) = field_metas.pop() {
-            send_dart_notification(&field_id, GridNotification::DidUpdateField)
+            send_dart_notification(field_id, GridNotification::DidUpdateField)
                 .payload(field_meta)
                 .send();
         }

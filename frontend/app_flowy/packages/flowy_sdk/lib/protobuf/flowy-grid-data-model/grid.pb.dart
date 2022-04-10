@@ -858,7 +858,7 @@ class GridBlockOrder extends $pb.GeneratedMessage {
 class GridBlockOrderChangeset extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockOrderChangeset', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
-    ..pc<RowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
+    ..pc<IndexRowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedRows', $pb.PbFieldType.PM, subBuilder: IndexRowOrder.create)
     ..pc<RowOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deletedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
     ..pc<RowOrder>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'updatedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
     ..hasRequiredFields = false
@@ -867,7 +867,7 @@ class GridBlockOrderChangeset extends $pb.GeneratedMessage {
   GridBlockOrderChangeset._() : super();
   factory GridBlockOrderChangeset({
     $core.String? blockId,
-    $core.Iterable<RowOrder>? insertedRows,
+    $core.Iterable<IndexRowOrder>? insertedRows,
     $core.Iterable<RowOrder>? deletedRows,
     $core.Iterable<RowOrder>? updatedRows,
   }) {
@@ -917,13 +917,89 @@ class GridBlockOrderChangeset extends $pb.GeneratedMessage {
   void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<RowOrder> get insertedRows => $_getList(1);
+  $core.List<IndexRowOrder> get insertedRows => $_getList(1);
 
   @$pb.TagNumber(3)
   $core.List<RowOrder> get deletedRows => $_getList(2);
 
   @$pb.TagNumber(4)
   $core.List<RowOrder> get updatedRows => $_getList(3);
+}
+
+enum IndexRowOrder_OneOfIndex {
+  index_, 
+  notSet
+}
+
+class IndexRowOrder extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, IndexRowOrder_OneOfIndex> _IndexRowOrder_OneOfIndexByTag = {
+    2 : IndexRowOrder_OneOfIndex.index_,
+    0 : IndexRowOrder_OneOfIndex.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IndexRowOrder', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..aOM<RowOrder>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrder', subBuilder: RowOrder.create)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'index', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  IndexRowOrder._() : super();
+  factory IndexRowOrder({
+    RowOrder? rowOrder,
+    $core.int? index,
+  }) {
+    final _result = create();
+    if (rowOrder != null) {
+      _result.rowOrder = rowOrder;
+    }
+    if (index != null) {
+      _result.index = index;
+    }
+    return _result;
+  }
+  factory IndexRowOrder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory IndexRowOrder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  IndexRowOrder clone() => IndexRowOrder()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  IndexRowOrder copyWith(void Function(IndexRowOrder) updates) => super.copyWith((message) => updates(message as IndexRowOrder)) as IndexRowOrder; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static IndexRowOrder create() => IndexRowOrder._();
+  IndexRowOrder createEmptyInstance() => create();
+  static $pb.PbList<IndexRowOrder> createRepeated() => $pb.PbList<IndexRowOrder>();
+  @$core.pragma('dart2js:noInline')
+  static IndexRowOrder getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IndexRowOrder>(create);
+  static IndexRowOrder? _defaultInstance;
+
+  IndexRowOrder_OneOfIndex whichOneOfIndex() => _IndexRowOrder_OneOfIndexByTag[$_whichOneof(0)]!;
+  void clearOneOfIndex() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  RowOrder get rowOrder => $_getN(0);
+  @$pb.TagNumber(1)
+  set rowOrder(RowOrder v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRowOrder() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRowOrder() => clearField(1);
+  @$pb.TagNumber(1)
+  RowOrder ensureRowOrder() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.int get index => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set index($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIndex() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIndex() => clearField(2);
 }
 
 class GridBlock extends $pb.GeneratedMessage {

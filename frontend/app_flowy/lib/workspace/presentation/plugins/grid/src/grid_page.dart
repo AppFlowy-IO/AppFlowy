@@ -73,7 +73,7 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController();
-  final _key = GlobalKey<SliverAnimatedListState>();
+  // final _key = GlobalKey<SliverAnimatedListState>();
 
   @override
   void dispose() {
@@ -105,7 +105,7 @@ class _FlowyGridState extends State<FlowyGrid> {
                   slivers: [
                     _renderToolbar(gridId),
                     GridHeader(gridId: gridId, fields: List.from(state.fields)),
-                    _renderRows(context),
+                    _renderRows(gridId: gridId, context: context),
                     const GridFooter(),
                   ],
                 ),
@@ -147,7 +147,7 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _renderRows(BuildContext context) {
+  Widget _renderRows({required String gridId, required BuildContext context}) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) {
         final rowChanged = previous.rows.length != current.rows.length;
@@ -160,7 +160,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           (context, index) {
             final blockRow = context.read<GridBloc>().state.rows[index];
             final fields = context.read<GridBloc>().state.fields;
-            final rowData = RowData.fromBlockRow(blockRow, fields);
+            final rowData = RowData.fromBlockRow(gridId, blockRow, fields);
             return GridRowWidget(data: rowData, key: ValueKey(rowData.rowId));
           },
           childCount: context.read<GridBloc>().state.rows.length,

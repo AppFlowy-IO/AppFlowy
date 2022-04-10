@@ -84,10 +84,16 @@ class _RowActionCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(action.title(), fontSize: 12),
+        text: FlowyText.medium(
+          action.title(),
+          fontSize: 12,
+          color: action.enable() ? theme.textColor : theme.shader3,
+        ),
         hoverColor: theme.hover,
         onTap: () {
-          action.performAction(context);
+          if (action.enable()) {
+            action.performAction(context);
+          }
           onDismissed();
         },
         leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
@@ -120,13 +126,22 @@ extension _RowActionExtension on _RowAction {
     }
   }
 
+  bool enable() {
+    switch (this) {
+      case _RowAction.duplicate:
+        return false;
+      case _RowAction.delete:
+        return true;
+    }
+  }
+
   void performAction(BuildContext context) {
     switch (this) {
       case _RowAction.duplicate:
-        // context.read<RowActionSheetBloc>().add(const RowActionSheetEvent.duplicateRow());
+        context.read<RowActionSheetBloc>().add(const RowActionSheetEvent.duplicateRow());
         break;
       case _RowAction.delete:
-        // context.read<RowActionSheetBloc>().add(const RowActionSheetEvent.deleteRow());
+        context.read<RowActionSheetBloc>().add(const RowActionSheetEvent.deleteRow());
         break;
     }
   }

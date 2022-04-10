@@ -280,7 +280,7 @@ pub struct GridBlockOrderChangeset {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub inserted_rows: Vec<RowOrder>,
+    pub inserted_rows: Vec<IndexRowOrder>,
 
     #[pb(index = 3)]
     pub deleted_rows: Vec<RowOrder>,
@@ -289,8 +289,30 @@ pub struct GridBlockOrderChangeset {
     pub updated_rows: Vec<RowOrder>,
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct IndexRowOrder {
+    #[pb(index = 1)]
+    pub row_order: RowOrder,
+
+    #[pb(index = 2, one_of)]
+    pub index: Option<i32>,
+}
+
+impl std::convert::From<RowOrder> for IndexRowOrder {
+    fn from(row_order: RowOrder) -> Self {
+        Self { row_order, index: None }
+    }
+}
+
+impl std::convert::From<&RowMeta> for IndexRowOrder {
+    fn from(row: &RowMeta) -> Self {
+        let row_order = RowOrder::from(row);
+        Self::from(row_order)
+    }
+}
+
 impl GridBlockOrderChangeset {
-    pub fn from_insert(block_id: &str, inserted_rows: Vec<RowOrder>) -> Self {
+    pub fn from_insert(block_id: &str, inserted_rows: Vec<IndexRowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows,

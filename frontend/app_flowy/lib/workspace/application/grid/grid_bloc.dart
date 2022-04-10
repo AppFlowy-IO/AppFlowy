@@ -34,8 +34,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: (_CreateRow value) {
             _gridService.createRow(gridId: view.id);
           },
-          delete: (_Delete value) {},
-          rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
           didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
             emit(state.copyWith(rows: value.rows));
@@ -71,14 +69,18 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     _gridListener.rowsUpdateNotifier.addPublishListener((result) {
       result.fold((gridBlockChangeset) {
         for (final changeset in gridBlockChangeset) {
-          if (changeset.insertedRows.isNotEmpty) {}
+          if (changeset.insertedRows.isNotEmpty) {
+            _insertRows(changeset.insertedRows);
+          }
 
-          if (changeset.deletedRows.isNotEmpty) {}
+          if (changeset.deletedRows.isNotEmpty) {
+            _deleteRows(changeset.deletedRows);
+          }
 
-          if (changeset.updatedRows.isNotEmpty) {}
+          if (changeset.updatedRows.isNotEmpty) {
+            _updateRows(changeset.updatedRows);
+          }
         }
-
-        // add(GridEvent.didReceiveRowUpdate(_buildRows(blockOrders)));
       }, (err) => Log.error(err));
     });
     _gridListener.start();
@@ -111,29 +113,50 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  List<GridBlockRow> _buildRows(List<GridBlockOrder> blockOrders) {
-    List<GridBlockRow> rows = [];
-    for (final blockOrder in blockOrders) {
-      rows.addAll(blockOrder.rowOrders.map(
-        (rowOrder) => GridBlockRow(
-          gridId: view.id,
-          rowId: rowOrder.rowId,
-          height: rowOrder.height.toDouble(),
-        ),
-      ));
+  void _deleteRows(List<RowOrder> deletedRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    rows.retainWhere(
+      (row) => deletedRows.where((deletedRow) => deletedRow.rowId == row.rowId).isEmpty,
+    );
+
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  void _insertRows(List<IndexRowOrder> createdRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    for (final newRow in createdRows) {
+      if (newRow.hasIndex()) {
+        rows.insert(newRow.index, newRow.rowOrder);
+      } else {
+        rows.add(newRow.rowOrder);
+      }
     }
-    return rows;
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  void _updateRows(List<RowOrder> updatedRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    for (final updatedRow in updatedRows) {
+      final index = rows.indexWhere((row) => row.rowId == updatedRow.rowId);
+      if (index != -1) {
+        rows.removeAt(index);
+        rows.insert(index, updatedRow);
+      }
+    }
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  List<RowOrder> _buildRows(List<GridBlockOrder> blockOrders) {
+    return blockOrders.expand((blockOrder) => blockOrder.rowOrders).toList();
   }
 }
 
 @freezed
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
-  const factory GridEvent.rename(String gridId, String name) = _Rename;
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
-  const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<GridBlockRow> rows) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<RowOrder> rows) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
@@ -142,7 +165,7 @@ class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
     required List<Field> fields,
-    required List<GridBlockRow> rows,
+    required List<RowOrder> rows,
     required Option<Grid> grid,
   }) = _GridState;
 

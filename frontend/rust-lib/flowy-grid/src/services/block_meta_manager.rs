@@ -9,7 +9,7 @@ use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
     CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset,
-    GridBlockOrder, GridBlockOrderChangeset, RowMeta, RowMetaChangeset, RowOrder,
+    GridBlockOrderChangeset, IndexRowOrder, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
@@ -70,11 +70,13 @@ impl GridBlockMetaEditorManager {
     ) -> FlowyResult<i32> {
         let _ = self.persistence.insert_or_update(&row_meta.block_id, &row_meta.id)?;
         let editor = self.get_editor(&row_meta.block_id).await?;
-        let row_order = RowOrder::from(&row_meta);
-        let row_count = editor.create_row(row_meta, start_row_id).await?;
+
+        let mut index_row_order = IndexRowOrder::from(&row_meta);
+        let (row_count, row_index) = editor.create_row(row_meta, start_row_id).await?;
+        index_row_order.index = row_index;
 
         let _ = self
-            .notify_block_did_update_row(GridBlockOrderChangeset::from_update(block_id, vec![row_order]))
+            .notify_did_update_grid_rows(GridBlockOrderChangeset::from_insert(block_id, vec![index_row_order]))
             .await?;
         Ok(row_count)
     }
@@ -90,12 +92,13 @@ impl GridBlockMetaEditorManager {
             let mut row_count = 0;
             for row in row_metas {
                 let _ = self.persistence.insert_or_update(&row.block_id, &row.id)?;
-                inserted_row_orders.push(RowOrder::from(&row));
-                row_count = editor.create_row(row, None).await?;
+                inserted_row_orders.push(IndexRowOrder::from(&row));
+                row_count = editor.create_row(row, None).await?.0;
             }
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
+
             let _ = self
-                .notify_block_did_update_row(GridBlockOrderChangeset::from_insert(&block_id, inserted_row_orders))
+                .notify_did_update_grid_rows(GridBlockOrderChangeset::from_insert(&block_id, inserted_row_orders))
                 .await?;
         }
 
@@ -114,9 +117,22 @@ impl GridBlockMetaEditorManager {
             None => {}
             Some(row_order) => {
                 let block_order_changeset = GridBlockOrderChangeset::from_update(&editor.block_id, vec![row_order]);
-                let _ = self.notify_block_did_update_row(block_order_changeset).await?;
+                let _ = self.notify_did_update_grid_rows(block_order_changeset).await?;
             }
         }
+
+        Ok(())
+    }
+
+    pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
+        let row_id = row_id.to_owned();
+        let block_id = self.persistence.get_block_id(&row_id)?;
+        let editor = self.get_editor(&block_id).await?;
+        let row_orders = editor.get_row_orders(Some(vec![Cow::Borrowed(&row_id)])).await?;
+        let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
+        let _ = self
+            .notify_did_update_grid_rows(GridBlockOrderChangeset::from_delete(&block_id, row_orders))
+            .await?;
 
         Ok(())
     }
@@ -167,7 +183,7 @@ impl GridBlockMetaEditorManager {
 
     pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowOrder>> {
         let editor = self.get_editor(block_id).await?;
-        editor.get_row_orders(None).await
+        editor.get_row_orders::<&str>(None).await
     }
 
     pub(crate) async fn make_block_snapshots(&self, block_ids: Vec<String>) -> FlowyResult<Vec<GridBlockSnapshot>> {
@@ -197,7 +213,7 @@ impl GridBlockMetaEditorManager {
         Ok(block_cell_metas)
     }
 
-    async fn notify_block_did_update_row(&self, changeset: GridBlockOrderChangeset) -> FlowyResult<()> {
+    async fn notify_did_update_grid_rows(&self, changeset: GridBlockOrderChangeset) -> FlowyResult<()> {
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();

@@ -469,7 +469,7 @@ mod tests {
         let single_select = SingleSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
-            .option(twitter_option.clone());
+            .option(twitter_option);
 
         let field_meta = FieldBuilder::new(single_select)
             .name("Platform")
@@ -478,7 +478,7 @@ mod tests {
 
         let type_option = SingleSelectTypeOption::from(&field_meta);
 
-        let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
+        let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellChangeset::from_insert(&option_ids).cell_data();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta), google_option.name,);
@@ -511,7 +511,7 @@ mod tests {
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
-            .option(twitter_option.clone());
+            .option(twitter_option);
 
         let field_meta = FieldBuilder::new(multi_select)
             .name("Platform")
@@ -525,7 +525,7 @@ mod tests {
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
             type_option.decode_cell_data(cell_data, &field_meta),
-            vec![google_option.name.clone(), facebook_option.name.clone()].join(SELECTION_IDS_SEPARATOR),
+            vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
         );
 
         let data = SelectOptionCellChangeset::from_insert(&google_option.id).cell_data();
