@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
