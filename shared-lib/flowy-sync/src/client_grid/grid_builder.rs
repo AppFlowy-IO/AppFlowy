@@ -13,9 +13,9 @@ impl GridBuilder {
     }
 
     pub fn add_empty_row(mut self) -> Self {
-        let row = RowMeta::new(&self.build_context.block_metas.block_id);
-        self.build_context.block_meta_data.row_metas.push(row);
-        self.build_context.block_metas.row_count += 1;
+        let row = RowMeta::new(&self.build_context.block_meta.block_id);
+        self.build_context.block_meta_data.rows.push(row);
+        self.build_context.block_meta.row_count += 1;
         self
     }
 
@@ -57,7 +57,7 @@ mod tests {
         let grid_meta = GridMeta {
             grid_id,
             fields: build_context.field_metas,
-            block_metas: vec![build_context.block_metas],
+            blocks: vec![build_context.block_meta],
         };
 
         let grid_meta_delta = make_grid_delta(&grid_meta);

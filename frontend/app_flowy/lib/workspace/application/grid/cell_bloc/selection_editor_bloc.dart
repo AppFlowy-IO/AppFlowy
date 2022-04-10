@@ -110,7 +110,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   void _loadOptions() async {
     _delayOperation?.cancel();
     _delayOperation = Timer(
-      const Duration(milliseconds: 300),
+      const Duration(milliseconds: 1),
       () async {
         final result = await _selectOptionService.getOpitonContext(
           gridId: state.gridId,
@@ -119,10 +119,14 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
         );
 
         result.fold(
-          (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
-            selectOptionContext.options,
-            selectOptionContext.selectOptions,
-          )),
+          (selectOptionContext) {
+            if (!isClosed) {
+              add(SelectOptionEditorEvent.didReceiveOptions(
+                selectOptionContext.options,
+                selectOptionContext.selectOptions,
+              ));
+            }
+          },
           (err) => Log.error(err),
         );
       },

@@ -16,9 +16,28 @@ use std::str::FromStr;
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
 pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
-    fn insert_option(&mut self, new_option: SelectOption);
-    fn delete_option(&mut self, delete_option: SelectOption);
+    fn insert_option(&mut self, new_option: SelectOption) {
+        let options = self.mut_options();
+        if let Some(index) = options
+            .iter()
+            .position(|option| option.id == new_option.id || option.name == new_option.name)
+        {
+            options.remove(index);
+            options.insert(index, new_option);
+        } else {
+            options.insert(0, new_option);
+        }
+    }
+
+    fn delete_option(&mut self, delete_option: SelectOption) {
+        let options = self.mut_options();
+        if let Some(index) = options.iter().position(|option| option.id == delete_option.id) {
+            options.remove(index);
+        }
+    }
+
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext;
+    fn mut_options(&mut self) -> &mut Vec<SelectOption>;
 }
 
 // Single select
@@ -33,27 +52,16 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl SelectOptionOperation for SingleSelectTypeOption {
-    fn insert_option(&mut self, new_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
-            self.options.remove(index);
-            self.options.insert(index, new_option);
-        } else {
-            self.options.insert(0, new_option);
-        }
-    }
-
-    fn delete_option(&mut self, delete_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
-            self.options.remove(index);
-        }
-    }
-
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
         let select_options = make_select_context_from(cell_meta, &self.options);
         SelectOptionContext {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+        &mut self.options
     }
 }
 
@@ -139,27 +147,16 @@ impl MultiSelectTypeOption {
 }
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn insert_option(&mut self, new_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == new_option.id) {
-            self.options.remove(index);
-            self.options.insert(index, new_option);
-        } else {
-            self.options.insert(0, new_option);
-        }
-    }
-
-    fn delete_option(&mut self, delete_option: SelectOption) {
-        if let Some(index) = self.options.iter().position(|option| option.id == delete_option.id) {
-            self.options.remove(index);
-        }
-    }
-
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
         let select_options = make_select_context_from(cell_meta, &self.options);
         SelectOptionContext {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+        &mut self.options
     }
 }
 
@@ -472,7 +469,7 @@ mod tests {
         let single_select = SingleSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
-            .option(twitter_option.clone());
+            .option(twitter_option);
 
         let field_meta = FieldBuilder::new(single_select)
             .name("Platform")
@@ -481,7 +478,7 @@ mod tests {
 
         let type_option = SingleSelectTypeOption::from(&field_meta);
 
-        let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
+        let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellChangeset::from_insert(&option_ids).cell_data();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta), google_option.name,);
@@ -514,7 +511,7 @@ mod tests {
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
-            .option(twitter_option.clone());
+            .option(twitter_option);
 
         let field_meta = FieldBuilder::new(multi_select)
             .name("Platform")
@@ -528,7 +525,7 @@ mod tests {
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
             type_option.decode_cell_data(cell_data, &field_meta),
-            vec![google_option.name.clone(), facebook_option.name.clone()].join(SELECTION_IDS_SEPARATOR),
+            vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
         );
 
         let data = SelectOptionCellChangeset::from_insert(&google_option.id).cell_data();

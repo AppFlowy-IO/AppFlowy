@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/workspace/application/doc/prelude.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_listener.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
@@ -148,13 +147,12 @@ void _resolveDocDeps(GetIt getIt) {
 void _resolveGridDeps(GetIt getIt) {
   // Grid
   getIt.registerFactoryParam<GridBloc, View, void>(
-    (view, _) => GridBloc(view: view, service: GridService()),
+    (view, _) => GridBloc(view: view),
   );
 
   getIt.registerFactoryParam<RowBloc, RowData, void>(
     (data, _) => RowBloc(
       rowData: data,
-      rowlistener: RowListener(rowId: data.rowId),
     ),
   );
 

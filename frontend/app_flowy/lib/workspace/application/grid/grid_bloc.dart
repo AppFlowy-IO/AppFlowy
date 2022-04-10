@@ -6,33 +6,33 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:equatable/equatable.dart';
-import 'grid_block_service.dart';
 import 'field/grid_listenr.dart';
+import 'grid_listener.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
-  final GridService service;
+  final GridService _gridService;
+  final GridListener _gridListener;
   final GridFieldsListener _fieldListener;
-  GridBlockService? _blockService;
 
-  GridBloc({required this.view, required this.service})
+  GridBloc({required this.view})
       : _fieldListener = GridFieldsListener(gridId: view.id),
+        _gridService = GridService(),
+        _gridListener = GridListener(gridId: view.id),
         super(GridState.initial()) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (InitialGrid value) async {
             await _initGrid(emit);
+            _startListening();
           },
           createRow: (_CreateRow value) {
-            service.createRow(gridId: view.id);
+            _gridService.createRow(gridId: view.id);
           },
-          delete: (_Delete value) {},
-          rename: (_Rename value) {},
           updateDesc: (_Desc value) {},
           didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
             emit(state.copyWith(rows: value.rows));
@@ -48,7 +48,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _fieldListener.stop();
-    await _blockService?.stop();
+    await _gridListener.stop();
     return super.close();
   }
 
@@ -64,22 +64,29 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await _loadGrid(emit);
   }
 
-  Future<void> _initGridBlock(Grid grid) async {
-    _blockService = GridBlockService(
-      gridId: grid.id,
-      blockOrders: grid.blockOrders,
-    );
+  void _startListening() {
+    _gridListener.rowsUpdateNotifier.addPublishListener((result) {
+      result.fold((gridBlockChangeset) {
+        for (final changeset in gridBlockChangeset) {
+          if (changeset.insertedRows.isNotEmpty) {
+            _insertRows(changeset.insertedRows);
+          }
 
-    _blockService?.blocksUpdateNotifier?.addPublishListener((result) {
-      result.fold(
-        (blockMap) => add(GridEvent.didReceiveRowUpdate(_buildRows(blockMap))),
-        (err) => Log.error('$err'),
-      );
+          if (changeset.deletedRows.isNotEmpty) {
+            _deleteRows(changeset.deletedRows);
+          }
+
+          if (changeset.updatedRows.isNotEmpty) {
+            _updateRows(changeset.updatedRows);
+          }
+        }
+      }, (err) => Log.error(err));
     });
+    _gridListener.start();
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
-    final result = await service.openGrid(gridId: view.id);
+    final result = await _gridService.loadGrid(gridId: view.id);
     return Future(
       () => result.fold(
         (grid) async => await _loadFields(grid, emit),
@@ -89,14 +96,14 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
+    final result = await _gridService.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
     return Future(
       () => result.fold(
         (fields) {
-          _initGridBlock(grid);
           emit(state.copyWith(
             grid: Some(grid),
             fields: fields.items,
+            rows: _buildRows(grid.blockOrders),
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -105,30 +112,50 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  List<GridBlockRow> _buildRows(GridBlockMap blockMap) {
-    List<GridBlockRow> rows = [];
-    blockMap.forEach((_, GridBlock gridBlock) {
-      rows.addAll(gridBlock.rowOrders.map(
-        (rowOrder) => GridBlockRow(
-          gridId: view.id,
-          blockId: gridBlock.id,
-          rowId: rowOrder.rowId,
-          height: rowOrder.height.toDouble(),
-        ),
-      ));
-    });
-    return rows;
+  void _deleteRows(List<RowOrder> deletedRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    rows.retainWhere(
+      (row) => deletedRows.where((deletedRow) => deletedRow.rowId == row.rowId).isEmpty,
+    );
+
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  void _insertRows(List<IndexRowOrder> createdRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    for (final newRow in createdRows) {
+      if (newRow.hasIndex()) {
+        rows.insert(newRow.index, newRow.rowOrder);
+      } else {
+        rows.add(newRow.rowOrder);
+      }
+    }
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  void _updateRows(List<RowOrder> updatedRows) {
+    final List<RowOrder> rows = List.from(state.rows);
+    for (final updatedRow in updatedRows) {
+      final index = rows.indexWhere((row) => row.rowId == updatedRow.rowId);
+      if (index != -1) {
+        rows.removeAt(index);
+        rows.insert(index, updatedRow);
+      }
+    }
+    add(GridEvent.didReceiveRowUpdate(rows));
+  }
+
+  List<RowOrder> _buildRows(List<GridBlockOrder> blockOrders) {
+    return blockOrders.expand((blockOrder) => blockOrder.rowOrders).toList();
   }
 }
 
 @freezed
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
-  const factory GridEvent.rename(String gridId, String name) = _Rename;
   const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
-  const factory GridEvent.delete(String gridId) = _Delete;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<GridBlockRow> rows) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<RowOrder> rows) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
@@ -137,7 +164,7 @@ class GridState with _$GridState {
   const factory GridState({
     required GridLoadingState loadingState,
     required List<Field> fields,
-    required List<GridBlockRow> rows,
+    required List<RowOrder> rows,
     required Option<Grid> grid,
   }) = _GridState;
 
@@ -153,47 +180,4 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
-}
-
-class GridBlockRow {
-  final String gridId;
-  final String rowId;
-  final String blockId;
-  final double height;
-
-  const GridBlockRow({
-    required this.gridId,
-    required this.rowId,
-    required this.blockId,
-    required this.height,
-  });
-}
-
-class RowData extends Equatable {
-  final String gridId;
-  final String rowId;
-  final String blockId;
-  final List<Field> fields;
-  final double height;
-
-  const RowData({
-    required this.gridId,
-    required this.rowId,
-    required this.blockId,
-    required this.fields,
-    required this.height,
-  });
-
-  factory RowData.fromBlockRow(GridBlockRow row, List<Field> fields) {
-    return RowData(
-      gridId: row.gridId,
-      rowId: row.rowId,
-      blockId: row.blockId,
-      fields: fields,
-      height: row.height,
-    );
-  }
-
-  @override
-  List<Object> get props => [rowId, fields];
 }

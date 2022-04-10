@@ -260,11 +260,83 @@ impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
 pub struct GridBlockOrder {
     #[pb(index = 1)]
     pub block_id: String,
+
+    #[pb(index = 2)]
+    pub row_orders: Vec<RowOrder>,
 }
 
-impl std::convert::From<&str> for GridBlockOrder {
-    fn from(s: &str) -> Self {
-        GridBlockOrder { block_id: s.to_owned() }
+impl GridBlockOrder {
+    pub fn new(block_id: &str) -> Self {
+        GridBlockOrder {
+            block_id: block_id.to_owned(),
+            row_orders: vec![],
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct GridBlockOrderChangeset {
+    #[pb(index = 1)]
+    pub block_id: String,
+
+    #[pb(index = 2)]
+    pub inserted_rows: Vec<IndexRowOrder>,
+
+    #[pb(index = 3)]
+    pub deleted_rows: Vec<RowOrder>,
+
+    #[pb(index = 4)]
+    pub updated_rows: Vec<RowOrder>,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct IndexRowOrder {
+    #[pb(index = 1)]
+    pub row_order: RowOrder,
+
+    #[pb(index = 2, one_of)]
+    pub index: Option<i32>,
+}
+
+impl std::convert::From<RowOrder> for IndexRowOrder {
+    fn from(row_order: RowOrder) -> Self {
+        Self { row_order, index: None }
+    }
+}
+
+impl std::convert::From<&RowMeta> for IndexRowOrder {
+    fn from(row: &RowMeta) -> Self {
+        let row_order = RowOrder::from(row);
+        Self::from(row_order)
+    }
+}
+
+impl GridBlockOrderChangeset {
+    pub fn from_insert(block_id: &str, inserted_rows: Vec<IndexRowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows,
+            deleted_rows: vec![],
+            updated_rows: vec![],
+        }
+    }
+
+    pub fn from_delete(block_id: &str, deleted_rows: Vec<RowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows: vec![],
+            deleted_rows,
+            updated_rows: vec![],
+        }
+    }
+
+    pub fn from_update(block_id: &str, updated_rows: Vec<RowOrder>) -> Self {
+        Self {
+            block_id: block_id.to_owned(),
+            inserted_rows: vec![],
+            deleted_rows: vec![],
+            updated_rows,
+        }
     }
 }
 

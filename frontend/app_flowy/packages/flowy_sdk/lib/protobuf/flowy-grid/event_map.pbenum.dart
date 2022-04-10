@@ -24,6 +24,8 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent ApplySelectOptionChangeset = GridEvent._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplySelectOptionChangeset');
   static const GridEvent CreateRow = GridEvent._(50, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
   static const GridEvent GetRow = GridEvent._(51, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRow');
+  static const GridEvent DeleteRow = GridEvent._(52, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteRow');
+  static const GridEvent DuplicateRow = GridEvent._(53, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateRow');
   static const GridEvent GetCell = GridEvent._(70, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetCell');
   static const GridEvent UpdateCell = GridEvent._(71, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
   static const GridEvent ApplySelectOptionCellChangeset = GridEvent._(72, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplySelectOptionCellChangeset');
@@ -43,6 +45,8 @@ class GridEvent extends $pb.ProtobufEnum {
     ApplySelectOptionChangeset,
     CreateRow,
     GetRow,
+    DeleteRow,
+    DuplicateRow,
     GetCell,
     UpdateCell,
     ApplySelectOptionCellChangeset,

@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:app_flowy/workspace/application/grid/cell_bloc/selection_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
@@ -21,6 +20,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
 import 'extension.dart';
+import 'text_field.dart';
 
 const double _editorPannelWidth = 300;
 
@@ -135,8 +135,7 @@ class _TextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SelectOptionEditorBloc, SelectOptionEditorState>(
-      listener: (context, state) {},
+    return BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         final optionMap = LinkedHashMap<String, SelectOption>.fromIterable(state.selectedOptions,
             key: (option) => option.name, value: (option) => option);

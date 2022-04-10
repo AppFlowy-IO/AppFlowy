@@ -267,6 +267,14 @@ impl ClientGridEditor {
             }
         }
     }
+    pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
+        let _ = self.block_meta_manager.delete_row(row_id).await?;
+        Ok(())
+    }
+
+    pub async fn duplicate_row(&self, _row_id: &str) -> FlowyResult<()> {
+        Ok(())
+    }
 
     pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
         let field_meta = self.get_field_meta(&params.field_id).await?;
@@ -316,6 +324,11 @@ impl ClientGridEditor {
         Ok(grid_blocks)
     }
 
+    // pub async fn get_field_metas<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldMeta>>
+    //     where
+    //         T: Into<FieldOrder>,
+    // {
+
     pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
         let changesets = self.block_meta_manager.delete_rows(row_orders).await?;
         for changeset in changesets {
@@ -325,17 +338,18 @@ impl ClientGridEditor {
     }
 
     pub async fn grid_data(&self) -> FlowyResult<Grid> {
-        let field_orders = self.pad.read().await.get_field_orders();
-        let block_orders = self
-            .pad
-            .read()
-            .await
-            .get_block_metas()
-            .into_iter()
-            .map(|grid_block_meta| GridBlockOrder {
-                block_id: grid_block_meta.block_id,
-            })
-            .collect::<Vec<_>>();
+        let pad_read_guard = self.pad.read().await;
+        let field_orders = pad_read_guard.get_field_orders();
+        let mut block_orders = vec![];
+        for block_order in pad_read_guard.get_block_metas() {
+            let row_orders = self.block_meta_manager.get_row_orders(&block_order.block_id).await?;
+            let block_order = GridBlockOrder {
+                block_id: block_order.block_id,
+                row_orders,
+            };
+            block_orders.push(block_order);
+        }
+
         Ok(Grid {
             id: self.grid_id.clone(),
             field_orders,
@@ -416,7 +430,7 @@ impl ClientGridEditor {
         debug_assert!(field_metas.len() == 1);
 
         if let Some(field_meta) = field_metas.pop() {
-            send_dart_notification(&field_id, GridNotification::DidUpdateField)
+            send_dart_notification(field_id, GridNotification::DidUpdateField)
                 .payload(field_meta)
                 .send();
         }

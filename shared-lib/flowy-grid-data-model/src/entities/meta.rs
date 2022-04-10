@@ -18,7 +18,7 @@ pub struct GridMeta {
     pub fields: Vec<FieldMeta>,
 
     #[pb(index = 3)]
-    pub block_metas: Vec<GridBlockMeta>,
+    pub blocks: Vec<GridBlockMeta>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
@@ -74,7 +74,7 @@ pub struct GridBlockMetaData {
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub row_metas: Vec<RowMeta>,
+    pub rows: Vec<RowMeta>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf, Eq, PartialEq)]
@@ -398,7 +398,7 @@ impl std::convert::From<CellMetaChangeset> for RowMetaChangeset {
             row_id: changeset.row_id,
             height: None,
             visibility: None,
-            cell_by_field_id: cell_by_field_id,
+            cell_by_field_id,
         }
     }
 }
@@ -409,7 +409,7 @@ pub struct BuildGridContext {
     pub field_metas: Vec<FieldMeta>,
 
     #[pb(index = 2)]
-    pub block_metas: GridBlockMeta,
+    pub block_meta: GridBlockMeta,
 
     #[pb(index = 3)]
     pub block_meta_data: GridBlockMetaData,
@@ -417,16 +417,16 @@ pub struct BuildGridContext {
 
 impl std::default::Default for BuildGridContext {
     fn default() -> Self {
-        let grid_block = GridBlockMeta::new();
-        let grid_block_meta_data = GridBlockMetaData {
-            block_id: grid_block.block_id.clone(),
-            row_metas: vec![],
+        let block_meta = GridBlockMeta::new();
+        let block_meta_data = GridBlockMetaData {
+            block_id: block_meta.block_id.clone(),
+            rows: vec![],
         };
 
         Self {
             field_metas: vec![],
-            block_metas: grid_block,
-            block_meta_data: grid_block_meta_data,
+            block_meta,
+            block_meta_data,
         }
     }
 }

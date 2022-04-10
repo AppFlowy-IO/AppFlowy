@@ -235,12 +235,12 @@ impl GridMetaPad {
 
     pub fn create_block_meta(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
-            if grid_meta.block_metas.iter().any(|b| b.block_id == block.block_id) {
+            if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
-                match grid_meta.block_metas.last() {
-                    None => grid_meta.block_metas.push(block),
+                match grid_meta.blocks.last() {
+                    None => grid_meta.blocks.push(block),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -248,7 +248,7 @@ impl GridMetaPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid_meta.block_metas.push(block);
+                        grid_meta.blocks.push(block);
                     }
                 }
                 Ok(Some(()))
@@ -257,7 +257,7 @@ impl GridMetaPad {
     }
 
     pub fn get_block_metas(&self) -> Vec<GridBlockMeta> {
-        self.grid_meta.block_metas.clone()
+        self.grid_meta.blocks.clone()
     }
 
     pub fn update_block_meta(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
@@ -320,19 +320,15 @@ impl GridMetaPad {
     where
         F: FnOnce(&mut GridBlockMeta) -> CollaborateResult<Option<()>>,
     {
-        self.modify_grid(|grid_meta| {
-            match grid_meta
-                .block_metas
-                .iter()
-                .position(|block| block.block_id == block_id)
-            {
+        self.modify_grid(
+            |grid_meta| match grid_meta.blocks.iter().position(|block| block.block_id == block_id) {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_meta.block_metas[index]),
-            }
-        })
+                Some(index) => f(&mut grid_meta.blocks[index]),
+            },
+        )
     }
 
     pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
@@ -380,7 +376,7 @@ impl std::default::Default for GridMetaPad {
         let grid = GridMeta {
             grid_id: uuid(),
             fields: vec![],
-            block_metas: vec![],
+            blocks: vec![],
         };
         let delta = make_grid_delta(&grid);
         GridMetaPad {

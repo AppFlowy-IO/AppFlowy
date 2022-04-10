@@ -3,7 +3,7 @@ syntax = "proto3";
 message GridMeta {
     string grid_id = 1;
     repeated FieldMeta fields = 2;
-    repeated GridBlockMeta block_metas = 3;
+    repeated GridBlockMeta blocks = 3;
 }
 message GridBlockMeta {
     string block_id = 1;
@@ -12,7 +12,7 @@ message GridBlockMeta {
 }
 message GridBlockMetaData {
     string block_id = 1;
-    repeated RowMeta row_metas = 2;
+    repeated RowMeta rows = 2;
 }
 message FieldMeta {
     string id = 1;
@@ -63,7 +63,7 @@ message CellMetaChangeset {
 }
 message BuildGridContext {
     repeated FieldMeta field_metas = 1;
-    GridBlockMeta block_metas = 2;
+    GridBlockMeta block_meta = 2;
     GridBlockMetaData block_meta_data = 3;
 }
 enum FieldType {

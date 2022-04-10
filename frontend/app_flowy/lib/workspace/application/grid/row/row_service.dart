@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -11,9 +10,8 @@ part 'row_service.freezed.dart';
 class RowService {
   final String gridId;
   final String rowId;
-  final String blockId;
 
-  RowService({required this.gridId, required this.rowId, required this.blockId});
+  RowService({required this.gridId, required this.rowId});
 
   Future<Either<Row, FlowyError>> createRow() {
     CreateRowPayload payload = CreateRowPayload.create()
@@ -30,6 +28,22 @@ class RowService {
 
     return GridEventGetRow(payload).send();
   }
+
+  Future<Either<Unit, FlowyError>> deleteRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDeleteRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> duplicateRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDuplicateRow(payload).send();
+  }
 }
 
 @freezed
@@ -40,4 +54,23 @@ class CellData with _$CellData {
     required Field field,
     Cell? cell,
   }) = _CellData;
+}
+
+@freezed
+class RowData with _$RowData {
+  const factory RowData({
+    required String gridId,
+    required String rowId,
+    required List<Field> fields,
+    required double height,
+  }) = _RowData;
+
+  factory RowData.fromBlockRow(String gridId, RowOrder row, List<Field> fields) {
+    return RowData(
+      gridId: gridId,
+      rowId: row.rowId,
+      fields: fields,
+      height: row.height.toDouble(),
+    );
+  }
 }
