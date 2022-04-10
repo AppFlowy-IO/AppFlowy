@@ -29,12 +29,12 @@ const GridMeta$json = const {
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'fields', '3': 2, '4': 3, '5': 11, '6': '.FieldMeta', '10': 'fields'},
-    const {'1': 'block_metas', '3': 3, '4': 3, '5': 11, '6': '.GridBlockMeta', '10': 'blockMetas'},
+    const {'1': 'blocks', '3': 3, '4': 3, '5': 11, '6': '.GridBlockMeta', '10': 'blocks'},
   ],
 };
 
 /// Descriptor for `GridMeta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSIgoGZmllbGRzGAIgAygLMgouRmllbGRNZXRhUgZmaWVsZHMSLwoLYmxvY2tfbWV0YXMYAyADKAsyDi5HcmlkQmxvY2tNZXRhUgpibG9ja01ldGFz');
+final $typed_data.Uint8List gridMetaDescriptor = $convert.base64Decode('CghHcmlkTWV0YRIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSIgoGZmllbGRzGAIgAygLMgouRmllbGRNZXRhUgZmaWVsZHMSJgoGYmxvY2tzGAMgAygLMg4uR3JpZEJsb2NrTWV0YVIGYmxvY2tz');
 @$core.Deprecated('Use gridBlockMetaDescriptor instead')
 const GridBlockMeta$json = const {
   '1': 'GridBlockMeta',
@@ -52,12 +52,12 @@ const GridBlockMetaData$json = const {
   '1': 'GridBlockMetaData',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
-    const {'1': 'row_metas', '3': 2, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rowMetas'},
+    const {'1': 'rows', '3': 2, '4': 3, '5': 11, '6': '.RowMeta', '10': 'rows'},
   ],
 };
 
 /// Descriptor for `GridBlockMetaData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockMetaDataDescriptor = $convert.base64Decode('ChFHcmlkQmxvY2tNZXRhRGF0YRIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIlCglyb3dfbWV0YXMYAiADKAsyCC5Sb3dNZXRhUghyb3dNZXRhcw==');
+final $typed_data.Uint8List gridBlockMetaDataDescriptor = $convert.base64Decode('ChFHcmlkQmxvY2tNZXRhRGF0YRIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIcCgRyb3dzGAIgAygLMgguUm93TWV0YVIEcm93cw==');
 @$core.Deprecated('Use fieldMetaDescriptor instead')
 const FieldMeta$json = const {
   '1': 'FieldMeta',

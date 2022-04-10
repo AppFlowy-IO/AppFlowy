@@ -5,6 +5,7 @@ use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowM
 use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -67,38 +68,48 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn delete_rows(&mut self, row_ids: &[String]) -> CollaborateResult<Option<GridBlockMetaChange>> {
+    pub fn delete_rows(&mut self, row_ids: Vec<Cow<'_, String>>) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
-            rows.retain(|row| !row_ids.contains(&row.id));
+            rows.retain(|row| !row_ids.contains(&Cow::Borrowed(&row.id)));
             Ok(Some(()))
         })
     }
 
-    pub fn get_row_metas(&self, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<Arc<RowMeta>>> {
+    pub fn get_row_metas<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> CollaborateResult<Vec<Arc<RowMeta>>>
+    where
+        T: AsRef<str> + ToOwned + ?Sized,
+    {
         match row_ids {
             None => Ok(self.row_metas.to_vec()),
             Some(row_ids) => {
                 let row_map = self
                     .row_metas
                     .iter()
-                    .map(|row| (&row.id, row.clone()))
-                    .collect::<HashMap<&String, Arc<RowMeta>>>();
+                    .map(|row| (row.id.as_str(), row.clone()))
+                    .collect::<HashMap<&str, Arc<RowMeta>>>();
 
                 Ok(row_ids
                     .iter()
-                    .flat_map(|row_id| match row_map.get(row_id) {
-                        None => {
-                            tracing::error!("Can't find the row with id: {}", row_id);
-                            None
+                    .flat_map(|row_id| {
+                        let row_id = row_id.as_ref().as_ref();
+                        match row_map.get(row_id) {
+                            None => {
+                                tracing::error!("Can't find the row with id: {}", row_id);
+                                None
+                            }
+                            Some(row) => Some(row.clone()),
                         }
-                        Some(row) => Some(row.clone()),
                     })
                     .collect::<Vec<_>>())
             }
         }
     }
 
-    pub fn get_cell_metas(&self, field_id: &str, row_ids: &Option<Vec<String>>) -> CollaborateResult<Vec<CellMeta>> {
+    pub fn get_cell_metas(
+        &self,
+        field_id: &str,
+        row_ids: Option<Vec<Cow<'_, String>>>,
+    ) -> CollaborateResult<Vec<CellMeta>> {
         let rows = self.get_row_metas(row_ids)?;
         let cell_metas = rows
             .iter()
@@ -227,6 +238,7 @@ impl std::default::Default for GridBlockMetaPad {
 mod tests {
     use crate::client_grid::{GridBlockMetaDelta, GridBlockMetaPad};
     use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
+    use std::borrow::Cow;
 
     #[test]
     fn block_meta_add_row() {
@@ -331,7 +343,7 @@ mod tests {
         };
 
         let _ = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
-        let change = pad.delete_rows(&[row.id]).unwrap().unwrap();
+        let change = pad.delete_rows(vec![Cow::Borrowed(&row.id)]).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":29},{"delete":77},{"retain":2}]"#

@@ -1,41 +1,28 @@
 use crate::services::row::decode_cell_data;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    Cell, CellMeta, FieldMeta, GridBlock, RepeatedGridBlock, Row, RowMeta, RowOrder,
+    Cell, CellMeta, FieldMeta, GridBlock, GridBlockOrder, RepeatedGridBlock, Row, RowMeta, RowOrder,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 use std::sync::Arc;
-
-pub(crate) struct BlockRows {
-    pub(crate) block_id: String,
-    pub(crate) row_ids: Vec<String>,
-}
-
-impl BlockRows {
-    pub fn new(block_id: &str) -> Self {
-        BlockRows {
-            block_id: block_id.to_owned(),
-            row_ids: vec![],
-        }
-    }
-}
 
 pub struct GridBlockSnapshot {
     pub(crate) block_id: String,
     pub row_metas: Vec<Arc<RowMeta>>,
 }
 
-pub(crate) fn make_block_rows(row_orders: &[RowOrder]) -> Vec<BlockRows> {
-    let mut map: HashMap<&String, BlockRows> = HashMap::new();
-    row_orders.iter().for_each(|row_order| {
-        let block_id = &row_order.block_id;
-        let row_id = row_order.row_id.clone();
+pub(crate) fn group_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlockOrder> {
+    let mut map: HashMap<String, GridBlockOrder> = HashMap::new();
+    row_orders.into_iter().for_each(|row_order| {
+        // Memory Optimization: escape clone block_id
+        let block_id = row_order.block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| BlockRows::new(block_id))
-            .row_ids
-            .push(row_id);
+            .or_insert_with(|| GridBlockOrder::new(&row_order.block_id))
+            .row_orders
+            .push(row_order);
     });
     map.into_values().collect::<Vec<_>>()
 }

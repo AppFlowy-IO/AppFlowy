@@ -7,6 +7,7 @@ use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
+use std::borrow::Cow;
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -54,11 +55,11 @@ impl ClientGridBlockMetaEditor {
         Ok(row_count)
     }
 
-    pub async fn delete_rows(&self, ids: Vec<String>) -> FlowyResult<i32> {
+    pub async fn delete_rows(&self, ids: Vec<Cow<'_, String>>) -> FlowyResult<i32> {
         let mut row_count = 0;
         let _ = self
             .modify(|pad| {
-                let changeset = pad.delete_rows(&ids)?;
+                let changeset = pad.delete_rows(ids)?;
                 row_count = pad.number_of_rows();
                 Ok(changeset)
             })
@@ -71,17 +72,24 @@ impl ClientGridBlockMetaEditor {
         Ok(())
     }
 
-    pub async fn get_row_metas(&self, row_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<RowMeta>>> {
-        let row_metas = self.pad.read().await.get_row_metas(&row_ids)?;
+    pub async fn get_row_metas<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<Arc<RowMeta>>>
+    where
+        T: AsRef<str> + ToOwned + ?Sized,
+    {
+        let row_metas = self.pad.read().await.get_row_metas(row_ids)?;
         Ok(row_metas)
     }
 
-    pub async fn get_cell_metas(&self, field_id: &str, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<CellMeta>> {
+    pub async fn get_cell_metas(
+        &self,
+        field_id: &str,
+        row_ids: Option<Vec<Cow<'_, String>>>,
+    ) -> FlowyResult<Vec<CellMeta>> {
         let cell_metas = self.pad.read().await.get_cell_metas(field_id, row_ids)?;
         Ok(cell_metas)
     }
 
-    pub async fn get_row_orders(&self, row_ids: &Option<Vec<String>>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn get_row_orders(&self, row_ids: Option<Vec<Cow<'_, String>>>) -> FlowyResult<Vec<RowOrder>> {
         let row_orders = self
             .pad
             .read()

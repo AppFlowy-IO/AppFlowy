@@ -165,11 +165,12 @@ const GridBlockOrder$json = const {
   '1': 'GridBlockOrder',
   '2': const [
     const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'row_orders', '3': 2, '4': 3, '5': 11, '6': '.RowOrder', '10': 'rowOrders'},
   ],
 };
 
 /// Descriptor for `GridBlockOrder`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockOrderDescriptor = $convert.base64Decode('Cg5HcmlkQmxvY2tPcmRlchIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZA==');
+final $typed_data.Uint8List gridBlockOrderDescriptor = $convert.base64Decode('Cg5HcmlkQmxvY2tPcmRlchIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIoCgpyb3dfb3JkZXJzGAIgAygLMgkuUm93T3JkZXJSCXJvd09yZGVycw==');
 @$core.Deprecated('Use gridBlockDescriptor instead')
 const GridBlock$json = const {
   '1': 'GridBlock',

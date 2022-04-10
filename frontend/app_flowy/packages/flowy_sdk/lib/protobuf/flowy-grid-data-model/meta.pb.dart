@@ -17,7 +17,7 @@ class GridMeta extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridMeta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..pc<FieldMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fields', $pb.PbFieldType.PM, subBuilder: FieldMeta.create)
-    ..pc<GridBlockMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockMetas', $pb.PbFieldType.PM, subBuilder: GridBlockMeta.create)
+    ..pc<GridBlockMeta>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blocks', $pb.PbFieldType.PM, subBuilder: GridBlockMeta.create)
     ..hasRequiredFields = false
   ;
 
@@ -25,7 +25,7 @@ class GridMeta extends $pb.GeneratedMessage {
   factory GridMeta({
     $core.String? gridId,
     $core.Iterable<FieldMeta>? fields,
-    $core.Iterable<GridBlockMeta>? blockMetas,
+    $core.Iterable<GridBlockMeta>? blocks,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -34,8 +34,8 @@ class GridMeta extends $pb.GeneratedMessage {
     if (fields != null) {
       _result.fields.addAll(fields);
     }
-    if (blockMetas != null) {
-      _result.blockMetas.addAll(blockMetas);
+    if (blocks != null) {
+      _result.blocks.addAll(blocks);
     }
     return _result;
   }
@@ -73,7 +73,7 @@ class GridMeta extends $pb.GeneratedMessage {
   $core.List<FieldMeta> get fields => $_getList(1);
 
   @$pb.TagNumber(3)
-  $core.List<GridBlockMeta> get blockMetas => $_getList(2);
+  $core.List<GridBlockMeta> get blocks => $_getList(2);
 }
 
 class GridBlockMeta extends $pb.GeneratedMessage {
@@ -154,21 +154,21 @@ class GridBlockMeta extends $pb.GeneratedMessage {
 class GridBlockMetaData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockMetaData', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
-    ..pc<RowMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowMetas', $pb.PbFieldType.PM, subBuilder: RowMeta.create)
+    ..pc<RowMeta>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rows', $pb.PbFieldType.PM, subBuilder: RowMeta.create)
     ..hasRequiredFields = false
   ;
 
   GridBlockMetaData._() : super();
   factory GridBlockMetaData({
     $core.String? blockId,
-    $core.Iterable<RowMeta>? rowMetas,
+    $core.Iterable<RowMeta>? rows,
   }) {
     final _result = create();
     if (blockId != null) {
       _result.blockId = blockId;
     }
-    if (rowMetas != null) {
-      _result.rowMetas.addAll(rowMetas);
+    if (rows != null) {
+      _result.rows.addAll(rows);
     }
     return _result;
   }
@@ -203,7 +203,7 @@ class GridBlockMetaData extends $pb.GeneratedMessage {
   void clearBlockId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<RowMeta> get rowMetas => $_getList(1);
+  $core.List<RowMeta> get rows => $_getList(1);
 }
 
 class FieldMeta extends $pb.GeneratedMessage {

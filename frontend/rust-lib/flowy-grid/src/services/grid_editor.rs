@@ -337,17 +337,18 @@ impl ClientGridEditor {
     }
 
     pub async fn grid_data(&self) -> FlowyResult<Grid> {
-        let field_orders = self.pad.read().await.get_field_orders();
-        let block_orders = self
-            .pad
-            .read()
-            .await
-            .get_block_metas()
-            .into_iter()
-            .map(|grid_block_meta| GridBlockOrder {
-                block_id: grid_block_meta.block_id,
-            })
-            .collect::<Vec<_>>();
+        let pad_read_guard = self.pad.read().await;
+        let field_orders = pad_read_guard.get_field_orders();
+        let mut block_orders = vec![];
+        for block_order in pad_read_guard.get_block_metas() {
+            let row_orders = self.block_meta_manager.get_row_orders(&block_order.block_id).await?;
+            let block_order = GridBlockOrder {
+                block_id: block_order.block_id,
+                row_orders,
+            };
+            block_orders.push(block_order);
+        }
+
         Ok(Grid {
             id: self.grid_id.clone(),
             field_orders,

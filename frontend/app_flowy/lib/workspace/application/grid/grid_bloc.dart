@@ -9,27 +9,31 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'grid_block_service.dart';
 import 'field/grid_listenr.dart';
+import 'grid_listener.dart';
 import 'grid_service.dart';
 
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
   final View view;
-  final GridService service;
+  final GridService _gridService;
+  final GridListener _gridListener;
   final GridFieldsListener _fieldListener;
-  GridBlockService? _blockService;
 
-  GridBloc({required this.view, required this.service})
+  GridBloc({required this.view})
       : _fieldListener = GridFieldsListener(gridId: view.id),
+        _gridService = GridService(),
+        _gridListener = GridListener(gridId: view.id),
         super(GridState.initial()) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
           initial: (InitialGrid value) async {
             await _initGrid(emit);
+            _startListening();
           },
           createRow: (_CreateRow value) {
-            service.createRow(gridId: view.id);
+            _gridService.createRow(gridId: view.id);
           },
           delete: (_Delete value) {},
           rename: (_Rename value) {},
@@ -48,7 +52,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _fieldListener.stop();
-    await _blockService?.stop();
+    await _gridListener.stop();
     return super.close();
   }
 
@@ -64,22 +68,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await _loadGrid(emit);
   }
 
-  Future<void> _initGridBlock(Grid grid) async {
-    _blockService = GridBlockService(
-      gridId: grid.id,
-      blockOrders: grid.blockOrders,
-    );
-
-    _blockService?.blocksUpdateNotifier?.addPublishListener((result) {
-      result.fold(
-        (blockMap) => add(GridEvent.didReceiveRowUpdate(_buildRows(blockMap))),
-        (err) => Log.error('$err'),
-      );
+  void _startListening() {
+    _gridListener.rowsUpdateNotifier.addPublishListener((result) {
+      result.fold((blockOrders) {
+        add(GridEvent.didReceiveRowUpdate(_buildRows(blockOrders)));
+      }, (err) => Log.error(err));
     });
+    _gridListener.start();
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
-    final result = await service.loadGrid(gridId: view.id);
+    final result = await _gridService.loadGrid(gridId: view.id);
     return Future(
       () => result.fold(
         (grid) async => await _loadFields(grid, emit),
@@ -89,14 +88,14 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await service.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
+    final result = await _gridService.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
     return Future(
       () => result.fold(
         (fields) {
-          _initGridBlock(grid);
           emit(state.copyWith(
             grid: Some(grid),
             fields: fields.items,
+            rows: _buildRows(grid.blockOrders),
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -105,17 +104,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  List<GridBlockRow> _buildRows(GridBlockMap blockMap) {
+  List<GridBlockRow> _buildRows(List<GridBlockOrder> blockOrders) {
     List<GridBlockRow> rows = [];
-    blockMap.forEach((_, GridBlock gridBlock) {
-      rows.addAll(gridBlock.rowOrders.map(
+    for (final blockOrder in blockOrders) {
+      rows.addAll(blockOrder.rowOrders.map(
         (rowOrder) => GridBlockRow(
           gridId: view.id,
           rowId: rowOrder.rowId,
           height: rowOrder.height.toDouble(),
         ),
       ));
-    });
+    }
     return rows;
   }
 }

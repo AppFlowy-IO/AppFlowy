@@ -186,7 +186,7 @@ pub(crate) async fn delete_row_handler(
 ) -> Result<(), FlowyError> {
     let params: RowIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.delete_row(&params.row_id)?;
+    let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
 }
 
@@ -197,7 +197,7 @@ pub(crate) async fn duplicate_row_handler(
 ) -> Result<(), FlowyError> {
     let params: RowIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.duplicate_row(&params.row_id)?;
+    let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
 

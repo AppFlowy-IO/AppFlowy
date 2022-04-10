@@ -57,6 +57,7 @@ message RepeatedGridBlock {
 }
 message GridBlockOrder {
     string block_id = 1;
+    repeated RowOrder row_orders = 2;
 }
 message GridBlock {
     string id = 1;

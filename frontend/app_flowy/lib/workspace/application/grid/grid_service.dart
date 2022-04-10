@@ -5,7 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:dartz/dartz.dart';
 
 class GridService {
-  Future<Either<loadGrid, FlowyError>> loadGrid({required String gridId}) async {
+  Future<Either<Grid, FlowyError>> loadGrid({required String gridId}) async {
     await FolderEventSetLatestView(ViewId(value: gridId)).send();
 
     final payload = GridId(value: gridId);

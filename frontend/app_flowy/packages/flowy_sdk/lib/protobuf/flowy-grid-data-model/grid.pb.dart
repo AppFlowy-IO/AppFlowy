@@ -803,16 +803,21 @@ class RepeatedGridBlock extends $pb.GeneratedMessage {
 class GridBlockOrder extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockOrder', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..pc<RowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowOrders', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
     ..hasRequiredFields = false
   ;
 
   GridBlockOrder._() : super();
   factory GridBlockOrder({
     $core.String? blockId,
+    $core.Iterable<RowOrder>? rowOrders,
   }) {
     final _result = create();
     if (blockId != null) {
       _result.blockId = blockId;
+    }
+    if (rowOrders != null) {
+      _result.rowOrders.addAll(rowOrders);
     }
     return _result;
   }
@@ -845,6 +850,9 @@ class GridBlockOrder extends $pb.GeneratedMessage {
   $core.bool hasBlockId() => $_has(0);
   @$pb.TagNumber(1)
   void clearBlockId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<RowOrder> get rowOrders => $_getList(1);
 }
 
 class GridBlock extends $pb.GeneratedMessage {

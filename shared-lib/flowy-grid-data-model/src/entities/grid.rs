@@ -260,11 +260,17 @@ impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
 pub struct GridBlockOrder {
     #[pb(index = 1)]
     pub block_id: String,
+
+    #[pb(index = 2)]
+    pub row_orders: Vec<RowOrder>,
 }
 
-impl std::convert::From<&str> for GridBlockOrder {
-    fn from(s: &str) -> Self {
-        GridBlockOrder { block_id: s.to_owned() }
+impl GridBlockOrder {
+    pub fn new(block_id: &str) -> Self {
+        GridBlockOrder {
+            block_id: block_id.to_owned(),
+            row_orders: vec![],
+        }
     }
 }
 
