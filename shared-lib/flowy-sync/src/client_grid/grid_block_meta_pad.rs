@@ -309,8 +309,8 @@ mod tests {
         let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         let _ = pad.add_row_meta(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
 
-        assert_eq!(*pad.rows[0], row_3);
-        assert_eq!(*pad.rows[1], row_1);
+        assert_eq!(*pad.rows[0], row_1);
+        assert_eq!(*pad.rows[1], row_3);
         assert_eq!(*pad.rows[2], row_2);
     }
 
@@ -325,9 +325,9 @@ mod tests {
         let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         let _ = pad.add_row_meta(row_3.clone(), Some("".to_string())).unwrap().unwrap();
 
-        assert_eq!(*pad.rows[0], row_3);
-        assert_eq!(*pad.rows[1], row_1);
-        assert_eq!(*pad.rows[2], row_2);
+        assert_eq!(*pad.rows[0], row_1);
+        assert_eq!(*pad.rows[1], row_2);
+        assert_eq!(*pad.rows[2], row_3);
     }
 
     #[test]
