@@ -118,6 +118,7 @@ impl TextBlockManager {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self, pool), err)]
     async fn make_text_block_editor(
         &self,
         block_id: &str,

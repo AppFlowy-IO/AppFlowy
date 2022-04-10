@@ -73,7 +73,7 @@ impl GridManager {
         self.get_or_create_grid_editor(grid_id).await
     }
 
-    #[tracing::instrument(level = "trace", skip_all, fields(grid_id), err)]
+    #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
     pub fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);

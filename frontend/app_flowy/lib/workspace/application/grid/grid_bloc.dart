@@ -13,16 +13,15 @@ import 'grid_service.dart';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  final View view;
   final GridService _gridService;
   final GridListener _gridListener;
   final GridFieldsListener _fieldListener;
 
-  GridBloc({required this.view})
+  GridBloc({required View view})
       : _fieldListener = GridFieldsListener(gridId: view.id),
-        _gridService = GridService(),
+        _gridService = GridService(gridId: view.id),
         _gridListener = GridListener(gridId: view.id),
-        super(GridState.initial()) {
+        super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
         await event.map(
@@ -31,7 +30,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             _startListening();
           },
           createRow: (_CreateRow value) {
-            _gridService.createRow(gridId: view.id);
+            _gridService.createRow();
           },
           updateDesc: (_Desc value) {},
           didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
@@ -47,6 +46,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   @override
   Future<void> close() async {
+    await _gridService.closeGrid();
     await _fieldListener.stop();
     await _gridListener.stop();
     return super.close();
@@ -86,7 +86,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadGrid(Emitter<GridState> emit) async {
-    final result = await _gridService.loadGrid(gridId: view.id);
+    final result = await _gridService.loadGrid();
     return Future(
       () => result.fold(
         (grid) async => await _loadFields(grid, emit),
@@ -96,7 +96,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await _gridService.getFields(gridId: grid.id, fieldOrders: grid.fieldOrders);
+    final result = await _gridService.getFields(fieldOrders: grid.fieldOrders);
     return Future(
       () => result.fold(
         (fields) {
@@ -162,17 +162,19 @@ class GridEvent with _$GridEvent {
 @freezed
 class GridState with _$GridState {
   const factory GridState({
+    required String gridId,
     required GridLoadingState loadingState,
     required List<Field> fields,
     required List<RowOrder> rows,
     required Option<Grid> grid,
   }) = _GridState;
 
-  factory GridState.initial() => GridState(
+  factory GridState.initial(String gridId) => GridState(
         loadingState: const _Loading(),
         fields: [],
         rows: [],
         grid: none(),
+        gridId: gridId,
       );
 }
 

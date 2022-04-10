@@ -65,7 +65,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _subscription?.cancel();
     }
 
-    service.closeDocument(docId: view.id);
+    await service.closeDocument(docId: view.id);
     return super.close();
   }
 

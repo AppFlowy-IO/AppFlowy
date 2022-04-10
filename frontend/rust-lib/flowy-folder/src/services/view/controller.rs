@@ -151,7 +151,7 @@ impl ViewController {
             }
         }
         let processor = self.get_data_processor_from_view_id(&params.value).await?;
-        let _ = processor.close_container(&params.value).await?;
+        let _ = processor.delete_container(&params.value).await?;
         Ok(())
     }
 
