@@ -1,5 +1,5 @@
 use crate::entities::{CellMeta, FieldMeta, RowMeta, RowMetaChangeset};
-use crate::parser::NotEmptyUuid;
+use crate::parser::NotEmptyStr;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 
@@ -118,8 +118,8 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
@@ -474,7 +474,7 @@ impl TryInto<CreateRowParams> for CreateRowPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(CreateRowParams {
             grid_id: grid_id.0,
             start_row_id: self.start_row_id,
@@ -509,12 +509,12 @@ impl TryInto<CreateFieldParams> for CreateFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let _ = NotEmptyUuid::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let _ = NotEmptyStr::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
         let start_field_id = match self.start_field_id {
             None => None,
-            Some(id) => Some(NotEmptyUuid::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
+            Some(id) => Some(NotEmptyStr::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
         Ok(CreateFieldParams {
@@ -544,7 +544,7 @@ impl TryInto<QueryFieldParams> for QueryFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryFieldParams {
             grid_id: grid_id.0,
             field_orders: self.field_orders,
@@ -570,7 +570,7 @@ impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryGridBlocksParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryGridBlocksParams {
             grid_id: grid_id.0,
             block_orders: self.block_orders,
@@ -633,8 +633,8 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
         if let Some(type_option_data) = self.type_option_data.as_ref() {
             if type_option_data.is_empty() {

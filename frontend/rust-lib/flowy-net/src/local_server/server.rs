@@ -17,6 +17,7 @@ use flowy_sync::{
 };
 use futures_util::stream::StreamExt;
 use lib_ws::{WSChannel, WebSocketRawMessage};
+use nanoid::nanoid;
 use parking_lot::RwLock;
 use std::{
     convert::{TryFrom, TryInto},
@@ -251,6 +252,8 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
+use flowy_folder_data_model::entities::app::gen_app_id;
+use flowy_folder_data_model::entities::workspace::gen_workspace_id;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
@@ -262,7 +265,7 @@ use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
-use lib_infra::{future::FutureResult, timestamp, uuid};
+use lib_infra::{future::FutureResult, timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
@@ -270,7 +273,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
         let time = timestamp();
         let workspace = Workspace {
-            id: uuid(),
+            id: gen_workspace_id(),
             name: params.name,
             desc: params.desc,
             apps: RepeatedApp::default(),
@@ -330,7 +333,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
         let time = timestamp();
         let app = App {
-            id: uuid(),
+            id: gen_app_id(),
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
@@ -372,7 +375,7 @@ impl FolderCouldServiceV1 for LocalServer {
 
 impl UserCloudService for LocalServer {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-        let uid = uuid();
+        let uid = nanoid!(10);
         FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
@@ -384,7 +387,7 @@ impl UserCloudService for LocalServer {
     }
 
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-        let user_id = uuid();
+        let user_id = nanoid!(10);
         FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),

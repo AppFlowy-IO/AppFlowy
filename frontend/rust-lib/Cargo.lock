@@ -919,6 +919,7 @@ dependencies = [
  "flowy-error-code",
  "lib-infra",
  "log",
+ "nanoid",
  "protobuf",
  "serde",
  "serde_json",
@@ -926,7 +927,6 @@ dependencies = [
  "strum",
  "strum_macros",
  "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]
@@ -951,6 +951,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
+ "nanoid",
  "protobuf",
  "rayon",
  "rust_decimal",
@@ -962,7 +963,6 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -974,13 +974,13 @@ dependencies = [
  "flowy-error-code",
  "indexmap",
  "lib-infra",
+ "nanoid",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
  "strum",
  "strum_macros",
- "uuid",
 ]
 
 [[package]]
@@ -1008,6 +1008,7 @@ dependencies = [
  "lib-infra",
  "lib-ws",
  "log",
+ "nanoid",
  "parking_lot",
  "protobuf",
  "reqwest",
@@ -1122,6 +1123,7 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "log",
+ "nanoid",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -1190,6 +1192,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "log",
+ "nanoid",
  "once_cell",
  "parking_lot",
  "protobuf",
@@ -1702,6 +1705,7 @@ dependencies = [
  "futures-util",
  "lazy_static",
  "log",
+ "nanoid",
  "paste",
  "pin-project",
  "protobuf",
@@ -1711,7 +1715,6 @@ dependencies = [
  "thread-id",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -1740,7 +1743,6 @@ dependencies = [
  "tera",
  "tokio",
  "toml",
- "uuid",
  "walkdir",
 ]
 
@@ -1963,6 +1965,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "nanoid"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ffa00dec017b5b1a8b7cf5e2c008bfda1aa7e0697ac1508b491fdf2622fb4d8"
+dependencies = [
+ "rand 0.8.4",
 ]
 
 [[package]]
@@ -3587,7 +3598,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom 0.2.3",
- "serde",
 ]
 
 [[package]]

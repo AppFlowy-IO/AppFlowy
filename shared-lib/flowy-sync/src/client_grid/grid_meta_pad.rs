@@ -3,10 +3,9 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset, GridMeta,
+    gen_field_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
+    GridBlockMetaChangeset, GridMeta,
 };
-
-use lib_infra::uuid;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 
@@ -89,7 +88,7 @@ impl GridMetaPad {
                 None => Ok(None),
                 Some(index) => {
                     let mut duplicate_field_meta = grid_meta.fields[index].clone();
-                    duplicate_field_meta.id = uuid();
+                    duplicate_field_meta.id = gen_field_id();
                     duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
                     grid_meta.fields.insert(index + 1, duplicate_field_meta);
                     Ok(Some(()))
@@ -374,7 +373,7 @@ pub fn make_grid_revisions(user_id: &str, grid_meta: &GridMeta) -> RepeatedRevis
 impl std::default::Default for GridMetaPad {
     fn default() -> Self {
         let grid = GridMeta {
-            grid_id: uuid(),
+            grid_id: gen_grid_id(),
             fields: vec![],
             blocks: vec![],
         };

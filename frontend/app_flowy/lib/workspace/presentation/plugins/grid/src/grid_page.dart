@@ -73,7 +73,7 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController();
-  // final _key = GlobalKey<SliverAnimatedListState>();
+  final _key = GlobalKey<SliverAnimatedListState>();
 
   @override
   void dispose() {

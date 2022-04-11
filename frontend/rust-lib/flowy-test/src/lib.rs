@@ -5,7 +5,7 @@ use crate::helper::*;
 use flowy_net::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
-use lib_infra::uuid;
+use nanoid::nanoid;
 
 pub mod prelude {
     pub use crate::{event_builder::*, helper::*, *};
@@ -36,7 +36,7 @@ impl std::default::Default for FlowySDKTest {
 
 impl FlowySDKTest {
     pub fn new(server_config: ClientServerConfiguration) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid()).log_filter("trace");
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &nanoid!(6)).log_filter("trace");
         let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }

@@ -22,6 +22,7 @@ use crate::{
     },
 };
 use futures_core::future::BoxFuture;
+use nanoid::nanoid;
 use std::sync::Arc;
 
 pub type ModuleMap = Arc<HashMap<Event, Arc<Module>>>;
@@ -118,7 +119,7 @@ impl ModuleRequest {
         E: Into<Event>,
     {
         Self {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: nanoid!(6),
             event: event.into(),
             payload: Payload::None,
         }

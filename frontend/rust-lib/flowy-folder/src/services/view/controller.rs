@@ -14,10 +14,9 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::view::ViewDataType;
+use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
 use flowy_sync::entities::text_block_info::TextBlockId;
 use futures::{FutureExt, StreamExt};
-use lib_infra::uuid;
 use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -171,7 +170,7 @@ impl ViewController {
             thumbnail: view.thumbnail,
             data_type: view.data_type,
             data: delta_bytes.to_vec(),
-            view_id: uuid(),
+            view_id: gen_view_id(),
             plugin_type: view.plugin_type,
         };
 

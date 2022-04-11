@@ -1,8 +1,7 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
-use lib_infra::uuid;
+use flowy_grid_data_model::entities::{gen_block_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -225,7 +224,7 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
         let block_meta_data = GridBlockMetaData {
-            block_id: uuid(),
+            block_id: gen_block_id(),
             rows: vec![],
         };
 

@@ -2,14 +2,14 @@ use crate::impl_type_option;
 use crate::services::cell::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
-use crate::services::util::*;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_grid_data_model::entities::{
     CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
-use flowy_grid_data_model::parser::NotEmptyUuid;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -260,7 +260,7 @@ pub struct SelectOption {
 impl SelectOption {
     pub fn new(name: &str) -> Self {
         SelectOption {
-            id: uuid(),
+            id: nanoid!(4),
             name: name.to_owned(),
             color: SelectOptionColor::default(),
         }
@@ -376,13 +376,13 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let insert_option_id = match self.insert_option_id {
             None => None,
             Some(insert_option_id) => Some(
-                NotEmptyUuid::parse(insert_option_id)
+                NotEmptyStr::parse(insert_option_id)
                     .map_err(|_| ErrorCode::OptionIdIsEmpty)?
                     .0,
             ),
@@ -391,7 +391,7 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
         let delete_option_id = match self.delete_option_id {
             None => None,
             Some(delete_option_id) => Some(
-                NotEmptyUuid::parse(delete_option_id)
+                NotEmptyStr::parse(delete_option_id)
                     .map_err(|_| ErrorCode::OptionIdIsEmpty)?
                     .0,
             ),

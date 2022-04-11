@@ -1,12 +1,28 @@
 use crate::entities::FieldType;
-
 use bytes::Bytes;
-
 use indexmap::IndexMap;
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 42;
+
+pub fn gen_grid_id() -> String {
+    // nanoid calculator https://zelark.github.io/nano-id-cc/
+    nanoid!(10)
+}
+
+pub fn gen_block_id() -> String {
+    nanoid!(10)
+}
+
+pub fn gen_row_id() -> String {
+    nanoid!(6)
+}
+
+pub fn gen_field_id() -> String {
+    nanoid!(6)
+}
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GridMeta {
@@ -35,7 +51,7 @@ impl GridBlockMeta {
 impl GridBlockMeta {
     pub fn new() -> Self {
         GridBlockMeta {
-            block_id: uuid::Uuid::new_v4().to_string(),
+            block_id: gen_block_id(),
             ..Default::default()
         }
     }
@@ -91,7 +107,7 @@ impl FieldMeta {
     pub fn new(name: &str, desc: &str, field_type: FieldType) -> Self {
         let width = field_type.default_cell_width();
         Self {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: gen_field_id(),
             name: name.to_string(),
             desc: desc.to_string(),
             field_type,
@@ -152,7 +168,7 @@ pub struct RowMeta {
 impl RowMeta {
     pub fn new(block_id: &str) -> Self {
         Self {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: gen_row_id(),
             block_id: block_id.to_owned(),
             cells: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
