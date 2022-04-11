@@ -41,7 +41,7 @@ impl DateTypeOption {
     }
 
     fn fmt_str(&self) -> String {
-        format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
+        format!("{}", self.date_format.format_str())
     }
 }
 
