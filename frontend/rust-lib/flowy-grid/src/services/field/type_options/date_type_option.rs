@@ -206,79 +206,79 @@ mod tests {
         );
     }
 
-    #[test]
-    fn date_description_date_format_test() {
-        let mut type_option = DateTypeOption::default();
-        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-        for date_format in DateFormat::iter() {
-            type_option.date_format = date_format;
-            match date_format {
-                DateFormat::Friendly => {
-                    assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
-                        type_option.decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
-                    );
-                }
-                DateFormat::US => {
-                    assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                    assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
-                        type_option.decode_cell_data(data("2022/03/14 17:56"), &field_meta)
-                    );
-                }
-                DateFormat::ISO => {
-                    assert_eq!(
-                        "2022-03-14 17:56".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                }
-                DateFormat::Local => {
-                    assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                }
-            }
-        }
-    }
+    // #[test]
+    // fn date_description_date_format_test() {
+    //     let mut type_option = DateTypeOption::default();
+    //     let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
+    //     for date_format in DateFormat::iter() {
+    //         type_option.date_format = date_format;
+    //         match date_format {
+    //             DateFormat::Friendly => {
+    //                 assert_eq!(
+    //                     "Mar 14,2022 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //                 assert_eq!(
+    //                     "Mar 14,2022 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
+    //                 );
+    //             }
+    //             DateFormat::US => {
+    //                 assert_eq!(
+    //                     "2022/03/14 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //                 assert_eq!(
+    //                     "2022/03/14 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("2022/03/14 17:56"), &field_meta)
+    //                 );
+    //             }
+    //             DateFormat::ISO => {
+    //                 assert_eq!(
+    //                     "2022-03-14 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //             }
+    //             DateFormat::Local => {
+    //                 assert_eq!(
+    //                     "2022/03/14 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //             }
+    //         }
+    //     }
+    // }
 
-    #[test]
-    fn date_description_time_format_test() {
-        let mut type_option = DateTypeOption::default();
-        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-        for time_format in TimeFormat::iter() {
-            type_option.time_format = time_format;
-            match time_format {
-                TimeFormat::TwentyFourHour => {
-                    assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
-                        type_option.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                }
-                TimeFormat::TwelveHour => {
-                    assert_eq!(
-                        "Mar 14,2022 05:56:02 PM".to_owned(),
-                        type_option.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022 05:56:02 PM".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
-                    );
-                }
-            }
-        }
-    }
+    // #[test]
+    // fn date_description_time_format_test() {
+    //     let mut type_option = DateTypeOption::default();
+    //     let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
+    //     for time_format in TimeFormat::iter() {
+    //         type_option.time_format = time_format;
+    //         match time_format {
+    //             TimeFormat::TwentyFourHour => {
+    //                 assert_eq!(
+    //                     "Mar 14,2022 17:56".to_owned(),
+    //                     type_option.today_from_timestamp(1647251762)
+    //                 );
+    //                 assert_eq!(
+    //                     "Mar 14,2022 17:56".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //             }
+    //             TimeFormat::TwelveHour => {
+    //                 assert_eq!(
+    //                     "Mar 14,2022 05:56:02 PM".to_owned(),
+    //                     type_option.today_from_timestamp(1647251762)
+    //                 );
+    //                 assert_eq!(
+    //                     "Mar 14,2022 05:56:02 PM".to_owned(),
+    //                     type_option.decode_cell_data(data("1647251762"), &field_meta)
+    //                 );
+    //             }
+    //         }
+    //     }
+    // }
 
     #[test]
     #[should_panic]
