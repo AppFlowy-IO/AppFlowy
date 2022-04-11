@@ -59,7 +59,11 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
       rowId: state.cellData.rowId,
     );
     result.fold(
-      (cell) => add(CheckboxCellEvent.didReceiveCellUpdate(cell)),
+      (cell) {
+        if (!isClosed) {
+          add(CheckboxCellEvent.didReceiveCellUpdate(cell));
+        }
+      },
       (err) => Log.error(err),
     );
   }

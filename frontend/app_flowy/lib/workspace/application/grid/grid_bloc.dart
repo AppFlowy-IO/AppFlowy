@@ -9,6 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'field/grid_listenr.dart';
 import 'grid_listener.dart';
 import 'grid_service.dart';
+import 'row/row_service.dart';
 
 part 'grid_bloc.freezed.dart';
 
@@ -32,12 +33,16 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: (_CreateRow value) {
             _gridService.createRow();
           },
-          updateDesc: (_Desc value) {},
           didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
-            emit(state.copyWith(rows: value.rows));
+            emit(state.copyWith(rows: value.rows, listState: value.listState));
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fields: value.fields));
+            final rows = state.rows.map((row) => row.copyWith(fields: value.fields)).toList();
+            emit(state.copyWith(
+              rows: rows,
+              fields: value.fields,
+              listState: const GridListState.reload(),
+            ));
           },
         );
       },
@@ -103,7 +108,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           emit(state.copyWith(
             grid: Some(grid),
             fields: fields.items,
-            rows: _buildRows(grid.blockOrders),
+            rows: _buildRows(grid.blockOrders, fields.items),
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -113,49 +118,65 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   void _deleteRows(List<RowOrder> deletedRows) {
-    final List<RowOrder> rows = List.from(state.rows);
-    rows.retainWhere(
-      (row) => deletedRows.where((deletedRow) => deletedRow.rowId == row.rowId).isEmpty,
-    );
+    final List<RowData> rows = [];
+    final List<Tuple2<int, RowData>> deletedIndex = [];
+    final Map<String, RowOrder> deletedRowMap = {for (var rowOrder in deletedRows) rowOrder.rowId: rowOrder};
+    state.rows.asMap().forEach((index, value) {
+      if (deletedRowMap[value.rowId] == null) {
+        rows.add(value);
+      } else {
+        deletedIndex.add(Tuple2(index, value));
+      }
+    });
 
-    add(GridEvent.didReceiveRowUpdate(rows));
+    add(GridEvent.didReceiveRowUpdate(rows, GridListState.delete(deletedIndex)));
   }
 
   void _insertRows(List<IndexRowOrder> createdRows) {
-    final List<RowOrder> rows = List.from(state.rows);
+    final List<RowData> rows = List.from(state.rows);
+    List<int> insertIndexs = [];
     for (final newRow in createdRows) {
       if (newRow.hasIndex()) {
-        rows.insert(newRow.index, newRow.rowOrder);
+        insertIndexs.add(newRow.index);
+        rows.insert(newRow.index, _toRowData(newRow.rowOrder));
       } else {
-        rows.add(newRow.rowOrder);
+        insertIndexs.add(rows.length);
+        rows.add(_toRowData(newRow.rowOrder));
       }
     }
-    add(GridEvent.didReceiveRowUpdate(rows));
+    add(GridEvent.didReceiveRowUpdate(rows, GridListState.insert(insertIndexs)));
   }
 
   void _updateRows(List<RowOrder> updatedRows) {
-    final List<RowOrder> rows = List.from(state.rows);
+    final List<RowData> rows = List.from(state.rows);
+    final List<int> updatedIndexs = [];
     for (final updatedRow in updatedRows) {
       final index = rows.indexWhere((row) => row.rowId == updatedRow.rowId);
       if (index != -1) {
         rows.removeAt(index);
-        rows.insert(index, updatedRow);
+        rows.insert(index, _toRowData(updatedRow));
+        updatedIndexs.add(index);
       }
     }
-    add(GridEvent.didReceiveRowUpdate(rows));
+    add(GridEvent.didReceiveRowUpdate(rows, const GridListState.reload()));
   }
 
-  List<RowOrder> _buildRows(List<GridBlockOrder> blockOrders) {
-    return blockOrders.expand((blockOrder) => blockOrder.rowOrders).toList();
+  List<RowData> _buildRows(List<GridBlockOrder> blockOrders, List<Field> fields) {
+    return blockOrders.expand((blockOrder) => blockOrder.rowOrders).map((rowOrder) {
+      return RowData.fromBlockRow(state.gridId, rowOrder, fields);
+    }).toList();
+  }
+
+  RowData _toRowData(RowOrder rowOrder) {
+    return RowData.fromBlockRow(state.gridId, rowOrder, state.fields);
   }
 }
 
 @freezed
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
-  const factory GridEvent.updateDesc(String gridId, String desc) = _Desc;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<RowOrder> rows) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<RowData> rows, GridListState listState) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
@@ -163,18 +184,20 @@ class GridEvent with _$GridEvent {
 class GridState with _$GridState {
   const factory GridState({
     required String gridId,
-    required GridLoadingState loadingState,
-    required List<Field> fields,
-    required List<RowOrder> rows,
     required Option<Grid> grid,
+    required List<Field> fields,
+    required List<RowData> rows,
+    required GridLoadingState loadingState,
+    required GridListState listState,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
-        loadingState: const _Loading(),
         fields: [],
         rows: [],
         grid: none(),
         gridId: gridId,
+        loadingState: const _Loading(),
+        listState: const _Reload(),
       );
 }
 
@@ -182,4 +205,11 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
+}
+
+@freezed
+class GridListState with _$GridListState {
+  const factory GridListState.insert(List<int> indexs) = _Insert;
+  const factory GridListState.delete(List<Tuple2<int, RowData>> indexs) = _Delete;
+  const factory GridListState.reload() = _Reload;
 }
