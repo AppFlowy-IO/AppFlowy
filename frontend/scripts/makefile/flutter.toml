@@ -117,7 +117,7 @@ linux_alias = "create-release-archive-linux"
 
 [tasks.create-release-archive-linux]
 script = [
-  "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release",
+  "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${APP_VERSION}/${TARGET_OS}/Release",
   "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
 ]
 
