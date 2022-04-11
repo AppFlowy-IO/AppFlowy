@@ -190,11 +190,10 @@ impl std::default::Default for TimeFormat {
 
 #[cfg(test)]
 mod tests {
+    use crate::services::field::DateTypeOption;
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::{CellDataOperation, TypeOptionCellData};
+    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::entities::FieldType;
-    use strum::IntoEnumIterator;
 
     #[test]
     fn date_description_invalid_input_test() {
@@ -287,7 +286,7 @@ mod tests {
         type_option.apply_changeset("he", None).unwrap();
     }
 
-    fn data(s: &str) -> String {
-        TypeOptionCellData::new(s, FieldType::DateTime).json()
-    }
+    // fn data(s: &str) -> String {
+    //     TypeOptionCellData::new(s, FieldType::DateTime).json()
+    // }
 }

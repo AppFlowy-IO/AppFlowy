@@ -65,10 +65,6 @@ impl CellDataOperation for RichTextTypeOption {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::field::FieldBuilder;
-    use crate::services::field::*;
-    use crate::services::row::{CellDataOperation, TypeOptionCellData};
-    use flowy_grid_data_model::entities::FieldType;
 
     // #[test]
     // fn text_description_test() {
