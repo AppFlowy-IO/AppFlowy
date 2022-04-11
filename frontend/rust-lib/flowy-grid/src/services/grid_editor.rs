@@ -293,13 +293,15 @@ impl ClientGridEditor {
         }
     }
 
-    pub async fn update_cell(&self, mut changeset: CellMetaChangeset) -> FlowyResult<()> {
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub async fn update_cell(&self, mut changeset: CellChangeset) -> FlowyResult<()> {
         if changeset.data.as_ref().is_none() {
             return Ok(());
         }
 
         let cell_data_changeset = changeset.data.unwrap();
         let cell_meta = self.get_cell_meta(&changeset.row_id, &changeset.field_id).await?;
+        tracing::trace!("{}: {:?}", &changeset.field_id, cell_meta);
         match self.pad.read().await.get_field(&changeset.field_id) {
             None => {
                 let msg = format!("Field not found with id: {}", &changeset.field_id);
@@ -431,7 +433,7 @@ impl ClientGridEditor {
 
         if let Some(field_meta) = field_metas.pop() {
             send_dart_notification(field_id, GridNotification::DidUpdateField)
-                .payload(field_meta)
+                .payload(Field::from(field_meta))
                 .send();
         }
 

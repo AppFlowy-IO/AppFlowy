@@ -16,7 +16,7 @@ serde_json = {version = "1.0"}
 serde_repr = "0.1"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 flowy-error-code = { path = "../flowy-error-code"}
-
+indexmap = {version = "1.8.1", features = ["serde"]}
 [build-dependencies]
 lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
 

@@ -946,6 +946,7 @@ dependencies = [
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "indexmap",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -971,6 +972,7 @@ dependencies = [
  "bytes",
  "flowy-derive",
  "flowy-error-code",
+ "indexmap",
  "lib-infra",
  "protobuf",
  "serde",
@@ -1611,12 +1613,13 @@ checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
 
 [[package]]
 name = "indexmap"
-version = "1.8.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "282a6247722caba404c065016bbfa522806e51714c34f5dfc3e4a3a46fcb4223"
+checksum = "0f647032dfaa1f8b6dc29bd3edb7bbef4861b8b8007ebb118d6db284fd59f6ee"
 dependencies = [
  "autocfg",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]

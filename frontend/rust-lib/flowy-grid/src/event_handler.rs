@@ -227,10 +227,10 @@ pub(crate) async fn get_cell_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn update_cell_handler(
-    data: Data<CellMetaChangeset>,
+    data: Data<CellChangeset>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let changeset: CellMetaChangeset = data.into_inner();
+    let changeset: CellChangeset = data.into_inner();
     let editor = manager.get_grid_editor(&changeset.grid_id)?;
     let _ = editor.update_cell(changeset).await?;
     Ok(())
@@ -271,7 +271,7 @@ pub(crate) async fn select_option_changeset_handler(
         field_meta.insert_type_option_entry(&*type_option);
         let _ = editor.replace_field(field_meta).await?;
 
-        let changeset = CellMetaChangeset {
+        let changeset = CellChangeset {
             grid_id: changeset.cell_identifier.grid_id,
             row_id: changeset.cell_identifier.row_id,
             field_id: changeset.cell_identifier.field_id,
@@ -310,7 +310,7 @@ pub(crate) async fn select_option_cell_changeset_handler(
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let changeset: CellMetaChangeset = params.into();
+    let changeset: CellChangeset = params.into();
     let _ = editor.update_cell(changeset).await?;
     Ok(())
 }

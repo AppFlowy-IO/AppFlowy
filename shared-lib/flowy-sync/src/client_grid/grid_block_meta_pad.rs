@@ -166,7 +166,7 @@ impl GridBlockMetaPad {
                         tracing::debug!("[GridBlockMeta] Composing delta {}", delta.to_delta_str());
                         tracing::debug!(
                             "[GridBlockMeta] current delta: {}",
-                            self.delta.to_str().unwrap_or("".to_string())
+                            self.delta.to_str().unwrap_or_else(|_| "".to_string())
                         );
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
@@ -255,7 +255,8 @@ mod tests {
             visibility: false,
         };
 
-        let change = pad.add_row_meta(row, None).unwrap().unwrap();
+        let change = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
+        assert_eq!(pad.rows.first().unwrap().as_ref(), &row);
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
@@ -384,7 +385,7 @@ mod tests {
 
         assert_eq!(
             pad.to_json().unwrap(),
-            r#"{"block_id":"1","rows":[{"id":"1","block_id":"1","cells":{},"height":100,"visibility":true}]}"#
+            r#"{"block_id":"1","rows":[{"id":"1","block_id":"1","cells":[],"height":100,"visibility":true}]}"#
         );
     }
 

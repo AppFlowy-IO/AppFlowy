@@ -3,8 +3,8 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellMetaChangeset, CreateFieldParams, Field, FieldChangesetParams, FieldMeta, FieldOrder,
-    FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
+    BuildGridContext, CellChangeset, CreateFieldParams, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType,
+    GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
 };
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
@@ -61,7 +61,7 @@ pub enum EditorScript {
         row_ids: Vec<String>,
     },
     UpdateCell {
-        changeset: CellMetaChangeset,
+        changeset: CellChangeset,
         is_err: bool,
     },
     AssertRowCount(usize),
@@ -86,7 +86,7 @@ impl GridEditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let build_context = make_template_1_grid();
-        let view_data: Bytes = build_context.try_into().unwrap();
+        let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_metas = editor.get_field_metas::<FieldOrder>(None).await.unwrap();

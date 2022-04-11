@@ -3,10 +3,7 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
     Cell, CellMeta, FieldMeta, GridBlock, GridBlockOrder, RepeatedGridBlock, Row, RowMeta, RowOrder,
 };
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
-
 use std::collections::HashMap;
-
 use std::sync::Arc;
 
 pub struct GridBlockSnapshot {
@@ -60,7 +57,7 @@ pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<Ro
         let cell_by_field_id = row_meta
             .cells
             .clone()
-            .into_par_iter()
+            .into_iter()
             .flat_map(|(field_id, cell_meta)| make_cell_by_field_id(&field_meta_map, field_id, cell_meta))
             .collect::<HashMap<String, Cell>>();
 

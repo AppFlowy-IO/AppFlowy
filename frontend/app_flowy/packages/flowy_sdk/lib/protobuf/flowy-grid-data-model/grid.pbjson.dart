@@ -8,6 +8,21 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use fieldTypeDescriptor instead')
+const FieldType$json = const {
+  '1': 'FieldType',
+  '2': const [
+    const {'1': 'RichText', '2': 0},
+    const {'1': 'Number', '2': 1},
+    const {'1': 'DateTime', '2': 2},
+    const {'1': 'SingleSelect', '2': 3},
+    const {'1': 'MultiSelect', '2': 4},
+    const {'1': 'Checkbox', '2': 5},
+  ],
+};
+
+/// Descriptor for `FieldType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWVsZFR5cGUSDAoIUmljaFRleHQQABIKCgZOdW1iZXIQARIMCghEYXRlVGltZRACEhAKDFNpbmdsZVNlbGVjdBADEg8KC011bHRpU2VsZWN0EAQSDAoIQ2hlY2tib3gQBQ==');
 @$core.Deprecated('Use gridDescriptor instead')
 const Grid$json = const {
   '1': 'Grid',
@@ -328,3 +343,46 @@ const QueryGridBlocksPayload$json = const {
 
 /// Descriptor for `QueryGridBlocksPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryGridBlocksPayloadDescriptor = $convert.base64Decode('ChZRdWVyeUdyaWRCbG9ja3NQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIyCgxibG9ja19vcmRlcnMYAiADKAsyDy5HcmlkQmxvY2tPcmRlclILYmxvY2tPcmRlcnM=');
+@$core.Deprecated('Use fieldChangesetPayloadDescriptor instead')
+const FieldChangesetPayload$json = const {
+  '1': 'FieldChangesetPayload',
+  '2': const [
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'grid_id', '3': 2, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'desc', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'desc'},
+    const {'1': 'field_type', '3': 5, '4': 1, '5': 14, '6': '.FieldType', '9': 2, '10': 'fieldType'},
+    const {'1': 'frozen', '3': 6, '4': 1, '5': 8, '9': 3, '10': 'frozen'},
+    const {'1': 'visibility', '3': 7, '4': 1, '5': 8, '9': 4, '10': 'visibility'},
+    const {'1': 'width', '3': 8, '4': 1, '5': 5, '9': 5, '10': 'width'},
+    const {'1': 'type_option_data', '3': 9, '4': 1, '5': 12, '9': 6, '10': 'typeOptionData'},
+  ],
+  '8': const [
+    const {'1': 'one_of_name'},
+    const {'1': 'one_of_desc'},
+    const {'1': 'one_of_field_type'},
+    const {'1': 'one_of_frozen'},
+    const {'1': 'one_of_visibility'},
+    const {'1': 'one_of_width'},
+    const {'1': 'one_of_type_option_data'},
+  ],
+};
+
+/// Descriptor for `FieldChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldChangesetPayloadDescriptor = $convert.base64Decode('ChVGaWVsZENoYW5nZXNldFBheWxvYWQSGQoIZmllbGRfaWQYASABKAlSB2ZpZWxkSWQSFwoHZ3JpZF9pZBgCIAEoCVIGZ3JpZElkEhQKBG5hbWUYAyABKAlIAFIEbmFtZRIUCgRkZXNjGAQgASgJSAFSBGRlc2MSKwoKZmllbGRfdHlwZRgFIAEoDjIKLkZpZWxkVHlwZUgCUglmaWVsZFR5cGUSGAoGZnJvemVuGAYgASgISANSBmZyb3plbhIgCgp2aXNpYmlsaXR5GAcgASgISARSCnZpc2liaWxpdHkSFgoFd2lkdGgYCCABKAVIBVIFd2lkdGgSKgoQdHlwZV9vcHRpb25fZGF0YRgJIAEoDEgGUg50eXBlT3B0aW9uRGF0YUINCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIZChdvbmVfb2ZfdHlwZV9vcHRpb25fZGF0YQ==');
+@$core.Deprecated('Use cellChangesetDescriptor instead')
+const CellChangeset$json = const {
+  '1': 'CellChangeset',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
+    const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'data', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'data'},
+  ],
+  '8': const [
+    const {'1': 'one_of_data'},
+  ],
+};
+
+/// Descriptor for `CellChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cellChangesetDescriptor = $convert.base64Decode('Cg1DZWxsQ2hhbmdlc2V0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhQKBGRhdGEYBCABKAlIAFIEZGF0YUINCgtvbmVfb2ZfZGF0YQ==');

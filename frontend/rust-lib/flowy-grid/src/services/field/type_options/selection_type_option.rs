@@ -7,7 +7,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_grid_data_model::entities::{
-    CellMeta, CellMetaChangeset, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
+    CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 use flowy_grid_data_model::parser::NotEmptyUuid;
 use serde::{Deserialize, Serialize};
@@ -356,14 +356,14 @@ impl SelectOptionCellChangeset {
     }
 }
 
-impl std::convert::From<SelectOptionCellChangesetParams> for CellMetaChangeset {
+impl std::convert::From<SelectOptionCellChangesetParams> for CellChangeset {
     fn from(params: SelectOptionCellChangesetParams) -> Self {
         let changeset = SelectOptionCellChangeset {
             insert_option_id: params.insert_option_id,
             delete_option_id: params.delete_option_id,
         };
         let s = serde_json::to_string(&changeset).unwrap();
-        CellMetaChangeset {
+        CellChangeset {
             grid_id: params.grid_id,
             row_id: params.row_id,
             field_id: params.field_id,

@@ -1,5 +1,4 @@
 syntax = "proto3";
-import "meta.proto";
 
 message Grid {
     string id = 1;
@@ -112,4 +111,29 @@ message QueryFieldPayload {
 message QueryGridBlocksPayload {
     string grid_id = 1;
     repeated GridBlockOrder block_orders = 2;
+}
+message FieldChangesetPayload {
+    string field_id = 1;
+    string grid_id = 2;
+    oneof one_of_name { string name = 3; };
+    oneof one_of_desc { string desc = 4; };
+    oneof one_of_field_type { FieldType field_type = 5; };
+    oneof one_of_frozen { bool frozen = 6; };
+    oneof one_of_visibility { bool visibility = 7; };
+    oneof one_of_width { int32 width = 8; };
+    oneof one_of_type_option_data { bytes type_option_data = 9; };
+}
+message CellChangeset {
+    string grid_id = 1;
+    string row_id = 2;
+    string field_id = 3;
+    oneof one_of_data { string data = 4; };
+}
+enum FieldType {
+    RichText = 0;
+    Number = 1;
+    DateTime = 2;
+    SingleSelect = 3;
+    MultiSelect = 4;
+    Checkbox = 5;
 }

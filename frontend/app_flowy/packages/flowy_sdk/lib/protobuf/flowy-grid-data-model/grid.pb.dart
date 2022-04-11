@@ -9,7 +9,9 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'meta.pbenum.dart' as $0;
+import 'grid.pbenum.dart';
+
+export 'grid.pbenum.dart';
 
 class Grid extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Grid', createEmptyInstance: create)
@@ -79,7 +81,7 @@ class Field extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<$0.FieldType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
+    ..e<FieldType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
@@ -91,7 +93,7 @@ class Field extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? desc,
-    $0.FieldType? fieldType,
+    FieldType? fieldType,
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
@@ -169,9 +171,9 @@ class Field extends $pb.GeneratedMessage {
   void clearDesc() => clearField(3);
 
   @$pb.TagNumber(4)
-  $0.FieldType get fieldType => $_getN(3);
+  FieldType get fieldType => $_getN(3);
   @$pb.TagNumber(4)
-  set fieldType($0.FieldType v) { setField(4, v); }
+  set fieldType(FieldType v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasFieldType() => $_has(3);
   @$pb.TagNumber(4)
@@ -266,7 +268,7 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
     ..oo(0, [2])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..e<$0.FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
+    ..e<FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
     ..hasRequiredFields = false
   ;
 
@@ -274,7 +276,7 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
   factory GetEditFieldContextPayload({
     $core.String? gridId,
     $core.String? fieldId,
-    $0.FieldType? fieldType,
+    FieldType? fieldType,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -331,9 +333,9 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $0.FieldType get fieldType => $_getN(2);
+  FieldType get fieldType => $_getN(2);
   @$pb.TagNumber(3)
-  set fieldType($0.FieldType v) { setField(3, v); }
+  set fieldType(FieldType v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasFieldType() => $_has(2);
   @$pb.TagNumber(3)
@@ -344,7 +346,7 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditFieldPayload', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..e<$0.FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: $0.FieldType.RichText, valueOf: $0.FieldType.valueOf, enumValues: $0.FieldType.values)
+    ..e<FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
     ..hasRequiredFields = false
   ;
 
@@ -352,7 +354,7 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   factory EditFieldPayload({
     $core.String? gridId,
     $core.String? fieldId,
-    $0.FieldType? fieldType,
+    FieldType? fieldType,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -406,9 +408,9 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $0.FieldType get fieldType => $_getN(2);
+  FieldType get fieldType => $_getN(2);
   @$pb.TagNumber(3)
-  set fieldType($0.FieldType v) { setField(3, v); }
+  set fieldType(FieldType v) { setField(3, v); }
   @$pb.TagNumber(3)
   $core.bool hasFieldType() => $_has(2);
   @$pb.TagNumber(3)
@@ -1696,5 +1698,357 @@ class QueryGridBlocksPayload extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(2)
   $core.List<GridBlockOrder> get blockOrders => $_getList(1);
+}
+
+enum FieldChangesetPayload_OneOfName {
+  name, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfDesc {
+  desc, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfFieldType {
+  fieldType, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfFrozen {
+  frozen, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfVisibility {
+  visibility, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfWidth {
+  width, 
+  notSet
+}
+
+enum FieldChangesetPayload_OneOfTypeOptionData {
+  typeOptionData, 
+  notSet
+}
+
+class FieldChangesetPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfName> _FieldChangesetPayload_OneOfNameByTag = {
+    3 : FieldChangesetPayload_OneOfName.name,
+    0 : FieldChangesetPayload_OneOfName.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfDesc> _FieldChangesetPayload_OneOfDescByTag = {
+    4 : FieldChangesetPayload_OneOfDesc.desc,
+    0 : FieldChangesetPayload_OneOfDesc.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfFieldType> _FieldChangesetPayload_OneOfFieldTypeByTag = {
+    5 : FieldChangesetPayload_OneOfFieldType.fieldType,
+    0 : FieldChangesetPayload_OneOfFieldType.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfFrozen> _FieldChangesetPayload_OneOfFrozenByTag = {
+    6 : FieldChangesetPayload_OneOfFrozen.frozen,
+    0 : FieldChangesetPayload_OneOfFrozen.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfVisibility> _FieldChangesetPayload_OneOfVisibilityByTag = {
+    7 : FieldChangesetPayload_OneOfVisibility.visibility,
+    0 : FieldChangesetPayload_OneOfVisibility.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfWidth> _FieldChangesetPayload_OneOfWidthByTag = {
+    8 : FieldChangesetPayload_OneOfWidth.width,
+    0 : FieldChangesetPayload_OneOfWidth.notSet
+  };
+  static const $core.Map<$core.int, FieldChangesetPayload_OneOfTypeOptionData> _FieldChangesetPayload_OneOfTypeOptionDataByTag = {
+    9 : FieldChangesetPayload_OneOfTypeOptionData.typeOptionData,
+    0 : FieldChangesetPayload_OneOfTypeOptionData.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldChangesetPayload', createEmptyInstance: create)
+    ..oo(0, [3])
+    ..oo(1, [4])
+    ..oo(2, [5])
+    ..oo(3, [6])
+    ..oo(4, [7])
+    ..oo(5, [8])
+    ..oo(6, [9])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..e<FieldType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
+    ..aOB(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
+    ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
+    ..a<$core.List<$core.int>>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  FieldChangesetPayload._() : super();
+  factory FieldChangesetPayload({
+    $core.String? fieldId,
+    $core.String? gridId,
+    $core.String? name,
+    $core.String? desc,
+    FieldType? fieldType,
+    $core.bool? frozen,
+    $core.bool? visibility,
+    $core.int? width,
+    $core.List<$core.int>? typeOptionData,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (name != null) {
+      _result.name = name;
+    }
+    if (desc != null) {
+      _result.desc = desc;
+    }
+    if (fieldType != null) {
+      _result.fieldType = fieldType;
+    }
+    if (frozen != null) {
+      _result.frozen = frozen;
+    }
+    if (visibility != null) {
+      _result.visibility = visibility;
+    }
+    if (width != null) {
+      _result.width = width;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    return _result;
+  }
+  factory FieldChangesetPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldChangesetPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldChangesetPayload clone() => FieldChangesetPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldChangesetPayload copyWith(void Function(FieldChangesetPayload) updates) => super.copyWith((message) => updates(message as FieldChangesetPayload)) as FieldChangesetPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldChangesetPayload create() => FieldChangesetPayload._();
+  FieldChangesetPayload createEmptyInstance() => create();
+  static $pb.PbList<FieldChangesetPayload> createRepeated() => $pb.PbList<FieldChangesetPayload>();
+  @$core.pragma('dart2js:noInline')
+  static FieldChangesetPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldChangesetPayload>(create);
+  static FieldChangesetPayload? _defaultInstance;
+
+  FieldChangesetPayload_OneOfName whichOneOfName() => _FieldChangesetPayload_OneOfNameByTag[$_whichOneof(0)]!;
+  void clearOneOfName() => clearField($_whichOneof(0));
+
+  FieldChangesetPayload_OneOfDesc whichOneOfDesc() => _FieldChangesetPayload_OneOfDescByTag[$_whichOneof(1)]!;
+  void clearOneOfDesc() => clearField($_whichOneof(1));
+
+  FieldChangesetPayload_OneOfFieldType whichOneOfFieldType() => _FieldChangesetPayload_OneOfFieldTypeByTag[$_whichOneof(2)]!;
+  void clearOneOfFieldType() => clearField($_whichOneof(2));
+
+  FieldChangesetPayload_OneOfFrozen whichOneOfFrozen() => _FieldChangesetPayload_OneOfFrozenByTag[$_whichOneof(3)]!;
+  void clearOneOfFrozen() => clearField($_whichOneof(3));
+
+  FieldChangesetPayload_OneOfVisibility whichOneOfVisibility() => _FieldChangesetPayload_OneOfVisibilityByTag[$_whichOneof(4)]!;
+  void clearOneOfVisibility() => clearField($_whichOneof(4));
+
+  FieldChangesetPayload_OneOfWidth whichOneOfWidth() => _FieldChangesetPayload_OneOfWidthByTag[$_whichOneof(5)]!;
+  void clearOneOfWidth() => clearField($_whichOneof(5));
+
+  FieldChangesetPayload_OneOfTypeOptionData whichOneOfTypeOptionData() => _FieldChangesetPayload_OneOfTypeOptionDataByTag[$_whichOneof(6)]!;
+  void clearOneOfTypeOptionData() => clearField($_whichOneof(6));
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get gridId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set gridId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGridId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGridId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get name => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set name($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get desc => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set desc($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDesc() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDesc() => clearField(4);
+
+  @$pb.TagNumber(5)
+  FieldType get fieldType => $_getN(4);
+  @$pb.TagNumber(5)
+  set fieldType(FieldType v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasFieldType() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFieldType() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.bool get frozen => $_getBF(5);
+  @$pb.TagNumber(6)
+  set frozen($core.bool v) { $_setBool(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasFrozen() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearFrozen() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.bool get visibility => $_getBF(6);
+  @$pb.TagNumber(7)
+  set visibility($core.bool v) { $_setBool(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasVisibility() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearVisibility() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get width => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set width($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasWidth() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearWidth() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.List<$core.int> get typeOptionData => $_getN(8);
+  @$pb.TagNumber(9)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasTypeOptionData() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearTypeOptionData() => clearField(9);
+}
+
+enum CellChangeset_OneOfData {
+  data, 
+  notSet
+}
+
+class CellChangeset extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CellChangeset_OneOfData> _CellChangeset_OneOfDataByTag = {
+    4 : CellChangeset_OneOfData.data,
+    0 : CellChangeset_OneOfData.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellChangeset', createEmptyInstance: create)
+    ..oo(0, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..hasRequiredFields = false
+  ;
+
+  CellChangeset._() : super();
+  factory CellChangeset({
+    $core.String? gridId,
+    $core.String? rowId,
+    $core.String? fieldId,
+    $core.String? data,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (rowId != null) {
+      _result.rowId = rowId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (data != null) {
+      _result.data = data;
+    }
+    return _result;
+  }
+  factory CellChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CellChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CellChangeset clone() => CellChangeset()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CellChangeset copyWith(void Function(CellChangeset) updates) => super.copyWith((message) => updates(message as CellChangeset)) as CellChangeset; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CellChangeset create() => CellChangeset._();
+  CellChangeset createEmptyInstance() => create();
+  static $pb.PbList<CellChangeset> createRepeated() => $pb.PbList<CellChangeset>();
+  @$core.pragma('dart2js:noInline')
+  static CellChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellChangeset>(create);
+  static CellChangeset? _defaultInstance;
+
+  CellChangeset_OneOfData whichOneOfData() => _CellChangeset_OneOfDataByTag[$_whichOneof(0)]!;
+  void clearOneOfData() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get rowId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set rowId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRowId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRowId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get fieldId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set fieldId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFieldId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFieldId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get data => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set data($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasData() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearData() => clearField(4);
 }
 

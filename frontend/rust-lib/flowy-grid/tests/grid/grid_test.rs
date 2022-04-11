@@ -6,7 +6,7 @@ use flowy_grid::services::field::{
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    CellChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
     TypeOptionDataEntry,
 };
 
@@ -324,7 +324,7 @@ async fn grid_cell_update() {
                 };
 
                 scripts.push(UpdateCell {
-                    changeset: CellMetaChangeset {
+                    changeset: CellChangeset {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
@@ -345,7 +345,7 @@ async fn grid_cell_update() {
                 };
 
                 scripts.push(UpdateCell {
-                    changeset: CellMetaChangeset {
+                    changeset: CellChangeset {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),

@@ -291,7 +291,7 @@ class GridEventGetCell {
 }
 
 class GridEventUpdateCell {
-     CellMetaChangeset request;
+     CellChangeset request;
      GridEventUpdateCell(this.request);
 
     Future<Either<Unit, FlowyError>> send() {

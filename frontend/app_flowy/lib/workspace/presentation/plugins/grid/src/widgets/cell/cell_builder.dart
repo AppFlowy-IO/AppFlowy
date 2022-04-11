@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/meta.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
 import 'date_cell.dart';

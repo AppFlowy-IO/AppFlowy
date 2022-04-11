@@ -3,6 +3,7 @@ use crate::services::row::apply_cell_data_changeset;
 use crate::services::field::SelectOptionCellChangeset;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
+use indexmap::IndexMap;
 use std::collections::HashMap;
 
 pub struct CreateRowMetaBuilder<'a> {
@@ -90,7 +91,7 @@ pub fn make_row_meta_from_context(block_id: &str, payload: CreateRowMetaPayload)
 
 pub struct CreateRowMetaPayload {
     pub row_id: String,
-    pub cell_by_field_id: HashMap<String, CellMeta>,
+    pub cell_by_field_id: IndexMap<String, CellMeta>,
     pub height: i32,
     pub visibility: bool,
 }

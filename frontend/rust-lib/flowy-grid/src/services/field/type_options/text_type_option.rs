@@ -40,7 +40,7 @@ impl CellDataOperation for RichTextTypeOption {
                 || type_option_cell_data.is_multi_select()
                 || type_option_cell_data.is_number()
             {
-                decode_cell_data(data, &field_meta, &type_option_cell_data.field_type).unwrap_or_else(|| "".to_owned())
+                decode_cell_data(data, field_meta, &type_option_cell_data.field_type).unwrap_or_else(|| "".to_owned())
             } else {
                 type_option_cell_data.data
             }
