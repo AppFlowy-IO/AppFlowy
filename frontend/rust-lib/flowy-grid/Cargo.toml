@@ -25,7 +25,7 @@ rust_decimal = "1.8.1"
 rusty-money = {version = "0.4.0", features = ["iso"]}
 lazy_static = "1.4.0"
 chrono = "0.4.19"
-uuid = { version = "0.8", features = ["serde", "v4"] }
+nanoid = "0.4.0"
 bytes = { version = "1.0" }
 diesel = {version = "1.4.8", features = ["sqlite"]}
 dashmap = "4.0"
@@ -34,6 +34,7 @@ rayon = "1.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
+indexmap = {version = "1.8.1", features = ["serde"]}
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

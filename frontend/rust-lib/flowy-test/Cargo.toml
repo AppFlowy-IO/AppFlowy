@@ -26,6 +26,7 @@ futures-util = "0.3.15"
 thread-id = "3.3.0"
 log = "0.4"
 bytes = "1.0"
+nanoid = "0.4.0"
 
 [dev-dependencies]
 quickcheck = "0.9.2"

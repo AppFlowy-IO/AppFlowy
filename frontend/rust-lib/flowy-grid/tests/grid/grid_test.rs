@@ -6,7 +6,7 @@ use flowy_grid::services::field::{
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
-    CellMetaChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    CellChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
     TypeOptionDataEntry,
 };
 
@@ -287,7 +287,7 @@ async fn grid_row_add_date_cell_test() {
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        decode_cell_data(cell_data.data.clone(), &date_field).unwrap(),
+        decode_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type).unwrap(),
         "2022/03/16 08:31",
     );
     let scripts = vec![CreateRow { context }];
@@ -324,7 +324,7 @@ async fn grid_cell_update() {
                 };
 
                 scripts.push(UpdateCell {
-                    changeset: CellMetaChangeset {
+                    changeset: CellChangeset {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
@@ -345,7 +345,7 @@ async fn grid_cell_update() {
                 };
 
                 scripts.push(UpdateCell {
-                    changeset: CellMetaChangeset {
+                    changeset: CellChangeset {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),

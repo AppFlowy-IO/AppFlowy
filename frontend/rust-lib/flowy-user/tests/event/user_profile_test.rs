@@ -2,7 +2,8 @@ use crate::helper::*;
 use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
 use flowy_user_data_model::entities::{UpdateUserPayload, UserProfile};
-use lib_infra::uuid;
+use nanoid::nanoid;
+
 // use serial_test::*;
 
 #[tokio::test]
@@ -51,7 +52,7 @@ async fn user_update_with_name() {
 async fn user_update_with_email() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
-    let new_email = format!("{}@gmail.com", uuid());
+    let new_email = format!("{}@gmail.com", nanoid!(6));
     let request = UpdateUserPayload::new(&user.id).email(&new_email);
     let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)

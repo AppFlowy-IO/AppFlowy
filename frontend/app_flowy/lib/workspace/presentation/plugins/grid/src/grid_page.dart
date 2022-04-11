@@ -73,7 +73,7 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController();
-  // final _key = GlobalKey<SliverAnimatedListState>();
+  final _key = GlobalKey<SliverAnimatedListState>();
 
   @override
   void dispose() {
@@ -83,8 +83,6 @@ class _FlowyGridState extends State<FlowyGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final gridId = context.read<GridBloc>().view.id;
-
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
@@ -103,9 +101,9 @@ class _FlowyGridState extends State<FlowyGrid> {
                   physics: StyledScrollPhysics(),
                   controller: _scrollController.verticalController,
                   slivers: [
-                    _renderToolbar(gridId),
-                    GridHeader(gridId: gridId, fields: List.from(state.fields)),
-                    _renderRows(gridId: gridId, context: context),
+                    _renderToolbar(state.gridId),
+                    GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
+                    _renderRows(gridId: state.gridId, context: context),
                     const GridFooter(),
                   ],
                 ),

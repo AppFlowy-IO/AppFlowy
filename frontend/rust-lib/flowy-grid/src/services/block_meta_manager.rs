@@ -8,7 +8,7 @@ use std::borrow::Cow;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    CellMeta, CellMetaChangeset, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset,
+    CellChangeset, CellMeta, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset,
     GridBlockOrderChangeset, IndexRowOrder, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
@@ -154,7 +154,7 @@ impl GridBlockMetaEditorManager {
         Ok(changesets)
     }
 
-    pub async fn update_cell(&self, changeset: CellMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
         let editor = self.get_editor_from_row_id(&row_id).await?;
         let row_changeset: RowMetaChangeset = changeset.clone().into();

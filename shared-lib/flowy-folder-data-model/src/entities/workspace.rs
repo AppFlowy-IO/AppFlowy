@@ -5,9 +5,13 @@ use crate::{
     parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
 };
 use flowy_derive::ProtoBuf;
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
+pub fn gen_workspace_id() -> String {
+    nanoid!(10)
+}
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Workspace {
     #[pb(index = 1)]

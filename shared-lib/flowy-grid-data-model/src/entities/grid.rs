@@ -1,9 +1,12 @@
-use crate::entities::{FieldMeta, FieldType, RowMeta};
-use crate::parser::NotEmptyUuid;
-use flowy_derive::ProtoBuf;
+use crate::entities::{CellMeta, FieldMeta, RowMeta, RowMetaChangeset};
+use crate::parser::NotEmptyStr;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
+
+use serde_repr::*;
 use std::collections::HashMap;
 use std::sync::Arc;
+use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Grid {
@@ -115,8 +118,8 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyUuid::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
@@ -471,7 +474,7 @@ impl TryInto<CreateRowParams> for CreateRowPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(CreateRowParams {
             grid_id: grid_id.0,
             start_row_id: self.start_row_id,
@@ -506,12 +509,12 @@ impl TryInto<CreateFieldParams> for CreateFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let _ = NotEmptyUuid::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let _ = NotEmptyStr::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
         let start_field_id = match self.start_field_id {
             None => None,
-            Some(id) => Some(NotEmptyUuid::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
+            Some(id) => Some(NotEmptyStr::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
         Ok(CreateFieldParams {
@@ -541,7 +544,7 @@ impl TryInto<QueryFieldParams> for QueryFieldPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryFieldParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryFieldParams {
             grid_id: grid_id.0,
             field_orders: self.field_orders,
@@ -567,10 +570,176 @@ impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryGridBlocksParams, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryGridBlocksParams {
             grid_id: grid_id.0,
             block_orders: self.block_orders,
         })
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldChangesetPayload {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub grid_id: String,
+
+    #[pb(index = 3, one_of)]
+    pub name: Option<String>,
+
+    #[pb(index = 4, one_of)]
+    pub desc: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub field_type: Option<FieldType>,
+
+    #[pb(index = 6, one_of)]
+    pub frozen: Option<bool>,
+
+    #[pb(index = 7, one_of)]
+    pub visibility: Option<bool>,
+
+    #[pb(index = 8, one_of)]
+    pub width: Option<i32>,
+
+    #[pb(index = 9, one_of)]
+    pub type_option_data: Option<Vec<u8>>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct FieldChangesetParams {
+    pub field_id: String,
+
+    pub grid_id: String,
+
+    pub name: Option<String>,
+
+    pub desc: Option<String>,
+
+    pub field_type: Option<FieldType>,
+
+    pub frozen: Option<bool>,
+
+    pub visibility: Option<bool>,
+
+    pub width: Option<i32>,
+
+    pub type_option_data: Option<Vec<u8>>,
+}
+
+impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+
+        if let Some(type_option_data) = self.type_option_data.as_ref() {
+            if type_option_data.is_empty() {
+                return Err(ErrorCode::TypeOptionDataIsEmpty);
+            }
+        }
+
+        Ok(FieldChangesetParams {
+            field_id: field_id.0,
+            grid_id: grid_id.0,
+            name: self.name,
+            desc: self.desc,
+            field_type: self.field_type,
+            frozen: self.frozen,
+            visibility: self.visibility,
+            width: self.width,
+            type_option_data: self.type_option_data,
+        })
+    }
+}
+
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    ProtoBuf_Enum,
+    EnumCountMacro,
+    EnumString,
+    EnumIter,
+    Display,
+    Serialize_repr,
+    Deserialize_repr,
+)]
+#[repr(u8)]
+pub enum FieldType {
+    RichText = 0,
+    Number = 1,
+    DateTime = 2,
+    SingleSelect = 3,
+    MultiSelect = 4,
+    Checkbox = 5,
+}
+
+impl std::default::Default for FieldType {
+    fn default() -> Self {
+        FieldType::RichText
+    }
+}
+
+impl AsRef<FieldType> for FieldType {
+    fn as_ref(&self) -> &FieldType {
+        self
+    }
+}
+
+impl From<&FieldType> for FieldType {
+    fn from(field_type: &FieldType) -> Self {
+        field_type.clone()
+    }
+}
+
+impl FieldType {
+    pub fn type_id(&self) -> String {
+        let ty = self.clone();
+        format!("{}", ty as u8)
+    }
+
+    pub fn default_cell_width(&self) -> i32 {
+        match self {
+            FieldType::DateTime => 180,
+            _ => 150,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct CellChangeset {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
+    pub field_id: String,
+
+    #[pb(index = 4, one_of)]
+    pub data: Option<String>,
+}
+
+impl std::convert::From<CellChangeset> for RowMetaChangeset {
+    fn from(changeset: CellChangeset) -> Self {
+        let mut cell_by_field_id = HashMap::with_capacity(1);
+        let field_id = changeset.field_id;
+        let cell_meta = CellMeta {
+            data: changeset.data.unwrap_or_else(|| "".to_owned()),
+        };
+        cell_by_field_id.insert(field_id, cell_meta);
+
+        RowMetaChangeset {
+            row_id: changeset.row_id,
+            height: None,
+            visibility: None,
+            cell_by_field_id,
+        }
     }
 }

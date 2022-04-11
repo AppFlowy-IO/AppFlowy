@@ -14,7 +14,7 @@ use flowy_folder::{
 };
 use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::util::make_default_grid;
-use flowy_grid_data_model::entities::BuildGridContext;
+
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -25,6 +25,8 @@ use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;
+
+use flowy_grid_data_model::entities::BuildGridContext;
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 

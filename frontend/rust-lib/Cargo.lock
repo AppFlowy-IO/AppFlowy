@@ -919,6 +919,7 @@ dependencies = [
  "flowy-error-code",
  "lib-infra",
  "log",
+ "nanoid",
  "protobuf",
  "serde",
  "serde_json",
@@ -926,7 +927,6 @@ dependencies = [
  "strum",
  "strum_macros",
  "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]
@@ -946,10 +946,12 @@ dependencies = [
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "indexmap",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
+ "nanoid",
  "protobuf",
  "rayon",
  "rust_decimal",
@@ -961,7 +963,6 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -971,14 +972,15 @@ dependencies = [
  "bytes",
  "flowy-derive",
  "flowy-error-code",
+ "indexmap",
  "lib-infra",
+ "nanoid",
  "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
  "strum",
  "strum_macros",
- "uuid",
 ]
 
 [[package]]
@@ -1006,6 +1008,7 @@ dependencies = [
  "lib-infra",
  "lib-ws",
  "log",
+ "nanoid",
  "parking_lot",
  "protobuf",
  "reqwest",
@@ -1120,6 +1123,7 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "log",
+ "nanoid",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -1188,6 +1192,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "log",
+ "nanoid",
  "once_cell",
  "parking_lot",
  "protobuf",
@@ -1611,12 +1616,13 @@ checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
 
 [[package]]
 name = "indexmap"
-version = "1.8.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "282a6247722caba404c065016bbfa522806e51714c34f5dfc3e4a3a46fcb4223"
+checksum = "0f647032dfaa1f8b6dc29bd3edb7bbef4861b8b8007ebb118d6db284fd59f6ee"
 dependencies = [
  "autocfg",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -1699,6 +1705,7 @@ dependencies = [
  "futures-util",
  "lazy_static",
  "log",
+ "nanoid",
  "paste",
  "pin-project",
  "protobuf",
@@ -1708,7 +1715,6 @@ dependencies = [
  "thread-id",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -1737,7 +1743,6 @@ dependencies = [
  "tera",
  "tokio",
  "toml",
- "uuid",
  "walkdir",
 ]
 
@@ -1960,6 +1965,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "nanoid"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ffa00dec017b5b1a8b7cf5e2c008bfda1aa7e0697ac1508b491fdf2622fb4d8"
+dependencies = [
+ "rand 0.8.4",
 ]
 
 [[package]]
@@ -3584,7 +3598,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom 0.2.3",
- "serde",
 ]
 
 [[package]]

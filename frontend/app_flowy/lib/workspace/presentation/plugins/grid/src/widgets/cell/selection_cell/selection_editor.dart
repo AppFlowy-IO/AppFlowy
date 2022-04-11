@@ -28,11 +28,13 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final CellData cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
+  final VoidCallback onDismissed;
 
   const SelectOptionCellEditor({
     required this.cellData,
     required this.options,
     required this.selectedOptions,
+    required this.onDismissed,
     Key? key,
   }) : super(key: key);
 
@@ -67,12 +69,14 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
     CellData cellData,
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
+    VoidCallback onDismissed,
   ) {
     SelectOptionCellEditor.remove(context);
     final editor = SelectOptionCellEditor(
       cellData: cellData,
       options: options,
       selectedOptions: selectedOptions,
+      onDismissed: onDismissed,
     );
 
     //
@@ -98,6 +102,9 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   @override
   bool asBarrier() => true;
+
+  @override
+  void didRemove() => onDismissed();
 }
 
 class _OptionList extends StatelessWidget {

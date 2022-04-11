@@ -46,7 +46,7 @@ class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeaderWidget(gridId: gridId, fields: fields);
+    return _GridHeaderWidget(gridId: gridId, fields: fields, key: ObjectKey(fields));
   }
 
   @override

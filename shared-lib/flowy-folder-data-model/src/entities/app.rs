@@ -8,9 +8,13 @@ use crate::{
     },
 };
 use flowy_derive::ProtoBuf;
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
+pub fn gen_app_id() -> String {
+    nanoid!(10)
+}
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct App {
     #[pb(index = 1)]

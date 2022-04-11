@@ -1,7 +1,7 @@
 use crate::services::field::type_options::*;
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{Field, FieldMeta, FieldType, TypeOptionDataEntry};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub struct FieldBuilder {
     field_meta: FieldMeta,
@@ -34,7 +34,7 @@ impl FieldBuilder {
             frozen: field.frozen,
             visibility: field.visibility,
             width: field.width,
-            type_options: HashMap::default(),
+            type_options: IndexMap::default(),
         };
         Self {
             field_meta,

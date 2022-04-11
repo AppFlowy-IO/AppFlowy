@@ -1,8 +1,7 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
-use lib_infra::uuid;
+use flowy_grid_data_model::entities::{gen_block_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -163,7 +162,11 @@ impl GridBlockMetaPad {
                 match cal_diff::<PlainTextAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
-                        tracing::debug!("[GridBlockMeta] Composing change {}", delta.to_delta_str());
+                        tracing::debug!("[GridBlockMeta] Composing delta {}", delta.to_delta_str());
+                        tracing::debug!(
+                            "[GridBlockMeta] current delta: {}",
+                            self.delta.to_str().unwrap_or_else(|_| "".to_string())
+                        );
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
                     }
@@ -221,7 +224,7 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
         let block_meta_data = GridBlockMetaData {
-            block_id: uuid(),
+            block_id: gen_block_id(),
             rows: vec![],
         };
 
@@ -251,7 +254,8 @@ mod tests {
             visibility: false,
         };
 
-        let change = pad.add_row_meta(row, None).unwrap().unwrap();
+        let change = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
+        assert_eq!(pad.rows.first().unwrap().as_ref(), &row);
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
@@ -380,7 +384,7 @@ mod tests {
 
         assert_eq!(
             pad.to_json().unwrap(),
-            r#"{"block_id":"1","rows":[{"id":"1","block_id":"1","cells":{},"height":100,"visibility":true}]}"#
+            r#"{"block_id":"1","rows":[{"id":"1","block_id":"1","cells":[],"height":100,"visibility":true}]}"#
         );
     }
 

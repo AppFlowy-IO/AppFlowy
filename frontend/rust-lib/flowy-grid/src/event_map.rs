@@ -92,7 +92,7 @@ pub enum GridEvent {
     #[event(input = "CellIdentifierPayload", output = "Cell")]
     GetCell = 70,
 
-    #[event(input = "CellMetaChangeset")]
+    #[event(input = "CellChangeset")]
     UpdateCell = 71,
 
     #[event(input = "SelectOptionCellChangesetPayload")]

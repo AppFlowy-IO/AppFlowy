@@ -4,7 +4,10 @@ use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellD
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{
+    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
+};
+
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 

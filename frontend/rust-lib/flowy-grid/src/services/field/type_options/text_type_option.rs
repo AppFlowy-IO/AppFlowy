@@ -4,7 +4,9 @@ use crate::services::row::{decode_cell_data, CellDataChangeset, CellDataOperatio
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
-use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType, TypeOptionDataEntity, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{
+    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
+};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -38,7 +40,7 @@ impl CellDataOperation for RichTextTypeOption {
                 || type_option_cell_data.is_multi_select()
                 || type_option_cell_data.is_number()
             {
-                decode_cell_data(data, field_meta).unwrap_or_else(|_| "".to_owned())
+                decode_cell_data(data, field_meta, &type_option_cell_data.field_type).unwrap_or_else(|| "".to_owned())
             } else {
                 type_option_cell_data.data
             }

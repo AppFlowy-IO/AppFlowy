@@ -8,9 +8,14 @@ use crate::{
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::convert::TryInto;
+
+pub fn gen_view_id() -> String {
+    nanoid!(10)
+}
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct View {
@@ -163,7 +168,7 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
         let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
-        let view_id = uuid::Uuid::new_v4().to_string();
+        let view_id = gen_view_id();
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,

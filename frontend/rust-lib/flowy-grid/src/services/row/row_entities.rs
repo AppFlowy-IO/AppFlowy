@@ -1,6 +1,6 @@
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyUuid;
+use flowy_grid_data_model::parser::NotEmptyStr;
 
 #[derive(ProtoBuf, Default)]
 pub struct RowIdentifierPayload {
@@ -20,8 +20,8 @@ impl TryInto<RowIdentifier> for RowIdentifierPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<RowIdentifier, Self::Error> {
-        let grid_id = NotEmptyUuid::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let row_id = NotEmptyUuid::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
         Ok(RowIdentifier {
             grid_id: grid_id.0,

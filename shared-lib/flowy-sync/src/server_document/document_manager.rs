@@ -163,7 +163,6 @@ impl ServerDocumentManager {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]
     async fn create_document(
         &self,
         doc_id: &str,
@@ -182,6 +181,7 @@ impl ServerDocumentManager {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, doc), err)]
     async fn create_document_handler(&self, doc: TextBlockInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
