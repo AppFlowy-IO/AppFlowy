@@ -59,20 +59,28 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
     _listener.updateCellNotifier.addPublishListener((result) {
       result.fold(
         (notificationData) async {
-          final result = await _service.getCell(
-            gridId: state.cellData.gridId,
-            fieldId: state.cellData.field.id,
-            rowId: state.cellData.rowId,
-          );
-          result.fold(
-            (cell) => add(NumberCellEvent.didReceiveCellUpdate(cell)),
-            (err) => Log.error(err),
-          );
+          await _getCellData();
         },
         (err) => Log.error(err),
       );
     });
     _listener.start();
+  }
+
+  Future<void> _getCellData() async {
+    final result = await _service.getCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+    );
+    result.fold(
+      (cell) {
+        if (!isClosed) {
+          add(NumberCellEvent.didReceiveCellUpdate(cell));
+        }
+      },
+      (err) => Log.error(err),
+    );
   }
 }
 

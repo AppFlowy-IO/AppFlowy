@@ -6,6 +6,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'controller/grid_scroll.dart';
@@ -90,26 +91,21 @@ class _FlowyGridState extends State<FlowyGrid> {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-// _key.currentState.insertItem(index)
-        final child = BlocBuilder<GridBloc, GridState>(
-          builder: (context, state) {
-            return SizedBox(
-              width: GridLayout.headerWidth(state.fields),
-              child: ScrollConfiguration(
-                behavior: const ScrollBehavior().copyWith(scrollbars: false),
-                child: CustomScrollView(
-                  physics: StyledScrollPhysics(),
-                  controller: _scrollController.verticalController,
-                  slivers: [
-                    _renderToolbar(state.gridId),
-                    GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
-                    _renderRows(gridId: state.gridId, context: context),
-                    const GridFooter(),
-                  ],
-                ),
-              ),
-            );
-          },
+        final child = SizedBox(
+          width: GridLayout.headerWidth(state.fields),
+          child: ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(scrollbars: false),
+            child: CustomScrollView(
+              physics: StyledScrollPhysics(),
+              controller: _scrollController.verticalController,
+              slivers: [
+                _renderToolbar(state.gridId),
+                _renderGridHeader(state.gridId),
+                _renderRows(gridId: state.gridId, context: context),
+                const GridFooter(),
+              ],
+            ),
+          ),
         );
 
         return _wrapScrollbar(child);
@@ -130,12 +126,22 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
+  Widget _renderGridHeader(String gridId) {
+    return BlocSelector<GridBloc, GridState, List<Field>>(
+      selector: (state) => state.fields,
+      builder: (context, fields) {
+        return GridHeader(gridId: gridId, fields: List.from(fields));
+      },
+    );
+  }
+
   Widget _renderToolbar(String gridId) {
-    return BlocBuilder<GridBloc, GridState>(
-      builder: (context, state) {
+    return BlocSelector<GridBloc, GridState, List<Field>>(
+      selector: (state) => state.fields,
+      builder: (context, fields) {
         final toolbarContext = GridToolbarContext(
           gridId: gridId,
-          fields: state.fields,
+          fields: fields,
         );
 
         return SliverToBoxAdapter(
@@ -146,44 +152,40 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _renderRows({required String gridId, required BuildContext context}) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) {
-        final rowChanged = previous.rows.length != current.rows.length;
-        // final fieldChanged = previous.fields.length != current.fields.length;
-        return rowChanged;
-      },
-      builder: (context, state) {
-        return SliverList(
-            delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final blockRow = context.read<GridBloc>().state.rows[index];
-            final fields = context.read<GridBloc>().state.fields;
-            final rowData = RowData.fromBlockRow(gridId, blockRow, fields);
-            return GridRowWidget(data: rowData, key: ValueKey(rowData.rowId));
+    return BlocConsumer<GridBloc, GridState>(
+      listener: (context, state) {
+        state.listState.map(
+          insert: (value) {
+            for (final index in value.indexs) {
+              _key.currentState?.insertItem(index);
+            }
           },
-          childCount: context.read<GridBloc>().state.rows.length,
-          addRepaintBoundaries: true,
-          addAutomaticKeepAlives: true,
-        ));
-
-        // return SliverAnimatedList(
-        //   key: _key,
-        //   initialItemCount: context.read<GridBloc>().state.rows.length,
-        //   itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-        //     final blockRow = context.read<GridBloc>().state.rows[index];
-        //     final fields = context.read<GridBloc>().state.fields;
-        //     final rowData = RowData.fromBlockRow(blockRow, fields);
-        //     return _renderRow(rowData, animation);
-        //   },
-        // );
+          delete: (value) {
+            for (final index in value.indexs) {
+              _key.currentState?.removeItem(index.value1, (context, animation) => _renderRow(index.value2, animation));
+            }
+          },
+          reload: (updatedIndexs) {},
+        );
+      },
+      buildWhen: (previous, current) => false,
+      builder: (context, state) {
+        return SliverAnimatedList(
+          key: _key,
+          initialItemCount: context.read<GridBloc>().state.rows.length,
+          itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+            final rowData = context.read<GridBloc>().state.rows[index];
+            return _renderRow(rowData, animation);
+          },
+        );
       },
     );
   }
 
-  // Widget _renderRow(RowData rowData, Animation<double> animation) {
-  //   return SizeTransition(
-  //     sizeFactor: animation,
-  //     child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
-  //   );
-  // }
+  Widget _renderRow(RowData rowData, Animation<double> animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
+    );
+  }
 }

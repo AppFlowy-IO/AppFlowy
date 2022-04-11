@@ -72,7 +72,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       rowId: state.cellData.rowId,
     );
     result.fold(
-      (cell) => add(DateCellEvent.didReceiveCellUpdate(cell)),
+      (cell) {
+        if (!isClosed) {
+          add(DateCellEvent.didReceiveCellUpdate(cell));
+        }
+      },
       (err) => Log.error(err),
     );
   }

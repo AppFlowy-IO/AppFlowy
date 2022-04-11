@@ -163,10 +163,10 @@ impl GridBlockMetaPad {
                     None => Ok(None),
                     Some(delta) => {
                         tracing::debug!("[GridBlockMeta] Composing delta {}", delta.to_delta_str());
-                        tracing::debug!(
-                            "[GridBlockMeta] current delta: {}",
-                            self.delta.to_str().unwrap_or_else(|_| "".to_string())
-                        );
+                        // tracing::debug!(
+                        //     "[GridBlockMeta] current delta: {}",
+                        //     self.delta.to_str().unwrap_or_else(|_| "".to_string())
+                        // );
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
                     }

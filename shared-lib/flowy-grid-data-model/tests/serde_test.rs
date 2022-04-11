@@ -12,14 +12,3 @@ fn grid_default_serde_test() {
     let json = serde_json::to_string(&grid).unwrap();
     assert_eq!(json, r#"{"grid_id":"1","fields":[],"blocks":[]}"#)
 }
-
-fn create_field(field_id: &str) -> FieldMeta {
-    let mut field = FieldMeta::new("Text Field", "", FieldType::RichText);
-    field.id = field_id.to_string();
-    field
-}
-
-#[allow(dead_code)]
-fn uuid() -> String {
-    uuid::Uuid::new_v4().to_string()
-}

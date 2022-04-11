@@ -19,7 +19,7 @@ pub fn create_default_workspace() -> Workspace {
     };
 
     Workspace {
-        id: workspace_id.to_string(),
+        id: workspace_id,
         name,
         desc,
         apps,
@@ -38,7 +38,7 @@ fn create_default_app(workspace_id: String, time: chrono::DateTime<Utc>) -> App 
     };
 
     App {
-        id: app_id.to_string(),
+        id: app_id,
         workspace_id,
         name,
         desc,
@@ -56,7 +56,7 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> View {
     let data_type = ViewDataType::TextBlock;
 
     View {
-        id: view_id.to_string(),
+        id: view_id,
         belong_to_id: app_id,
         name,
         desc,
