@@ -36,7 +36,7 @@ pub(crate) async fn delete_app_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(data, controller))]
+#[tracing::instrument(level = "debug", skip(data, controller))]
 pub(crate) async fn update_app_handler(
     data: Data<UpdateAppPayload>,
     controller: AppData<Arc<AppController>>,
@@ -46,7 +46,7 @@ pub(crate) async fn update_app_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(data, app_controller, view_controller))]
+#[tracing::instrument(level = "debug", skip(data, app_controller, view_controller))]
 pub(crate) async fn read_app_handler(
     data: Data<AppId>,
     app_controller: AppData<Arc<AppController>>,

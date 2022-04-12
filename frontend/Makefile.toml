@@ -45,7 +45,7 @@ FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
 PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 
 [env.development-mac]
-RUST_LOG = "trace"
+RUST_LOG = "info"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 BUILD_FLAG = "debug"

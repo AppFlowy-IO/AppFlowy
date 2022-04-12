@@ -55,8 +55,8 @@ impl FlowySDKConfig {
         }
     }
 
-    pub fn log_filter(mut self, filter: &str) -> Self {
-        self.log_filter = crate_log_filter(filter.to_owned());
+    pub fn log_filter(mut self, level: &str) -> Self {
+        self.log_filter = crate_log_filter(level.to_owned());
         self
     }
 }
@@ -69,12 +69,12 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_text_block={}", level));
     filters.push(format!("flowy_grid={}", level));
-    filters.push(format!("flowy_collaboration={}", "debug"));
+    filters.push(format!("flowy_collaboration={}", "info"));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
     filters.push(format!("lib_ws={}", level));
     filters.push(format!("lib_infra={}", level));
-    filters.push(format!("flowy_sync={}", "debug"));
+    filters.push(format!("flowy_sync={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
     filters.push(format!("flowy_database={}", "info"));

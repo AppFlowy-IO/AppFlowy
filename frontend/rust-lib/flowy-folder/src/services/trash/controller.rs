@@ -274,7 +274,7 @@ impl TrashController {
     }
 }
 
-#[tracing::instrument(skip(repeated_trash), fields(n_trash))]
+#[tracing::instrument(level = "debug", skip(repeated_trash), fields(n_trash))]
 fn notify_trash_changed(repeated_trash: RepeatedTrash) {
     tracing::Span::current().record("n_trash", &repeated_trash.len());
     send_anonymous_dart_notification(FolderNotification::TrashUpdated)

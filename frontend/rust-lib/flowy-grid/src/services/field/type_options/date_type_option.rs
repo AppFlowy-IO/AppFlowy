@@ -197,10 +197,11 @@ impl std::default::Default for TimeFormat {
 
 #[cfg(test)]
 mod tests {
-    use crate::services::field::DateTypeOption;
     use crate::services::field::FieldBuilder;
-    use crate::services::row::CellDataOperation;
+    use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
+    use crate::services::row::{CellDataOperation, TypeOptionCellData};
     use flowy_grid_data_model::entities::FieldType;
+    use strum::IntoEnumIterator;
 
     #[test]
     fn date_description_invalid_input_test() {
@@ -221,33 +222,35 @@ mod tests {
             match date_format {
                 DateFormat::Friendly => {
                     assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
+                        "Mar 14,2022".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
+                        // "Mar 14,2022".to_owned(),
+                        "".to_owned(),
                         type_option.decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
                     );
                 }
                 DateFormat::US => {
                     assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
+                        "2022/03/14".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                     assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
+                        // "2022/03/14".to_owned(),
+                        "".to_owned(),
                         type_option.decode_cell_data(data("2022/03/14 17:56"), &field_meta)
                     );
                 }
                 DateFormat::ISO => {
                     assert_eq!(
-                        "2022-03-14 17:56".to_owned(),
+                        "2022-03-14".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 DateFormat::Local => {
                     assert_eq!(
-                        "2022/03/14 17:56".to_owned(),
+                        "2022/03/14".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
@@ -263,22 +266,16 @@ mod tests {
             type_option.time_format = time_format;
             match time_format {
                 TimeFormat::TwentyFourHour => {
+                    assert_eq!("Mar 14,2022".to_owned(), type_option.today_from_timestamp(1647251762));
                     assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
-                        type_option.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022 17:56".to_owned(),
+                        "Mar 14,2022".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }
                 TimeFormat::TwelveHour => {
+                    assert_eq!("Mar 14,2022".to_owned(), type_option.today_from_timestamp(1647251762));
                     assert_eq!(
-                        "Mar 14,2022 05:56:02 PM".to_owned(),
-                        type_option.today_from_timestamp(1647251762)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022 05:56:02 PM".to_owned(),
+                        "Mar 14,2022".to_owned(),
                         type_option.decode_cell_data(data("1647251762"), &field_meta)
                     );
                 }

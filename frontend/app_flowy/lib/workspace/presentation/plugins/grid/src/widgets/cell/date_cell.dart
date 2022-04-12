@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/widgets.dart';
@@ -85,18 +86,31 @@ class _CellCalendar extends StatefulWidget with FlowyOverlayDelegate {
     required VoidCallback onDismissed,
   }) async {
     _CellCalendar.remove(context);
-    final window = await getWindowInfo();
+
     final calendar = _CellCalendar(onSelected: onSelected, onDismissed: onDismissed);
-    const size = Size(460, 400);
-    FlowyOverlay.of(context).insertWithRect(
+    // const size = Size(460, 400);
+    // final window = await getWindowInfo();
+    // FlowyOverlay.of(context).insertWithRect(
+    //   widget: OverlayContainer(
+    //     child: calendar,
+    //     constraints: BoxConstraints.loose(const Size(460, 400)),
+    //   ),
+    //   identifier: _CellCalendar.identifier(),
+    //   anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
+    //   anchorSize: window.frame.size,
+    //   anchorDirection: AnchorDirection.center,
+    //   style: FlowyOverlayStyle(blur: false),
+    //   delegate: calendar,
+    // );
+
+    FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: calendar,
-        constraints: BoxConstraints.loose(const Size(460, 400)),
+        constraints: BoxConstraints.loose(const Size(300, 320)),
       ),
       identifier: _CellCalendar.identifier(),
-      anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
-      anchorSize: window.frame.size,
-      anchorDirection: AnchorDirection.center,
+      anchorContext: context,
+      anchorDirection: AnchorDirection.bottomWithCenterAligned,
       style: FlowyOverlayStyle(blur: false),
       delegate: calendar,
     );
@@ -121,12 +135,32 @@ class _CellCalendarState extends State<_CellCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return TableCalendar(
       firstDay: kFirstDay,
       lastDay: kLastDay,
       focusedDay: _focusedDay,
+      rowHeight: 40,
       calendarFormat: _calendarFormat,
       headerStyle: const HeaderStyle(formatButtonVisible: false),
+      calendarStyle: CalendarStyle(
+        selectedDecoration: BoxDecoration(
+          color: theme.main1,
+          shape: BoxShape.circle,
+        ),
+        todayDecoration: BoxDecoration(
+          color: theme.shader4,
+          shape: BoxShape.circle,
+        ),
+        selectedTextStyle: TextStyle(
+          color: theme.surface,
+          fontSize: 14.0,
+        ),
+        todayTextStyle: TextStyle(
+          color: theme.surface,
+          fontSize: 14.0,
+        ),
+      ),
       selectedDayPredicate: (day) {
         return isSameDay(_selectedDay, day);
       },
