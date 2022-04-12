@@ -34,12 +34,14 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         },
         viewDidUpdate: (e) {
           e.result.fold(
-            (view) => emit(state.copyWith(view: view, successOrFailure: left(unit))),
+            (view) =>
+                emit(state.copyWith(view: view, successOrFailure: left(unit))),
             (error) => emit(state.copyWith(successOrFailure: right(error))),
           );
         },
         rename: (e) async {
-          final result = await service.updateView(viewId: view.id, name: e.newName);
+          final result =
+              await service.updateView(viewId: view.id, name: e.newName);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -49,6 +51,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         },
         delete: (e) async {
           final result = await service.delete(viewId: view.id);
+          await service.updateView(viewId: view.id);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -83,7 +86,8 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.rename(String newName) = Rename;
   const factory ViewEvent.delete() = Delete;
   const factory ViewEvent.duplicate() = Duplicate;
-  const factory ViewEvent.viewDidUpdate(Either<View, FlowyError> result) = ViewDidUpdate;
+  const factory ViewEvent.viewDidUpdate(Either<View, FlowyError> result) =
+      ViewDidUpdate;
 }
 
 @freezed
