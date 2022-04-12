@@ -7,7 +7,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:window_size/window_size.dart';
 
 class DateCell extends GridCell {
   final CellData cellData;
