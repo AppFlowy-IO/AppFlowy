@@ -28,6 +28,7 @@ pub struct DateTypeOption {
     // message fields
     pub date_format: DateFormat,
     pub time_format: TimeFormat,
+    pub include_time: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -73,6 +74,21 @@ impl DateTypeOption {
     pub fn set_time_format(&mut self, v: TimeFormat) {
         self.time_format = v;
     }
+
+    // bool include_time = 3;
+
+
+    pub fn get_include_time(&self) -> bool {
+        self.include_time
+    }
+    pub fn clear_include_time(&mut self) {
+        self.include_time = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_include_time(&mut self, v: bool) {
+        self.include_time = v;
+    }
 }
 
 impl ::protobuf::Message for DateTypeOption {
@@ -89,6 +105,13 @@ impl ::protobuf::Message for DateTypeOption {
                 },
                 2 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.time_format, 2, &mut self.unknown_fields)?
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.include_time = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -108,6 +131,9 @@ impl ::protobuf::Message for DateTypeOption {
         if self.time_format != TimeFormat::TwelveHour {
             my_size += ::protobuf::rt::enum_size(2, self.time_format);
         }
+        if self.include_time != false {
+            my_size += 2;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -119,6 +145,9 @@ impl ::protobuf::Message for DateTypeOption {
         }
         if self.time_format != TimeFormat::TwelveHour {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.time_format))?;
+        }
+        if self.include_time != false {
+            os.write_bool(3, self.include_time)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -168,6 +197,11 @@ impl ::protobuf::Message for DateTypeOption {
                 |m: &DateTypeOption| { &m.time_format },
                 |m: &mut DateTypeOption| { &mut m.time_format },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "include_time",
+                |m: &DateTypeOption| { &m.include_time },
+                |m: &mut DateTypeOption| { &mut m.include_time },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateTypeOption>(
                 "DateTypeOption",
                 fields,
@@ -186,6 +220,7 @@ impl ::protobuf::Clear for DateTypeOption {
     fn clear(&mut self) {
         self.date_format = DateFormat::Local;
         self.time_format = TimeFormat::TwelveHour;
+        self.include_time = false;
         self.unknown_fields.clear();
     }
 }
@@ -309,12 +344,13 @@ impl ::protobuf::reflect::ProtobufValue for TimeFormat {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16date_type_option.proto\"l\n\x0eDateTypeOption\x12,\n\x0bdate_forma\
-    t\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\x12,\n\x0btime_forma\
-    t\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat*6\n\nDateFormat\x12\
-    \t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\
-    \x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\
-    \x12\x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\
+    \n\x16date_type_option.proto\"\x8f\x01\n\x0eDateTypeOption\x12,\n\x0bdat\
+    e_format\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\x12,\n\x0btim\
+    e_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat\x12!\n\x0cinc\
+    lude_time\x18\x03\x20\x01(\x08R\x0bincludeTime*6\n\nDateFormat\x12\t\n\
+    \x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\x0c\
+    \n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\x12\
+    \x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

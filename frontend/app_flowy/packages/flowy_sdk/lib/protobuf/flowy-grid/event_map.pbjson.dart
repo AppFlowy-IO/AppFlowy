@@ -16,23 +16,23 @@ const GridEvent$json = const {
     const {'1': 'GetGridBlocks', '2': 1},
     const {'1': 'GetFields', '2': 10},
     const {'1': 'UpdateField', '2': 11},
-    const {'1': 'CreateField', '2': 12},
+    const {'1': 'InsertField', '2': 12},
     const {'1': 'DeleteField', '2': 13},
     const {'1': 'SwitchToField', '2': 14},
     const {'1': 'DuplicateField', '2': 15},
     const {'1': 'GetEditFieldContext', '2': 16},
     const {'1': 'NewSelectOption', '2': 30},
     const {'1': 'GetSelectOptionContext', '2': 31},
-    const {'1': 'ApplySelectOptionChangeset', '2': 32},
+    const {'1': 'UpdateSelectOption', '2': 32},
     const {'1': 'CreateRow', '2': 50},
     const {'1': 'GetRow', '2': 51},
     const {'1': 'DeleteRow', '2': 52},
     const {'1': 'DuplicateRow', '2': 53},
     const {'1': 'GetCell', '2': 70},
     const {'1': 'UpdateCell', '2': 71},
-    const {'1': 'ApplySelectOptionCellChangeset', '2': 72},
+    const {'1': 'UpdateCellSelectOption', '2': 72},
   ],
 };
 
 /// Descriptor for `GridEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIPCgtDcmVhdGVGaWVsZBAMEg8KC0RlbGV0ZUZpZWxkEA0SEQoNU3dpdGNoVG9GaWVsZBAOEhIKDkR1cGxpY2F0ZUZpZWxkEA8SFwoTR2V0RWRpdEZpZWxkQ29udGV4dBAQEhMKD05ld1NlbGVjdE9wdGlvbhAeEhoKFkdldFNlbGVjdE9wdGlvbkNvbnRleHQQHxIeChpBcHBseVNlbGVjdE9wdGlvbkNoYW5nZXNldBAgEg0KCUNyZWF0ZVJvdxAyEgoKBkdldFJvdxAzEg0KCURlbGV0ZVJvdxA0EhAKDER1cGxpY2F0ZVJvdxA1EgsKB0dldENlbGwQRhIOCgpVcGRhdGVDZWxsEEcSIgoeQXBwbHlTZWxlY3RPcHRpb25DZWxsQ2hhbmdlc2V0EEg=');
+final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIPCgtJbnNlcnRGaWVsZBAMEg8KC0RlbGV0ZUZpZWxkEA0SEQoNU3dpdGNoVG9GaWVsZBAOEhIKDkR1cGxpY2F0ZUZpZWxkEA8SFwoTR2V0RWRpdEZpZWxkQ29udGV4dBAQEhMKD05ld1NlbGVjdE9wdGlvbhAeEhoKFkdldFNlbGVjdE9wdGlvbkNvbnRleHQQHxIWChJVcGRhdGVTZWxlY3RPcHRpb24QIBINCglDcmVhdGVSb3cQMhIKCgZHZXRSb3cQMxINCglEZWxldGVSb3cQNBIQCgxEdXBsaWNhdGVSb3cQNRILCgdHZXRDZWxsEEYSDgoKVXBkYXRlQ2VsbBBHEhoKFlVwZGF0ZUNlbGxTZWxlY3RPcHRpb24QSA==');

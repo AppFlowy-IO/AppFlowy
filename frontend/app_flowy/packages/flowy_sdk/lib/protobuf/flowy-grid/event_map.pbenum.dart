@@ -14,42 +14,42 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent GetGridBlocks = GridEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetGridBlocks');
   static const GridEvent GetFields = GridEvent._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetFields');
   static const GridEvent UpdateField = GridEvent._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateField');
-  static const GridEvent CreateField = GridEvent._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateField');
+  static const GridEvent InsertField = GridEvent._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InsertField');
   static const GridEvent DeleteField = GridEvent._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteField');
   static const GridEvent SwitchToField = GridEvent._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SwitchToField');
   static const GridEvent DuplicateField = GridEvent._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateField');
   static const GridEvent GetEditFieldContext = GridEvent._(16, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetEditFieldContext');
   static const GridEvent NewSelectOption = GridEvent._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'NewSelectOption');
   static const GridEvent GetSelectOptionContext = GridEvent._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetSelectOptionContext');
-  static const GridEvent ApplySelectOptionChangeset = GridEvent._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplySelectOptionChangeset');
+  static const GridEvent UpdateSelectOption = GridEvent._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateSelectOption');
   static const GridEvent CreateRow = GridEvent._(50, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
   static const GridEvent GetRow = GridEvent._(51, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRow');
   static const GridEvent DeleteRow = GridEvent._(52, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteRow');
   static const GridEvent DuplicateRow = GridEvent._(53, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateRow');
   static const GridEvent GetCell = GridEvent._(70, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetCell');
   static const GridEvent UpdateCell = GridEvent._(71, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
-  static const GridEvent ApplySelectOptionCellChangeset = GridEvent._(72, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplySelectOptionCellChangeset');
+  static const GridEvent UpdateCellSelectOption = GridEvent._(72, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCellSelectOption');
 
   static const $core.List<GridEvent> values = <GridEvent> [
     GetGridData,
     GetGridBlocks,
     GetFields,
     UpdateField,
-    CreateField,
+    InsertField,
     DeleteField,
     SwitchToField,
     DuplicateField,
     GetEditFieldContext,
     NewSelectOption,
     GetSelectOptionContext,
-    ApplySelectOptionChangeset,
+    UpdateSelectOption,
     CreateRow,
     GetRow,
     DeleteRow,
     DuplicateRow,
     GetCell,
     UpdateCell,
-    ApplySelectOptionCellChangeset,
+    UpdateCellSelectOption,
   ];
 
   static final $core.Map<$core.int, GridEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

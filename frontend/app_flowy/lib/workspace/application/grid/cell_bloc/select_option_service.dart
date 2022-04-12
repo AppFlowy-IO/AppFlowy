@@ -24,7 +24,7 @@ class SelectOptionService {
             final payload = SelectOptionChangesetPayload.create()
               ..insertOption = option
               ..cellIdentifier = cellIdentifier;
-            return GridEventApplySelectOptionChangeset(payload).send();
+            return GridEventUpdateSelectOption(payload).send();
           },
           (r) => right(r),
         );
@@ -45,7 +45,7 @@ class SelectOptionService {
     final payload = SelectOptionChangesetPayload.create()
       ..updateOption = option
       ..cellIdentifier = cellIdentifier;
-    return GridEventApplySelectOptionChangeset(payload).send();
+    return GridEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> delete({
@@ -63,7 +63,7 @@ class SelectOptionService {
       ..deleteOption = option
       ..cellIdentifier = cellIdentifier;
 
-    return GridEventApplySelectOptionChangeset(payload).send();
+    return GridEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<SelectOptionContext, FlowyError>> getOpitonContext({
@@ -90,7 +90,7 @@ class SelectOptionService {
       ..fieldId = fieldId
       ..rowId = rowId
       ..insertOptionId = optionId;
-    return GridEventApplySelectOptionCellChangeset(payload).send();
+    return GridEventUpdateCellSelectOption(payload).send();
   }
 
   Future<Either<void, FlowyError>> remove({
@@ -104,6 +104,6 @@ class SelectOptionService {
       ..fieldId = fieldId
       ..rowId = rowId
       ..deleteOptionId = optionId;
-    return GridEventApplySelectOptionCellChangeset(payload).send();
+    return GridEventUpdateCellSelectOption(payload).send();
   }
 }

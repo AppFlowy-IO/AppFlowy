@@ -483,7 +483,7 @@ impl TryInto<CreateRowParams> for CreateRowPayload {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateFieldPayload {
+pub struct InsertFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -498,17 +498,17 @@ pub struct CreateFieldPayload {
 }
 
 #[derive(Clone)]
-pub struct CreateFieldParams {
+pub struct InsertFieldParams {
     pub grid_id: String,
     pub field: Field,
     pub type_option_data: Vec<u8>,
     pub start_field_id: Option<String>,
 }
 
-impl TryInto<CreateFieldParams> for CreateFieldPayload {
+impl TryInto<InsertFieldParams> for InsertFieldPayload {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
+    fn try_into(self) -> Result<InsertFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let _ = NotEmptyStr::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
 
@@ -517,7 +517,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayload {
             Some(id) => Some(NotEmptyStr::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
-        Ok(CreateFieldParams {
+        Ok(InsertFieldParams {
             grid_id: grid_id.0,
             field: self.field,
             type_option_data: self.type_option_data,

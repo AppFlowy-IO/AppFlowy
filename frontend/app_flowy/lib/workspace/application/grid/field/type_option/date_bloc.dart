@@ -11,27 +11,37 @@ class DateTypeOptionBloc extends Bloc<DateTypeOptionEvent, DateTypeOptionState> 
       (event, emit) async {
         event.map(
           didSelectDateFormat: (_DidSelectDateFormat value) {
-            emit(state.copyWith(typeOption: _updateDateFormat(value.format)));
+            emit(state.copyWith(typeOption: _updateTypeOption(dateFormat: value.format)));
           },
           didSelectTimeFormat: (_DidSelectTimeFormat value) {
-            emit(state.copyWith(typeOption: _updateTimeFormat(value.format)));
+            emit(state.copyWith(typeOption: _updateTypeOption(timeFormat: value.format)));
+          },
+          includeTime: (_IncludeTime value) {
+            emit(state.copyWith(typeOption: _updateTypeOption(includeTime: value.includeTime)));
           },
         );
       },
     );
   }
 
-  DateTypeOption _updateTimeFormat(TimeFormat format) {
+  DateTypeOption _updateTypeOption({
+    DateFormat? dateFormat,
+    TimeFormat? timeFormat,
+    bool? includeTime,
+  }) {
     state.typeOption.freeze();
     return state.typeOption.rebuild((typeOption) {
-      typeOption.timeFormat = format;
-    });
-  }
+      if (dateFormat != null) {
+        typeOption.dateFormat = dateFormat;
+      }
 
-  DateTypeOption _updateDateFormat(DateFormat format) {
-    state.typeOption.freeze();
-    return state.typeOption.rebuild((typeOption) {
-      typeOption.dateFormat = format;
+      if (timeFormat != null) {
+        typeOption.timeFormat = timeFormat;
+      }
+
+      if (includeTime != null) {
+        typeOption.includeTime = includeTime;
+      }
     });
   }
 
@@ -45,6 +55,7 @@ class DateTypeOptionBloc extends Bloc<DateTypeOptionEvent, DateTypeOptionState> 
 class DateTypeOptionEvent with _$DateTypeOptionEvent {
   const factory DateTypeOptionEvent.didSelectDateFormat(DateFormat format) = _DidSelectDateFormat;
   const factory DateTypeOptionEvent.didSelectTimeFormat(TimeFormat format) = _DidSelectTimeFormat;
+  const factory DateTypeOptionEvent.includeTime(bool includeTime) = _IncludeTime;
 }
 
 @freezed

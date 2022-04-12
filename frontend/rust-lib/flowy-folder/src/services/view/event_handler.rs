@@ -33,7 +33,7 @@ pub(crate) async fn read_view_handler(
     data_result(view)
 }
 
-#[tracing::instrument(skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn update_view_handler(
     data: Data<UpdateViewPayload>,
     controller: AppData<Arc<ViewController>>,
@@ -83,7 +83,7 @@ pub(crate) async fn close_view_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn duplicate_view_handler(
     data: Data<ViewId>,
     controller: AppData<Arc<ViewController>>,

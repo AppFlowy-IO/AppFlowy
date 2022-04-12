@@ -69,13 +69,13 @@ class GridEventUpdateField {
     }
 }
 
-class GridEventCreateField {
-     CreateFieldPayload request;
-     GridEventCreateField(this.request);
+class GridEventInsertField {
+     InsertFieldPayload request;
+     GridEventInsertField(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.CreateField.toString()
+          ..event = GridEvent.InsertField.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -188,13 +188,13 @@ class GridEventGetSelectOptionContext {
     }
 }
 
-class GridEventApplySelectOptionChangeset {
+class GridEventUpdateSelectOption {
      SelectOptionChangesetPayload request;
-     GridEventApplySelectOptionChangeset(this.request);
+     GridEventUpdateSelectOption(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.ApplySelectOptionChangeset.toString()
+          ..event = GridEvent.UpdateSelectOption.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -307,13 +307,13 @@ class GridEventUpdateCell {
     }
 }
 
-class GridEventApplySelectOptionCellChangeset {
+class GridEventUpdateCellSelectOption {
      SelectOptionCellChangesetPayload request;
-     GridEventApplySelectOptionCellChangeset(this.request);
+     GridEventUpdateCellSelectOption(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.ApplySelectOptionCellChangeset.toString()
+          ..event = GridEvent.UpdateCellSelectOption.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

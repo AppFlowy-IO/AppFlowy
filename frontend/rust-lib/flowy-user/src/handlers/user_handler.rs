@@ -6,31 +6,31 @@ use flowy_user_data_model::entities::{
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(skip(session))]
+#[tracing::instrument(level = "debug", skip(session))]
 pub async fn init_user_handler(session: AppData<Arc<UserSession>>) -> Result<(), FlowyError> {
     let _ = session.init_user().await?;
     Ok(())
 }
 
-#[tracing::instrument(skip(session))]
+#[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfile, FlowyError> {
     let user_profile = session.check_user().await?;
     data_result(user_profile)
 }
 
-#[tracing::instrument(skip(session))]
+#[tracing::instrument(level = "debug", skip(session))]
 pub async fn get_user_profile_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfile, FlowyError> {
     let user_profile = session.user_profile().await?;
     data_result(user_profile)
 }
 
-#[tracing::instrument(name = "sign_out", skip(session))]
+#[tracing::instrument(level = "debug", name = "sign_out", skip(session))]
 pub async fn sign_out(session: AppData<Arc<UserSession>>) -> Result<(), FlowyError> {
     let _ = session.sign_out().await?;
     Ok(())
 }
 
-#[tracing::instrument(name = "update_user", skip(data, session))]
+#[tracing::instrument(level = "debug", name = "update_user", skip(data, session))]
 pub async fn update_user_handler(
     data: Data<UpdateUserPayload>,
     session: AppData<Arc<UserSession>>,
@@ -42,7 +42,7 @@ pub async fn update_user_handler(
 
 const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
 
-#[tracing::instrument(skip(data), err)]
+#[tracing::instrument(level = "debug", skip(data), err)]
 pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<(), FlowyError> {
     let mut setting = data.into_inner();
     if setting.theme.is_empty() {

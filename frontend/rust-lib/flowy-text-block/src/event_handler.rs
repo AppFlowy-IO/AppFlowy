@@ -27,7 +27,7 @@ pub(crate) async fn apply_delta_handler(
     data_result(block_delta)
 }
 
-#[tracing::instrument(skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn export_handler(
     data: Data<ExportPayload>,
     manager: AppData<Arc<TextBlockManager>>,

@@ -6,7 +6,7 @@ use crate::{
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
-#[tracing::instrument(skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(controller), err)]
 pub(crate) async fn read_trash_handler(
     controller: AppData<Arc<TrashController>>,
 ) -> DataResult<RepeatedTrash, FlowyError> {
@@ -14,7 +14,7 @@ pub(crate) async fn read_trash_handler(
     data_result(repeated_trash)
 }
 
-#[tracing::instrument(skip(identifier, controller), err)]
+#[tracing::instrument(level = "debug", skip(identifier, controller), err)]
 pub(crate) async fn putback_trash_handler(
     identifier: Data<TrashId>,
     controller: AppData<Arc<TrashController>>,
@@ -23,7 +23,7 @@ pub(crate) async fn putback_trash_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(identifiers, controller), err)]
+#[tracing::instrument(level = "debug", skip(identifiers, controller), err)]
 pub(crate) async fn delete_trash_handler(
     identifiers: Data<RepeatedTrashId>,
     controller: AppData<Arc<TrashController>>,
@@ -32,13 +32,13 @@ pub(crate) async fn delete_trash_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(controller), err)]
 pub(crate) async fn restore_all_trash_handler(controller: AppData<Arc<TrashController>>) -> Result<(), FlowyError> {
     let _ = controller.restore_all_trash().await?;
     Ok(())
 }
 
-#[tracing::instrument(skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(controller), err)]
 pub(crate) async fn delete_all_trash_handler(controller: AppData<Arc<TrashController>>) -> Result<(), FlowyError> {
     let _ = controller.delete_all_trash().await?;
     Ok(())

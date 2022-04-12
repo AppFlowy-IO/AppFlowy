@@ -94,7 +94,7 @@ mod tests {
         say("hello world");
     }
 
-    #[tracing::instrument(name = "say")]
+    #[tracing::instrument(level = "trace", name = "say")]
     fn say(s: &str) {
         tracing::info!("{}", s);
     }

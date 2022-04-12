@@ -65,7 +65,7 @@ class FieldService {
     List<int>? typeOptionData,
     String? startFieldId,
   }) {
-    var payload = CreateFieldPayload.create()
+    var payload = InsertFieldPayload.create()
       ..gridId = gridId
       ..field_2 = field
       ..typeOptionData = typeOptionData ?? [];
@@ -74,7 +74,7 @@ class FieldService {
       payload.startFieldId = startFieldId;
     }
 
-    return GridEventCreateField(payload).send();
+    return GridEventInsertField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteField({

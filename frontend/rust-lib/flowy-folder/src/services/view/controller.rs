@@ -100,7 +100,7 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(skip(self, view_id), fields(view_id = %view_id.value), err)]
+    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
     pub(crate) async fn read_view(&self, view_id: ViewId) -> Result<View, FlowyError> {
         let view = self
             .persistence
@@ -224,14 +224,14 @@ impl ViewController {
 }
 
 impl ViewController {
-    #[tracing::instrument(skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_view_on_server(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let token = self.user.token()?;
         let view = self.cloud_service.create_view(&token, params).await?;
         Ok(view)
     }
 
-    #[tracing::instrument(skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
@@ -247,7 +247,7 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     fn read_view_on_server(&self, params: ViewId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
@@ -424,7 +424,12 @@ fn notify_dart(view: View, notification: FolderNotification) {
     send_dart_notification(&view.id, notification).payload(view).send();
 }
 
-#[tracing::instrument(skip(belong_to_id, trash_controller, transaction), fields(view_count), err)]
+#[tracing::instrument(
+    level = "debug",
+    skip(belong_to_id, trash_controller, transaction),
+    fields(view_count),
+    err
+)]
 fn notify_views_changed<'a>(
     belong_to_id: &str,
     trash_controller: Arc<TrashController>,

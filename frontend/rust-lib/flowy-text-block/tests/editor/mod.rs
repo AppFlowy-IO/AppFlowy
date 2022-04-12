@@ -13,7 +13,7 @@ use lib_ot::{
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
-const LEVEL: &str = "debug";
+const LEVEL: &str = "info";
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {

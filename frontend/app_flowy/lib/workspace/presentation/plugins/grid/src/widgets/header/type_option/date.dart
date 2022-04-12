@@ -52,6 +52,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           return Column(children: [
             _dateFormatButton(context, state.typeOption.dateFormat),
             _timeFormatButton(context, state.typeOption.timeFormat),
+            const _IncludeTimeButton(),
           ]);
         },
       ),
@@ -98,6 +99,37 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         },
         rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
+    );
+  }
+}
+
+class _IncludeTimeButton extends StatelessWidget {
+  const _IncludeTimeButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
+      selector: (state) => state.typeOption.includeTime,
+      builder: (context, includeTime) {
+        return SizedBox(
+          height: GridSize.typeOptionItemHeight,
+          child: Padding(
+            padding: GridSize.typeOptionContentInsets,
+            child: Row(
+              children: [
+                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(), fontSize: 12),
+                const Spacer(),
+                Switch(
+                  value: includeTime,
+                  onChanged: (newValue) {
+                    context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.includeTime(newValue));
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

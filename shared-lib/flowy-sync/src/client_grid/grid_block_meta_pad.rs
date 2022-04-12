@@ -258,7 +258,7 @@ mod tests {
         assert_eq!(pad.rows.first().unwrap().as_ref(), &row);
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
     }
 
@@ -272,19 +272,19 @@ mod tests {
         let change = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":90},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":90},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_meta(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
-            r#"[{"retain":157},{"insert":",{\"id\":\"3\",\"block_id\":\"1\",\"cells\":{},\"height\":0,\"visibility\":false}"},{"retain":2}]"#
+            r#"[{"retain":157},{"insert":",{\"id\":\"3\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         assert_eq!(*pad.rows[0], row_1);
