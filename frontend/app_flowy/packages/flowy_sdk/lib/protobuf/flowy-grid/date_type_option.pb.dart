@@ -17,6 +17,7 @@ class DateTypeOption extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DateTypeOption', createEmptyInstance: create)
     ..e<DateFormat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dateFormat', $pb.PbFieldType.OE, defaultOrMaker: DateFormat.Local, valueOf: DateFormat.valueOf, enumValues: DateFormat.values)
     ..e<TimeFormat>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'timeFormat', $pb.PbFieldType.OE, defaultOrMaker: TimeFormat.TwelveHour, valueOf: TimeFormat.valueOf, enumValues: TimeFormat.values)
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'includeTime')
     ..hasRequiredFields = false
   ;
 
@@ -24,6 +25,7 @@ class DateTypeOption extends $pb.GeneratedMessage {
   factory DateTypeOption({
     DateFormat? dateFormat,
     TimeFormat? timeFormat,
+    $core.bool? includeTime,
   }) {
     final _result = create();
     if (dateFormat != null) {
@@ -31,6 +33,9 @@ class DateTypeOption extends $pb.GeneratedMessage {
     }
     if (timeFormat != null) {
       _result.timeFormat = timeFormat;
+    }
+    if (includeTime != null) {
+      _result.includeTime = includeTime;
     }
     return _result;
   }
@@ -72,5 +77,14 @@ class DateTypeOption extends $pb.GeneratedMessage {
   $core.bool hasTimeFormat() => $_has(1);
   @$pb.TagNumber(2)
   void clearTimeFormat() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get includeTime => $_getBF(2);
+  @$pb.TagNumber(3)
+  set includeTime($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasIncludeTime() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearIncludeTime() => clearField(3);
 }
 

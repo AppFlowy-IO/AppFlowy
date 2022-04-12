@@ -3,8 +3,8 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
-    BuildGridContext, CellChangeset, CreateFieldParams, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType,
-    GridBlockMeta, GridBlockMetaChangeset, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
+    BuildGridContext, CellChangeset, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
+    GridBlockMetaChangeset, InsertFieldParams, RowMeta, RowMetaChangeset, RowOrder, TypeOptionDataEntry,
 };
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
@@ -18,7 +18,7 @@ use tokio::time::sleep;
 
 pub enum EditorScript {
     CreateField {
-        params: CreateFieldParams,
+        params: InsertFieldParams,
     },
     UpdateField {
         changeset: FieldChangesetParams,
@@ -124,7 +124,7 @@ impl GridEditorTest {
                     self.field_count += 1;
                 }
 
-                self.editor.create_field(params).await.unwrap();
+                self.editor.insert_field(params).await.unwrap();
                 self.field_metas = self.editor.get_field_metas::<FieldOrder>(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_metas.len());
             }
@@ -249,7 +249,7 @@ async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
         .row_metas
 }
 
-pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
+pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldMeta) {
     let field_meta = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
@@ -273,7 +273,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
         width: field_meta.width,
     };
 
-    let params = CreateFieldParams {
+    let params = InsertFieldParams {
         grid_id: grid_id.to_owned(),
         field,
         type_option_data,
@@ -282,7 +282,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
     (params, cloned_field_meta)
 }
 
-pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMeta) {
+pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldMeta) {
     let single_select = SingleSelectTypeOptionBuilder::default()
         .option(SelectOption::new("Done"))
         .option(SelectOption::new("Progress"));
@@ -305,7 +305,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldMet
         width: field_meta.width,
     };
 
-    let params = CreateFieldParams {
+    let params = InsertFieldParams {
         grid_id: grid_id.to_owned(),
         field,
         type_option_data,

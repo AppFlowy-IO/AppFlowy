@@ -62,13 +62,13 @@ pub(crate) async fn update_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_field_handler(
-    data: Data<CreateFieldPayload>,
+pub(crate) async fn insert_field_handler(
+    data: Data<InsertFieldPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: CreateFieldParams = data.into_inner().try_into()?;
+    let params: InsertFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.create_field(params).await?;
+    let _ = editor.insert_field(params).await?;
     Ok(())
 }
 
@@ -243,7 +243,7 @@ pub(crate) async fn new_select_option_handler(data: Data<SelectOptionName>) -> D
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn select_option_changeset_handler(
+pub(crate) async fn update_select_option_handler(
     data: Data<SelectOptionChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
@@ -281,6 +281,18 @@ pub(crate) async fn select_option_changeset_handler(
     }
     Ok(())
 }
+//
+// #[tracing::instrument(level = "debug", skip_all, err)]
+// pub(crate) async fn update_date_option_handler(
+//     data: Data<SelectOptionCellChangesetPayload>,
+//     manager: AppData<Arc<GridManager>>,
+// ) -> Result<(), FlowyError> {
+//     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
+//     let editor = manager.get_grid_editor(&params.grid_id)?;
+//     let changeset: CellChangeset = params.into();
+//     let _ = editor.update_cell(changeset).await?;
+//     Ok(())
+// }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
@@ -304,7 +316,7 @@ pub(crate) async fn get_select_option_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn select_option_cell_changeset_handler(
+pub(crate) async fn update_cell_select_option_handler(
     data: Data<SelectOptionCellChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {

@@ -162,6 +162,7 @@
       "multiSelectFieldName": "Multiselect",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
+      "includeTime": " Include time",
       "dateFormatFriendly": "Month Day,Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Month/Day",

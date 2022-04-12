@@ -98,7 +98,7 @@ message CreateRowPayload {
     string grid_id = 1;
     oneof one_of_start_row_id { string start_row_id = 2; };
 }
-message CreateFieldPayload {
+message InsertFieldPayload {
     string grid_id = 1;
     Field field = 2;
     bytes type_option_data = 3;

@@ -13,7 +13,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
-        .event(GridEvent::CreateField, create_field_handler)
+        .event(GridEvent::InsertField, insert_field_handler)
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
@@ -27,12 +27,10 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::UpdateCell, update_cell_handler)
         // SelectOption
         .event(GridEvent::NewSelectOption, new_select_option_handler)
-        .event(GridEvent::ApplySelectOptionChangeset, select_option_changeset_handler)
+        .event(GridEvent::UpdateSelectOption, update_select_option_handler)
         .event(GridEvent::GetSelectOptionContext, get_select_option_handler)
-        .event(
-            GridEvent::ApplySelectOptionCellChangeset,
-            select_option_cell_changeset_handler,
-        )
+        .event(GridEvent::UpdateCellSelectOption, update_cell_select_option_handler)
+        //
         .event(GridEvent::GetEditFieldContext, get_field_context_handler);
 
     module
@@ -53,8 +51,8 @@ pub enum GridEvent {
     #[event(input = "FieldChangesetPayload")]
     UpdateField = 11,
 
-    #[event(input = "CreateFieldPayload")]
-    CreateField = 12,
+    #[event(input = "InsertFieldPayload")]
+    InsertField = 12,
 
     #[event(input = "FieldIdentifierPayload")]
     DeleteField = 13,
@@ -75,7 +73,7 @@ pub enum GridEvent {
     GetSelectOptionContext = 31,
 
     #[event(input = "SelectOptionChangesetPayload")]
-    ApplySelectOptionChangeset = 32,
+    UpdateSelectOption = 32,
 
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 50,
@@ -96,5 +94,5 @@ pub enum GridEvent {
     UpdateCell = 71,
 
     #[event(input = "SelectOptionCellChangesetPayload")]
-    ApplySelectOptionCellChangeset = 72,
+    UpdateCellSelectOption = 72,
 }

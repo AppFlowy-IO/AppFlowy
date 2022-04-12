@@ -288,7 +288,7 @@ async fn grid_row_add_date_cell_test() {
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
         decode_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type).unwrap(),
-        "2022/03/16 08:31",
+        "2022/03/16",
     );
     let scripts = vec![CreateRow { context }];
     test.run_scripts(scripts).await;

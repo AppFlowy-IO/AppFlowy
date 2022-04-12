@@ -24,7 +24,20 @@ LIB_NAME = "dart_ffi"
 CURRENT_APP_VERSION = "0.0.4"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
-#CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
+# CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
+# If you update the macOS's CRATE_TYPE, don't forget to update the
+# flowy_sdk.podspec
+#   for staticlib:
+#        s.static_framework = true
+#        s.vendored_libraries = "libdart_ffi.a"
+#   for cdylib:
+#        s.vendored_libraries = "libdart_ffi.dylib"
+#
+# Remember to update the ffi.dart:
+#   for staticlib:
+#       if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
+#   for cdylib:
+#       if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
 APP_ENVIRONMENT = "local"

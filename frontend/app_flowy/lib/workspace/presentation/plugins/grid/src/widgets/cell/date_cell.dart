@@ -43,9 +43,9 @@ class _DateCellState extends State<DateCell> {
                 _CellCalendar.show(
                   context,
                   onSelected: (day) {
-                    widget.setFocus(context, false);
                     context.read<DateCellBloc>().add(DateCellEvent.selectDay(day));
                   },
+                  onDismissed: () => widget.setFocus(context, false),
                 );
               },
               child: MouseRegion(
@@ -71,17 +71,22 @@ final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
 
-class _CellCalendar extends StatefulWidget {
+class _CellCalendar extends StatefulWidget with FlowyOverlayDelegate {
   final void Function(DateTime) onSelected;
-  const _CellCalendar({required this.onSelected, Key? key}) : super(key: key);
+  final VoidCallback onDismissed;
+  const _CellCalendar({required this.onSelected, required this.onDismissed, Key? key}) : super(key: key);
 
   @override
   State<_CellCalendar> createState() => _CellCalendarState();
 
-  static Future<void> show(BuildContext context, {required void Function(DateTime) onSelected}) async {
+  static Future<void> show(
+    BuildContext context, {
+    required void Function(DateTime) onSelected,
+    required VoidCallback onDismissed,
+  }) async {
     _CellCalendar.remove(context);
     final window = await getWindowInfo();
-    final calendar = _CellCalendar(onSelected: onSelected);
+    final calendar = _CellCalendar(onSelected: onSelected, onDismissed: onDismissed);
     const size = Size(460, 400);
     FlowyOverlay.of(context).insertWithRect(
       widget: OverlayContainer(
@@ -93,6 +98,7 @@ class _CellCalendar extends StatefulWidget {
       anchorSize: window.frame.size,
       anchorDirection: AnchorDirection.center,
       style: FlowyOverlayStyle(blur: false),
+      delegate: calendar,
     );
   }
 
@@ -103,6 +109,9 @@ class _CellCalendar extends StatefulWidget {
   static String identifier() {
     return (_CellCalendar).toString();
   }
+
+  @override
+  void didRemove() => onDismissed();
 }
 
 class _CellCalendarState extends State<_CellCalendar> {

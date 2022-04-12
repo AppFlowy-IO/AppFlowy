@@ -51,8 +51,8 @@ impl ClientGridEditor {
         }))
     }
 
-    pub async fn create_field(&self, params: CreateFieldParams) -> FlowyResult<()> {
-        let CreateFieldParams {
+    pub async fn insert_field(&self, params: InsertFieldParams) -> FlowyResult<()> {
+        let InsertFieldParams {
             field,
             type_option_data,
             start_field_id,
@@ -483,6 +483,8 @@ impl JsonDeserializer for TypeOptionJsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
         // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
-        Ok(builder.entry().json_str())
+        let json = builder.entry().json_str();
+        tracing::trace!("Deserialize type option data to: {}", json);
+        Ok(json)
     }
 }
