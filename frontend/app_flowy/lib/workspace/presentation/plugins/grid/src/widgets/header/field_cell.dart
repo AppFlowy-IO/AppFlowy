@@ -4,7 +4,9 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.d
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_type_extension.dart';
@@ -25,21 +27,52 @@ class GridFieldCell extends StatelessWidget {
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
           final button = FlowyButton(
-            hoverColor: theme.hover,
+            hoverColor: theme.shader6,
             onTap: () => _showActionSheet(context),
-            rightIcon: svgWidget("editor/details", color: theme.iconColor),
+            // rightIcon: svgWidget("editor/details", color: theme.iconColor),
             leftIcon: svgWidget(state.field.fieldType.iconName(), color: theme.iconColor),
             text: FlowyText.medium(state.field.name, fontSize: 12),
             padding: GridSize.cellContentInsets,
           );
 
+          final line = InkWell(
+            onTap: () {},
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragCancel: () {},
+              onHorizontalDragUpdate: (value) {
+                Log.info(value.delta);
+              },
+              child: FlowyHover(
+                style: HoverStyle(
+                  hoverColor: theme.main1,
+                  borderRadius: BorderRadius.zero,
+                  contentMargin: const EdgeInsets.only(left: 5),
+                ),
+                builder: (_, onHover) => const SizedBox(width: 2),
+              ),
+            ),
+          );
+
           final borderSide = BorderSide(color: theme.shader4, width: 0.4);
-          final decoration = BoxDecoration(border: Border(top: borderSide, right: borderSide, bottom: borderSide));
+          final decoration = BoxDecoration(
+              border: Border(
+            top: borderSide,
+            right: borderSide,
+            bottom: borderSide,
+          ));
 
           return Container(
             width: state.field.width.toDouble(),
             decoration: decoration,
-            child: button,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints.expand(),
+              child: Stack(
+                alignment: Alignment.centerRight,
+                fit: StackFit.expand,
+                children: [button, Positioned(top: 0, bottom: 0, right: 0, child: line)],
+              ),
+            ),
           );
         },
       ),

@@ -199,7 +199,7 @@ class _SelectOptionCell extends StatelessWidget {
           context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
         },
         child: FlowyHover(
-          config: HoverDisplayConfig(hoverColor: theme.hover),
+          style: HoverStyle(hoverColor: theme.hover),
           builder: (_, onHover) {
             List<Widget> children = [
               SelectOptionTag(option: option, isSelected: isSelected),

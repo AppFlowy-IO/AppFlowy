@@ -72,28 +72,27 @@ class _GridHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     final cells = fields.map(
       (field) => GridFieldCell(
         GridFieldCellContext(gridId: gridId, field: field),
       ),
     );
 
-    final row = Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _HeaderLeading(),
+        const _CellLeading(),
         ...cells,
-        _HeaderTrailing(gridId: gridId),
+        _CellTrailing(gridId: gridId),
       ],
     );
 
-    return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
+    // return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
   }
 }
 
-class _HeaderLeading extends StatelessWidget {
-  const _HeaderLeading({Key? key}) : super(key: key);
+class _CellLeading extends StatelessWidget {
+  const _CellLeading({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +102,9 @@ class _HeaderLeading extends StatelessWidget {
   }
 }
 
-class _HeaderTrailing extends StatelessWidget {
+class _CellTrailing extends StatelessWidget {
   final String gridId;
-  const _HeaderTrailing({required this.gridId, Key? key}) : super(key: key);
+  const _CellTrailing({required this.gridId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

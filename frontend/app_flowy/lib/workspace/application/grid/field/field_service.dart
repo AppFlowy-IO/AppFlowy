@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+part 'field_service.freezed.dart';
 
 class FieldService {
   final String gridId;
@@ -98,17 +99,12 @@ class FieldService {
   }
 }
 
-class GridFieldCellContext extends Equatable {
-  final String gridId;
-  final Field field;
-
-  const GridFieldCellContext({
-    required this.gridId,
-    required this.field,
-  });
-
-  @override
-  List<Object> get props => [field.id];
+@freezed
+class GridFieldCellContext with _$GridFieldCellContext {
+  const factory GridFieldCellContext({
+    required String gridId,
+    required Field field,
+  }) = _GridFieldCellContext;
 }
 
 abstract class EditFieldContextLoader {

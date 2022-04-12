@@ -100,7 +100,7 @@ class _FlowyGridState extends State<FlowyGrid> {
               controller: _scrollController.verticalController,
               slivers: [
                 _renderToolbar(state.gridId),
-                _renderGridHeader(state.gridId),
+                _renderHeader(state.gridId),
                 _renderRows(gridId: state.gridId, context: context),
                 const GridFooter(),
               ],
@@ -126,7 +126,7 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _renderGridHeader(String gridId) {
+  Widget _renderHeader(String gridId) {
     return BlocSelector<GridBloc, GridState, List<Field>>(
       selector: (state) => state.fields,
       builder: (context, fields) {

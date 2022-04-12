@@ -10,10 +10,12 @@ part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldListener _fieldListener;
+  final FieldService _fieldService;
 
   FieldCellBloc({
     required GridFieldCellContext cellContext,
   })  : _fieldListener = FieldListener(fieldId: cellContext.field.id),
+        _fieldService = FieldService(gridId: cellContext.gridId),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -24,6 +26,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(field: value.field));
           },
+          updateWidth: (_UpdateWidth value) {},
         );
       },
     );
@@ -50,6 +53,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
   const factory FieldCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
+  const factory FieldCellEvent.updateWidth(double offset) = _UpdateWidth;
 }
 
 @freezed

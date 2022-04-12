@@ -28,7 +28,7 @@ class FlowyButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: FlowyHover(
-        config: HoverDisplayConfig(borderRadius: Corners.s6Border, hoverColor: hoverColor),
+        style: HoverStyle(borderRadius: Corners.s6Border, hoverColor: hoverColor),
         setSelected: () => isSelected,
         builder: (context, onHover) => _render(),
       ),
