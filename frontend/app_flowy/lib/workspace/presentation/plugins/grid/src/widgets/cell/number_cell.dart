@@ -26,7 +26,7 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<NumberCellBloc>(param1: widget.cellData);
+    _cellBloc = getIt<NumberCellBloc>(param1: widget.cellData)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode = CellFocusNode();
     super.initState();
@@ -48,7 +48,6 @@ class _NumberCellState extends State<NumberCell> {
           return TextField(
             controller: _controller,
             focusNode: _focusNode,
-            onChanged: (value) => focusChanged(),
             onEditingComplete: () => _focusNode.unfocus(),
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -76,7 +75,12 @@ class _NumberCellState extends State<NumberCell> {
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 300), () {
         if (_cellBloc.isClosed == false && _controller.text != _cellBloc.state.content) {
-          _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
+          final number = num.tryParse(_controller.text);
+          if (number != null) {
+            _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
+          } else {
+            _controller.text = "";
+          }
         }
       });
     }

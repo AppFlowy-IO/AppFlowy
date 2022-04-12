@@ -85,7 +85,7 @@ class _FlowyGridState extends State<FlowyGrid> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
+      buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
         if (state.fields.isEmpty) {
           return const Center(child: CircularProgressIndicator.adaptive());
@@ -99,10 +99,10 @@ class _FlowyGridState extends State<FlowyGrid> {
               physics: StyledScrollPhysics(),
               controller: _scrollController.verticalController,
               slivers: [
-                _renderToolbar(state.gridId),
-                _renderHeader(state.gridId),
-                _renderRows(gridId: state.gridId, context: context),
-                const GridFooter(),
+                const _GridToolbarAdaptor(),
+                GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
+                _GridRows(),
+                const SliverToBoxAdapter(child: GridFooter()),
               ],
             ),
           ),
@@ -125,33 +125,35 @@ class _FlowyGridState extends State<FlowyGrid> {
       ),
     );
   }
+}
 
-  Widget _renderHeader(String gridId) {
-    return BlocSelector<GridBloc, GridState, List<Field>>(
-      selector: (state) => state.fields,
-      builder: (context, fields) {
-        return GridHeader(gridId: gridId, fields: List.from(fields));
-      },
-    );
-  }
+class _GridToolbarAdaptor extends StatelessWidget {
+  const _GridToolbarAdaptor({Key? key}) : super(key: key);
 
-  Widget _renderToolbar(String gridId) {
-    return BlocSelector<GridBloc, GridState, List<Field>>(
-      selector: (state) => state.fields,
-      builder: (context, fields) {
-        final toolbarContext = GridToolbarContext(
-          gridId: gridId,
-          fields: fields,
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<GridBloc, GridState, GridToolbarContext>(
+      selector: (state) {
+        return GridToolbarContext(
+          gridId: state.gridId,
+          fields: state.fields,
         );
-
+      },
+      builder: (context, toolbarContext) {
         return SliverToBoxAdapter(
           child: GridToolbar(toolbarContext: toolbarContext),
         );
       },
     );
   }
+}
 
-  Widget _renderRows({required String gridId, required BuildContext context}) {
+class _GridRows extends StatelessWidget {
+  final _key = GlobalKey<SliverAnimatedListState>();
+  _GridRows({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
       listener: (context, state) {
         state.listState.map(

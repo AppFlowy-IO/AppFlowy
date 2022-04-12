@@ -19,21 +19,10 @@ class GridHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = getIt<GridHeaderBloc>(param1: gridId, param2: fields);
-        bloc.add(const GridHeaderEvent.initial());
-        return bloc;
-      },
-      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
-        builder: (context, state) {
-          return SliverPersistentHeader(
-            delegate: _GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
-            floating: true,
-            pinned: true,
-          );
-        },
-      ),
+    return SliverPersistentHeader(
+      delegate: _GridHeaderDelegate(gridId: gridId, fields: List.from(fields)),
+      floating: true,
+      pinned: true,
     );
   }
 }

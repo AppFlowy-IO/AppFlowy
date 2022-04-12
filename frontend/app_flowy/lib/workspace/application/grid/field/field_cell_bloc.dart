@@ -26,7 +26,13 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(field: value.field));
           },
-          updateWidth: (_UpdateWidth value) {},
+          updateWidth: (_UpdateWidth value) {
+            final defaultWidth = state.field.width.toDouble();
+            final width = defaultWidth + value.offset;
+            if (width > defaultWidth && width < 300) {
+              _fieldService.updateField(fieldId: state.field.id, width: width);
+            }
+          },
         );
       },
     );

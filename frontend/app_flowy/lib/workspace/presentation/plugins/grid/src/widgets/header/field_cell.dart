@@ -41,7 +41,7 @@ class GridFieldCell extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onHorizontalDragCancel: () {},
               onHorizontalDragUpdate: (value) {
-                Log.info(value.delta);
+                context.read<FieldCellBloc>().add(FieldCellEvent.updateWidth(value.delta.dx));
               },
               child: FlowyHover(
                 style: HoverStyle(

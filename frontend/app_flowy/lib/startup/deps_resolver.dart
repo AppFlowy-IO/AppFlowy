@@ -156,13 +156,6 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<GridHeaderBloc, String, List<Field>>(
-    (gridId, fields) => GridHeaderBloc(
-      data: GridHeaderData(gridId: gridId, fields: fields),
-      service: FieldService(gridId: gridId),
-    ),
-  );
-
   getIt.registerFactoryParam<FieldActionSheetBloc, GridFieldCellContext, void>(
     (data, _) => FieldActionSheetBloc(
       field: data.field,

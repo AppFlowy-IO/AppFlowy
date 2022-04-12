@@ -12,17 +12,15 @@ class GridFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: SizedBox(
-        height: GridSize.footerHeight,
-        child: Padding(
-          padding: GridSize.headerContentInsets,
-          child: Row(
-            children: [
-              SizedBox(width: GridSize.leadingHeaderPadding),
-              const SizedBox(width: 120, child: _AddRowButton()),
-            ],
-          ),
+    return SizedBox(
+      height: GridSize.footerHeight,
+      child: Padding(
+        padding: GridSize.headerContentInsets,
+        child: Row(
+          children: [
+            SizedBox(width: GridSize.leadingHeaderPadding),
+            const SizedBox(width: 120, child: _AddRowButton()),
+          ],
         ),
       ),
     );

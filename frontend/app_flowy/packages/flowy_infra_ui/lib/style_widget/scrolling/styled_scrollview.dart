@@ -74,21 +74,21 @@ class _StyledSingleChildScrollViewState extends State<StyledSingleChildScrollVie
 }
 
 class StyledCustomScrollView extends StatefulWidget {
-  final double? contentSize;
   final Axis axis;
   final Color? trackColor;
   final Color? handleColor;
-  final ScrollController? controller;
+  final ScrollController? verticalController;
   final List<Widget> slivers;
+  final double barSize;
 
   const StyledCustomScrollView({
     Key? key,
-    this.contentSize,
     this.axis = Axis.vertical,
     this.trackColor,
     this.handleColor,
-    this.controller,
+    this.verticalController,
     this.slivers = const <Widget>[],
+    this.barSize = 12,
   }) : super(key: key);
 
   @override
@@ -96,17 +96,17 @@ class StyledCustomScrollView extends StatefulWidget {
 }
 
 class _StyledCustomScrollViewState extends State<StyledCustomScrollView> {
-  late ScrollController scrollController;
+  late ScrollController controller;
 
   @override
   void initState() {
-    scrollController = widget.controller ?? ScrollController();
+    controller = widget.verticalController ?? ScrollController();
+
     super.initState();
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
     super.dispose();
   }
 
@@ -120,19 +120,23 @@ class _StyledCustomScrollViewState extends State<StyledCustomScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollbarListStack(
-      contentSize: widget.contentSize,
-      axis: widget.axis,
-      controller: scrollController,
-      barSize: 12,
-      trackColor: widget.trackColor,
-      handleColor: widget.handleColor,
+    var child = ScrollConfiguration(
+      behavior: const ScrollBehavior().copyWith(scrollbars: false),
       child: CustomScrollView(
         scrollDirection: widget.axis,
         physics: StyledScrollPhysics(),
-        controller: scrollController,
+        controller: controller,
         slivers: widget.slivers,
       ),
+    );
+
+    return ScrollbarListStack(
+      axis: widget.axis,
+      controller: controller,
+      barSize: widget.barSize,
+      trackColor: widget.trackColor,
+      handleColor: widget.handleColor,
+      child: child,
     );
   }
 }
