@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dar
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -35,6 +35,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
               content: value.cell.content,
             ));
           },
+          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+            emit(state.copyWith(field: value.field));
+            _loadCellData();
+          },
         );
       },
     );
@@ -58,7 +62,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
     _fieldListener.updateFieldNotifier.addPublishListener((result) {
       result.fold(
-        (field) => _loadCellData(),
+        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
     });
@@ -97,6 +101,7 @@ class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
   const factory DateCellEvent.selectDay(DateTime day) = _SelectDay;
   const factory DateCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
@@ -104,11 +109,13 @@ class DateCellState with _$DateCellState {
   const factory DateCellState({
     required CellData cellData,
     required String content,
+    required Field field,
     DateTime? selectedDay,
   }) = _DateCellState;
 
   factory DateCellState.initial(CellData cellData) => DateCellState(
         cellData: cellData,
+        field: cellData.field,
         content: cellData.cell?.content ?? "",
       );
 }

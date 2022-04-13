@@ -74,7 +74,13 @@ final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
 class _CellCalendar extends StatefulWidget with FlowyOverlayDelegate {
   final void Function(DateTime) onSelected;
   final VoidCallback onDismissed;
-  const _CellCalendar({required this.onSelected, required this.onDismissed, Key? key}) : super(key: key);
+  final bool includeTime;
+  const _CellCalendar({
+    required this.onSelected,
+    required this.onDismissed,
+    required this.includeTime,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<_CellCalendar> createState() => _CellCalendarState();
@@ -86,7 +92,11 @@ class _CellCalendar extends StatefulWidget with FlowyOverlayDelegate {
   }) async {
     _CellCalendar.remove(context);
 
-    final calendar = _CellCalendar(onSelected: onSelected, onDismissed: onDismissed);
+    final calendar = _CellCalendar(
+      onSelected: onSelected,
+      onDismissed: onDismissed,
+      includeTime: false,
+    );
     // const size = Size(460, 400);
     // final window = await getWindowInfo();
     // FlowyOverlay.of(context).insertWithRect(
@@ -105,11 +115,11 @@ class _CellCalendar extends StatefulWidget with FlowyOverlayDelegate {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: calendar,
-        constraints: BoxConstraints.loose(const Size(300, 320)),
+        constraints: BoxConstraints.tight(const Size(320, 320)),
       ),
       identifier: _CellCalendar.identifier(),
       anchorContext: context,
-      anchorDirection: AnchorDirection.bottomWithCenterAligned,
+      anchorDirection: AnchorDirection.leftWithCenterAligned,
       style: FlowyOverlayStyle(blur: false),
       delegate: calendar,
     );

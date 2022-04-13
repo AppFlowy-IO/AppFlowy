@@ -20,6 +20,15 @@ class FieldService {
     return GridEventSwitchToField(payload).send();
   }
 
+  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(String fieldId, FieldType fieldType) {
+    final payload = GetEditFieldContextPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+
+    return GridEventGetEditFieldContext(payload).send();
+  }
+
   Future<Either<Unit, FlowyError>> updateField({
     required String fieldId,
     String? name,

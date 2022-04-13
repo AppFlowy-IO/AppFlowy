@@ -40,7 +40,7 @@ class _GridPageState extends State<GridPage> {
           return state.loadingState.map(
             loading: (_) => const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const FlowyGrid(),
+              (_) => FlowyGrid(),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -65,64 +65,61 @@ class _GridPageState extends State<GridPage> {
   }
 }
 
-class FlowyGrid extends StatefulWidget {
-  const FlowyGrid({Key? key}) : super(key: key);
-
-  @override
-  _FlowyGridState createState() => _FlowyGridState();
-}
-
-class _FlowyGridState extends State<FlowyGrid> {
+class FlowyGrid extends StatelessWidget {
   final _scrollController = GridScrollController();
-  final _key = GlobalKey<SliverAnimatedListState>();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  FlowyGrid({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
-        if (state.fields.isEmpty) {
-          return const Center(child: CircularProgressIndicator.adaptive());
-        }
-
-        final child = SizedBox(
-          width: GridLayout.headerWidth(state.fields),
-          child: ScrollConfiguration(
-            behavior: const ScrollBehavior().copyWith(scrollbars: false),
-            child: CustomScrollView(
-              physics: StyledScrollPhysics(),
-              controller: _scrollController.verticalController,
-              slivers: [
-                const _GridToolbarAdaptor(),
-                GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
-                _GridRows(),
-                const SliverToBoxAdapter(child: GridFooter()),
-              ],
-            ),
-          ),
+        final child = _wrapScrollView(
+          state.fields,
+          [
+            _GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
+            _GridRows(),
+            const _GridFooter(),
+          ],
         );
 
-        return _wrapScrollbar(child);
+        return Column(children: [
+          const _GridToolbarAdaptor(),
+          Flexible(child: child),
+        ]);
       },
     );
   }
 
-  Widget _wrapScrollbar(Widget child) {
+  Widget _wrapScrollView(
+    List<Field> fields,
+    List<Widget> slivers,
+  ) {
+    final verticalScrollView = ScrollConfiguration(
+      behavior: const ScrollBehavior().copyWith(scrollbars: false),
+      child: CustomScrollView(
+        physics: StyledScrollPhysics(),
+        controller: _scrollController.verticalController,
+        slivers: slivers,
+      ),
+    );
+
+    final sizedVerticalScrollView = SizedBox(
+      width: GridLayout.headerWidth(fields),
+      child: verticalScrollView,
+    );
+
+    final horizontalScrollView = StyledSingleChildScrollView(
+      controller: _scrollController.horizontalController,
+      axis: Axis.horizontal,
+      child: sizedVerticalScrollView,
+    );
+
     return ScrollbarListStack(
       axis: Axis.vertical,
       controller: _scrollController.verticalController,
       barSize: GridSize.scrollBarSize,
-      child: StyledSingleChildScrollView(
-        controller: _scrollController.horizontalController,
-        axis: Axis.horizontal,
-        child: child,
-      ),
+      child: horizontalScrollView,
     );
   }
 }
@@ -140,10 +137,23 @@ class _GridToolbarAdaptor extends StatelessWidget {
         );
       },
       builder: (context, toolbarContext) {
-        return SliverToBoxAdapter(
-          child: GridToolbar(toolbarContext: toolbarContext),
-        );
+        return GridToolbar(toolbarContext: toolbarContext);
       },
+    );
+  }
+}
+
+class _GridHeader extends StatelessWidget {
+  final String gridId;
+  final List<Field> fields;
+  const _GridHeader({Key? key, required this.gridId, required this.fields}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPersistentHeader(
+      delegate: GridHeaderSliverAdaptor(gridId: gridId, fields: List.from(fields)),
+      floating: true,
+      pinned: true,
     );
   }
 }
@@ -188,6 +198,31 @@ class _GridRows extends StatelessWidget {
     return SizeTransition(
       sizeFactor: animation,
       child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
+    );
+  }
+}
+
+class _GridFooter extends StatelessWidget {
+  const _GridFooter({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(bottom: 200),
+      sliver: SliverToBoxAdapter(
+        child: SizedBox(
+          height: GridSize.footerHeight,
+          child: Padding(
+            padding: GridSize.headerContentInsets,
+            child: Row(
+              children: [
+                SizedBox(width: GridSize.leadingHeaderPadding),
+                const SizedBox(width: 120, child: GridAddRowButton()),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

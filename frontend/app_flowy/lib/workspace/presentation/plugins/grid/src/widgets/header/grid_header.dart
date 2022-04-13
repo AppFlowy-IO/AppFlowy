@@ -12,30 +12,32 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
-class GridHeader extends StatelessWidget {
-  final String gridId;
-  final List<Field> fields;
-  const GridHeader({Key? key, required this.gridId, required this.fields}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPersistentHeader(
-      delegate: _GridHeaderDelegate(gridId: gridId, fields: List.from(fields)),
-      floating: true,
-      pinned: true,
-    );
-  }
-}
-
-class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
+class GridHeaderSliverAdaptor extends SliverPersistentHeaderDelegate {
   final String gridId;
   final List<Field> fields;
 
-  _GridHeaderDelegate({required this.gridId, required this.fields});
+  GridHeaderSliverAdaptor({required this.gridId, required this.fields});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeaderWidget(gridId: gridId, fields: fields, key: ObjectKey(fields));
+    final cells = fields.map(
+      (field) => GridFieldCell(
+        GridFieldCellContext(gridId: gridId, field: field),
+      ),
+    );
+
+    return Container(
+      color: Colors.white,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const _CellLeading(),
+          ...cells,
+          _CellTrailing(gridId: gridId),
+        ],
+        key: ObjectKey(fields),
+      ),
+    );
   }
 
   @override
@@ -46,37 +48,10 @@ class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is _GridHeaderDelegate) {
+    if (oldDelegate is GridHeaderSliverAdaptor) {
       return fields.length != oldDelegate.fields.length;
     }
     return true;
-  }
-}
-
-class _GridHeaderWidget extends StatelessWidget {
-  final String gridId;
-  final List<Field> fields;
-
-  const _GridHeaderWidget({required this.gridId, required this.fields, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final cells = fields.map(
-      (field) => GridFieldCell(
-        GridFieldCellContext(gridId: gridId, field: field),
-      ),
-    );
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _CellLeading(),
-        ...cells,
-        _CellTrailing(gridId: gridId),
-      ],
-    );
-
-    // return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
   }
 }
 
