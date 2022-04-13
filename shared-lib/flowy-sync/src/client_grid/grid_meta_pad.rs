@@ -82,19 +82,23 @@ impl GridMetaPad {
         )
     }
 
-    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(
-            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
-                None => Ok(None),
-                Some(index) => {
-                    let mut duplicate_field_meta = grid_meta.fields[index].clone();
-                    duplicate_field_meta.id = gen_field_id();
-                    duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
-                    grid_meta.fields.insert(index + 1, duplicate_field_meta);
-                    Ok(Some(()))
-                }
-            },
-        )
+    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<(Option<GridChangeset>, Option<FieldMeta>)> {
+        let mut field_meta = None;
+        let changeset =
+            self.modify_grid(
+                |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                    None => Ok(None),
+                    Some(index) => {
+                        let mut duplicate_field_meta = grid_meta.fields[index].clone();
+                        duplicate_field_meta.id = gen_field_id();
+                        duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
+                        field_meta = Some(duplicate_field_meta.clone());
+                        grid_meta.fields.insert(index + 1, duplicate_field_meta);
+                        Ok(Some(()))
+                    }
+                },
+            )?;
+        Ok((changeset, field_meta))
     }
 
     pub fn switch_to_field<B>(

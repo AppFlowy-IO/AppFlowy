@@ -17,6 +17,16 @@ message Field {
 message FieldOrder {
     string field_id = 1;
 }
+message GridFieldChangeset {
+    string grid_id = 1;
+    repeated IndexField inserted_fields = 2;
+    repeated FieldOrder deleted_fields = 3;
+    repeated Field updated_fields = 4;
+}
+message IndexField {
+    Field field = 1;
+    oneof one_of_index { int32 index = 2; };
+}
 message GetEditFieldContextPayload {
     string grid_id = 1;
     oneof one_of_field_id { string field_id = 2; };
@@ -58,15 +68,15 @@ message GridBlockOrder {
     string block_id = 1;
     repeated RowOrder row_orders = 2;
 }
+message IndexRowOrder {
+    RowOrder row_order = 1;
+    oneof one_of_index { int32 index = 2; };
+}
 message GridRowsChangeset {
     string block_id = 1;
     repeated IndexRowOrder inserted_rows = 2;
     repeated RowOrder deleted_rows = 3;
     repeated RowOrder updated_rows = 4;
-}
-message IndexRowOrder {
-    RowOrder row_order = 1;
-    oneof one_of_index { int32 index = 2; };
 }
 message GridBlock {
     string id = 1;

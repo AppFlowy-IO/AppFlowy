@@ -151,7 +151,15 @@ impl ClientGridEditor {
     }
 
     pub async fn duplicate_field(&self, field_id: &str) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.duplicate_field(field_id)?)).await?;
+        let mut duplicated_field_meta = None;
+        let _ = self
+            .modify(|grid| {
+                let (changeset, field_meta) = grid.duplicate_field(field_id)?;
+                duplicated_field_meta = field_meta;
+                Ok(changeset)
+            })
+            .await?;
+
         let _ = self.notify_did_update_grid().await?;
         Ok(())
     }
@@ -386,10 +394,12 @@ impl ClientGridEditor {
     }
 
     pub async fn move_field(&self, from: i32, to: i32, field_id: &str) -> FlowyResult<()> {
+        // GridFieldChangeset
         todo!()
     }
 
     pub async fn move_row(&self, from: i32, to: i32, row_id: &str) -> FlowyResult<()> {
+        // GridRowsChangeset
         todo!()
     }
 
@@ -436,10 +446,19 @@ impl ClientGridEditor {
     }
 
     async fn notify_did_update_grid(&self) -> FlowyResult<()> {
+        // GridFieldChangeset
+
         let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
         let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateGrid)
             .payload(repeated_field)
+            .send();
+        Ok(())
+    }
+
+    async fn notify_did_update_grid2(&self, changeset: GridFieldChangeset) -> FlowyResult<()> {
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGrid)
+            .payload(changeset)
             .send();
         Ok(())
     }

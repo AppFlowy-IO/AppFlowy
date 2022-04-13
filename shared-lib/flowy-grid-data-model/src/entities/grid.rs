@@ -84,6 +84,59 @@ impl std::convert::From<String> for FieldOrder {
     }
 }
 
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct GridFieldChangeset {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub inserted_fields: Vec<IndexField>,
+
+    #[pb(index = 3)]
+    pub deleted_fields: Vec<FieldOrder>,
+
+    #[pb(index = 4)]
+    pub updated_fields: Vec<Field>,
+}
+
+impl GridFieldChangeset {
+    pub fn insert(grid_id: &str, inserted_fields: Vec<IndexField>) -> Self {
+        Self {
+            grid_id: grid_id.to_owned(),
+            inserted_fields,
+            deleted_fields: vec![],
+            updated_fields: vec![],
+        }
+    }
+
+    pub fn delete(grid_id: &str, deleted_fields: Vec<FieldOrder>) -> Self {
+        Self {
+            grid_id: grid_id.to_string(),
+            inserted_fields: vec![],
+            deleted_fields,
+            updated_fields: vec![],
+        }
+    }
+
+    pub fn update(grid_id: &str, updated_fields: Vec<Field>) -> Self {
+        Self {
+            grid_id: grid_id.to_string(),
+            inserted_fields: vec![],
+            deleted_fields: vec![],
+            updated_fields,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct IndexField {
+    #[pb(index = 1)]
+    pub field: Field,
+
+    #[pb(index = 2, one_of)]
+    pub index: Option<i32>,
+}
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GetEditFieldContextPayload {
     #[pb(index = 1)]
@@ -278,6 +331,15 @@ impl GridBlockOrder {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct IndexRowOrder {
+    #[pb(index = 1)]
+    pub row_order: RowOrder,
+
+    #[pb(index = 2, one_of)]
+    pub index: Option<i32>,
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridRowsChangeset {
     #[pb(index = 1)]
     pub block_id: String,
@@ -290,15 +352,6 @@ pub struct GridRowsChangeset {
 
     #[pb(index = 4)]
     pub updated_rows: Vec<RowOrder>,
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct IndexRowOrder {
-    #[pb(index = 1)]
-    pub row_order: RowOrder,
-
-    #[pb(index = 2, one_of)]
-    pub index: Option<i32>,
 }
 
 impl std::convert::From<RowOrder> for IndexRowOrder {

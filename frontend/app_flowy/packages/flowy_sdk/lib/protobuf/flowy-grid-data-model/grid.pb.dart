@@ -254,6 +254,153 @@ class FieldOrder extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(1);
 }
 
+class GridFieldChangeset extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridFieldChangeset', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..pc<IndexField>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedFields', $pb.PbFieldType.PM, subBuilder: IndexField.create)
+    ..pc<FieldOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deletedFields', $pb.PbFieldType.PM, subBuilder: FieldOrder.create)
+    ..pc<Field>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'updatedFields', $pb.PbFieldType.PM, subBuilder: Field.create)
+    ..hasRequiredFields = false
+  ;
+
+  GridFieldChangeset._() : super();
+  factory GridFieldChangeset({
+    $core.String? gridId,
+    $core.Iterable<IndexField>? insertedFields,
+    $core.Iterable<FieldOrder>? deletedFields,
+    $core.Iterable<Field>? updatedFields,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (insertedFields != null) {
+      _result.insertedFields.addAll(insertedFields);
+    }
+    if (deletedFields != null) {
+      _result.deletedFields.addAll(deletedFields);
+    }
+    if (updatedFields != null) {
+      _result.updatedFields.addAll(updatedFields);
+    }
+    return _result;
+  }
+  factory GridFieldChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridFieldChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GridFieldChangeset clone() => GridFieldChangeset()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GridFieldChangeset copyWith(void Function(GridFieldChangeset) updates) => super.copyWith((message) => updates(message as GridFieldChangeset)) as GridFieldChangeset; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GridFieldChangeset create() => GridFieldChangeset._();
+  GridFieldChangeset createEmptyInstance() => create();
+  static $pb.PbList<GridFieldChangeset> createRepeated() => $pb.PbList<GridFieldChangeset>();
+  @$core.pragma('dart2js:noInline')
+  static GridFieldChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridFieldChangeset>(create);
+  static GridFieldChangeset? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<IndexField> get insertedFields => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.List<FieldOrder> get deletedFields => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.List<Field> get updatedFields => $_getList(3);
+}
+
+enum IndexField_OneOfIndex {
+  index_, 
+  notSet
+}
+
+class IndexField extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, IndexField_OneOfIndex> _IndexField_OneOfIndexByTag = {
+    2 : IndexField_OneOfIndex.index_,
+    0 : IndexField_OneOfIndex.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IndexField', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..aOM<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'field', subBuilder: Field.create)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'index', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  IndexField._() : super();
+  factory IndexField({
+    Field? field_1,
+    $core.int? index,
+  }) {
+    final _result = create();
+    if (field_1 != null) {
+      _result.field_1 = field_1;
+    }
+    if (index != null) {
+      _result.index = index;
+    }
+    return _result;
+  }
+  factory IndexField.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory IndexField.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  IndexField clone() => IndexField()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  IndexField copyWith(void Function(IndexField) updates) => super.copyWith((message) => updates(message as IndexField)) as IndexField; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static IndexField create() => IndexField._();
+  IndexField createEmptyInstance() => create();
+  static $pb.PbList<IndexField> createRepeated() => $pb.PbList<IndexField>();
+  @$core.pragma('dart2js:noInline')
+  static IndexField getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IndexField>(create);
+  static IndexField? _defaultInstance;
+
+  IndexField_OneOfIndex whichOneOfIndex() => _IndexField_OneOfIndexByTag[$_whichOneof(0)]!;
+  void clearOneOfIndex() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  Field get field_1 => $_getN(0);
+  @$pb.TagNumber(1)
+  set field_1(Field v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasField_1() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearField_1() => clearField(1);
+  @$pb.TagNumber(1)
+  Field ensureField_1() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.int get index => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set index($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIndex() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIndex() => clearField(2);
+}
+
 enum GetEditFieldContextPayload_OneOfFieldId {
   fieldId, 
   notSet
@@ -857,77 +1004,6 @@ class GridBlockOrder extends $pb.GeneratedMessage {
   $core.List<RowOrder> get rowOrders => $_getList(1);
 }
 
-class GridRowsChangeset extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridRowsChangeset', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
-    ..pc<IndexRowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedRows', $pb.PbFieldType.PM, subBuilder: IndexRowOrder.create)
-    ..pc<RowOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deletedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
-    ..pc<RowOrder>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'updatedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
-    ..hasRequiredFields = false
-  ;
-
-  GridRowsChangeset._() : super();
-  factory GridRowsChangeset({
-    $core.String? blockId,
-    $core.Iterable<IndexRowOrder>? insertedRows,
-    $core.Iterable<RowOrder>? deletedRows,
-    $core.Iterable<RowOrder>? updatedRows,
-  }) {
-    final _result = create();
-    if (blockId != null) {
-      _result.blockId = blockId;
-    }
-    if (insertedRows != null) {
-      _result.insertedRows.addAll(insertedRows);
-    }
-    if (deletedRows != null) {
-      _result.deletedRows.addAll(deletedRows);
-    }
-    if (updatedRows != null) {
-      _result.updatedRows.addAll(updatedRows);
-    }
-    return _result;
-  }
-  factory GridRowsChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GridRowsChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  GridRowsChangeset clone() => GridRowsChangeset()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  GridRowsChangeset copyWith(void Function(GridRowsChangeset) updates) => super.copyWith((message) => updates(message as GridRowsChangeset)) as GridRowsChangeset; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static GridRowsChangeset create() => GridRowsChangeset._();
-  GridRowsChangeset createEmptyInstance() => create();
-  static $pb.PbList<GridRowsChangeset> createRepeated() => $pb.PbList<GridRowsChangeset>();
-  @$core.pragma('dart2js:noInline')
-  static GridRowsChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridRowsChangeset>(create);
-  static GridRowsChangeset? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get blockId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set blockId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasBlockId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearBlockId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.List<IndexRowOrder> get insertedRows => $_getList(1);
-
-  @$pb.TagNumber(3)
-  $core.List<RowOrder> get deletedRows => $_getList(2);
-
-  @$pb.TagNumber(4)
-  $core.List<RowOrder> get updatedRows => $_getList(3);
-}
-
 enum IndexRowOrder_OneOfIndex {
   index_, 
   notSet
@@ -1002,6 +1078,77 @@ class IndexRowOrder extends $pb.GeneratedMessage {
   $core.bool hasIndex() => $_has(1);
   @$pb.TagNumber(2)
   void clearIndex() => clearField(2);
+}
+
+class GridRowsChangeset extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridRowsChangeset', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
+    ..pc<IndexRowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedRows', $pb.PbFieldType.PM, subBuilder: IndexRowOrder.create)
+    ..pc<RowOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deletedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
+    ..pc<RowOrder>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'updatedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
+    ..hasRequiredFields = false
+  ;
+
+  GridRowsChangeset._() : super();
+  factory GridRowsChangeset({
+    $core.String? blockId,
+    $core.Iterable<IndexRowOrder>? insertedRows,
+    $core.Iterable<RowOrder>? deletedRows,
+    $core.Iterable<RowOrder>? updatedRows,
+  }) {
+    final _result = create();
+    if (blockId != null) {
+      _result.blockId = blockId;
+    }
+    if (insertedRows != null) {
+      _result.insertedRows.addAll(insertedRows);
+    }
+    if (deletedRows != null) {
+      _result.deletedRows.addAll(deletedRows);
+    }
+    if (updatedRows != null) {
+      _result.updatedRows.addAll(updatedRows);
+    }
+    return _result;
+  }
+  factory GridRowsChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridRowsChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GridRowsChangeset clone() => GridRowsChangeset()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GridRowsChangeset copyWith(void Function(GridRowsChangeset) updates) => super.copyWith((message) => updates(message as GridRowsChangeset)) as GridRowsChangeset; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GridRowsChangeset create() => GridRowsChangeset._();
+  GridRowsChangeset createEmptyInstance() => create();
+  static $pb.PbList<GridRowsChangeset> createRepeated() => $pb.PbList<GridRowsChangeset>();
+  @$core.pragma('dart2js:noInline')
+  static GridRowsChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridRowsChangeset>(create);
+  static GridRowsChangeset? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get blockId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set blockId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasBlockId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBlockId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<IndexRowOrder> get insertedRows => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.List<RowOrder> get deletedRows => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.List<RowOrder> get updatedRows => $_getList(3);
 }
 
 class GridBlock extends $pb.GeneratedMessage {
