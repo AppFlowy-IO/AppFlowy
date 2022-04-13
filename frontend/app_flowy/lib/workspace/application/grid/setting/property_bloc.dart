@@ -32,6 +32,9 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fields: value.fields));
           },
+          moveField: (_MoveField value) {
+            //
+          },
         );
       },
     );
@@ -61,6 +64,7 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.initial() = _Initial;
   const factory GridPropertyEvent.setFieldVisibility(String fieldId, bool visibility) = _SetFieldVisibility;
   const factory GridPropertyEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed

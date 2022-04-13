@@ -46,20 +46,16 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
           getIt<GridPropertyBloc>(param1: gridId, param2: fields)..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
-          final cells = state.fields.map((field) {
-            return _GridPropertyCell(gridId: gridId, field: field);
+          final children = state.fields.map((field) {
+            return _GridPropertyCell(gridId: gridId, field: field, key: ValueKey(field.id));
           }).toList();
 
-          return ListView.separated(
+          return ReorderableListView(
             shrinkWrap: true,
-            controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
+            onReorder: (int oldIndex, int newIndex) {
+              context.read<GridPropertyBloc>().add(GridPropertyEvent.moveField(oldIndex, newIndex));
             },
-            itemCount: cells.length,
-            itemBuilder: (BuildContext context, int index) {
-              return cells[index];
-            },
+            children: children,
           );
         },
       ),

@@ -857,8 +857,8 @@ class GridBlockOrder extends $pb.GeneratedMessage {
   $core.List<RowOrder> get rowOrders => $_getList(1);
 }
 
-class GridBlockOrderChangeset extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridBlockOrderChangeset', createEmptyInstance: create)
+class GridRowsChangeset extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GridRowsChangeset', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'blockId')
     ..pc<IndexRowOrder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'insertedRows', $pb.PbFieldType.PM, subBuilder: IndexRowOrder.create)
     ..pc<RowOrder>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deletedRows', $pb.PbFieldType.PM, subBuilder: RowOrder.create)
@@ -866,8 +866,8 @@ class GridBlockOrderChangeset extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  GridBlockOrderChangeset._() : super();
-  factory GridBlockOrderChangeset({
+  GridRowsChangeset._() : super();
+  factory GridRowsChangeset({
     $core.String? blockId,
     $core.Iterable<IndexRowOrder>? insertedRows,
     $core.Iterable<RowOrder>? deletedRows,
@@ -888,26 +888,26 @@ class GridBlockOrderChangeset extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory GridBlockOrderChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GridBlockOrderChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GridRowsChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GridRowsChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GridBlockOrderChangeset clone() => GridBlockOrderChangeset()..mergeFromMessage(this);
+  GridRowsChangeset clone() => GridRowsChangeset()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GridBlockOrderChangeset copyWith(void Function(GridBlockOrderChangeset) updates) => super.copyWith((message) => updates(message as GridBlockOrderChangeset)) as GridBlockOrderChangeset; // ignore: deprecated_member_use
+  GridRowsChangeset copyWith(void Function(GridRowsChangeset) updates) => super.copyWith((message) => updates(message as GridRowsChangeset)) as GridRowsChangeset; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GridBlockOrderChangeset create() => GridBlockOrderChangeset._();
-  GridBlockOrderChangeset createEmptyInstance() => create();
-  static $pb.PbList<GridBlockOrderChangeset> createRepeated() => $pb.PbList<GridBlockOrderChangeset>();
+  static GridRowsChangeset create() => GridRowsChangeset._();
+  GridRowsChangeset createEmptyInstance() => create();
+  static $pb.PbList<GridRowsChangeset> createRepeated() => $pb.PbList<GridRowsChangeset>();
   @$core.pragma('dart2js:noInline')
-  static GridBlockOrderChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridBlockOrderChangeset>(create);
-  static GridBlockOrderChangeset? _defaultInstance;
+  static GridRowsChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GridRowsChangeset>(create);
+  static GridRowsChangeset? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get blockId => $_getSZ(0);
@@ -1948,6 +1948,109 @@ class FieldChangesetPayload extends $pb.GeneratedMessage {
   $core.bool hasTypeOptionData() => $_has(8);
   @$pb.TagNumber(9)
   void clearTypeOptionData() => clearField(9);
+}
+
+class MoveItemPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MoveItemPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'itemId')
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fromIndex', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'toIndex', $pb.PbFieldType.O3)
+    ..e<MoveItemType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: MoveItemType.MoveField, valueOf: MoveItemType.valueOf, enumValues: MoveItemType.values)
+    ..hasRequiredFields = false
+  ;
+
+  MoveItemPayload._() : super();
+  factory MoveItemPayload({
+    $core.String? gridId,
+    $core.String? itemId,
+    $core.int? fromIndex,
+    $core.int? toIndex,
+    MoveItemType? ty,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (itemId != null) {
+      _result.itemId = itemId;
+    }
+    if (fromIndex != null) {
+      _result.fromIndex = fromIndex;
+    }
+    if (toIndex != null) {
+      _result.toIndex = toIndex;
+    }
+    if (ty != null) {
+      _result.ty = ty;
+    }
+    return _result;
+  }
+  factory MoveItemPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MoveItemPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MoveItemPayload clone() => MoveItemPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MoveItemPayload copyWith(void Function(MoveItemPayload) updates) => super.copyWith((message) => updates(message as MoveItemPayload)) as MoveItemPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static MoveItemPayload create() => MoveItemPayload._();
+  MoveItemPayload createEmptyInstance() => create();
+  static $pb.PbList<MoveItemPayload> createRepeated() => $pb.PbList<MoveItemPayload>();
+  @$core.pragma('dart2js:noInline')
+  static MoveItemPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MoveItemPayload>(create);
+  static MoveItemPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get itemId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set itemId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasItemId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearItemId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get fromIndex => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set fromIndex($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFromIndex() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFromIndex() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get toIndex => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set toIndex($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasToIndex() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearToIndex() => clearField(4);
+
+  @$pb.TagNumber(5)
+  MoveItemType get ty => $_getN(4);
+  @$pb.TagNumber(5)
+  set ty(MoveItemType v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasTy() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTy() => clearField(5);
 }
 
 enum CellChangeset_OneOfData {

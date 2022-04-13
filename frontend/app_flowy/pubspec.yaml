@@ -74,6 +74,7 @@ dependencies:
   device_info_plus: ^3.2.1
   fluttertoast: ^8.0.8
   table_calendar: ^3.0.5
+  reorderables:
 
 dev_dependencies:
   flutter_lints: ^1.0.0

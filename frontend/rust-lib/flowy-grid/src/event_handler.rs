@@ -130,6 +130,17 @@ pub(crate) async fn get_field_context_handler(
     data_result(edit_context)
 }
 
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_item_handler(
+    data: Data<MoveItemPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: MoveItemParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor.move_item(params).await?;
+    Ok(())
+}
+
 async fn make_field_edit_context(
     grid_id: &str,
     field_id: Option<String>,

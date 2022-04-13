@@ -375,6 +375,24 @@ impl ClientGridEditor {
         Ok(snapshots)
     }
 
+    pub async fn move_item(&self, params: MoveItemParams) -> FlowyResult<()> {
+        match params.ty {
+            MoveItemType::MoveField => {
+                self.move_field(params.from_index, params.to_index, &params.item_id)
+                    .await
+            }
+            MoveItemType::MoveRow => self.move_row(params.from_index, params.to_index, &params.item_id).await,
+        }
+    }
+
+    pub async fn move_field(&self, from: i32, to: i32, field_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+
+    pub async fn move_row(&self, from: i32, to: i32, row_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+
     pub async fn delta_bytes(&self) -> Bytes {
         self.pad.read().await.delta_bytes()
     }

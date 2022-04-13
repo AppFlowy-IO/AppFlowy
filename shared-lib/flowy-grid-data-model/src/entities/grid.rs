@@ -278,7 +278,7 @@ impl GridBlockOrder {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridBlockOrderChangeset {
+pub struct GridRowsChangeset {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -314,8 +314,8 @@ impl std::convert::From<&RowMeta> for IndexRowOrder {
     }
 }
 
-impl GridBlockOrderChangeset {
-    pub fn from_insert(block_id: &str, inserted_rows: Vec<IndexRowOrder>) -> Self {
+impl GridRowsChangeset {
+    pub fn insert(block_id: &str, inserted_rows: Vec<IndexRowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows,
@@ -324,7 +324,7 @@ impl GridBlockOrderChangeset {
         }
     }
 
-    pub fn from_delete(block_id: &str, deleted_rows: Vec<RowOrder>) -> Self {
+    pub fn delete(block_id: &str, deleted_rows: Vec<RowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows: vec![],
@@ -333,7 +333,7 @@ impl GridBlockOrderChangeset {
         }
     }
 
-    pub fn from_update(block_id: &str, updated_rows: Vec<RowOrder>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<RowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows: vec![],
@@ -652,6 +652,61 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
             visibility: self.visibility,
             width: self.width,
             type_option_data: self.type_option_data,
+        })
+    }
+}
+
+#[derive(Debug, Clone, ProtoBuf_Enum)]
+pub enum MoveItemType {
+    MoveField = 0,
+    MoveRow = 1,
+}
+
+impl std::default::Default for MoveItemType {
+    fn default() -> Self {
+        MoveItemType::MoveField
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct MoveItemPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub item_id: String,
+
+    #[pb(index = 3)]
+    pub from_index: i32,
+
+    #[pb(index = 4)]
+    pub to_index: i32,
+
+    #[pb(index = 5)]
+    pub ty: MoveItemType,
+}
+
+#[derive(Clone)]
+pub struct MoveItemParams {
+    pub grid_id: String,
+    pub item_id: String,
+    pub from_index: i32,
+    pub to_index: i32,
+    pub ty: MoveItemType,
+}
+
+impl TryInto<MoveItemParams> for MoveItemPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<MoveItemParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let item_id = NotEmptyStr::parse(self.item_id).map_err(|_| ErrorCode::InvalidData)?;
+        Ok(MoveItemParams {
+            grid_id: grid_id.0,
+            item_id: item_id.0,
+            from_index: self.from_index,
+            to_index: self.to_index,
+            ty: self.ty,
         })
     }
 }
