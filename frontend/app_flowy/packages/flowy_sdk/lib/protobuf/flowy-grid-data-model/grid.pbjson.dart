@@ -90,15 +90,12 @@ const IndexField$json = const {
   '1': 'IndexField',
   '2': const [
     const {'1': 'field', '3': 1, '4': 1, '5': 11, '6': '.Field', '10': 'field'},
-    const {'1': 'index', '3': 2, '4': 1, '5': 5, '9': 0, '10': 'index'},
-  ],
-  '8': const [
-    const {'1': 'one_of_index'},
+    const {'1': 'index', '3': 2, '4': 1, '5': 5, '10': 'index'},
   ],
 };
 
 /// Descriptor for `IndexField`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List indexFieldDescriptor = $convert.base64Decode('CgpJbmRleEZpZWxkEhwKBWZpZWxkGAEgASgLMgYuRmllbGRSBWZpZWxkEhYKBWluZGV4GAIgASgFSABSBWluZGV4Qg4KDG9uZV9vZl9pbmRleA==');
+final $typed_data.Uint8List indexFieldDescriptor = $convert.base64Decode('CgpJbmRleEZpZWxkEhwKBWZpZWxkGAEgASgLMgYuRmllbGRSBWZpZWxkEhQKBWluZGV4GAIgASgFUgVpbmRleA==');
 @$core.Deprecated('Use getEditFieldContextPayloadDescriptor instead')
 const GetEditFieldContextPayload$json = const {
   '1': 'GetEditFieldContextPayload',

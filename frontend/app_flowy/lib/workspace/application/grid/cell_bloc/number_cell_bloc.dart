@@ -13,13 +13,13 @@ part 'number_cell_bloc.freezed.dart';
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final CellService _service;
   final CellListener _cellListener;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
 
   NumberCellBloc({
     required CellData cellData,
   })  : _service = CellService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         super(NumberCellState.initial(cellData)) {
     on<NumberCellEvent>(
       (event, emit) async {

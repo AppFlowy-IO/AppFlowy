@@ -1128,8 +1128,7 @@ impl ::protobuf::reflect::ProtobufValue for GridFieldChangeset {
 pub struct IndexField {
     // message fields
     pub field: ::protobuf::SingularPtrField<Field>,
-    // message oneof groups
-    pub one_of_index: ::std::option::Option<IndexField_oneof_one_of_index>,
+    pub index: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1139,11 +1138,6 @@ impl<'a> ::std::default::Default for &'a IndexField {
     fn default() -> &'a IndexField {
         <IndexField as ::protobuf::Message>::default_instance()
     }
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum IndexField_oneof_one_of_index {
-    index(i32),
 }
 
 impl IndexField {
@@ -1188,25 +1182,15 @@ impl IndexField {
 
 
     pub fn get_index(&self) -> i32 {
-        match self.one_of_index {
-            ::std::option::Option::Some(IndexField_oneof_one_of_index::index(v)) => v,
-            _ => 0,
-        }
+        self.index
     }
     pub fn clear_index(&mut self) {
-        self.one_of_index = ::std::option::Option::None;
-    }
-
-    pub fn has_index(&self) -> bool {
-        match self.one_of_index {
-            ::std::option::Option::Some(IndexField_oneof_one_of_index::index(..)) => true,
-            _ => false,
-        }
+        self.index = 0;
     }
 
     // Param is passed by value, moved
     pub fn set_index(&mut self, v: i32) {
-        self.one_of_index = ::std::option::Option::Some(IndexField_oneof_one_of_index::index(v))
+        self.index = v;
     }
 }
 
@@ -1231,7 +1215,8 @@ impl ::protobuf::Message for IndexField {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_index = ::std::option::Option::Some(IndexField_oneof_one_of_index::index(is.read_int32()?));
+                    let tmp = is.read_int32()?;
+                    self.index = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1249,12 +1234,8 @@ impl ::protobuf::Message for IndexField {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_index {
-            match v {
-                &IndexField_oneof_one_of_index::index(v) => {
-                    my_size += ::protobuf::rt::value_size(2, v, ::protobuf::wire_format::WireTypeVarint);
-                },
-            };
+        if self.index != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.index, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1267,12 +1248,8 @@ impl ::protobuf::Message for IndexField {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_index {
-            match v {
-                &IndexField_oneof_one_of_index::index(v) => {
-                    os.write_int32(2, v)?;
-                },
-            };
+        if self.index != 0 {
+            os.write_int32(2, self.index)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1317,10 +1294,10 @@ impl ::protobuf::Message for IndexField {
                 |m: &IndexField| { &m.field },
                 |m: &mut IndexField| { &mut m.field },
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_i32_accessor::<_>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
                 "index",
-                IndexField::has_index,
-                IndexField::get_index,
+                |m: &IndexField| { &m.index },
+                |m: &mut IndexField| { &mut m.index },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<IndexField>(
                 "IndexField",
@@ -1339,7 +1316,7 @@ impl ::protobuf::Message for IndexField {
 impl ::protobuf::Clear for IndexField {
     fn clear(&mut self) {
         self.field.clear();
-        self.one_of_index = ::std::option::Option::None;
+        self.index = 0;
         self.unknown_fields.clear();
     }
 }
@@ -7803,83 +7780,83 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x124\n\x0finserted_field\
     s\x18\x02\x20\x03(\x0b2\x0b.IndexFieldR\x0einsertedFields\x122\n\x0edele\
     ted_fields\x18\x03\x20\x03(\x0b2\x0b.FieldOrderR\rdeletedFields\x12-\n\
-    \x0eupdated_fields\x18\x04\x20\x03(\x0b2\x06.FieldR\rupdatedFields\"R\n\
+    \x0eupdated_fields\x18\x04\x20\x03(\x0b2\x06.FieldR\rupdatedFields\"@\n\
     \nIndexField\x12\x1c\n\x05field\x18\x01\x20\x01(\x0b2\x06.FieldR\x05fiel\
-    d\x12\x16\n\x05index\x18\x02\x20\x01(\x05H\0R\x05indexB\x0e\n\x0cone_of_\
-    index\"\x90\x01\n\x1aGetEditFieldContextPayload\x12\x17\n\x07grid_id\x18\
-    \x01\x20\x01(\tR\x06gridId\x12\x1b\n\x08field_id\x18\x02\x20\x01(\tH\0R\
-    \x07fieldId\x12)\n\nfield_type\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tfield\
-    TypeB\x11\n\x0fone_of_field_id\"q\n\x10EditFieldPayload\x12\x17\n\x07gri\
-    d_id\x18\x01\x20\x01(\tR\x06gridId\x12\x19\n\x08field_id\x18\x02\x20\x01\
-    (\tR\x07fieldId\x12)\n\nfield_type\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tf\
-    ieldType\"|\n\x10EditFieldContext\x12\x17\n\x07grid_id\x18\x01\x20\x01(\
-    \tR\x06gridId\x12%\n\ngrid_field\x18\x02\x20\x01(\x0b2\x06.FieldR\tgridF\
-    ield\x12(\n\x10type_option_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\
-    \"-\n\rRepeatedField\x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06.FieldR\
-    \x05items\"7\n\x12RepeatedFieldOrder\x12!\n\x05items\x18\x01\x20\x03(\
-    \x0b2\x0b.FieldOrderR\x05items\"T\n\x08RowOrder\x12\x15\n\x06row_id\x18\
-    \x01\x20\x01(\tR\x05rowId\x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07b\
-    lockId\x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\"\xb8\x01\n\
-    \x03Row\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12@\n\x10cell_by_fiel\
-    d_id\x18\x02\x20\x03(\x0b2\x17.Row.CellByFieldIdEntryR\rcellByFieldId\
-    \x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\x1aG\n\x12CellByFie\
-    ldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\
-    \x18\x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\")\n\x0bRepeatedRow\
-    \x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\x04.RowR\x05items\"5\n\x11Repe\
-    atedGridBlock\x12\x20\n\x05items\x18\x01\x20\x03(\x0b2\n.GridBlockR\x05i\
-    tems\"U\n\x0eGridBlockOrder\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\
-    \x07blockId\x12(\n\nrow_orders\x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrd\
-    ers\"_\n\rIndexRowOrder\x12&\n\trow_order\x18\x01\x20\x01(\x0b2\t.RowOrd\
-    erR\x08rowOrder\x12\x16\n\x05index\x18\x02\x20\x01(\x05H\0R\x05indexB\
-    \x0e\n\x0cone_of_index\"\xbf\x01\n\x11GridRowsChangeset\x12\x19\n\x08blo\
-    ck_id\x18\x01\x20\x01(\tR\x07blockId\x123\n\rinserted_rows\x18\x02\x20\
-    \x03(\x0b2\x0e.IndexRowOrderR\x0cinsertedRows\x12,\n\x0cdeleted_rows\x18\
-    \x03\x20\x03(\x0b2\t.RowOrderR\x0bdeletedRows\x12,\n\x0cupdated_rows\x18\
-    \x04\x20\x03(\x0b2\t.RowOrderR\x0bupdatedRows\"E\n\tGridBlock\x12\x0e\n\
-    \x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\nrow_orders\x18\x02\x20\x03(\x0b\
-    2\t.RowOrderR\trowOrders\";\n\x04Cell\x12\x19\n\x08field_id\x18\x01\x20\
-    \x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\x20\x01(\tR\x07content\
-    \"\x8f\x01\n\x14CellNotificationData\x12\x17\n\x07grid_id\x18\x01\x20\
-    \x01(\tR\x06gridId\x12\x19\n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\
-    \x12\x15\n\x06row_id\x18\x03\x20\x01(\tR\x05rowId\x12\x1a\n\x07content\
-    \x18\x04\x20\x01(\tH\0R\x07contentB\x10\n\x0eone_of_content\"+\n\x0cRepe\
-    atedCell\x12\x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.CellR\x05items\"'\
-    \n\x11CreateGridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\
-    \x1e\n\x06GridId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"#\n\
-    \x0bGridBlockId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"f\n\x10\
-    CreateRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\
-    \"\n\x0cstart_row_id\x18\x02\x20\x01(\tH\0R\nstartRowIdB\x15\n\x13one_of\
-    _start_row_id\"\xb6\x01\n\x12InsertFieldPayload\x12\x17\n\x07grid_id\x18\
-    \x01\x20\x01(\tR\x06gridId\x12\x1c\n\x05field\x18\x02\x20\x01(\x0b2\x06.\
-    FieldR\x05field\x12(\n\x10type_option_data\x18\x03\x20\x01(\x0cR\x0etype\
-    OptionData\x12&\n\x0estart_field_id\x18\x04\x20\x01(\tH\0R\x0cstartField\
-    IdB\x17\n\x15one_of_start_field_id\"d\n\x11QueryFieldPayload\x12\x17\n\
-    \x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\
-    \x20\x01(\x0b2\x13.RepeatedFieldOrderR\x0bfieldOrders\"e\n\x16QueryGridB\
-    locksPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x122\n\
-    \x0cblock_orders\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrderR\x0bblockOrder\
-    s\"\xa8\x03\n\x15FieldChangesetPayload\x12\x19\n\x08field_id\x18\x01\x20\
-    \x01(\tR\x07fieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\
-    \x12\x14\n\x04name\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\
-    \x04\x20\x01(\tH\x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n\
-    .FieldTypeH\x02R\tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\
-    \x03R\x06frozen\x12\x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibi\
-    lity\x12\x16\n\x05width\x18\x08\x20\x01(\x05H\x05R\x05width\x12*\n\x10ty\
-    pe_option_data\x18\t\x20\x01(\x0cH\x06R\x0etypeOptionDataB\r\n\x0bone_of\
-    _nameB\r\n\x0bone_of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_fro\
-    zenB\x13\n\x11one_of_visibilityB\x0e\n\x0cone_of_widthB\x19\n\x17one_of_\
-    type_option_data\"\x9c\x01\n\x0fMoveItemPayload\x12\x17\n\x07grid_id\x18\
-    \x01\x20\x01(\tR\x06gridId\x12\x17\n\x07item_id\x18\x02\x20\x01(\tR\x06i\
-    temId\x12\x1d\n\nfrom_index\x18\x03\x20\x01(\x05R\tfromIndex\x12\x19\n\
-    \x08to_index\x18\x04\x20\x01(\x05R\x07toIndex\x12\x1d\n\x02ty\x18\x05\
-    \x20\x01(\x0e2\r.MoveItemTypeR\x02ty\"\x7f\n\rCellChangeset\x12\x17\n\
-    \x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\
-    \x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07field\
-    Id\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data*\
-    *\n\x0cMoveItemType\x12\r\n\tMoveField\x10\0\x12\x0b\n\x07MoveRow\x10\
-    \x01*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\
-    \x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\
-    \x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    d\x12\x14\n\x05index\x18\x02\x20\x01(\x05R\x05index\"\x90\x01\n\x1aGetEd\
+    itFieldContextPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\
+    \x12\x1b\n\x08field_id\x18\x02\x20\x01(\tH\0R\x07fieldId\x12)\n\nfield_t\
+    ype\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tfieldTypeB\x11\n\x0fone_of_field\
+    _id\"q\n\x10EditFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
+    \x06gridId\x12\x19\n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\x12)\n\n\
+    field_type\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tfieldType\"|\n\x10EditFie\
+    ldContext\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12%\n\ngri\
+    d_field\x18\x02\x20\x01(\x0b2\x06.FieldR\tgridField\x12(\n\x10type_optio\
+    n_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\"-\n\rRepeatedField\x12\
+    \x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"7\n\x12Repeat\
+    edFieldOrder\x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.FieldOrderR\x05it\
+    ems\"T\n\x08RowOrder\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\
+    \x12\x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\x12\x16\n\x06heigh\
+    t\x18\x03\x20\x01(\x05R\x06height\"\xb8\x01\n\x03Row\x12\x0e\n\x02id\x18\
+    \x01\x20\x01(\tR\x02id\x12@\n\x10cell_by_field_id\x18\x02\x20\x03(\x0b2\
+    \x17.Row.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x03\
+    \x20\x01(\x05R\x06height\x1aG\n\x12CellByFieldIdEntry\x12\x10\n\x03key\
+    \x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\x18\x02\x20\x01(\x0b2\x05\
+    .CellR\x05value:\x028\x01\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\x01\
+    \x20\x03(\x0b2\x04.RowR\x05items\"5\n\x11RepeatedGridBlock\x12\x20\n\x05\
+    items\x18\x01\x20\x03(\x0b2\n.GridBlockR\x05items\"U\n\x0eGridBlockOrder\
+    \x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12(\n\nrow_orders\
+    \x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrders\"_\n\rIndexRowOrder\x12&\n\
+    \trow_order\x18\x01\x20\x01(\x0b2\t.RowOrderR\x08rowOrder\x12\x16\n\x05i\
+    ndex\x18\x02\x20\x01(\x05H\0R\x05indexB\x0e\n\x0cone_of_index\"\xbf\x01\
+    \n\x11GridRowsChangeset\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blo\
+    ckId\x123\n\rinserted_rows\x18\x02\x20\x03(\x0b2\x0e.IndexRowOrderR\x0ci\
+    nsertedRows\x12,\n\x0cdeleted_rows\x18\x03\x20\x03(\x0b2\t.RowOrderR\x0b\
+    deletedRows\x12,\n\x0cupdated_rows\x18\x04\x20\x03(\x0b2\t.RowOrderR\x0b\
+    updatedRows\"E\n\tGridBlock\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
+    \x12(\n\nrow_orders\x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrders\";\n\
+    \x04Cell\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x18\n\
+    \x07content\x18\x02\x20\x01(\tR\x07content\"\x8f\x01\n\x14CellNotificati\
+    onData\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x19\n\x08f\
+    ield_id\x18\x02\x20\x01(\tR\x07fieldId\x12\x15\n\x06row_id\x18\x03\x20\
+    \x01(\tR\x05rowId\x12\x1a\n\x07content\x18\x04\x20\x01(\tH\0R\x07content\
+    B\x10\n\x0eone_of_content\"+\n\x0cRepeatedCell\x12\x1b\n\x05items\x18\
+    \x01\x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateGridPayload\x12\x12\
+    \n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05va\
+    lue\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\x05value\
+    \x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\n\x07grid\
+    _id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_row_id\x18\x02\x20\
+    \x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\"\xb6\x01\n\x12Ins\
+    ertFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\
+    \x1c\n\x05field\x18\x02\x20\x01(\x0b2\x06.FieldR\x05field\x12(\n\x10type\
+    _option_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\x12&\n\x0estart_fie\
+    ld_id\x18\x04\x20\x01(\tH\0R\x0cstartFieldIdB\x17\n\x15one_of_start_fiel\
+    d_id\"d\n\x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
+    \x06gridId\x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFiel\
+    dOrderR\x0bfieldOrders\"e\n\x16QueryGridBlocksPayload\x12\x17\n\x07grid_\
+    id\x18\x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_orders\x18\x02\x20\x03(\
+    \x0b2\x0f.GridBlockOrderR\x0bblockOrders\"\xa8\x03\n\x15FieldChangesetPa\
+    yload\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x17\n\x07\
+    grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\x04name\x18\x03\x20\x01(\
+    \tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\x01R\x04desc\x12+\n\
+    \nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTypeH\x02R\tfieldType\x12\x18\
+    \n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06frozen\x12\x20\n\nvisibility\
+    \x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\x16\n\x05width\x18\x08\x20\
+    \x01(\x05H\x05R\x05width\x12*\n\x10type_option_data\x18\t\x20\x01(\x0cH\
+    \x06R\x0etypeOptionDataB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x13\n\
+    \x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one_of_visibilityB\
+    \x0e\n\x0cone_of_widthB\x19\n\x17one_of_type_option_data\"\x9c\x01\n\x0f\
+    MoveItemPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\
+    \x17\n\x07item_id\x18\x02\x20\x01(\tR\x06itemId\x12\x1d\n\nfrom_index\
+    \x18\x03\x20\x01(\x05R\tfromIndex\x12\x19\n\x08to_index\x18\x04\x20\x01(\
+    \x05R\x07toIndex\x12\x1d\n\x02ty\x18\x05\x20\x01(\x0e2\r.MoveItemTypeR\
+    \x02ty\"\x7f\n\rCellChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
+    \x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\
+    \x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\
+    \x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data**\n\x0cMoveItemType\x12\r\n\
+    \tMoveField\x10\0\x12\x0b\n\x07MoveRow\x10\x01*d\n\tFieldType\x12\x0c\n\
+    \x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\
+    \x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\
+    \x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

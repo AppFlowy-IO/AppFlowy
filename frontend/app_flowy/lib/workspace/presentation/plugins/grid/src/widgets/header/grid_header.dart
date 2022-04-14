@@ -12,32 +12,38 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
-class GridHeaderSliverAdaptor extends SliverPersistentHeaderDelegate {
+class GridHeaderSliverAdaptor extends StatelessWidget {
   final String gridId;
   final List<Field> fields;
 
-  GridHeaderSliverAdaptor({required this.gridId, required this.fields});
+  const GridHeaderSliverAdaptor({required this.gridId, required this.fields, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<GridHeaderBloc>(param1: gridId, param2: fields)..add(const GridHeaderEvent.initial()),
+      child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
+        builder: (context, state) {
+          return SliverPersistentHeader(
+            delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: fields),
+            floating: true,
+            pinned: true,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
+  final String gridId;
+  final List<Field> fields;
+
+  SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final cells = fields.map(
-      (field) => GridFieldCell(
-        GridFieldCellContext(gridId: gridId, field: field),
-      ),
-    );
-
-    return Container(
-      color: Colors.white,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const _CellLeading(),
-          ...cells,
-          _CellTrailing(gridId: gridId),
-        ],
-        key: ObjectKey(fields),
-      ),
-    );
+    return _GridHeader(gridId: gridId, fields: fields, key: ObjectKey(fields));
   }
 
   @override
@@ -48,10 +54,46 @@ class GridHeaderSliverAdaptor extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is GridHeaderSliverAdaptor) {
+    if (oldDelegate is SliverHeaderDelegateImplementation) {
       return fields.length != oldDelegate.fields.length;
     }
     return true;
+  }
+}
+
+class _GridHeader extends StatelessWidget {
+  final String gridId;
+  final List<Field> fields;
+
+  const _GridHeader({
+    Key? key,
+    required this.gridId,
+    required this.fields,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return BlocBuilder<GridHeaderBloc, GridHeaderState>(
+      builder: (context, state) {
+        final cells = state.fields
+            .map((field) => GridFieldCellContext(gridId: gridId, field: field))
+            .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
+            .toList();
+
+        return Container(
+          color: theme.surface,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _CellLeading(),
+              ...cells,
+              _CellTrailing(gridId: gridId),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

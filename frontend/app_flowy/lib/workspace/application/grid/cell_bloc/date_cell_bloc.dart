@@ -13,12 +13,12 @@ part 'date_cell_bloc.freezed.dart';
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellService _service;
   final CellListener _cellListener;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
 
   DateCellBloc({required CellData cellData})
       : _service = CellService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         super(DateCellState.initial(cellData)) {
     on<DateCellEvent>(
       (event, emit) async {

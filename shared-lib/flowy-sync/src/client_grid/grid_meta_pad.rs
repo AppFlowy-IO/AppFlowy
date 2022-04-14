@@ -4,11 +4,12 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
     gen_field_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
-    GridBlockMetaChangeset, GridMeta,
+    GridBlockMetaChangeset, GridMeta, IndexField,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 
+use futures::StreamExt;
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;
@@ -41,7 +42,7 @@ impl GridMetaPad {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub fn create_field(
+    pub fn create_field_meta(
         &mut self,
         new_field_meta: FieldMeta,
         start_field_id: Option<String>,
@@ -70,7 +71,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn delete_field_meta(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -82,23 +83,23 @@ impl GridMetaPad {
         )
     }
 
-    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<(Option<GridChangeset>, Option<FieldMeta>)> {
-        let mut field_meta = None;
-        let changeset =
-            self.modify_grid(
-                |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
-                    None => Ok(None),
-                    Some(index) => {
-                        let mut duplicate_field_meta = grid_meta.fields[index].clone();
-                        duplicate_field_meta.id = gen_field_id();
-                        duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
-                        field_meta = Some(duplicate_field_meta.clone());
-                        grid_meta.fields.insert(index + 1, duplicate_field_meta);
-                        Ok(Some(()))
-                    }
-                },
-            )?;
-        Ok((changeset, field_meta))
+    pub fn duplicate_field_meta(
+        &mut self,
+        field_id: &str,
+        duplicated_field_id: &str,
+    ) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    let mut duplicate_field_meta = grid_meta.fields[index].clone();
+                    duplicate_field_meta.id = duplicated_field_id.to_string();
+                    duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
+                    grid_meta.fields.insert(index + 1, duplicate_field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
     }
 
     pub fn switch_to_field<B>(
@@ -130,7 +131,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn update_field<T: JsonDeserializer>(
+    pub fn update_field_meta<T: JsonDeserializer>(
         &mut self,
         changeset: FieldChangesetParams,
         deserializer: T,
@@ -185,11 +186,15 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
-        self.grid_meta.fields.iter().find(|field| field.id == field_id)
+    pub fn get_field_meta(&self, field_id: &str) -> Option<(usize, &FieldMeta)> {
+        self.grid_meta
+            .fields
+            .iter()
+            .enumerate()
+            .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_meta(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_meta.id) {
                 None => Ok(None),

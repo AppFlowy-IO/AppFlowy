@@ -13,7 +13,8 @@ import 'row_action_sheet.dart';
 
 class GridRowWidget extends StatefulWidget {
   final RowData data;
-  const GridRowWidget({required this.data, Key? key}) : super(key: key);
+  final GridFieldCache fieldCache;
+  const GridRowWidget({required this.data, required this.fieldCache, Key? key}) : super(key: key);
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -25,7 +26,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   @override
   void initState() {
-    _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
+    _rowBloc = getIt<RowBloc>(param1: widget.data, param2: widget.fieldCache)..add(const RowEvent.initial());
     _rowStateNotifier = _RegionStateNotifier();
     super.initState();
   }

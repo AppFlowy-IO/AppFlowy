@@ -50,7 +50,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
     _fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
         (fields) {
-          add(GridPropertyEvent.didReceiveFieldUpdate(fields));
+          // add(GridPropertyEvent.didReceiveFieldUpdate(fields));
         },
         (err) => Log.error(err),
       );

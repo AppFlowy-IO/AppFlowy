@@ -150,11 +150,7 @@ class _GridHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverPersistentHeader(
-      delegate: GridHeaderSliverAdaptor(gridId: gridId, fields: List.from(fields)),
-      floating: true,
-      pinned: true,
-    );
+    return GridHeaderSliverAdaptor(gridId: gridId, fields: fields);
   }
 }
 
@@ -174,10 +170,13 @@ class _GridRows extends StatelessWidget {
           },
           delete: (value) {
             for (final index in value.indexs) {
-              _key.currentState?.removeItem(index.value1, (context, animation) => _renderRow(index.value2, animation));
+              _key.currentState?.removeItem(
+                index.value1,
+                (context, animation) => _renderRow(context, index.value2, animation),
+              );
             }
           },
-          reload: (updatedIndexs) {},
+          initial: (updatedIndexs) {},
         );
       },
       buildWhen: (previous, current) => false,
@@ -187,17 +186,22 @@ class _GridRows extends StatelessWidget {
           initialItemCount: context.read<GridBloc>().state.rows.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
             final rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(rowData, animation);
+            return _renderRow(context, rowData, animation);
           },
         );
       },
     );
   }
 
-  Widget _renderRow(RowData rowData, Animation<double> animation) {
+  Widget _renderRow(BuildContext context, RowData rowData, Animation<double> animation) {
+    final fieldCache = context.read<GridBloc>().fieldCache;
     return SizeTransition(
       sizeFactor: animation,
-      child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
+      child: GridRowWidget(
+        data: rowData,
+        fieldCache: fieldCache,
+        key: ValueKey(rowData.rowId),
+      ),
     );
   }
 }

@@ -13,13 +13,13 @@ part 'selection_cell_bloc.freezed.dart';
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final SelectOptionService _service;
   final CellListener _cellListener;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
 
   SelectionCellBloc({
     required CellData cellData,
   })  : _service = SelectOptionService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         super(SelectionCellState.initial(cellData)) {
     on<SelectionCellEvent>(
       (event, emit) async {

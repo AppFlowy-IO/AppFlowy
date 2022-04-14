@@ -3,6 +3,7 @@ export 'row/row_bloc.dart';
 export 'row/row_service.dart';
 export 'grid_service.dart';
 export 'data.dart';
+export 'grid_header_bloc.dart';
 
 // Field
 export 'field/field_service.dart';

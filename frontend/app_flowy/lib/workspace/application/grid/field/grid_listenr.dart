@@ -7,7 +7,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 
-typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<GridFieldChangeset, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
@@ -26,7 +26,7 @@ class GridFieldsListener {
     switch (ty) {
       case GridNotification.DidUpdateGrid:
         result.fold(
-          (payload) => updateFieldsNotifier.value = left(RepeatedField.fromBuffer(payload).items),
+          (payload) => updateFieldsNotifier.value = left(GridFieldChangeset.fromBuffer(payload)),
           (error) => updateFieldsNotifier.value = right(error),
         );
         break;

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,18 +17,18 @@ typedef CellDataMap = LinkedHashMap<String, CellData>;
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
   final RowListener _rowlistener;
-  final GridFieldsListener _fieldListener;
+  final GridFieldCache _fieldCache;
 
-  RowBloc({required RowData rowData})
+  RowBloc({required RowData rowData, required GridFieldCache fieldCache})
       : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
-        _fieldListener = GridFieldsListener(gridId: rowData.gridId),
+        _fieldCache = fieldCache,
         _rowlistener = RowListener(rowId: rowData.rowId),
         super(RowState.initial(rowData)) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
-            _startListening();
+            await _startListening();
             await _loadRow(emit);
           },
           createRow: (_CreateRow value) {
@@ -69,7 +69,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   @override
   Future<void> close() async {
     await _rowlistener.stop();
-    await _fieldListener.stop();
     return super.close();
   }
 
@@ -81,15 +80,13 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       );
     });
 
-    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
-      result.fold(
-        (fields) => add(RowEvent.didReceiveFieldUpdate(fields)),
-        (err) => Log.error(err),
-      );
+    _fieldCache.addListener((fields) {
+      if (!isClosed) {
+        add(RowEvent.didReceiveFieldUpdate(fields));
+      }
     });
 
     _rowlistener.start();
-    _fieldListener.start();
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {

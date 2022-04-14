@@ -24,7 +24,7 @@ pub struct ClientFolderEditor {
     pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
     rev_manager: Arc<RevisionManager>,
-    ws_manager: Arc<RevisionWebSocketManager>,
+    // ws_manager: Arc<RevisionWebSocketManager>,
 }
 
 impl ClientFolderEditor {
@@ -40,14 +40,14 @@ impl ClientFolderEditor {
         });
         let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(Some(cloud)).await?));
         let rev_manager = Arc::new(rev_manager);
-        let ws_manager = make_folder_ws_manager(
-            user_id,
-            folder_id.as_ref(),
-            rev_manager.clone(),
-            web_socket,
-            folder.clone(),
-        )
-        .await;
+        // let ws_manager = make_folder_ws_manager(
+        //     user_id,
+        //     folder_id.as_ref(),
+        //     rev_manager.clone(),
+        //     web_socket,
+        //     folder.clone(),
+        // )
+        // .await;
 
         let user_id = user_id.to_owned();
         let folder_id = folder_id.to_owned();
@@ -56,15 +56,15 @@ impl ClientFolderEditor {
             folder_id,
             folder,
             rev_manager,
-            ws_manager,
+            // ws_manager,
         })
     }
 
     pub async fn receive_ws_data(&self, data: ServerRevisionWSData) -> FlowyResult<()> {
-        let _ = self.ws_manager.ws_passthrough_tx.send(data).await.map_err(|e| {
-            let err_msg = format!("{} passthrough error: {}", self.folder_id, e);
-            FlowyError::internal().context(err_msg)
-        })?;
+        // let _ = self.ws_manager.ws_passthrough_tx.send(data).await.map_err(|e| {
+        //     let err_msg = format!("{} passthrough error: {}", self.folder_id, e);
+        //     FlowyError::internal().context(err_msg)
+        // })?;
         Ok(())
     }
 

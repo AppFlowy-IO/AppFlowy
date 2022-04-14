@@ -150,9 +150,16 @@ void _resolveGridDeps(GetIt getIt) {
     (view, _) => GridBloc(view: view),
   );
 
-  getIt.registerFactoryParam<RowBloc, RowData, void>(
-    (data, _) => RowBloc(
+  getIt.registerFactoryParam<RowBloc, RowData, GridFieldCache>(
+    (data, fieldCache) => RowBloc(
       rowData: data,
+      fieldCache: fieldCache,
+    ),
+  );
+
+  getIt.registerFactoryParam<GridHeaderBloc, String, List<Field>>(
+    (gridId, fields) => GridHeaderBloc(
+      data: GridHeaderData(gridId: gridId, fields: fields),
     ),
   );
 

@@ -13,7 +13,7 @@ part 'selection_editor_bloc.freezed.dart';
 
 class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
   final CellListener _cellListener;
   Timer? _delayOperation;
 
@@ -22,7 +22,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   })  : _selectOptionService = SelectOptionService(),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         super(SelectOptionEditorState.initial(cellData, options, selectedOptions)) {
     on<SelectOptionEditorEvent>(

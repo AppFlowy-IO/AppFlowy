@@ -325,18 +325,8 @@ class GridFieldChangeset extends $pb.GeneratedMessage {
   $core.List<Field> get updatedFields => $_getList(3);
 }
 
-enum IndexField_OneOfIndex {
-  index_, 
-  notSet
-}
-
 class IndexField extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, IndexField_OneOfIndex> _IndexField_OneOfIndexByTag = {
-    2 : IndexField_OneOfIndex.index_,
-    0 : IndexField_OneOfIndex.notSet
-  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IndexField', createEmptyInstance: create)
-    ..oo(0, [2])
     ..aOM<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'field', subBuilder: Field.create)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'index', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
@@ -376,9 +366,6 @@ class IndexField extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static IndexField getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IndexField>(create);
   static IndexField? _defaultInstance;
-
-  IndexField_OneOfIndex whichOneOfIndex() => _IndexField_OneOfIndexByTag[$_whichOneof(0)]!;
-  void clearOneOfIndex() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   Field get field_1 => $_getN(0);

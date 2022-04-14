@@ -9,12 +9,12 @@ import 'dart:async';
 part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
   final FieldService _fieldService;
 
   FieldCellBloc({
     required GridFieldCellContext cellContext,
-  })  : _fieldListener = FieldListener(fieldId: cellContext.field.id),
+  })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
         _fieldService = FieldService(gridId: cellContext.gridId),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(

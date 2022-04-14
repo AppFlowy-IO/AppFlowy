@@ -133,8 +133,17 @@ pub struct IndexField {
     #[pb(index = 1)]
     pub field: Field,
 
-    #[pb(index = 2, one_of)]
-    pub index: Option<i32>,
+    #[pb(index = 2)]
+    pub index: i32,
+}
+
+impl IndexField {
+    pub fn from_field_meta(field_meta: &FieldMeta, index: usize) -> Self {
+        Self {
+            field: Field::from(field_meta.clone()),
+            index: index as i32,
+        }
+    }
 }
 
 #[derive(Debug, Default, ProtoBuf)]

@@ -25,7 +25,7 @@ message GridFieldChangeset {
 }
 message IndexField {
     Field field = 1;
-    oneof one_of_index { int32 index = 2; };
+    int32 index = 2;
 }
 message GetEditFieldContextPayload {
     string grid_id = 1;
