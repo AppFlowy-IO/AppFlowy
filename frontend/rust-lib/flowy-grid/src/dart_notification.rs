@@ -9,7 +9,7 @@ pub enum GridNotification {
     DidUpdateGridBlock = 20,
     DidUpdateRow = 30,
     DidUpdateCell = 31,
-    DidUpdateGrid = 40,
+    DidUpdateGridField = 40,
     DidUpdateField = 41,
 }
 

@@ -15,7 +15,7 @@ class GridNotification extends $pb.ProtobufEnum {
   static const GridNotification DidUpdateGridBlock = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGridBlock');
   static const GridNotification DidUpdateRow = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateRow');
   static const GridNotification DidUpdateCell = GridNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateCell');
-  static const GridNotification DidUpdateGrid = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGrid');
+  static const GridNotification DidUpdateGridField = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGridField');
   static const GridNotification DidUpdateField = GridNotification._(41, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateField');
 
   static const $core.List<GridNotification> values = <GridNotification> [
@@ -24,7 +24,7 @@ class GridNotification extends $pb.ProtobufEnum {
     DidUpdateGridBlock,
     DidUpdateRow,
     DidUpdateCell,
-    DidUpdateGrid,
+    DidUpdateGridField,
     DidUpdateField,
   ];
 

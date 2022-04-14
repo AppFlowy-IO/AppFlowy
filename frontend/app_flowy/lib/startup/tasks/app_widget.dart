@@ -113,7 +113,7 @@ class ApplicationBlocObserver extends BlocObserver {
   // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
     // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
-    Log.debug("${transition.nextState}");
+    // Log.debug("${transition.nextState}");
     super.onTransition(bloc, transition);
   }
 
@@ -123,9 +123,9 @@ class ApplicationBlocObserver extends BlocObserver {
     super.onError(bloc, error, stackTrace);
   }
 
-  @override
-  void onEvent(Bloc bloc, Object? event) {
-    // Log.debug("$event");
-    super.onEvent(bloc, event);
-  }
+  // @override
+  // void onEvent(Bloc bloc, Object? event) {
+  //   Log.debug("$event");
+  //   super.onEvent(bloc, event);
+  // }
 }

@@ -40,7 +40,7 @@ class _GridPageState extends State<GridPage> {
           return state.loadingState.map(
             loading: (_) => const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => FlowyGrid(),
+              (_) => const FlowyGrid(),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );
@@ -65,9 +65,15 @@ class _GridPageState extends State<GridPage> {
   }
 }
 
-class FlowyGrid extends StatelessWidget {
+class FlowyGrid extends StatefulWidget {
+  const FlowyGrid({Key? key}) : super(key: key);
+
+  @override
+  State<FlowyGrid> createState() => _FlowyGridState();
+}
+
+class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController();
-  FlowyGrid({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +161,15 @@ class _GridHeader extends StatelessWidget {
   }
 }
 
-class _GridRows extends StatelessWidget {
+class _GridRows extends StatefulWidget {
+  const _GridRows({Key? key}) : super(key: key);
+
+  @override
+  State<_GridRows> createState() => _GridRowsState();
+}
+
+class _GridRowsState extends State<_GridRows> {
   final _key = GlobalKey<SliverAnimatedListState>();
-  _GridRows({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

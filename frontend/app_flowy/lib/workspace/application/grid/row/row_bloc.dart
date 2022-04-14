@@ -34,11 +34,11 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: (_CreateRow value) {
             _rowService.createRow();
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) async {
-            await _handleFieldUpdate(emit, value);
-          },
           didUpdateRow: (_DidUpdateRow value) async {
             _handleRowUpdate(value, emit);
+          },
+          fieldsDidUpdate: (_FieldsDidUpdate value) async {
+            await _handleFieldUpdate(emit);
           },
         );
       },
@@ -53,15 +53,15 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     ));
   }
 
-  Future<void> _handleFieldUpdate(Emitter<RowState> emit, _DidReceiveFieldUpdate value) async {
+  Future<void> _handleFieldUpdate(Emitter<RowState> emit) async {
     final optionRow = await state.row;
     final CellDataMap cellDataMap = optionRow.fold(
       () => CellDataMap.identity(),
-      (row) => _makeCellDatas(row, value.fields),
+      (row) => _makeCellDatas(row, _fieldCache.unmodifiableFields),
     );
 
     emit(state.copyWith(
-      rowData: state.rowData.copyWith(fields: value.fields),
+      rowData: state.rowData.copyWith(fields: _fieldCache.unmodifiableFields),
       cellDataMap: Some(cellDataMap),
     ));
   }
@@ -80,9 +80,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       );
     });
 
-    _fieldCache.listenOnFieldChanged((fields) {
+    _fieldCache.addListener(() {
       if (!isClosed) {
-        // add(RowEvent.didReceiveFieldUpdate(fields));
+        add(const RowEvent.fieldsDidUpdate());
       }
     });
 
@@ -118,7 +118,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory RowEvent.fieldsDidUpdate() = _FieldsDidUpdate;
   const factory RowEvent.didUpdateRow(Row row) = _DidUpdateRow;
 }
 

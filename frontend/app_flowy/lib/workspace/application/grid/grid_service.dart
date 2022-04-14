@@ -74,6 +74,15 @@ class GridFieldCache {
     _fieldNotifier.addListener(() => onFieldChanged(clonedFields));
   }
 
+  void addListener(VoidCallback listener, {void Function(List<Field>)? onChanged}) {
+    _fieldNotifier.addListener(() {
+      if (onChanged != null) {
+        onChanged(clonedFields);
+      }
+      listener();
+    });
+  }
+
   void _removeFields(List<FieldOrder> deletedFields) {
     if (deletedFields.isEmpty) {
       return;
@@ -130,7 +139,7 @@ class GridRowCache {
 
   GridRowCache({required this.gridId});
 
-  List<RowData> get rows => _rows;
+  List<RowData> get rows => [..._rows];
 
   void updateWithBlock(List<GridBlockOrder> blocks, UnmodifiableListView<Field> fields) {
     _fields = fields;

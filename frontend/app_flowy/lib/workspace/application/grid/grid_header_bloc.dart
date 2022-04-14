@@ -2,20 +2,18 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'field/field_service.dart';
 import 'grid_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  final FieldService _fieldService;
+  // final FieldService _fieldService;
   final GridFieldCache fieldCache;
 
   GridHeaderBloc({
     required String gridId,
     required this.fieldCache,
-  })  : _fieldService = FieldService(gridId: gridId),
-        super(GridHeaderState.initial(fieldCache.clonedFields)) {
+  }) : super(GridHeaderState.initial(fieldCache.clonedFields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
@@ -31,7 +29,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _startListening() async {
-    fieldCache.listenOnFieldChanged((fields) {
+    fieldCache.addListener(() {}, onChanged: (fields) {
       if (!isClosed) {
         add(GridHeaderEvent.didReceiveFieldUpdate(fields));
       }

@@ -473,7 +473,7 @@ impl ClientGridEditor {
     }
 
     async fn notify_did_update_grid(&self, changeset: GridFieldChangeset) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGrid)
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridField)
             .payload(changeset)
             .send();
         Ok(())
