@@ -77,7 +77,7 @@ class FlowyGrid extends StatelessWidget {
         final child = _wrapScrollView(
           state.fields,
           [
-            _GridHeader(gridId: state.gridId, fields: List.from(state.fields)),
+            _GridHeader(gridId: state.gridId, fields: state.fields),
             _GridRows(),
             const _GridFooter(),
           ],
@@ -150,7 +150,8 @@ class _GridHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridHeaderSliverAdaptor(gridId: gridId, fields: fields);
+    final fieldCache = context.read<GridBloc>().fieldCache;
+    return GridHeaderSliverAdaptor(gridId: gridId, fieldCache: fieldCache);
   }
 }
 

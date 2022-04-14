@@ -62,7 +62,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
     _fieldListener.updateFieldNotifier.addPublishListener((result) {
       result.fold(
-        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
+        (field) {
+          if (!isClosed) {
+            add(DateCellEvent.didReceiveFieldUpdate(field));
+          }
+        },
         (err) => Log.error(err),
       );
     });

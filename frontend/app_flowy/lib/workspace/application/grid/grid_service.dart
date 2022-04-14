@@ -62,25 +62,23 @@ class GridFieldCache {
     _updateFields(changeset.updatedFields);
   }
 
-  List<Field> get fields => _fieldNotifier.fields;
+  UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier.fields);
 
-  set fields(List<Field> fields) {
-    _fieldNotifier.fields = fields;
+  List<Field> get clonedFields => [..._fieldNotifier.fields];
+
+  set clonedFields(List<Field> fields) {
+    _fieldNotifier.fields = [...fields];
   }
 
-  set onFieldChanged(void Function(List<Field>) onChanged) {
-    _fieldNotifier.addListener(() => onChanged(fields));
-  }
-
-  void addListener(void Function(List<Field>) onFieldChanged) {
-    _fieldNotifier.addListener(() => onFieldChanged(fields));
+  void listenOnFieldChanged(void Function(List<Field>) onFieldChanged) {
+    _fieldNotifier.addListener(() => onFieldChanged(clonedFields));
   }
 
   void _removeFields(List<FieldOrder> deletedFields) {
     if (deletedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = List.from(_fieldNotifier.fields);
+    final List<Field> fields = _fieldNotifier.fields;
     final Map<String, FieldOrder> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
@@ -93,7 +91,7 @@ class GridFieldCache {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = List.from(_fieldNotifier.fields);
+    final List<Field> fields = _fieldNotifier.fields;
     for (final indexField in insertedFields) {
       if (fields.length > indexField.index) {
         fields.removeAt(indexField.index);
@@ -109,7 +107,7 @@ class GridFieldCache {
     if (updatedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = List.from(_fieldNotifier.fields);
+    final List<Field> fields = _fieldNotifier.fields;
     for (final updatedField in updatedFields) {
       final index = fields.indexWhere((field) => field.id == updatedField.id);
       if (index != -1) {
@@ -119,24 +117,29 @@ class GridFieldCache {
     }
     _fieldNotifier.fields = fields;
   }
+
+  void dispose() {
+    _fieldNotifier.dispose();
+  }
 }
 
 class GridRowCache {
   final String gridId;
-  List<Field> _fields = [];
+  UnmodifiableListView<Field> _fields = UnmodifiableListView([]);
   List<RowData> _rows = [];
 
   GridRowCache({required this.gridId});
 
   List<RowData> get rows => _rows;
 
-  void updateWithBlock(List<GridBlockOrder> blocks) {
+  void updateWithBlock(List<GridBlockOrder> blocks, UnmodifiableListView<Field> fields) {
+    _fields = fields;
     _rows = blocks.expand((block) => block.rowOrders).map((rowOrder) {
       return RowData.fromBlockRow(gridId, rowOrder, _fields);
     }).toList();
   }
 
-  void updateFields(List<Field> fields) {
+  void updateFields(UnmodifiableListView<Field> fields) {
     if (fields.isEmpty) {
       return;
     }

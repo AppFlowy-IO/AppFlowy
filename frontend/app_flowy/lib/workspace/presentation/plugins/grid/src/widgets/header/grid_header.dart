@@ -14,18 +14,19 @@ import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatelessWidget {
   final String gridId;
-  final List<Field> fields;
+  final GridFieldCache fieldCache;
 
-  const GridHeaderSliverAdaptor({required this.gridId, required this.fields, Key? key}) : super(key: key);
+  const GridHeaderSliverAdaptor({required this.gridId, required this.fieldCache, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<GridHeaderBloc>(param1: gridId, param2: fields)..add(const GridHeaderEvent.initial()),
+      create: (context) =>
+          getIt<GridHeaderBloc>(param1: gridId, param2: fieldCache)..add(const GridHeaderEvent.initial()),
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         builder: (context, state) {
           return SliverPersistentHeader(
-            delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: fields),
+            delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
             floating: true,
             pinned: true,
           );
@@ -77,6 +78,7 @@ class _GridHeader extends StatelessWidget {
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
       builder: (context, state) {
         final cells = state.fields
+            .where((field) => field.visibility)
             .map((field) => GridFieldCellContext(gridId: gridId, field: field))
             .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
             .toList();

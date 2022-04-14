@@ -41,10 +41,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             emit(state.copyWith(rows: value.rows, listState: value.listState));
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(
-              rows: _rowCache.rows,
-              fields: value.fields,
-            ));
+            emit(state.copyWith(rows: _rowCache.rows, fields: value.fields));
           },
         );
       },
@@ -56,19 +53,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await _gridService.closeGrid();
     await _fieldListener.stop();
     await _gridListener.stop();
+    fieldCache.dispose();
     return super.close();
   }
 
   void _startListening() {
-    fieldCache.addListener((fields) {
-      _rowCache.updateFields(fields);
-    });
-
     _fieldListener.updateFieldsNotifier.addPublishListener((result) {
       result.fold(
         (changeset) {
           fieldCache.applyChangeset(changeset);
-          add(GridEvent.didReceiveFieldUpdate(List.from(fieldCache.fields)));
+          _rowCache.updateFields(fieldCache.unmodifiableFields);
+          add(GridEvent.didReceiveFieldUpdate(fieldCache.clonedFields));
         },
         (err) => Log.error(err),
       );
@@ -111,12 +106,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return Future(
       () => result.fold(
         (fields) {
-          fieldCache.fields = fields.items;
-          _rowCache.updateWithBlock(grid.blockOrders);
+          fieldCache.clonedFields = fields.items;
+          _rowCache.updateWithBlock(grid.blockOrders, fieldCache.unmodifiableFields);
 
           emit(state.copyWith(
             grid: Some(grid),
-            fields: fieldCache.fields,
+            fields: fieldCache.clonedFields,
             rows: _rowCache.rows,
             loadingState: GridLoadingState.finish(left(unit)),
           ));

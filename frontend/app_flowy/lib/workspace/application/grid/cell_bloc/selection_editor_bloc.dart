@@ -144,7 +144,11 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
     _fieldListener.updateFieldNotifier.addPublishListener((result) {
       result.fold(
-        (field) => add(SelectOptionEditorEvent.didReceiveFieldUpdate(field)),
+        (field) {
+          if (!isClosed) {
+            add(SelectOptionEditorEvent.didReceiveFieldUpdate(field));
+          }
+        },
         (err) => Log.error(err),
       );
     });

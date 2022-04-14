@@ -80,9 +80,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       );
     });
 
-    _fieldCache.addListener((fields) {
+    _fieldCache.listenOnFieldChanged((fields) {
       if (!isClosed) {
-        add(RowEvent.didReceiveFieldUpdate(fields));
+        // add(RowEvent.didReceiveFieldUpdate(fields));
       }
     });
 
