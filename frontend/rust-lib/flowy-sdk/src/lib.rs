@@ -193,7 +193,7 @@ fn mk_local_server(
     server_config: &ClientServerConfiguration,
 ) -> (Option<Arc<LocalServer>>, Arc<FlowyWebSocketConnect>) {
     let ws_addr = server_config.ws_addr();
-    if cfg!(feature = "http_server") {
+    if cfg!(feature = "http_sync") {
         let ws_conn = Arc::new(FlowyWebSocketConnect::new(ws_addr));
         (None, ws_conn)
     } else {

@@ -3,13 +3,11 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    gen_field_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
-    GridBlockMetaChangeset, GridMeta, IndexField,
+    gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset,
+    GridMeta,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
-
-use futures::StreamExt;
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;

@@ -153,7 +153,7 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
             .await?;
 
-        let _ = self.notify_grid_did_update_field(&field_id).await?;
+        let _ = self.notify_grid_did_update_field(field_id).await?;
 
         Ok(())
     }

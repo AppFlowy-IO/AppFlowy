@@ -1,4 +1,3 @@
-use crate::services::web_socket::make_folder_ws_manager;
 use flowy_sync::{
     client_folder::{FolderChange, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
@@ -11,7 +10,6 @@ use flowy_sync::util::make_delta_from_revisions;
 
 use flowy_revision::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
-    RevisionWebSocketManager,
 };
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
@@ -21,13 +19,16 @@ use std::sync::Arc;
 
 pub struct ClientFolderEditor {
     user_id: String,
+    #[allow(dead_code)]
     pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
     rev_manager: Arc<RevisionManager>,
-    // ws_manager: Arc<RevisionWebSocketManager>,
+    #[cfg(feature = "sync")]
+    ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
 }
 
 impl ClientFolderEditor {
+    #[allow(unused_variables)]
     pub async fn new(
         user_id: &str,
         folder_id: &FolderId,
@@ -40,14 +41,16 @@ impl ClientFolderEditor {
         });
         let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(Some(cloud)).await?));
         let rev_manager = Arc::new(rev_manager);
-        // let ws_manager = make_folder_ws_manager(
-        //     user_id,
-        //     folder_id.as_ref(),
-        //     rev_manager.clone(),
-        //     web_socket,
-        //     folder.clone(),
-        // )
-        // .await;
+
+        #[cfg(feature = "sync")]
+        let ws_manager = crate::services::web_socket::make_folder_ws_manager(
+            user_id,
+            folder_id.as_ref(),
+            rev_manager.clone(),
+            web_socket,
+            folder.clone(),
+        )
+        .await;
 
         let user_id = user_id.to_owned();
         let folder_id = folder_id.to_owned();
@@ -56,15 +59,23 @@ impl ClientFolderEditor {
             folder_id,
             folder,
             rev_manager,
-            // ws_manager,
+            #[cfg(feature = "sync")]
+            ws_manager,
         })
     }
 
+    #[cfg(feature = "sync")]
     pub async fn receive_ws_data(&self, data: ServerRevisionWSData) -> FlowyResult<()> {
-        // let _ = self.ws_manager.ws_passthrough_tx.send(data).await.map_err(|e| {
-        //     let err_msg = format!("{} passthrough error: {}", self.folder_id, e);
-        //     FlowyError::internal().context(err_msg)
-        // })?;
+        let _ = self.ws_manager.ws_passthrough_tx.send(data).await.map_err(|e| {
+            let err_msg = format!("{} passthrough error: {}", self.folder_id, e);
+            FlowyError::internal().context(err_msg)
+        })?;
+
+        Ok(())
+    }
+
+    #[cfg(not(feature = "sync"))]
+    pub async fn receive_ws_data(&self, _data: ServerRevisionWSData) -> FlowyResult<()> {
         Ok(())
     }
 

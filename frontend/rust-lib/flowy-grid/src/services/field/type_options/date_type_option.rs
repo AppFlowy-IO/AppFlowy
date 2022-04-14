@@ -47,7 +47,7 @@ impl DateTypeOption {
         if self.include_time {
             format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
         } else {
-            format!("{}", self.date_format.format_str())
+            self.date_format.format_str().to_string()
         }
     }
 }

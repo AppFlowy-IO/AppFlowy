@@ -23,6 +23,7 @@ use tokio::sync::{
 pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 
+#[allow(dead_code)]
 pub(crate) async fn make_block_ws_manager(
     doc_id: String,
     user_id: String,
@@ -49,6 +50,7 @@ pub(crate) async fn make_block_ws_manager(
     ws_manager
 }
 
+#[allow(dead_code)]
 fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broadcast::Receiver<WSConnectState>) {
     tokio::spawn(async move {
         while let Ok(state) = subscriber.recv().await {
@@ -67,6 +69,7 @@ pub(crate) struct TextBlockRevisionWSDataStream {
 }
 
 impl TextBlockRevisionWSDataStream {
+    #[allow(dead_code)]
     pub fn new(conflict_controller: RichTextConflictController) -> Self {
         Self {
             conflict_controller: Arc::new(conflict_controller),

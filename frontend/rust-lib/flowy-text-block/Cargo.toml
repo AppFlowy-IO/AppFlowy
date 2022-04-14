@@ -51,6 +51,7 @@ rand = "0.7.3"
 lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
 
 [features]
-http_server = []
+sync = []
+cloud_sync = ["sync"]
 flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
 dart = ["lib-infra/dart"]
