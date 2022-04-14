@@ -84,7 +84,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           state.fields,
           [
             _GridHeader(gridId: state.gridId, fields: state.fields),
-            _GridRows(),
+            const _GridRows(),
             const _GridFooter(),
           ],
         );

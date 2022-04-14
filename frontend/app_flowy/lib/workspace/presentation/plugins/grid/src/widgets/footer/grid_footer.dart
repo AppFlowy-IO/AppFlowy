@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
