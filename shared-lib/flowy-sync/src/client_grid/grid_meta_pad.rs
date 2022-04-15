@@ -205,6 +205,25 @@ impl GridMetaPad {
         )
     }
 
+    pub fn move_field(
+        &mut self,
+        field_id: &str,
+        from_index: usize,
+        to_index: usize,
+    ) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    debug_assert_eq!(index, from_index);
+                    let field_meta = grid_meta.fields.remove(index);
+                    grid_meta.fields.insert(to_index, field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
     pub fn contain_field(&self, field_id: &str) -> bool {
         self.grid_meta.fields.iter().any(|field| field.id == field_id)
     }

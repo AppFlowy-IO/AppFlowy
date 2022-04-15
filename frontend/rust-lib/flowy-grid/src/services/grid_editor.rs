@@ -385,16 +385,30 @@ impl ClientGridEditor {
     pub async fn move_item(&self, params: MoveItemParams) -> FlowyResult<()> {
         match params.ty {
             MoveItemType::MoveField => {
-                self.move_field(params.from_index, params.to_index, &params.item_id)
+                self.move_field(&params.item_id, params.from_index, params.to_index)
                     .await
             }
             MoveItemType::MoveRow => self.move_row(params.from_index, params.to_index, &params.item_id).await,
         }
     }
 
-    pub async fn move_field(&self, from: i32, to: i32, field_id: &str) -> FlowyResult<()> {
-        // GridFieldChangeset
-        todo!()
+    pub async fn move_field(&self, field_id: &str, from: i32, to: i32) -> FlowyResult<()> {
+        let _ = self
+            .modify(|grid_pad| Ok(grid_pad.move_field(field_id, from as usize, to as usize)?))
+            .await?;
+        if let Some((index, field_meta)) = self.pad.read().await.get_field_meta(field_id) {
+            let delete_field_order = FieldOrder::from(field_id);
+            let insert_field = IndexField::from_field_meta(field_meta, index);
+            let notified_changeset = GridFieldChangeset {
+                grid_id: self.grid_id.clone(),
+                inserted_fields: vec![insert_field],
+                deleted_fields: vec![delete_field_order],
+                updated_fields: vec![],
+            };
+
+            let _ = self.notify_did_update_grid(notified_changeset).await?;
+        }
+        Ok(())
     }
 
     pub async fn move_row(&self, from: i32, to: i32, row_id: &str) -> FlowyResult<()> {

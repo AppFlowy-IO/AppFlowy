@@ -29,6 +29,17 @@ class FieldService {
     return GridEventGetEditFieldContext(payload).send();
   }
 
+  Future<Either<Unit, FlowyError>> moveField(String fieldId, int fromIndex, int toIndex) {
+    final payload = MoveItemPayload.create()
+      ..gridId = gridId
+      ..itemId = fieldId
+      ..ty = MoveItemType.MoveField
+      ..fromIndex = fromIndex
+      ..toIndex = toIndex;
+
+    return GridEventMoveItem(payload).send();
+  }
+
   Future<Either<Unit, FlowyError>> updateField({
     required String fieldId,
     String? name,

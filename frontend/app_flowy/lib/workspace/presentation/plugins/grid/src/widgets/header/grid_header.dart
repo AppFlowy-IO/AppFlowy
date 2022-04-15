@@ -110,7 +110,7 @@ class _GridHeaderState extends State<_GridHeader> {
               header: const _CellLeading(),
               footer: _CellTrailing(gridId: widget.gridId),
               onReorder: (int oldIndex, int newIndex) {
-                Log.info("from $oldIndex to $newIndex");
+                _onReorder(cells, oldIndex, context, newIndex);
               },
               children: cells,
             ),
@@ -118,6 +118,13 @@ class _GridHeaderState extends State<_GridHeader> {
         );
       },
     );
+  }
+
+  void _onReorder(List<GridFieldCell> cells, int oldIndex, BuildContext context, int newIndex) {
+    if (cells.length > oldIndex) {
+      final field = cells[oldIndex].cellContext.field;
+      context.read<GridHeaderBloc>().add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
+    }
   }
 }
 

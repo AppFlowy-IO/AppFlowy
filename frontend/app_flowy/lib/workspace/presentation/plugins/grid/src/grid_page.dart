@@ -75,6 +75,13 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(scrollGroupContorller: LinkedScrollControllerGroup());
+  late ScrollController headerScrollController;
+
+  @override
+  void initState() {
+    headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -96,11 +103,14 @@ class _FlowyGridState extends State<FlowyGrid> {
           ],
         );
 
-        return Column(children: [
-          const _GridToolbarAdaptor(),
-          _gridHeader(context, state.gridId, contentWidth),
-          Flexible(child: child),
-        ]);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _GridToolbarAdaptor(),
+            _gridHeader(context, state.gridId, contentWidth),
+            Flexible(child: child),
+          ],
+        );
       },
     );
   }
@@ -145,7 +155,7 @@ class _FlowyGridState extends State<FlowyGrid> {
       child: GridHeaderSliverAdaptor(
         gridId: gridId,
         fieldCache: fieldCache,
-        anchorScrollController: _scrollController.linkHorizontalController(),
+        anchorScrollController: headerScrollController,
       ),
     );
   }
