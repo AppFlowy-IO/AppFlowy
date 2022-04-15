@@ -103,7 +103,6 @@ class GridFieldCache {
     final List<Field> fields = _fieldNotifier.fields;
     for (final indexField in insertedFields) {
       if (fields.length > indexField.index) {
-        fields.removeAt(indexField.index);
         fields.insert(indexField.index, indexField.field_1);
       } else {
         fields.add(indexField.field_1);
