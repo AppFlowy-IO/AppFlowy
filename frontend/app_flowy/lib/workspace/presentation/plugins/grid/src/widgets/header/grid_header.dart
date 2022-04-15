@@ -5,10 +5,11 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:reorderables/reorderables.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
@@ -62,7 +63,7 @@ class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate 
   }
 }
 
-class _GridHeader extends StatelessWidget {
+class _GridHeader extends StatefulWidget {
   final String gridId;
   final List<Field> fields;
 
@@ -73,25 +74,33 @@ class _GridHeader extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_GridHeader> createState() => _GridHeaderState();
+}
+
+class _GridHeaderState extends State<_GridHeader> {
+  @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final cells = state.fields
             .where((field) => field.visibility)
-            .map((field) => GridFieldCellContext(gridId: gridId, field: field))
+            .map((field) => GridFieldCellContext(gridId: widget.gridId, field: field))
             .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
             .toList();
 
         return Container(
           color: theme.surface,
-          child: Row(
+          child: ReorderableRow(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _CellLeading(),
-              ...cells,
-              _CellTrailing(gridId: gridId),
-            ],
+            scrollController: ScrollController(),
+            header: const _CellLeading(),
+            footer: _CellTrailing(gridId: widget.gridId),
+            onReorder: (int oldIndex, int newIndex) {
+              Log.info("from $oldIndex to $newIndex");
+            },
+            children: cells,
           ),
         );
       },

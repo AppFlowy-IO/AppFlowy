@@ -10,6 +10,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,16 +46,19 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
           getIt<GridPropertyBloc>(param1: gridId, param2: fields)..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
-          final children = state.fields.map((field) {
+          final cells = state.fields.map((field) {
             return _GridPropertyCell(gridId: gridId, field: field, key: ValueKey(field.id));
           }).toList();
 
-          return ReorderableListView(
+          return ListView.separated(
             shrinkWrap: true,
-            onReorder: (int oldIndex, int newIndex) {
-              context.read<GridPropertyBloc>().add(GridPropertyEvent.moveField(oldIndex, newIndex));
+            itemCount: cells.length,
+            itemBuilder: (BuildContext context, int index) {
+              return cells[index];
             },
-            children: children,
+            separatorBuilder: (BuildContext context, int index) {
+              return VSpace(GridSize.typeOptionSeparatorHeight);
+            },
           );
         },
       ),
