@@ -13,25 +13,41 @@ import 'package:reorderables/reorderables.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
-class GridHeaderSliverAdaptor extends StatelessWidget {
+class GridHeaderSliverAdaptor extends StatefulWidget {
   final String gridId;
   final GridFieldCache fieldCache;
+  final ScrollController anchorScrollController;
+  const GridHeaderSliverAdaptor({
+    required this.gridId,
+    required this.fieldCache,
+    required this.anchorScrollController,
+    Key? key,
+  }) : super(key: key);
 
-  const GridHeaderSliverAdaptor({required this.gridId, required this.fieldCache, Key? key}) : super(key: key);
+  @override
+  State<GridHeaderSliverAdaptor> createState() => _GridHeaderSliverAdaptorState();
+}
 
+class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          getIt<GridHeaderBloc>(param1: gridId, param2: fieldCache)..add(const GridHeaderEvent.initial()),
+          getIt<GridHeaderBloc>(param1: widget.gridId, param2: widget.fieldCache)..add(const GridHeaderEvent.initial()),
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         buildWhen: (previous, current) => previous.fields.length != current.fields.length,
         builder: (context, state) {
-          return SliverPersistentHeader(
-            delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
-            floating: true,
-            pinned: true,
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: widget.anchorScrollController,
+            child: SizedBox(height: GridSize.headerHeight, child: _GridHeader(gridId: widget.gridId)),
           );
+
+          // return SliverPersistentHeader(
+          //   delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
+          //   floating: true,
+          //   pinned: true,
+          // );
         },
       ),
     );
@@ -46,7 +62,7 @@ class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate 
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeader(gridId: gridId, fields: fields);
+    return _GridHeader(gridId: gridId);
   }
 
   @override
@@ -66,13 +82,7 @@ class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate 
 
 class _GridHeader extends StatefulWidget {
   final String gridId;
-  final List<Field> fields;
-
-  const _GridHeader({
-    Key? key,
-    required this.gridId,
-    required this.fields,
-  }) : super(key: key);
+  const _GridHeader({Key? key, required this.gridId}) : super(key: key);
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -93,15 +103,17 @@ class _GridHeaderState extends State<_GridHeader> {
 
         return Container(
           color: theme.surface,
-          child: ReorderableRow(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            scrollController: ScrollController(),
-            header: const _CellLeading(),
-            footer: _CellTrailing(gridId: widget.gridId),
-            onReorder: (int oldIndex, int newIndex) {
-              Log.info("from $oldIndex to $newIndex");
-            },
-            children: cells,
+          child: RepaintBoundary(
+            child: ReorderableRow(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              scrollController: ScrollController(),
+              header: const _CellLeading(),
+              footer: _CellTrailing(gridId: widget.gridId),
+              onReorder: (int oldIndex, int newIndex) {
+                Log.info("from $oldIndex to $newIndex");
+              },
+              children: cells,
+            ),
           ),
         );
       },

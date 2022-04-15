@@ -75,6 +75,7 @@ dependencies:
   fluttertoast: ^8.0.8
   table_calendar: ^3.0.5
   reorderables:
+  linked_scroll_controller: ^0.2.0
 
 dev_dependencies:
   flutter_lints: ^1.0.0

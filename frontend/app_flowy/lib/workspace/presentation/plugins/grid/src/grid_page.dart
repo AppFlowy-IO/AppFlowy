@@ -9,6 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -73,17 +74,23 @@ class FlowyGrid extends StatefulWidget {
 }
 
 class _FlowyGridState extends State<FlowyGrid> {
-  final _scrollController = GridScrollController();
+  final _scrollController = GridScrollController(scrollGroupContorller: LinkedScrollControllerGroup());
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
+        final contentWidth = GridLayout.headerWidth(state.fields);
         final child = _wrapScrollView(
-          state.fields,
+          contentWidth,
           [
-            _GridHeader(gridId: state.gridId, fields: state.fields),
             const _GridRows(),
             const _GridFooter(),
           ],
@@ -91,6 +98,7 @@ class _FlowyGridState extends State<FlowyGrid> {
 
         return Column(children: [
           const _GridToolbarAdaptor(),
+          _gridHeader(context, state.gridId, contentWidth),
           Flexible(child: child),
         ]);
       },
@@ -98,7 +106,7 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _wrapScrollView(
-    List<Field> fields,
+    double contentWidth,
     List<Widget> slivers,
   ) {
     final verticalScrollView = ScrollConfiguration(
@@ -111,7 +119,7 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
 
     final sizedVerticalScrollView = SizedBox(
-      width: GridLayout.headerWidth(fields),
+      width: contentWidth,
       child: verticalScrollView,
     );
 
@@ -126,6 +134,19 @@ class _FlowyGridState extends State<FlowyGrid> {
       controller: _scrollController.verticalController,
       barSize: GridSize.scrollBarSize,
       child: horizontalScrollView,
+    );
+  }
+
+  Widget _gridHeader(BuildContext context, String gridId, double contentWidth) {
+    final fieldCache = context.read<GridBloc>().fieldCache;
+
+    return SizedBox(
+      width: contentWidth,
+      child: GridHeaderSliverAdaptor(
+        gridId: gridId,
+        fieldCache: fieldCache,
+        anchorScrollController: _scrollController.linkHorizontalController(),
+      ),
     );
   }
 }
@@ -146,18 +167,6 @@ class _GridToolbarAdaptor extends StatelessWidget {
         return GridToolbar(toolbarContext: toolbarContext);
       },
     );
-  }
-}
-
-class _GridHeader extends StatelessWidget {
-  final String gridId;
-  final List<Field> fields;
-  const _GridHeader({Key? key, required this.gridId, required this.fields}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final fieldCache = context.read<GridBloc>().fieldCache;
-    return GridHeaderSliverAdaptor(gridId: gridId, fieldCache: fieldCache);
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -7,13 +8,14 @@ import 'grid_service.dart';
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  // final FieldService _fieldService;
+  final FieldService _fieldService;
   final GridFieldCache fieldCache;
 
   GridHeaderBloc({
     required String gridId,
     required this.fieldCache,
-  }) : super(GridHeaderState.initial(fieldCache.clonedFields)) {
+  })  : _fieldService = FieldService(gridId: gridId),
+        super(GridHeaderState.initial(fieldCache.clonedFields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
@@ -23,6 +25,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fields: value.fields));
           },
+          moveField: (_MoveField value) {},
         );
       },
     );
@@ -46,6 +49,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
   const factory GridHeaderEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridHeaderEvent.moveField(int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed
