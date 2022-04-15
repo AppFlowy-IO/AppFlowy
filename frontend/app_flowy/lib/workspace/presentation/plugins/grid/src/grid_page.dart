@@ -193,6 +193,7 @@ class _GridRowsState extends State<_GridRows> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
+      listenWhen: (previous, current) => previous.listState != current.listState,
       listener: (context, state) {
         state.listState.map(
           insert: (value) {
