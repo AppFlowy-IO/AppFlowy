@@ -11,7 +11,7 @@ typedef UpdateFieldNotifiedValue = Either<GridFieldChangeset, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateFieldsNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier = PublishNotifier();
   GridNotificationListener? _listener;
   GridFieldsListener({required this.gridId});
 
@@ -26,8 +26,8 @@ class GridFieldsListener {
     switch (ty) {
       case GridNotification.DidUpdateGridField:
         result.fold(
-          (payload) => updateFieldsNotifier.value = left(GridFieldChangeset.fromBuffer(payload)),
-          (error) => updateFieldsNotifier.value = right(error),
+          (payload) => updateFieldsNotifier?.value = left(GridFieldChangeset.fromBuffer(payload)),
+          (error) => updateFieldsNotifier?.value = right(error),
         );
         break;
       default:
@@ -37,6 +37,7 @@ class GridFieldsListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldsNotifier.dispose();
+    updateFieldsNotifier?.dispose();
+    updateFieldsNotifier = null;
   }
 }

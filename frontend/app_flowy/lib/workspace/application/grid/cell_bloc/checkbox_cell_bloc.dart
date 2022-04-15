@@ -43,7 +43,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    _listener.updateCellNotifier.addPublishListener((result) {
+    _listener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) async => await _loadCellData(),
         (err) => Log.error(err),

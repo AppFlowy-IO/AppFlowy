@@ -51,7 +51,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   }
 
   void _startListening() {
-    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldsNotifier?.addPublishListener((result) {
       result.fold(
         (changeset) {
           _fieldCache.applyChangeset(changeset);

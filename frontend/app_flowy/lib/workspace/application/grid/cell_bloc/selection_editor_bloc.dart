@@ -134,7 +134,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) => _loadOptions(),
         (err) => Log.error(err),
@@ -142,7 +142,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
     });
     _cellListener.start();
 
-    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
         (field) {
           if (!isClosed) {

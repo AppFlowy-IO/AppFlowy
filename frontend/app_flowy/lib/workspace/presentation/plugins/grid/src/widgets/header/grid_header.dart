@@ -25,6 +25,7 @@ class GridHeaderSliverAdaptor extends StatelessWidget {
       create: (context) =>
           getIt<GridHeaderBloc>(param1: gridId, param2: fieldCache)..add(const GridHeaderEvent.initial()),
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
+        buildWhen: (previous, current) => previous.fields.length != current.fields.length,
         builder: (context, state) {
           return SliverPersistentHeader(
             delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
@@ -45,7 +46,7 @@ class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate 
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeader(gridId: gridId, fields: fields, key: ObjectKey(fields));
+    return _GridHeader(gridId: gridId, fields: fields);
   }
 
   @override

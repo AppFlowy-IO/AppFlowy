@@ -59,7 +59,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) async {
           await _getCellData();
@@ -69,7 +69,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
     });
     _cellListener.start();
 
-    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
         (field) => _getCellData(),
         (err) => Log.error(err),

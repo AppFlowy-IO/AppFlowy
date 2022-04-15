@@ -73,7 +73,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _startListening() async {
-    _rowlistener.updateRowNotifier.addPublishListener((result) {
+    _rowlistener.updateRowNotifier?.addPublishListener((result) {
       result.fold(
         (row) => add(RowEvent.didUpdateRow(row)),
         (err) => Log.error(err),

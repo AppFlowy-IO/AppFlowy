@@ -11,7 +11,7 @@ typedef UpdateFieldNotifiedValue = Either<Field, FlowyError>;
 
 class SingleFieldListener {
   final String fieldId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateFieldNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldNotifier = PublishNotifier();
   GridNotificationListener? _listener;
 
   SingleFieldListener({required this.fieldId});
@@ -30,8 +30,8 @@ class SingleFieldListener {
     switch (ty) {
       case GridNotification.DidUpdateField:
         result.fold(
-          (payload) => updateFieldNotifier.value = left(Field.fromBuffer(payload)),
-          (error) => updateFieldNotifier.value = right(error),
+          (payload) => updateFieldNotifier?.value = left(Field.fromBuffer(payload)),
+          (error) => updateFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -41,6 +41,7 @@ class SingleFieldListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldNotifier.dispose();
+    updateFieldNotifier?.dispose();
+    updateFieldNotifier = null;
   }
 }
