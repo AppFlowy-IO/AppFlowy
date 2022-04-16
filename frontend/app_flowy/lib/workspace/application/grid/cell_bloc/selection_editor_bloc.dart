@@ -117,16 +117,15 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
           fieldId: state.field.id,
           rowId: state.rowId,
         );
+        if (isClosed) {
+          return;
+        }
 
         result.fold(
-          (selectOptionContext) {
-            if (!isClosed) {
-              add(SelectOptionEditorEvent.didReceiveOptions(
-                selectOptionContext.options,
-                selectOptionContext.selectOptions,
-              ));
-            }
-          },
+          (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
+            selectOptionContext.options,
+            selectOptionContext.selectOptions,
+          )),
           (err) => Log.error(err),
         );
       },
@@ -144,14 +143,10 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
     _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
-        (field) {
-          if (!isClosed) {
-            add(SelectOptionEditorEvent.didReceiveFieldUpdate(field));
-          }
-        },
+        (field) => add(SelectOptionEditorEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _fieldListener.start();
   }
 }

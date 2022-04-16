@@ -18,11 +18,16 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
   final RowListener _rowlistener;
   final GridFieldCache _fieldCache;
+  final GridRowCache _rowCache;
 
-  RowBloc({required RowData rowData, required GridFieldCache fieldCache})
-      : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
-        _fieldCache = fieldCache,
+  RowBloc({
+    required GridRow rowData,
+    required GridFieldCache fieldCache,
+    required GridRowCache rowCache,
+  })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
         _rowlistener = RowListener(rowId: rowData.rowId),
+        _fieldCache = fieldCache,
+        _rowCache = rowCache,
         super(RowState.initial(rowData)) {
     on<RowEvent>(
       (event, emit) async {
@@ -76,37 +81,30 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _startListening() async {
-    _rowlistener.updateRowNotifier?.addPublishListener((result) {
-      result.fold(
-        (row) {
-          if (!isClosed) {
-            add(RowEvent.didUpdateRow(row));
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
+    _rowlistener.updateRowNotifier?.addPublishListener(
+      (result) {
+        result.fold(
+          (row) => add(RowEvent.didUpdateRow(row)),
+          (err) => Log.error(err),
+        );
+      },
+      listenWhen: () => !isClosed,
+    );
 
-    _fieldCache.addListener(() {
-      if (!isClosed) {
-        add(const RowEvent.fieldsDidUpdate());
-      }
-    });
+    _fieldCache.addListener(
+      () => add(const RowEvent.fieldsDidUpdate()),
+      listenWhen: () => !isClosed,
+    );
 
     _rowlistener.start();
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    _rowService.getRow().then((result) {
-      return result.fold(
-        (row) {
-          if (!isClosed) {
-            add(RowEvent.didLoadRow(row));
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
+    final data = await _rowCache.getRowData(state.rowData.rowId);
+    if (isClosed) {
+      return;
+    }
+    data.foldRight(null, (data, _) => add(RowEvent.didLoadRow(data)));
   }
 
   CellDataMap _makeCellDatas(Row row, List<Field> fields) {
@@ -137,12 +135,12 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required RowData rowData,
+    required GridRow rowData,
     required Future<Option<Row>> row,
     required Option<CellDataMap> cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(RowData rowData) => RowState(
+  factory RowState.initial(GridRow rowData) => RowState(
         rowData: rowData,
         row: Future(() => none()),
         cellDataMap: none(),

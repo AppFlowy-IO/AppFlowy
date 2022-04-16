@@ -36,11 +36,11 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _startListening() async {
-    fieldCache.addListener(() {}, onChanged: (fields) {
-      if (!isClosed) {
-        add(GridHeaderEvent.didReceiveFieldUpdate(fields));
-      }
-    });
+    fieldCache.addListener(
+      () {},
+      onChanged: (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
+      listenWhen: () => !isClosed,
+    );
   }
 
   @override

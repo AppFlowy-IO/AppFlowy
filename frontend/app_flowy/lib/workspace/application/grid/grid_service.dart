@@ -5,9 +5,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-
-part 'grid_service.freezed.dart';
 
 class GridService {
   final String gridId;
@@ -74,11 +71,16 @@ class GridFieldCache {
     _fieldNotifier.addListener(() => onFieldChanged(clonedFields));
   }
 
-  void addListener(VoidCallback listener, {void Function(List<Field>)? onChanged}) {
+  void addListener(VoidCallback listener, {void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
     _fieldNotifier.addListener(() {
       if (onChanged != null) {
         onChanged(clonedFields);
       }
+
+      if (listenWhen != null && listenWhen() == false) {
+        return;
+      }
+
       listener();
     });
   }
@@ -129,99 +131,4 @@ class GridFieldCache {
   void dispose() {
     _fieldNotifier.dispose();
   }
-}
-
-class GridRowCache {
-  final String gridId;
-  UnmodifiableListView<Field> _fields = UnmodifiableListView([]);
-  List<RowData> _rows = [];
-
-  GridRowCache({required this.gridId});
-
-  List<RowData> get rows => [..._rows];
-
-  void updateWithBlock(List<GridBlockOrder> blocks, UnmodifiableListView<Field> fields) {
-    _fields = fields;
-    _rows = blocks.expand((block) => block.rowOrders).map((rowOrder) {
-      return RowData.fromBlockRow(gridId, rowOrder, _fields);
-    }).toList();
-  }
-
-  void updateFields(UnmodifiableListView<Field> fields) {
-    if (fields.isEmpty) {
-      return;
-    }
-
-    _fields = fields;
-    _rows = _rows.map((row) => row.copyWith(fields: fields)).toList();
-  }
-
-  Option<GridListState> deleteRows(List<RowOrder> deletedRows) {
-    if (deletedRows.isEmpty) {
-      return none();
-    }
-
-    final List<RowData> newRows = [];
-    final DeletedIndex deletedIndex = [];
-    final Map<String, RowOrder> deletedRowMap = {for (var rowOrder in deletedRows) rowOrder.rowId: rowOrder};
-    _rows.asMap().forEach((index, value) {
-      if (deletedRowMap[value.rowId] == null) {
-        newRows.add(value);
-      } else {
-        deletedIndex.add(Tuple2(index, value));
-      }
-    });
-    _rows = newRows;
-
-    return Some(GridListState.delete(deletedIndex));
-  }
-
-  Option<GridListState> insertRows(List<IndexRowOrder> createdRows) {
-    if (createdRows.isEmpty) {
-      return none();
-    }
-
-    InsertedIndexs insertIndexs = [];
-    for (final newRow in createdRows) {
-      if (newRow.hasIndex()) {
-        insertIndexs.add(Tuple2(newRow.index, newRow.rowOrder.rowId));
-        _rows.insert(newRow.index, _toRowData(newRow.rowOrder));
-      } else {
-        insertIndexs.add(Tuple2(newRow.index, newRow.rowOrder.rowId));
-        _rows.add(_toRowData(newRow.rowOrder));
-      }
-    }
-
-    return Some(GridListState.insert(insertIndexs));
-  }
-
-  void updateRows(List<RowOrder> updatedRows) {
-    if (updatedRows.isEmpty) {
-      return;
-    }
-
-    final List<int> updatedIndexs = [];
-    for (final updatedRow in updatedRows) {
-      final index = _rows.indexWhere((row) => row.rowId == updatedRow.rowId);
-      if (index != -1) {
-        _rows.removeAt(index);
-        _rows.insert(index, _toRowData(updatedRow));
-        updatedIndexs.add(index);
-      }
-    }
-  }
-
-  RowData _toRowData(RowOrder rowOrder) {
-    return RowData.fromBlockRow(gridId, rowOrder, _fields);
-  }
-}
-
-typedef InsertedIndexs = List<Tuple2<int, String>>;
-typedef DeletedIndex = List<Tuple2<int, RowData>>;
-
-@freezed
-class GridListState with _$GridListState {
-  const factory GridListState.insert(InsertedIndexs items) = _Insert;
-  const factory GridListState.delete(DeletedIndex items) = _Delete;
-  const factory GridListState.initial() = InitialListState;
 }

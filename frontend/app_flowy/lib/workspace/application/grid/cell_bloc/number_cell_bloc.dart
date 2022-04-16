@@ -84,12 +84,12 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+
+    if (isClosed) {
+      return;
+    }
     result.fold(
-      (cell) {
-        if (!isClosed) {
-          add(NumberCellEvent.didReceiveCellUpdate(cell));
-        }
-      },
+      (cell) => add(NumberCellEvent.didReceiveCellUpdate(cell)),
       (err) => Log.error(err),
     );
   }

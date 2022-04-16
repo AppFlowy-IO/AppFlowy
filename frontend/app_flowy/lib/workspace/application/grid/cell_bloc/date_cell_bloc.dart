@@ -57,19 +57,15 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
         (notificationData) => _loadCellData(),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _cellListener.start();
 
     _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
-        (field) {
-          if (!isClosed) {
-            add(DateCellEvent.didReceiveFieldUpdate(field));
-          }
-        },
+        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _fieldListener.start();
   }
 
@@ -79,12 +75,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+    if (isClosed) {
+      return;
+    }
     result.fold(
-      (cell) {
-        if (!isClosed) {
-          add(DateCellEvent.didReceiveCellUpdate(cell));
-        }
-      },
+      (cell) => add(DateCellEvent.didReceiveCellUpdate(cell)),
       (err) => Log.error(err),
     );
   }

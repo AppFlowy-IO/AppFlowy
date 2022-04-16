@@ -18,14 +18,14 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final GridListener _gridListener;
   final GridFieldsListener _fieldListener;
   final GridFieldCache fieldCache;
-  final GridRowCache _rowCache;
+  final GridRowCache rowCache;
 
   GridBloc({required View view})
       : _fieldListener = GridFieldsListener(gridId: view.id),
         _gridService = GridService(gridId: view.id),
         _gridListener = GridListener(gridId: view.id),
         fieldCache = GridFieldCache(),
-        _rowCache = GridRowCache(gridId: view.id),
+        rowCache = GridRowCache(gridId: view.id),
         super(GridState.initial(view.id)) {
     on<GridEvent>(
       (event, emit) async {
@@ -41,7 +41,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             emit(state.copyWith(rows: value.rows, listState: value.listState));
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(rows: _rowCache.rows, fields: value.fields));
+            emit(state.copyWith(rows: rowCache.rows, fields: value.fields));
           },
         );
       },
@@ -62,7 +62,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       result.fold(
         (changeset) {
           fieldCache.applyChangeset(changeset);
-          _rowCache.updateFields(fieldCache.unmodifiableFields);
+          rowCache.updateFields(fieldCache.unmodifiableFields);
           add(GridEvent.didReceiveFieldUpdate(fieldCache.clonedFields));
         },
         (err) => Log.error(err),
@@ -74,15 +74,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       result.fold(
         (changesets) {
           for (final changeset in changesets) {
-            _rowCache
+            rowCache
                 .deleteRows(changeset.deletedRows)
-                .foldRight(null, (listState, _) => add(GridEvent.didReceiveRowUpdate(_rowCache.rows, listState)));
+                .foldRight(null, (listState, _) => add(GridEvent.didReceiveRowUpdate(rowCache.rows, listState)));
 
-            _rowCache
+            rowCache
                 .insertRows(changeset.insertedRows)
-                .foldRight(null, (listState, _) => add(GridEvent.didReceiveRowUpdate(_rowCache.rows, listState)));
+                .foldRight(null, (listState, _) => add(GridEvent.didReceiveRowUpdate(rowCache.rows, listState)));
 
-            _rowCache.updateRows(changeset.updatedRows);
+            rowCache.updateRows(changeset.updatedRows);
           }
         },
         (err) => Log.error(err),
@@ -107,12 +107,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.clonedFields = fields.items;
-          _rowCache.updateWithBlock(grid.blockOrders, fieldCache.unmodifiableFields);
+          rowCache.updateWithBlock(grid.blockOrders, fieldCache.unmodifiableFields);
 
           emit(state.copyWith(
             grid: Some(grid),
             fields: fieldCache.clonedFields,
-            rows: _rowCache.rows,
+            rows: rowCache.rows,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -126,7 +126,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<RowData> rows, GridListState listState) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<GridRow> rows, GridListState listState) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
@@ -136,7 +136,7 @@ class GridState with _$GridState {
     required String gridId,
     required Option<Grid> grid,
     required List<Field> fields,
-    required List<RowData> rows,
+    required List<GridRow> rows,
     required GridLoadingState loadingState,
     required GridListState listState,
   }) = _GridState;

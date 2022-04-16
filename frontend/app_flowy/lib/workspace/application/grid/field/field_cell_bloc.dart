@@ -47,14 +47,10 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   void _startListening() {
     _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
-        (field) {
-          if (!isClosed) {
-            add(FieldCellEvent.didReceiveFieldUpdate(field));
-          }
-        },
+        (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _fieldListener.start();
   }
 }

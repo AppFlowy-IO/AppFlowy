@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/row/row_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -221,14 +222,19 @@ class _GridRowsState extends State<_GridRows> {
     );
   }
 
-  Widget _renderRow(BuildContext context, RowData rowData, Animation<double> animation) {
-    final fieldCache = context.read<GridBloc>().fieldCache;
+  Widget _renderRow(BuildContext context, GridRow rowData, Animation<double> animation) {
+    final bloc = context.read<GridBloc>();
+    final fieldCache = bloc.fieldCache;
+    final rowCache = bloc.rowCache;
 
     return SizeTransition(
       sizeFactor: animation,
       child: GridRowWidget(
-        data: rowData,
-        fieldCache: fieldCache,
+        blocBuilder: () => RowBloc(
+          rowData: rowData,
+          fieldCache: fieldCache,
+          rowCache: rowCache,
+        ),
         key: ValueKey(rowData.rowId),
       ),
     );

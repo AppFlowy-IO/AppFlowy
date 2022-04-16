@@ -49,16 +49,15 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+    if (isClosed) {
+      return;
+    }
 
     result.fold(
-      (selectOptionContext) {
-        if (!isClosed) {
-          add(SelectionCellEvent.didReceiveOptions(
-            selectOptionContext.options,
-            selectOptionContext.selectOptions,
-          ));
-        }
-      },
+      (selectOptionContext) => add(SelectionCellEvent.didReceiveOptions(
+        selectOptionContext.options,
+        selectOptionContext.selectOptions,
+      )),
       (err) => Log.error(err),
     );
   }
