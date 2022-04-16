@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -11,13 +10,11 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final FieldService _service;
-  final GridFieldsListener _fieldListener;
   final GridFieldCache _fieldCache;
 
   GridPropertyBloc({required String gridId, required List<Field> fields})
       : _service = FieldService(gridId: gridId),
-        _fieldListener = GridFieldsListener(gridId: gridId),
-        _fieldCache = GridFieldCache(),
+        _fieldCache = GridFieldCache(gridId: gridId),
         super(GridPropertyState.initial(gridId, fields)) {
     on<GridPropertyEvent>(
       (event, emit) async {
@@ -45,22 +42,15 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
 
   @override
   Future<void> close() async {
-    await _fieldListener.stop();
-    _fieldCache.dispose();
+    await _fieldCache.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _fieldListener.updateFieldsNotifier?.addPublishListener((result) {
-      result.fold(
-        (changeset) {
-          _fieldCache.applyChangeset(changeset);
-          add(GridPropertyEvent.didReceiveFieldUpdate(_fieldCache.clonedFields));
-        },
-        (err) => Log.error(err),
-      );
-    });
-    _fieldListener.start();
+    _fieldCache.addListener(
+      onChanged: (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(_fieldCache.clonedFields)),
+      listenWhen: () => !isClosed,
+    );
   }
 }
 

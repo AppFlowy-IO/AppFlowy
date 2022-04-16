@@ -92,7 +92,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     );
 
     _fieldCache.addListener(
-      () => add(const RowEvent.fieldsDidUpdate()),
+      listener: () => add(const RowEvent.fieldsDidUpdate()),
       listenWhen: () => !isClosed,
     );
 

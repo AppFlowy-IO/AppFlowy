@@ -215,7 +215,7 @@ impl GridMetaPad {
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
-                    debug_assert_eq!(index, from_index);
+                    // debug_assert_eq!(index, from_index);
                     let field_meta = grid_meta.fields.remove(index);
                     grid_meta.fields.insert(to_index, field_meta);
                     Ok(Some(()))

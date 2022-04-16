@@ -205,7 +205,8 @@ class _GridRowsState extends State<_GridRows> {
               );
             }
           },
-          initial: (updatedIndexs) {},
+          initial: (_) {},
+          update: (_) {},
         );
       },
       buildWhen: (previous, current) => false,

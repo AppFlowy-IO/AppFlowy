@@ -1,5 +1,7 @@
+import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -50,42 +52,56 @@ class FieldsNotifier extends ChangeNotifier {
 }
 
 class GridFieldCache {
+  final String gridId;
+  late final GridFieldsListener _fieldListener;
   final FieldsNotifier _fieldNotifier = FieldsNotifier();
-  GridFieldCache();
-
-  void applyChangeset(GridFieldChangeset changeset) {
-    _removeFields(changeset.deletedFields);
-    _insertFields(changeset.insertedFields);
-    _updateFields(changeset.updatedFields);
+  GridFieldCache({required this.gridId}) {
+    _fieldListener = GridFieldsListener(gridId: gridId);
+    _fieldListener.updateFieldsNotifier?.addPublishListener((result) {
+      result.fold(
+        (changeset) {
+          _deleteFields(changeset.deletedFields);
+          _insertFields(changeset.insertedFields);
+          _updateFields(changeset.updatedFields);
+        },
+        (err) => Log.error(err),
+      );
+    });
+    _fieldListener.start();
   }
+
+  Future<void> dispose() async {
+    await _fieldListener.stop();
+    _fieldNotifier.dispose();
+  }
+
+  void applyChangeset(GridFieldChangeset changeset) {}
 
   UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier.fields);
 
   List<Field> get clonedFields => [..._fieldNotifier.fields];
 
-  set clonedFields(List<Field> fields) {
+  set fields(List<Field> fields) {
     _fieldNotifier.fields = [...fields];
   }
 
-  void listenOnFieldChanged(void Function(List<Field>) onFieldChanged) {
-    _fieldNotifier.addListener(() => onFieldChanged(clonedFields));
-  }
-
-  void addListener(VoidCallback listener, {void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
+  void addListener({VoidCallback? listener, void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
     _fieldNotifier.addListener(() {
-      if (onChanged != null) {
-        onChanged(clonedFields);
-      }
-
       if (listenWhen != null && listenWhen() == false) {
         return;
       }
 
-      listener();
+      if (onChanged != null) {
+        onChanged(clonedFields);
+      }
+
+      if (listener != null) {
+        listener();
+      }
     });
   }
 
-  void _removeFields(List<FieldOrder> deletedFields) {
+  void _deleteFields(List<FieldOrder> deletedFields) {
     if (deletedFields.isEmpty) {
       return;
     }
@@ -126,9 +142,5 @@ class GridFieldCache {
       }
     }
     _fieldNotifier.fields = fields;
-  }
-
-  void dispose() {
-    _fieldNotifier.dispose();
   }
 }

@@ -7,12 +7,12 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 
-class GridListener {
+class GridRowListener {
   final String gridId;
   PublishNotifier<Either<List<GridRowsChangeset>, FlowyError>> rowsUpdateNotifier = PublishNotifier(comparable: null);
   GridNotificationListener? _listener;
 
-  GridListener({required this.gridId});
+  GridRowListener({required this.gridId});
 
   void start() {
     _listener = GridNotificationListener(
