@@ -154,6 +154,32 @@ impl GridBlockMetaEditorManager {
         Ok(changesets)
     }
 
+    pub(crate) async fn move_row(&self, row_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        let editor = self.get_editor_from_row_id(row_id).await?;
+        let _ = editor.move_row(row_id, from, to).await?;
+
+        match editor.get_row_metas(Some(vec![Cow::Borrowed(row_id)])).await?.pop() {
+            None => {}
+            Some(row_meta) => {
+                let row_order = RowOrder::from(&row_meta);
+                let insert_row = IndexRowOrder {
+                    row_order: row_order.clone(),
+                    index: Some(to as i32),
+                };
+                let notified_changeset = GridRowsChangeset {
+                    block_id: editor.block_id.clone(),
+                    inserted_rows: vec![insert_row],
+                    deleted_rows: vec![row_order],
+                    updated_rows: vec![],
+                };
+
+                let _ = self.notify_did_update_rows(notified_changeset).await?;
+            }
+        }
+
+        Ok(())
+    }
+
     pub async fn update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
         let editor = self.get_editor_from_row_id(&row_id).await?;

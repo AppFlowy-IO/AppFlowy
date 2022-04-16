@@ -388,7 +388,7 @@ impl ClientGridEditor {
                 self.move_field(&params.item_id, params.from_index, params.to_index)
                     .await
             }
-            MoveItemType::MoveRow => self.move_row(params.from_index, params.to_index, &params.item_id).await,
+            MoveItemType::MoveRow => self.move_row(&params.item_id, params.from_index, params.to_index).await,
         }
     }
 
@@ -411,9 +411,12 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn move_row(&self, from: i32, to: i32, row_id: &str) -> FlowyResult<()> {
-        // GridRowsChangeset
-        todo!()
+    pub async fn move_row(&self, row_id: &str, from: i32, to: i32) -> FlowyResult<()> {
+        let _ = self
+            .block_meta_manager
+            .move_row(row_id, from as usize, to as usize)
+            .await?;
+        Ok(())
     }
 
     pub async fn delta_bytes(&self) -> Bytes {

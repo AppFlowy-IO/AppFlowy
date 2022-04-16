@@ -107,7 +107,7 @@ class _FlowyGridState extends State<FlowyGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _GridToolbarAdaptor(),
-            _gridHeader(context, state.gridId, contentWidth),
+            _gridHeader(context, state.gridId),
             Flexible(child: child),
           ],
         );
@@ -147,16 +147,12 @@ class _FlowyGridState extends State<FlowyGrid> {
     );
   }
 
-  Widget _gridHeader(BuildContext context, String gridId, double contentWidth) {
+  Widget _gridHeader(BuildContext context, String gridId) {
     final fieldCache = context.read<GridBloc>().fieldCache;
-
-    return SizedBox(
-      width: contentWidth,
-      child: GridHeaderSliverAdaptor(
-        gridId: gridId,
-        fieldCache: fieldCache,
-        anchorScrollController: headerScrollController,
-      ),
+    return GridHeaderSliverAdaptor(
+      gridId: gridId,
+      fieldCache: fieldCache,
+      anchorScrollController: headerScrollController,
     );
   }
 }

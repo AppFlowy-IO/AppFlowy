@@ -51,16 +51,16 @@ impl ClientGridBlockMetaEditor {
         let mut row_count = 0;
         let mut row_index = None;
         let _ = self
-            .modify(|pad| {
+            .modify(|block_pad| {
                 if let Some(start_row_id) = start_row_id.as_ref() {
-                    match pad.index_of_row(start_row_id) {
+                    match block_pad.index_of_row(start_row_id) {
                         None => {}
                         Some(index) => row_index = Some(index + 1),
                     }
                 }
 
-                let change = pad.add_row_meta(row, start_row_id)?;
-                row_count = pad.number_of_rows();
+                let change = block_pad.add_row_meta(row, start_row_id)?;
+                row_count = block_pad.number_of_rows();
                 Ok(change)
             })
             .await?;
@@ -71,9 +71,9 @@ impl ClientGridBlockMetaEditor {
     pub async fn delete_rows(&self, ids: Vec<Cow<'_, String>>) -> FlowyResult<i32> {
         let mut row_count = 0;
         let _ = self
-            .modify(|pad| {
-                let changeset = pad.delete_rows(ids)?;
-                row_count = pad.number_of_rows();
+            .modify(|block_pad| {
+                let changeset = block_pad.delete_rows(ids)?;
+                row_count = block_pad.number_of_rows();
                 Ok(changeset)
             })
             .await?;
@@ -81,7 +81,14 @@ impl ClientGridBlockMetaEditor {
     }
 
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
-        let _ = self.modify(|pad| Ok(pad.update_row(changeset)?)).await?;
+        let _ = self.modify(|block_pad| Ok(block_pad.update_row(changeset)?)).await?;
+        Ok(())
+    }
+
+    pub async fn move_row(&self, row_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        let _ = self
+            .modify(|block_pad| Ok(block_pad.move_row(row_id, from, to)?))
+            .await?;
         Ok(())
     }
 

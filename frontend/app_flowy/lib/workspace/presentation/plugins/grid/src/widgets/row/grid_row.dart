@@ -44,10 +44,11 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           child: BlocBuilder<RowBloc, RowState>(
             buildWhen: (p, c) => p.rowData.height != c.rowData.height,
             builder: (context, state) {
-              return SizedBox(
-                height: _rowBloc.state.rowData.height,
+              return LimitedBox(
+                maxHeight: 200,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     _RowLeading(),
                     _RowCells(),
@@ -147,7 +148,11 @@ class _RowCells extends StatelessWidget {
       buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
         final List<Widget> children = state.cellDataMap.fold(() => [], _toCells);
-        return Row(children: children);
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        );
       },
     );
   }

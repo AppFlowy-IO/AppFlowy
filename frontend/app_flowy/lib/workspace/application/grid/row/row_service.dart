@@ -21,6 +21,17 @@ class RowService {
     return GridEventCreateRow(payload).send();
   }
 
+  Future<Either<Unit, FlowyError>> moveRow(String rowId, int fromIndex, int toIndex) {
+    final payload = MoveItemPayload.create()
+      ..gridId = gridId
+      ..itemId = rowId
+      ..ty = MoveItemType.MoveRow
+      ..fromIndex = fromIndex
+      ..toIndex = toIndex;
+
+    return GridEventMoveItem(payload).send();
+  }
+
   Future<Either<Row, FlowyError>> getRow() {
     final payload = RowIdentifierPayload.create()
       ..gridId = gridId

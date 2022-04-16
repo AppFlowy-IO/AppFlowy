@@ -32,15 +32,21 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<GridHeaderBloc>(param1: widget.gridId, param2: widget.fieldCache)..add(const GridHeaderEvent.initial()),
+      create: (context) {
+        final bloc = getIt<GridHeaderBloc>(param1: widget.gridId, param2: widget.fieldCache);
+        bloc.add(const GridHeaderEvent.initial());
+        return bloc;
+      },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         buildWhen: (previous, current) => previous.fields.length != current.fields.length,
         builder: (context, state) {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             controller: widget.anchorScrollController,
-            child: SizedBox(height: GridSize.headerHeight, child: _GridHeader(gridId: widget.gridId)),
+            child: SizedBox(
+              height: GridSize.headerHeight,
+              child: _GridHeader(gridId: widget.gridId),
+            ),
           );
 
           // return SliverPersistentHeader(
@@ -51,32 +57,6 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
         },
       ),
     );
-  }
-}
-
-class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
-  final String gridId;
-  final List<Field> fields;
-
-  SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeader(gridId: gridId);
-  }
-
-  @override
-  double get maxExtent => GridSize.headerHeight;
-
-  @override
-  double get minExtent => GridSize.headerHeight;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is SliverHeaderDelegateImplementation) {
-      return fields.length != oldDelegate.fields.length;
-    }
-    return true;
   }
 }
 
@@ -175,5 +155,31 @@ class CreateFieldButton extends StatelessWidget {
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );
+  }
+}
+
+class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
+  final String gridId;
+  final List<Field> fields;
+
+  SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return _GridHeader(gridId: gridId);
+  }
+
+  @override
+  double get maxExtent => GridSize.headerHeight;
+
+  @override
+  double get minExtent => GridSize.headerHeight;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    if (oldDelegate is SliverHeaderDelegateImplementation) {
+      return fields.length != oldDelegate.fields.length;
+    }
+    return true;
   }
 }
