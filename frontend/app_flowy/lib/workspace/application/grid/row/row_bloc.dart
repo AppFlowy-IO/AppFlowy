@@ -35,20 +35,23 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             _rowService.createRow();
           },
           didUpdateRow: (_DidUpdateRow value) async {
-            _handleRowUpdate(value, emit);
+            _handleRowUpdate(value.row, emit);
           },
           fieldsDidUpdate: (_FieldsDidUpdate value) async {
             await _handleFieldUpdate(emit);
+          },
+          didLoadRow: (_DidLoadRow value) {
+            _handleRowUpdate(value.row, emit);
           },
         );
       },
     );
   }
 
-  void _handleRowUpdate(_DidUpdateRow value, Emitter<RowState> emit) {
-    final CellDataMap cellDataMap = _makeCellDatas(value.row, state.rowData.fields);
+  void _handleRowUpdate(Row row, Emitter<RowState> emit) {
+    final CellDataMap cellDataMap = _makeCellDatas(row, state.rowData.fields);
     emit(state.copyWith(
-      row: Future(() => Some(value.row)),
+      row: Future(() => Some(row)),
       cellDataMap: Some(cellDataMap),
     ));
   }
@@ -75,7 +78,11 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   Future<void> _startListening() async {
     _rowlistener.updateRowNotifier?.addPublishListener((result) {
       result.fold(
-        (row) => add(RowEvent.didUpdateRow(row)),
+        (row) {
+          if (!isClosed) {
+            add(RowEvent.didUpdateRow(row));
+          }
+        },
         (err) => Log.error(err),
       );
     });
@@ -92,7 +99,11 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   Future<void> _loadRow(Emitter<RowState> emit) async {
     _rowService.getRow().then((result) {
       return result.fold(
-        (row) => add(RowEvent.didUpdateRow(row)),
+        (row) {
+          if (!isClosed) {
+            add(RowEvent.didLoadRow(row));
+          }
+        },
         (err) => Log.error(err),
       );
     });
@@ -119,6 +130,7 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.fieldsDidUpdate() = _FieldsDidUpdate;
+  const factory RowEvent.didLoadRow(Row row) = _DidLoadRow;
   const factory RowEvent.didUpdateRow(Row row) = _DidUpdateRow;
 }
 

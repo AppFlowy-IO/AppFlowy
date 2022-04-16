@@ -33,7 +33,7 @@ class CellContainer extends StatelessWidget {
       child: Consumer<CellStateNotifier>(
         builder: (context, state, _) {
           return Container(
-            constraints: BoxConstraints(maxWidth: width, maxHeight: 42),
+            constraints: BoxConstraints(maxWidth: width),
             decoration: _makeBoxDecoration(context, state),
             padding: GridSize.cellContentInsets,
             child: Center(child: child),

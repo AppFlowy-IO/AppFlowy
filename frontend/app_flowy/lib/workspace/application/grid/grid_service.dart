@@ -162,7 +162,7 @@ class GridRowCache {
     }
 
     final List<RowData> newRows = [];
-    final List<Tuple2<int, RowData>> deletedIndex = [];
+    final DeletedIndex deletedIndex = [];
     final Map<String, RowOrder> deletedRowMap = {for (var rowOrder in deletedRows) rowOrder.rowId: rowOrder};
     _rows.asMap().forEach((index, value) {
       if (deletedRowMap[value.rowId] == null) {
@@ -181,13 +181,13 @@ class GridRowCache {
       return none();
     }
 
-    List<int> insertIndexs = [];
+    InsertedIndexs insertIndexs = [];
     for (final newRow in createdRows) {
       if (newRow.hasIndex()) {
-        insertIndexs.add(newRow.index);
+        insertIndexs.add(Tuple2(newRow.index, newRow.rowOrder.rowId));
         _rows.insert(newRow.index, _toRowData(newRow.rowOrder));
       } else {
-        insertIndexs.add(_rows.length);
+        insertIndexs.add(Tuple2(newRow.index, newRow.rowOrder.rowId));
         _rows.add(_toRowData(newRow.rowOrder));
       }
     }
@@ -216,9 +216,12 @@ class GridRowCache {
   }
 }
 
+typedef InsertedIndexs = List<Tuple2<int, String>>;
+typedef DeletedIndex = List<Tuple2<int, RowData>>;
+
 @freezed
 class GridListState with _$GridListState {
-  const factory GridListState.insert(List<int> indexs) = _Insert;
-  const factory GridListState.delete(List<Tuple2<int, RowData>> indexs) = _Delete;
+  const factory GridListState.insert(InsertedIndexs items) = _Insert;
+  const factory GridListState.delete(DeletedIndex items) = _Delete;
   const factory GridListState.initial() = InitialListState;
 }

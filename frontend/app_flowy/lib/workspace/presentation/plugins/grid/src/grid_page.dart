@@ -6,7 +6,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -193,15 +192,15 @@ class _GridRowsState extends State<_GridRows> {
       listener: (context, state) {
         state.listState.map(
           insert: (value) {
-            for (final index in value.indexs) {
-              _key.currentState?.insertItem(index);
+            for (final item in value.items) {
+              _key.currentState?.insertItem(item.value1);
             }
           },
           delete: (value) {
-            for (final index in value.indexs) {
+            for (final item in value.items) {
               _key.currentState?.removeItem(
-                index.value1,
-                (context, animation) => _renderRow(context, index.value2, animation),
+                item.value1,
+                (context, animation) => _renderRow(context, item.value2, animation),
               );
             }
           },
@@ -224,6 +223,7 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(BuildContext context, RowData rowData, Animation<double> animation) {
     final fieldCache = context.read<GridBloc>().fieldCache;
+
     return SizeTransition(
       sizeFactor: animation,
       child: GridRowWidget(

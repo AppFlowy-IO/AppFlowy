@@ -44,8 +44,8 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           child: BlocBuilder<RowBloc, RowState>(
             buildWhen: (p, c) => p.rowData.height != c.rowData.height,
             builder: (context, state) {
-              return LimitedBox(
-                maxHeight: 200,
+              return SizedBox(
+                height: 42,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.center,
