@@ -8,92 +8,107 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:reorderables/reorderables.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
 
-class GridHeader extends StatelessWidget {
+class GridHeaderSliverAdaptor extends StatefulWidget {
   final String gridId;
-  final List<Field> fields;
-  const GridHeader({Key? key, required this.gridId, required this.fields}) : super(key: key);
+  final GridFieldCache fieldCache;
+  final ScrollController anchorScrollController;
+  const GridHeaderSliverAdaptor({
+    required this.gridId,
+    required this.fieldCache,
+    required this.anchorScrollController,
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  State<GridHeaderSliverAdaptor> createState() => _GridHeaderSliverAdaptorState();
+}
+
+class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = getIt<GridHeaderBloc>(param1: gridId, param2: fields);
+        final bloc = getIt<GridHeaderBloc>(param1: widget.gridId, param2: widget.fieldCache);
         bloc.add(const GridHeaderEvent.initial());
         return bloc;
       },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
+        buildWhen: (previous, current) => previous.fields.length != current.fields.length,
         builder: (context, state) {
-          return SliverPersistentHeader(
-            delegate: _GridHeaderDelegate(gridId: gridId, fields: List.from(state.fields)),
-            floating: true,
-            pinned: true,
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: widget.anchorScrollController,
+            child: SizedBox(
+              height: GridSize.headerHeight,
+              child: _GridHeader(gridId: widget.gridId),
+            ),
           );
+
+          // return SliverPersistentHeader(
+          //   delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
+          //   floating: true,
+          //   pinned: true,
+          // );
         },
       ),
     );
   }
 }
 
-class _GridHeaderDelegate extends SliverPersistentHeaderDelegate {
+class _GridHeader extends StatefulWidget {
   final String gridId;
-  final List<Field> fields;
-
-  _GridHeaderDelegate({required this.gridId, required this.fields});
+  const _GridHeader({Key? key, required this.gridId}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return _GridHeaderWidget(gridId: gridId, fields: fields, key: ObjectKey(fields));
-  }
-
-  @override
-  double get maxExtent => GridSize.headerHeight;
-
-  @override
-  double get minExtent => GridSize.headerHeight;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is _GridHeaderDelegate) {
-      return fields.length != oldDelegate.fields.length;
-    }
-    return true;
-  }
+  State<_GridHeader> createState() => _GridHeaderState();
 }
 
-class _GridHeaderWidget extends StatelessWidget {
-  final String gridId;
-  final List<Field> fields;
-
-  const _GridHeaderWidget({required this.gridId, required this.fields, Key? key}) : super(key: key);
-
+class _GridHeaderState extends State<_GridHeader> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final cells = fields.map(
-      (field) => GridFieldCell(
-        GridFieldCellContext(gridId: gridId, field: field),
-      ),
-    );
+    return BlocBuilder<GridHeaderBloc, GridHeaderState>(
+      buildWhen: (previous, current) => previous.fields != current.fields,
+      builder: (context, state) {
+        final cells = state.fields
+            .where((field) => field.visibility)
+            .map((field) => GridFieldCellContext(gridId: widget.gridId, field: field))
+            .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
+            .toList();
 
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _HeaderLeading(),
-        ...cells,
-        _HeaderTrailing(gridId: gridId),
-      ],
+        return Container(
+          color: theme.surface,
+          child: RepaintBoundary(
+            child: ReorderableRow(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              scrollController: ScrollController(),
+              header: const _CellLeading(),
+              footer: _CellTrailing(gridId: widget.gridId),
+              onReorder: (int oldIndex, int newIndex) {
+                _onReorder(cells, oldIndex, context, newIndex);
+              },
+              children: cells,
+            ),
+          ),
+        );
+      },
     );
+  }
 
-    return Container(height: GridSize.headerHeight, color: theme.surface, child: row);
+  void _onReorder(List<GridFieldCell> cells, int oldIndex, BuildContext context, int newIndex) {
+    if (cells.length > oldIndex) {
+      final field = cells[oldIndex].cellContext.field;
+      context.read<GridHeaderBloc>().add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
+    }
   }
 }
 
-class _HeaderLeading extends StatelessWidget {
-  const _HeaderLeading({Key? key}) : super(key: key);
+class _CellLeading extends StatelessWidget {
+  const _CellLeading({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +118,9 @@ class _HeaderLeading extends StatelessWidget {
   }
 }
 
-class _HeaderTrailing extends StatelessWidget {
+class _CellTrailing extends StatelessWidget {
   final String gridId;
-  const _HeaderTrailing({required this.gridId, Key? key}) : super(key: key);
+  const _CellTrailing({required this.gridId, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -139,5 +154,31 @@ class CreateFieldButton extends StatelessWidget {
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );
+  }
+}
+
+class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
+  final String gridId;
+  final List<Field> fields;
+
+  SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return _GridHeader(gridId: gridId);
+  }
+
+  @override
+  double get maxExtent => GridSize.headerHeight;
+
+  @override
+  double get minExtent => GridSize.headerHeight;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    if (oldDelegate is SliverHeaderDelegateImplementation) {
+      return fields.length != oldDelegate.fields.length;
+    }
+    return true;
   }
 }

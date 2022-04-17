@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
@@ -12,8 +11,12 @@ import 'package:provider/provider.dart';
 import 'row_action_sheet.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final RowData data;
-  const GridRowWidget({required this.data, Key? key}) : super(key: key);
+  final RowBloc Function() blocBuilder;
+
+  const GridRowWidget({
+    required this.blocBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -25,7 +28,8 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   @override
   void initState() {
-    _rowBloc = getIt<RowBloc>(param1: widget.data)..add(const RowEvent.initial());
+    _rowBloc = widget.blocBuilder();
+    _rowBloc.add(const RowEvent.initial());
     _rowStateNotifier = _RegionStateNotifier();
     super.initState();
   }
@@ -44,9 +48,10 @@ class _GridRowWidgetState extends State<GridRowWidget> {
             buildWhen: (p, c) => p.rowData.height != c.rowData.height,
             builder: (context, state) {
               return SizedBox(
-                height: _rowBloc.state.rowData.height,
+                height: 42,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     _RowLeading(),
                     _RowCells(),
@@ -146,7 +151,11 @@ class _RowCells extends StatelessWidget {
       buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
         final List<Widget> children = state.cellDataMap.fold(() => [], _toCells);
-        return Row(children: children);
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        );
       },
     );
   }

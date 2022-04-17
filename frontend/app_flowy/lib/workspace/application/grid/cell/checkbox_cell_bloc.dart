@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
@@ -15,7 +15,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   CheckboxCellBloc({
     required CellService service,
-    required CellData cellData,
+    required GridCellIdentifier cellData,
   })  : _service = service,
         _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         super(CheckboxCellState.initial(cellData)) {
@@ -43,7 +43,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    _listener.updateCellNotifier.addPublishListener((result) {
+    _listener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) async => await _loadCellData(),
         (err) => Log.error(err),
@@ -58,12 +58,11 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+    if (isClosed) {
+      return;
+    }
     result.fold(
-      (cell) {
-        if (!isClosed) {
-          add(CheckboxCellEvent.didReceiveCellUpdate(cell));
-        }
-      },
+      (cell) => add(CheckboxCellEvent.didReceiveCellUpdate(cell)),
       (err) => Log.error(err),
     );
   }
@@ -88,11 +87,11 @@ class CheckboxCellEvent with _$CheckboxCellEvent {
 @freezed
 class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(CellData cellData) {
+  factory CheckboxCellState.initial(GridCellIdentifier cellData) {
     return CheckboxCellState(cellData: cellData, isSelected: _isSelected(cellData.cell));
   }
 }

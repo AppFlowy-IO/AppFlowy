@@ -3,9 +3,9 @@ syntax = "proto3";
 enum GridNotification {
     Unknown = 0;
     DidCreateBlock = 11;
-    DidUpdateGridBlock = 20;
+    DidUpdateGridRow = 20;
+    DidUpdateGridField = 21;
     DidUpdateRow = 30;
-    DidUpdateCell = 31;
-    DidUpdateGrid = 40;
-    DidUpdateField = 41;
+    DidUpdateCell = 40;
+    DidUpdateField = 50;
 }

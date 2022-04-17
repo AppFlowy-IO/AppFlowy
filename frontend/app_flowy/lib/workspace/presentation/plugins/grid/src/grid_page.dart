@@ -1,14 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/row/row_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -69,12 +70,18 @@ class FlowyGrid extends StatefulWidget {
   const FlowyGrid({Key? key}) : super(key: key);
 
   @override
-  _FlowyGridState createState() => _FlowyGridState();
+  State<FlowyGrid> createState() => _FlowyGridState();
 }
 
 class _FlowyGridState extends State<FlowyGrid> {
-  final _scrollController = GridScrollController();
-  final _key = GlobalKey<SliverAnimatedListState>();
+  final _scrollController = GridScrollController(scrollGroupContorller: LinkedScrollControllerGroup());
+  late ScrollController headerScrollController;
+
+  @override
+  void initState() {
+    headerScrollController = _scrollController.linkHorizontalController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -85,87 +92,120 @@ class _FlowyGridState extends State<FlowyGrid> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
+      buildWhen: (previous, current) => previous.fields.length != current.fields.length,
       builder: (context, state) {
-        if (state.fields.isEmpty) {
-          return const Center(child: CircularProgressIndicator.adaptive());
-        }
-
-        final child = SizedBox(
-          width: GridLayout.headerWidth(state.fields),
-          child: ScrollConfiguration(
-            behavior: const ScrollBehavior().copyWith(scrollbars: false),
-            child: CustomScrollView(
-              physics: StyledScrollPhysics(),
-              controller: _scrollController.verticalController,
-              slivers: [
-                _renderToolbar(state.gridId),
-                _renderGridHeader(state.gridId),
-                _renderRows(gridId: state.gridId, context: context),
-                const GridFooter(),
-              ],
-            ),
-          ),
+        final contentWidth = GridLayout.headerWidth(state.fields);
+        final child = _wrapScrollView(
+          contentWidth,
+          [
+            const _GridRows(),
+            const _GridFooter(),
+          ],
         );
 
-        return _wrapScrollbar(child);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _GridToolbarAdaptor(),
+            _gridHeader(context, state.gridId),
+            Flexible(child: child),
+          ],
+        );
       },
     );
   }
 
-  Widget _wrapScrollbar(Widget child) {
+  Widget _wrapScrollView(
+    double contentWidth,
+    List<Widget> slivers,
+  ) {
+    final verticalScrollView = ScrollConfiguration(
+      behavior: const ScrollBehavior().copyWith(scrollbars: false),
+      child: CustomScrollView(
+        physics: StyledScrollPhysics(),
+        controller: _scrollController.verticalController,
+        slivers: slivers,
+      ),
+    );
+
+    final sizedVerticalScrollView = SizedBox(
+      width: contentWidth,
+      child: verticalScrollView,
+    );
+
+    final horizontalScrollView = StyledSingleChildScrollView(
+      controller: _scrollController.horizontalController,
+      axis: Axis.horizontal,
+      child: sizedVerticalScrollView,
+    );
+
     return ScrollbarListStack(
       axis: Axis.vertical,
       controller: _scrollController.verticalController,
       barSize: GridSize.scrollBarSize,
-      child: StyledSingleChildScrollView(
-        controller: _scrollController.horizontalController,
-        axis: Axis.horizontal,
-        child: child,
-      ),
+      child: horizontalScrollView,
     );
   }
 
-  Widget _renderGridHeader(String gridId) {
-    return BlocSelector<GridBloc, GridState, List<Field>>(
-      selector: (state) => state.fields,
-      builder: (context, fields) {
-        return GridHeader(gridId: gridId, fields: List.from(fields));
+  Widget _gridHeader(BuildContext context, String gridId) {
+    final fieldCache = context.read<GridBloc>().fieldCache;
+    return GridHeaderSliverAdaptor(
+      gridId: gridId,
+      fieldCache: fieldCache,
+      anchorScrollController: headerScrollController,
+    );
+  }
+}
+
+class _GridToolbarAdaptor extends StatelessWidget {
+  const _GridToolbarAdaptor({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<GridBloc, GridState, GridToolbarContext>(
+      selector: (state) {
+        final fieldCache = context.read<GridBloc>().fieldCache;
+        return GridToolbarContext(
+          gridId: state.gridId,
+          fieldCache: fieldCache,
+        );
+      },
+      builder: (context, toolbarContext) {
+        return GridToolbar(toolbarContext: toolbarContext);
       },
     );
   }
+}
 
-  Widget _renderToolbar(String gridId) {
-    return BlocSelector<GridBloc, GridState, List<Field>>(
-      selector: (state) => state.fields,
-      builder: (context, fields) {
-        final toolbarContext = GridToolbarContext(
-          gridId: gridId,
-          fields: fields,
-        );
+class _GridRows extends StatefulWidget {
+  const _GridRows({Key? key}) : super(key: key);
 
-        return SliverToBoxAdapter(
-          child: GridToolbar(toolbarContext: toolbarContext),
-        );
-      },
-    );
-  }
+  @override
+  State<_GridRows> createState() => _GridRowsState();
+}
 
-  Widget _renderRows({required String gridId, required BuildContext context}) {
+class _GridRowsState extends State<_GridRows> {
+  final _key = GlobalKey<SliverAnimatedListState>();
+
+  @override
+  Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
+      listenWhen: (previous, current) => previous.listState != current.listState,
       listener: (context, state) {
-        state.listState.map(
+        state.listState.mapOrNull(
           insert: (value) {
-            for (final index in value.indexs) {
-              _key.currentState?.insertItem(index);
+            for (final item in value.items) {
+              _key.currentState?.insertItem(item.index);
             }
           },
           delete: (value) {
-            for (final index in value.indexs) {
-              _key.currentState?.removeItem(index.value1, (context, animation) => _renderRow(index.value2, animation));
+            for (final item in value.items) {
+              _key.currentState?.removeItem(
+                item.index,
+                (context, animation) => _renderRow(context, item.row, animation),
+              );
             }
           },
-          reload: (updatedIndexs) {},
         );
       },
       buildWhen: (previous, current) => false,
@@ -175,17 +215,53 @@ class _FlowyGridState extends State<FlowyGrid> {
           initialItemCount: context.read<GridBloc>().state.rows.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
             final rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(rowData, animation);
+            return _renderRow(context, rowData, animation);
           },
         );
       },
     );
   }
 
-  Widget _renderRow(RowData rowData, Animation<double> animation) {
+  Widget _renderRow(BuildContext context, GridRow rowData, Animation<double> animation) {
+    final bloc = context.read<GridBloc>();
+    final fieldCache = bloc.fieldCache;
+    final rowCache = bloc.rowCache;
+
     return SizeTransition(
       sizeFactor: animation,
-      child: GridRowWidget(data: rowData, key: ValueKey(rowData.rowId)),
+      child: GridRowWidget(
+        blocBuilder: () => RowBloc(
+          rowData: rowData,
+          fieldCache: fieldCache,
+          rowCache: rowCache,
+        ),
+        key: ValueKey(rowData.rowId),
+      ),
+    );
+  }
+}
+
+class _GridFooter extends StatelessWidget {
+  const _GridFooter({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(bottom: 200),
+      sliver: SliverToBoxAdapter(
+        child: SizedBox(
+          height: GridSize.footerHeight,
+          child: Padding(
+            padding: GridSize.headerContentInsets,
+            child: Row(
+              children: [
+                SizedBox(width: GridSize.leadingHeaderPadding),
+                const SizedBox(width: 120, child: GridAddRowButton()),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

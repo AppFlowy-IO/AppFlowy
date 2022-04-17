@@ -8,6 +8,17 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use moveItemTypeDescriptor instead')
+const MoveItemType$json = const {
+  '1': 'MoveItemType',
+  '2': const [
+    const {'1': 'MoveField', '2': 0},
+    const {'1': 'MoveRow', '2': 1},
+  ],
+};
+
+/// Descriptor for `MoveItemType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List moveItemTypeDescriptor = $convert.base64Decode('CgxNb3ZlSXRlbVR5cGUSDQoJTW92ZUZpZWxkEAASCwoHTW92ZVJvdxAB');
 @$core.Deprecated('Use fieldTypeDescriptor instead')
 const FieldType$json = const {
   '1': 'FieldType',
@@ -61,6 +72,30 @@ const FieldOrder$json = const {
 
 /// Descriptor for `FieldOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldOrderDescriptor = $convert.base64Decode('CgpGaWVsZE9yZGVyEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElk');
+@$core.Deprecated('Use gridFieldChangesetDescriptor instead')
+const GridFieldChangeset$json = const {
+  '1': 'GridFieldChangeset',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'inserted_fields', '3': 2, '4': 3, '5': 11, '6': '.IndexField', '10': 'insertedFields'},
+    const {'1': 'deleted_fields', '3': 3, '4': 3, '5': 11, '6': '.FieldOrder', '10': 'deletedFields'},
+    const {'1': 'updated_fields', '3': 4, '4': 3, '5': 11, '6': '.Field', '10': 'updatedFields'},
+  ],
+};
+
+/// Descriptor for `GridFieldChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridFieldChangesetDescriptor = $convert.base64Decode('ChJHcmlkRmllbGRDaGFuZ2VzZXQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEjQKD2luc2VydGVkX2ZpZWxkcxgCIAMoCzILLkluZGV4RmllbGRSDmluc2VydGVkRmllbGRzEjIKDmRlbGV0ZWRfZmllbGRzGAMgAygLMgsuRmllbGRPcmRlclINZGVsZXRlZEZpZWxkcxItCg51cGRhdGVkX2ZpZWxkcxgEIAMoCzIGLkZpZWxkUg11cGRhdGVkRmllbGRz');
+@$core.Deprecated('Use indexFieldDescriptor instead')
+const IndexField$json = const {
+  '1': 'IndexField',
+  '2': const [
+    const {'1': 'field', '3': 1, '4': 1, '5': 11, '6': '.Field', '10': 'field'},
+    const {'1': 'index', '3': 2, '4': 1, '5': 5, '10': 'index'},
+  ],
+};
+
+/// Descriptor for `IndexField`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List indexFieldDescriptor = $convert.base64Decode('CgpJbmRleEZpZWxkEhwKBWZpZWxkGAEgASgLMgYuRmllbGRSBWZpZWxkEhQKBWluZGV4GAIgASgFUgVpbmRleA==');
 @$core.Deprecated('Use getEditFieldContextPayloadDescriptor instead')
 const GetEditFieldContextPayload$json = const {
   '1': 'GetEditFieldContextPayload',
@@ -186,19 +221,6 @@ const GridBlockOrder$json = const {
 
 /// Descriptor for `GridBlockOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gridBlockOrderDescriptor = $convert.base64Decode('Cg5HcmlkQmxvY2tPcmRlchIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIoCgpyb3dfb3JkZXJzGAIgAygLMgkuUm93T3JkZXJSCXJvd09yZGVycw==');
-@$core.Deprecated('Use gridBlockOrderChangesetDescriptor instead')
-const GridBlockOrderChangeset$json = const {
-  '1': 'GridBlockOrderChangeset',
-  '2': const [
-    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
-    const {'1': 'inserted_rows', '3': 2, '4': 3, '5': 11, '6': '.IndexRowOrder', '10': 'insertedRows'},
-    const {'1': 'deleted_rows', '3': 3, '4': 3, '5': 11, '6': '.RowOrder', '10': 'deletedRows'},
-    const {'1': 'updated_rows', '3': 4, '4': 3, '5': 11, '6': '.RowOrder', '10': 'updatedRows'},
-  ],
-};
-
-/// Descriptor for `GridBlockOrderChangeset`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gridBlockOrderChangesetDescriptor = $convert.base64Decode('ChdHcmlkQmxvY2tPcmRlckNoYW5nZXNldBIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIzCg1pbnNlcnRlZF9yb3dzGAIgAygLMg4uSW5kZXhSb3dPcmRlclIMaW5zZXJ0ZWRSb3dzEiwKDGRlbGV0ZWRfcm93cxgDIAMoCzIJLlJvd09yZGVyUgtkZWxldGVkUm93cxIsCgx1cGRhdGVkX3Jvd3MYBCADKAsyCS5Sb3dPcmRlclILdXBkYXRlZFJvd3M=');
 @$core.Deprecated('Use indexRowOrderDescriptor instead')
 const IndexRowOrder$json = const {
   '1': 'IndexRowOrder',
@@ -213,6 +235,19 @@ const IndexRowOrder$json = const {
 
 /// Descriptor for `IndexRowOrder`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List indexRowOrderDescriptor = $convert.base64Decode('Cg1JbmRleFJvd09yZGVyEiYKCXJvd19vcmRlchgBIAEoCzIJLlJvd09yZGVyUghyb3dPcmRlchIWCgVpbmRleBgCIAEoBUgAUgVpbmRleEIOCgxvbmVfb2ZfaW5kZXg=');
+@$core.Deprecated('Use gridRowsChangesetDescriptor instead')
+const GridRowsChangeset$json = const {
+  '1': 'GridRowsChangeset',
+  '2': const [
+    const {'1': 'block_id', '3': 1, '4': 1, '5': 9, '10': 'blockId'},
+    const {'1': 'inserted_rows', '3': 2, '4': 3, '5': 11, '6': '.IndexRowOrder', '10': 'insertedRows'},
+    const {'1': 'deleted_rows', '3': 3, '4': 3, '5': 11, '6': '.RowOrder', '10': 'deletedRows'},
+    const {'1': 'updated_rows', '3': 4, '4': 3, '5': 11, '6': '.RowOrder', '10': 'updatedRows'},
+  ],
+};
+
+/// Descriptor for `GridRowsChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gridRowsChangesetDescriptor = $convert.base64Decode('ChFHcmlkUm93c0NoYW5nZXNldBIZCghibG9ja19pZBgBIAEoCVIHYmxvY2tJZBIzCg1pbnNlcnRlZF9yb3dzGAIgAygLMg4uSW5kZXhSb3dPcmRlclIMaW5zZXJ0ZWRSb3dzEiwKDGRlbGV0ZWRfcm93cxgDIAMoCzIJLlJvd09yZGVyUgtkZWxldGVkUm93cxIsCgx1cGRhdGVkX3Jvd3MYBCADKAsyCS5Sb3dPcmRlclILdXBkYXRlZFJvd3M=');
 @$core.Deprecated('Use gridBlockDescriptor instead')
 const GridBlock$json = const {
   '1': 'GridBlock',
@@ -370,6 +405,20 @@ const FieldChangesetPayload$json = const {
 
 /// Descriptor for `FieldChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List fieldChangesetPayloadDescriptor = $convert.base64Decode('ChVGaWVsZENoYW5nZXNldFBheWxvYWQSGQoIZmllbGRfaWQYASABKAlSB2ZpZWxkSWQSFwoHZ3JpZF9pZBgCIAEoCVIGZ3JpZElkEhQKBG5hbWUYAyABKAlIAFIEbmFtZRIUCgRkZXNjGAQgASgJSAFSBGRlc2MSKwoKZmllbGRfdHlwZRgFIAEoDjIKLkZpZWxkVHlwZUgCUglmaWVsZFR5cGUSGAoGZnJvemVuGAYgASgISANSBmZyb3plbhIgCgp2aXNpYmlsaXR5GAcgASgISARSCnZpc2liaWxpdHkSFgoFd2lkdGgYCCABKAVIBVIFd2lkdGgSKgoQdHlwZV9vcHRpb25fZGF0YRgJIAEoDEgGUg50eXBlT3B0aW9uRGF0YUINCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ITChFvbmVfb2ZfZmllbGRfdHlwZUIPCg1vbmVfb2ZfZnJvemVuQhMKEW9uZV9vZl92aXNpYmlsaXR5Qg4KDG9uZV9vZl93aWR0aEIZChdvbmVfb2ZfdHlwZV9vcHRpb25fZGF0YQ==');
+@$core.Deprecated('Use moveItemPayloadDescriptor instead')
+const MoveItemPayload$json = const {
+  '1': 'MoveItemPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'item_id', '3': 2, '4': 1, '5': 9, '10': 'itemId'},
+    const {'1': 'from_index', '3': 3, '4': 1, '5': 5, '10': 'fromIndex'},
+    const {'1': 'to_index', '3': 4, '4': 1, '5': 5, '10': 'toIndex'},
+    const {'1': 'ty', '3': 5, '4': 1, '5': 14, '6': '.MoveItemType', '10': 'ty'},
+  ],
+};
+
+/// Descriptor for `MoveItemPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List moveItemPayloadDescriptor = $convert.base64Decode('Cg9Nb3ZlSXRlbVBheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhcKB2l0ZW1faWQYAiABKAlSBml0ZW1JZBIdCgpmcm9tX2luZGV4GAMgASgFUglmcm9tSW5kZXgSGQoIdG9faW5kZXgYBCABKAVSB3RvSW5kZXgSHQoCdHkYBSABKA4yDS5Nb3ZlSXRlbVR5cGVSAnR5');
 @$core.Deprecated('Use cellChangesetDescriptor instead')
 const CellChangeset$json = const {
   '1': 'CellChangeset',

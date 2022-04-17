@@ -1,4 +1,5 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -11,12 +12,14 @@ part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final CellService _service;
-  final CellListener _listener;
+  final CellListener _cellListener;
+  final SingleFieldListener _fieldListener;
 
   NumberCellBloc({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
   })  : _service = CellService(),
-        _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         super(NumberCellState.initial(cellData)) {
     on<NumberCellEvent>(
       (event, emit) async {
@@ -27,36 +30,36 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
             emit(state.copyWith(content: value.cell.content));
           },
-          updateCell: (_UpdateCell value) {
-            _updateCellValue(value, emit);
+          updateCell: (_UpdateCell value) async {
+            await _updateCellValue(value, emit);
           },
         );
       },
     );
   }
 
-  void _updateCellValue(_UpdateCell value, Emitter<NumberCellState> emit) {
-    final number = num.tryParse(value.text);
-    if (number == null) {
-      emit(state.copyWith(content: ""));
-    } else {
-      _service.updateCell(
-        gridId: state.cellData.gridId,
-        fieldId: state.cellData.field.id,
-        rowId: state.cellData.rowId,
-        data: value.text,
-      );
-    }
+  Future<void> _updateCellValue(_UpdateCell value, Emitter<NumberCellState> emit) async {
+    final result = await _service.updateCell(
+      gridId: state.cellData.gridId,
+      fieldId: state.cellData.field.id,
+      rowId: state.cellData.rowId,
+      data: value.text,
+    );
+    result.fold(
+      (field) => _getCellData(),
+      (err) => Log.error(err),
+    );
   }
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    await _cellListener.stop();
+    await _fieldListener.stop();
     return super.close();
   }
 
   void _startListening() {
-    _listener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) async {
           await _getCellData();
@@ -64,7 +67,15 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
         (err) => Log.error(err),
       );
     });
-    _listener.start();
+    _cellListener.start();
+
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
+      result.fold(
+        (field) => _getCellData(),
+        (err) => Log.error(err),
+      );
+    });
+    _fieldListener.start();
   }
 
   Future<void> _getCellData() async {
@@ -73,12 +84,12 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+
+    if (isClosed) {
+      return;
+    }
     result.fold(
-      (cell) {
-        if (!isClosed) {
-          add(NumberCellEvent.didReceiveCellUpdate(cell));
-        }
-      },
+      (cell) => add(NumberCellEvent.didReceiveCellUpdate(cell)),
       (err) => Log.error(err),
     );
   }
@@ -94,11 +105,11 @@ class NumberCellEvent with _$NumberCellEvent {
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required String content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(CellData cellData) {
+  factory NumberCellState.initial(GridCellIdentifier cellData) {
     return NumberCellState(cellData: cellData, content: cellData.cell?.content ?? "");
   }
 }

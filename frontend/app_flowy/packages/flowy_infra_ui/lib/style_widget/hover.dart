@@ -5,14 +5,14 @@ import 'package:flowy_infra/time/duration.dart';
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
 class FlowyHover extends StatefulWidget {
-  final HoverDisplayConfig config;
+  final HoverStyle style;
   final HoverBuilder builder;
   final bool Function()? setSelected;
 
   const FlowyHover({
     Key? key,
     required this.builder,
-    required this.config,
+    required this.style,
     this.setSelected,
   }) : super(key: key);
 
@@ -41,7 +41,7 @@ class _FlowyHoverState extends State<FlowyHover> {
 
     if (showHover) {
       return FlowyHoverContainer(
-        config: widget.config,
+        style: widget.style,
         child: widget.builder(context, _onHover),
       );
     } else {
@@ -50,41 +50,44 @@ class _FlowyHoverState extends State<FlowyHover> {
   }
 }
 
-class HoverDisplayConfig {
+class HoverStyle {
   final Color borderColor;
   final double borderWidth;
   final Color hoverColor;
   final BorderRadius borderRadius;
+  final EdgeInsets contentMargin;
 
-  const HoverDisplayConfig(
+  const HoverStyle(
       {this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.borderRadius = const BorderRadius.all(Radius.circular(6)),
+      this.contentMargin = EdgeInsets.zero,
       required this.hoverColor});
 }
 
 class FlowyHoverContainer extends StatelessWidget {
-  final HoverDisplayConfig config;
+  final HoverStyle style;
   final Widget child;
 
   const FlowyHoverContainer({
     Key? key,
     required this.child,
-    required this.config,
+    required this.style,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final hoverBorder = Border.all(
-      color: config.borderColor,
-      width: config.borderWidth,
+      color: style.borderColor,
+      width: style.borderWidth,
     );
 
     return Container(
+      margin: style.contentMargin,
       decoration: BoxDecoration(
         border: hoverBorder,
-        color: config.hoverColor,
-        borderRadius: config.borderRadius,
+        color: style.hoverColor,
+        borderRadius: style.borderRadius,
       ),
       child: child,
     );

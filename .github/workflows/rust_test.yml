@@ -44,7 +44,7 @@ jobs:
         
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info cargo test --no-default-features
+        run: RUST_LOG=info cargo test --no-default-features --features="sync"
         
       - name: Run shared-lib tests
         working-directory: shared-lib

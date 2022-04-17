@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:app_flowy/workspace/application/grid/setting/setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -7,7 +8,6 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,11 +18,11 @@ import 'grid_property.dart';
 
 class GridSettingContext {
   final String gridId;
-  final List<Field> fields;
+  final GridFieldCache fieldCache;
 
   GridSettingContext({
     required this.gridId,
-    required this.fields,
+    required this.fieldCache,
   });
 }
 
@@ -41,7 +41,7 @@ class GridSettingList extends StatelessWidget {
           case GridSettingAction.sortBy:
             break;
           case GridSettingAction.properties:
-            GridPropertyList(gridId: settingContext.gridId, fields: settingContext.fields).show(context);
+            GridPropertyList(gridId: settingContext.gridId, fieldCache: settingContext.fieldCache).show(context);
             break;
         }
       },

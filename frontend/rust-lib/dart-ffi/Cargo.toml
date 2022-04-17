@@ -31,7 +31,7 @@ flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 [features]
 default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
 flutter = []
-http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
+http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
 

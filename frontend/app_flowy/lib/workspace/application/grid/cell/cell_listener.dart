@@ -12,7 +12,7 @@ typedef UpdateFieldNotifiedValue = Either<CellNotificationData, FlowyError>;
 class CellListener {
   final String rowId;
   final String fieldId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateCellNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateCellNotifier = PublishNotifier();
   GridNotificationListener? _listener;
   CellListener({required this.rowId, required this.fieldId});
 
@@ -24,8 +24,8 @@ class CellListener {
     switch (ty) {
       case GridNotification.DidUpdateCell:
         result.fold(
-          (payload) => updateCellNotifier.value = left(CellNotificationData.fromBuffer(payload)),
-          (error) => updateCellNotifier.value = right(error),
+          (payload) => updateCellNotifier?.value = left(CellNotificationData.fromBuffer(payload)),
+          (error) => updateCellNotifier?.value = right(error),
         );
         break;
       default:
@@ -35,6 +35,7 @@ class CellListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateCellNotifier.dispose();
+    updateCellNotifier?.dispose();
+    updateCellNotifier = null;
   }
 }

@@ -12,7 +12,7 @@ typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
 
 class RowListener {
   final String rowId;
-  PublishNotifier<UpdateRowNotifiedValue> updateRowNotifier = PublishNotifier();
+  PublishNotifier<UpdateRowNotifiedValue>? updateRowNotifier = PublishNotifier();
   GridNotificationListener? _listener;
 
   RowListener({required this.rowId});
@@ -25,8 +25,8 @@ class RowListener {
     switch (ty) {
       case GridNotification.DidUpdateRow:
         result.fold(
-          (payload) => updateRowNotifier.value = left(Row.fromBuffer(payload)),
-          (error) => updateRowNotifier.value = right(error),
+          (payload) => updateRowNotifier?.value = left(Row.fromBuffer(payload)),
+          (error) => updateRowNotifier?.value = right(error),
         );
         break;
       default:
@@ -36,6 +36,7 @@ class RowListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateRowNotifier.dispose();
+    updateRowNotifier?.dispose();
+    updateRowNotifier = null;
   }
 }

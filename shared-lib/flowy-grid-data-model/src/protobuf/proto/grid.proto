@@ -17,6 +17,16 @@ message Field {
 message FieldOrder {
     string field_id = 1;
 }
+message GridFieldChangeset {
+    string grid_id = 1;
+    repeated IndexField inserted_fields = 2;
+    repeated FieldOrder deleted_fields = 3;
+    repeated Field updated_fields = 4;
+}
+message IndexField {
+    Field field = 1;
+    int32 index = 2;
+}
 message GetEditFieldContextPayload {
     string grid_id = 1;
     oneof one_of_field_id { string field_id = 2; };
@@ -58,15 +68,15 @@ message GridBlockOrder {
     string block_id = 1;
     repeated RowOrder row_orders = 2;
 }
-message GridBlockOrderChangeset {
+message IndexRowOrder {
+    RowOrder row_order = 1;
+    oneof one_of_index { int32 index = 2; };
+}
+message GridRowsChangeset {
     string block_id = 1;
     repeated IndexRowOrder inserted_rows = 2;
     repeated RowOrder deleted_rows = 3;
     repeated RowOrder updated_rows = 4;
-}
-message IndexRowOrder {
-    RowOrder row_order = 1;
-    oneof one_of_index { int32 index = 2; };
 }
 message GridBlock {
     string id = 1;
@@ -123,11 +133,22 @@ message FieldChangesetPayload {
     oneof one_of_width { int32 width = 8; };
     oneof one_of_type_option_data { bytes type_option_data = 9; };
 }
+message MoveItemPayload {
+    string grid_id = 1;
+    string item_id = 2;
+    int32 from_index = 3;
+    int32 to_index = 4;
+    MoveItemType ty = 5;
+}
 message CellChangeset {
     string grid_id = 1;
     string row_id = 2;
     string field_id = 3;
     oneof one_of_data { string data = 4; };
+}
+enum MoveItemType {
+    MoveField = 0;
+    MoveRow = 1;
 }
 enum FieldType {
     RichText = 0;

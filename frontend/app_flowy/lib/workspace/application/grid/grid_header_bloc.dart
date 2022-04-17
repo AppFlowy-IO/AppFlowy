@@ -1,34 +1,34 @@
-import 'package:app_flowy/workspace/application/grid/data.dart';
-import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'field_service.dart';
+import 'grid_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  final FieldService service;
-  final GridFieldsListener _fieldListener;
+  final FieldService _fieldService;
+  final GridFieldCache fieldCache;
 
   GridHeaderBloc({
-    required GridHeaderData data,
-    required this.service,
-  })  : _fieldListener = GridFieldsListener(gridId: data.gridId),
-        super(GridHeaderState.initial(data.fields)) {
+    required String gridId,
+    required this.fieldCache,
+  })  : _fieldService = FieldService(gridId: gridId),
+        super(GridHeaderState.initial(fieldCache.clonedFields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialHeader value) async {
             _startListening();
           },
-          createField: (_CreateField value) {},
-          insertField: (_InsertField value) {},
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            value.fields.retainWhere((field) => field.visibility);
             emit(state.copyWith(fields: value.fields));
+          },
+          moveField: (_MoveField value) async {
+            final result = await _fieldService.moveField(value.field.id, value.fromIndex, value.toIndex);
+            result.fold((l) {}, (err) => Log.error(err));
           },
         );
       },
@@ -36,19 +36,14 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _startListening() async {
-    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
-      result.fold(
-        (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
-        (err) => Log.error(err),
-      );
-    });
-
-    _fieldListener.start();
+    fieldCache.addListener(
+      onChanged: (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
+      listenWhen: () => !isClosed,
+    );
   }
 
   @override
   Future<void> close() async {
-    await _fieldListener.stop();
     return super.close();
   }
 }
@@ -56,9 +51,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 @freezed
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
-  const factory GridHeaderEvent.createField() = _CreateField;
-  const factory GridHeaderEvent.insertField({required bool onLeft}) = _InsertField;
   const factory GridHeaderEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridHeaderEvent.moveField(Field field, int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed
@@ -66,7 +60,8 @@ class GridHeaderState with _$GridHeaderState {
   const factory GridHeaderState({required List<Field> fields}) = _GridHeaderState;
 
   factory GridHeaderState.initial(List<Field> fields) {
-    fields.retainWhere((field) => field.visibility);
+    // final List<Field> newFields = List.from(fields);
+    // newFields.retainWhere((field) => field.visibility);
     return GridHeaderState(fields: fields);
   }
 }

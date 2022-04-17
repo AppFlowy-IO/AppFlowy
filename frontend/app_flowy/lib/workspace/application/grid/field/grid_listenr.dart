@@ -7,11 +7,11 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:app_flowy/core/notification_helper.dart';
 
-typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<GridFieldChangeset, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateFieldsNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier = PublishNotifier();
   GridNotificationListener? _listener;
   GridFieldsListener({required this.gridId});
 
@@ -24,10 +24,10 @@ class GridFieldsListener {
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGrid:
+      case GridNotification.DidUpdateGridField:
         result.fold(
-          (payload) => updateFieldsNotifier.value = left(RepeatedField.fromBuffer(payload).items),
-          (error) => updateFieldsNotifier.value = right(error),
+          (payload) => updateFieldsNotifier?.value = left(GridFieldChangeset.fromBuffer(payload)),
+          (error) => updateFieldsNotifier?.value = right(error),
         );
         break;
       default:
@@ -37,6 +37,7 @@ class GridFieldsListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldsNotifier.dispose();
+    updateFieldsNotifier?.dispose();
+    updateFieldsNotifier = null;
   }
 }

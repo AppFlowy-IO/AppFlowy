@@ -85,7 +85,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.hover),
+      style: HoverStyle(hoverColor: theme.hover),
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,

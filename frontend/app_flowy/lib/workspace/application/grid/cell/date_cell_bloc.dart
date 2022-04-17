@@ -1,8 +1,8 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -13,13 +13,13 @@ part 'date_cell_bloc.freezed.dart';
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellService _service;
   final CellListener _cellListener;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
 
-  DateCellBloc({required CellData cellData})
+  DateCellBloc({required GridCellIdentifier cellIdentifier})
       : _service = CellService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
-        super(DateCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellIdentifier.rowId, fieldId: cellIdentifier.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellIdentifier.field.id),
+        super(DateCellState.initial(cellIdentifier)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(
@@ -35,6 +35,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
               content: value.cell.content,
             ));
           },
+          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
+            emit(state.copyWith(field: value.field));
+            _loadCellData();
+          },
         );
       },
     );
@@ -48,20 +52,20 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) => _loadCellData(),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _cellListener.start();
 
-    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
-        (field) => _loadCellData(),
+        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _fieldListener.start();
   }
 
@@ -71,12 +75,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+    if (isClosed) {
+      return;
+    }
     result.fold(
-      (cell) {
-        if (!isClosed) {
-          add(DateCellEvent.didReceiveCellUpdate(cell));
-        }
-      },
+      (cell) => add(DateCellEvent.didReceiveCellUpdate(cell)),
       (err) => Log.error(err),
     );
   }
@@ -97,18 +100,21 @@ class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
   const factory DateCellEvent.selectDay(DateTime day) = _SelectDay;
   const factory DateCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required String content,
+    required Field field,
     DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial(CellData cellData) => DateCellState(
+  factory DateCellState.initial(GridCellIdentifier cellData) => DateCellState(
         cellData: cellData,
+        field: cellData.field,
         content: cellData.cell?.content ?? "",
       );
 }

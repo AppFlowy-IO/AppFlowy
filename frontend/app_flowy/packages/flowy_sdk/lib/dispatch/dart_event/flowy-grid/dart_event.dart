@@ -154,6 +154,23 @@ class GridEventGetEditFieldContext {
     }
 }
 
+class GridEventMoveItem {
+     MoveItemPayload request;
+     GridEventMoveItem(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.MoveItem.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventNewSelectOption {
      SelectOptionName request;
      GridEventNewSelectOption(this.request);

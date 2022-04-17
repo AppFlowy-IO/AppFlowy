@@ -17,7 +17,6 @@ import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -150,16 +149,10 @@ void _resolveGridDeps(GetIt getIt) {
     (view, _) => GridBloc(view: view),
   );
 
-  getIt.registerFactoryParam<RowBloc, RowData, void>(
-    (data, _) => RowBloc(
-      rowData: data,
-    ),
-  );
-
-  getIt.registerFactoryParam<GridHeaderBloc, String, List<Field>>(
-    (gridId, fields) => GridHeaderBloc(
-      data: GridHeaderData(gridId: gridId, fields: fields),
-      service: FieldService(gridId: gridId),
+  getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldCache>(
+    (gridId, fieldCache) => GridHeaderBloc(
+      gridId: gridId,
+      fieldCache: fieldCache,
     ),
   );
 
@@ -177,32 +170,32 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, CellData, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridCellIdentifier, void>(
     (cellData, _) => TextCellBloc(
       service: CellService(),
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, CellData, void>(
+  getIt.registerFactoryParam<SelectionCellBloc, GridCellIdentifier, void>(
     (cellData, _) => SelectionCellBloc(
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, CellData, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellIdentifier, void>(
     (cellData, _) => NumberCellBloc(
       cellData: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, CellData, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridCellIdentifier, void>(
     (cellData, _) => DateCellBloc(
-      cellData: cellData,
+      cellIdentifier: cellData,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, CellData, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellIdentifier, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellData: cellData,
@@ -229,7 +222,7 @@ void _resolveGridDeps(GetIt getIt) {
     (typeOption, _) => NumberTypeOptionBloc(typeOption: typeOption),
   );
 
-  getIt.registerFactoryParam<GridPropertyBloc, String, List<Field>>(
-    (gridId, fields) => GridPropertyBloc(gridId: gridId, fields: fields),
+  getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldCache>(
+    (gridId, cache) => GridPropertyBloc(gridId: gridId, fieldCache: cache),
   );
 }

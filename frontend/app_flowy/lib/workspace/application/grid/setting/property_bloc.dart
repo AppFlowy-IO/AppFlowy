@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,12 +10,13 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final FieldService _service;
-  final GridFieldsListener _fieldListener;
+  final GridFieldCache _fieldCache;
+  Function()? _listenFieldCallback;
 
-  GridPropertyBloc({required String gridId, required List<Field> fields})
+  GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _service = FieldService(gridId: gridId),
-        _fieldListener = GridFieldsListener(gridId: gridId),
-        super(GridPropertyState.initial(gridId, fields)) {
+        _fieldCache = fieldCache,
+        super(GridPropertyState.initial(gridId, fieldCache.clonedFields)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(
@@ -32,6 +33,9 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(fields: value.fields));
           },
+          moveField: (_MoveField value) {
+            //
+          },
         );
       },
     );
@@ -39,20 +43,17 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
 
   @override
   Future<void> close() async {
-    await _fieldListener.stop();
+    if (_listenFieldCallback != null) {
+      _fieldCache.removeListener(_listenFieldCallback!);
+    }
     return super.close();
   }
 
   void _startListening() {
-    _fieldListener.updateFieldsNotifier.addPublishListener((result) {
-      result.fold(
-        (fields) {
-          add(GridPropertyEvent.didReceiveFieldUpdate(fields));
-        },
-        (err) => Log.error(err),
-      );
-    });
-    _fieldListener.start();
+    _listenFieldCallback = _fieldCache.addListener(
+      onChanged: (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields)),
+      listenWhen: () => !isClosed,
+    );
   }
 }
 
@@ -61,6 +62,7 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.initial() = _Initial;
   const factory GridPropertyEvent.setFieldVisibility(String fieldId, bool visibility) = _SetFieldVisibility;
   const factory GridPropertyEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed

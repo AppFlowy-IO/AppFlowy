@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:app_flowy/workspace/application/grid/setting/property_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
@@ -18,10 +19,10 @@ import 'package:styled_widget/styled_widget.dart';
 
 class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
-  final List<Field> fields;
+  final GridFieldCache fieldCache;
   const GridPropertyList({
     required this.gridId,
-    required this.fields,
+    required this.fieldCache,
     Key? key,
   }) : super(key: key);
 
@@ -43,22 +44,21 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          getIt<GridPropertyBloc>(param1: gridId, param2: fields)..add(const GridPropertyEvent.initial()),
+          getIt<GridPropertyBloc>(param1: gridId, param2: fieldCache)..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
           final cells = state.fields.map((field) {
-            return _GridPropertyCell(gridId: gridId, field: field);
+            return _GridPropertyCell(gridId: gridId, field: field, key: ValueKey(field.id));
           }).toList();
 
           return ListView.separated(
             shrinkWrap: true,
-            controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              return VSpace(GridSize.typeOptionSeparatorHeight);
-            },
             itemCount: cells.length,
             itemBuilder: (BuildContext context, int index) {
               return cells[index];
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return VSpace(GridSize.typeOptionSeparatorHeight);
             },
           );
         },
@@ -92,17 +92,7 @@ class _GridPropertyCell extends StatelessWidget {
         Expanded(
           child: SizedBox(
             height: GridSize.typeOptionItemHeight,
-            child: FlowyButton(
-              text: FlowyText.medium(field.name, fontSize: 12),
-              hoverColor: theme.hover,
-              leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-              onTap: () {
-                FieldEditor(
-                  gridId: gridId,
-                  fieldContextLoader: FieldContextLoaderAdaptor(gridId: gridId, field: field),
-                ).show(context, anchorDirection: AnchorDirection.bottomRight);
-              },
-            ),
+            child: _editFieldButton(theme, context),
           ),
         ),
         FlowyIconButton(
@@ -114,6 +104,20 @@ class _GridPropertyCell extends StatelessWidget {
           icon: checkmark.padding(all: 6),
         )
       ],
+    );
+  }
+
+  FlowyButton _editFieldButton(AppTheme theme, BuildContext context) {
+    return FlowyButton(
+      text: FlowyText.medium(field.name, fontSize: 12),
+      hoverColor: theme.hover,
+      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+      onTap: () {
+        FieldEditor(
+          gridId: gridId,
+          fieldContextLoader: FieldContextLoaderAdaptor(gridId: gridId, field: field),
+        ).show(context, anchorDirection: AnchorDirection.bottomRight);
+      },
     );
   }
 }

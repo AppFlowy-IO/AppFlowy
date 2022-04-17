@@ -9,11 +9,13 @@ import 'dart:async';
 part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
+  final FieldService _fieldService;
 
   FieldCellBloc({
     required GridFieldCellContext cellContext,
-  })  : _fieldListener = FieldListener(fieldId: cellContext.field.id),
+  })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
+        _fieldService = FieldService(gridId: cellContext.gridId),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -23,6 +25,13 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(field: value.field));
+          },
+          updateWidth: (_UpdateWidth value) {
+            final defaultWidth = state.field.width.toDouble();
+            final width = defaultWidth + value.offset;
+            if (width > defaultWidth && width < 300) {
+              _fieldService.updateField(fieldId: state.field.id, width: width);
+            }
           },
         );
       },
@@ -36,12 +45,12 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   }
 
   void _startListening() {
-    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
         (field) => add(FieldCellEvent.didReceiveFieldUpdate(field)),
         (err) => Log.error(err),
       );
-    });
+    }, listenWhen: () => !isClosed);
     _fieldListener.start();
   }
 }
@@ -50,6 +59,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
   const factory FieldCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
+  const factory FieldCellEvent.updateWidth(double offset) = _UpdateWidth;
 }
 
 @freezed

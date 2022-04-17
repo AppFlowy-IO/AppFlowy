@@ -3,12 +3,11 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    gen_field_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
-    GridBlockMetaChangeset, GridMeta,
+    gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset,
+    GridMeta,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
-
 use std::sync::Arc;
 
 pub type GridMetaDelta = PlainTextDelta;
@@ -41,7 +40,7 @@ impl GridMetaPad {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub fn create_field(
+    pub fn create_field_meta(
         &mut self,
         new_field_meta: FieldMeta,
         start_field_id: Option<String>,
@@ -70,7 +69,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn delete_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn delete_field_meta(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -82,13 +81,17 @@ impl GridMetaPad {
         )
     }
 
-    pub fn duplicate_field(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn duplicate_field_meta(
+        &mut self,
+        field_id: &str,
+        duplicated_field_id: &str,
+    ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
                     let mut duplicate_field_meta = grid_meta.fields[index].clone();
-                    duplicate_field_meta.id = gen_field_id();
+                    duplicate_field_meta.id = duplicated_field_id.to_string();
                     duplicate_field_meta.name = format!("{} (copy)", duplicate_field_meta.name);
                     grid_meta.fields.insert(index + 1, duplicate_field_meta);
                     Ok(Some(()))
@@ -126,7 +129,7 @@ impl GridMetaPad {
         })
     }
 
-    pub fn update_field<T: JsonDeserializer>(
+    pub fn update_field_meta<T: JsonDeserializer>(
         &mut self,
         changeset: FieldChangesetParams,
         deserializer: T,
@@ -181,17 +184,40 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_field(&self, field_id: &str) -> Option<&FieldMeta> {
-        self.grid_meta.fields.iter().find(|field| field.id == field_id)
+    pub fn get_field_meta(&self, field_id: &str) -> Option<(usize, &FieldMeta)> {
+        self.grid_meta
+            .fields
+            .iter()
+            .enumerate()
+            .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_meta(&mut self, field_meta: FieldMeta) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_meta.id) {
                 None => Ok(None),
                 Some(index) => {
                     grid_meta.fields.remove(index);
                     grid_meta.fields.insert(index, field_meta);
+                    Ok(Some(()))
+                }
+            },
+        )
+    }
+
+    pub fn move_field(
+        &mut self,
+        field_id: &str,
+        _from_index: usize,
+        to_index: usize,
+    ) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(
+            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+                None => Ok(None),
+                Some(index) => {
+                    // debug_assert_eq!(index, from_index);
+                    let field_meta = grid_meta.fields.remove(index);
+                    grid_meta.fields.insert(to_index, field_meta);
                     Ok(Some(()))
                 }
             },

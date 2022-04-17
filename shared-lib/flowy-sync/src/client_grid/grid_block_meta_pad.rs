@@ -149,6 +149,19 @@ impl GridBlockMetaPad {
         })
     }
 
+    pub fn move_row(&mut self, row_id: &str, from: usize, to: usize) -> CollaborateResult<Option<GridBlockMetaChange>> {
+        self.modify(|row_metas| {
+            if let Some(position) = row_metas.iter().position(|row_meta| row_meta.id == row_id) {
+                debug_assert_eq!(from, position);
+                let row_meta = row_metas.remove(position);
+                row_metas.insert(to, row_meta);
+                Ok(Some(()))
+            } else {
+                Ok(None)
+            }
+        })
+    }
+
     pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
     where
         F: for<'a> FnOnce(&'a mut Vec<Arc<RowMeta>>) -> CollaborateResult<Option<()>>,

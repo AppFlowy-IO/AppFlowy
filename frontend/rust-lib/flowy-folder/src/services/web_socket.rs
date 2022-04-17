@@ -14,6 +14,7 @@ use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
+#[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
     user_id: &str,
     folder_id: &str,

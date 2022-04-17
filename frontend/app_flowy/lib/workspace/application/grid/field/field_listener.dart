@@ -9,12 +9,12 @@ import 'package:app_flowy/core/notification_helper.dart';
 
 typedef UpdateFieldNotifiedValue = Either<Field, FlowyError>;
 
-class FieldListener {
+class SingleFieldListener {
   final String fieldId;
-  PublishNotifier<UpdateFieldNotifiedValue> updateFieldNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldNotifier = PublishNotifier();
   GridNotificationListener? _listener;
 
-  FieldListener({required this.fieldId});
+  SingleFieldListener({required this.fieldId});
 
   void start() {
     _listener = GridNotificationListener(
@@ -30,8 +30,8 @@ class FieldListener {
     switch (ty) {
       case GridNotification.DidUpdateField:
         result.fold(
-          (payload) => updateFieldNotifier.value = left(Field.fromBuffer(payload)),
-          (error) => updateFieldNotifier.value = right(error),
+          (payload) => updateFieldNotifier?.value = left(Field.fromBuffer(payload)),
+          (error) => updateFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -41,6 +41,7 @@ class FieldListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldNotifier.dispose();
+    updateFieldNotifier?.dispose();
+    updateFieldNotifier = null;
   }
 }

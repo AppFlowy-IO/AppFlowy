@@ -12,19 +12,19 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class GridNotification extends $pb.ProtobufEnum {
   static const GridNotification Unknown = GridNotification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
   static const GridNotification DidCreateBlock = GridNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidCreateBlock');
-  static const GridNotification DidUpdateGridBlock = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGridBlock');
+  static const GridNotification DidUpdateGridRow = GridNotification._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGridRow');
+  static const GridNotification DidUpdateGridField = GridNotification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGridField');
   static const GridNotification DidUpdateRow = GridNotification._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateRow');
-  static const GridNotification DidUpdateCell = GridNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateCell');
-  static const GridNotification DidUpdateGrid = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateGrid');
-  static const GridNotification DidUpdateField = GridNotification._(41, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateField');
+  static const GridNotification DidUpdateCell = GridNotification._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateCell');
+  static const GridNotification DidUpdateField = GridNotification._(50, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DidUpdateField');
 
   static const $core.List<GridNotification> values = <GridNotification> [
     Unknown,
     DidCreateBlock,
-    DidUpdateGridBlock,
+    DidUpdateGridRow,
+    DidUpdateGridField,
     DidUpdateRow,
     DidUpdateCell,
-    DidUpdateGrid,
     DidUpdateField,
   ];
 

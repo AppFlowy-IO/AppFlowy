@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/cell_bloc/select_option_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
@@ -13,13 +13,13 @@ part 'selection_cell_bloc.freezed.dart';
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final SelectOptionService _service;
   final CellListener _cellListener;
-  final FieldListener _fieldListener;
+  final SingleFieldListener _fieldListener;
 
   SelectionCellBloc({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
   })  : _service = SelectOptionService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = FieldListener(fieldId: cellData.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
         super(SelectionCellState.initial(cellData)) {
     on<SelectionCellEvent>(
       (event, emit) async {
@@ -49,22 +49,21 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
       fieldId: state.cellData.field.id,
       rowId: state.cellData.rowId,
     );
+    if (isClosed) {
+      return;
+    }
 
     result.fold(
-      (selectOptionContext) {
-        if (!isClosed) {
-          add(SelectionCellEvent.didReceiveOptions(
-            selectOptionContext.options,
-            selectOptionContext.selectOptions,
-          ));
-        }
-      },
+      (selectOptionContext) => add(SelectionCellEvent.didReceiveOptions(
+        selectOptionContext.options,
+        selectOptionContext.selectOptions,
+      )),
       (err) => Log.error(err),
     );
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) => _loadOptions(),
         (err) => Log.error(err),
@@ -72,7 +71,7 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
     });
     _cellListener.start();
 
-    _fieldListener.updateFieldNotifier.addPublishListener((result) {
+    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
         (field) => _loadOptions(),
         (err) => Log.error(err),
@@ -94,12 +93,12 @@ class SelectionCellEvent with _$SelectionCellEvent {
 @freezed
 class SelectionCellState with _$SelectionCellState {
   const factory SelectionCellState({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   }) = _SelectionCellState;
 
-  factory SelectionCellState.initial(CellData cellData) => SelectionCellState(
+  factory SelectionCellState.initial(GridCellIdentifier cellData) => SelectionCellState(
         cellData: cellData,
         options: [],
         selectedOptions: [],

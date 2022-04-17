@@ -1,4 +1,4 @@
-use crate::web_socket::{make_block_ws_manager, EditorCommandSender};
+use crate::web_socket::EditorCommandSender;
 use crate::{
     errors::FlowyError,
     queue::{EditBlockQueue, EditorCommand},
@@ -6,9 +6,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
-use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket, RevisionWebSocketManager,
-};
+use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
     entities::{revision::Revision, text_block_info::TextBlockInfo},
@@ -27,11 +25,13 @@ pub struct ClientTextBlockEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
-    ws_manager: Arc<RevisionWebSocketManager>,
+    #[cfg(feature = "sync")]
+    ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
     edit_cmd_tx: EditorCommandSender,
 }
 
 impl ClientTextBlockEditor {
+    #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
         user: Arc<dyn TextBlockUser>,
@@ -46,7 +46,8 @@ impl ClientTextBlockEditor {
         let user_id = user.user_id()?;
 
         let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), delta);
-        let ws_manager = make_block_ws_manager(
+        #[cfg(feature = "sync")]
+        let ws_manager = crate::web_socket::make_block_ws_manager(
             doc_id.clone(),
             user_id.clone(),
             edit_cmd_tx.clone(),
@@ -57,6 +58,7 @@ impl ClientTextBlockEditor {
         let editor = Arc::new(Self {
             doc_id,
             rev_manager,
+            #[cfg(feature = "sync")]
             ws_manager,
             edit_cmd_tx,
         });
@@ -158,17 +160,29 @@ impl ClientTextBlockEditor {
         Ok(())
     }
 
+    #[cfg(feature = "sync")]
     pub fn stop(&self) {
         self.ws_manager.stop();
     }
 
+    #[cfg(not(feature = "sync"))]
+    pub fn stop(&self) {}
+
+    #[cfg(feature = "sync")]
     pub(crate) async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError> {
         self.ws_manager.receive_ws_data(data).await
     }
+    #[cfg(not(feature = "sync"))]
+    pub(crate) async fn receive_ws_data(&self, _data: ServerRevisionWSData) -> Result<(), FlowyError> {
+        Ok(())
+    }
 
+    #[cfg(feature = "sync")]
     pub(crate) fn receive_ws_state(&self, state: &WSConnectState) {
         self.ws_manager.connect_state_changed(state.clone());
     }
+    #[cfg(not(feature = "sync"))]
+    pub(crate) fn receive_ws_state(&self, _state: &WSConnectState) {}
 }
 
 impl std::ops::Drop for ClientTextBlockEditor {
