@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NumberCell extends GridCell {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
 
   const NumberCell({
     required this.cellData,

@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
@@ -18,7 +18,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   Timer? _delayOperation;
 
   SelectOptionEditorBloc({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   })  : _selectOptionService = SelectOptionService(),
@@ -174,7 +174,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(
-    CellData cellData,
+    GridCellIdentifier cellData,
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) {

@@ -84,10 +84,10 @@ class RowsNotifier extends ChangeNotifier {
 class GridRowCache {
   final String gridId;
   late GridRowListener _rowsListener;
+  final RowsNotifier _rowNotifier = RowsNotifier();
   final HashMap<String, Row> _rowDataMap = HashMap();
 
   UnmodifiableListView<Field> _fields = UnmodifiableListView([]);
-  final RowsNotifier _rowNotifier = RowsNotifier();
 
   GridRowCache({required this.gridId}) {
     _rowsListener = GridRowListener(gridId: gridId);
@@ -216,8 +216,8 @@ class GridRowCache {
 }
 
 @freezed
-class CellData with _$CellData {
-  const factory CellData({
+class GridCellIdentifier with _$GridCellIdentifier {
+  const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
     required Field field,

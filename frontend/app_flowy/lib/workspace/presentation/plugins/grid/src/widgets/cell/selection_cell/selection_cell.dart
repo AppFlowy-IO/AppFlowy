@@ -8,7 +8,7 @@ import 'extension.dart';
 import 'selection_editor.dart';
 
 class SingleSelectCell extends GridCell {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
 
   const SingleSelectCell({
     required this.cellData,
@@ -64,7 +64,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends GridCell {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
 
   const MultiSelectCell({
     required this.cellData,

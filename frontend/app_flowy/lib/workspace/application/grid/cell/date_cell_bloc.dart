@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/cell_bloc/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
@@ -15,11 +15,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellListener _cellListener;
   final SingleFieldListener _fieldListener;
 
-  DateCellBloc({required CellData cellData})
+  DateCellBloc({required GridCellIdentifier cellIdentifier})
       : _service = CellService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
-        super(DateCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellIdentifier.rowId, fieldId: cellIdentifier.field.id),
+        _fieldListener = SingleFieldListener(fieldId: cellIdentifier.field.id),
+        super(DateCellState.initial(cellIdentifier)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(
@@ -106,13 +106,13 @@ class DateCellEvent with _$DateCellEvent {
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required CellData cellData,
+    required GridCellIdentifier cellData,
     required String content,
     required Field field,
     DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial(CellData cellData) => DateCellState(
+  factory DateCellState.initial(GridCellIdentifier cellData) => DateCellState(
         cellData: cellData,
         field: cellData.field,
         content: cellData.cell?.content ?? "",

@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:app_flowy/workspace/application/grid/cell_bloc/selection_editor_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/cell/selection_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
@@ -25,7 +25,7 @@ import 'text_field.dart';
 const double _editorPannelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
   final VoidCallback onDismissed;
@@ -66,7 +66,7 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   static void show(
     BuildContext context,
-    CellData cellData,
+    GridCellIdentifier cellData,
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
     VoidCallback onDismissed,

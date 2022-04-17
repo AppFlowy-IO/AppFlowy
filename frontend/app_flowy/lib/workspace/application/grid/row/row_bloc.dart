@@ -12,7 +12,7 @@ import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
-typedef CellDataMap = LinkedHashMap<String, CellData>;
+typedef CellDataMap = LinkedHashMap<String, GridCellIdentifier>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
@@ -111,7 +111,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     var map = CellDataMap.new();
     for (final field in fields) {
       if (field.visibility) {
-        map[field.id] = CellData(
+        map[field.id] = GridCellIdentifier(
           rowId: row.id,
           gridId: _rowService.gridId,
           cell: row.cellByFieldId[field.id],

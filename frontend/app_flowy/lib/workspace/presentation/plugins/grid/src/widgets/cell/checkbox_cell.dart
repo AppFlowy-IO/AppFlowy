@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CheckboxCell extends StatefulWidget {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
 
   const CheckboxCell({
     required this.cellData,

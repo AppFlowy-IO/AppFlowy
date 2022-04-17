@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class DateCell extends GridCell {
-  final CellData cellData;
+  final GridCellIdentifier cellData;
 
   const DateCell({
     required this.cellData,
