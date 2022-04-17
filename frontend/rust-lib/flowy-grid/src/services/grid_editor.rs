@@ -164,7 +164,7 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.duplicate_field_meta(field_id, &duplicated_field_id)?))
             .await?;
 
-        let _ = self.notify_did_insert_grid_field(field_id).await?;
+        let _ = self.notify_did_insert_grid_field(&duplicated_field_id).await?;
         Ok(())
     }
 
