@@ -17,7 +17,6 @@ import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -223,7 +222,7 @@ void _resolveGridDeps(GetIt getIt) {
     (typeOption, _) => NumberTypeOptionBloc(typeOption: typeOption),
   );
 
-  getIt.registerFactoryParam<GridPropertyBloc, String, List<Field>>(
-    (gridId, fields) => GridPropertyBloc(gridId: gridId, fields: fields),
+  getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldCache>(
+    (gridId, cache) => GridPropertyBloc(gridId: gridId, fieldCache: cache),
   );
 }

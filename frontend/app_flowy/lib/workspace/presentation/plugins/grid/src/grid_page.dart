@@ -164,9 +164,10 @@ class _GridToolbarAdaptor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<GridBloc, GridState, GridToolbarContext>(
       selector: (state) {
+        final fieldCache = context.read<GridBloc>().fieldCache;
         return GridToolbarContext(
           gridId: state.gridId,
-          fields: state.fields,
+          fieldCache: fieldCache,
         );
       },
       builder: (context, toolbarContext) {

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
@@ -12,10 +13,10 @@ import 'grid_setting.dart';
 
 class GridToolbarContext {
   final String gridId;
-  final List<Field> fields;
+  final GridFieldCache fieldCache;
   GridToolbarContext({
     required this.gridId,
-    required this.fields,
+    required this.fieldCache,
   });
 }
 
@@ -27,7 +28,7 @@ class GridToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingContext = GridSettingContext(
       gridId: toolbarContext.gridId,
-      fields: toolbarContext.fields,
+      fieldCache: toolbarContext.fieldCache,
     );
     return SizedBox(
       height: 40,
