@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
@@ -8,60 +7,9 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'package:app_flowy/workspace/application/grid/grid_listener.dart';
 
 part 'row_service.freezed.dart';
-
-class RowService {
-  final String gridId;
-  final String rowId;
-
-  RowService({required this.gridId, required this.rowId});
-
-  Future<Either<Row, FlowyError>> createRow() {
-    CreateRowPayload payload = CreateRowPayload.create()
-      ..gridId = gridId
-      ..startRowId = rowId;
-
-    return GridEventCreateRow(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> moveRow(String rowId, int fromIndex, int toIndex) {
-    final payload = MoveItemPayload.create()
-      ..gridId = gridId
-      ..itemId = rowId
-      ..ty = MoveItemType.MoveRow
-      ..fromIndex = fromIndex
-      ..toIndex = toIndex;
-
-    return GridEventMoveItem(payload).send();
-  }
-
-  Future<Either<Row, FlowyError>> getRow() {
-    final payload = RowIdentifierPayload.create()
-      ..gridId = gridId
-      ..rowId = rowId;
-
-    return GridEventGetRow(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> deleteRow() {
-    final payload = RowIdentifierPayload.create()
-      ..gridId = gridId
-      ..rowId = rowId;
-
-    return GridEventDeleteRow(payload).send();
-  }
-
-  Future<Either<Unit, FlowyError>> duplicateRow() {
-    final payload = RowIdentifierPayload.create()
-      ..gridId = gridId
-      ..rowId = rowId;
-
-    return GridEventDuplicateRow(payload).send();
-  }
-}
 
 class RowsNotifier extends ChangeNotifier {
   List<GridRow> _rows = [];
@@ -84,13 +32,12 @@ class RowsNotifier extends ChangeNotifier {
 
 class GridRowCache {
   final String gridId;
-  late GridRowListener _rowsListener;
+  final GridRowListener _rowsListener;
   final RowsNotifier _rowNotifier = RowsNotifier();
   final HashMap<String, Row> _rowDataMap = HashMap();
   UnmodifiableListView<Field> _fields = UnmodifiableListView([]);
 
-  GridRowCache({required this.gridId}) {
-    _rowsListener = GridRowListener(gridId: gridId);
+  GridRowCache({required this.gridId}) : _rowsListener = GridRowListener(gridId: gridId) {
     _rowsListener.rowsUpdateNotifier.addPublishListener((result) {
       result.fold(
         (changesets) {
@@ -106,18 +53,18 @@ class GridRowCache {
     _rowsListener.start();
   }
 
-  List<GridRow> get clonedRows => [..._rowNotifier.rows];
-
   Future<void> dispose() async {
     await _rowsListener.stop();
     _rowNotifier.dispose();
   }
 
+  List<GridRow> get clonedRows => [..._rowNotifier.rows];
+
   void addListener({
     void Function(List<GridRow>, GridRowChangeReason)? onChanged,
     bool Function()? listenWhen,
   }) {
-    listener() {
+    _rowNotifier.addListener(() {
       if (listenWhen != null && listenWhen() == false) {
         return;
       }
@@ -125,17 +72,15 @@ class GridRowCache {
       if (onChanged != null) {
         onChanged(clonedRows, _rowNotifier._changeReason);
       }
-    }
-
-    _rowNotifier.addListener(listener);
+    });
   }
 
-  void addRowListener({
+  VoidCallback addRowListener({
     required String rowId,
     void Function(Row)? onUpdated,
     bool Function()? listenWhen,
   }) {
-    _rowNotifier.addListener(() {
+    f() {
       if (onUpdated == null) {
         return;
       }
@@ -145,13 +90,19 @@ class GridRowCache {
       }
 
       _rowNotifier._changeReason.whenOrNull(update: (indexs) {
-        final updatedIndex = indexs.firstWhereOrNull((updatedIndex) => updatedIndex.rowId == rowId);
         final row = _rowDataMap[rowId];
-        if (updatedIndex != null && row != null) {
+        if (indexs[rowId] != null && row != null) {
           onUpdated(row);
         }
       });
-    });
+    }
+
+    _rowNotifier.addListener(f);
+    return f;
+  }
+
+  void removeRowListener(VoidCallback callback) {
+    _rowNotifier.removeListener(callback);
   }
 
   Future<Option<Row>> getRowData(String rowId) async {
@@ -234,7 +185,7 @@ class GridRowCache {
       return;
     }
 
-    final UpdatedIndexs updatedIndexs = [];
+    final UpdatedIndexs updatedIndexs = UpdatedIndexs();
     final List<GridRow> newRows = _rowNotifier.rows;
     for (final rowOrder in updatedRows) {
       final index = newRows.indexWhere((row) => row.rowId == rowOrder.rowId);
@@ -242,11 +193,61 @@ class GridRowCache {
         newRows.removeAt(index);
         newRows.insert(index, GridRow.fromBlockRow(gridId, rowOrder, _fields));
         _rowDataMap.remove(rowOrder.rowId);
-        updatedIndexs.add(UpdatedIndex(index: index, rowId: rowOrder.rowId));
+        updatedIndexs[rowOrder.rowId] = UpdatedIndex(index: index, rowId: rowOrder.rowId);
       }
     }
 
     _rowNotifier.updateRows(newRows, GridRowChangeReason.update(updatedIndexs));
+  }
+}
+
+class RowService {
+  final String gridId;
+  final String rowId;
+
+  RowService({required this.gridId, required this.rowId});
+
+  Future<Either<Row, FlowyError>> createRow() {
+    CreateRowPayload payload = CreateRowPayload.create()
+      ..gridId = gridId
+      ..startRowId = rowId;
+
+    return GridEventCreateRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveRow(String rowId, int fromIndex, int toIndex) {
+    final payload = MoveItemPayload.create()
+      ..gridId = gridId
+      ..itemId = rowId
+      ..ty = MoveItemType.MoveRow
+      ..fromIndex = fromIndex
+      ..toIndex = toIndex;
+
+    return GridEventMoveItem(payload).send();
+  }
+
+  Future<Either<Row, FlowyError>> getRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventGetRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> deleteRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDeleteRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> duplicateRow() {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    return GridEventDuplicateRow(payload).send();
   }
 }
 
@@ -283,7 +284,7 @@ class GridRow with _$GridRow {
 
 typedef InsertedIndexs = List<InsertedIndex>;
 typedef DeletedIndexs = List<DeletedIndex>;
-typedef UpdatedIndexs = List<UpdatedIndex>;
+typedef UpdatedIndexs = LinkedHashMap<String, UpdatedIndex>;
 
 class InsertedIndex {
   int index;

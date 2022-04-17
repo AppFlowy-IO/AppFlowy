@@ -1,4 +1,5 @@
 import 'dart:collection';
+
 import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +14,10 @@ typedef CellDataMap = LinkedHashMap<String, GridCellIdentifier>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-
   final GridFieldCache _fieldCache;
   final GridRowCache _rowCache;
+  void Function()? _rowListenCallback;
+  void Function()? _fieldListenCallback;
 
   RowBloc({
     required GridRow rowData,
@@ -72,16 +74,23 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
+    if (_rowListenCallback != null) {
+      _rowCache.removeRowListener(_rowListenCallback!);
+    }
+
+    if (_fieldListenCallback != null) {
+      _fieldCache.removeListener(_fieldListenCallback!);
+    }
     return super.close();
   }
 
   Future<void> _startListening() async {
-    _fieldCache.addListener(
+    _fieldListenCallback = _fieldCache.addListener(
       listener: () => add(const RowEvent.fieldsDidUpdate()),
       listenWhen: () => !isClosed,
     );
 
-    _rowCache.addRowListener(
+    _rowListenCallback = _rowCache.addRowListener(
       rowId: state.rowData.rowId,
       onUpdated: (row) => add(RowEvent.didUpdateRow(row)),
       listenWhen: () => !isClosed,

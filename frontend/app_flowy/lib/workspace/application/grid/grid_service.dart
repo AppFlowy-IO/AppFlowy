@@ -85,8 +85,9 @@ class GridFieldCache {
     _fieldNotifier.fields = [...fields];
   }
 
-  void addListener({VoidCallback? listener, void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
-    _fieldNotifier.addListener(() {
+  VoidCallback addListener(
+      {VoidCallback? listener, void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
+    f() {
       if (listenWhen != null && listenWhen() == false) {
         return;
       }
@@ -98,7 +99,14 @@ class GridFieldCache {
       if (listener != null) {
         listener();
       }
-    });
+    }
+
+    _fieldNotifier.addListener(f);
+    return f;
+  }
+
+  void removeListener(VoidCallback f) {
+    _fieldNotifier.removeListener(f);
   }
 
   void _deleteFields(List<FieldOrder> deletedFields) {
