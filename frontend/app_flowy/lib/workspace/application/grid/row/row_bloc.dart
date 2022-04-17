@@ -1,12 +1,9 @@
 import 'dart:collection';
-
 import 'package:app_flowy/workspace/application/grid/grid_service.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'row_listener.dart';
 import 'row_service.dart';
 import 'package:dartz/dartz.dart';
 
@@ -16,7 +13,7 @@ typedef CellDataMap = LinkedHashMap<String, GridCellIdentifier>;
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final RowListener _rowlistener;
+
   final GridFieldCache _fieldCache;
   final GridRowCache _rowCache;
 
@@ -25,7 +22,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     required GridFieldCache fieldCache,
     required GridRowCache rowCache,
   })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
-        _rowlistener = RowListener(rowId: rowData.rowId),
         _fieldCache = fieldCache,
         _rowCache = rowCache,
         super(RowState.initial(rowData)) {
@@ -76,27 +72,20 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
-    await _rowlistener.stop();
     return super.close();
   }
 
   Future<void> _startListening() async {
-    _rowlistener.updateRowNotifier?.addPublishListener(
-      (result) {
-        result.fold(
-          (row) => add(RowEvent.didUpdateRow(row)),
-          (err) => Log.error(err),
-        );
-      },
-      listenWhen: () => !isClosed,
-    );
-
     _fieldCache.addListener(
       listener: () => add(const RowEvent.fieldsDidUpdate()),
       listenWhen: () => !isClosed,
     );
 
-    _rowlistener.start();
+    _rowCache.addRowListener(
+      rowId: state.rowData.rowId,
+      onUpdated: (row) => add(RowEvent.didUpdateRow(row)),
+      listenWhen: () => !isClosed,
+    );
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {

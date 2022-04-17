@@ -77,7 +77,7 @@ impl ClientGridEditor {
                     Ok(grid.update_field_meta(changeset, deserializer)?)
                 })
                 .await?;
-            let _ = self.notify_grid_did_update_field(&field_id).await?;
+            let _ = self.notify_did_update_grid_field(&field_id).await?;
         } else {
             let _ = self
                 .modify(|grid| {
@@ -87,7 +87,7 @@ impl ClientGridEditor {
                     Ok(grid.create_field_meta(field_meta, start_field_id)?)
                 })
                 .await?;
-            let _ = self.notify_grid_did_insert_field(&field_id).await?;
+            let _ = self.notify_did_insert_grid_field(&field_id).await?;
         }
 
         Ok(())
@@ -114,14 +114,14 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.update_field_meta(params, json_deserializer)?))
             .await?;
 
-        let _ = self.notify_grid_did_update_field(&field_id).await?;
+        let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 
     pub async fn replace_field(&self, field_meta: FieldMeta) -> FlowyResult<()> {
         let field_id = field_meta.id.clone();
         let _ = self.modify(|pad| Ok(pad.replace_field_meta(field_meta)?)).await?;
-        let _ = self.notify_grid_did_update_field(&field_id).await?;
+        let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 
@@ -153,7 +153,7 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
             .await?;
 
-        let _ = self.notify_grid_did_update_field(field_id).await?;
+        let _ = self.notify_did_update_grid_field(field_id).await?;
 
         Ok(())
     }
@@ -164,7 +164,7 @@ impl ClientGridEditor {
             .modify(|grid| Ok(grid.duplicate_field_meta(field_id, &duplicated_field_id)?))
             .await?;
 
-        let _ = self.notify_grid_did_insert_field(field_id).await?;
+        let _ = self.notify_did_insert_grid_field(field_id).await?;
         Ok(())
     }
 
@@ -462,7 +462,7 @@ impl ClientGridEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    async fn notify_grid_did_insert_field(&self, field_id: &str) -> FlowyResult<()> {
+    async fn notify_did_insert_grid_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some((index, field_meta)) = self.pad.read().await.get_field_meta(field_id) {
             let index_field = IndexField::from_field_meta(field_meta, index);
             let notified_changeset = GridFieldChangeset::insert(&self.grid_id, vec![index_field]);
@@ -472,7 +472,7 @@ impl ClientGridEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    async fn notify_grid_did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+    async fn notify_did_update_grid_field(&self, field_id: &str) -> FlowyResult<()> {
         let mut field_metas = self.get_field_metas(Some(vec![field_id])).await?;
         debug_assert!(field_metas.len() == 1);
 

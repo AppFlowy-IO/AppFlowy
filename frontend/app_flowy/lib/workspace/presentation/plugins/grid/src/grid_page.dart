@@ -191,22 +191,20 @@ class _GridRowsState extends State<_GridRows> {
     return BlocConsumer<GridBloc, GridState>(
       listenWhen: (previous, current) => previous.listState != current.listState,
       listener: (context, state) {
-        state.listState.map(
+        state.listState.mapOrNull(
           insert: (value) {
             for (final item in value.items) {
-              _key.currentState?.insertItem(item.value1);
+              _key.currentState?.insertItem(item.index);
             }
           },
           delete: (value) {
             for (final item in value.items) {
               _key.currentState?.removeItem(
-                item.value1,
-                (context, animation) => _renderRow(context, item.value2, animation),
+                item.index,
+                (context, animation) => _renderRow(context, item.row, animation),
               );
             }
           },
-          initial: (_) {},
-          update: (_) {},
         );
       },
       buildWhen: (previous, current) => false,

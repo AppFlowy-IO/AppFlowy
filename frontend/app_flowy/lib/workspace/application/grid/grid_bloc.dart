@@ -46,7 +46,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await _gridService.closeGrid();
     await fieldCache.dispose();
     await rowCache.dispose();
-    fieldCache.dispose();
     return super.close();
   }
 

@@ -23,7 +23,7 @@ class GridRowListener {
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridBlock:
+      case GridNotification.DidUpdateGridRow:
         result.fold(
           (payload) => rowsUpdateNotifier.value = left([GridRowsChangeset.fromBuffer(payload)]),
           (error) => rowsUpdateNotifier.value = right(error),

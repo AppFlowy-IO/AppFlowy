@@ -208,7 +208,7 @@ impl GridMetaPad {
     pub fn move_field(
         &mut self,
         field_id: &str,
-        from_index: usize,
+        _from_index: usize,
         to_index: usize,
     ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(

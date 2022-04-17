@@ -2,13 +2,13 @@ use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_editor::ClientGridBlockMetaEditor;
 use crate::services::persistence::block_index::BlockIndexPersistence;
-use crate::services::row::{group_row_orders, make_rows_from_row_metas, GridBlockSnapshot};
+use crate::services::row::{group_row_orders, GridBlockSnapshot};
 use std::borrow::Cow;
 
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    CellChangeset, CellMeta, CellNotificationData, FieldMeta, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset,
+    CellChangeset, CellMeta, CellNotificationData, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset,
     IndexRowOrder, RowMeta, RowMetaChangeset, RowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
@@ -76,7 +76,7 @@ impl GridBlockMetaEditorManager {
         index_row_order.index = row_index;
 
         let _ = self
-            .notify_did_update_rows(GridRowsChangeset::insert(block_id, vec![index_row_order]))
+            .notify_did_update_block(GridRowsChangeset::insert(block_id, vec![index_row_order]))
             .await?;
         Ok(row_count)
     }
@@ -98,7 +98,7 @@ impl GridBlockMetaEditorManager {
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
 
             let _ = self
-                .notify_did_update_rows(GridRowsChangeset::insert(&block_id, inserted_row_orders))
+                .notify_did_update_block(GridRowsChangeset::insert(&block_id, inserted_row_orders))
                 .await?;
         }
 
@@ -108,19 +108,7 @@ impl GridBlockMetaEditorManager {
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
-
-        match editor
-            .get_row_orders(Some(vec![Cow::Borrowed(&changeset.row_id)]))
-            .await?
-            .pop()
-        {
-            None => {}
-            Some(row_order) => {
-                let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
-                let _ = self.notify_did_update_rows(block_order_changeset).await?;
-            }
-        }
-
+        let _ = self.notify_did_update_block_row(&changeset.row_id).await?;
         Ok(())
     }
 
@@ -131,7 +119,7 @@ impl GridBlockMetaEditorManager {
         let row_orders = editor.get_row_orders(Some(vec![Cow::Borrowed(&row_id)])).await?;
         let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
         let _ = self
-            .notify_did_update_rows(GridRowsChangeset::delete(&block_id, row_orders))
+            .notify_did_update_block(GridRowsChangeset::delete(&block_id, row_orders))
             .await?;
 
         Ok(())
@@ -173,7 +161,7 @@ impl GridBlockMetaEditorManager {
                     updated_rows: vec![],
                 };
 
-                let _ = self.notify_did_update_rows(notified_changeset).await?;
+                let _ = self.notify_did_update_block(notified_changeset).await?;
             }
         }
 
@@ -181,10 +169,8 @@ impl GridBlockMetaEditorManager {
     }
 
     pub async fn update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
-        let row_id = changeset.row_id.clone();
-        let editor = self.get_editor_from_row_id(&row_id).await?;
         let row_changeset: RowMetaChangeset = changeset.clone().into();
-        let _ = editor.update_row(row_changeset).await?;
+        let _ = self.update_row(row_changeset).await?;
 
         let cell_notification_data = CellNotificationData {
             grid_id: changeset.grid_id,
@@ -193,6 +179,7 @@ impl GridBlockMetaEditorManager {
             content: changeset.data,
         };
         self.notify_did_update_cell(cell_notification_data).await?;
+
         Ok(())
     }
 
@@ -239,8 +226,22 @@ impl GridBlockMetaEditorManager {
         Ok(block_cell_metas)
     }
 
-    async fn notify_did_update_rows(&self, changeset: GridRowsChangeset) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
+    async fn notify_did_update_block_row(&self, row_id: &str) -> FlowyResult<()> {
+        let editor = self.get_editor_from_row_id(row_id).await?;
+        let row_ids = Some(vec![Cow::Borrowed(&row_id)]);
+        match editor.get_row_orders(row_ids).await?.pop() {
+            None => {}
+            Some(row_order) => {
+                let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
+                let _ = self.notify_did_update_block(block_order_changeset).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn notify_did_update_block(&self, changeset: GridRowsChangeset) -> FlowyResult<()> {
+        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridRow)
             .payload(changeset)
             .send();
         Ok(())
@@ -251,22 +252,6 @@ impl GridBlockMetaEditorManager {
         send_dart_notification(&id, GridNotification::DidUpdateCell)
             .payload(data)
             .send();
-        Ok(())
-    }
-
-    #[allow(dead_code)]
-    async fn notify_did_update_row(&self, row_id: &str, field_metas: &[FieldMeta]) -> FlowyResult<()> {
-        match self.get_row_meta(row_id).await? {
-            None => {}
-            Some(row_meta) => {
-                let row_metas = vec![row_meta];
-                if let Some(row) = make_rows_from_row_metas(field_metas, &row_metas).pop() {
-                    send_dart_notification(row_id, GridNotification::DidUpdateRow)
-                        .payload(row)
-                        .send();
-                }
-            }
-        }
         Ok(())
     }
 }
