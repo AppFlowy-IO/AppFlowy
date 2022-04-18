@@ -1,10 +1,8 @@
 use crate::manager::GridManager;
-use crate::services::cell::cell_entities::*;
-use crate::services::field::field_entities::*;
+use crate::services::entities::*;
 use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
 use crate::services::grid_editor::ClientGridEditor;
-use crate::services::row::row_entities::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
@@ -248,9 +246,20 @@ pub(crate) async fn update_cell_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn new_select_option_handler(data: Data<SelectOptionName>) -> DataResult<SelectOption, FlowyError> {
-    let params = data.into_inner();
-    data_result(SelectOption::new(&params.name))
+pub(crate) async fn new_select_option_handler(
+    data: Data<CreateSelectOptionPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<SelectOption, FlowyError> {
+    let params: CreateSelectOptionParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    match editor.get_field_meta(&params.field_id).await {
+        None => Err(ErrorCode::InvalidData.into()),
+        Some(field_meta) => {
+            let type_option = select_option_operation(&field_meta)?;
+            let select_option = type_option.create_option(&params.option_name);
+            data_result(select_option)
+        }
+    }
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -336,21 +345,4 @@ pub(crate) async fn update_cell_select_option_handler(
     let changeset: CellChangeset = params.into();
     let _ = editor.update_cell(changeset).await?;
     Ok(())
-}
-
-fn select_option_operation(field_meta: &FieldMeta) -> FlowyResult<Box<dyn SelectOptionOperation>> {
-    match &field_meta.field_type {
-        FieldType::SingleSelect => {
-            let type_option = SingleSelectTypeOption::from(field_meta);
-            Ok(Box::new(type_option))
-        }
-        FieldType::MultiSelect => {
-            let type_option = MultiSelectTypeOption::from(field_meta);
-            Ok(Box::new(type_option))
-        }
-        ty => {
-            tracing::error!("Unsupported field type: {:?} for this handler", ty);
-            Err(ErrorCode::FieldInvalidOperation.into())
-        }
-    }
 }

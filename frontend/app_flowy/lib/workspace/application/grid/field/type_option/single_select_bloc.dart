@@ -12,17 +12,16 @@ class SingleSelectTypeOptionBloc extends Bloc<SingleSelectTypeOptionEvent, Singl
   final TypeOptionService service;
 
   SingleSelectTypeOptionBloc(
-    SingleSelectTypeOption typeOption,
-    String fieldId,
-  )   : service = TypeOptionService(fieldId: fieldId),
+    TypeOptionContext typeOptionContext,
+  )   : service = TypeOptionService(gridId: typeOptionContext.gridId, fieldId: typeOptionContext.field.id),
         super(
-          SingleSelectTypeOptionState.initial(typeOption),
+          SingleSelectTypeOptionState.initial(SingleSelectTypeOption.fromBuffer(typeOptionContext.data)),
         ) {
     on<SingleSelectTypeOptionEvent>(
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
-            final result = await service.newOption(value.optionName);
+            final result = await service.newOption(name: value.optionName);
             result.fold(
               (option) {
                 emit(state.copyWith(typeOption: _insertOption(option)));

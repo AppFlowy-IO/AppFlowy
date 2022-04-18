@@ -1,7 +1,6 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,13 +10,11 @@ class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
   final MultiSelectTypeOptionWidget _widget;
 
   MultiSelectTypeOptionBuilder(
-    String fieldId,
-    TypeOptionData typeOptionData,
+    TypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
     TypeOptionDataDelegate dataDelegate,
   ) : _widget = MultiSelectTypeOptionWidget(
-          fieldId: fieldId,
-          typeOption: MultiSelectTypeOption.fromBuffer(typeOptionData),
+          typeOptionContext: typeOptionContext,
           overlayDelegate: overlayDelegate,
           dataDelegate: dataDelegate,
         );
@@ -27,13 +24,11 @@ class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
 }
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
-  final String fieldId;
-  final MultiSelectTypeOption typeOption;
+  final TypeOptionContext typeOptionContext;
   final TypeOptionOverlayDelegate overlayDelegate;
   final TypeOptionDataDelegate dataDelegate;
   const MultiSelectTypeOptionWidget({
-    required this.fieldId,
-    required this.typeOption,
+    required this.typeOptionContext,
     required this.overlayDelegate,
     required this.dataDelegate,
     Key? key,
@@ -42,7 +37,7 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<MultiSelectTypeOptionBloc>(param1: typeOption, param2: fieldId),
+      create: (context) => MultiSelectTypeOptionBloc(typeOptionContext),
       child: BlocConsumer<MultiSelectTypeOptionBloc, MultiSelectTypeOptionState>(
         listener: (context, state) {
           dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());

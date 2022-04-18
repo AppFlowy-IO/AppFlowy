@@ -11,14 +11,14 @@ part 'multi_select_bloc.freezed.dart';
 class MultiSelectTypeOptionBloc extends Bloc<MultiSelectTypeOptionEvent, MultiSelectTypeOptionState> {
   final TypeOptionService service;
 
-  MultiSelectTypeOptionBloc(MultiSelectTypeOption typeOption, String fieldId)
-      : service = TypeOptionService(fieldId: fieldId),
-        super(MultiSelectTypeOptionState.initial(typeOption)) {
+  MultiSelectTypeOptionBloc(TypeOptionContext typeOptionContext)
+      : service = TypeOptionService(gridId: typeOptionContext.gridId, fieldId: typeOptionContext.field.id),
+        super(MultiSelectTypeOptionState.initial(MultiSelectTypeOption.fromBuffer(typeOptionContext.data))) {
     on<MultiSelectTypeOptionEvent>(
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
-            final result = await service.newOption(value.optionName);
+            final result = await service.newOption(name: value.optionName);
             result.fold(
               (option) {
                 emit(state.copyWith(typeOption: _insertOption(option)));

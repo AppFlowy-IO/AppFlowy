@@ -3,7 +3,6 @@ import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/workspace/application/doc/prelude.dart';
-import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
@@ -19,7 +18,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -204,14 +202,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<FieldSwitcherBloc, SwitchFieldContext, void>(
     (context, _) => FieldSwitcherBloc(context),
-  );
-
-  getIt.registerFactoryParam<SingleSelectTypeOptionBloc, SingleSelectTypeOption, String>(
-    (typeOption, fieldId) => SingleSelectTypeOptionBloc(typeOption, fieldId),
-  );
-
-  getIt.registerFactoryParam<MultiSelectTypeOptionBloc, MultiSelectTypeOption, String>(
-    (typeOption, fieldId) => MultiSelectTypeOptionBloc(typeOption, fieldId),
   );
 
   getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(

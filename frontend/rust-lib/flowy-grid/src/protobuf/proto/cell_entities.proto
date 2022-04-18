@@ -1,14 +1,12 @@
 syntax = "proto3";
+import "field_entities.proto";
 
 message CreateSelectOptionPayload {
-    CellIdentifierPayload cell_identifier = 1;
+    FieldIdentifierPayload field_identifier = 1;
     string option_name = 2;
 }
 message CellIdentifierPayload {
     string grid_id = 1;
     string field_id = 2;
     string row_id = 3;
-}
-message SelectOptionName {
-    string name = 1;
 }

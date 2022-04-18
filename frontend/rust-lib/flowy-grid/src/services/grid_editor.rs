@@ -1,8 +1,11 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_manager::GridBlockMetaEditorManager;
-use crate::services::cell::CellIdentifier;
-use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
+use crate::services::entities::{CellIdentifier, CreateSelectOptionParams};
+use crate::services::field::{
+    default_type_option_builder_from_type, select_option_operation, type_option_builder_from_bytes, FieldBuilder,
+    SelectOption,
+};
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::*;
 use bytes::Bytes;
@@ -22,7 +25,7 @@ use tokio::sync::RwLock;
 pub struct ClientGridEditor {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    pad: Arc<RwLock<GridMetaPad>>,
+    grid_pad: Arc<RwLock<GridMetaPad>>,
     rev_manager: Arc<RevisionManager>,
     block_meta_manager: Arc<GridBlockMetaEditorManager>,
 }
@@ -38,14 +41,14 @@ impl ClientGridEditor {
         let cloud = Arc::new(GridRevisionCloudService { token });
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
-        let pad = Arc::new(RwLock::new(grid_pad));
-        let blocks = pad.read().await.get_block_metas();
+        let grid_pad = Arc::new(RwLock::new(grid_pad));
+        let blocks = grid_pad.read().await.get_block_metas();
 
         let block_meta_manager = Arc::new(GridBlockMetaEditorManager::new(grid_id, &user, blocks, persistence).await?);
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
-            pad,
+            grid_pad,
             rev_manager,
             block_meta_manager,
         }))
@@ -94,18 +97,18 @@ impl ClientGridEditor {
     }
 
     pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
-        let name = format!("Property {}", self.pad.read().await.fields().len() + 1);
+        let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
         let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();
         Ok(field_meta)
     }
 
     pub async fn contain_field(&self, field_id: &str) -> bool {
-        self.pad.read().await.contain_field(field_id)
+        self.grid_pad.read().await.contain_field(field_id)
     }
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let field_id = params.field_id.clone();
-        let json_deserializer = match self.pad.read().await.get_field_meta(params.field_id.as_str()) {
+        let json_deserializer = match self.grid_pad.read().await.get_field_meta(params.field_id.as_str()) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
             Some((_, field_meta)) => TypeOptionJsonDeserializer(field_meta.field_type.clone()),
         };
@@ -169,7 +172,7 @@ impl ClientGridEditor {
     }
 
     pub async fn get_field_meta(&self, field_id: &str) -> Option<FieldMeta> {
-        let field_meta = self.pad.read().await.get_field_meta(field_id)?.1.clone();
+        let field_meta = self.grid_pad.read().await.get_field_meta(field_id)?.1.clone();
         Some(field_meta)
     }
 
@@ -178,14 +181,14 @@ impl ClientGridEditor {
         T: Into<FieldOrder>,
     {
         if field_ids.is_none() {
-            let field_metas = self.pad.read().await.get_field_metas(None)?;
+            let field_metas = self.grid_pad.read().await.get_field_metas(None)?;
             return Ok(field_metas);
         }
 
         let to_field_orders = |item: Vec<T>| item.into_iter().map(|data| data.into()).collect();
         let field_orders = field_ids.map_or(vec![], to_field_orders);
         let expected_len = field_orders.len();
-        let field_metas = self.pad.read().await.get_field_metas(Some(field_orders))?;
+        let field_metas = self.grid_pad.read().await.get_field_metas(Some(field_orders))?;
         if expected_len != 0 && field_metas.len() != expected_len {
             tracing::error!(
                 "This is a bug. The len of the field_metas should equal to {}",
@@ -207,7 +210,7 @@ impl ClientGridEditor {
     }
 
     pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowOrder> {
-        let field_metas = self.pad.read().await.get_field_metas(None)?;
+        let field_metas = self.grid_pad.read().await.get_field_metas(None)?;
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
@@ -314,7 +317,7 @@ impl ClientGridEditor {
         let cell_data_changeset = changeset.data.unwrap();
         let cell_meta = self.get_cell_meta(&changeset.row_id, &changeset.field_id).await?;
         tracing::trace!("{}: {:?}", &changeset.field_id, cell_meta);
-        match self.pad.read().await.get_field_meta(&changeset.field_id) {
+        match self.grid_pad.read().await.get_field_meta(&changeset.field_id) {
             None => {
                 let msg = format!("Field not found with id: {}", &changeset.field_id);
                 Err(FlowyError::internal().context(msg))
@@ -334,7 +337,7 @@ impl ClientGridEditor {
     }
 
     pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockMeta>> {
-        let grid_blocks = self.pad.read().await.get_block_metas();
+        let grid_blocks = self.grid_pad.read().await.get_block_metas();
         Ok(grid_blocks)
     }
 
@@ -347,7 +350,7 @@ impl ClientGridEditor {
     }
 
     pub async fn grid_data(&self) -> FlowyResult<Grid> {
-        let pad_read_guard = self.pad.read().await;
+        let pad_read_guard = self.grid_pad.read().await;
         let field_orders = pad_read_guard.get_field_orders();
         let mut block_orders = vec![];
         for block_order in pad_read_guard.get_block_metas() {
@@ -369,7 +372,7 @@ impl ClientGridEditor {
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
         let block_ids = match block_ids {
             None => self
-                .pad
+                .grid_pad
                 .read()
                 .await
                 .get_block_metas()
@@ -396,7 +399,7 @@ impl ClientGridEditor {
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.move_field(field_id, from as usize, to as usize)?))
             .await?;
-        if let Some((index, field_meta)) = self.pad.read().await.get_field_meta(field_id) {
+        if let Some((index, field_meta)) = self.grid_pad.read().await.get_field_meta(field_id) {
             let delete_field_order = FieldOrder::from(field_id);
             let insert_field = IndexField::from_field_meta(field_meta, index);
             let notified_changeset = GridFieldChangeset {
@@ -420,14 +423,14 @@ impl ClientGridEditor {
     }
 
     pub async fn delta_bytes(&self) -> Bytes {
-        self.pad.read().await.delta_bytes()
+        self.grid_pad.read().await.delta_bytes()
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChangeset>>,
     {
-        let mut write_guard = self.pad.write().await;
+        let mut write_guard = self.grid_pad.write().await;
         if let Some(changeset) = f(&mut *write_guard)? {
             let _ = self.apply_change(changeset).await?;
         }
@@ -455,7 +458,7 @@ impl ClientGridEditor {
     }
 
     async fn block_id(&self) -> FlowyResult<String> {
-        match self.pad.read().await.get_block_metas().last() {
+        match self.grid_pad.read().await.get_block_metas().last() {
             None => Err(FlowyError::internal().context("There is no grid block in this grid")),
             Some(grid_block) => Ok(grid_block.block_id.clone()),
         }
@@ -463,7 +466,7 @@ impl ClientGridEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     async fn notify_did_insert_grid_field(&self, field_id: &str) -> FlowyResult<()> {
-        if let Some((index, field_meta)) = self.pad.read().await.get_field_meta(field_id) {
+        if let Some((index, field_meta)) = self.grid_pad.read().await.get_field_meta(field_id) {
             let index_field = IndexField::from_field_meta(field_meta, index);
             let notified_changeset = GridFieldChangeset::insert(&self.grid_id, vec![index_field]);
             let _ = self.notify_did_update_grid(notified_changeset).await?;
@@ -473,10 +476,13 @@ impl ClientGridEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     async fn notify_did_update_grid_field(&self, field_id: &str) -> FlowyResult<()> {
-        let mut field_metas = self.get_field_metas(Some(vec![field_id])).await?;
-        debug_assert!(field_metas.len() == 1);
-
-        if let Some(field_meta) = field_metas.pop() {
+        if let Some((_, field_meta)) = self
+            .grid_pad
+            .read()
+            .await
+            .get_field_meta(field_id)
+            .map(|(index, field)| (index, field.clone()))
+        {
             let updated_field = Field::from(field_meta);
             let notified_changeset = GridFieldChangeset::update(&self.grid_id, vec![updated_field.clone()]);
             let _ = self.notify_did_update_grid(notified_changeset).await?;

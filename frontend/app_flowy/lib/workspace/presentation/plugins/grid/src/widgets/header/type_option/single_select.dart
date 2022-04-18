@@ -1,7 +1,6 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/single_select_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_option_pannel.dart';
@@ -10,13 +9,11 @@ class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
   final SingleSelectTypeOptionWidget _widget;
 
   SingleSelectTypeOptionBuilder(
-    String fieldId,
-    TypeOptionData typeOptionData,
+    TypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
     TypeOptionDataDelegate dataDelegate,
   ) : _widget = SingleSelectTypeOptionWidget(
-          fieldId: fieldId,
-          typeOption: SingleSelectTypeOption.fromBuffer(typeOptionData),
+          typeOptionContext: typeOptionContext,
           dataDelegate: dataDelegate,
           overlayDelegate: overlayDelegate,
         );
@@ -26,13 +23,11 @@ class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
 }
 
 class SingleSelectTypeOptionWidget extends TypeOptionWidget {
-  final String fieldId;
-  final SingleSelectTypeOption typeOption;
+  final TypeOptionContext typeOptionContext;
   final TypeOptionOverlayDelegate overlayDelegate;
   final TypeOptionDataDelegate dataDelegate;
   const SingleSelectTypeOptionWidget({
-    required this.fieldId,
-    required this.typeOption,
+    required this.typeOptionContext,
     required this.dataDelegate,
     required this.overlayDelegate,
     Key? key,
@@ -41,7 +36,7 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SingleSelectTypeOptionBloc>(param1: typeOption, param2: fieldId),
+      create: (context) => SingleSelectTypeOptionBloc(typeOptionContext),
       child: BlocConsumer<SingleSelectTypeOptionBloc, SingleSelectTypeOptionState>(
         listener: (context, state) {
           dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());

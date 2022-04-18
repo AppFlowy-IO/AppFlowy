@@ -1,3 +1,4 @@
+use crate::services::entities::{FieldIdentifier, FieldIdentifierPayload};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -5,15 +6,23 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 #[derive(ProtoBuf, Default)]
 pub struct CreateSelectOptionPayload {
     #[pb(index = 1)]
-    pub cell_identifier: CellIdentifierPayload,
+    pub field_identifier: FieldIdentifierPayload,
 
     #[pb(index = 2)]
     pub option_name: String,
 }
 
 pub struct CreateSelectOptionParams {
-    pub cell_identifier: CellIdentifier,
+    pub field_identifier: FieldIdentifier,
     pub option_name: String,
+}
+
+impl std::ops::Deref for CreateSelectOptionParams {
+    type Target = FieldIdentifier;
+
+    fn deref(&self) -> &Self::Target {
+        &self.field_identifier
+    }
 }
 
 impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
@@ -21,9 +30,9 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
 
     fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
         let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
-        let cell_identifier = self.cell_identifier.try_into()?;
+        let field_identifier = self.field_identifier.try_into()?;
         Ok(CreateSelectOptionParams {
-            cell_identifier,
+            field_identifier,
             option_name: option_name.0,
         })
     }
@@ -60,10 +69,4 @@ impl TryInto<CellIdentifier> for CellIdentifierPayload {
             row_id: row_id.0,
         })
     }
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct SelectOptionName {
-    #[pb(index = 1)]
-    pub name: String,
 }
