@@ -15,7 +15,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellListener _cellListener;
   final SingleFieldListener _fieldListener;
 
-  DateCellBloc({required GridCellIdentifier cellIdentifier})
+  DateCellBloc({required GridCell cellIdentifier})
       : _service = CellService(),
         _cellListener = CellListener(rowId: cellIdentifier.rowId, fieldId: cellIdentifier.field.id),
         _fieldListener = SingleFieldListener(fieldId: cellIdentifier.field.id),
@@ -106,13 +106,13 @@ class DateCellEvent with _$DateCellEvent {
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
     required String content,
     required Field field,
     DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial(GridCellIdentifier cellData) => DateCellState(
+  factory DateCellState.initial(GridCell cellData) => DateCellState(
         cellData: cellData,
         field: cellData.field,
         content: cellData.cell?.content ?? "",

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_container.dart';
 
-class GridTextCell extends GridCell {
-  final GridCellIdentifier cellData;
+class GridTextCell extends GridCellWidget {
+  final GridCell cellData;
   const GridTextCell({
     required this.cellData,
     Key? key,

@@ -227,16 +227,12 @@ class _GridRowsState extends State<_GridRows> {
     GridRow rowData,
     Animation<double> animation,
   ) {
-    final bloc = context.read<GridBloc>();
-    final fieldCache = bloc.fieldCache;
-    final rowCache = bloc.rowCache;
-
+    final rowCache = context.read<GridBloc>().rowCache;
     return SizeTransition(
       sizeFactor: animation,
       child: GridRowWidget(
         blocBuilder: () => RowBloc(
           rowData: rowData,
-          fieldCache: fieldCache,
           rowCache: rowCache,
         ),
         key: ValueKey(rowData.rowId),

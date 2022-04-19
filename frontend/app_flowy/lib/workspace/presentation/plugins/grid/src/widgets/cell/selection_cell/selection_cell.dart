@@ -7,8 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'extension.dart';
 import 'selection_editor.dart';
 
-class SingleSelectCell extends GridCell {
-  final GridCellIdentifier cellData;
+class SingleSelectCell extends GridCellWidget {
+  final GridCell cellData;
 
   const SingleSelectCell({
     required this.cellData,
@@ -63,8 +63,8 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends GridCell {
-  final GridCellIdentifier cellData;
+class MultiSelectCell extends GridCellWidget {
+  final GridCell cellData;
 
   const MultiSelectCell({
     required this.cellData,

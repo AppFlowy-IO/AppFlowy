@@ -13,13 +13,17 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService _gridService;
   final GridFieldCache fieldCache;
-  final GridRowCache rowCache;
+  late final GridRowCache rowCache;
 
   GridBloc({required View view})
       : _gridService = GridService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id),
-        rowCache = GridRowCache(gridId: view.id),
         super(GridState.initial(view.id)) {
+    rowCache = GridRowCache(
+      gridId: view.id,
+      dataDelegate: GridRowDataDelegateAdaptor(fieldCache),
+    );
+
     on<GridEvent>(
       (event, emit) async {
         await event.map(
@@ -77,7 +81,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.fields = fields.items;
-          rowCache.updateWithBlock(grid.blockOrders, fieldCache.unmodifiableFields);
+          rowCache.updateWithBlock(grid.blockOrders);
 
           emit(state.copyWith(
             grid: Some(grid),

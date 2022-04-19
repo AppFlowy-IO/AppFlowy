@@ -16,7 +16,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final SingleFieldListener _fieldListener;
 
   NumberCellBloc({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
   })  : _service = CellService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
@@ -105,11 +105,11 @@ class NumberCellEvent with _$NumberCellEvent {
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
     required String content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridCellIdentifier cellData) {
+  factory NumberCellState.initial(GridCell cellData) {
     return NumberCellState(cellData: cellData, content: cellData.cell?.content ?? "");
   }
 }

@@ -15,7 +15,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   CheckboxCellBloc({
     required CellService service,
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
   })  : _service = service,
         _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         super(CheckboxCellState.initial(cellData)) {
@@ -87,11 +87,11 @@ class CheckboxCellEvent with _$CheckboxCellEvent {
 @freezed
 class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(GridCellIdentifier cellData) {
+  factory CheckboxCellState.initial(GridCell cellData) {
     return CheckboxCellState(cellData: cellData, isSelected: _isSelected(cellData.cell));
   }
 }

@@ -8,8 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class DateCell extends GridCell {
-  final GridCellIdentifier cellData;
+class DateCell extends GridCellWidget {
+  final GridCell cellData;
 
   const DateCell({
     required this.cellData,

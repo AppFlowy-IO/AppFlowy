@@ -55,8 +55,8 @@ class CellContainer extends StatelessWidget {
   }
 }
 
-abstract class GridCell extends StatefulWidget {
-  const GridCell({Key? key}) : super(key: key);
+abstract class GridCellWidget extends StatefulWidget {
+  const GridCellWidget({Key? key}) : super(key: key);
 
   void setFocus(BuildContext context, bool value) {
     Provider.of<CellStateNotifier>(context, listen: false).isFocus = value;

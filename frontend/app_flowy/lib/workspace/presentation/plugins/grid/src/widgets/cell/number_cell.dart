@@ -6,8 +6,8 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/c
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NumberCell extends GridCell {
-  final GridCellIdentifier cellData;
+class NumberCell extends GridCellWidget {
+  final GridCell cellData;
 
   const NumberCell({
     required this.cellData,

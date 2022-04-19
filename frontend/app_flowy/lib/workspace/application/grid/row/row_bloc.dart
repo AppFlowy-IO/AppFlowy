@@ -1,7 +1,4 @@
 import 'dart:collection';
-
-import 'package:app_flowy/workspace/application/grid/grid_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,21 +7,15 @@ import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
-typedef CellDataMap = LinkedHashMap<String, GridCellIdentifier>;
-
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridFieldCache _fieldCache;
   final GridRowCache _rowCache;
-  void Function()? _rowListenCallback;
-  void Function()? _fieldListenCallback;
+  void Function()? _rowListenFn;
 
   RowBloc({
     required GridRow rowData,
-    required GridFieldCache fieldCache,
     required GridRowCache rowCache,
   })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
-        _fieldCache = fieldCache,
         _rowCache = rowCache,
         super(RowState.initial(rowData)) {
     on<RowEvent>(
@@ -37,82 +28,37 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: (_CreateRow value) {
             _rowService.createRow();
           },
-          didUpdateRow: (_DidUpdateRow value) async {
-            _handleRowUpdate(value.row, emit);
-          },
-          fieldsDidUpdate: (_FieldsDidUpdate value) async {
-            await _handleFieldUpdate(emit);
-          },
-          didLoadRow: (_DidLoadRow value) {
-            _handleRowUpdate(value.row, emit);
+          didReceiveCellDatas: (_DidReceiveCellDatas value) async {
+            emit(state.copyWith(cellDataMap: Some(value.cellData)));
           },
         );
       },
     );
   }
 
-  void _handleRowUpdate(Row row, Emitter<RowState> emit) {
-    final CellDataMap cellDataMap = _makeCellDatas(row, state.rowData.fields);
-    emit(state.copyWith(cellDataMap: Some(cellDataMap)));
-  }
-
-  Future<void> _handleFieldUpdate(Emitter<RowState> emit) async {
-    final data = state.rowData.data;
-    if (data == null) {
-      return;
-    }
-
-    final CellDataMap cellDataMap = _makeCellDatas(data, state.rowData.fields);
-    emit(state.copyWith(cellDataMap: Some(cellDataMap)));
-  }
-
   @override
   Future<void> close() async {
-    if (_rowListenCallback != null) {
-      _rowCache.removeRowListener(_rowListenCallback!);
-    }
-
-    if (_fieldListenCallback != null) {
-      _fieldCache.removeListener(_fieldListenCallback!);
+    if (_rowListenFn != null) {
+      _rowCache.removeRowListener(_rowListenFn!);
     }
     return super.close();
   }
 
   Future<void> _startListening() async {
-    _fieldListenCallback = _fieldCache.addListener(
-      listener: () => add(const RowEvent.fieldsDidUpdate()),
-      listenWhen: () => !isClosed,
-    );
-
-    _rowListenCallback = _rowCache.addRowListener(
+    _rowListenFn = _rowCache.addRowListener(
       rowId: state.rowData.rowId,
-      onUpdated: (row) => add(RowEvent.didUpdateRow(row)),
+      onUpdated: (cellDatas) => add(RowEvent.didReceiveCellDatas(cellDatas)),
       listenWhen: () => !isClosed,
     );
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    final data = _rowCache.loadRow(state.rowData.rowId);
-    data.foldRight(null, (data, _) {
+    final data = _rowCache.loadCellData(state.rowData.rowId);
+    data.foldRight(null, (cellDatas, _) {
       if (!isClosed) {
-        add(RowEvent.didLoadRow(data));
+        add(RowEvent.didReceiveCellDatas(cellDatas));
       }
     });
-  }
-
-  CellDataMap _makeCellDatas(Row row, List<Field> fields) {
-    var map = CellDataMap.new();
-    for (final field in fields) {
-      if (field.visibility) {
-        map[field.id] = GridCellIdentifier(
-          rowId: row.id,
-          gridId: _rowService.gridId,
-          cell: row.cellByFieldId[field.id],
-          field: field,
-        );
-      }
-    }
-    return map;
   }
 }
 
@@ -120,9 +66,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.fieldsDidUpdate() = _FieldsDidUpdate;
-  const factory RowEvent.didLoadRow(Row row) = _DidLoadRow;
-  const factory RowEvent.didUpdateRow(Row row) = _DidUpdateRow;
+  const factory RowEvent.didReceiveCellDatas(CellDataMap cellData) = _DidReceiveCellDatas;
 }
 
 @freezed
