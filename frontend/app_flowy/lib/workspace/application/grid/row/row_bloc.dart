@@ -53,23 +53,17 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   void _handleRowUpdate(Row row, Emitter<RowState> emit) {
     final CellDataMap cellDataMap = _makeCellDatas(row, state.rowData.fields);
-    emit(state.copyWith(
-      row: Future(() => Some(row)),
-      cellDataMap: Some(cellDataMap),
-    ));
+    emit(state.copyWith(cellDataMap: Some(cellDataMap)));
   }
 
   Future<void> _handleFieldUpdate(Emitter<RowState> emit) async {
-    final optionRow = await state.row;
-    final CellDataMap cellDataMap = optionRow.fold(
-      () => CellDataMap.identity(),
-      (row) => _makeCellDatas(row, _fieldCache.unmodifiableFields),
-    );
+    final data = state.rowData.data;
+    if (data == null) {
+      return;
+    }
 
-    emit(state.copyWith(
-      rowData: state.rowData.copyWith(fields: _fieldCache.unmodifiableFields),
-      cellDataMap: Some(cellDataMap),
-    ));
+    final CellDataMap cellDataMap = _makeCellDatas(data, state.rowData.fields);
+    emit(state.copyWith(cellDataMap: Some(cellDataMap)));
   }
 
   @override
@@ -98,11 +92,12 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _loadRow(Emitter<RowState> emit) async {
-    final data = await _rowCache.getRowData(state.rowData.rowId);
-    if (isClosed) {
-      return;
-    }
-    data.foldRight(null, (data, _) => add(RowEvent.didLoadRow(data)));
+    final data = _rowCache.loadRow(state.rowData.rowId);
+    data.foldRight(null, (data, _) {
+      if (!isClosed) {
+        add(RowEvent.didLoadRow(data));
+      }
+    });
   }
 
   CellDataMap _makeCellDatas(Row row, List<Field> fields) {
@@ -134,13 +129,11 @@ class RowEvent with _$RowEvent {
 class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
-    required Future<Option<Row>> row,
     required Option<CellDataMap> cellDataMap,
   }) = _RowState;
 
   factory RowState.initial(GridRow rowData) => RowState(
         rowData: rowData,
-        row: Future(() => none()),
         cellDataMap: none(),
       );
 }

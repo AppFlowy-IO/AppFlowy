@@ -51,13 +51,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   void _startListening() {
     fieldCache.addListener(
-      onChanged: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
       listenWhen: () => !isClosed,
+      onChanged: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
     );
 
     rowCache.addListener(
-      onChanged: (rows, listState) => add(GridEvent.didReceiveRowUpdate(rowCache.clonedRows, listState)),
       listenWhen: () => !isClosed,
+      onChanged: (rows, listState) => add(GridEvent.didReceiveRowUpdate(rowCache.clonedRows, listState)),
     );
   }
 

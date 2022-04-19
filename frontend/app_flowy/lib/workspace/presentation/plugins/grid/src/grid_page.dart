@@ -222,7 +222,11 @@ class _GridRowsState extends State<_GridRows> {
     );
   }
 
-  Widget _renderRow(BuildContext context, GridRow rowData, Animation<double> animation) {
+  Widget _renderRow(
+    BuildContext context,
+    GridRow rowData,
+    Animation<double> animation,
+  ) {
     final bloc = context.read<GridBloc>();
     final fieldCache = bloc.fieldCache;
     final rowCache = bloc.rowCache;

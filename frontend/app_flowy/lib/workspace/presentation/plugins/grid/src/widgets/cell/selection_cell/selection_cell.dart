@@ -47,7 +47,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
                   () => widget.setFocus(context, false),
                 );
               },
-              child: Row(children: children),
+              child: ClipRRect(child: Row(children: children)),
             ),
           );
         },
@@ -103,7 +103,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
                   () => widget.setFocus(context, false),
                 );
               },
-              child: Row(children: children),
+              child: ClipRRect(child: Row(children: children)),
             ),
           );
         },
