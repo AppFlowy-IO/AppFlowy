@@ -67,7 +67,7 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
   }
 
   String identifier() {
-    return toString();
+    return (GridPropertyList).toString();
   }
 
   @override

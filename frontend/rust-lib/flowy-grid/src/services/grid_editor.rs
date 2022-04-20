@@ -1,10 +1,9 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_meta_manager::GridBlockMetaEditorManager;
-use crate::services::entities::{CellIdentifier, CreateSelectOptionParams};
+use crate::services::entities::CellIdentifier;
 use crate::services::field::{
-    default_type_option_builder_from_type, select_option_operation, type_option_builder_from_bytes, FieldBuilder,
-    SelectOption,
+    default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder, SelectOption,
 };
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::*;

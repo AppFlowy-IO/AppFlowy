@@ -231,10 +231,8 @@ class _GridRowsState extends State<_GridRows> {
     return SizeTransition(
       sizeFactor: animation,
       child: GridRowWidget(
-        blocBuilder: () => RowBloc(
-          rowData: rowData,
-          rowCache: rowCache,
-        ),
+        rowData: rowData,
+        rowCache: rowCache,
         key: ValueKey(rowData.rowId),
       ),
     );

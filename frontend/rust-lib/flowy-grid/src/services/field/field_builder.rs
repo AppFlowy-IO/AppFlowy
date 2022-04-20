@@ -13,7 +13,7 @@ pub type BoxTypeOptionBuilder = Box<dyn TypeOptionBuilder + 'static>;
 impl FieldBuilder {
     pub fn new<T: Into<BoxTypeOptionBuilder>>(type_option_builder: T) -> Self {
         let type_option_builder = type_option_builder.into();
-        let field_meta = FieldMeta::new("", "", type_option_builder.field_type());
+        let field_meta = FieldMeta::new("", "", type_option_builder.field_type(), false);
         Self {
             field_meta,
             type_option_builder,
@@ -35,6 +35,7 @@ impl FieldBuilder {
             visibility: field.visibility,
             width: field.width,
             type_options: IndexMap::default(),
+            is_primary: field.is_primary,
         };
         Self {
             field_meta,
@@ -49,6 +50,11 @@ impl FieldBuilder {
 
     pub fn desc(mut self, desc: &str) -> Self {
         self.field_meta.desc = desc.to_owned();
+        self
+    }
+
+    pub fn primary(mut self, is_primary: bool) -> Self {
+        self.field_meta.is_primary = is_primary;
         self
     }
 

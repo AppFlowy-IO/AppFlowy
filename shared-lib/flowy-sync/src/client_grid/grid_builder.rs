@@ -47,8 +47,8 @@ mod tests {
     fn create_default_grid_test() {
         let grid_id = "1".to_owned();
         let build_context = GridBuilder::default()
-            .add_field(FieldMeta::new("Name", "", FieldType::RichText))
-            .add_field(FieldMeta::new("Tags", "", FieldType::SingleSelect))
+            .add_field(FieldMeta::new("Name", "", FieldType::RichText, true))
+            .add_field(FieldMeta::new("Tags", "", FieldType::SingleSelect, false))
             .add_empty_row()
             .add_empty_row()
             .add_empty_row()

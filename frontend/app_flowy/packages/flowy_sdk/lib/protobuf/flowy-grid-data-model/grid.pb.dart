@@ -85,6 +85,7 @@ class Field extends $pb.GeneratedMessage {
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'frozen')
     ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'visibility')
     ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'width', $pb.PbFieldType.O3)
+    ..aOB(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isPrimary')
     ..hasRequiredFields = false
   ;
 
@@ -97,6 +98,7 @@ class Field extends $pb.GeneratedMessage {
     $core.bool? frozen,
     $core.bool? visibility,
     $core.int? width,
+    $core.bool? isPrimary,
   }) {
     final _result = create();
     if (id != null) {
@@ -119,6 +121,9 @@ class Field extends $pb.GeneratedMessage {
     }
     if (width != null) {
       _result.width = width;
+    }
+    if (isPrimary != null) {
+      _result.isPrimary = isPrimary;
     }
     return _result;
   }
@@ -205,6 +210,15 @@ class Field extends $pb.GeneratedMessage {
   $core.bool hasWidth() => $_has(6);
   @$pb.TagNumber(7)
   void clearWidth() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.bool get isPrimary => $_getBF(7);
+  @$pb.TagNumber(8)
+  set isPrimary($core.bool v) { $_setBool(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasIsPrimary() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearIsPrimary() => clearField(8);
 }
 
 class FieldOrder extends $pb.GeneratedMessage {

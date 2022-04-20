@@ -42,9 +42,9 @@ class GridRowCache {
       result.fold(
         (changesets) {
           for (final changeset in changesets) {
-            _deleteRows(changeset.deletedRows);
-            _insertRows(changeset.insertedRows);
-            _updateRows(changeset.updatedRows);
+            _rowNotifier.deleteRows(changeset.deletedRows);
+            _rowNotifier.insertRows(changeset.insertedRows);
+            _rowNotifier.updateRows(changeset.updatedRows);
           }
         },
         (err) => Log.error(err),
@@ -63,13 +63,15 @@ class GridRowCache {
     bool Function()? listenWhen,
   }) {
     _rowNotifier.addListener(() {
+      if (onChanged == null) {
+        return;
+      }
+
       if (listenWhen != null && listenWhen() == false) {
         return;
       }
 
-      if (onChanged != null) {
-        onChanged(clonedRows, _rowNotifier._changeReason);
-      }
+      onChanged(clonedRows, _rowNotifier._changeReason);
     });
   }
 
@@ -136,18 +138,6 @@ class GridRowCache {
     final rowOrders = blocks.expand((block) => block.rowOrders).toList();
     _rowNotifier.reset(rowOrders);
   }
-
-  void _deleteRows(List<RowOrder> deletedRows) {
-    _rowNotifier.deleteRows(deletedRows);
-  }
-
-  void _insertRows(List<IndexRowOrder> createdRows) {
-    _rowNotifier.insertRows(createdRows);
-  }
-
-  void _updateRows(List<RowOrder> rowOrders) {
-    _rowNotifier.updateRows(rowOrders);
-  }
 }
 
 class RowsNotifier extends ChangeNotifier {
@@ -173,7 +163,7 @@ class RowsNotifier extends ChangeNotifier {
 
     final List<GridRow> newRows = [];
     final DeletedIndexs deletedIndex = [];
-    final Map<String, RowOrder> deletedRowMap = {for (var rowOrder in deletedRows) rowOrder.rowId: rowOrder};
+    final Map<String, RowOrder> deletedRowMap = {for (var e in deletedRows) e.rowId: e};
 
     _rows.asMap().forEach((index, row) {
       if (deletedRowMap[row.rowId] == null) {
@@ -192,12 +182,14 @@ class RowsNotifier extends ChangeNotifier {
     }
 
     InsertedIndexs insertIndexs = [];
-    final List<GridRow> newRows = _rows;
+    final List<GridRow> newRows = clonedRows;
     for (final createdRow in createdRows) {
-      final rowOrder = createdRow.rowOrder;
-      final insertIndex = InsertedIndex(index: createdRow.index, rowId: rowOrder.rowId);
+      final insertIndex = InsertedIndex(
+        index: createdRow.index,
+        rowId: createdRow.rowOrder.rowId,
+      );
       insertIndexs.add(insertIndex);
-      newRows.insert(createdRow.index, (rowBuilder(rowOrder)));
+      newRows.insert(createdRow.index, (rowBuilder(createdRow.rowOrder)));
     }
     _update(newRows, GridRowChangeReason.insert(insertIndexs));
   }
@@ -208,15 +200,15 @@ class RowsNotifier extends ChangeNotifier {
     }
 
     final UpdatedIndexs updatedIndexs = UpdatedIndexs();
-    final List<GridRow> newRows = _rows;
+    final List<GridRow> newRows = clonedRows;
     for (final rowOrder in updatedRows) {
       final index = newRows.indexWhere((row) => row.rowId == rowOrder.rowId);
       if (index != -1) {
-        newRows.removeAt(index);
         // Remove the old row data, the data will be filled if the loadRow method gets called.
         _rowDataMap.remove(rowOrder.rowId);
-        newRows.insert(index, rowBuilder(rowOrder));
 
+        newRows.removeAt(index);
+        newRows.insert(index, rowBuilder(rowOrder));
         updatedIndexs[rowOrder.rowId] = UpdatedIndex(index: index, rowId: rowOrder.rowId);
       }
     }

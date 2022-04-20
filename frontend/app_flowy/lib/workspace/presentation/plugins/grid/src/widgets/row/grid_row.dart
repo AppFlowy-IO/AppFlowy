@@ -8,12 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'row_action_sheet.dart';
+import 'package:dartz/dartz.dart' show Option;
+
+import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final RowBloc Function() blocBuilder;
+  final GridRow rowData;
+  final GridRowCache rowCache;
 
   const GridRowWidget({
-    required this.blocBuilder,
+    required this.rowData,
+    required this.rowCache,
     Key? key,
   }) : super(key: key);
 
@@ -23,13 +28,14 @@ class GridRowWidget extends StatefulWidget {
 
 class _GridRowWidgetState extends State<GridRowWidget> {
   late RowBloc _rowBloc;
-  late _RegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
-    _rowBloc = widget.blocBuilder();
+    _rowBloc = RowBloc(
+      rowData: widget.rowData,
+      rowCache: widget.rowCache,
+    );
     _rowBloc.add(const RowEvent.initial());
-    _rowStateNotifier = _RegionStateNotifier();
     super.initState();
   }
 
@@ -37,29 +43,24 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _rowBloc,
-      child: ChangeNotifierProvider.value(
-        value: _rowStateNotifier,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (p) => _rowStateNotifier.onEnter = true,
-          onExit: (p) => _rowStateNotifier.onEnter = false,
-          child: BlocBuilder<RowBloc, RowState>(
-            buildWhen: (p, c) => p.rowData.height != c.rowData.height,
-            builder: (context, state) {
-              return SizedBox(
-                height: 42,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    _RowLeading(),
-                    _RowCells(),
-                    _RowTrailing(),
-                  ],
-                ),
-              );
-            },
-          ),
+      child: _RowEnterRegion(
+        child: BlocBuilder<RowBloc, RowState>(
+          buildWhen: (p, c) => p.rowData.height != c.rowData.height,
+          builder: (context, state) {
+            final children = [
+              const _RowLeading(),
+              _RowCells(onExpand: () => onExpandCell(context)),
+              const _RowTrailing(),
+            ];
+
+            final child = Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: children,
+            );
+
+            return SizedBox(height: 42, child: child);
+          },
         ),
       ),
     );
@@ -68,8 +69,12 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   @override
   Future<void> dispose() async {
     _rowBloc.close();
-    _rowStateNotifier.dispose();
     super.dispose();
+  }
+
+  void onExpandCell(BuildContext context) {
+    final page = RowDetailPage(rowData: widget.rowData, rowCache: widget.rowCache);
+    page.show(context);
   }
 }
 
@@ -142,32 +147,41 @@ class _DeleteRowButton extends StatelessWidget {
 }
 
 class _RowCells extends StatelessWidget {
-  const _RowCells({Key? key}) : super(key: key);
+  final VoidCallback onExpand;
+  const _RowCells({required this.onExpand, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
       buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
-        final List<Widget> children = state.cellDataMap.fold(() => [], _toCells);
         return Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: children,
+          children: _makeCells(state.cellDataMap),
         );
       },
     );
   }
 
-  List<Widget> _toCells(CellDataMap dataMap) {
-    return dataMap.values.map(
-      (cellData) {
-        return CellContainer(
-          width: cellData.field.width.toDouble(),
-          child: buildGridCell(cellData),
-        );
-      },
-    ).toList();
+  List<Widget> _makeCells(Option<CellDataMap> data) {
+    return data.fold(
+      () => [],
+      (cellDataMap) => cellDataMap.values.map(
+        (cellData) {
+          Widget? expander;
+          if (cellData.field.isPrimary) {
+            expander = _CellExpander(onExpand: onExpand);
+          }
+
+          return CellContainer(
+            width: cellData.field.width.toDouble(),
+            child: buildGridCell(cellData),
+            expander: expander,
+          );
+        },
+      ).toList(),
+    );
   }
 }
 
@@ -182,4 +196,58 @@ class _RegionStateNotifier extends ChangeNotifier {
   }
 
   bool get onEnter => _onEnter;
+}
+
+class _CellExpander extends StatelessWidget {
+  final VoidCallback onExpand;
+  const _CellExpander({required this.onExpand, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return FlowyIconButton(
+      width: 20,
+      onPressed: onExpand,
+      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+      icon: svgWidget("grid/expander", color: theme.main1),
+    );
+  }
+}
+
+class _RowEnterRegion extends StatefulWidget {
+  final Widget child;
+  const _RowEnterRegion({required this.child, Key? key}) : super(key: key);
+
+  @override
+  State<_RowEnterRegion> createState() => _RowEnterRegionState();
+}
+
+class _RowEnterRegionState extends State<_RowEnterRegion> {
+  late _RegionStateNotifier _rowStateNotifier;
+
+  @override
+  void initState() {
+    _rowStateNotifier = _RegionStateNotifier();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: _rowStateNotifier,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (p) => _rowStateNotifier.onEnter = true,
+        onExit: (p) => _rowStateNotifier.onEnter = false,
+        child: widget.child,
+      ),
+    );
+    ;
+  }
+
+  @override
+  Future<void> dispose() async {
+    _rowStateNotifier.dispose();
+    super.dispose();
+  }
 }

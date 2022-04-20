@@ -271,6 +271,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldMeta) {
         frozen: field_meta.frozen,
         visibility: field_meta.visibility,
         width: field_meta.width,
+        is_primary: false,
     };
 
     let params = InsertFieldParams {
@@ -303,6 +304,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldMet
         frozen: field_meta.frozen,
         visibility: field_meta.visibility,
         width: field_meta.width,
+        is_primary: false,
     };
 
     let params = InsertFieldParams {
