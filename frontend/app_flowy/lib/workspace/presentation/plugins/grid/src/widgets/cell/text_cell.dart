@@ -7,16 +7,9 @@ import 'cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
   String? placeholder;
-  Color? hoverColor;
-  bool filled;
-  InputBorder? inputBorder;
-  EdgeInsets? contentPadding;
+
   GridTextCellStyle({
     this.placeholder,
-    this.hoverColor,
-    this.filled = false,
-    this.inputBorder,
-    this.contentPadding,
   });
 }
 
@@ -79,12 +72,9 @@ class _GridTextCellState extends State<GridTextCell> {
             maxLines: 1,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
-              contentPadding: widget.cellStyle?.contentPadding ?? EdgeInsets.zero,
-              border: widget.cellStyle?.inputBorder ?? InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
               hintText: widget.cellStyle?.placeholder,
-              hoverColor: widget.cellStyle?.hoverColor ?? Colors.transparent,
-              filled: widget.cellStyle?.filled ?? false,
-              fillColor: Colors.transparent,
               isDense: true,
             ),
           );

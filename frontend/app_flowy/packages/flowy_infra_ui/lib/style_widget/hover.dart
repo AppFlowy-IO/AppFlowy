@@ -110,7 +110,12 @@ abstract class HoverWidget extends StatefulWidget {
 
 class FlowyHover2 extends StatefulWidget {
   final HoverWidget child;
-  const FlowyHover2({required this.child, Key? key}) : super(key: key);
+  final EdgeInsets contentPadding;
+  const FlowyHover2({
+    required this.child,
+    this.contentPadding = EdgeInsets.zero,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<FlowyHover2> createState() => _FlowyHover2State();
@@ -144,11 +149,14 @@ class _FlowyHover2State extends State<FlowyHover2> {
         onEnter: (p) => setState(() => _hoverState.onHover = true),
         onExit: (p) => setState(() => _hoverState.onHover = false),
         child: Stack(
-          fit: StackFit.expand,
+          fit: StackFit.loose,
           alignment: AlignmentDirectional.center,
           children: [
             const _HoverBackground(),
-            widget.child,
+            Padding(
+              padding: widget.contentPadding,
+              child: widget.child,
+            ),
           ],
         ),
       ),

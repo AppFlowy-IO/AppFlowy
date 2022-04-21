@@ -207,8 +207,14 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
       final reveredList = _overlayList.reversed.toList();
       final firstItem = reveredList.removeAt(0);
-      firstItem.delegate?.didRemove();
       _overlayList.remove(firstItem);
+      if (firstItem.delegate != null) {
+        firstItem.delegate!.didRemove();
+
+        if (firstItem.delegate!.asBarrier()) {
+          return;
+        }
+      }
 
       for (final element in reveredList) {
         if (element.delegate?.asBarrier() ?? false) {
@@ -286,27 +292,23 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final overlays = _overlayList.map((item) => item.widget);
-    List<Widget> children = <Widget>[widget.child];
-
-    Widget? child;
-    if (overlays.isNotEmpty) {
-      child = Container(
-        color: style.barrierColor,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _handleTapOnBackground,
-        ),
-      );
-
-      if (style.blur) {
-        child = BackdropFilter(
-          child: child,
-          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+    final overlays = _overlayList.map((item) {
+      var widget = item.widget;
+      if (item.delegate?.asBarrier() ?? false) {
+        widget = Container(
+          color: style.barrierColor,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _handleTapOnBackground,
+            child: widget,
+          ),
         );
       }
-    }
+      return widget;
+    }).toList();
 
+    List<Widget> children = <Widget>[widget.child];
+    Widget? child = _renderBackground(overlays);
     if (child != null) {
       children.add(child);
     }
@@ -334,5 +336,26 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
   void _handleTapOnBackground() {
     removeAll();
+  }
+
+  Widget? _renderBackground(List<Widget> overlays) {
+    Widget? child;
+    if (overlays.isNotEmpty) {
+      child = Container(
+        color: style.barrierColor,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _handleTapOnBackground,
+        ),
+      );
+
+      if (style.blur) {
+        child = BackdropFilter(
+          child: child,
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        );
+      }
+    }
+    return child;
   }
 }

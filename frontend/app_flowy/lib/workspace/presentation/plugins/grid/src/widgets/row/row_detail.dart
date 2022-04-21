@@ -1,7 +1,9 @@
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -108,13 +110,28 @@ class _RowDetailCell extends StatelessWidget {
         children: [
           SizedBox(
             width: 150,
-            child: FieldCellButton(field: cellData.field, onTap: () {}),
+            child: FieldCellButton(field: cellData.field, onTap: () => _showFieldEditor(context)),
           ),
           const HSpace(10),
-          Expanded(child: FlowyHover2(child: cell)),
+          Expanded(
+            child: FlowyHover2(
+              child: cell,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  void _showFieldEditor(BuildContext context) {
+    FieldEditor(
+      gridId: cellData.gridId,
+      fieldContextLoader: FieldContextLoaderAdaptor(
+        gridId: cellData.gridId,
+        field: cellData.field,
+      ),
+    ).show(context);
   }
 }
 
@@ -130,10 +147,7 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
       return null;
     case FieldType.RichText:
       return GridTextCellStyle(
-        hoverColor: theme.shader6,
-        filled: true,
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       );
     case FieldType.SingleSelect:
       return null;
