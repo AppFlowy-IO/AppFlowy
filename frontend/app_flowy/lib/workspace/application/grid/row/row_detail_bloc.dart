@@ -1,9 +1,7 @@
-import 'dart:collection';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'row_service.dart';
-import 'package:dartz/dartz.dart';
 
 part 'row_detail_bloc.freezed.dart';
 

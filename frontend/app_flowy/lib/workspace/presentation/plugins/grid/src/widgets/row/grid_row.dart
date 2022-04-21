@@ -242,7 +242,6 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
         child: widget.child,
       ),
     );
-    ;
   }
 
   @override
