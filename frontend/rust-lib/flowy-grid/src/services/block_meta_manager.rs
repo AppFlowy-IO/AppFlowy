@@ -92,8 +92,11 @@ impl GridBlockMetaEditorManager {
             let mut row_count = 0;
             for row in row_metas {
                 let _ = self.persistence.insert_or_update(&row.block_id, &row.id)?;
-                inserted_row_orders.push(IndexRowOrder::from(&row));
-                row_count = editor.create_row(row, None).await?.0;
+                let mut row_order = IndexRowOrder::from(&row);
+                let (count, index) = editor.create_row(row, None).await?;
+                row_count = count;
+                row_order.index = index;
+                inserted_row_orders.push(row_order);
             }
             changesets.push(GridBlockMetaChangeset::from_row_count(&block_id, row_count));
 

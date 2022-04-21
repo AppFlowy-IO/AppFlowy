@@ -210,7 +210,6 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       _overlayList.remove(firstItem);
       if (firstItem.delegate != null) {
         firstItem.delegate!.didRemove();
-
         if (firstItem.delegate!.asBarrier()) {
           return;
         }

@@ -61,6 +61,10 @@ impl ClientGridBlockMetaEditor {
 
                 let change = block_pad.add_row_meta(row, start_row_id)?;
                 row_count = block_pad.number_of_rows();
+
+                if row_index.is_none() {
+                    row_index = Some(row_count - 1);
+                }
                 Ok(change)
             })
             .await?;
