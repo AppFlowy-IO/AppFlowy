@@ -2,12 +2,14 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_switch_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_name_input.dart';
 import 'field_switcher.dart';
 
@@ -70,7 +72,7 @@ class _FieldEditorWidget extends StatelessWidget {
             (field) => ListView(
               shrinkWrap: true,
               children: [
-                const FlowyText.medium("Edit property", fontSize: 12),
+                FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(), fontSize: 12),
                 const VSpace(10),
                 const _FieldNameTextField(),
                 const VSpace(10),

@@ -11,13 +11,13 @@ part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   final CellService _service;
-  final CellListener _listener;
+  final CellListener _cellListener;
 
   CheckboxCellBloc({
     required CellService service,
     required GridCell cellData,
   })  : _service = service,
-        _listener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
+        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         super(CheckboxCellState.initial(cellData)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
@@ -38,18 +38,18 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    await _cellListener.stop();
     return super.close();
   }
 
   void _startListening() {
-    _listener.updateCellNotifier?.addPublishListener((result) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notificationData) async => await _loadCellData(),
         (err) => Log.error(err),
       );
     });
-    _listener.start();
+    _cellListener.start();
   }
 
   Future<void> _loadCellData() async {

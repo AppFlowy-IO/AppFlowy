@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'cell_builder.dart';
 
 class NumberCell extends GridCellWidget {
   final GridCell cellData;
 
-  const NumberCell({
+  NumberCell({
     required this.cellData,
     Key? key,
   }) : super(key: key);
@@ -21,21 +22,23 @@ class NumberCell extends GridCellWidget {
 class _NumberCellState extends State<NumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
-  late CellFocusNode _focusNode;
+  late FocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
   void initState() {
     _cellBloc = getIt<NumberCellBloc>(param1: widget.cellData)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = CellFocusNode();
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      widget.onFocus.value = _focusNode.hasFocus;
+      focusChanged();
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _focusNode.addCallback(context, focusChanged);
-
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocConsumer<NumberCellBloc, NumberCellState>(

@@ -22,8 +22,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
         await event.map(
           initial: (_Initial value) async {
             await _startListening();
+            _loadCellData();
           },
-          didReceiveCellDatas: (_DidReceiveCellDatas value) {},
+          didReceiveCellDatas: (_DidReceiveCellDatas value) {
+            emit(state.copyWith(cellDatas: value.cellDatas));
+          },
         );
       },
     );
@@ -40,16 +43,16 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   Future<void> _startListening() async {
     _rowListenFn = _rowCache.addRowListener(
       rowId: rowData.rowId,
-      onUpdated: (cellDatas) => add(RowDetailEvent.didReceiveCellDatas(cellDatas)),
+      onUpdated: (cellDatas) => add(RowDetailEvent.didReceiveCellDatas(cellDatas.values.toList())),
       listenWhen: () => !isClosed,
     );
   }
 
-  Future<void> _loadRow(Emitter<RowDetailState> emit) async {
+  Future<void> _loadCellData() async {
     final data = _rowCache.loadCellData(rowData.rowId);
-    data.foldRight(null, (cellDatas, _) {
+    data.foldRight(null, (cellDataMap, _) {
       if (!isClosed) {
-        add(RowDetailEvent.didReceiveCellDatas(cellDatas));
+        add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
       }
     });
   }
@@ -58,16 +61,16 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
-  const factory RowDetailEvent.didReceiveCellDatas(CellDataMap cellData) = _DidReceiveCellDatas;
+  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> cellDatas) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required Option<CellDataMap> cellDataMap,
+    required List<GridCell> cellDatas,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(
-        cellDataMap: none(),
+        cellDatas: List.empty(),
       );
 }

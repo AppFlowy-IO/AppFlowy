@@ -170,7 +170,6 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<TextCellBloc, GridCell, void>(
     (cellData, _) => TextCellBloc(
-      service: CellService(),
       cellData: cellData,
     ),
   );
@@ -189,7 +188,7 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<DateCellBloc, GridCell, void>(
     (cellData, _) => DateCellBloc(
-      cellIdentifier: cellData,
+      cellData: cellData,
     ),
   );
 

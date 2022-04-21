@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -214,8 +213,7 @@ class _GridRowsState extends State<_GridRows> {
           key: _key,
           initialItemCount: context.read<GridBloc>().state.rows.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            final rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(context, rowData, animation);
+            return _renderRow(context, state.rows[index], animation);
           },
         );
       },

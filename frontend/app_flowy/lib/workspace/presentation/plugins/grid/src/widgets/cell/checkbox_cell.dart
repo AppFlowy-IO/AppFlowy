@@ -4,11 +4,12 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cell_builder.dart';
 
-class CheckboxCell extends StatefulWidget {
+class CheckboxCell extends GridCellWidget {
   final GridCell cellData;
 
-  const CheckboxCell({
+  CheckboxCell({
     required this.cellData,
     Key? key,
   }) : super(key: key);

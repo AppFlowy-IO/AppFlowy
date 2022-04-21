@@ -1,8 +1,8 @@
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'cell_builder.dart';
 
 class CellStateNotifier extends ChangeNotifier {
   bool _isFocus = false;
@@ -28,7 +28,7 @@ class CellStateNotifier extends ChangeNotifier {
 }
 
 class CellContainer extends StatelessWidget {
-  final Widget child;
+  final GridCellWidget child;
   final Widget? expander;
   final double width;
   const CellContainer({
@@ -46,6 +46,9 @@ class CellContainer extends StatelessWidget {
         selector: (context, notifier) => notifier.isFocus,
         builder: (context, isFocus, _) {
           Widget container = Center(child: child);
+          child.onFocus.addListener(() {
+            Provider.of<CellStateNotifier>(context, listen: false).isFocus = child.onFocus.value;
+          });
 
           if (expander != null) {
             container = _CellEnterRegion(child: container, expander: expander!);
@@ -75,16 +78,16 @@ class CellContainer extends StatelessWidget {
 }
 
 class _CellEnterRegion extends StatelessWidget {
-  final Widget expander;
   final Widget child;
-  const _CellEnterRegion({required this.expander, required this.child, Key? key}) : super(key: key);
+  final Widget expander;
+  const _CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Selector<CellStateNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
-        List<Widget> children = [child];
+        List<Widget> children = [Expanded(child: child)];
         if (onEnter) {
           children.add(expander);
         }
@@ -93,44 +96,12 @@ class _CellEnterRegion extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           onEnter: (p) => Provider.of<CellStateNotifier>(context, listen: false).onEnter = true,
           onExit: (p) => Provider.of<CellStateNotifier>(context, listen: false).onEnter = false,
-          child: Stack(
-            alignment: AlignmentDirectional.centerEnd,
+          child: Row(
+            // alignment: AlignmentDirectional.centerEnd,
             children: children,
           ),
         );
       },
     );
-  }
-}
-
-abstract class GridCellWidget extends StatefulWidget {
-  const GridCellWidget({Key? key}) : super(key: key);
-
-  void setFocus(BuildContext context, bool value) {
-    Provider.of<CellStateNotifier>(context, listen: false).isFocus = value;
-  }
-}
-
-class CellFocusNode extends FocusNode {
-  VoidCallback? focusCallback;
-
-  void addCallback(BuildContext context, VoidCallback callback) {
-    if (focusCallback != null) {
-      removeListener(focusCallback!);
-    }
-    focusCallback = () {
-      Provider.of<CellStateNotifier>(context, listen: false).isFocus = hasFocus;
-      callback();
-    };
-
-    addListener(focusCallback!);
-  }
-
-  @override
-  void dispose() {
-    if (focusCallback != null) {
-      removeListener(focusCallback!);
-    }
-    super.dispose();
   }
 }

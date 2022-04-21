@@ -7,6 +7,7 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_type_extension.dart';
@@ -20,21 +21,21 @@ class GridFieldCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return BlocProvider(
       create: (context) => FieldCellBloc(cellContext: cellContext)..add(const FieldCellEvent.initial()),
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
-          final button = FlowyButton(
-            hoverColor: theme.shader6,
+          final button = FieldCellButton(
+            field: state.field,
             onTap: () => _showActionSheet(context),
-            leftIcon: svgWidget(state.field.fieldType.iconName(), color: theme.iconColor),
-            text: FlowyText.medium(state.field.name, fontSize: 12),
-            padding: GridSize.cellContentInsets,
           );
 
-          const line = Positioned(top: 0, bottom: 0, right: 0, child: _DragToExpandLine());
+          const line = Positioned(
+            top: 0,
+            bottom: 0,
+            right: 0,
+            child: _DragToExpandLine(),
+          );
 
           return _CellContainer(
             width: state.field.width.toDouble(),
@@ -125,9 +126,31 @@ class _DragToExpandLine extends StatelessWidget {
             borderRadius: BorderRadius.zero,
             contentMargin: const EdgeInsets.only(left: 5),
           ),
-          builder: (_, onHover) => const SizedBox(width: 2),
+          child: const SizedBox(width: 2),
         ),
       ),
+    );
+  }
+}
+
+class FieldCellButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final Field field;
+  const FieldCellButton({
+    required this.field,
+    required this.onTap,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return FlowyButton(
+      hoverColor: theme.shader6,
+      onTap: onTap,
+      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+      text: FlowyText.medium(field.name, fontSize: 12),
+      padding: GridSize.cellContentInsets,
     );
   }
 }
