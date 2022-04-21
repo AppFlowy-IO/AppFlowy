@@ -37,7 +37,7 @@ class MenuAppHeader extends StatelessWidget {
           _renderExpandedIcon(context, theme),
           // HSpace(MenuAppSizes.iconPadding),
           _renderTitle(context, theme),
-          _renderAddButton(context),
+          _renderCreateViewButton(context),
         ],
       ),
     );
@@ -82,7 +82,6 @@ class MenuAppHeader extends StatelessWidget {
             final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
-              context,
               anchorDirection: AnchorDirection.bottomWithCenterAligned,
             );
           },
@@ -99,7 +98,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderAddButton(BuildContext context) {
+  Widget _renderCreateViewButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
@@ -154,9 +153,9 @@ extension AppDisclosureExtension on AppDisclosureAction {
   Widget get icon {
     switch (this) {
       case AppDisclosureAction.rename:
-        return svg('editor/edit', color: const Color(0xffe5e5e5));
+        return svgWidget('editor/edit', color: const Color(0xffe5e5e5));
       case AppDisclosureAction.delete:
-        return svg('editor/delete', color: const Color(0xffe5e5e5));
+        return svgWidget('editor/delete', color: const Color(0xffe5e5e5));
     }
   }
 }

@@ -15,6 +15,7 @@ const ErrorCode$json = const {
     const {'1': 'Internal', '2': 0},
     const {'1': 'UserUnauthorized', '2': 2},
     const {'1': 'RecordNotFound', '2': 3},
+    const {'1': 'UserIdIsEmpty', '2': 4},
     const {'1': 'WorkspaceNameInvalid', '2': 100},
     const {'1': 'WorkspaceIdInvalid', '2': 101},
     const {'1': 'AppColorStyleInvalid', '2': 102},
@@ -42,8 +43,20 @@ const ErrorCode$json = const {
     const {'1': 'UserNameIsEmpty', '2': 310},
     const {'1': 'UserIdInvalid', '2': 311},
     const {'1': 'UserNotExist', '2': 312},
+    const {'1': 'TextTooLong', '2': 400},
+    const {'1': 'GridIdIsEmpty', '2': 410},
+    const {'1': 'BlockIdIsEmpty', '2': 420},
+    const {'1': 'RowIdIsEmpty', '2': 430},
+    const {'1': 'OptionIdIsEmpty', '2': 431},
+    const {'1': 'FieldIdIsEmpty', '2': 440},
+    const {'1': 'FieldDoesNotExist', '2': 441},
+    const {'1': 'SelectOptionNameIsEmpty', '2': 442},
+    const {'1': 'FieldNotExists', '2': 443},
+    const {'1': 'FieldInvalidOperation', '2': 444},
+    const {'1': 'TypeOptionDataIsEmpty', '2': 450},
+    const {'1': 'InvalidData', '2': 500},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSDAoISW50ZXJuYWwQABIUChBVc2VyVW5hdXRob3JpemVkEAISEgoOUmVjb3JkTm90Rm91bmQQAxIYChRXb3Jrc3BhY2VOYW1lSW52YWxpZBBkEhYKEldvcmtzcGFjZUlkSW52YWxpZBBlEhgKFEFwcENvbG9yU3R5bGVJbnZhbGlkEGYSGAoUV29ya3NwYWNlRGVzY1Rvb0xvbmcQZxIYChRXb3Jrc3BhY2VOYW1lVG9vTG9uZxBoEhAKDEFwcElkSW52YWxpZBBuEhIKDkFwcE5hbWVJbnZhbGlkEG8SEwoPVmlld05hbWVJbnZhbGlkEHgSGAoUVmlld1RodW1ibmFpbEludmFsaWQQeRIRCg1WaWV3SWRJbnZhbGlkEHoSEwoPVmlld0Rlc2NUb29Mb25nEHsSEwoPVmlld0RhdGFJbnZhbGlkEHwSEwoPVmlld05hbWVUb29Mb25nEH0SEQoMQ29ubmVjdEVycm9yEMgBEhEKDEVtYWlsSXNFbXB0eRCsAhIXChJFbWFpbEZvcm1hdEludmFsaWQQrQISFwoSRW1haWxBbHJlYWR5RXhpc3RzEK4CEhQKD1Bhc3N3b3JkSXNFbXB0eRCvAhIUCg9QYXNzd29yZFRvb0xvbmcQsAISJQogUGFzc3dvcmRDb250YWluc0ZvcmJpZENoYXJhY3RlcnMQsQISGgoVUGFzc3dvcmRGb3JtYXRJbnZhbGlkELICEhUKEFBhc3N3b3JkTm90TWF0Y2gQswISFAoPVXNlck5hbWVUb29Mb25nELQCEicKIlVzZXJOYW1lQ29udGFpbkZvcmJpZGRlbkNoYXJhY3RlcnMQtQISFAoPVXNlck5hbWVJc0VtcHR5ELYCEhIKDVVzZXJJZEludmFsaWQQtwISEQoMVXNlck5vdEV4aXN0ELgC');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSDAoISW50ZXJuYWwQABIUChBVc2VyVW5hdXRob3JpemVkEAISEgoOUmVjb3JkTm90Rm91bmQQAxIRCg1Vc2VySWRJc0VtcHR5EAQSGAoUV29ya3NwYWNlTmFtZUludmFsaWQQZBIWChJXb3Jrc3BhY2VJZEludmFsaWQQZRIYChRBcHBDb2xvclN0eWxlSW52YWxpZBBmEhgKFFdvcmtzcGFjZURlc2NUb29Mb25nEGcSGAoUV29ya3NwYWNlTmFtZVRvb0xvbmcQaBIQCgxBcHBJZEludmFsaWQQbhISCg5BcHBOYW1lSW52YWxpZBBvEhMKD1ZpZXdOYW1lSW52YWxpZBB4EhgKFFZpZXdUaHVtYm5haWxJbnZhbGlkEHkSEQoNVmlld0lkSW52YWxpZBB6EhMKD1ZpZXdEZXNjVG9vTG9uZxB7EhMKD1ZpZXdEYXRhSW52YWxpZBB8EhMKD1ZpZXdOYW1lVG9vTG9uZxB9EhEKDENvbm5lY3RFcnJvchDIARIRCgxFbWFpbElzRW1wdHkQrAISFwoSRW1haWxGb3JtYXRJbnZhbGlkEK0CEhcKEkVtYWlsQWxyZWFkeUV4aXN0cxCuAhIUCg9QYXNzd29yZElzRW1wdHkQrwISFAoPUGFzc3dvcmRUb29Mb25nELACEiUKIFBhc3N3b3JkQ29udGFpbnNGb3JiaWRDaGFyYWN0ZXJzELECEhoKFVBhc3N3b3JkRm9ybWF0SW52YWxpZBCyAhIVChBQYXNzd29yZE5vdE1hdGNoELMCEhQKD1VzZXJOYW1lVG9vTG9uZxC0AhInCiJVc2VyTmFtZUNvbnRhaW5Gb3JiaWRkZW5DaGFyYWN0ZXJzELUCEhQKD1VzZXJOYW1lSXNFbXB0eRC2AhISCg1Vc2VySWRJbnZhbGlkELcCEhEKDFVzZXJOb3RFeGlzdBC4AhIQCgtUZXh0VG9vTG9uZxCQAxISCg1HcmlkSWRJc0VtcHR5EJoDEhMKDkJsb2NrSWRJc0VtcHR5EKQDEhEKDFJvd0lkSXNFbXB0eRCuAxIUCg9PcHRpb25JZElzRW1wdHkQrwMSEwoORmllbGRJZElzRW1wdHkQuAMSFgoRRmllbGREb2VzTm90RXhpc3QQuQMSHAoXU2VsZWN0T3B0aW9uTmFtZUlzRW1wdHkQugMSEwoORmllbGROb3RFeGlzdHMQuwMSGgoVRmllbGRJbnZhbGlkT3BlcmF0aW9uELwDEhoKFVR5cGVPcHRpb25EYXRhSXNFbXB0eRDCAxIQCgtJbnZhbGlkRGF0YRD0Aw==');

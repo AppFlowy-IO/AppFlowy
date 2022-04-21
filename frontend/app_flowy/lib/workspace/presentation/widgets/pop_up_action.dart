@@ -24,8 +24,8 @@ abstract class ActionList<T extends ActionItem> {
   FlowyOverlayDelegate? get delegate;
 
   void show(
-    BuildContext buildContext,
-    BuildContext anchorContext, {
+    BuildContext buildContext, {
+    BuildContext? anchorContext,
     AnchorDirection anchorDirection = AnchorDirection.bottomRight,
     Offset? anchorOffset,
   }) {
@@ -47,7 +47,7 @@ abstract class ActionList<T extends ActionItem> {
       identifier: identifier,
       itemCount: widgets.length,
       itemBuilder: (context, index) => widgets[index],
-      anchorContext: anchorContext,
+      anchorContext: anchorContext ?? buildContext,
       anchorDirection: anchorDirection,
       width: maxWidth,
       height: widgets.length * (itemHeight + ActionListSizes.padding * 2),
@@ -85,30 +85,28 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.hover),
-      builder: (context, onHover) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => onSelected(action),
-          child: SizedBox(
-            height: itemHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (action.icon != null) action.icon!,
-                HSpace(ActionListSizes.itemHPadding),
-                FlowyText.medium(
-                  action.name,
-                  fontSize: 12,
-                ),
-              ],
-            ),
-          ).padding(
-            horizontal: ActionListSizes.padding,
-            vertical: ActionListSizes.padding,
+      style: HoverStyle(hoverColor: theme.hover),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onSelected(action),
+        child: SizedBox(
+          height: itemHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (action.icon != null) action.icon!,
+              HSpace(ActionListSizes.itemHPadding),
+              FlowyText.medium(
+                action.name,
+                fontSize: 12,
+              ),
+            ],
           ),
-        );
-      },
+        ).padding(
+          horizontal: ActionListSizes.padding,
+          vertical: ActionListSizes.padding,
+        ),
+      ),
     );
   }
 }

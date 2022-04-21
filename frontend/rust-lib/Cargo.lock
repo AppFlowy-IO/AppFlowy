@@ -58,6 +58,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
 
 [[package]]
+name = "arrayvec"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
+
+[[package]]
 name = "async-stream"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -72,17 +78,6 @@ name = "async-stream-impl"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "648ed8c8d2ce5409ccd57453d9d1b214b342a0d69376a6feda1fd6cae3299308"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "async-trait"
-version = "0.1.52"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "061a7acccaa286c011ddc30970520b98fa40e00c9d644633fb26b5fc63a265e3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -459,20 +454,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ae5588f6b3c3cb05239e90bd110f257254aecd01e4635400391aeae07497845"
-dependencies = [
- "cfg-if",
- "crossbeam-channel",
- "crossbeam-deque",
- "crossbeam-epoch",
- "crossbeam-queue",
- "crossbeam-utils",
-]
-
-[[package]]
 name = "crossbeam-channel"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -504,16 +485,6 @@ dependencies = [
  "lazy_static",
  "memoffset",
  "scopeguard",
-]
-
-[[package]]
-name = "crossbeam-queue"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b979d76c9fcb84dffc80a73f7290da0f83e4c95773494674cb44b76d13a7a110"
-dependencies = [
- "cfg-if",
- "crossbeam-utils",
 ]
 
 [[package]]
@@ -848,78 +819,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-block"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "async-trait",
- "bytecount",
- "byteorder",
- "bytes",
- "chrono",
- "color-eyre",
- "criterion",
- "dart-notify",
- "dashmap",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
- "flowy-database",
- "flowy-derive",
- "flowy-error",
- "flowy-sync",
- "flowy-test",
- "futures",
- "futures-util",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-ws",
- "log",
- "parking_lot",
- "pin-project",
- "protobuf",
- "rand 0.7.3",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "unicode-segmentation",
- "url",
-]
-
-[[package]]
-name = "flowy-collaboration"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "chrono",
- "dashmap",
- "dissimilar",
- "flowy-derive",
- "flowy-folder-data-model",
- "futures",
- "lib-infra",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -951,10 +850,10 @@ name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error-code",
+ "flowy-sync",
  "http-flowy",
  "lib-dispatch",
  "lib-infra",
@@ -979,38 +878,30 @@ dependencies = [
 name = "flowy-folder"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "chrono",
- "crossbeam",
- "crossbeam-utils",
  "dart-notify",
- "derive_more",
  "diesel",
  "diesel_derives",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "flowy-text-block",
  "futures",
- "futures-core",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-ot",
- "lib-sqlite",
  "log",
  "parking_lot",
  "pin-project",
  "protobuf",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
  "tokio",
@@ -1028,6 +919,7 @@ dependencies = [
  "flowy-error-code",
  "lib-infra",
  "log",
+ "nanoid",
  "protobuf",
  "serde",
  "serde_json",
@@ -1035,7 +927,60 @@ dependencies = [
  "strum",
  "strum_macros",
  "unicode-segmentation",
- "uuid",
+]
+
+[[package]]
+name = "flowy-grid"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "dart-notify",
+ "dashmap",
+ "diesel",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-grid",
+ "flowy-grid-data-model",
+ "flowy-revision",
+ "flowy-sync",
+ "flowy-test",
+ "indexmap",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "nanoid",
+ "protobuf",
+ "rayon",
+ "rust_decimal",
+ "rusty-money",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-grid-data-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "flowy-error-code",
+ "indexmap",
+ "lib-infra",
+ "nanoid",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]
@@ -1047,12 +992,12 @@ dependencies = [
  "bytes",
  "config",
  "dashmap",
- "flowy-block",
- "flowy-collaboration",
  "flowy-derive",
  "flowy-error",
  "flowy-folder",
  "flowy-folder-data-model",
+ "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "flowy-user-data-model",
  "futures-util",
@@ -1063,12 +1008,36 @@ dependencies = [
  "lib-infra",
  "lib-ws",
  "log",
+ "nanoid",
  "parking_lot",
  "protobuf",
  "reqwest",
  "serde",
  "serde-aux",
  "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-revision"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "dashmap",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-error",
+ "flowy-sync",
+ "futures-util",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "serde",
  "strum",
  "strum_macros",
  "tokio",
@@ -1083,12 +1052,14 @@ dependencies = [
  "bytes",
  "claim 0.5.0",
  "color-eyre",
- "flowy-block",
- "flowy-collaboration",
  "flowy-database",
  "flowy-folder",
+ "flowy-grid",
+ "flowy-grid-data-model",
  "flowy-net",
+ "flowy-revision",
  "flowy-sync",
+ "flowy-text-block",
  "flowy-user",
  "futures-core",
  "futures-util",
@@ -1109,18 +1080,18 @@ name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
  "async-stream",
- "async-trait",
  "bytes",
+ "chrono",
  "dashmap",
- "diesel",
- "diesel_derives",
- "flowy-collaboration",
- "flowy-database",
- "flowy-error",
- "futures-util",
+ "dissimilar",
+ "flowy-derive",
+ "flowy-folder-data-model",
+ "flowy-grid-data-model",
+ "futures",
  "lib-infra",
  "lib-ot",
- "lib-ws",
+ "log",
+ "md5",
  "parking_lot",
  "protobuf",
  "serde",
@@ -1129,6 +1100,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -1140,10 +1112,10 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
- "flowy-collaboration",
  "flowy-folder",
  "flowy-net",
  "flowy-sdk",
+ "flowy-sync",
  "flowy-user",
  "futures",
  "futures-util",
@@ -1151,6 +1123,7 @@ dependencies = [
  "lib-infra",
  "lib-ot",
  "log",
+ "nanoid",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -1162,10 +1135,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user"
+name = "flowy-text-block"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "bytes",
+ "chrono",
+ "color-eyre",
+ "criterion",
  "dart-notify",
  "dashmap",
  "derive_more",
@@ -1174,27 +1151,55 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-error",
+ "flowy-revision",
+ "flowy-sync",
+ "flowy-test",
+ "flowy-text-block",
+ "futures",
+ "futures-util",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-ws",
+ "log",
+ "protobuf",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "unicode-segmentation",
+ "url",
+]
+
+[[package]]
+name = "flowy-user"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "dart-notify",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-error",
  "flowy-test",
  "flowy-user-data-model",
  "futures",
- "futures-core",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "lib-sqlite",
  "log",
+ "nanoid",
  "once_cell",
  "parking_lot",
- "pin-project",
  "protobuf",
- "r2d2",
  "serde",
  "serde_json",
- "serial_test",
  "strum",
  "strum_macros",
- "thread-id",
- "thread_local",
  "tokio",
  "tracing",
 ]
@@ -1611,12 +1616,13 @@ checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
 
 [[package]]
 name = "indexmap"
-version = "1.8.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "282a6247722caba404c065016bbfa522806e51714c34f5dfc3e4a3a46fcb4223"
+checksum = "0f647032dfaa1f8b6dc29bd3edb7bbef4861b8b8007ebb118d6db284fd59f6ee"
 dependencies = [
  "autocfg",
  "hashbrown",
+ "serde",
 ]
 
 [[package]]
@@ -1676,7 +1682,7 @@ version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
 dependencies = [
- "arrayvec",
+ "arrayvec 0.5.2",
  "bitflags",
  "cfg-if",
  "ryu",
@@ -1699,6 +1705,7 @@ dependencies = [
  "futures-util",
  "lazy_static",
  "log",
+ "nanoid",
  "paste",
  "pin-project",
  "protobuf",
@@ -1708,7 +1715,6 @@ dependencies = [
  "thread-id",
  "tokio",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -1737,7 +1743,6 @@ dependencies = [
  "tera",
  "tokio",
  "toml",
- "uuid",
  "walkdir",
 ]
 
@@ -1960,6 +1965,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "nanoid"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ffa00dec017b5b1a8b7cf5e2c008bfda1aa7e0697ac1508b491fdf2622fb4d8"
+dependencies = [
+ "rand 0.8.4",
 ]
 
 [[package]]
@@ -2727,6 +2741,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust_decimal"
+version = "1.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d37baa70cf8662d2ba1c1868c5983dda16ef32b105cce41fb5c47e72936a90b3"
+dependencies = [
+ "arrayvec 0.7.2",
+ "num-traits",
+ "serde",
+]
+
+[[package]]
+name = "rust_decimal_macros"
+version = "1.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "184abaf7b434800e1a5a8aad3ebc8cd7498df33af72d65371d797a264713a59b"
+dependencies = [
+ "quote",
+ "rust_decimal",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2746,6 +2781,16 @@ name = "rustversion"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2cc38e8fa666e2de3c4aba7edeb5ffc5246c1c2ed0e3d17e560aeeba736b23f"
+
+[[package]]
+name = "rusty-money"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b28f881005eac7ad8d46b6f075da5f322bd7f4f83a38720fc069694ddadd683"
+dependencies = [
+ "rust_decimal",
+ "rust_decimal_macros",
+]
 
 [[package]]
 name = "ryu"
@@ -3553,7 +3598,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 dependencies = [
  "getrandom 0.2.3",
- "serde",
 ]
 
 [[package]]

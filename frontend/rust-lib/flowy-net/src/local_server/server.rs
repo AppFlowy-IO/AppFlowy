@@ -1,10 +1,12 @@
-use crate::local_server::persistence::LocalDocumentCloudPersistence;
+use crate::local_server::persistence::LocalTextBlockCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_collaboration::{
-    client_document::default::initial_delta_string,
+use flowy_error::{internal_error, FlowyError};
+use flowy_folder::event_map::FolderCouldServiceV1;
+use flowy_sync::{
+    client_document::default::initial_quill_delta_string,
     entities::{
-        document_info::{BlockId, BlockInfo, CreateBlockParams, ResetDocumentParams},
+        text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -13,10 +15,9 @@ use flowy_collaboration::{
     server_folder::ServerFolderManager,
     synchronizer::{RevisionSyncResponse, RevisionUser},
 };
-use flowy_error::{internal_error, FlowyError};
-use flowy_folder::event_map::FolderCouldServiceV1;
 use futures_util::stream::StreamExt;
 use lib_ws::{WSChannel, WebSocketRawMessage};
+use nanoid::nanoid;
 use parking_lot::RwLock;
 use std::{
     convert::{TryFrom, TryInto},
@@ -38,7 +39,7 @@ impl LocalServer {
         client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
-        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
+        let persistence = Arc::new(LocalTextBlockCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
         let folder_manager = Arc::new(ServerFolderManager::new(persistence));
         let stop_tx = RwLock::new(None);
@@ -121,6 +122,9 @@ impl LocalWebSocketRunner {
             WSChannel::Folder => {
                 let _ = self.handle_folder_client_data(client_data, "".to_owned()).await?;
                 Ok(())
+            }
+            WSChannel::Grid => {
+                todo!("Implement grid web socket channel")
             }
         }
     }
@@ -248,18 +252,20 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_block::BlockCloudService;
+use flowy_folder_data_model::entities::app::gen_app_id;
+use flowy_folder_data_model::entities::workspace::gen_workspace_id;
 use flowy_folder_data_model::entities::{
     app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
     trash::{RepeatedTrash, RepeatedTrashId},
     view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
     workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
 };
+use flowy_text_block::BlockCloudService;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
-use lib_infra::{future::FutureResult, timestamp, uuid_string};
+use lib_infra::{future::FutureResult, timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
@@ -267,7 +273,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
         let time = timestamp();
         let workspace = Workspace {
-            id: uuid_string(),
+            id: gen_workspace_id(),
             name: params.name,
             desc: params.desc,
             apps: RepeatedApp::default(),
@@ -305,7 +311,7 @@ impl FolderCouldServiceV1 for LocalServer {
             belongings: RepeatedView::default(),
             modified_time: time,
             create_time: time,
-            ext_data: params.ext_data,
+            ext_data: "".to_string(),
             thumbnail: params.thumbnail,
             plugin_type: params.plugin_type,
         };
@@ -327,7 +333,7 @@ impl FolderCouldServiceV1 for LocalServer {
     fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
         let time = timestamp();
         let app = App {
-            id: uuid_string(),
+            id: gen_app_id(),
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
@@ -369,7 +375,7 @@ impl FolderCouldServiceV1 for LocalServer {
 
 impl UserCloudService for LocalServer {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-        let uid = uuid_string();
+        let uid = nanoid!(10);
         FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
@@ -381,7 +387,7 @@ impl UserCloudService for LocalServer {
     }
 
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-        let user_id = uuid_string();
+        let user_id = nanoid!(10);
         FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),
@@ -410,21 +416,21 @@ impl UserCloudService for LocalServer {
 }
 
 impl BlockCloudService for LocalServer {
-    fn create_block(&self, _token: &str, _params: CreateBlockParams) -> FutureResult<(), FlowyError> {
+    fn create_block(&self, _token: &str, _params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_block(&self, _token: &str, params: BlockId) -> FutureResult<Option<BlockInfo>, FlowyError> {
-        let doc = BlockInfo {
-            doc_id: params.value,
-            text: initial_delta_string(),
+    fn read_block(&self, _token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError> {
+        let doc = TextBlockInfo {
+            block_id: params.value,
+            text: initial_quill_delta_string(),
             rev_id: 0,
             base_rev_id: 0,
         };
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_block(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
+    fn update_block(&self, _token: &str, _params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

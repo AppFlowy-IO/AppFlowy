@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+enum GridNotification {
+    Unknown = 0;
+    DidCreateBlock = 11;
+    DidUpdateGridRow = 20;
+    DidUpdateGridField = 21;
+    DidUpdateRow = 30;
+    DidUpdateCell = 40;
+    DidUpdateField = 50;
+}

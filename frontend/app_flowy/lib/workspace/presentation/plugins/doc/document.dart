@@ -7,21 +7,20 @@ export './src/widget/toolbar/tool_bar.dart';
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
-import 'package:app_flowy/workspace/application/view/view_service.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/share.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
@@ -47,16 +46,15 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => "Doc";
 
   @override
-  PluginType get pluginType => DefaultPlugin.quillEditor.type();
+  PluginType get pluginType => DefaultPlugin.quill.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.RichText;
+  ViewDataType get dataType => ViewDataType.TextBlock;
 }
 
 class DocumentPlugin implements Plugin {
   late View _view;
   ViewListener? _listener;
-  final ValueNotifier<int> _displayNotifier = ValueNotifier<int>(0);
   late PluginType _pluginType;
 
   DocumentPlugin({required PluginType pluginType, required View view, Key? key}) : _view = view {
@@ -66,7 +64,7 @@ class DocumentPlugin implements Plugin {
       result.fold(
         (newView) {
           _view = newView;
-          _displayNotifier.value = _view.hashCode;
+          display.notifier!.value = _view.hashCode;
         },
         (error) {},
       );
@@ -81,19 +79,17 @@ class DocumentPlugin implements Plugin {
   }
 
   @override
-  PluginDisplay get pluginDisplay => DocumentPluginDisplay(view: _view);
+  PluginDisplay<int> get display => DocumentPluginDisplay(view: _view);
 
   @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 
   @override
-  PluginId get pluginId => _view.id;
-
-  @override
-  ChangeNotifier? get displayNotifier => _displayNotifier;
+  PluginId get id => _view.id;
 }
 
-class DocumentPluginDisplay extends PluginDisplay {
+class DocumentPluginDisplay extends PluginDisplay<int> with NavigationItem {
+  final PublishNotifier<int> _displayNotifier = PublishNotifier<int>();
   final View _view;
 
   DocumentPluginDisplay({required View view, Key? key}) : _view = view;
@@ -102,87 +98,16 @@ class DocumentPluginDisplay extends PluginDisplay {
   Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
 
   @override
-  Widget get leftBarItem => DocumentLeftBarItem(view: _view);
+  Widget get leftBarItem => ViewLeftBarItem(view: _view);
 
   @override
   Widget? get rightBarItem => DocumentShareButton(view: _view);
 
   @override
-  List<NavigationItem> get navigationItems => _makeNavigationItems();
-
-  List<NavigationItem> _makeNavigationItems() {
-    return [
-      this,
-    ];
-  }
-}
-
-class DocumentLeftBarItem extends StatefulWidget {
-  final View view;
-
-  DocumentLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
+  List<NavigationItem> get navigationItems => [this];
 
   @override
-  State<DocumentLeftBarItem> createState() => _DocumentLeftBarItemState();
-}
-
-class _DocumentLeftBarItemState extends State<DocumentLeftBarItem> {
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-  late ViewService service;
-
-  @override
-  void initState() {
-    service = ViewService(/*view: widget.view*/);
-    _focusNode.addListener(_handleFocusChanged);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _controller.text = widget.view.name;
-
-    final theme = context.watch<AppTheme>();
-    return IntrinsicWidth(
-      key: ValueKey(_controller.text),
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        scrollPadding: EdgeInsets.zero,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.zero,
-          border: InputBorder.none,
-          isDense: true,
-        ),
-        style: TextStyle(
-          color: theme.textColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          overflow: TextOverflow.ellipsis,
-        ),
-        // cursorColor: widget.cursorColor,
-        // obscureText: widget.enableObscure,
-      ),
-    );
-  }
-
-  void _handleFocusChanged() {
-    if (_controller.text.isEmpty) {
-      _controller.text = widget.view.name;
-      return;
-    }
-
-    if (_controller.text != widget.view.name) {
-      service.updateView(viewId: widget.view.id, name: _controller.text);
-    }
-  }
+  PublishNotifier<int>? get notifier => _displayNotifier;
 }
 
 class DocumentShareButton extends StatelessWidget {
@@ -257,25 +182,20 @@ class DocumentShareButton extends StatelessWidget {
             context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
             break;
           case ShareAction.copyLink:
-            showWorkInProgressDialog(context);
+            FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
             break;
         }
       });
     });
     actionList.show(
       context,
-      context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
       anchorOffset: offset,
     );
   }
-
-  void showWorkInProgressDialog(BuildContext context) {
-    FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
-  }
 }
 
-class ShareActions with ActionList<ShareActionWrapper> implements FlowyOverlayDelegate {
+class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<ShareAction>) onSelected;
   final _items = ShareAction.values.map((action) => ShareActionWrapper(action)).toList();
 

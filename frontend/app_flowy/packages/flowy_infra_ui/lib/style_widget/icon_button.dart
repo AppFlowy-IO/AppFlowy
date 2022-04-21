@@ -77,7 +77,7 @@ class FlowyDropdownButton extends StatelessWidget {
     return FlowyIconButton(
       width: 16,
       onPressed: onPressed,
-      icon: svg("home/drop_down_show"),
+      icon: svgWidget("home/drop_down_show"),
     );
   }
 }

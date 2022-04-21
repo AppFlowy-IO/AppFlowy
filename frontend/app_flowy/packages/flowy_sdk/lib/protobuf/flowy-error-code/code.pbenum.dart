@@ -13,6 +13,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode Internal = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Internal');
   static const ErrorCode UserUnauthorized = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const ErrorCode RecordNotFound = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
+  static const ErrorCode UserIdIsEmpty = ErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
   static const ErrorCode WorkspaceNameInvalid = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
   static const ErrorCode WorkspaceIdInvalid = ErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const ErrorCode AppColorStyleInvalid = ErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
@@ -40,11 +41,24 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserNameIsEmpty = ErrorCode._(310, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameIsEmpty');
   static const ErrorCode UserIdInvalid = ErrorCode._(311, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const ErrorCode UserNotExist = ErrorCode._(312, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
+  static const ErrorCode TextTooLong = ErrorCode._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TextTooLong');
+  static const ErrorCode GridIdIsEmpty = ErrorCode._(410, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GridIdIsEmpty');
+  static const ErrorCode BlockIdIsEmpty = ErrorCode._(420, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BlockIdIsEmpty');
+  static const ErrorCode RowIdIsEmpty = ErrorCode._(430, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RowIdIsEmpty');
+  static const ErrorCode OptionIdIsEmpty = ErrorCode._(431, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OptionIdIsEmpty');
+  static const ErrorCode FieldIdIsEmpty = ErrorCode._(440, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldIdIsEmpty');
+  static const ErrorCode FieldDoesNotExist = ErrorCode._(441, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldDoesNotExist');
+  static const ErrorCode SelectOptionNameIsEmpty = ErrorCode._(442, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SelectOptionNameIsEmpty');
+  static const ErrorCode FieldNotExists = ErrorCode._(443, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldNotExists');
+  static const ErrorCode FieldInvalidOperation = ErrorCode._(444, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldInvalidOperation');
+  static const ErrorCode TypeOptionDataIsEmpty = ErrorCode._(450, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TypeOptionDataIsEmpty');
+  static const ErrorCode InvalidData = ErrorCode._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Internal,
     UserUnauthorized,
     RecordNotFound,
+    UserIdIsEmpty,
     WorkspaceNameInvalid,
     WorkspaceIdInvalid,
     AppColorStyleInvalid,
@@ -72,6 +86,18 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserNameIsEmpty,
     UserIdInvalid,
     UserNotExist,
+    TextTooLong,
+    GridIdIsEmpty,
+    BlockIdIsEmpty,
+    RowIdIsEmpty,
+    OptionIdIsEmpty,
+    FieldIdIsEmpty,
+    FieldDoesNotExist,
+    SelectOptionNameIsEmpty,
+    FieldNotExists,
+    FieldInvalidOperation,
+    TypeOptionDataIsEmpty,
+    InvalidData,
   ];
 
   static final $core.Map<$core.int, ErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

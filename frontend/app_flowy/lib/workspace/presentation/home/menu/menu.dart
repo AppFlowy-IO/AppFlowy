@@ -64,7 +64,7 @@ class _HomeMenuState extends State<HomeMenu> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.pluginId != c.plugin.pluginId,
+            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
             listener: (context, state) {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
@@ -235,7 +235,7 @@ class MenuTopBar extends StatelessWidget {
                 width: 28,
                 onPressed: () => context.read<MenuBloc>().add(const MenuEvent.collapse()),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                icon: svg("home/hide_menu", color: theme.iconColor),
+                icon: svgWidget("home/hide_menu", color: theme.iconColor),
               )
             ],
           ),

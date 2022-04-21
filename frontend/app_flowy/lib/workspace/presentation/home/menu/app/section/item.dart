@@ -43,9 +43,9 @@ class ViewSectionItem extends StatelessWidget {
           return InkWell(
             onTap: () => onSelected(context.read<ViewBloc>().state.view),
             child: FlowyHover(
-              config: HoverDisplayConfig(hoverColor: theme.bg3),
+              style: HoverStyle(hoverColor: theme.bg3),
               builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
-              isOnSelected: () => state.isEditing || isSelected,
+              setSelected: () => state.isEditing || isSelected,
             ),
           );
         },
@@ -126,11 +126,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   Widget get icon {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return svg('editor/edit', color: const Color(0xff999999));
+        return svgWidget('editor/edit', color: const Color(0xff999999));
       case ViewDisclosureAction.delete:
-        return svg('editor/delete', color: const Color(0xff999999));
+        return svgWidget('editor/delete', color: const Color(0xff999999));
       case ViewDisclosureAction.duplicate:
-        return svg('editor/copy', color: const Color(0xff999999));
+        return svgWidget('editor/copy', color: const Color(0xff999999));
     }
   }
 }

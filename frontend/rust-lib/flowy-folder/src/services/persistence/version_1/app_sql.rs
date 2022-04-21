@@ -1,18 +1,14 @@
 use crate::entities::{
-    app::{App, ColorStyle, UpdateAppParams},
+    app::{App, UpdateAppParams},
     trash::{Trash, TrashType},
     view::RepeatedView,
 };
-use diesel::sql_types::Binary;
+use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
 use flowy_database::{
     prelude::*,
     schema::{app_table, app_table::dsl},
     SqliteConnection,
 };
-use serde::{Deserialize, Serialize, __private::TryFrom};
-use std::convert::TryInto;
-
-use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
 
 pub struct AppTableSql();
 impl AppTableSql {
@@ -86,7 +82,7 @@ pub(crate) struct AppTable {
     pub workspace_id: String, // equal to #[belongs_to(Workspace, foreign_key = "workspace_id")].
     pub name: String,
     pub desc: String,
-    pub color_style: ColorStyleCol,
+    pub color_style: Vec<u8>,
     pub last_view_id: Option<String>,
     pub modified_time: i64,
     pub create_time: i64,
@@ -101,7 +97,7 @@ impl AppTable {
             workspace_id: app.workspace_id,
             name: app.name,
             desc: app.desc,
-            color_style: ColorStyleCol::default(),
+            color_style: Default::default(),
             last_view_id: None,
             modified_time: app.modified_time,
             create_time: app.create_time,
@@ -122,38 +118,6 @@ impl std::convert::From<AppTable> for Trash {
         }
     }
 }
-
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default, FromSqlRow, AsExpression)]
-#[sql_type = "Binary"]
-pub(crate) struct ColorStyleCol {
-    pub(crate) theme_color: String,
-}
-
-impl std::convert::From<ColorStyle> for ColorStyleCol {
-    fn from(s: ColorStyle) -> Self {
-        Self {
-            theme_color: s.theme_color,
-        }
-    }
-}
-
-impl std::convert::TryInto<Vec<u8>> for &ColorStyleCol {
-    type Error = String;
-
-    fn try_into(self) -> Result<Vec<u8>, Self::Error> {
-        bincode::serialize(self).map_err(|e| format!("{:?}", e))
-    }
-}
-
-impl std::convert::TryFrom<&[u8]> for ColorStyleCol {
-    type Error = String;
-
-    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        bincode::deserialize(value).map_err(|e| format!("{:?}", e))
-    }
-}
-
-impl_sql_binary_expression!(ColorStyleCol);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "app_table"]

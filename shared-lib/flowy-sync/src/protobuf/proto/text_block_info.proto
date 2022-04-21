@@ -1,0 +1,29 @@
+syntax = "proto3";
+import "revision.proto";
+
+message CreateTextBlockParams {
+    string id = 1;
+    RepeatedRevision revisions = 2;
+}
+message TextBlockInfo {
+    string block_id = 1;
+    string text = 2;
+    int64 rev_id = 3;
+    int64 base_rev_id = 4;
+}
+message ResetTextBlockParams {
+    string block_id = 1;
+    RepeatedRevision revisions = 2;
+}
+message TextBlockDelta {
+    string block_id = 1;
+    string delta_str = 2;
+}
+message NewDocUser {
+    string user_id = 1;
+    int64 rev_id = 2;
+    string doc_id = 3;
+}
+message TextBlockId {
+    string value = 1;
+}

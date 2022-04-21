@@ -9,12 +9,12 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration"}
+flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
 flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
-flowy-block = { path = "../flowy-block" }
+flowy-text-block = { path = "../flowy-text-block" }
 lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}
@@ -37,13 +37,14 @@ config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+nanoid = "0.4.0"
 
 [features]
 http_server = []
 dart = [
     "lib-infra/dart",
     "flowy-user/dart",
-    "flowy-collaboration/dart",
+    "flowy-sync/dart",
     "flowy-error/dart",
     "flowy-user-data-model/dart",
     "flowy-folder-data-model/dart"

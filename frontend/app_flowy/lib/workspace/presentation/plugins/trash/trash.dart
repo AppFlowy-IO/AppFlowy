@@ -4,7 +4,6 @@ export "./src/trash_header.dart";
 
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,16 +48,13 @@ class TrashPlugin extends Plugin {
   TrashPlugin({required PluginType pluginType}) : _pluginType = pluginType;
 
   @override
-  void dispose() {}
+  PluginDisplay get display => TrashPluginDisplay();
 
   @override
-  PluginDisplay get pluginDisplay => TrashPluginDisplay();
+  PluginId get id => "TrashStack";
 
   @override
-  PluginId get pluginId => "TrashStack";
-
-  @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 }
 
 class TrashPluginDisplay extends PluginDisplay {
@@ -69,20 +65,20 @@ class TrashPluginDisplay extends PluginDisplay {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget() => const TrashStackPage(key: ValueKey('TrashStackPage'));
+  Widget buildWidget() => const TrashPage(key: ValueKey('TrashPage'));
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class TrashStackPage extends StatefulWidget {
-  const TrashStackPage({Key? key}) : super(key: key);
+class TrashPage extends StatefulWidget {
+  const TrashPage({Key? key}) : super(key: key);
 
   @override
-  State<TrashStackPage> createState() => _TrashStackPageState();
+  State<TrashPage> createState() => _TrashPageState();
 }
 
-class _TrashStackPageState extends State<TrashStackPage> {
+class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -150,7 +146,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
             size: const Size(102, 30),
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(), fontSize: 12),
-              icon: svg('editor/restore', color: theme.iconColor),
+              leftIcon: svgWidget('editor/restore', color: theme.iconColor),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
             ),
@@ -160,7 +156,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
             size: const Size(102, 30),
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(), fontSize: 12),
-              icon: svg('editor/delete', color: theme.iconColor),
+              leftIcon: svgWidget('editor/delete', color: theme.iconColor),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),

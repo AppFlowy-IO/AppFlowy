@@ -15,6 +15,9 @@ pub enum ErrorCode {
     #[display(fmt = "RecordNotFound")]
     RecordNotFound = 3,
 
+    #[display(fmt = "User id is empty")]
+    UserIdIsEmpty = 4,
+
     #[display(fmt = "Workspace name can not be empty or whitespace")]
     WorkspaceNameInvalid = 100,
 
@@ -83,6 +86,33 @@ pub enum ErrorCode {
     UserIdInvalid = 311,
     #[display(fmt = "User not exist")]
     UserNotExist = 312,
+    #[display(fmt = "Text is too long")]
+    TextTooLong = 400,
+
+    #[display(fmt = "Grid id is empty")]
+    GridIdIsEmpty = 410,
+    #[display(fmt = "Grid block id is empty")]
+    BlockIdIsEmpty = 420,
+    #[display(fmt = "Row id is empty")]
+    RowIdIsEmpty = 430,
+    #[display(fmt = "Select option id is empty")]
+    OptionIdIsEmpty = 431,
+    #[display(fmt = "Field id is empty")]
+    FieldIdIsEmpty = 440,
+    #[display(fmt = "Field doesn't exist")]
+    FieldDoesNotExist = 441,
+    #[display(fmt = "The name of the option should not be empty")]
+    SelectOptionNameIsEmpty = 442,
+    #[display(fmt = "Field not exists")]
+    FieldNotExists = 443,
+    #[display(fmt = "The operation in this field is invalid")]
+    FieldInvalidOperation = 444,
+
+    #[display(fmt = "Field's type option data should not be empty")]
+    TypeOptionDataIsEmpty = 450,
+
+    #[display(fmt = "Invalid data")]
+    InvalidData = 500,
 }
 
 impl ErrorCode {

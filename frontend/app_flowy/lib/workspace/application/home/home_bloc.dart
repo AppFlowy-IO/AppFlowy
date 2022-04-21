@@ -12,10 +12,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(state.copyWith(isLoading: e.isLoading));
         },
         setEditPannel: (e) async {
-          emit(state.copyWith(editContext: some(e.editContext)));
+          emit(state.copyWith(pannelContext: some(e.editContext)));
         },
         dismissEditPannel: (value) async {
-          emit(state.copyWith(editContext: none()));
+          emit(state.copyWith(pannelContext: none()));
         },
         forceCollapse: (e) async {
           emit(state.copyWith(forceCollapse: e.forceCollapse));
@@ -43,12 +43,12 @@ class HomeState with _$HomeState {
   const factory HomeState({
     required bool isLoading,
     required bool forceCollapse,
-    required Option<EditPannelContext> editContext,
+    required Option<EditPannelContext> pannelContext,
   }) = _HomeState;
 
   factory HomeState.initial() => HomeState(
         isLoading: false,
         forceCollapse: false,
-        editContext: none(),
+        pannelContext: none(),
       );
 }

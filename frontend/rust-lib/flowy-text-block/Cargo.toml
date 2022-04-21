@@ -1,0 +1,57 @@
+
+[package]
+name = "flowy-text-block"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-sync = { path = "../../../shared-lib/flowy-sync"}
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-ws = { path = "../../../shared-lib/lib-ws" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+
+lib-dispatch = { path = "../lib-dispatch" }
+flowy-database = { path = "../flowy-database" }
+flowy-revision = { path = "../flowy-revision" }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "http_server", "serde", "db"] }
+dart-notify = { path = "../dart-notify" }
+
+diesel = {version = "1.4.8", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+protobuf = {version = "2.18.0"}
+unicode-segmentation = "1.8"
+log = "0.4.14"
+tokio = {version = "1", features = ["sync"]}
+tracing = { version = "0.1", features = ["log"] }
+bytes = { version = "1.1" }
+strum = "0.21"
+strum_macros = "0.21"
+dashmap = "4.0"
+url = "2.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+chrono = "0.4.19"
+futures-util = "0.3.15"
+async-stream = "0.3.2"
+futures = "0.3.15"
+
+[dev-dependencies]
+flowy-test = { path = "../flowy-test" }
+flowy-text-block = { path = "../flowy-text-block", features = ["flowy_unit_test"]}
+derive_more = {version = "0.99", features = ["display"]}
+
+color-eyre = { version = "0.5", default-features = false }
+criterion = "0.3"
+rand = "0.7.3"
+
+[build-dependencies]
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }
+
+[features]
+sync = []
+cloud_sync = ["sync"]
+flowy_unit_test = ["lib-ot/flowy_unit_test", "flowy-revision/flowy_unit_test"]
+dart = ["lib-infra/dart"]

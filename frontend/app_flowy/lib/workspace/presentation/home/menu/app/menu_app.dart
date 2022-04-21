@@ -95,9 +95,11 @@ class _MenuAppState extends State<MenuApp> {
   Widget _renderViewSection(AppDataNotifier notifier) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: notifier)],
-      child: Consumer(builder: (context, AppDataNotifier notifier, child) {
-        return ViewSection(appData: notifier);
-      }),
+      child: Consumer(
+        builder: (context, AppDataNotifier notifier, child) {
+          return ViewSection(appData: notifier);
+        },
+      ),
     );
   }
 

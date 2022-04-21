@@ -1,5 +1,4 @@
 use crate::{
-    controller::FolderManager,
     entities::{
         app::{App, AppId, CreateAppParams, UpdateAppParams},
         trash::{RepeatedTrash, RepeatedTrashId},
@@ -7,16 +6,15 @@ use crate::{
         workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
     },
     errors::FlowyError,
+    manager::FolderManager,
     services::{app::event_handler::*, trash::event_handler::*, view::event_handler::*, workspace::event_handler::*},
 };
-use flowy_database::DBConnection;
+use flowy_database::{ConnectionPool, DBConnection};
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
-use strum_macros::Display;
-
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
-use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
+use strum_macros::Display;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 
@@ -63,9 +61,8 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::UpdateView, update_view_handler)
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
-        .event(FolderEvent::OpenView, open_view_handler)
-        .event(FolderEvent::CloseView, close_view_handler)
-        .event(FolderEvent::ApplyDocDelta, block_delta_handler);
+        .event(FolderEvent::SetLatestView, set_latest_view_handler)
+        .event(FolderEvent::CloseView, close_view_handler);
 
     module = module
         .event(FolderEvent::ReadTrash, read_trash_handler)
@@ -73,8 +70,6 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::DeleteTrash, delete_trash_handler)
         .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
         .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler);
-
-    module = module.event(FolderEvent::ExportDocument, export_handler);
 
     module
 }
@@ -130,8 +125,8 @@ pub enum FolderEvent {
     #[event()]
     CopyLink = 206,
 
-    #[event(input = "ViewId", output = "BlockDelta")]
-    OpenView = 207,
+    #[event(input = "ViewId")]
+    SetLatestView = 207,
 
     #[event(input = "ViewId")]
     CloseView = 208,
@@ -150,12 +145,6 @@ pub enum FolderEvent {
 
     #[event()]
     DeleteAllTrash = 304,
-
-    #[event(input = "BlockDelta", output = "BlockDelta")]
-    ApplyDocDelta = 400,
-
-    #[event(input = "ExportPayload", output = "ExportData")]
-    ExportDocument = 500,
 }
 
 pub trait FolderCouldServiceV1: Send + Sync {

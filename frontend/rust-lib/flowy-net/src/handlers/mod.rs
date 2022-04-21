@@ -3,7 +3,7 @@ use flowy_error::FlowyError;
 use lib_dispatch::prelude::{AppData, Data};
 use std::sync::Arc;
 
-#[tracing::instrument(skip(data, ws_manager))]
+#[tracing::instrument(level = "debug", skip(data, ws_manager))]
 pub async fn update_network_ty(
     data: Data<NetworkState>,
     ws_manager: AppData<Arc<FlowyWebSocketConnect>>,

@@ -11,9 +11,7 @@ import 'item.dart';
 
 // [[Widget: LifeCycle]]
 // https://flutterbyexample.com/lesson/stateful-widget-lifecycle
-class ViewDisclosureButton extends StatelessWidget
-    with ActionList<ViewDisclosureActionWrapper>
-    implements FlowyOverlayDelegate {
+class ViewDisclosureButton extends StatelessWidget with ActionList<ViewDisclosureActionWrapper>, FlowyOverlayDelegate {
   final Function() onTap;
   final Function(dartz.Option<ViewDisclosureAction>) onSelected;
   final _items = ViewDisclosureAction.values.map((action) => ViewDisclosureActionWrapper(action)).toList();
@@ -32,9 +30,9 @@ class ViewDisclosureButton extends StatelessWidget
       width: 26,
       onPressed: () {
         onTap();
-        show(context, context);
+        show(context);
       },
-      icon: svg("editor/details", color: theme.iconColor),
+      icon: svgWidget("editor/details", color: theme.iconColor),
     );
   }
 

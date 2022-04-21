@@ -113,7 +113,6 @@ class QuestionBubble extends StatelessWidget {
           });
           actionList.show(
             context,
-            context,
             anchorDirection: AnchorDirection.topWithRightAligned,
             anchorOffset: const Offset(0, -10),
           );
@@ -131,7 +130,7 @@ class QuestionBubble extends StatelessWidget {
   }
 }
 
-class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper> implements FlowyOverlayDelegate {
+class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<BubbleAction>) onSelected;
   final _items = BubbleAction.values.map((action) => BubbleActionWrapper(action)).toList();
 

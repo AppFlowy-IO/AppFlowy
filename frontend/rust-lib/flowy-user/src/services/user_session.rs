@@ -7,6 +7,7 @@ use crate::{
         notifier::UserNotifier,
     },
 };
+use flowy_database::ConnectionPool;
 use flowy_database::{
     kv::KV,
     query_dsl::*,
@@ -16,7 +17,6 @@ use flowy_database::{
 use flowy_user_data_model::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
 };
-use lib_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:app_flowy/startup/startup.dart';
@@ -10,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
-import 'package:async/async.dart';
 
 class ViewSection extends StatelessWidget {
   final AppDataNotifier appData;
@@ -149,7 +149,7 @@ class ViewSectionNotifier with ChangeNotifier {
   bool isDisposed = false;
   List<View> _views;
   View? _selectedView;
-  CancelableOperation? _notifyListenerOperation;
+  Timer? _notifyListenerOperation;
 
   ViewSectionNotifier({
     required BuildContext context,
@@ -205,9 +205,7 @@ class ViewSectionNotifier with ChangeNotifier {
 
   void _notifyListeners() {
     _notifyListenerOperation?.cancel();
-    _notifyListenerOperation = CancelableOperation.fromFuture(
-      Future.delayed(const Duration(milliseconds: 30), () {}),
-    ).then((_) {
+    _notifyListenerOperation = Timer(const Duration(milliseconds: 30), () {
       if (!isDisposed) {
         notifyListeners();
       }

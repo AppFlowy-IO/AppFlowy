@@ -1,5 +1,14 @@
 # Release Notes
 
+## Version 0.0.4 - beta.1 - 2022-04-08
+v0.0.4 - beta.1 is pre-release
+
+New features
+- Table-view database
+   - supported column types: Text, Checbox, Single-select, Multi-select, Numbers
+   - hide / delete columns
+   - insert rows
+
 ## Version 0.0.3 - 2022-02-23
 v0.0.3 is production ready, available on Linux, macOS, and Windows
 

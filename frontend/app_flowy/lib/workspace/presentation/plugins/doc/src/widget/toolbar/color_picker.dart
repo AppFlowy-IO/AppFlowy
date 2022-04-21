@@ -117,15 +117,6 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
   }
 
   void _showColorPicker() {
-    // FlowyPoppuWindow.show(
-    //   context,
-    //   size: Size(600, 200),
-    //   child: MaterialPicker(
-    //     pickerColor: const Color(0x00000000),
-    //     onColorChanged: (color) => _changeColor(context, color),
-    //   ),
-    // );
-
     final style = widget.controller.getSelectionStyle();
     final values = style.values.where((v) => v.key == Attribute.background.key).map((v) => v.value);
     int initialColor = 0;

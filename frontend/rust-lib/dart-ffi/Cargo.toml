@@ -7,7 +7,7 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default staticlib
+# default static lib
 crate-type = ["staticlib"]
 
 
@@ -31,7 +31,7 @@ flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 [features]
 default = ["flowy-sdk/dart", "dart-notify/dart", "flutter"]
 flutter = []
-http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
+http_sync = ["flowy-sdk/http_sync", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
 

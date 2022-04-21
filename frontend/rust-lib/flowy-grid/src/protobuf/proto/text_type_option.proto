@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message RichTextTypeOption {
+    string format = 1;
+}

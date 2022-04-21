@@ -10,7 +10,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'styles.dart';
 import 'widget/banner.dart';
 
@@ -62,6 +61,7 @@ class _DocumentPageState extends State<DocumentPage> {
   @override
   Future<void> dispose() async {
     documentBloc.close();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -82,7 +82,7 @@ class _DocumentPageState extends State<DocumentPage> {
               _renderToolbar(controller),
               const VSpace(10),
             ],
-          ).padding(horizontal: 40, top: 28),
+          ),
         ),
       ],
     );

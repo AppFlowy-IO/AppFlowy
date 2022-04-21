@@ -2,8 +2,9 @@ use crate::helper::*;
 use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
 use flowy_user_data_model::entities::{UpdateUserPayload, UserProfile};
-use lib_infra::uuid_string;
-use serial_test::*;
+use nanoid::nanoid;
+
+// use serial_test::*;
 
 #[tokio::test]
 async fn user_profile_get_failed() {
@@ -17,7 +18,6 @@ async fn user_profile_get_failed() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_profile_get() {
     let test = FlowySDKTest::default();
     let user_profile = test.init_user().await;
@@ -29,7 +29,6 @@ async fn user_profile_get() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_name() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
@@ -50,11 +49,10 @@ async fn user_update_with_name() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_email() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
-    let new_email = format!("{}@gmail.com", uuid_string());
+    let new_email = format!("{}@gmail.com", nanoid!(6));
     let request = UpdateUserPayload::new(&user.id).email(&new_email);
     let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)
@@ -70,7 +68,6 @@ async fn user_update_with_email() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_password() {
     let sdk = FlowySDKTest::default();
     let user = sdk.init_user().await;
@@ -85,7 +82,6 @@ async fn user_update_with_password() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_invalid_email() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;
@@ -104,7 +100,6 @@ async fn user_update_with_invalid_email() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_invalid_password() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;
@@ -120,7 +115,6 @@ async fn user_update_with_invalid_password() {
 }
 
 #[tokio::test]
-#[serial]
 async fn user_update_with_invalid_name() {
     let test = FlowySDKTest::default();
     let user = test.init_user().await;

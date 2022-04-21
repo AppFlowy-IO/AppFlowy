@@ -22,10 +22,7 @@ class FlowyPoppuWindow extends StatelessWidget {
   }) async {
     final window = await getWindowInfo();
     FlowyOverlay.of(context).insertWithRect(
-      widget: SizedBox.fromSize(
-        size: size,
-        child: FlowyPoppuWindow(child: child),
-      ),
+      widget: FlowyPoppuWindow(child: child),
       identifier: 'FlowyPoppuWindow',
       anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
       anchorSize: window.frame.size,

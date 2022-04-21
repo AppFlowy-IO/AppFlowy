@@ -20,7 +20,7 @@ class HomeLayout {
   HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint, bool forceCollapse) {
     final homeBlocState = context.read<HomeBloc>().state;
 
-    showEditPannel = homeBlocState.editContext.isSome();
+    showEditPannel = homeBlocState.pannelContext.isSome();
 
     menuWidth = Sizes.sideBarMed;
     if (context.widthPx >= PageBreaks.desktop) {

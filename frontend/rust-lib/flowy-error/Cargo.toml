@@ -13,7 +13,7 @@ protobuf = {version = "2.20.0"}
 bytes = "1.0"
 
 
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
+flowy-sync = { path = "../../../shared-lib/flowy-sync", optional = true}
 lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
 serde_json = {version = "1.0", optional = true}
 http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", optional = true}
@@ -22,7 +22,7 @@ r2d2 = { version = "0.8", optional = true}
 lib-sqlite = { path = "../lib-sqlite", optional = true }
 
 [features]
-collaboration = ["flowy-collaboration"]
+collaboration = ["flowy-sync"]
 ot = ["lib-ot"]
 serde = ["serde_json"]
 http_server = ["http-flowy"]

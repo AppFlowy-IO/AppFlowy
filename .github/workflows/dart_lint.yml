@@ -8,12 +8,8 @@ name: Flutter lint
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/app_flowy'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'frontend/app_flowy'
 
 env:
   CARGO_TERM_COLOR: always

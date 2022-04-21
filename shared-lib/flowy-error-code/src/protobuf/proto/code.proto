@@ -4,6 +4,7 @@ enum ErrorCode {
     Internal = 0;
     UserUnauthorized = 2;
     RecordNotFound = 3;
+    UserIdIsEmpty = 4;
     WorkspaceNameInvalid = 100;
     WorkspaceIdInvalid = 101;
     AppColorStyleInvalid = 102;
@@ -31,4 +32,16 @@ enum ErrorCode {
     UserNameIsEmpty = 310;
     UserIdInvalid = 311;
     UserNotExist = 312;
+    TextTooLong = 400;
+    GridIdIsEmpty = 410;
+    BlockIdIsEmpty = 420;
+    RowIdIsEmpty = 430;
+    OptionIdIsEmpty = 431;
+    FieldIdIsEmpty = 440;
+    FieldDoesNotExist = 441;
+    SelectOptionNameIsEmpty = 442;
+    FieldNotExists = 443;
+    FieldInvalidOperation = 444;
+    TypeOptionDataIsEmpty = 450;
+    InvalidData = 500;
 }

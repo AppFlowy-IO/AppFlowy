@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'header.dart';
 
-class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper> implements FlowyOverlayDelegate {
+class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<AppDisclosureAction>) onSelected;
   final _items = AppDisclosureAction.values.map((action) => DisclosureActionWrapper(action)).toList();
 

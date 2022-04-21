@@ -221,7 +221,7 @@ async fn handle_trash_event(
     }
 }
 
-#[tracing::instrument(skip(workspace_id, trash_controller, transaction), err)]
+#[tracing::instrument(level = "debug", skip(workspace_id, trash_controller, transaction), err)]
 fn notify_apps_changed<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,

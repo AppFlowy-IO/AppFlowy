@@ -54,11 +54,11 @@ class _FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
     final isEnabled = !widget.controller.selection.isCollapsed;
     final pressedHandler = isEnabled ? () => _openLinkDialog(context) : null;
     final icon = isEnabled
-        ? svg(
+        ? svgWidget(
             'editor/share',
             color: theme.iconColor,
           )
-        : svg(
+        : svgWidget(
             'editor/share',
             color: theme.disableIconColor,
           );

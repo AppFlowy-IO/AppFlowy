@@ -80,7 +80,7 @@ class MenuUser extends StatelessWidget {
         },
         icon: SizedBox.square(
           dimension: 20,
-          child: svg("home/settings", color: theme.iconColor),
+          child: svgWidget("home/settings", color: theme.iconColor),
         ),
       ),
     );

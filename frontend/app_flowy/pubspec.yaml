@@ -53,7 +53,7 @@ dependencies:
   path_provider: ^2.0.1
   window_size:
     git:
-      url: git://github.com/google/flutter-desktop-embedding.git
+      url: https://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
   sized_context: ^1.0.0+1
@@ -67,13 +67,15 @@ dependencies:
   clipboard: ^0.1.3
   connectivity_plus: 2.2.0
   easy_localization: ^3.0.0
-
+  textfield_tags: ^2.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   device_info_plus: ^3.2.1
   fluttertoast: ^8.0.8
-  reorderables: ^0.4.3
+  table_calendar: ^3.0.5
+  reorderables:
+  linked_scroll_controller: ^0.2.0
 
 dev_dependencies:
   flutter_lints: ^1.0.0
@@ -112,6 +114,9 @@ flutter:
     - assets/images/
     - assets/images/home/
     - assets/images/editor/
+    - assets/images/grid/
+    - assets/images/grid/field/
+    - assets/images/grid/setting/
     - assets/translations/
   #   - images/a_dot_ham.jpeg
 

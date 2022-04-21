@@ -44,7 +44,7 @@ class FlowyLogoTitle extends StatelessWidget {
         children: [
           SizedBox.fromSize(
             size: logoSize,
-            child: svg("flowy_logo"),
+            child: svgWidget("flowy_logo"),
           ),
           const VSpace(30),
           Text(

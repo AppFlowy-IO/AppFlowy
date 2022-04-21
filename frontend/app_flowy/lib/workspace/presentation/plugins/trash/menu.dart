@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
@@ -37,7 +36,7 @@ class MenuTrash extends StatelessWidget {
         child: Selector<AppearanceSettingModel, AppTheme>(
           selector: (ctx, notifier) => notifier.theme,
           builder: (ctx, theme, child) =>
-              SizedBox(width: 16, height: 16, child: svg("home/trash", color: theme.iconColor)),
+              SizedBox(width: 16, height: 16, child: svgWidget("home/trash", color: theme.iconColor)),
         ),
       ),
       const HSpace(6),

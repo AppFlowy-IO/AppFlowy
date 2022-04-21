@@ -32,6 +32,8 @@ String languageFromLocale(Locale locale) {
       return "Português";
     case "ru":
       return "русский";
+    case "tr":
+      return "Türkçe";
 
     // If not found then the language code will be displayed
     default:

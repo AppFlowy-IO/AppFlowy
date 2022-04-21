@@ -1,7 +1,7 @@
 use crate::{
-    controller::FolderManager,
     dart_notification::{send_dart_notification, FolderNotification},
     errors::FlowyError,
+    manager::FolderManager,
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
 };
 use flowy_folder_data_model::entities::{
@@ -13,7 +13,7 @@ use flowy_folder_data_model::entities::{
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(
     data: Data<CreateWorkspacePayload>,
     controller: AppData<Arc<WorkspaceController>>,
@@ -24,7 +24,7 @@ pub(crate) async fn create_workspace_handler(
     data_result(detail)
 }
 
-#[tracing::instrument(skip(controller), err)]
+#[tracing::instrument(level = "debug", skip(controller), err)]
 pub(crate) async fn read_workspace_apps_handler(
     controller: AppData<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedApp, FlowyError> {
@@ -32,7 +32,7 @@ pub(crate) async fn read_workspace_apps_handler(
     data_result(repeated_app)
 }
 
-#[tracing::instrument(skip(data, controller), err)]
+#[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn open_workspace_handler(
     data: Data<WorkspaceId>,
     controller: AppData<Arc<WorkspaceController>>,
@@ -42,7 +42,7 @@ pub(crate) async fn open_workspace_handler(
     data_result(workspaces)
 }
 
-#[tracing::instrument(skip(data, folder), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_workspaces_handler(
     data: Data<WorkspaceId>,
     folder: AppData<Arc<FolderManager>>,
@@ -69,7 +69,7 @@ pub(crate) async fn read_workspaces_handler(
     data_result(workspaces)
 }
 
-#[tracing::instrument(skip(folder), err)]
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub async fn read_cur_workspace_handler(
     folder: AppData<Arc<FolderManager>>,
 ) -> DataResult<CurrentWorkspaceSetting, FlowyError> {

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message DateTypeOption {
+    DateFormat date_format = 1;
+    TimeFormat time_format = 2;
+    bool include_time = 3;
+}
+enum DateFormat {
+    Local = 0;
+    US = 1;
+    ISO = 2;
+    Friendly = 3;
+}
+enum TimeFormat {
+    TwelveHour = 0;
+    TwentyFourHour = 1;
+}

@@ -11,10 +11,22 @@ members = [
   "flowy-database",
   "flowy-folder",
   "dart-notify",
-  "flowy-block",
+  "flowy-text-block",
   "flowy-error",
-  "flowy-sync",
+  "flowy-revision",
+  "flowy-grid",
 ]
 
 [profile.dev]
+opt-level = 0
+#https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
 split-debuginfo = "unpacked"
+
+[profile.release]
+opt-level = 3
+## debuginfo — it makes ./target much bigger, which again harms caching. Depending on your preferred workflow,
+## you might consider disabling debuginfo unconditionally, this brings some benefits for local builds as well.
+#strip = "debuginfo"
+## For from-scratch builds, incremental adds an extra dependency-tracking overhead. It also significantly increases
+## the amount of IO and the size of ./target, which make caching less effective.
+incremental = false

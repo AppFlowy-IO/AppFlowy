@@ -12,7 +12,6 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
-
 typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, FlowyError> appsOrFail);
 typedef WorkspaceUpdatedCallback = void Function(String name, String desc);
 
@@ -31,12 +30,11 @@ class WorkspaceListener {
   }
 }
 
-
 class WorkspaceListenerService {
   StreamSubscription<SubscribeObject>? _subscription;
   WorkspaceAppsChangedCallback? _appsChanged;
   WorkspaceUpdatedCallback? _update;
-  late FolderNotificationParser _parser;
+  FolderNotificationParser? _parser;
   final UserProfile user;
   final String workspaceId;
 
@@ -59,7 +57,7 @@ class WorkspaceListenerService {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
@@ -91,6 +89,7 @@ class WorkspaceListenerService {
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     // _appsChanged = null;
     // _update = null;

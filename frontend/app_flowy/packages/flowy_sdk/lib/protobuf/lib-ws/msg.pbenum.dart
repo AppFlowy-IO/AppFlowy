@@ -12,10 +12,12 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class WSChannel extends $pb.ProtobufEnum {
   static const WSChannel Document = WSChannel._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Document');
   static const WSChannel Folder = WSChannel._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Folder');
+  static const WSChannel Grid = WSChannel._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Grid');
 
   static const $core.List<WSChannel> values = <WSChannel> [
     Document,
     Folder,
+    Grid,
   ];
 
   static final $core.Map<$core.int, WSChannel> _byValue = $pb.ProtobufEnum.initByValue(values);

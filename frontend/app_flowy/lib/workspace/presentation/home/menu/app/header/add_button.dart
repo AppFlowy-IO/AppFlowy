@@ -28,7 +28,7 @@ class AddButton extends StatelessWidget {
           onSelected: onSelected,
         ).show(context);
       },
-      icon: svg("home/add").padding(horizontal: 3, vertical: 3),
+      icon: svgWidget("home/add").padding(horizontal: 3, vertical: 3),
     );
   }
 }
@@ -78,20 +78,18 @@ class CreateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.hover);
+    final config = HoverStyle(hoverColor: theme.hover);
 
     return FlowyHover(
-      config: config,
-      builder: (context, onHover) {
-        return GestureDetector(
-          onTap: () => onSelected(pluginBuilder),
-          child: FlowyText.medium(
-            pluginBuilder.menuName,
-            color: theme.textColor,
-            fontSize: 12,
-          ).padding(horizontal: 10, vertical: 6),
-        );
-      },
+      style: config,
+      child: GestureDetector(
+        onTap: () => onSelected(pluginBuilder),
+        child: FlowyText.medium(
+          pluginBuilder.menuName,
+          color: theme.textColor,
+          fontSize: 12,
+        ).padding(horizontal: 10, vertical: 6),
+      ),
     );
   }
 }

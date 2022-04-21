@@ -1,19 +1,20 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
-use flowy_collaboration::{
+use flowy_error::FlowyError;
+use flowy_revision::*;
+use flowy_sync::{
     client_folder::FolderPad,
     entities::{
         revision::RevisionRange,
         ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
     },
 };
-use flowy_error::FlowyError;
-use flowy_sync::*;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
+#[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
     user_id: &str,
     folder_id: &str,
@@ -43,7 +44,7 @@ pub(crate) async fn make_folder_ws_manager(
 }
 
 pub(crate) struct FolderWSDataSink(Arc<WSDataProvider>);
-impl RevisionWSDataIterator for FolderWSDataSink {
+impl RevisionWebSocketSink for FolderWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })

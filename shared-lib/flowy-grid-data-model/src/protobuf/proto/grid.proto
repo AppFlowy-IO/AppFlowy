@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+message Grid {
+    string id = 1;
+    repeated FieldOrder field_orders = 2;
+    repeated GridBlockOrder block_orders = 3;
+}
+message Field {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+    FieldType field_type = 4;
+    bool frozen = 5;
+    bool visibility = 6;
+    int32 width = 7;
+    bool is_primary = 8;
+}
+message FieldOrder {
+    string field_id = 1;
+}
+message GridFieldChangeset {
+    string grid_id = 1;
+    repeated IndexField inserted_fields = 2;
+    repeated FieldOrder deleted_fields = 3;
+    repeated Field updated_fields = 4;
+}
+message IndexField {
+    Field field = 1;
+    int32 index = 2;
+}
+message GetEditFieldContextPayload {
+    string grid_id = 1;
+    oneof one_of_field_id { string field_id = 2; };
+    FieldType field_type = 3;
+}
+message EditFieldPayload {
+    string grid_id = 1;
+    string field_id = 2;
+    FieldType field_type = 3;
+}
+message EditFieldContext {
+    string grid_id = 1;
+    Field grid_field = 2;
+    bytes type_option_data = 3;
+}
+message RepeatedField {
+    repeated Field items = 1;
+}
+message RepeatedFieldOrder {
+    repeated FieldOrder items = 1;
+}
+message RowOrder {
+    string row_id = 1;
+    string block_id = 2;
+    int32 height = 3;
+}
+message Row {
+    string id = 1;
+    map<string, Cell> cell_by_field_id = 2;
+    int32 height = 3;
+}
+message RepeatedRow {
+    repeated Row items = 1;
+}
+message RepeatedGridBlock {
+    repeated GridBlock items = 1;
+}
+message GridBlockOrder {
+    string block_id = 1;
+    repeated RowOrder row_orders = 2;
+}
+message IndexRowOrder {
+    RowOrder row_order = 1;
+    oneof one_of_index { int32 index = 2; };
+}
+message GridRowsChangeset {
+    string block_id = 1;
+    repeated IndexRowOrder inserted_rows = 2;
+    repeated RowOrder deleted_rows = 3;
+    repeated RowOrder updated_rows = 4;
+}
+message GridBlock {
+    string id = 1;
+    repeated RowOrder row_orders = 2;
+}
+message Cell {
+    string field_id = 1;
+    string content = 2;
+}
+message CellNotificationData {
+    string grid_id = 1;
+    string field_id = 2;
+    string row_id = 3;
+    oneof one_of_content { string content = 4; };
+}
+message RepeatedCell {
+    repeated Cell items = 1;
+}
+message CreateGridPayload {
+    string name = 1;
+}
+message GridId {
+    string value = 1;
+}
+message GridBlockId {
+    string value = 1;
+}
+message CreateRowPayload {
+    string grid_id = 1;
+    oneof one_of_start_row_id { string start_row_id = 2; };
+}
+message InsertFieldPayload {
+    string grid_id = 1;
+    Field field = 2;
+    bytes type_option_data = 3;
+    oneof one_of_start_field_id { string start_field_id = 4; };
+}
+message QueryFieldPayload {
+    string grid_id = 1;
+    RepeatedFieldOrder field_orders = 2;
+}
+message QueryGridBlocksPayload {
+    string grid_id = 1;
+    repeated GridBlockOrder block_orders = 2;
+}
+message FieldChangesetPayload {
+    string field_id = 1;
+    string grid_id = 2;
+    oneof one_of_name { string name = 3; };
+    oneof one_of_desc { string desc = 4; };
+    oneof one_of_field_type { FieldType field_type = 5; };
+    oneof one_of_frozen { bool frozen = 6; };
+    oneof one_of_visibility { bool visibility = 7; };
+    oneof one_of_width { int32 width = 8; };
+    oneof one_of_type_option_data { bytes type_option_data = 9; };
+}
+message MoveItemPayload {
+    string grid_id = 1;
+    string item_id = 2;
+    int32 from_index = 3;
+    int32 to_index = 4;
+    MoveItemType ty = 5;
+}
+message CellChangeset {
+    string grid_id = 1;
+    string row_id = 2;
+    string field_id = 3;
+    oneof one_of_data { string data = 4; };
+}
+enum MoveItemType {
+    MoveField = 0;
+    MoveRow = 1;
+}
+enum FieldType {
+    RichText = 0;
+    Number = 1;
+    DateTime = 2;
+    SingleSelect = 3;
+    MultiSelect = 4;
+    Checkbox = 5;
+}

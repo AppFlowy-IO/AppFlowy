@@ -65,7 +65,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _subscription?.cancel();
     }
 
-    service.closeDocument(docId: view.id);
+    await service.closeDocument(docId: view.id);
     return super.close();
   }
 
@@ -88,7 +88,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final result = await service.openDocument(docId: view.id);
     result.fold(
       (block) {
-        document = _decodeJsonToDocument(block.deltaJson);
+        document = _decodeJsonToDocument(block.deltaStr);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();
@@ -115,7 +115,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);
-      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.deltaJson));
+      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.deltaStr));
       if (documentDelta != rustDelta) {
         Log.error("Receive : $rustDelta");
         Log.error("Expected : $documentDelta");

@@ -3,27 +3,46 @@ library flowy_plugin;
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
 
+enum DefaultPlugin {
+  quill,
+  blank,
+  trash,
+  grid,
+}
+
+extension FlowyDefaultPluginExt on DefaultPlugin {
+  int type() {
+    switch (this) {
+      case DefaultPlugin.quill:
+        return 0;
+      case DefaultPlugin.blank:
+        return 1;
+      case DefaultPlugin.trash:
+        return 2;
+      case DefaultPlugin.grid:
+        return 3;
+    }
+  }
+}
+
 typedef PluginType = int;
-
 typedef PluginDataType = ViewDataType;
-
 typedef PluginId = String;
 
 abstract class Plugin {
-  PluginId get pluginId;
+  PluginId get id;
 
-  PluginDisplay get pluginDisplay;
+  PluginDisplay get display;
 
-  PluginType get pluginType;
+  PluginType get ty;
 
-  ChangeNotifier? get displayNotifier => null;
-
-  void dispose();
+  void dispose() {}
 }
 
 abstract class PluginBuilder {
@@ -33,21 +52,18 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataType get dataType => ViewDataType.PlainText;
+  ViewDataType get dataType => ViewDataType.TextBlock;
 }
 
 abstract class PluginConfig {
+  // Return false will disable the user to create it. For example, a trash plugin shouldn't be created by the user,
   bool get creatable => true;
 }
 
-abstract class PluginDisplay with NavigationItem {
-  @override
-  Widget get leftBarItem;
-
-  @override
-  Widget? get rightBarItem;
-
+abstract class PluginDisplay<T> with NavigationItem {
   List<NavigationItem> get navigationItems;
+
+  PublishNotifier<T>? get notifier => null;
 
   Widget buildWidget();
 }

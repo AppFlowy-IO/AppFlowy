@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/tasks/load_plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -32,37 +31,34 @@ class BlankPagePlugin extends Plugin {
   }) : _pluginType = pluginType;
 
   @override
-  void dispose() {}
+  PluginDisplay get display => BlankPagePluginDisplay();
 
   @override
-  PluginDisplay get pluginDisplay => BlankPagePluginDisplay();
+  PluginId get id => "BlankStack";
 
   @override
-  PluginId get pluginId => "BlankStack";
-
-  @override
-  PluginType get pluginType => _pluginType;
+  PluginType get ty => _pluginType;
 }
 
-class BlankPagePluginDisplay extends PluginDisplay {
+class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
 
   @override
-  Widget buildWidget() => const BlankStackPage();
+  Widget buildWidget() => const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class BlankStackPage extends StatefulWidget {
-  const BlankStackPage({Key? key}) : super(key: key);
+class BlankPage extends StatefulWidget {
+  const BlankPage({Key? key}) : super(key: key);
 
   @override
-  State<BlankStackPage> createState() => _BlankStackPageState();
+  State<BlankPage> createState() => _BlankPageState();
 }
 
-class _BlankStackPageState extends State<BlankStackPage> {
+class _BlankPageState extends State<BlankPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(

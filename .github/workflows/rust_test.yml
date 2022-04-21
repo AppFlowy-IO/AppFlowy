@@ -4,15 +4,9 @@ on:
   push:
     branches: 
       - 'main'
-    paths:
-      - 'frontend/rust-lib'
-      - 'shared-lib'
   pull_request:
     branches: 
       - 'main'
-    paths:
-      - 'frontend/rust-lib'
-      - 'shared-lib'
 
 env:
   CARGO_TERM_COLOR: always
@@ -50,8 +44,8 @@ jobs:
         
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: cargo test --no-default-features
+        run: RUST_LOG=info cargo test --no-default-features --features="sync"
         
       - name: Run shared-lib tests
         working-directory: shared-lib
-        run: cargo test --no-default-features
+        run: RUST_LOG=info cargo test --no-default-features

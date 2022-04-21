@@ -1,0 +1,110 @@
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+
+class SelectOptionService {
+  SelectOptionService();
+
+  Future<Either<Unit, FlowyError>> create({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+    required String name,
+  }) {
+    return TypeOptionService(gridId: gridId, fieldId: fieldId).newOption(name: name).then(
+      (result) {
+        return result.fold(
+          (option) {
+            final cellIdentifier = CellIdentifierPayload.create()
+              ..gridId = gridId
+              ..fieldId = fieldId
+              ..rowId = rowId;
+            final payload = SelectOptionChangesetPayload.create()
+              ..insertOption = option
+              ..cellIdentifier = cellIdentifier;
+            return GridEventUpdateSelectOption(payload).send();
+          },
+          (r) => right(r),
+        );
+      },
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> update({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+    required SelectOption option,
+  }) {
+    final cellIdentifier = CellIdentifierPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..rowId = rowId;
+    final payload = SelectOptionChangesetPayload.create()
+      ..updateOption = option
+      ..cellIdentifier = cellIdentifier;
+    return GridEventUpdateSelectOption(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> delete({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+    required SelectOption option,
+  }) {
+    final cellIdentifier = CellIdentifierPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..rowId = rowId;
+
+    final payload = SelectOptionChangesetPayload.create()
+      ..deleteOption = option
+      ..cellIdentifier = cellIdentifier;
+
+    return GridEventUpdateSelectOption(payload).send();
+  }
+
+  Future<Either<SelectOptionContext, FlowyError>> getOpitonContext({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+  }) {
+    final payload = CellIdentifierPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..rowId = rowId;
+
+    return GridEventGetSelectOptionContext(payload).send();
+  }
+
+  Future<Either<void, FlowyError>> select({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+    required String optionId,
+  }) {
+    final payload = SelectOptionCellChangesetPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..rowId = rowId
+      ..insertOptionId = optionId;
+    return GridEventUpdateCellSelectOption(payload).send();
+  }
+
+  Future<Either<void, FlowyError>> remove({
+    required String gridId,
+    required String fieldId,
+    required String rowId,
+    required String optionId,
+  }) {
+    final payload = SelectOptionCellChangesetPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..rowId = rowId
+      ..deleteOptionId = optionId;
+    return GridEventUpdateCellSelectOption(payload).send();
+  }
+}

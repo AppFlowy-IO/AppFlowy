@@ -7,4 +7,5 @@ message WebSocketRawMessage {
 enum WSChannel {
     Document = 0;
     Folder = 1;
+    Grid = 2;
 }

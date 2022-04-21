@@ -9,16 +9,16 @@ import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef DeleteNotifierValue = Either<View, FlowyError>;
-typedef UpdateNotifierValue = Either<View, FlowyError>;
-typedef RestoreNotifierValue = Either<View, FlowyError>;
+typedef DeleteViewNotifyValue = Either<View, FlowyError>;
+typedef UpdateViewNotifiedValue = Either<View, FlowyError>;
+typedef RestoreViewNotifiedValue = Either<View, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  PublishNotifier<UpdateNotifierValue> updatedNotifier = PublishNotifier<UpdateNotifierValue>();
-  PublishNotifier<DeleteNotifierValue> deletedNotifier = PublishNotifier<DeleteNotifierValue>();
-  PublishNotifier<RestoreNotifierValue> restoredNotifier = PublishNotifier<RestoreNotifierValue>();
-  late FolderNotificationParser _parser;
+  PublishNotifier<UpdateViewNotifiedValue> updatedNotifier = PublishNotifier<UpdateViewNotifiedValue>();
+  PublishNotifier<DeleteViewNotifyValue> deletedNotifier = PublishNotifier<DeleteViewNotifyValue>();
+  PublishNotifier<RestoreViewNotifiedValue> restoredNotifier = PublishNotifier<RestoreViewNotifiedValue>();
+  FolderNotificationParser? _parser;
   View view;
 
   ViewListener({
@@ -33,7 +33,7 @@ class ViewListener {
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
@@ -62,6 +62,7 @@ class ViewListener {
   }
 
   Future<void> close() async {
+    _parser = null;
     await _subscription?.cancel();
     updatedNotifier.dispose();
     deletedNotifier.dispose();

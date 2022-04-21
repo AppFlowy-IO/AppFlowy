@@ -1,9 +1,9 @@
 // ignore_for_file: unused_element
 
-import 'package:dartz/dartz.dart' show Tuple3;
+import 'dart:ui';
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui';
+export './overlay_container.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
 enum AnchorDirection {
@@ -73,7 +73,8 @@ TransitionBuilder overlayManagerBuilder() {
 }
 
 abstract class FlowyOverlayDelegate {
-  void didRemove();
+  bool asBarrier() => false;
+  void didRemove() => {};
 }
 
 class FlowyOverlay extends StatefulWidget {
@@ -108,8 +109,20 @@ class FlowyOverlay extends StatefulWidget {
   FlowyOverlayState createState() => FlowyOverlayState();
 }
 
+class OverlayItem {
+  Widget widget;
+  String identifier;
+  FlowyOverlayDelegate? delegate;
+
+  OverlayItem({
+    required this.widget,
+    required this.identifier,
+    this.delegate,
+  });
+}
+
 class FlowyOverlayState extends State<FlowyOverlay> {
-  List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
+  final List<OverlayItem> _overlayList = [];
   FlowyOverlayStyle style = FlowyOverlayStyle();
 
   /// Insert a overlay widget which frame is set by the widget, not the component.
@@ -179,17 +192,37 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
   void remove(String identifier) {
     setState(() {
-      final index = _overlayList.indexWhere((ele) => ele.value2 == identifier);
-      _overlayList.removeAt(index).value3?.didRemove();
+      final index = _overlayList.indexWhere((item) => item.identifier == identifier);
+      if (index != -1) {
+        _overlayList.removeAt(index).delegate?.didRemove();
+      }
     });
   }
 
   void removeAll() {
     setState(() {
-      for (var ele in _overlayList.reversed) {
-        ele.value3?.didRemove();
+      if (_overlayList.isEmpty) {
+        return;
       }
-      _overlayList = [];
+
+      final reveredList = _overlayList.reversed.toList();
+      final firstItem = reveredList.removeAt(0);
+      _overlayList.remove(firstItem);
+      if (firstItem.delegate != null) {
+        firstItem.delegate!.didRemove();
+        if (firstItem.delegate!.asBarrier()) {
+          return;
+        }
+      }
+
+      for (final element in reveredList) {
+        if (element.delegate?.asBarrier() ?? false) {
+          return;
+        } else {
+          element.delegate?.didRemove();
+          _overlayList.remove(element);
+        }
+      }
     });
   }
 
@@ -248,15 +281,63 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     }
 
     setState(() {
-      _overlayList.add(Tuple3(overlay, identifier, delegate));
+      _overlayList.add(OverlayItem(
+        widget: overlay,
+        identifier: identifier,
+        delegate: delegate,
+      ));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final overlays = _overlayList.map((ele) => ele.value1);
-    List<Widget> children = <Widget>[widget.child];
+    final overlays = _overlayList.map((item) {
+      var widget = item.widget;
+      if (item.delegate?.asBarrier() ?? false) {
+        widget = Container(
+          color: style.barrierColor,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _handleTapOnBackground,
+            child: widget,
+          ),
+        );
+      }
+      return widget;
+    }).toList();
 
+    List<Widget> children = <Widget>[widget.child];
+    Widget? child = _renderBackground(overlays);
+    if (child != null) {
+      children.add(child);
+    }
+
+    // Try to fix there is no overlay for editabletext widget. e.g. TextField.
+    // // Check out the TextSelectionOverlay class in text_selection.dart.
+    // // ...
+    // //  final OverlayState? overlay = Overlay.of(context, rootOverlay: true);
+    // // assert(
+    // //   overlay != null,
+    // //   'No Overlay widget exists above $context.\n'
+    // //   'Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your '
+    // //   'app content was created above the Navigator with the WidgetsApp builder parameter.',
+    // // );
+    // // ...
+
+    return MaterialApp(
+      theme: Theme.of(context),
+      debugShowCheckedModeBanner: false,
+      home: Stack(
+        children: children..addAll(overlays),
+      ),
+    );
+  }
+
+  void _handleTapOnBackground() {
+    removeAll();
+  }
+
+  Widget? _renderBackground(List<Widget> overlays) {
     Widget? child;
     if (overlays.isNotEmpty) {
       child = Container(
@@ -274,17 +355,6 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         );
       }
     }
-
-    if (child != null) {
-      children.add(child);
-    }
-
-    return Stack(
-      children: children..addAll(overlays),
-    );
-  }
-
-  void _handleTapOnBackground() {
-    removeAll();
+    return child;
   }
 }

@@ -55,14 +55,11 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
         }
     }?;
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
-
     let has_func = format_ident!("has_{}", ident.to_string());
-    // eprintln!("😁{:#?}", ty_info.primitive_ty);
-    // eprintln!("{:#?}", ty_info.bracket_ty_info);
     match ident_category(bracketed_ty_info.unwrap().ident) {
         TypeCategory::Enum => {
             let get_func = format_ident!("get_{}", ident.to_string());
-            let ty = ty_info.ty;
+            let ty = bracketed_ty_info.unwrap().ty;
             Some(quote! {
                 if pb.#has_func() {
                     let enum_de_from_pb = #ty::try_from(&pb.#get_func()).unwrap();
@@ -207,13 +204,12 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyIn
     }
 }
 
-fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
+fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty_info: &TyInfo) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
-
     let take_ident = format_ident!("take_{}", ident.to_string());
-    let ty = bracketed_type.ty;
+    let ty = ty_info.ty;
 
-    match ident_category(bracketed_type.ident) {
+    match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => Some(quote! {
              let mut m: std::collections::HashMap<String, #ty> = std::collections::HashMap::new();
               pb.#take_ident().into_iter().for_each(|(k,v)| {

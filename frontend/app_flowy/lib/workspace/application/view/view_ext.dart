@@ -39,7 +39,7 @@ extension ViewExtension on View {
       thumbnail = "file_icon";
     }
 
-    final Widget widget = svg(thumbnail, color: iconColor);
+    final Widget widget = svgWidget(thumbnail, color: iconColor);
     return widget;
   }
 

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+enum GridEvent {
+    GetGridData = 0;
+    GetGridBlocks = 1;
+    GetFields = 10;
+    UpdateField = 11;
+    InsertField = 12;
+    DeleteField = 13;
+    SwitchToField = 14;
+    DuplicateField = 15;
+    GetEditFieldContext = 16;
+    MoveItem = 17;
+    NewSelectOption = 30;
+    GetSelectOptionContext = 31;
+    UpdateSelectOption = 32;
+    CreateRow = 50;
+    GetRow = 51;
+    DeleteRow = 52;
+    DuplicateRow = 53;
+    GetCell = 70;
+    UpdateCell = 71;
+    UpdateCellSelectOption = 72;
+}

@@ -12,7 +12,7 @@ flowy-net = { path = "../flowy-net"}
 flowy-folder = { path = "../flowy-folder", default-features = false}
 lib-dispatch = { path = "../lib-dispatch" }
 
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
+flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
@@ -26,6 +26,7 @@ futures-util = "0.3.15"
 thread-id = "3.3.0"
 log = "0.4"
 bytes = "1.0"
+nanoid = "0.4.0"
 
 [dev-dependencies]
 quickcheck = "0.9.2"
