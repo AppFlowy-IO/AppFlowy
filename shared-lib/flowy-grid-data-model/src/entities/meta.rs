@@ -98,13 +98,21 @@ pub struct FieldMeta {
     // #[pb(index = 8)]
     /// type_options contains key/value pairs
     /// key: id of the FieldType
-    /// value: type option data string
+    /// value: type option data that can be parsed into specified TypeOptionStruct.
+    /// For example, CheckboxTypeOption, MultiSelectTypeOption etc.
     #[serde(with = "indexmap::serde_seq")]
     pub type_options: IndexMap<String, String>,
+
+    #[serde(default = "default_is_primary")]
+    pub is_primary: bool,
+}
+
+fn default_is_primary() -> bool {
+    false
 }
 
 impl FieldMeta {
-    pub fn new(name: &str, desc: &str, field_type: FieldType) -> Self {
+    pub fn new(name: &str, desc: &str, field_type: FieldType, is_primary: bool) -> Self {
         let width = field_type.default_cell_width();
         Self {
             id: gen_field_id(),
@@ -115,6 +123,7 @@ impl FieldMeta {
             visibility: true,
             width,
             type_options: Default::default(),
+            is_primary,
         }
     }
 

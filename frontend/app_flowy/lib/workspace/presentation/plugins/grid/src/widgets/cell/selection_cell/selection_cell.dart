@@ -1,16 +1,16 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_container.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'extension.dart';
 import 'selection_editor.dart';
 
-class SingleSelectCell extends GridCell {
-  final GridCellIdentifier cellData;
+class SingleSelectCell extends GridCellWidget {
+  final GridCell cellData;
 
-  const SingleSelectCell({
+  SingleSelectCell({
     required this.cellData,
     Key? key,
   }) : super(key: key);
@@ -38,16 +38,16 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
-                widget.setFocus(context, true);
+                widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
                   state.cellData,
                   state.options,
                   state.selectedOptions,
-                  () => widget.setFocus(context, false),
+                  () => widget.onFocus.value = false,
                 );
               },
-              child: Row(children: children),
+              child: ClipRRect(child: Row(children: children)),
             ),
           );
         },
@@ -63,10 +63,10 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends GridCell {
-  final GridCellIdentifier cellData;
+class MultiSelectCell extends GridCellWidget {
+  final GridCell cellData;
 
-  const MultiSelectCell({
+  MultiSelectCell({
     required this.cellData,
     Key? key,
   }) : super(key: key);
@@ -94,16 +94,16 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
           return SizedBox.expand(
             child: InkWell(
               onTap: () {
-                widget.setFocus(context, true);
+                widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
                   state.cellData,
                   state.options,
                   state.selectedOptions,
-                  () => widget.setFocus(context, false),
+                  () => widget.onFocus.value = false,
                 );
               },
-              child: Row(children: children),
+              child: ClipRRect(child: Row(children: children)),
             ),
           );
         },

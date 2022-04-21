@@ -25,7 +25,7 @@ import 'text_field.dart';
 const double _editorPannelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
-  final GridCellIdentifier cellData;
+  final GridCell cellData;
   final List<SelectOption> options;
   final List<SelectOption> selectedOptions;
   final VoidCallback onDismissed;
@@ -66,7 +66,7 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   static void show(
     BuildContext context,
-    GridCellIdentifier cellData,
+    GridCell cellData,
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
     VoidCallback onDismissed,

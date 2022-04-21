@@ -86,29 +86,27 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
 
     return FlowyHover(
       style: HoverStyle(hoverColor: theme.hover),
-      builder: (context, onHover) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => onSelected(action),
-          child: SizedBox(
-            height: itemHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (action.icon != null) action.icon!,
-                HSpace(ActionListSizes.itemHPadding),
-                FlowyText.medium(
-                  action.name,
-                  fontSize: 12,
-                ),
-              ],
-            ),
-          ).padding(
-            horizontal: ActionListSizes.padding,
-            vertical: ActionListSizes.padding,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onSelected(action),
+        child: SizedBox(
+          height: itemHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (action.icon != null) action.icon!,
+              HSpace(ActionListSizes.itemHPadding),
+              FlowyText.medium(
+                action.name,
+                fontSize: 12,
+              ),
+            ],
           ),
-        );
-      },
+        ).padding(
+          horizontal: ActionListSizes.padding,
+          vertical: ActionListSizes.padding,
+        ),
+      ),
     );
   }
 }

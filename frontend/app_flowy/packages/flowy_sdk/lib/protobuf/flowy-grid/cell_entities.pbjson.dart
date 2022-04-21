@@ -12,13 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const CreateSelectOptionPayload$json = const {
   '1': 'CreateSelectOptionPayload',
   '2': const [
-    const {'1': 'cell_identifier', '3': 1, '4': 1, '5': 11, '6': '.CellIdentifierPayload', '10': 'cellIdentifier'},
+    const {'1': 'field_identifier', '3': 1, '4': 1, '5': 11, '6': '.FieldIdentifierPayload', '10': 'fieldIdentifier'},
     const {'1': 'option_name', '3': 2, '4': 1, '5': 9, '10': 'optionName'},
   ],
 };
 
 /// Descriptor for `CreateSelectOptionPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createSelectOptionPayloadDescriptor = $convert.base64Decode('ChlDcmVhdGVTZWxlY3RPcHRpb25QYXlsb2FkEj8KD2NlbGxfaWRlbnRpZmllchgBIAEoCzIWLkNlbGxJZGVudGlmaWVyUGF5bG9hZFIOY2VsbElkZW50aWZpZXISHwoLb3B0aW9uX25hbWUYAiABKAlSCm9wdGlvbk5hbWU=');
+final $typed_data.Uint8List createSelectOptionPayloadDescriptor = $convert.base64Decode('ChlDcmVhdGVTZWxlY3RPcHRpb25QYXlsb2FkEkIKEGZpZWxkX2lkZW50aWZpZXIYASABKAsyFy5GaWVsZElkZW50aWZpZXJQYXlsb2FkUg9maWVsZElkZW50aWZpZXISHwoLb3B0aW9uX25hbWUYAiABKAlSCm9wdGlvbk5hbWU=');
 @$core.Deprecated('Use cellIdentifierPayloadDescriptor instead')
 const CellIdentifierPayload$json = const {
   '1': 'CellIdentifierPayload',
@@ -31,13 +31,3 @@ const CellIdentifierPayload$json = const {
 
 /// Descriptor for `CellIdentifierPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cellIdentifierPayloadDescriptor = $convert.base64Decode('ChVDZWxsSWRlbnRpZmllclBheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhkKCGZpZWxkX2lkGAIgASgJUgdmaWVsZElkEhUKBnJvd19pZBgDIAEoCVIFcm93SWQ=');
-@$core.Deprecated('Use selectOptionNameDescriptor instead')
-const SelectOptionName$json = const {
-  '1': 'SelectOptionName',
-  '2': const [
-    const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
-  ],
-};
-
-/// Descriptor for `SelectOptionName`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionNameDescriptor = $convert.base64Decode('ChBTZWxlY3RPcHRpb25OYW1lEhIKBG5hbWUYASABKAlSBG5hbWU=');

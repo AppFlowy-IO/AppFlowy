@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
+import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -14,11 +14,14 @@ import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
+
 import 'field_type_extension.dart';
-import 'package:dartz/dartz.dart' show Either;
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
 import 'type_option/single_select.dart';
@@ -58,11 +61,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
         },
         builder: (context, state) {
           List<Widget> children = [_switchFieldTypeButton(context, state.field)];
-          final typeOptionWidget = _typeOptionWidget(
-            context: context,
-            field: state.field,
-            data: state.typeOptionData,
-          );
+          final typeOptionWidget = _typeOptionWidget(context: context, state: state);
 
           if (typeOptionWidget != null) {
             children.add(typeOptionWidget);
@@ -111,8 +110,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
 
   Widget? _typeOptionWidget({
     required BuildContext context,
-    required Field field,
-    required TypeOptionData data,
+    required FieldSwitchState state,
   }) {
     final overlayDelegate = TypeOptionOverlayDelegate(
       showOverlay: _showOverlay,
@@ -123,9 +121,14 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
       context.read<FieldSwitcherBloc>().add(FieldSwitchEvent.didUpdateTypeOptionData(data));
     });
 
+    final typeOptionContext = TypeOptionContext(
+      gridId: state.gridId,
+      field: state.field,
+      data: state.typeOptionData,
+    );
+
     final builder = _makeTypeOptionBuild(
-      field: field,
-      data: data,
+      typeOptionContext: typeOptionContext,
       overlayDelegate: overlayDelegate,
       dataDelegate: dataDelegate,
     );
@@ -165,24 +168,23 @@ abstract class TypeOptionBuilder {
 }
 
 TypeOptionBuilder _makeTypeOptionBuild({
-  required Field field,
-  required TypeOptionData data,
+  required TypeOptionContext typeOptionContext,
   required TypeOptionOverlayDelegate overlayDelegate,
   required TypeOptionDataDelegate dataDelegate,
 }) {
-  switch (field.fieldType) {
+  switch (typeOptionContext.field.fieldType) {
     case FieldType.Checkbox:
-      return CheckboxTypeOptionBuilder(data);
+      return CheckboxTypeOptionBuilder(typeOptionContext.data);
     case FieldType.DateTime:
-      return DateTypeOptionBuilder(data, overlayDelegate, dataDelegate);
+      return DateTypeOptionBuilder(typeOptionContext.data, overlayDelegate, dataDelegate);
     case FieldType.SingleSelect:
-      return SingleSelectTypeOptionBuilder(field.id, data, overlayDelegate, dataDelegate);
+      return SingleSelectTypeOptionBuilder(typeOptionContext, overlayDelegate, dataDelegate);
     case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(field.id, data, overlayDelegate, dataDelegate);
+      return MultiSelectTypeOptionBuilder(typeOptionContext, overlayDelegate, dataDelegate);
     case FieldType.Number:
-      return NumberTypeOptionBuilder(data, overlayDelegate, dataDelegate);
+      return NumberTypeOptionBuilder(typeOptionContext.data, overlayDelegate, dataDelegate);
     case FieldType.RichText:
-      return RichTextTypeOptionBuilder(data);
+      return RichTextTypeOptionBuilder(typeOptionContext.data);
 
     default:
       throw UnimplementedError;

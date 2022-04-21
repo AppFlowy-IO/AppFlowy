@@ -90,16 +90,6 @@ class _FieldOperationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actions = FieldAction.values
-        .map(
-          (action) => FieldActionCell(
-            fieldId: fieldData.field.id,
-            action: action,
-            onTap: onDismissed,
-          ),
-        )
-        .toList();
-
     return GridView(
       // https://api.flutter.dev/flutter/widgets/AnimatedList/shrinkWrap.html
       shrinkWrap: true,
@@ -108,8 +98,30 @@ class _FieldOperationList extends StatelessWidget {
         childAspectRatio: 4.0,
         mainAxisSpacing: 8,
       ),
-      children: actions,
+      children: buildCells(),
     );
+  }
+
+  List<Widget> buildCells() {
+    return FieldAction.values.map(
+      (action) {
+        bool enable = true;
+        switch (action) {
+          case FieldAction.delete:
+            enable = !fieldData.field.isPrimary;
+            break;
+          default:
+            break;
+        }
+
+        return FieldActionCell(
+          fieldId: fieldData.field.id,
+          action: action,
+          onTap: onDismissed,
+          enable: enable,
+        );
+      },
+    ).toList();
   }
 }
 
@@ -117,11 +129,13 @@ class FieldActionCell extends StatelessWidget {
   final String fieldId;
   final VoidCallback onTap;
   final FieldAction action;
+  final bool enable;
 
   const FieldActionCell({
     required this.fieldId,
     required this.action,
     required this.onTap,
+    required this.enable,
     Key? key,
   }) : super(key: key);
 
@@ -129,11 +143,13 @@ class FieldActionCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyButton(
-      text: FlowyText.medium(action.title(), fontSize: 12),
+      text: FlowyText.medium(action.title(), fontSize: 12, color: enable ? null : theme.shader4),
       hoverColor: theme.hover,
       onTap: () {
-        action.run(context);
-        onTap();
+        if (enable) {
+          action.run(context);
+          onTap();
+        }
       },
       leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
     );

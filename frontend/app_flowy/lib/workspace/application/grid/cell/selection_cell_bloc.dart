@@ -16,7 +16,7 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final SingleFieldListener _fieldListener;
 
   SelectionCellBloc({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
   })  : _service = SelectOptionService(),
         _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
         _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
@@ -93,12 +93,12 @@ class SelectionCellEvent with _$SelectionCellEvent {
 @freezed
 class SelectionCellState with _$SelectionCellState {
   const factory SelectionCellState({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   }) = _SelectionCellState;
 
-  factory SelectionCellState.initial(GridCellIdentifier cellData) => SelectionCellState(
+  factory SelectionCellState.initial(GridCell cellData) => SelectionCellState(
         cellData: cellData,
         options: [],
         selectedOptions: [],

@@ -7,6 +7,7 @@ pub fn make_default_grid() -> BuildGridContext {
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
+        .primary(true)
         .build();
 
     // single select

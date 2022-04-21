@@ -18,7 +18,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   Timer? _delayOperation;
 
   SelectOptionEditorBloc({
-    required GridCellIdentifier cellData,
+    required GridCell cellData,
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   })  : _selectOptionService = SelectOptionService(),
@@ -174,7 +174,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(
-    GridCellIdentifier cellData,
+    GridCell cellData,
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) {

@@ -42,6 +42,9 @@ pub struct Field {
 
     #[pb(index = 7)]
     pub width: i32,
+
+    #[pb(index = 8)]
+    pub is_primary: bool,
 }
 
 impl std::convert::From<FieldMeta> for Field {
@@ -54,6 +57,7 @@ impl std::convert::From<FieldMeta> for Field {
             frozen: field_meta.frozen,
             visibility: field_meta.visibility,
             width: field_meta.width,
+            is_primary: field_meta.is_primary,
         }
     }
 }

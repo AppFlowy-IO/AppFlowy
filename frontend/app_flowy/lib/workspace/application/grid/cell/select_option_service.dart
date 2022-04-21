@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -13,7 +14,7 @@ class SelectOptionService {
     required String rowId,
     required String name,
   }) {
-    return GridEventNewSelectOption(SelectOptionName.create()..name = name).send().then(
+    return TypeOptionService(gridId: gridId, fieldId: fieldId).newOption(name: name).then(
       (result) {
         return result.fold(
           (option) {

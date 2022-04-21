@@ -177,7 +177,8 @@
     },
     "row": {
       "duplicate": "Duplicate",
-      "delete": "Delete"
+      "delete": "Delete",
+      "textPlaceholder": "Empty"
     },
     "selectOption": {
       "purpleColor": "Purple",

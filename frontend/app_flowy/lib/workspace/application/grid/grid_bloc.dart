@@ -13,13 +13,17 @@ part 'grid_bloc.freezed.dart';
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService _gridService;
   final GridFieldCache fieldCache;
-  final GridRowCache rowCache;
+  late final GridRowCache rowCache;
 
   GridBloc({required View view})
       : _gridService = GridService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id),
-        rowCache = GridRowCache(gridId: view.id),
         super(GridState.initial(view.id)) {
+    rowCache = GridRowCache(
+      gridId: view.id,
+      dataDelegate: GridRowDataDelegateAdaptor(fieldCache),
+    );
+
     on<GridEvent>(
       (event, emit) async {
         await event.map(
@@ -51,13 +55,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
   void _startListening() {
     fieldCache.addListener(
-      onChanged: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
       listenWhen: () => !isClosed,
+      onChanged: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
     );
 
     rowCache.addListener(
-      onChanged: (rows, listState) => add(GridEvent.didReceiveRowUpdate(rowCache.clonedRows, listState)),
       listenWhen: () => !isClosed,
+      onChanged: (rows, listState) => add(GridEvent.didReceiveRowUpdate(rowCache.clonedRows, listState)),
     );
   }
 
@@ -77,7 +81,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.fields = fields.items;
-          rowCache.updateWithBlock(grid.blockOrders, fieldCache.unmodifiableFields);
+          rowCache.updateWithBlock(grid.blockOrders);
 
           emit(state.copyWith(
             grid: Some(grid),

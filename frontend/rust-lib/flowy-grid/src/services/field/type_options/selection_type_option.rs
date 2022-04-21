@@ -1,10 +1,10 @@
 use crate::impl_type_option;
-use crate::services::cell::{CellIdentifier, CellIdentifierPayload};
+use crate::services::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
@@ -36,8 +36,33 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
         }
     }
 
+    fn create_option(&self, name: &str) -> SelectOption {
+        let color = select_option_color_from_index(self.options().len());
+        SelectOption::with_color(name, color)
+    }
+
     fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext;
+
+    fn options(&self) -> &Vec<SelectOption>;
+
     fn mut_options(&mut self) -> &mut Vec<SelectOption>;
+}
+
+pub fn select_option_operation(field_meta: &FieldMeta) -> FlowyResult<Box<dyn SelectOptionOperation>> {
+    match &field_meta.field_type {
+        FieldType::SingleSelect => {
+            let type_option = SingleSelectTypeOption::from(field_meta);
+            Ok(Box::new(type_option))
+        }
+        FieldType::MultiSelect => {
+            let type_option = MultiSelectTypeOption::from(field_meta);
+            Ok(Box::new(type_option))
+        }
+        ty => {
+            tracing::error!("Unsupported field type: {:?} for this handler", ty);
+            Err(ErrorCode::FieldInvalidOperation.into())
+        }
+    }
 }
 
 // Single select
@@ -58,6 +83,10 @@ impl SelectOptionOperation for SingleSelectTypeOption {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn options(&self) -> &Vec<SelectOption> {
+        &self.options
     }
 
     fn mut_options(&mut self) -> &mut Vec<SelectOption> {
@@ -153,6 +182,10 @@ impl SelectOptionOperation for MultiSelectTypeOption {
             options: self.options.clone(),
             select_options,
         }
+    }
+
+    fn options(&self) -> &Vec<SelectOption> {
+        &self.options
     }
 
     fn mut_options(&mut self) -> &mut Vec<SelectOption> {
@@ -263,6 +296,14 @@ impl SelectOption {
             id: nanoid!(4),
             name: name.to_owned(),
             color: SelectOptionColor::default(),
+        }
+    }
+
+    pub fn with_color(name: &str, color: SelectOptionColor) -> Self {
+        SelectOption {
+            id: nanoid!(4),
+            name: name.to_owned(),
+            color,
         }
     }
 }
@@ -428,6 +469,21 @@ pub enum SelectOptionColor {
     Green = 6,
     Aqua = 7,
     Blue = 8,
+}
+
+pub fn select_option_color_from_index(index: usize) -> SelectOptionColor {
+    match index % 8 {
+        0 => SelectOptionColor::Purple,
+        1 => SelectOptionColor::Pink,
+        2 => SelectOptionColor::LightPink,
+        3 => SelectOptionColor::Orange,
+        4 => SelectOptionColor::Yellow,
+        5 => SelectOptionColor::Lime,
+        6 => SelectOptionColor::Green,
+        7 => SelectOptionColor::Aqua,
+        8 => SelectOptionColor::Blue,
+        _ => SelectOptionColor::Purple,
+    }
 }
 
 impl std::default::Default for SelectOptionColor {

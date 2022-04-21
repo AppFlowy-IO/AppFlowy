@@ -44,7 +44,7 @@ class CellCache {
 
   CellCache() : _cellService = CellService();
 
-  Future<Option<Cell>> getCellData(GridCellIdentifier identifier) async {
+  Future<Option<Cell>> getCellData(GridCell identifier) async {
     final cellId = _cellId(identifier);
     final Cell? data = _cellDataMap[cellId];
     if (data != null) {
@@ -69,7 +69,7 @@ class CellCache {
     );
   }
 
-  String _cellId(GridCellIdentifier identifier) {
+  String _cellId(GridCell identifier) {
     return "${identifier.rowId}/${identifier.field.id}";
   }
 }

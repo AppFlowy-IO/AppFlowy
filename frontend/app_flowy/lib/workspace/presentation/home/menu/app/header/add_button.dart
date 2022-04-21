@@ -82,16 +82,14 @@ class CreateItem extends StatelessWidget {
 
     return FlowyHover(
       style: config,
-      builder: (context, onHover) {
-        return GestureDetector(
-          onTap: () => onSelected(pluginBuilder),
-          child: FlowyText.medium(
-            pluginBuilder.menuName,
-            color: theme.textColor,
-            fontSize: 12,
-          ).padding(horizontal: 10, vertical: 6),
-        );
-      },
+      child: GestureDetector(
+        onTap: () => onSelected(pluginBuilder),
+        child: FlowyText.medium(
+          pluginBuilder.menuName,
+          color: theme.textColor,
+          fontSize: 12,
+        ).padding(horizontal: 10, vertical: 6),
+      ),
     );
   }
 }

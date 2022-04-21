@@ -69,7 +69,7 @@ pub enum GridEvent {
     #[event(input = "MoveItemPayload")]
     MoveItem = 17,
 
-    #[event(input = "SelectOptionName", output = "SelectOption")]
+    #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     NewSelectOption = 30,
 
     #[event(input = "CellIdentifierPayload", output = "SelectOptionContext")]

@@ -172,7 +172,7 @@ class GridEventMoveItem {
 }
 
 class GridEventNewSelectOption {
-     SelectOptionName request;
+     CreateSelectOptionPayload request;
      GridEventNewSelectOption(this.request);
 
     Future<Either<SelectOption, FlowyError>> send() {
