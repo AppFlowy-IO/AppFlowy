@@ -168,34 +168,34 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellDataContext, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
     (context, _) => TextCellBloc(
-      cellDataContext: context,
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridCellDataContext, void>(
+  getIt.registerFactoryParam<SelectionCellBloc, GridCellContext, void>(
     (context, _) => SelectionCellBloc(
-      cellDataContext: context,
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellDataContext, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellContext, void>(
     (context, _) => NumberCellBloc(
-      cellDataContext: context,
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridCellDataContext, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridCellContext, void>(
     (context, _) => DateCellBloc(
-      cellDataContext: context,
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellDataContext, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
-      cellDataContext: cellData,
+      cellContext: cellData,
     ),
   );
 

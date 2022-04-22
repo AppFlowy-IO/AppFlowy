@@ -8,22 +8,22 @@ import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
-GridCellWidget buildGridCell(GridCellDataContext cellDataContext, {GridCellStyle? style}) {
-  final key = ValueKey(cellDataContext.cellId);
-  final fieldType = cellDataContext.cellData.field.fieldType;
+GridCellWidget buildGridCell(GridCellContext cellContext, {GridCellStyle? style}) {
+  final key = ValueKey(cellContext.cellId);
+  final fieldType = cellContext.cellData.field.fieldType;
   switch (fieldType) {
     case FieldType.Checkbox:
-      return CheckboxCell(cellDataContext: cellDataContext, key: key);
+      return CheckboxCell(cellContext: cellContext, key: key);
     case FieldType.DateTime:
-      return DateCell(cellDataContext: cellDataContext, key: key);
+      return DateCell(cellContext: cellContext, key: key);
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellDataContext: cellDataContext, style: style, key: key);
+      return MultiSelectCell(cellContext: cellContext, style: style, key: key);
     case FieldType.Number:
-      return NumberCell(cellDataContext: cellDataContext, key: key);
+      return NumberCell(cellContext: cellContext, key: key);
     case FieldType.RichText:
-      return GridTextCell(cellDataContext: cellDataContext, style: style, key: key);
+      return GridTextCell(cellContext: cellContext, style: style, key: key);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellDataContext: cellDataContext, style: style, key: key);
+      return SingleSelectCell(cellContext: cellContext, style: style, key: key);
     default:
       throw UnimplementedError;
   }

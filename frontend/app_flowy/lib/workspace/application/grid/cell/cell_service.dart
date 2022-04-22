@@ -11,10 +11,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'cell_service.freezed.dart';
 
-class GridCellDataContext {
+class GridCellContext {
   GridCell cellData;
   GridCellCache cellCache;
-  GridCellDataContext({
+  GridCellContext({
     required this.cellData,
     required this.cellCache,
   });
@@ -30,15 +30,47 @@ class GridCellDataContext {
   FieldType get fieldType => cellData.field.fieldType;
 
   Field get field => cellData.field;
+
+  GridCellCacheKey get cacheKey => GridCellCacheKey(rowId: cellData.rowId, fieldId: cellData.field.id);
+
+  T? getCacheData<T>() {
+    return cellCache.get(cacheKey);
+  }
+
+  void setCacheData(dynamic data) {
+    cellCache.insert(GridCellCacheData(key: cacheKey, value: data));
+  }
+
+  void onFieldChanged(VoidCallback callback) {
+    cellCache.addListener(fieldId, rowId, callback);
+  }
+
+  void removeListener() {
+    cellCache.removeListener(fieldId, rowId);
+  }
 }
 
 // key: rowId
 typedef CellDataMap = LinkedHashMap<String, GridCell>;
 
-abstract class GridCellCacheData {
-  String get fieldId;
-  String get cacheKey;
-  dynamic get cacheData;
+class GridCellCacheData {
+  GridCellCacheKey key;
+  dynamic value;
+  GridCellCacheData({
+    required this.key,
+    required this.value,
+  });
+}
+
+class GridCellCacheKey {
+  final String fieldId;
+  final String rowId;
+  GridCellCacheKey({
+    required this.fieldId,
+    required this.rowId,
+  });
+
+  String get cellId => "$rowId + $fieldId";
 }
 
 abstract class GridCellFieldDelegate {
@@ -49,33 +81,56 @@ class GridCellCache {
   final String gridId;
   final GridCellFieldDelegate fieldDelegate;
 
+  /// fieldId: {rowId: callback}
+  final Map<String, Map<String, VoidCallback>> _cellListenerByFieldId = {};
+
   /// fieldId: {cacheKey: cacheData}
-  final Map<String, Map<String, dynamic>> _cells = {};
+  final Map<String, Map<String, dynamic>> _cellCacheByFieldId = {};
   GridCellCache({
     required this.gridId,
     required this.fieldDelegate,
   }) {
     fieldDelegate.onFieldChanged((fieldId) {
-      _cells.remove(fieldId);
+      _cellCacheByFieldId.remove(fieldId);
+      final map = _cellListenerByFieldId[fieldId];
+      if (map != null) {
+        for (final callback in map.values) {
+          callback();
+        }
+      }
     });
   }
 
-  void insert<T extends GridCellCacheData>(T cacheData) {
-    var map = _cells[cacheData.fieldId];
+  void addListener(String fieldId, String rowId, VoidCallback callback) {
+    var map = _cellListenerByFieldId[fieldId];
     if (map == null) {
-      _cells[cacheData.fieldId] = {};
-      map = _cells[cacheData.fieldId];
+      _cellListenerByFieldId[fieldId] = {};
+      map = _cellListenerByFieldId[fieldId];
     }
 
-    map![cacheData.cacheKey] = cacheData.cacheData;
+    map![rowId] = callback;
   }
 
-  T? get<T>(String fieldId, String cacheKey) {
-    final map = _cells[fieldId];
+  void removeListener(String fieldId, String rowId) {
+    _cellListenerByFieldId[fieldId]?.remove(rowId);
+  }
+
+  void insert<T extends GridCellCacheData>(T item) {
+    var map = _cellCacheByFieldId[item.key.fieldId];
+    if (map == null) {
+      _cellCacheByFieldId[item.key.fieldId] = {};
+      map = _cellCacheByFieldId[item.key.fieldId];
+    }
+
+    map![item.key.cellId] = item.value;
+  }
+
+  T? get<T>(GridCellCacheKey key) {
+    final map = _cellCacheByFieldId[key.fieldId];
     if (map == null) {
       return null;
     } else {
-      final object = map[cacheKey];
+      final object = map[key.cellId];
       if (object is T) {
         return object;
       } else {

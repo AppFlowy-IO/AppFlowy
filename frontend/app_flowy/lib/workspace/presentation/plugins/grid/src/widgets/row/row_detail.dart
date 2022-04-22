@@ -94,11 +94,11 @@ class _PropertyList extends StatelessWidget {
             controller: _scrollController,
             itemCount: state.cellDatas.length,
             itemBuilder: (BuildContext context, int index) {
-              final cellDataContext = GridCellDataContext(
+              final cellContext = GridCellContext(
                 cellData: state.cellDatas[index],
                 cellCache: cellCache,
               );
-              return _RowDetailCell(cellDataContext: cellDataContext);
+              return _RowDetailCell(cellContext: cellContext);
             },
             separatorBuilder: (BuildContext context, int index) {
               return const VSpace(2);
@@ -111,16 +111,16 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCellDataContext cellDataContext;
-  const _RowDetailCell({required this.cellDataContext, Key? key}) : super(key: key);
+  final GridCellContext cellContext;
+  const _RowDetailCell({required this.cellContext, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
     final cell = buildGridCell(
-      cellDataContext,
-      style: _buildCellStyle(theme, cellDataContext.fieldType),
+      cellContext,
+      style: _buildCellStyle(theme, cellContext.fieldType),
     );
     return SizedBox(
       height: 36,
@@ -130,7 +130,7 @@ class _RowDetailCell extends StatelessWidget {
         children: [
           SizedBox(
             width: 150,
-            child: FieldCellButton(field: cellDataContext.field, onTap: () => _showFieldEditor(context)),
+            child: FieldCellButton(field: cellContext.field, onTap: () => _showFieldEditor(context)),
           ),
           const HSpace(10),
           Expanded(
@@ -146,10 +146,10 @@ class _RowDetailCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
-      gridId: cellDataContext.gridId,
+      gridId: cellContext.gridId,
       fieldContextLoader: FieldContextLoaderAdaptor(
-        gridId: cellDataContext.gridId,
-        field: cellDataContext.field,
+        gridId: cellContext.gridId,
+        field: cellContext.field,
       ),
     ).show(context);
   }

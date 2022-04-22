@@ -15,11 +15,11 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final SingleFieldListener _fieldListener;
 
   NumberCellBloc({
-    required GridCellDataContext cellDataContext,
+    required GridCellContext cellContext,
   })  : _service = CellService(),
-        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
-        _fieldListener = SingleFieldListener(fieldId: cellDataContext.fieldId),
-        super(NumberCellState.initial(cellDataContext.cellData)) {
+        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        super(NumberCellState.initial(cellContext.cellData)) {
     on<NumberCellEvent>(
       (event, emit) async {
         await event.map(

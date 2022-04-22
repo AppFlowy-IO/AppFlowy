@@ -178,14 +178,14 @@ class _RowCells extends StatelessWidget {
           expander = _CellExpander(onExpand: onExpand);
         }
 
-        final cellDataContext = GridCellDataContext(
+        final cellContext = GridCellContext(
           cellData: cellData,
           cellCache: cellCache,
         );
 
         return CellContainer(
           width: cellData.field.width.toDouble(),
-          child: buildGridCell(cellDataContext),
+          child: buildGridCell(cellContext),
           expander: expander,
         );
       },

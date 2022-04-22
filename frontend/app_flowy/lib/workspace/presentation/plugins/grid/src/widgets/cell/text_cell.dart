@@ -14,10 +14,10 @@ class GridTextCellStyle extends GridCellStyle {
 }
 
 class GridTextCell extends GridCellWidget {
-  final GridCellDataContext cellDataContext;
+  final GridCellContext cellContext;
   late final GridTextCellStyle? cellStyle;
   GridTextCell({
-    required this.cellDataContext,
+    required this.cellContext,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -41,7 +41,7 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<TextCellBloc>(param1: widget.cellDataContext);
+    _cellBloc = getIt<TextCellBloc>(param1: widget.cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode = FocusNode();

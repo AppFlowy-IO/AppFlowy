@@ -13,10 +13,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final CellListener _cellListener;
 
   TextCellBloc({
-    required GridCellDataContext cellDataContext,
+    required GridCellContext cellContext,
   })  : _service = CellService(),
-        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
-        super(TextCellState.initial(cellDataContext.cellData)) {
+        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
+        super(TextCellState.initial(cellContext.cellData)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(

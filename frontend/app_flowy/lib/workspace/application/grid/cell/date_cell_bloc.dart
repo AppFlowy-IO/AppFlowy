@@ -14,11 +14,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellListener _cellListener;
   final SingleFieldListener _fieldListener;
 
-  DateCellBloc({required GridCellDataContext cellDataContext})
+  DateCellBloc({required GridCellContext cellContext})
       : _service = CellService(),
-        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
-        _fieldListener = SingleFieldListener(fieldId: cellDataContext.fieldId),
-        super(DateCellState.initial(cellDataContext.cellData)) {
+        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        super(DateCellState.initial(cellContext.cellData)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(

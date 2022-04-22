@@ -1,12 +1,14 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
-import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
+import 'dart:async';
+
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
+
+import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 
 part 'selection_cell_bloc.freezed.dart';
 
@@ -14,19 +16,21 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final SelectOptionService _service;
   final CellListener _cellListener;
   final SingleFieldListener _fieldListener;
+  final GridCellContext _cellContext;
 
   SelectionCellBloc({
-    required GridCellDataContext cellDataContext,
+    required GridCellContext cellContext,
   })  : _service = SelectOptionService(),
-        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
-        _fieldListener = SingleFieldListener(fieldId: cellDataContext.fieldId),
-        super(SelectionCellState.initial(cellDataContext.cellData)) {
+        _cellContext = cellContext,
+        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        super(SelectionCellState.initial(cellContext.cellData)) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialCell value) async {
-            _loadOptions();
             _startListening();
+            _loadOptions();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             emit(state.copyWith(options: value.options, selectedOptions: value.selectedOptions));
@@ -40,26 +44,35 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   Future<void> close() async {
     await _cellListener.stop();
     await _fieldListener.stop();
+    _cellContext.removeListener();
     return super.close();
   }
 
   void _loadOptions() async {
-    final result = await _service.getOpitonContext(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-    );
-    if (isClosed) {
-      return;
+    var selectOptionContext = _cellContext.getCacheData<SelectOptionContext>();
+    if (selectOptionContext == null) {
+      final result = await _service.getOpitonContext(
+        gridId: state.cellData.gridId,
+        fieldId: state.cellData.field.id,
+        rowId: state.cellData.rowId,
+      );
+      if (isClosed) {
+        return;
+      }
+
+      result.fold(
+        (newSelectOptionContext) {
+          _cellContext.setCacheData(newSelectOptionContext);
+          selectOptionContext = newSelectOptionContext;
+        },
+        (err) => Log.error(err),
+      );
     }
 
-    result.fold(
-      (selectOptionContext) => add(SelectionCellEvent.didReceiveOptions(
-        selectOptionContext.options,
-        selectOptionContext.selectOptions,
-      )),
-      (err) => Log.error(err),
-    );
+    add(SelectionCellEvent.didReceiveOptions(
+      selectOptionContext!.options,
+      selectOptionContext!.selectOptions,
+    ));
   }
 
   void _startListening() {
@@ -71,13 +84,15 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
     });
     _cellListener.start();
 
-    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
-      result.fold(
-        (field) => _loadOptions(),
-        (err) => Log.error(err),
-      );
-    });
-    _fieldListener.start();
+    _cellContext.onFieldChanged(() => _loadOptions());
+
+    // _fieldListener.updateFieldNotifier?.addPublishListener((result) {
+    //   result.fold(
+    //     (field) => _loadOptions(),
+    //     (err) => Log.error(err),
+    //   );
+    // });
+    // _fieldListener.start();
   }
 }
 

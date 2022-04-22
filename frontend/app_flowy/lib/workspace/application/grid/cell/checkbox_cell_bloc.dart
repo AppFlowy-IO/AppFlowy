@@ -14,10 +14,10 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   CheckboxCellBloc({
     required CellService service,
-    required GridCellDataContext cellDataContext,
+    required GridCellContext cellContext,
   })  : _service = service,
-        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
-        super(CheckboxCellState.initial(cellDataContext.cellData)) {
+        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
+        super(CheckboxCellState.initial(cellContext.cellData)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(
