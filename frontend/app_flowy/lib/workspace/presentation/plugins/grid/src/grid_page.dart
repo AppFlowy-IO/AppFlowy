@@ -213,7 +213,7 @@ class _GridRowsState extends State<_GridRows> {
           key: _key,
           initialItemCount: context.read<GridBloc>().state.rows.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            final rowData = context.read<GridBloc>().state.rows[index];
+            final GridRow rowData = context.read<GridBloc>().state.rows[index];
             return _renderRow(context, rowData, animation);
           },
         );

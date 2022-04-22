@@ -47,12 +47,10 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   Future<void> _loadCellData() async {
-    final data = _rowCache.loadCellData(rowData.rowId);
-    data.foldRight(null, (cellDataMap, _) {
-      if (!isClosed) {
-        add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
-      }
-    });
+    final cellDataMap = _rowCache.loadCellData(rowData.rowId);
+    if (!isClosed) {
+      add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
+    }
   }
 }
 

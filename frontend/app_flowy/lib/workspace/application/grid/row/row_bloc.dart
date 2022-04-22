@@ -17,19 +17,18 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     required GridRowCache rowCache,
   })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
         _rowCache = rowCache,
-        super(RowState.initial(rowData)) {
+        super(RowState.initial(rowData, rowCache.loadCellData(rowData.rowId))) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
             await _startListening();
-            await _loadRow(emit);
           },
           createRow: (_CreateRow value) {
             _rowService.createRow();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) async {
-            emit(state.copyWith(cellDataMap: Some(value.cellData)));
+            emit(state.copyWith(cellDataMap: value.cellData));
           },
         );
       },
@@ -41,6 +40,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     if (_rowListenFn != null) {
       _rowCache.removeRowListener(_rowListenFn!);
     }
+
     return super.close();
   }
 
@@ -50,15 +50,6 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       onUpdated: (cellDatas) => add(RowEvent.didReceiveCellDatas(cellDatas)),
       listenWhen: () => !isClosed,
     );
-  }
-
-  Future<void> _loadRow(Emitter<RowState> emit) async {
-    final data = _rowCache.loadCellData(state.rowData.rowId);
-    data.foldRight(null, (cellDatas, _) {
-      if (!isClosed) {
-        add(RowEvent.didReceiveCellDatas(cellDatas));
-      }
-    });
   }
 }
 
@@ -73,11 +64,11 @@ class RowEvent with _$RowEvent {
 class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
-    required Option<CellDataMap> cellDataMap,
+    required CellDataMap cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(GridRow rowData) => RowState(
+  factory RowState.initial(GridRow rowData, CellDataMap cellDataMap) => RowState(
         rowData: rowData,
-        cellDataMap: none(),
+        cellDataMap: cellDataMap,
       );
 }

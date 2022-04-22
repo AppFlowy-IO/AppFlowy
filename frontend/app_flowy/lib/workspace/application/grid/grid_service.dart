@@ -180,14 +180,14 @@ class GridRowDataDelegateAdaptor extends GridRowDataDelegate {
   }
 
   @override
-  CellDataMap buildCellDataMap(Row rowData) {
+  CellDataMap buildCellDataMap(String rowId, Row? rowData) {
     var map = CellDataMap.new();
     for (final field in fields) {
       if (field.visibility) {
         map[field.id] = GridCell(
-          rowId: rowData.id,
+          rowId: rowId,
           gridId: _cache.gridId,
-          cell: rowData.cellByFieldId[field.id],
+          cell: rowData?.cellByFieldId[field.id],
           field: field,
         );
       }

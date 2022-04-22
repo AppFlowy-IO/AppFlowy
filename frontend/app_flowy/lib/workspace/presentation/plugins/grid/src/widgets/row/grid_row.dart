@@ -164,24 +164,21 @@ class _RowCells extends StatelessWidget {
     );
   }
 
-  List<Widget> _makeCells(Option<CellDataMap> data) {
-    return data.fold(
-      () => [],
-      (cellDataMap) => cellDataMap.values.map(
-        (cellData) {
-          Widget? expander;
-          if (cellData.field.isPrimary) {
-            expander = _CellExpander(onExpand: onExpand);
-          }
+  List<Widget> _makeCells(CellDataMap cellDataMap) {
+    return cellDataMap.values.map(
+      (cellData) {
+        Widget? expander;
+        if (cellData.field.isPrimary) {
+          expander = _CellExpander(onExpand: onExpand);
+        }
 
-          return CellContainer(
-            width: cellData.field.width.toDouble(),
-            child: buildGridCell(cellData),
-            expander: expander,
-          );
-        },
-      ).toList(),
-    );
+        return CellContainer(
+          width: cellData.field.width.toDouble(),
+          child: buildGridCell(cellData),
+          expander: expander,
+        );
+      },
+    ).toList();
   }
 }
 

@@ -9,7 +9,7 @@ import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
 GridCellWidget buildGridCell(GridCell cellData, {GridCellStyle? style}) {
-  final key = ValueKey(cellData.field.id + cellData.rowId);
+  final key = cellData.key();
   switch (cellData.field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxCell(cellData: cellData, key: key);

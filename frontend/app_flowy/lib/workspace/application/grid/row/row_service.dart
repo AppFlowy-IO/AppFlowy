@@ -18,7 +18,7 @@ typedef CellDataMap = LinkedHashMap<String, GridCell>;
 abstract class GridRowDataDelegate {
   UnmodifiableListView<Field> get fields;
   GridRow buildGridRow(RowOrder rowOrder);
-  CellDataMap buildCellDataMap(Row rowData);
+  CellDataMap buildCellDataMap(String rowId, Row? rowData);
   void onFieldChanged(FieldDidUpdateCallback callback);
 }
 
@@ -92,7 +92,7 @@ class GridRowCache {
       notify() {
         final row = _rowNotifier.rowDataWithId(rowId);
         if (row != null) {
-          final cellDataMap = _dataDelegate.buildCellDataMap(row);
+          final cellDataMap = _dataDelegate.buildCellDataMap(rowId, row);
           onUpdated(cellDataMap);
         }
       }
@@ -115,23 +115,22 @@ class GridRowCache {
     _rowNotifier.removeListener(callback);
   }
 
-  Option<CellDataMap> loadCellData(String rowId) {
+  CellDataMap loadCellData(String rowId) {
     final Row? data = _rowNotifier.rowDataWithId(rowId);
-    if (data != null) {
-      return Some(_dataDelegate.buildCellDataMap(data));
+    if (data == null) {
+      final payload = RowIdentifierPayload.create()
+        ..gridId = gridId
+        ..rowId = rowId;
+
+      GridEventGetRow(payload).send().then((result) {
+        result.fold(
+          (rowData) => _rowNotifier.rowData = rowData,
+          (err) => Log.error(err),
+        );
+      });
     }
 
-    final payload = RowIdentifierPayload.create()
-      ..gridId = gridId
-      ..rowId = rowId;
-
-    GridEventGetRow(payload).send().then((result) {
-      result.fold(
-        (rowData) => _rowNotifier.rowData = rowData,
-        (err) => Log.error(err),
-      );
-    });
-    return none();
+    return _dataDelegate.buildCellDataMap(rowId, data);
   }
 
   void updateWithBlock(List<GridBlockOrder> blocks) {
@@ -331,6 +330,10 @@ class GridCell with _$GridCell {
     required Field field,
     Cell? cell,
   }) = _GridCell;
+
+  ValueKey key() {
+    return ValueKey(rowId + (cell?.fieldId ?? ""));
+  }
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;
