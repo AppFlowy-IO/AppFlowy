@@ -16,13 +16,13 @@ GridCellWidget buildGridCell(GridCell cellData, {GridCellStyle? style}) {
     case FieldType.DateTime:
       return DateCell(cellData: cellData, key: key);
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellData: cellData, key: key);
+      return MultiSelectCell(cellData: cellData, style: style, key: key);
     case FieldType.Number:
       return NumberCell(cellData: cellData, key: key);
     case FieldType.RichText:
-      return GridTextCell(cellData: cellData, key: key, style: style);
+      return GridTextCell(cellData: cellData, style: style, key: key);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellData: cellData, key: key);
+      return SingleSelectCell(cellData: cellData, style: style, key: key);
     default:
       throw UnimplementedError;
   }

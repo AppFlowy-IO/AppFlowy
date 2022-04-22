@@ -51,7 +51,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
             _updateOption(value.option);
           },
           selectOption: (_SelectOption value) {
-            _makeOptionAsSelected(value.optionId);
+            _onSelectOption(value.optionId);
           },
         );
       },
@@ -98,13 +98,23 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _makeOptionAsSelected(String optionId) {
-    _selectOptionService.select(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
-      optionId: optionId,
-    );
+  void _onSelectOption(String optionId) {
+    final hasSelected = state.selectedOptions.firstWhereOrNull((option) => option.id == optionId);
+    if (hasSelected != null) {
+      _selectOptionService.unSelect(
+        gridId: state.gridId,
+        fieldId: state.field.id,
+        rowId: state.rowId,
+        optionId: optionId,
+      );
+    } else {
+      _selectOptionService.select(
+        gridId: state.gridId,
+        fieldId: state.field.id,
+        rowId: state.rowId,
+        optionId: optionId,
+      );
+    }
   }
 
   void _loadOptions() async {

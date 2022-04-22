@@ -94,7 +94,7 @@ class SelectOptionService {
     return GridEventUpdateCellSelectOption(payload).send();
   }
 
-  Future<Either<void, FlowyError>> remove({
+  Future<Either<void, FlowyError>> unSelect({
     required String gridId,
     required String fieldId,
     required String rowId,
