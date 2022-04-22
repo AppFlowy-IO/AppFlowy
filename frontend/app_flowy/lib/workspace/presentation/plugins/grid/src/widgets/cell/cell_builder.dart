@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:flutter/widgets.dart';
@@ -8,21 +8,22 @@ import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
-GridCellWidget buildGridCell(GridCell cellData, {GridCellStyle? style}) {
-  final key = cellData.key();
-  switch (cellData.field.fieldType) {
+GridCellWidget buildGridCell(GridCellDataContext cellDataContext, {GridCellStyle? style}) {
+  final key = ValueKey(cellDataContext.cellId);
+  final fieldType = cellDataContext.cellData.field.fieldType;
+  switch (fieldType) {
     case FieldType.Checkbox:
-      return CheckboxCell(cellData: cellData, key: key);
+      return CheckboxCell(cellDataContext: cellDataContext, key: key);
     case FieldType.DateTime:
-      return DateCell(cellData: cellData, key: key);
+      return DateCell(cellDataContext: cellDataContext, key: key);
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellData: cellData, style: style, key: key);
+      return MultiSelectCell(cellDataContext: cellDataContext, style: style, key: key);
     case FieldType.Number:
-      return NumberCell(cellData: cellData, key: key);
+      return NumberCell(cellDataContext: cellDataContext, key: key);
     case FieldType.RichText:
-      return GridTextCell(cellData: cellData, style: style, key: key);
+      return GridTextCell(cellDataContext: cellDataContext, style: style, key: key);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellData: cellData, style: style, key: key);
+      return SingleSelectCell(cellDataContext: cellDataContext, style: style, key: key);
     default:
       throw UnimplementedError;
   }

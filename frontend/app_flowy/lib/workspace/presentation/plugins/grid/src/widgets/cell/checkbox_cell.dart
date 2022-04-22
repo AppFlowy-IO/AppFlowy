@@ -7,10 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 
 class CheckboxCell extends GridCellWidget {
-  final GridCell cellData;
+  final GridCellDataContext cellDataContext;
 
   CheckboxCell({
-    required this.cellData,
+    required this.cellDataContext,
     Key? key,
   }) : super(key: key);
 
@@ -23,7 +23,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<CheckboxCellBloc>(param1: widget.cellData)..add(const CheckboxCellEvent.initial());
+    _cellBloc = getIt<CheckboxCellBloc>(param1: widget.cellDataContext)..add(const CheckboxCellEvent.initial());
     super.initState();
   }
 

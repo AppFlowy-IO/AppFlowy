@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';

@@ -8,6 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'cell/cell_service.dart';
 import 'row/row_service.dart';
 
 class GridService {
@@ -155,22 +156,12 @@ class GridFieldCache {
   }
 }
 
-class GridRowDataDelegateAdaptor extends GridRowDataDelegate {
+class GridRowCacheDelegateImpl extends GridRowFieldDelegate {
   final GridFieldCache _cache;
+  GridRowCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
-  GridRowDataDelegateAdaptor(GridFieldCache cache) : _cache = cache;
   @override
   UnmodifiableListView<Field> get fields => _cache.unmodifiableFields;
-
-  @override
-  GridRow buildGridRow(RowOrder rowOrder) {
-    return GridRow(
-      gridId: _cache.gridId,
-      fields: _cache.unmodifiableFields,
-      rowId: rowOrder.rowId,
-      height: rowOrder.height.toDouble(),
-    );
-  }
 
   @override
   void onFieldChanged(FieldDidUpdateCallback callback) {
@@ -178,20 +169,18 @@ class GridRowDataDelegateAdaptor extends GridRowDataDelegate {
       callback();
     });
   }
+}
+
+class GridCellCacheDelegateImpl extends GridCellFieldDelegate {
+  final GridFieldCache _cache;
+  GridCellCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  CellDataMap buildCellDataMap(String rowId, Row? rowData) {
-    var map = CellDataMap.new();
-    for (final field in fields) {
-      if (field.visibility) {
-        map[field.id] = GridCell(
-          rowId: rowId,
-          gridId: _cache.gridId,
-          cell: rowData?.cellByFieldId[field.id],
-          field: field,
-        );
+  void onFieldChanged(void Function(String) callback) {
+    _cache.addListener(onChanged: (fields) {
+      for (final field in fields) {
+        callback(field.id);
       }
-    }
-    return map;
+    });
   }
 }

@@ -18,11 +18,11 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class SingleSelectCell extends GridCellWidget {
-  final GridCell cellData;
+  final GridCellDataContext cellDataContext;
   late final SelectOptionCellStyle? cellStyle;
 
   SingleSelectCell({
-    required this.cellData,
+    required this.cellDataContext,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -42,7 +42,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData)..add(const SelectionCellEvent.initial());
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellDataContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
@@ -89,11 +89,11 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends GridCellWidget {
-  final GridCell cellData;
+  final GridCellDataContext cellDataContext;
   late final SelectOptionCellStyle? cellStyle;
 
   MultiSelectCell({
-    required this.cellData,
+    required this.cellDataContext,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -113,7 +113,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellData)..add(const SelectionCellEvent.initial());
+    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellDataContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 

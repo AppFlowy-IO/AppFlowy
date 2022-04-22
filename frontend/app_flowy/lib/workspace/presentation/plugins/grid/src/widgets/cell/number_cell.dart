@@ -8,10 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 
 class NumberCell extends GridCellWidget {
-  final GridCell cellData;
+  final GridCellDataContext cellDataContext;
 
   NumberCell({
-    required this.cellData,
+    required this.cellDataContext,
     Key? key,
   }) : super(key: key);
 
@@ -27,7 +27,7 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<NumberCellBloc>(param1: widget.cellData)..add(const NumberCellEvent.initial());
+    _cellBloc = getIt<NumberCellBloc>(param1: widget.cellDataContext)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode = FocusNode();
     _focusNode.addListener(() {

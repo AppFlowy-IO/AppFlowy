@@ -1,6 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +14,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final CellListener _cellListener;
   final SingleFieldListener _fieldListener;
 
-  DateCellBloc({required GridCell cellData})
+  DateCellBloc({required GridCellDataContext cellDataContext})
       : _service = CellService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
-        super(DateCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellDataContext.fieldId),
+        super(DateCellState.initial(cellDataContext.cellData)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(

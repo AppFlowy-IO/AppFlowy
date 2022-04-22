@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,10 +13,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final CellListener _cellListener;
 
   TextCellBloc({
-    required GridCell cellData,
+    required GridCellDataContext cellDataContext,
   })  : _service = CellService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        super(TextCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
+        super(TextCellState.initial(cellDataContext.cellData)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
@@ -13,12 +14,9 @@ part 'row_service.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
 typedef FieldDidUpdateCallback = void Function();
-typedef CellDataMap = LinkedHashMap<String, GridCell>;
 
-abstract class GridRowDataDelegate {
+abstract class GridRowFieldDelegate {
   UnmodifiableListView<Field> get fields;
-  GridRow buildGridRow(RowOrder rowOrder);
-  CellDataMap buildCellDataMap(String rowId, Row? rowData);
   void onFieldChanged(FieldDidUpdateCallback callback);
 }
 
@@ -26,16 +24,25 @@ class GridRowCache {
   final String gridId;
   final RowsNotifier _rowNotifier;
   final GridRowListener _rowsListener;
-  final GridRowDataDelegate _dataDelegate;
+  final GridRowFieldDelegate _fieldDelegate;
 
   List<GridRow> get clonedRows => _rowNotifier.clonedRows;
 
-  GridRowCache({required this.gridId, required GridRowDataDelegate dataDelegate})
-      : _rowNotifier = RowsNotifier(rowBuilder: dataDelegate.buildGridRow),
+  GridRowCache({required this.gridId, required GridRowFieldDelegate fieldDelegate})
+      : _rowNotifier = RowsNotifier(
+          rowBuilder: (rowOrder) {
+            return GridRow(
+              gridId: gridId,
+              fields: fieldDelegate.fields,
+              rowId: rowOrder.rowId,
+              height: rowOrder.height.toDouble(),
+            );
+          },
+        ),
         _rowsListener = GridRowListener(gridId: gridId),
-        _dataDelegate = dataDelegate {
+        _fieldDelegate = fieldDelegate {
     //
-    dataDelegate.onFieldChanged(() => _rowNotifier.fieldDidChange());
+    fieldDelegate.onFieldChanged(() => _rowNotifier.fieldDidChange());
 
     // listen on the row update
     _rowsListener.rowsUpdateNotifier.addPublishListener((result) {
@@ -92,7 +99,7 @@ class GridRowCache {
       notify() {
         final row = _rowNotifier.rowDataWithId(rowId);
         if (row != null) {
-          final cellDataMap = _dataDelegate.buildCellDataMap(rowId, row);
+          final CellDataMap cellDataMap = _makeCellDataMap(rowId, row);
           onUpdated(cellDataMap);
         }
       }
@@ -109,6 +116,21 @@ class GridRowCache {
 
     _rowNotifier.addListener(listenrHandler);
     return listenrHandler;
+  }
+
+  CellDataMap _makeCellDataMap(String rowId, Row? row) {
+    var cellDataMap = CellDataMap.new();
+    for (final field in _fieldDelegate.fields) {
+      if (field.visibility) {
+        cellDataMap[field.id] = GridCell(
+          rowId: rowId,
+          gridId: gridId,
+          cell: row?.cellByFieldId[field.id],
+          field: field,
+        );
+      }
+    }
+    return cellDataMap;
   }
 
   void removeRowListener(VoidCallback callback) {
@@ -130,7 +152,7 @@ class GridRowCache {
       });
     }
 
-    return _dataDelegate.buildCellDataMap(rowId, data);
+    return _makeCellDataMap(rowId, data);
   }
 
   void updateWithBlock(List<GridBlockOrder> blocks) {
@@ -320,20 +342,6 @@ class GridRow with _$GridRow {
     required double height,
     Row? data,
   }) = _GridRow;
-}
-
-@freezed
-class GridCell with _$GridCell {
-  const factory GridCell({
-    required String gridId,
-    required String rowId,
-    required Field field,
-    Cell? cell,
-  }) = _GridCell;
-
-  ValueKey key() {
-    return ValueKey(rowId + (cell?.fieldId ?? ""));
-  }
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;

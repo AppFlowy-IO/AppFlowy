@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,10 +14,10 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   CheckboxCellBloc({
     required CellService service,
-    required GridCell cellData,
+    required GridCellDataContext cellDataContext,
   })  : _service = service,
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        super(CheckboxCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
+        super(CheckboxCellState.initial(cellDataContext.cellData)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(

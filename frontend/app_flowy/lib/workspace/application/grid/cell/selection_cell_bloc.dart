@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,11 +16,11 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final SingleFieldListener _fieldListener;
 
   SelectionCellBloc({
-    required GridCell cellData,
+    required GridCellDataContext cellDataContext,
   })  : _service = SelectOptionService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
-        super(SelectionCellState.initial(cellData)) {
+        _cellListener = CellListener(rowId: cellDataContext.rowId, fieldId: cellDataContext.fieldId),
+        _fieldListener = SingleFieldListener(fieldId: cellDataContext.fieldId),
+        super(SelectionCellState.initial(cellDataContext.cellData)) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(
