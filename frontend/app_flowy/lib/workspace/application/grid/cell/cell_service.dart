@@ -14,10 +14,16 @@ part 'cell_service.freezed.dart';
 class GridCellContext {
   GridCell cellData;
   GridCellCache cellCache;
+  late GridCellCacheKey _cacheKey;
   GridCellContext({
     required this.cellData,
     required this.cellCache,
-  });
+  }) {
+    _cacheKey = GridCellCacheKey(
+      objectId: "$hashCode",
+      fieldId: cellData.field.id,
+    );
+  }
 
   String get gridId => cellData.gridId;
 
@@ -31,22 +37,22 @@ class GridCellContext {
 
   Field get field => cellData.field;
 
-  GridCellCacheKey get cacheKey => GridCellCacheKey(rowId: cellData.rowId, fieldId: cellData.field.id);
+  GridCellCacheKey get cacheKey => _cacheKey;
 
   T? getCacheData<T>() {
     return cellCache.get(cacheKey);
   }
 
   void setCacheData(dynamic data) {
-    cellCache.insert(GridCellCacheData(key: cacheKey, value: data));
+    cellCache.insert(GridCellCacheData(key: cacheKey, object: data));
   }
 
   void onFieldChanged(VoidCallback callback) {
-    cellCache.addListener(fieldId, rowId, callback);
+    cellCache.addListener(cacheKey, callback);
   }
 
   void removeListener() {
-    cellCache.removeListener(fieldId, rowId);
+    cellCache.removeListener(cacheKey);
   }
 }
 
@@ -55,22 +61,20 @@ typedef CellDataMap = LinkedHashMap<String, GridCell>;
 
 class GridCellCacheData {
   GridCellCacheKey key;
-  dynamic value;
+  dynamic object;
   GridCellCacheData({
     required this.key,
-    required this.value,
+    required this.object,
   });
 }
 
 class GridCellCacheKey {
   final String fieldId;
-  final String rowId;
+  final String objectId;
   GridCellCacheKey({
     required this.fieldId,
-    required this.rowId,
+    required this.objectId,
   });
-
-  String get cellId => "$rowId + $fieldId";
 }
 
 abstract class GridCellFieldDelegate {
@@ -101,18 +105,18 @@ class GridCellCache {
     });
   }
 
-  void addListener(String fieldId, String rowId, VoidCallback callback) {
-    var map = _cellListenerByFieldId[fieldId];
+  void addListener(GridCellCacheKey cacheKey, VoidCallback callback) {
+    var map = _cellListenerByFieldId[cacheKey.fieldId];
     if (map == null) {
-      _cellListenerByFieldId[fieldId] = {};
-      map = _cellListenerByFieldId[fieldId];
+      _cellListenerByFieldId[cacheKey.fieldId] = {};
+      map = _cellListenerByFieldId[cacheKey.fieldId];
     }
 
-    map![rowId] = callback;
+    map![cacheKey.objectId] = callback;
   }
 
-  void removeListener(String fieldId, String rowId) {
-    _cellListenerByFieldId[fieldId]?.remove(rowId);
+  void removeListener(GridCellCacheKey cacheKey) {
+    _cellListenerByFieldId[cacheKey.fieldId]?.remove(cacheKey.objectId);
   }
 
   void insert<T extends GridCellCacheData>(T item) {
@@ -122,7 +126,7 @@ class GridCellCache {
       map = _cellCacheByFieldId[item.key.fieldId];
     }
 
-    map![item.key.cellId] = item.value;
+    map![item.key.objectId] = item.object;
   }
 
   T? get<T>(GridCellCacheKey key) {
@@ -130,7 +134,7 @@ class GridCellCache {
     if (map == null) {
       return null;
     } else {
-      final object = map[key.cellId];
+      final object = map[key.objectId];
       if (object is T) {
         return object;
       } else {
