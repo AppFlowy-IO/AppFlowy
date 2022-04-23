@@ -84,7 +84,7 @@ class _PropertyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
-      buildWhen: (previous, current) => previous.cellDatas != current.cellDatas,
+      buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
         return ScrollbarListStack(
           axis: Axis.vertical,
@@ -92,13 +92,12 @@ class _PropertyList extends StatelessWidget {
           barSize: GridSize.scrollBarSize,
           child: ListView.separated(
             controller: _scrollController,
-            itemCount: state.cellDatas.length,
+            itemCount: state.gridCells.length,
             itemBuilder: (BuildContext context, int index) {
-              final cellContext = GridCellContext(
-                cellData: state.cellDatas[index],
+              return _RowDetailCell(
+                gridCell: state.gridCells[index],
                 cellCache: cellCache,
               );
-              return _RowDetailCell(cellContext: cellContext);
             },
             separatorBuilder: (BuildContext context, int index) {
               return const VSpace(2);
@@ -111,16 +110,22 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCellContext cellContext;
-  const _RowDetailCell({required this.cellContext, Key? key}) : super(key: key);
+  final GridCell gridCell;
+  final GridCellCache cellCache;
+  const _RowDetailCell({
+    required this.gridCell,
+    required this.cellCache,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    final cell = buildGridCell(
-      cellContext,
-      style: _buildCellStyle(theme, cellContext.fieldType),
+    final cell = buildGridCellWidget(
+      gridCell,
+      cellCache,
+      style: _buildCellStyle(theme, gridCell.field.fieldType),
     );
     return SizedBox(
       height: 36,
@@ -130,7 +135,7 @@ class _RowDetailCell extends StatelessWidget {
         children: [
           SizedBox(
             width: 150,
-            child: FieldCellButton(field: cellContext.field, onTap: () => _showFieldEditor(context)),
+            child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
           ),
           const HSpace(10),
           Expanded(
@@ -146,10 +151,10 @@ class _RowDetailCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
-      gridId: cellContext.gridId,
+      gridId: gridCell.gridId,
       fieldContextLoader: FieldContextLoaderAdaptor(
-        gridId: cellContext.gridId,
-        field: cellContext.field,
+        gridId: gridCell.gridId,
+        field: gridCell.field,
       ),
     ).show(context);
   }

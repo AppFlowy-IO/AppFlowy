@@ -84,7 +84,7 @@ class GridRowCache {
 
   RowUpdateCallback addRowListener({
     required String rowId,
-    void Function(CellDataMap)? onUpdated,
+    void Function(GridCellMap)? onUpdated,
     bool Function()? listenWhen,
   }) {
     listenrHandler() {
@@ -99,7 +99,7 @@ class GridRowCache {
       notify() {
         final row = _rowNotifier.rowDataWithId(rowId);
         if (row != null) {
-          final CellDataMap cellDataMap = _makeCellDataMap(rowId, row);
+          final GridCellMap cellDataMap = _makeCellDataMap(rowId, row);
           onUpdated(cellDataMap);
         }
       }
@@ -118,8 +118,8 @@ class GridRowCache {
     return listenrHandler;
   }
 
-  CellDataMap _makeCellDataMap(String rowId, Row? row) {
-    var cellDataMap = CellDataMap.new();
+  GridCellMap _makeCellDataMap(String rowId, Row? row) {
+    var cellDataMap = GridCellMap.new();
     for (final field in _fieldDelegate.fields) {
       if (field.visibility) {
         cellDataMap[field.id] = GridCell(
@@ -137,7 +137,7 @@ class GridRowCache {
     _rowNotifier.removeListener(callback);
   }
 
-  CellDataMap loadCellData(String rowId) {
+  GridCellMap loadCellData(String rowId) {
     final Row? data = _rowNotifier.rowDataWithId(rowId);
     if (data == null) {
       final payload = RowIdentifierPayload.create()

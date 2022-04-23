@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_builder.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +19,7 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class SingleSelectCell extends GridCellWidget {
-  final GridCellContext cellContext;
+  final GridCellContext<SelectOptionContext> cellContext;
   late final SelectOptionCellStyle? cellStyle;
 
   SingleSelectCell({
@@ -66,9 +67,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
                 widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
-                  state.cellData,
-                  state.options,
-                  state.selectedOptions,
+                  widget.cellContext,
                   () => widget.onFocus.value = false,
                 );
               },
@@ -89,7 +88,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends GridCellWidget {
-  final GridCellContext cellContext;
+  final GridCellContext<SelectOptionContext> cellContext;
   late final SelectOptionCellStyle? cellStyle;
 
   MultiSelectCell({
@@ -135,9 +134,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
                 widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
-                  state.cellData,
-                  state.options,
-                  state.selectedOptions,
+                  widget.cellContext,
                   () => widget.onFocus.value = false,
                 );
               },

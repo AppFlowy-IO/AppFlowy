@@ -16,7 +16,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
     required GridCellContext cellContext,
   })  : _service = CellService(),
         _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
-        super(TextCellState.initial(cellContext.cellData)) {
+        super(TextCellState.initial(cellContext.gridCell)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(

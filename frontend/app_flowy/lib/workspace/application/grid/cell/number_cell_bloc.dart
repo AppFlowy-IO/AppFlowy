@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
@@ -10,16 +9,13 @@ import 'cell_service.dart';
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final CellService _service;
-  final CellListener _cellListener;
+  final GridCellContext<Cell> cellContext;
   final SingleFieldListener _fieldListener;
 
   NumberCellBloc({
-    required GridCellContext cellContext,
-  })  : _service = CellService(),
-        _cellListener = CellListener(rowId: cellContext.rowId, fieldId: cellContext.fieldId),
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        super(NumberCellState.initial(cellContext.cellData)) {
+    required this.cellContext,
+  })  : _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
+        super(NumberCellState.initial(cellContext)) {
     on<NumberCellEvent>(
       (event, emit) async {
         await event.map(
@@ -38,59 +34,30 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }
 
   Future<void> _updateCellValue(_UpdateCell value, Emitter<NumberCellState> emit) async {
-    final result = await _service.updateCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-      data: value.text,
-    );
-    result.fold(
-      (field) => _getCellData(),
-      (err) => Log.error(err),
-    );
+    cellContext.saveCellData(value.text);
+    cellContext.reloadCellData();
   }
 
   @override
   Future<void> close() async {
-    await _cellListener.stop();
     await _fieldListener.stop();
     return super.close();
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notificationData) async {
-          await _getCellData();
-        },
-        (err) => Log.error(err),
-      );
+    cellContext.onCellChanged((cell) {
+      if (!isClosed) {
+        add(NumberCellEvent.didReceiveCellUpdate(cell));
+      }
     });
-    _cellListener.start();
 
     _fieldListener.updateFieldNotifier?.addPublishListener((result) {
       result.fold(
-        (field) => _getCellData(),
+        (field) => cellContext.reloadCellData(),
         (err) => Log.error(err),
       );
     });
     _fieldListener.start();
-  }
-
-  Future<void> _getCellData() async {
-    final result = await _service.getCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-    );
-
-    if (isClosed) {
-      return;
-    }
-    result.fold(
-      (cell) => add(NumberCellEvent.didReceiveCellUpdate(cell)),
-      (err) => Log.error(err),
-    );
   }
 }
 
@@ -104,11 +71,10 @@ class NumberCellEvent with _$NumberCellEvent {
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required GridCell cellData,
     required String content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridCell cellData) {
-    return NumberCellState(cellData: cellData, content: cellData.cell?.content ?? "");
+  factory NumberCellState.initial(GridCellContext context) {
+    return NumberCellState(content: context.getCellData().cell?.content ?? "");
   }
 }

@@ -24,7 +24,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             _loadCellData();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) {
-            emit(state.copyWith(cellDatas: value.cellDatas));
+            emit(state.copyWith(gridCells: value.gridCells));
           },
         );
       },
@@ -58,16 +58,16 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
-  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> cellDatas) = _DidReceiveCellDatas;
+  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> gridCells) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<GridCell> cellDatas,
+    required List<GridCell> gridCells,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(
-        cellDatas: List.empty(),
+        gridCells: List.empty(),
       );
 }

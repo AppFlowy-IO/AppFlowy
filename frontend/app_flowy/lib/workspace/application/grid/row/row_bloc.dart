@@ -57,17 +57,17 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveCellDatas(CellDataMap cellData) = _DidReceiveCellDatas;
+  const factory RowEvent.didReceiveCellDatas(GridCellMap cellData) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
-    required CellDataMap cellDataMap,
+    required GridCellMap cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(GridRow rowData, CellDataMap cellDataMap) => RowState(
+  factory RowState.initial(GridRow rowData, GridCellMap cellDataMap) => RowState(
         rowData: rowData,
         cellDataMap: cellDataMap,
       );

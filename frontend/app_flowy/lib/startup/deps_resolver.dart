@@ -16,8 +16,10 @@ import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -174,25 +176,25 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<SelectionCellBloc, GridCellContext<SelectOptionContext>, void>(
     (context, _) => SelectionCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellContext<Cell>, void>(
     (context, _) => NumberCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridCellContext<Cell>, void>(
     (context, _) => DateCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext<Cell>, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellContext: cellData,
