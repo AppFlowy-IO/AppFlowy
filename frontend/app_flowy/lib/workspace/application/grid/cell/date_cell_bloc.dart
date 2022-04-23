@@ -1,5 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,12 +7,9 @@ import 'cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final SingleFieldListener _fieldListener;
-  final GridCellContext<Cell> cellContext;
+  final GridDefaultCellContext cellContext;
 
-  DateCellBloc({required this.cellContext})
-      : _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        super(DateCellState.initial(cellContext)) {
+  DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(
@@ -39,7 +34,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   @override
   Future<void> close() async {
-    await _fieldListener.stop();
+    cellContext.dispose();
     return super.close();
   }
 
@@ -49,14 +44,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
         add(DateCellEvent.didReceiveCellUpdate(cell));
       }
     });
-
-    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
-      result.fold(
-        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
-        (err) => Log.error(err),
-      );
-    }, listenWhen: () => !isClosed);
-    _fieldListener.start();
   }
 
   void _updateCellData(DateTime day) {

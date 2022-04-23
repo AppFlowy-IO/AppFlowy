@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:dartz/dartz.dart';
@@ -6,12 +7,16 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 
 part 'cell_service.freezed.dart';
+
+typedef GridDefaultCellContext = GridCellContext<Cell>;
+typedef GridSelectOptionCellContext = GridCellContext<SelectOptionContext>;
 
 class GridCellContext<T> {
   final GridCell gridCell;
@@ -22,6 +27,7 @@ class GridCellContext<T> {
   final CellListener _cellListener;
   final CellService _cellService = CellService();
   final ValueNotifier<dynamic> _cellDataNotifier = ValueNotifier(null);
+  Timer? _delayOperation;
 
   GridCellContext({
     required this.gridCell,
@@ -41,6 +47,12 @@ class GridCellContext<T> {
       objectId: "$hashCode",
       fieldId: gridCell.field.id,
     );
+
+    if (cellDataLoader.reloadOnFieldChanged) {
+      cellCache.addListener(cacheKey, () {
+        reloadCellData();
+      });
+    }
   }
 
   String get gridId => gridCell.gridId;
@@ -73,16 +85,18 @@ class GridCellContext<T> {
     _cellService.updateCell(gridId: gridId, fieldId: field.id, rowId: rowId, data: data);
   }
 
-  void _loadData() {
-    // It may trigger getCell multiple times. Use cancel operation to fix this.
-    cellDataLoader.loadData().then((data) {
-      _cellDataNotifier.value = data;
-      setCellData(data);
-    });
+  void reloadCellData() {
+    _loadData();
   }
 
-  void onFieldChanged(VoidCallback callback) {
-    cellCache.addListener(cacheKey, callback);
+  void _loadData() {
+    _delayOperation?.cancel();
+    _delayOperation = Timer(const Duration(milliseconds: 10), () {
+      cellDataLoader.loadData().then((data) {
+        _cellDataNotifier.value = data;
+        setCellData(data);
+      });
+    });
   }
 
   void onCellChanged(void Function(T) callback) {
@@ -94,13 +108,15 @@ class GridCellContext<T> {
     });
   }
 
-  void removeListener() {
-    cellCache.removeListener(cacheKey);
+  void dispose() {
+    _delayOperation?.cancel();
   }
 }
 
 abstract class GridCellDataLoader<T> {
   Future<T?> loadData();
+
+  bool get reloadOnFieldChanged => true;
 }
 
 class DefaultCellDataLoader implements GridCellDataLoader<Cell> {
@@ -125,6 +141,9 @@ class DefaultCellDataLoader implements GridCellDataLoader<Cell> {
       });
     });
   }
+
+  @override
+  bool get reloadOnFieldChanged => true;
 }
 
 // key: rowId

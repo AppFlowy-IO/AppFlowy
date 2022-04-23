@@ -7,13 +7,12 @@ import 'cell_service.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final GridCellContext<Cell> _cellContext;
+  final GridDefaultCellContext cellContext;
 
   CheckboxCellBloc({
     required CellService service,
-    required GridCellContext<Cell> cellContext,
-  })  : _cellContext = cellContext,
-        super(CheckboxCellState.initial(cellContext)) {
+    required this.cellContext,
+  }) : super(CheckboxCellState.initial(cellContext)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(
@@ -33,11 +32,12 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   @override
   Future<void> close() async {
+    cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _cellContext.onCellChanged((cell) {
+    cellContext.onCellChanged((cell) {
       if (!isClosed) {
         add(CheckboxCellEvent.didReceiveCellUpdate(cell));
       }
@@ -45,7 +45,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _updateCellData() {
-    _cellContext.saveCellData(!state.isSelected ? "Yes" : "No");
+    cellContext.saveCellData(!state.isSelected ? "Yes" : "No");
   }
 }
 

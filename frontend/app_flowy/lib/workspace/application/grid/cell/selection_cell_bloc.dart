@@ -3,18 +3,15 @@ import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 
 part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
-  final SingleFieldListener _fieldListener;
   final GridCellContext<SelectOptionContext> cellContext;
 
   SelectionCellBloc({
     required this.cellContext,
-  })  : _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        super(SelectionCellState.initial(cellContext)) {
+  }) : super(SelectionCellState.initial(cellContext)) {
     on<SelectionCellEvent>(
       (event, emit) async {
         await event.map(
@@ -34,8 +31,7 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
 
   @override
   Future<void> close() async {
-    await _fieldListener.stop();
-    cellContext.removeListener();
+    cellContext.dispose();
     return super.close();
   }
 
@@ -48,8 +44,6 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
         ));
       }
     });
-
-    cellContext.onFieldChanged(() => cellContext.reloadCellData());
   }
 }
 

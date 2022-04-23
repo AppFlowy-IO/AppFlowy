@@ -1,8 +1,5 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,7 +11,6 @@ part 'selection_editor_bloc.freezed.dart';
 class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
   final GridCellContext<SelectOptionContext> cellContext;
-  Timer? _delayOperation;
 
   SelectOptionEditorBloc({
     required this.cellContext,
@@ -51,8 +47,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   @override
   Future<void> close() async {
-    _delayOperation?.cancel();
-    cellContext.removeListener();
+    cellContext.dispose();
     return super.close();
   }
 
@@ -86,27 +81,6 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
     }
   }
 
-  // void _loadOptions() async {
-  //   _delayOperation?.cancel();
-  //   _delayOperation = Timer(
-  //     const Duration(milliseconds: 1),
-  //     () async {
-  //       final result = await _selectOptionService.getOpitonContext();
-  //       if (isClosed) {
-  //         return;
-  //       }
-
-  //       result.fold(
-  //         (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
-  //           selectOptionContext.options,
-  //           selectOptionContext.selectOptions,
-  //         )),
-  //         (err) => Log.error(err),
-  //       );
-  //     },
-  //   );
-  // }
-
   void _startListening() {
     cellContext.onCellChanged((selectOptionContext) {
       if (!isClosed) {
@@ -116,8 +90,6 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
         ));
       }
     });
-
-    cellContext.onFieldChanged(() => cellContext.reloadCellData());
   }
 }
 

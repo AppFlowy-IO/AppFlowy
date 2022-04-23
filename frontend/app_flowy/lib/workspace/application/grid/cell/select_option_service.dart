@@ -27,6 +27,9 @@ class SelectOptionCellDataLoader implements GridCellDataLoader<SelectOptionConte
       );
     });
   }
+
+  @override
+  bool get reloadOnFieldChanged => true;
 }
 
 class SelectOptionService {
