@@ -35,19 +35,6 @@ class GridCellContext<T> {
   })  : _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id),
         _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id) {
     _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
-
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notification) => _loadData(),
-        (err) => Log.error(err),
-      );
-    });
-
-    _cellListener.start();
-
-    if (cellDataLoader.reloadOnFieldChanged) {
-      cellCache.addListener(cacheKey, () => reloadCellData());
-    }
   }
 
   String get gridId => gridCell.gridId;
@@ -63,6 +50,27 @@ class GridCellContext<T> {
   FieldType get fieldType => gridCell.field.fieldType;
 
   GridCellCacheKey get cacheKey => _cacheKey;
+
+  void startListening({required void Function(T) onCellChanged}) {
+    _cellListener.updateCellNotifier?.addPublishListener((result) {
+      result.fold(
+        (notification) => _loadData(),
+        (err) => Log.error(err),
+      );
+    });
+    _cellListener.start();
+
+    if (cellDataLoader.reloadOnFieldChanged) {
+      cellCache.addListener(cacheKey, () => reloadCellData());
+    }
+
+    _cellDataNotifier.addListener(() {
+      final value = _cellDataNotifier.value;
+      if (value is T) {
+        onCellChanged(value);
+      }
+    });
+  }
 
   T? getCellData() {
     final data = cellCache.get(cacheKey);
@@ -93,15 +101,6 @@ class GridCellContext<T> {
         _cellDataNotifier.value = data;
         setCellData(data);
       });
-    });
-  }
-
-  void onCellChanged(void Function(T) callback) {
-    _cellDataNotifier.addListener(() {
-      final value = _cellDataNotifier.value;
-      if (value is T) {
-        callback(value);
-      }
     });
   }
 

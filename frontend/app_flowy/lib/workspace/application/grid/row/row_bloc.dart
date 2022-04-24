@@ -17,7 +17,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     required GridRowCache rowCache,
   })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
         _rowCache = rowCache,
-        super(RowState.initial(rowData, rowCache.loadCellData(rowData.rowId))) {
+        super(RowState.initial(rowData, rowCache.loadGridCells(rowData.rowId))) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(

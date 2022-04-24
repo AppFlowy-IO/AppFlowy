@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'checkbox_cell.dart';
 import 'date_cell.dart';

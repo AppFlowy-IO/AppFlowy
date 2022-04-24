@@ -39,11 +39,13 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   }
 
   void _startListening() {
-    cellContext.onCellChanged((cell) {
-      if (!isClosed) {
-        add(DateCellEvent.didReceiveCellUpdate(cell));
-      }
-    });
+    cellContext.startListening(
+      onCellChanged: ((cell) {
+        if (!isClosed) {
+          add(DateCellEvent.didReceiveCellUpdate(cell));
+        }
+      }),
+    );
   }
 
   void _updateCellData(DateTime day) {

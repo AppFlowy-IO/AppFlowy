@@ -88,7 +88,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.fields = fields.items;
-          rowCache.updateWithBlock(grid.blockOrders);
+          rowCache.resetRows(grid.blockOrders);
 
           emit(state.copyWith(
             grid: Some(grid),

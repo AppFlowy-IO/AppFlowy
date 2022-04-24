@@ -22,14 +22,13 @@ abstract class GridRowFieldDelegate {
 
 class GridRowCache {
   final String gridId;
-  final RowsNotifier _rowNotifier;
+  final RowsNotifier _rowsNotifier;
   final GridRowListener _rowsListener;
   final GridRowFieldDelegate _fieldDelegate;
-
-  List<GridRow> get clonedRows => _rowNotifier.clonedRows;
+  List<GridRow> get clonedRows => _rowsNotifier.clonedRows;
 
   GridRowCache({required this.gridId, required GridRowFieldDelegate fieldDelegate})
-      : _rowNotifier = RowsNotifier(
+      : _rowsNotifier = RowsNotifier(
           rowBuilder: (rowOrder) {
             return GridRow(
               gridId: gridId,
@@ -42,16 +41,16 @@ class GridRowCache {
         _rowsListener = GridRowListener(gridId: gridId),
         _fieldDelegate = fieldDelegate {
     //
-    fieldDelegate.onFieldChanged(() => _rowNotifier.fieldDidChange());
+    fieldDelegate.onFieldChanged(() => _rowsNotifier.fieldDidChange());
 
     // listen on the row update
     _rowsListener.rowsUpdateNotifier.addPublishListener((result) {
       result.fold(
         (changesets) {
           for (final changeset in changesets) {
-            _rowNotifier.deleteRows(changeset.deletedRows);
-            _rowNotifier.insertRows(changeset.insertedRows);
-            _rowNotifier.updateRows(changeset.updatedRows);
+            _rowsNotifier.deleteRows(changeset.deletedRows);
+            _rowsNotifier.insertRows(changeset.insertedRows);
+            _rowsNotifier.updateRows(changeset.updatedRows);
           }
         },
         (err) => Log.error(err),
@@ -62,14 +61,14 @@ class GridRowCache {
 
   Future<void> dispose() async {
     await _rowsListener.stop();
-    _rowNotifier.dispose();
+    _rowsNotifier.dispose();
   }
 
   void addListener({
     void Function(List<GridRow>, GridRowChangeReason)? onChanged,
     bool Function()? listenWhen,
   }) {
-    _rowNotifier.addListener(() {
+    _rowsNotifier.addListener(() {
       if (onChanged == null) {
         return;
       }
@@ -78,7 +77,7 @@ class GridRowCache {
         return;
       }
 
-      onChanged(clonedRows, _rowNotifier._changeReason);
+      onChanged(clonedRows, _rowsNotifier._changeReason);
     });
   }
 
@@ -87,7 +86,7 @@ class GridRowCache {
     void Function(GridCellMap)? onUpdated,
     bool Function()? listenWhen,
   }) {
-    listenrHandler() {
+    listenrHandler() async {
       if (onUpdated == null) {
         return;
       }
@@ -97,14 +96,14 @@ class GridRowCache {
       }
 
       notify() {
-        final row = _rowNotifier.rowDataWithId(rowId);
+        final row = _rowsNotifier.rowDataWithId(rowId);
         if (row != null) {
-          final GridCellMap cellDataMap = _makeCellDataMap(rowId, row);
+          final GridCellMap cellDataMap = _makeGridCells(rowId, row);
           onUpdated(cellDataMap);
         }
       }
 
-      _rowNotifier._changeReason.whenOrNull(
+      _rowsNotifier._changeReason.whenOrNull(
         update: (indexs) {
           if (indexs[rowId] != null) {
             notify();
@@ -114,11 +113,40 @@ class GridRowCache {
       );
     }
 
-    _rowNotifier.addListener(listenrHandler);
+    _rowsNotifier.addListener(listenrHandler);
     return listenrHandler;
   }
 
-  GridCellMap _makeCellDataMap(String rowId, Row? row) {
+  void removeRowListener(VoidCallback callback) {
+    _rowsNotifier.removeListener(callback);
+  }
+
+  GridCellMap loadGridCells(String rowId) {
+    final Row? data = _rowsNotifier.rowDataWithId(rowId);
+    if (data == null) {
+      _loadRow(rowId);
+    }
+    return _makeGridCells(rowId, data);
+  }
+
+  void resetRows(List<GridBlockOrder> blocks) {
+    final rowOrders = blocks.expand((block) => block.rowOrders).toList();
+    _rowsNotifier.reset(rowOrders);
+  }
+
+  Future<void> _loadRow(String rowId) async {
+    final payload = RowIdentifierPayload.create()
+      ..gridId = gridId
+      ..rowId = rowId;
+
+    final result = await GridEventGetRow(payload).send();
+    result.fold(
+      (rowData) => _rowsNotifier.rowData = rowData,
+      (err) => Log.error(err),
+    );
+  }
+
+  GridCellMap _makeGridCells(String rowId, Row? row) {
     var cellDataMap = GridCellMap.new();
     for (final field in _fieldDelegate.fields) {
       if (field.visibility) {
@@ -131,33 +159,6 @@ class GridRowCache {
       }
     }
     return cellDataMap;
-  }
-
-  void removeRowListener(VoidCallback callback) {
-    _rowNotifier.removeListener(callback);
-  }
-
-  GridCellMap loadCellData(String rowId) {
-    final Row? data = _rowNotifier.rowDataWithId(rowId);
-    if (data == null) {
-      final payload = RowIdentifierPayload.create()
-        ..gridId = gridId
-        ..rowId = rowId;
-
-      GridEventGetRow(payload).send().then((result) {
-        result.fold(
-          (rowData) => _rowNotifier.rowData = rowData,
-          (err) => Log.error(err),
-        );
-      });
-    }
-
-    return _makeCellDataMap(rowId, data);
-  }
-
-  void updateWithBlock(List<GridBlockOrder> blocks) {
-    final rowOrders = blocks.expand((block) => block.rowOrders).toList();
-    _rowNotifier.reset(rowOrders);
   }
 }
 

@@ -48,7 +48,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   Future<void> _loadCellData() async {
-    final cellDataMap = _rowCache.loadCellData(rowData.rowId);
+    final cellDataMap = _rowCache.loadGridCells(rowData.rowId);
     if (!isClosed) {
       add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
     }

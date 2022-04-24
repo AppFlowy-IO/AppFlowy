@@ -37,11 +37,11 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    cellContext.onCellChanged((cell) {
+    cellContext.startListening(onCellChanged: ((cell) {
       if (!isClosed) {
         add(CheckboxCellEvent.didReceiveCellUpdate(cell));
       }
-    });
+    }));
   }
 
   void _updateCellData() {

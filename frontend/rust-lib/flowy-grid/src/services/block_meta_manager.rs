@@ -119,11 +119,15 @@ impl GridBlockMetaEditorManager {
         let row_id = row_id.to_owned();
         let block_id = self.persistence.get_block_id(&row_id)?;
         let editor = self.get_editor(&block_id).await?;
-        let row_orders = editor.get_row_orders(Some(vec![Cow::Borrowed(&row_id)])).await?;
-        let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
-        let _ = self
-            .notify_did_update_block(GridRowsChangeset::delete(&block_id, row_orders))
-            .await?;
+        match editor.get_row_order(&row_id).await? {
+            None => {}
+            Some(row_order) => {
+                let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
+                let _ = self
+                    .notify_did_update_block(GridRowsChangeset::delete(&block_id, vec![row_order]))
+                    .await?;
+            }
+        }
 
         Ok(())
     }
@@ -231,8 +235,7 @@ impl GridBlockMetaEditorManager {
 
     async fn notify_did_update_block_row(&self, row_id: &str) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(row_id).await?;
-        let row_ids = Some(vec![Cow::Borrowed(&row_id)]);
-        match editor.get_row_orders(row_ids).await?.pop() {
+        match editor.get_row_order(row_id).await? {
             None => {}
             Some(row_order) => {
                 let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);

@@ -41,11 +41,13 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   }
 
   void _startListening() {
-    cellContext.onCellChanged((cell) {
-      if (!isClosed) {
-        add(TextCellEvent.didReceiveCellUpdate(cell));
-      }
-    });
+    cellContext.startListening(
+      onCellChanged: ((cell) {
+        if (!isClosed) {
+          add(TextCellEvent.didReceiveCellUpdate(cell));
+        }
+      }),
+    );
   }
 }
 

@@ -82,14 +82,16 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _startListening() {
-    cellContext.onCellChanged((selectOptionContext) {
-      if (!isClosed) {
-        add(SelectOptionEditorEvent.didReceiveOptions(
-          selectOptionContext.options,
-          selectOptionContext.selectOptions,
-        ));
-      }
-    });
+    cellContext.startListening(
+      onCellChanged: ((selectOptionContext) {
+        if (!isClosed) {
+          add(SelectOptionEditorEvent.didReceiveOptions(
+            selectOptionContext.options,
+            selectOptionContext.selectOptions,
+          ));
+        }
+      }),
+    );
   }
 }
 

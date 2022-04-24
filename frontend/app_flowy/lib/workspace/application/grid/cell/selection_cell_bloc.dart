@@ -36,14 +36,16 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   }
 
   void _startListening() {
-    cellContext.onCellChanged((selectOptionContext) {
-      if (!isClosed) {
-        add(SelectionCellEvent.didReceiveOptions(
-          selectOptionContext.options,
-          selectOptionContext.selectOptions,
-        ));
-      }
-    });
+    cellContext.startListening(
+      onCellChanged: ((selectOptionContext) {
+        if (!isClosed) {
+          add(SelectionCellEvent.didReceiveOptions(
+            selectOptionContext.options,
+            selectOptionContext.selectOptions,
+          ));
+        }
+      }),
+    );
   }
 }
 
