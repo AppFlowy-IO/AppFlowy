@@ -10,7 +10,7 @@ part 'selection_editor_bloc.freezed.dart';
 
 class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
-  final GridCellContext<SelectOptionContext> cellContext;
+  final GridSelectOptionCellContext cellContext;
 
   SelectOptionEditorBloc({
     required this.cellContext,
@@ -111,7 +111,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
     required List<SelectOption> selectedOptions,
   }) = _SelectOptionEditorState;
 
-  factory SelectOptionEditorState.initial(GridCellContext<SelectOptionContext> context) {
+  factory SelectOptionEditorState.initial(GridSelectOptionCellContext context) {
     final data = context.getCellData();
     return SelectOptionEditorState(
       options: data?.options ?? [],

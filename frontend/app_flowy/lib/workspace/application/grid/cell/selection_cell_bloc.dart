@@ -7,7 +7,7 @@ import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
-  final GridCellContext<SelectOptionContext> cellContext;
+  final GridSelectOptionCellContext cellContext;
 
   SelectionCellBloc({
     required this.cellContext,
@@ -63,7 +63,7 @@ class SelectionCellState with _$SelectionCellState {
     required List<SelectOption> selectedOptions,
   }) = _SelectionCellState;
 
-  factory SelectionCellState.initial(GridCellContext<SelectOptionContext> context) {
+  factory SelectionCellState.initial(GridSelectOptionCellContext context) {
     final data = context.getCellData();
 
     return SelectionCellState(

@@ -21,13 +21,13 @@ GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {
     case FieldType.DateTime:
       return DateCell(cellContext: cellContext, key: key);
     case FieldType.MultiSelect:
-      return MultiSelectCell(cellContext: cellContext as GridCellContext<SelectOptionContext>, style: style, key: key);
+      return MultiSelectCell(cellContext: cellContext as GridSelectOptionCellContext, style: style, key: key);
     case FieldType.Number:
       return NumberCell(cellContext: cellContext, key: key);
     case FieldType.RichText:
       return GridTextCell(cellContext: cellContext, style: style, key: key);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellContext: cellContext as GridCellContext<SelectOptionContext>, style: style, key: key);
+      return SingleSelectCell(cellContext: cellContext as GridSelectOptionCellContext, style: style, key: key);
     default:
       throw UnimplementedError;
   }
@@ -46,7 +46,7 @@ GridCellContext makeCellContext(GridCell gridCell, GridCellCache cellCache) {
       );
     case FieldType.MultiSelect:
     case FieldType.SingleSelect:
-      return GridCellContext<SelectOptionContext>(
+      return GridSelectOptionCellContext(
         gridCell: gridCell,
         cellCache: cellCache,
         cellDataLoader: SelectOptionCellDataLoader(gridCell: gridCell),

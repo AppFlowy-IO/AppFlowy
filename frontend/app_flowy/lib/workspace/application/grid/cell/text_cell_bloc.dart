@@ -7,10 +7,10 @@ import 'cell_service.dart';
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
-  final GridCellContext cellContext;
+  final GridDefaultCellContext cellContext;
   TextCellBloc({
     required this.cellContext,
-  }) : super(TextCellState.initial(cellContext.gridCell)) {
+  }) : super(TextCellState.initial(cellContext)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.map(
@@ -22,14 +22,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
             emit(state.copyWith(content: value.text));
           },
           didReceiveCellData: (_DidReceiveCellData value) {
-            emit(state.copyWith(
-              cellData: value.cellData,
-              content: value.cellData.cell?.content ?? "",
-            ));
+            emit(state.copyWith(content: value.cellData.cell?.content ?? ""));
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
             emit(state.copyWith(
-              cellData: state.cellData.copyWith(cell: value.cell),
               content: value.cell.content,
             ));
           },
@@ -65,11 +61,9 @@ class TextCellEvent with _$TextCellEvent {
 class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
-    required GridCell cellData,
   }) = _TextCellState;
 
-  factory TextCellState.initial(GridCell cellData) => TextCellState(
-        content: cellData.cell?.content ?? "",
-        cellData: cellData,
+  factory TextCellState.initial(GridDefaultCellContext context) => TextCellState(
+        content: context.getCellData()?.content ?? "",
       );
 }

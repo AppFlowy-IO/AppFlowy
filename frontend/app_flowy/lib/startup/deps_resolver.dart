@@ -18,7 +18,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -169,13 +168,13 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridDefaultCellContext, void>(
     (context, _) => TextCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridCellContext<SelectOptionContext>, void>(
+  getIt.registerFactoryParam<SelectionCellBloc, GridSelectOptionCellContext, void>(
     (context, _) => SelectionCellBloc(
       cellContext: context,
     ),

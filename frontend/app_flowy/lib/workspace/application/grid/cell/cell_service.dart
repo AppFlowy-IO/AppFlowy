@@ -10,7 +10,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 
 part 'cell_service.freezed.dart';
@@ -21,19 +20,22 @@ typedef GridSelectOptionCellContext = GridCellContext<SelectOptionContext>;
 class GridCellContext<T> {
   final GridCell gridCell;
   final GridCellCache cellCache;
-  late GridCellCacheKey _cacheKey;
+  final GridCellCacheKey _cacheKey;
   final GridCellDataLoader<T> cellDataLoader;
 
   final CellListener _cellListener;
   final CellService _cellService = CellService();
-  final ValueNotifier<dynamic> _cellDataNotifier = ValueNotifier(null);
+  late final ValueNotifier<T?> _cellDataNotifier;
   Timer? _delayOperation;
 
   GridCellContext({
     required this.gridCell,
     required this.cellCache,
     required this.cellDataLoader,
-  }) : _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id) {
+  })  : _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id),
+        _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id) {
+    _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
+
     _cellListener.updateCellNotifier?.addPublishListener((result) {
       result.fold(
         (notification) => _loadData(),
@@ -43,15 +45,8 @@ class GridCellContext<T> {
 
     _cellListener.start();
 
-    _cacheKey = GridCellCacheKey(
-      objectId: "$hashCode",
-      fieldId: gridCell.field.id,
-    );
-
     if (cellDataLoader.reloadOnFieldChanged) {
-      cellCache.addListener(cacheKey, () {
-        reloadCellData();
-      });
+      cellCache.addListener(cacheKey, () => reloadCellData());
     }
   }
 
@@ -82,7 +77,9 @@ class GridCellContext<T> {
   }
 
   void saveCellData(String data) {
-    _cellService.updateCell(gridId: gridId, fieldId: field.id, rowId: rowId, data: data);
+    _cellService.updateCell(gridId: gridId, fieldId: field.id, rowId: rowId, data: data).then((result) {
+      result.fold((l) => null, (err) => Log.error(err));
+    });
   }
 
   void reloadCellData() {
@@ -264,42 +261,6 @@ class CellService {
     return GridEventGetCell(payload).send();
   }
 }
-
-// class CellCache {
-//   final CellService _cellService;
-//   final HashMap<String, Cell> _cellDataMap = HashMap();
-
-//   CellCache() : _cellService = CellService();
-
-//   Future<Option<Cell>> getCellData(GridCell identifier) async {
-//     final cellId = _cellId(identifier);
-//     final Cell? data = _cellDataMap[cellId];
-//     if (data != null) {
-//       return Future(() => Some(data));
-//     }
-
-//     final result = await _cellService.getCell(
-//       gridId: identifier.gridId,
-//       fieldId: identifier.field.id,
-//       rowId: identifier.rowId,
-//     );
-
-//     return result.fold(
-//       (cell) {
-//         _cellDataMap[_cellId(identifier)] = cell;
-//         return Some(cell);
-//       },
-//       (err) {
-//         Log.error(err);
-//         return none();
-//       },
-//     );
-//   }
-
-//   String _cellId(GridCell identifier) {
-//     return "${identifier.rowId}/${identifier.field.id}";
-//   }
-// }
 
 @freezed
 class GridCell with _$GridCell {
