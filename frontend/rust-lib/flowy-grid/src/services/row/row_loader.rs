@@ -48,7 +48,7 @@ pub(crate) fn make_row_orders_from_row_metas(row_metas: &[Arc<RowMeta>]) -> Vec<
 }
 
 pub(crate) fn make_row_from_row_meta(fields: &[FieldMeta], row_meta: Arc<RowMeta>) -> Option<Row> {
-    make_rows_from_row_metas(fields, &vec![row_meta]).pop()
+    make_rows_from_row_metas(fields, &[row_meta]).pop()
 }
 
 pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<RowMeta>]) -> Vec<Row> {

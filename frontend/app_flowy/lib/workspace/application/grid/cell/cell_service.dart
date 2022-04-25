@@ -17,6 +17,7 @@ part 'cell_service.freezed.dart';
 typedef GridDefaultCellContext = GridCellContext<Cell>;
 typedef GridSelectOptionCellContext = GridCellContext<SelectOptionContext>;
 
+// ignore: must_be_immutable
 class GridCellContext<T> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
@@ -76,7 +77,6 @@ class GridCellContext<T> extends Equatable {
 
     if (cellDataLoader.reloadOnFieldChanged) {
       _onFieldChangedFn = () {
-        Log.info("reloadCellData ");
         _loadData();
       };
       cellCache.addListener(cacheKey, _onFieldChangedFn!);
@@ -200,6 +200,7 @@ class GridCellCacheKey {
 
 abstract class GridCellFieldDelegate {
   void onFieldChanged(void Function(String) callback);
+  void dispose();
 }
 
 class GridCellCache {
@@ -278,6 +279,10 @@ class GridCellCache {
         return null;
       }
     }
+  }
+
+  Future<void> dispose() async {
+    fieldDelegate.dispose();
   }
 }
 

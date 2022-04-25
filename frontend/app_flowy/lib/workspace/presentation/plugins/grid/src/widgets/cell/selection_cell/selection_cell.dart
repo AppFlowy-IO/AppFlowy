@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_builder.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+// ignore: unused_import
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +44,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    Log.info("init widget $hashCode");
+    // Log.trace("init widget $hashCode");
     _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
@@ -51,7 +52,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    Log.info("build widget $hashCode");
+    // Log.trace("build widget $hashCode");
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
@@ -83,18 +84,14 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
   @override
   void didUpdateWidget(covariant SingleSelectCell oldWidget) {
     if (oldWidget.cellContext != widget.cellContext) {
-      // setState(() {
-
-      // });
-      // _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext)..add(const SelectionCellEvent.initial());
-      Log.info("did update widget $hashCode");
+      // Log.trace("did update widget $hashCode");
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   Future<void> dispose() async {
-    Log.info("dispose widget $hashCode");
+    // Log.trace("dispose widget $hashCode");
     _cellBloc.close();
     super.dispose();
   }

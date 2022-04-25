@@ -31,7 +31,7 @@ class Log {
   }
 
   static void trace(dynamic msg) {
-    Log.shared._logger.d(msg);
+    Log.shared._logger.v(msg);
   }
 
   static void error(dynamic msg) {

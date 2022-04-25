@@ -430,11 +430,6 @@ impl ClientGridEditor {
         self.grid_pad.read().await.delta_bytes()
     }
 
-    async fn row_builder(&self, row_meta: Arc<RowMeta>) -> FlowyResult<Option<Row>> {
-        let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
-        Ok(make_rows_from_row_metas(&field_metas, &[row_meta]).pop())
-    }
-
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChangeset>>,

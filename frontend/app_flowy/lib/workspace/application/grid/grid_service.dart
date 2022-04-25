@@ -54,10 +54,14 @@ class FieldsNotifier extends ChangeNotifier {
   List<Field> get fields => _fields;
 }
 
+typedef ChangesetListener = void Function(GridFieldChangeset);
+
 class GridFieldCache {
   final String gridId;
   late final GridFieldsListener _fieldListener;
   final FieldsNotifier _fieldNotifier = FieldsNotifier();
+  final List<ChangesetListener> _changesetListener = [];
+
   GridFieldCache({required this.gridId}) {
     _fieldListener = GridFieldsListener(gridId: gridId);
     _fieldListener.start(onFieldsChanged: (result) {
@@ -66,6 +70,9 @@ class GridFieldCache {
           _deleteFields(changeset.deletedFields);
           _insertFields(changeset.insertedFields);
           _updateFields(changeset.updatedFields);
+          for (final listener in _changesetListener) {
+            listener(changeset);
+          }
         },
         (err) => Log.error(err),
       );
@@ -76,8 +83,6 @@ class GridFieldCache {
     await _fieldListener.stop();
     _fieldNotifier.dispose();
   }
-
-  void applyChangeset(GridFieldChangeset changeset) {}
 
   UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier.fields);
 
@@ -109,6 +114,17 @@ class GridFieldCache {
 
   void removeListener(VoidCallback f) {
     _fieldNotifier.removeListener(f);
+  }
+
+  void addChangesetListener(ChangesetListener listener) {
+    _changesetListener.add(listener);
+  }
+
+  void removeChangesetListener(ChangesetListener listener) {
+    final index = _changesetListener.indexWhere((element) => element == listener);
+    if (index != -1) {
+      _changesetListener.removeAt(index);
+    }
   }
 
   void _deleteFields(List<FieldOrder> deletedFields) {
@@ -172,14 +188,26 @@ class GridRowCacheDelegateImpl extends GridRowFieldDelegate {
 
 class GridCellCacheDelegateImpl extends GridCellFieldDelegate {
   final GridFieldCache _cache;
+  ChangesetListener? _changesetFn;
   GridCellCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
   @override
   void onFieldChanged(void Function(String) callback) {
-    _cache.addListener(onChanged: (fields) {
-      for (final field in fields) {
-        callback(field.id);
+    changesetFn(GridFieldChangeset changeset) {
+      for (final updatedField in changeset.updatedFields) {
+        callback(updatedField.id);
       }
-    });
+    }
+
+    _cache.addChangesetListener(changesetFn);
+    _changesetFn = changesetFn;
+  }
+
+  @override
+  void dispose() {
+    if (_changesetFn != null) {
+      _cache.removeChangesetListener(_changesetFn!);
+      _changesetFn = null;
+    }
   }
 }

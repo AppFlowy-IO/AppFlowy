@@ -3,17 +3,15 @@ use crate::manager::GridUser;
 use crate::services::block_meta_editor::ClientGridBlockMetaEditor;
 use crate::services::persistence::block_index::BlockIndexPersistence;
 use crate::services::row::{group_row_orders, GridBlockSnapshot};
-use std::borrow::Cow;
-
 use dashmap::DashMap;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
-    Cell, CellChangeset, CellMeta, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset, IndexRowOrder, Row,
-    RowMeta, RowMetaChangeset, RowOrder, UpdatedRowOrder,
+    CellChangeset, CellMeta, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset, IndexRowOrder, Row, RowMeta,
+    RowMetaChangeset, RowOrder, UpdatedRowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
-use lib_infra::future::FutureResult;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 

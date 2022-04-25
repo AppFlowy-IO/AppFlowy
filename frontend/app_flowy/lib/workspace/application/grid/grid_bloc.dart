@@ -55,8 +55,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _gridService.closeGrid();
-    await fieldCache.dispose();
+    await cellCache.dispose();
     await rowCache.dispose();
+    await fieldCache.dispose();
     return super.close();
   }
 
