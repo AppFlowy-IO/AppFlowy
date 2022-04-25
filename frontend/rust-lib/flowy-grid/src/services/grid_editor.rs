@@ -247,7 +247,10 @@ impl ClientGridEditor {
     }
 
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
-        self.block_meta_manager.update_row(changeset).await
+        let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
+        self.block_meta_manager
+            .update_row(changeset, |row_meta| make_row_from_row_meta(&field_metas, row_meta))
+            .await
     }
 
     pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRow> {
@@ -322,7 +325,11 @@ impl ClientGridEditor {
             Some((_, field_meta)) => {
                 // Update the changeset.data property with the return value.
                 changeset.data = Some(apply_cell_data_changeset(cell_data_changeset, cell_meta, field_meta)?);
-                let _ = self.block_meta_manager.update_cell(changeset).await?;
+                let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
+                let _ = self
+                    .block_meta_manager
+                    .update_cell(changeset, |row_meta| make_row_from_row_meta(&field_metas, row_meta))
+                    .await?;
                 Ok(())
             }
         }
@@ -421,6 +428,11 @@ impl ClientGridEditor {
 
     pub async fn delta_bytes(&self) -> Bytes {
         self.grid_pad.read().await.delta_bytes()
+    }
+
+    async fn row_builder(&self, row_meta: Arc<RowMeta>) -> FlowyResult<Option<Row>> {
+        let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
+        Ok(make_rows_from_row_metas(&field_metas, &[row_meta]).pop())
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

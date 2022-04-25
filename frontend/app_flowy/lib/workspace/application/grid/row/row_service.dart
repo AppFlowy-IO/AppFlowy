@@ -216,18 +216,18 @@ class RowsNotifier extends ChangeNotifier {
     _update(newRows, GridRowChangeReason.insert(insertIndexs));
   }
 
-  void updateRows(List<RowOrder> updatedRows) {
+  void updateRows(List<UpdatedRowOrder> updatedRows) {
     if (updatedRows.isEmpty) {
       return;
     }
 
     final UpdatedIndexs updatedIndexs = UpdatedIndexs();
     final List<GridRow> newRows = clonedRows;
-    for (final rowOrder in updatedRows) {
+    for (final updatedRow in updatedRows) {
+      final rowOrder = updatedRow.rowOrder;
       final index = newRows.indexWhere((row) => row.rowId == rowOrder.rowId);
       if (index != -1) {
-        // Remove the old row data, the data will be filled if the loadRow method gets called.
-        _rowDataMap.remove(rowOrder.rowId);
+        _rowDataMap[rowOrder.rowId] = updatedRow.row;
 
         newRows.removeAt(index);
         newRows.insert(index, rowBuilder(rowOrder));

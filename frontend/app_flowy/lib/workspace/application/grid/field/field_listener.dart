@@ -11,12 +11,13 @@ typedef UpdateFieldNotifiedValue = Either<Field, FlowyError>;
 
 class SingleFieldListener {
   final String fieldId;
-  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? _updateFieldNotifier = PublishNotifier();
   GridNotificationListener? _listener;
 
   SingleFieldListener({required this.fieldId});
 
-  void start() {
+  void start({required void Function(UpdateFieldNotifiedValue) onFieldChanged}) {
+    _updateFieldNotifier?.addPublishListener(onFieldChanged);
     _listener = GridNotificationListener(
       objectId: fieldId,
       handler: _handler,
@@ -30,8 +31,8 @@ class SingleFieldListener {
     switch (ty) {
       case GridNotification.DidUpdateField:
         result.fold(
-          (payload) => updateFieldNotifier?.value = left(Field.fromBuffer(payload)),
-          (error) => updateFieldNotifier?.value = right(error),
+          (payload) => _updateFieldNotifier?.value = left(Field.fromBuffer(payload)),
+          (error) => _updateFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -41,7 +42,7 @@ class SingleFieldListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldNotifier?.dispose();
-    updateFieldNotifier = null;
+    _updateFieldNotifier?.dispose();
+    _updateFieldNotifier = null;
   }
 }

@@ -6,13 +6,14 @@ use crate::services::row::{group_row_orders, GridBlockSnapshot};
 use std::borrow::Cow;
 
 use dashmap::DashMap;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
-    CellChangeset, CellMeta, CellNotificationData, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset,
-    IndexRowOrder, RowMeta, RowMetaChangeset, RowOrder,
+    Cell, CellChangeset, CellMeta, GridBlockMeta, GridBlockMetaChangeset, GridRowsChangeset, IndexRowOrder, Row,
+    RowMeta, RowMetaChangeset, RowOrder, UpdatedRowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
+use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -108,10 +109,22 @@ impl GridBlockMetaEditorManager {
         Ok(changesets)
     }
 
-    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_row<F>(&self, changeset: RowMetaChangeset, row_builder: F) -> FlowyResult<()>
+    where
+        F: FnOnce(Arc<RowMeta>) -> Option<Row>,
+    {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
-        let _ = self.notify_did_update_block_row(&changeset.row_id).await?;
+        match editor.get_row_meta(&changeset.row_id).await? {
+            None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
+            Some(row_meta) => {
+                if let Some(row) = row_builder(row_meta.clone()) {
+                    let row_order = UpdatedRowOrder::new(&row_meta, row);
+                    let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
+                    let _ = self.notify_did_update_block(block_order_changeset).await?;
+                }
+            }
+        }
         Ok(())
     }
 
@@ -175,18 +188,13 @@ impl GridBlockMetaEditorManager {
         Ok(())
     }
 
-    pub async fn update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
+    pub async fn update_cell<F>(&self, changeset: CellChangeset, row_builder: F) -> FlowyResult<()>
+    where
+        F: FnOnce(Arc<RowMeta>) -> Option<Row>,
+    {
         let row_changeset: RowMetaChangeset = changeset.clone().into();
-        let _ = self.update_row(row_changeset).await?;
-
-        let cell_notification_data = CellNotificationData {
-            grid_id: changeset.grid_id,
-            field_id: changeset.field_id,
-            row_id: changeset.row_id,
-            content: changeset.data,
-        };
-        self.notify_did_update_cell(cell_notification_data).await?;
-
+        let _ = self.update_row(row_changeset, row_builder).await?;
+        self.notify_did_update_cell(changeset).await?;
         Ok(())
     }
 
@@ -233,19 +241,6 @@ impl GridBlockMetaEditorManager {
         Ok(block_cell_metas)
     }
 
-    async fn notify_did_update_block_row(&self, row_id: &str) -> FlowyResult<()> {
-        let editor = self.get_editor_from_row_id(row_id).await?;
-        match editor.get_row_order(row_id).await? {
-            None => {}
-            Some(row_order) => {
-                let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
-                let _ = self.notify_did_update_block(block_order_changeset).await?;
-            }
-        }
-
-        Ok(())
-    }
-
     async fn notify_did_update_block(&self, changeset: GridRowsChangeset) -> FlowyResult<()> {
         send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridRow)
             .payload(changeset)
@@ -253,11 +248,9 @@ impl GridBlockMetaEditorManager {
         Ok(())
     }
 
-    async fn notify_did_update_cell(&self, data: CellNotificationData) -> FlowyResult<()> {
-        let id = format!("{}:{}", data.row_id, data.field_id);
-        send_dart_notification(&id, GridNotification::DidUpdateCell)
-            .payload(data)
-            .send();
+    async fn notify_did_update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
+        let id = format!("{}:{}", changeset.row_id, changeset.field_id);
+        send_dart_notification(&id, GridNotification::DidUpdateCell).send();
         Ok(())
     }
 }

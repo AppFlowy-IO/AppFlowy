@@ -22,20 +22,18 @@ class GridCellContext<T> {
   final GridCellCache cellCache;
   final GridCellCacheKey _cacheKey;
   final GridCellDataLoader<T> cellDataLoader;
-
-  final CellListener _cellListener;
   final CellService _cellService = CellService();
+
+  late final CellListener _cellListener;
   late final ValueNotifier<T?> _cellDataNotifier;
+  bool isListening = false;
   Timer? _delayOperation;
 
   GridCellContext({
     required this.gridCell,
     required this.cellCache,
     required this.cellDataLoader,
-  })  : _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id),
-        _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id) {
-    _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
-  }
+  }) : _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
 
   String get gridId => gridCell.gridId;
 
@@ -52,16 +50,20 @@ class GridCellContext<T> {
   GridCellCacheKey get cacheKey => _cacheKey;
 
   void startListening({required void Function(T) onCellChanged}) {
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notification) => _loadData(),
-        (err) => Log.error(err),
-      );
-    });
-    _cellListener.start();
+    if (!isListening) {
+      isListening = true;
+      _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
+      _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id);
+      _cellListener.start(onCellChanged: (result) {
+        result.fold(
+          (_) => _loadData(),
+          (err) => Log.error(err),
+        );
+      });
 
-    if (cellDataLoader.reloadOnFieldChanged) {
-      cellCache.addListener(cacheKey, () => reloadCellData());
+      if (cellDataLoader.reloadOnFieldChanged) {
+        cellCache.addListener(cacheKey, () => reloadCellData());
+      }
     }
 
     _cellDataNotifier.addListener(() {
@@ -171,7 +173,7 @@ class GridCellCache {
   final String gridId;
   final GridCellFieldDelegate fieldDelegate;
 
-  /// fieldId: {rowId: callback}
+  /// fieldId: {objectId: callback}
   final Map<String, Map<String, VoidCallback>> _cellListenerByFieldId = {};
 
   /// fieldId: {cacheKey: cacheData}

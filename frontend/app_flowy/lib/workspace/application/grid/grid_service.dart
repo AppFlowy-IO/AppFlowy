@@ -60,7 +60,7 @@ class GridFieldCache {
   final FieldsNotifier _fieldNotifier = FieldsNotifier();
   GridFieldCache({required this.gridId}) {
     _fieldListener = GridFieldsListener(gridId: gridId);
-    _fieldListener.updateFieldsNotifier?.addPublishListener((result) {
+    _fieldListener.start(onFieldsChanged: (result) {
       result.fold(
         (changeset) {
           _deleteFields(changeset.deletedFields);
@@ -70,7 +70,6 @@ class GridFieldCache {
         (err) => Log.error(err),
       );
     });
-    _fieldListener.start();
   }
 
   Future<void> dispose() async {
