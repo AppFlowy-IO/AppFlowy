@@ -11,13 +11,13 @@ import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-
+import 'package:equatable/equatable.dart';
 part 'cell_service.freezed.dart';
 
 typedef GridDefaultCellContext = GridCellContext<Cell>;
 typedef GridSelectOptionCellContext = GridCellContext<SelectOptionContext>;
 
-class GridCellContext<T> {
+class GridCellContext<T> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
   final GridCellCacheKey _cacheKey;
@@ -27,6 +27,7 @@ class GridCellContext<T> {
   late final CellListener _cellListener;
   late final ValueNotifier<T?> _cellDataNotifier;
   bool isListening = false;
+  VoidCallback? _onFieldChangedFn;
   Timer? _delayOperation;
 
   GridCellContext({
@@ -34,6 +35,14 @@ class GridCellContext<T> {
     required this.cellCache,
     required this.cellDataLoader,
   }) : _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
+
+  GridCellContext<T> clone() {
+    return GridCellContext(
+      gridCell: gridCell,
+      cellDataLoader: cellDataLoader,
+      cellCache: cellCache,
+    );
+  }
 
   String get gridId => gridCell.gridId;
 
@@ -49,29 +58,47 @@ class GridCellContext<T> {
 
   GridCellCacheKey get cacheKey => _cacheKey;
 
-  void startListening({required void Function(T) onCellChanged}) {
-    if (!isListening) {
-      isListening = true;
-      _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
-      _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id);
-      _cellListener.start(onCellChanged: (result) {
-        result.fold(
-          (_) => _loadData(),
-          (err) => Log.error(err),
-        );
-      });
-
-      if (cellDataLoader.reloadOnFieldChanged) {
-        cellCache.addListener(cacheKey, () => reloadCellData());
-      }
+  VoidCallback? startListening({required void Function(T) onCellChanged}) {
+    if (isListening) {
+      Log.error("Already started. It seems like you should call clone first");
+      return null;
     }
 
-    _cellDataNotifier.addListener(() {
+    isListening = true;
+    _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
+    _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id);
+    _cellListener.start(onCellChanged: (result) {
+      result.fold(
+        (_) => _loadData(),
+        (err) => Log.error(err),
+      );
+    });
+
+    if (cellDataLoader.reloadOnFieldChanged) {
+      _onFieldChangedFn = () {
+        Log.info("reloadCellData ");
+        _loadData();
+      };
+      cellCache.addListener(cacheKey, _onFieldChangedFn!);
+    }
+
+    onCellChangedFn() {
       final value = _cellDataNotifier.value;
       if (value is T) {
         onCellChanged(value);
       }
-    });
+
+      if (cellDataLoader.reloadOnCellChanged) {
+        _loadData();
+      }
+    }
+
+    _cellDataNotifier.addListener(onCellChangedFn);
+    return onCellChangedFn;
+  }
+
+  void removeListener(VoidCallback fn) {
+    _cellDataNotifier.removeListener(fn);
   }
 
   T? getCellData() {
@@ -82,18 +109,10 @@ class GridCellContext<T> {
     return data;
   }
 
-  void setCellData(T? data) {
-    cellCache.insert(GridCellCacheData(key: cacheKey, object: data));
-  }
-
   void saveCellData(String data) {
     _cellService.updateCell(gridId: gridId, fieldId: field.id, rowId: rowId, data: data).then((result) {
       result.fold((l) => null, (err) => Log.error(err));
     });
-  }
-
-  void reloadCellData() {
-    _loadData();
   }
 
   void _loadData() {
@@ -101,28 +120,45 @@ class GridCellContext<T> {
     _delayOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
         _cellDataNotifier.value = data;
-        setCellData(data);
+        cellCache.insert(GridCellCacheData(key: cacheKey, object: data));
       });
     });
   }
 
   void dispose() {
     _delayOperation?.cancel();
+
+    if (_onFieldChangedFn != null) {
+      cellCache.removeListener(cacheKey, _onFieldChangedFn!);
+      _onFieldChangedFn = null;
+    }
   }
+
+  @override
+  List<Object> get props => [cellCache.get(cacheKey) ?? "", cellId];
 }
 
 abstract class GridCellDataLoader<T> {
   Future<T?> loadData();
 
   bool get reloadOnFieldChanged => true;
+  bool get reloadOnCellChanged => false;
 }
 
-class DefaultCellDataLoader implements GridCellDataLoader<Cell> {
+abstract class GridCellDataConfig {
+  bool get reloadOnFieldChanged => true;
+  bool get reloadOnCellChanged => false;
+}
+
+class DefaultCellDataLoader extends GridCellDataLoader<Cell> {
   final CellService service = CellService();
   final GridCell gridCell;
+  @override
+  final bool reloadOnCellChanged;
 
   DefaultCellDataLoader({
     required this.gridCell,
+    this.reloadOnCellChanged = false,
   });
 
   @override
@@ -139,9 +175,6 @@ class DefaultCellDataLoader implements GridCellDataLoader<Cell> {
       });
     });
   }
-
-  @override
-  bool get reloadOnFieldChanged => true;
 }
 
 // key: rowId
@@ -174,51 +207,63 @@ class GridCellCache {
   final GridCellFieldDelegate fieldDelegate;
 
   /// fieldId: {objectId: callback}
-  final Map<String, Map<String, VoidCallback>> _cellListenerByFieldId = {};
+  final Map<String, Map<String, List<VoidCallback>>> _listenerByFieldId = {};
 
   /// fieldId: {cacheKey: cacheData}
-  final Map<String, Map<String, dynamic>> _cellCacheByFieldId = {};
+  final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
   GridCellCache({
     required this.gridId,
     required this.fieldDelegate,
   }) {
     fieldDelegate.onFieldChanged((fieldId) {
-      _cellCacheByFieldId.remove(fieldId);
-      final map = _cellListenerByFieldId[fieldId];
+      _cellDataByFieldId.remove(fieldId);
+      final map = _listenerByFieldId[fieldId];
       if (map != null) {
-        for (final callback in map.values) {
-          callback();
+        for (final callbacks in map.values) {
+          for (final callback in callbacks) {
+            callback();
+          }
         }
       }
     });
   }
 
   void addListener(GridCellCacheKey cacheKey, VoidCallback callback) {
-    var map = _cellListenerByFieldId[cacheKey.fieldId];
+    var map = _listenerByFieldId[cacheKey.fieldId];
     if (map == null) {
-      _cellListenerByFieldId[cacheKey.fieldId] = {};
-      map = _cellListenerByFieldId[cacheKey.fieldId];
+      _listenerByFieldId[cacheKey.fieldId] = {};
+      map = _listenerByFieldId[cacheKey.fieldId];
+      map![cacheKey.objectId] = [callback];
+    } else {
+      var objects = map[cacheKey.objectId];
+      if (objects == null) {
+        map[cacheKey.objectId] = [callback];
+      } else {
+        objects.add(callback);
+      }
     }
-
-    map![cacheKey.objectId] = callback;
   }
 
-  void removeListener(GridCellCacheKey cacheKey) {
-    _cellListenerByFieldId[cacheKey.fieldId]?.remove(cacheKey.objectId);
+  void removeListener(GridCellCacheKey cacheKey, VoidCallback fn) {
+    var callbacks = _listenerByFieldId[cacheKey.fieldId]?[cacheKey.objectId];
+    final index = callbacks?.indexWhere((callback) => callback == fn);
+    if (index != null && index != -1) {
+      callbacks?.removeAt(index);
+    }
   }
 
   void insert<T extends GridCellCacheData>(T item) {
-    var map = _cellCacheByFieldId[item.key.fieldId];
+    var map = _cellDataByFieldId[item.key.fieldId];
     if (map == null) {
-      _cellCacheByFieldId[item.key.fieldId] = {};
-      map = _cellCacheByFieldId[item.key.fieldId];
+      _cellDataByFieldId[item.key.fieldId] = {};
+      map = _cellDataByFieldId[item.key.fieldId];
     }
 
     map![item.key.objectId] = item.object;
   }
 
   T? get<T>(GridCellCacheKey key) {
-    final map = _cellCacheByFieldId[key.fieldId];
+    final map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       return null;
     } else {
@@ -226,7 +271,10 @@ class GridCellCache {
       if (object is T) {
         return object;
       } else {
-        Log.error("Cache data type does not match the cache data type");
+        if (object != null) {
+          Log.error("Cache data type does not match the cache data type");
+        }
+
         return null;
       }
     }

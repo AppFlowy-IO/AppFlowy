@@ -11,6 +11,7 @@ part 'selection_editor_bloc.freezed.dart';
 class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
   final GridSelectOptionCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   SelectOptionEditorBloc({
     required this.cellContext,
@@ -47,6 +48,10 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   @override
   Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
     cellContext.dispose();
     return super.close();
   }
@@ -82,7 +87,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _startListening() {
-    cellContext.startListening(
+    _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           add(SelectOptionEditorEvent.didReceiveOptions(

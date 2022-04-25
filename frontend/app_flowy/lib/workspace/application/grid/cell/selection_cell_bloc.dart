@@ -8,6 +8,7 @@ part 'selection_cell_bloc.freezed.dart';
 
 class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
   final GridSelectOptionCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   SelectionCellBloc({
     required this.cellContext,
@@ -31,12 +32,16 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
 
   @override
   Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
     cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    cellContext.startListening(
+    _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           add(SelectionCellEvent.didReceiveOptions(

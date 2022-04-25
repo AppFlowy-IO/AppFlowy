@@ -9,7 +9,7 @@ import 'package:app_flowy/workspace/application/grid/field/type_option/type_opti
 
 import 'cell_service.dart';
 
-class SelectOptionCellDataLoader implements GridCellDataLoader<SelectOptionContext> {
+class SelectOptionCellDataLoader extends GridCellDataLoader<SelectOptionContext> {
   final SelectOptionService service;
   final GridCell gridCell;
   SelectOptionCellDataLoader({
@@ -27,9 +27,6 @@ class SelectOptionCellDataLoader implements GridCellDataLoader<SelectOptionConte
       );
     });
   }
-
-  @override
-  bool get reloadOnFieldChanged => true;
 }
 
 class SelectOptionService {

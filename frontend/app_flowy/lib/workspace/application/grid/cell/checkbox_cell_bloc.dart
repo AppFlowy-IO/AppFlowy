@@ -8,6 +8,7 @@ part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   final GridDefaultCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
     required CellService service,
@@ -32,12 +33,17 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   @override
   Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+
     cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    cellContext.startListening(onCellChanged: ((cell) {
+    _onCellChangedFn = cellContext.startListening(onCellChanged: ((cell) {
       if (!isClosed) {
         add(CheckboxCellEvent.didReceiveCellUpdate(cell));
       }

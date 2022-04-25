@@ -37,6 +37,11 @@ GridCellContext makeCellContext(GridCell gridCell, GridCellCache cellCache) {
     case FieldType.Checkbox:
     case FieldType.DateTime:
     case FieldType.Number:
+      return GridDefaultCellContext(
+        gridCell: gridCell,
+        cellCache: cellCache,
+        cellDataLoader: DefaultCellDataLoader(gridCell: gridCell, reloadOnCellChanged: true),
+      );
     case FieldType.RichText:
       return GridDefaultCellContext(
         gridCell: gridCell,

@@ -8,6 +8,7 @@ part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final GridDefaultCellContext cellContext;
+  void Function()? _onCellChangedFn;
   TextCellBloc({
     required this.cellContext,
   }) : super(TextCellState.initial(cellContext)) {
@@ -36,12 +37,16 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   @override
   Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
     cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    cellContext.startListening(
+    _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((cell) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cell));

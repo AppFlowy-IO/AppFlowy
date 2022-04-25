@@ -8,6 +8,7 @@ part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final GridDefaultCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   NumberCellBloc({
     required this.cellContext,
@@ -31,17 +32,20 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 
   Future<void> _updateCellValue(_UpdateCell value, Emitter<NumberCellState> emit) async {
     cellContext.saveCellData(value.text);
-    cellContext.reloadCellData();
   }
 
   @override
   Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
     cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    cellContext.startListening(
+    _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((cell) {
         if (!isClosed) {
           add(NumberCellEvent.didReceiveCellUpdate(cell));
