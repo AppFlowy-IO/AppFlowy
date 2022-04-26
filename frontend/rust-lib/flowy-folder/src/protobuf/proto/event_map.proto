@@ -19,7 +19,7 @@ enum FolderEvent {
     CopyLink = 206;
     SetLatestView = 207;
     CloseView = 208;
-    MoveItem = 209;
+    MoveFolderItem = 209;
     ReadTrash = 300;
     PutbackTrash = 301;
     DeleteTrash = 302;

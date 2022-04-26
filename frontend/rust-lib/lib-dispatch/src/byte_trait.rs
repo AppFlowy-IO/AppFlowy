@@ -47,8 +47,17 @@ where
     T: std::convert::TryFrom<Bytes, Error = protobuf::ProtobufError>,
 {
     fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError> {
-        let data = T::try_from(bytes)?;
-        Ok(data)
+        match T::try_from(bytes) {
+            Ok(data) => Ok(data),
+            Err(e) => {
+                tracing::error!(
+                    "Parse payload to {} failed with error: {:?}",
+                    std::any::type_name::<T>(),
+                    e
+                );
+                Err(e.into())
+            }
+        }
     }
 }
 

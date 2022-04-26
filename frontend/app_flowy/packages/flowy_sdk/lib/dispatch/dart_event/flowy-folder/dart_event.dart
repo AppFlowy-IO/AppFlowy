@@ -301,13 +301,13 @@ class FolderEventCloseView {
     }
 }
 
-class FolderEventMoveItem {
+class FolderEventMoveFolderItem {
      MoveFolderItemPayload request;
-     FolderEventMoveItem(this.request);
+     FolderEventMoveFolderItem(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = FolderEvent.MoveItem.toString()
+          ..event = FolderEvent.MoveFolderItem.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

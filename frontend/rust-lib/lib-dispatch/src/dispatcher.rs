@@ -139,13 +139,14 @@ impl Service<DispatchContext> for DispatchService {
                 // print_module_map_info(&module_map);
                 match module_map.get(&request.event) {
                     Some(module) => {
+                        tracing::trace!("Handle event: {:?} by {:?}", &request.event, module.name);
                         let fut = module.new_service(());
                         let service_fut = fut.await?.call(request);
                         service_fut.await
                     }
                     None => {
                         let msg = format!("Can not find the event handler. {:?}", request);
-                        log::error!("{}", msg);
+                        tracing::error!("{}", msg);
                         Err(InternalError::HandleNotFound(msg).into())
                     }
                 }

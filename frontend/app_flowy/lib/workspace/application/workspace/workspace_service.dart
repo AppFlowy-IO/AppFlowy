@@ -62,6 +62,6 @@ class WorkspaceService {
       ..to = toIndex
       ..ty = MoveFolderItemType.MoveApp;
 
-    return FolderEventMoveItem(payload).send();
+    return FolderEventMoveFolderItem(payload).send();
   }
 }

@@ -73,6 +73,6 @@ class AppService {
       ..to = toIndex
       ..ty = MoveFolderItemType.MoveView;
 
-    return FolderEventMoveItem(payload).send();
+    return FolderEventMoveFolderItem(payload).send();
   }
 }
