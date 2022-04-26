@@ -40,12 +40,15 @@ class ViewSectionItem extends StatelessWidget {
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          return InkWell(
-            onTap: () => onSelected(context.read<ViewBloc>().state.view),
-            child: FlowyHover(
-              style: HoverStyle(hoverColor: theme.bg3),
-              builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
-              setSelected: () => state.isEditing || isSelected,
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: InkWell(
+              onTap: () => onSelected(context.read<ViewBloc>().state.view),
+              child: FlowyHover(
+                style: HoverStyle(hoverColor: theme.bg3),
+                builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
+                setSelected: () => state.isEditing || isSelected,
+              ),
             ),
           );
         },

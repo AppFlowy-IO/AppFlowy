@@ -54,4 +54,17 @@ class AppService {
     }
     return FolderEventUpdateApp(request).send();
   }
+
+  Future<Either<Unit, FlowyError>> moveView({
+    required String viewId,
+    required int fromIndex,
+    required int toIndex,
+  }) {
+    UpdateAppPayload request = UpdateAppPayload.create()..appId = appId;
+
+    if (name != null) {
+      request.name = name;
+    }
+    return FolderEventUpdateApp(request).send();
+  }
 }
