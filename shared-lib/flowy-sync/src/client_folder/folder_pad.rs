@@ -169,6 +169,21 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub fn move_app(&mut self, app_id: &str, _from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+        let app = self.read_app(app_id)?;
+        self.with_workspace(&app.workspace_id, |workspace| {
+            match workspace.apps.iter().position(|app| app.id == app_id) {
+                None => Ok(None),
+                Some(index) => {
+                    let app = workspace.apps.remove(index);
+                    workspace.apps.insert(to, app);
+                    Ok(Some(()))
+                }
+            }
+        })
+    }
+
     #[tracing::instrument(level = "trace", skip(self), fields(view_name=%view.name), err)]
     pub fn create_view(&mut self, view: View) -> CollaborateResult<Option<FolderChange>> {
         let app_id = view.belong_to_id.clone();

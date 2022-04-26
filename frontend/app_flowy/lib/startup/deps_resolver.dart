@@ -99,7 +99,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
     (user, workspaceId) => MenuBloc(
       workspaceId: workspaceId,
-      service: WorkspaceService(),
       listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
     ),
   );

@@ -12,11 +12,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final WorkspaceService service;
+  final WorkspaceService _workspaceService;
   final WorkspaceListener listener;
   final String workspaceId;
 
-  MenuBloc({required this.workspaceId, required this.service, required this.listener}) : super(MenuState.initial()) {
+  MenuBloc({required this.workspaceId, required this.listener})
+      : _workspaceService = WorkspaceService(workspaceId: workspaceId),
+        super(MenuState.initial()) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
@@ -30,14 +32,20 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         openPage: (e) async {
           emit(state.copyWith(plugin: e.plugin));
         },
-        createApp: (CreateApp event) async {
+        createApp: (_CreateApp event) async {
           await _performActionOnCreateApp(event, emit);
         },
         didReceiveApps: (e) async {
           emit(e.appsOrFail.fold(
-            (apps) => state.copyWith(apps: some(apps), successOrFailure: left(unit)),
+            (apps) => state.copyWith(apps: apps, successOrFailure: left(unit)),
             (err) => state.copyWith(successOrFailure: right(err)),
           ));
+        },
+        moveApp: (_MoveApp value) {
+          if (state.apps.length > value.fromIndex) {
+            final app = state.apps[value.fromIndex];
+            _workspaceService.moveApp(appId: app.id, fromIndex: value.fromIndex, toIndex: value.toIndex);
+          }
         },
       );
     });
@@ -49,8 +57,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     return super.close();
   }
 
-  Future<void> _performActionOnCreateApp(CreateApp event, Emitter<MenuState> emit) async {
-    final result = await service.createApp(workspaceId: workspaceId, name: event.name, desc: event.desc ?? "");
+  Future<void> _performActionOnCreateApp(_CreateApp event, Emitter<MenuState> emit) async {
+    final result = await _workspaceService.createApp(name: event.name, desc: event.desc ?? "");
     result.fold(
       (app) => {},
       (error) {
@@ -62,9 +70,9 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   // ignore: unused_element
   Future<void> _fetchApps(Emitter<MenuState> emit) async {
-    final appsOrFail = await service.getApps(workspaceId: workspaceId);
+    final appsOrFail = await _workspaceService.getApps();
     emit(appsOrFail.fold(
-      (apps) => state.copyWith(apps: some(apps)),
+      (apps) => state.copyWith(apps: apps),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
@@ -83,24 +91,25 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 @freezed
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
-  const factory MenuEvent.collapse() = Collapse;
-  const factory MenuEvent.openPage(Plugin plugin) = OpenPage;
-  const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
-  const factory MenuEvent.didReceiveApps(Either<List<App>, FlowyError> appsOrFail) = ReceiveApps;
+  const factory MenuEvent.collapse() = _Collapse;
+  const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
+  const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
+  const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
+  const factory MenuEvent.didReceiveApps(Either<List<App>, FlowyError> appsOrFail) = _ReceiveApps;
 }
 
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
     required bool isCollapse,
-    required Option<List<App>> apps,
+    required List<App> apps,
     required Either<Unit, FlowyError> successOrFailure,
     required Plugin plugin,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         isCollapse: false,
-        apps: none(),
+        apps: [],
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: DefaultPlugin.blank.type()),
       );

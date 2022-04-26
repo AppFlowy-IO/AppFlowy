@@ -26,7 +26,7 @@ import 'app/menu_app.dart';
 import 'app/create_button.dart';
 import 'menu_user.dart';
 
-class HomeMenu extends StatefulWidget {
+class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
@@ -40,21 +40,12 @@ class HomeMenu extends StatefulWidget {
         super(key: key);
 
   @override
-  State<HomeMenu> createState() => _HomeMenuState();
-}
-
-class _HomeMenuState extends State<HomeMenu> {
-  /// Maps the hashmap of the menu items to their index in reorderable list view.
-  //TODO @gaganyadav80: Retain this map to persist on app restarts.
-  final Map<int, int> _menuItemIndex = <int, int>{};
-
-  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(param1: widget.user, param2: widget.workspaceSetting.workspace.id);
+            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceSetting.workspace.id);
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -71,7 +62,7 @@ class _HomeMenuState extends State<HomeMenu> {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
             listener: (context, state) {
-              widget._collapsedNotifier.value = state.isCollapse;
+              _collapsedNotifier.value = state.isCollapse;
             },
           )
         ],
@@ -101,7 +92,7 @@ class _HomeMenuState extends State<HomeMenu> {
             ).padding(horizontal: Insets.l),
           ),
           const VSpace(20),
-          _renderTrash(context).padding(horizontal: Insets.l),
+          const MenuTrash().padding(horizontal: Insets.l),
           const VSpace(20),
           _renderNewAppButton(context),
         ],
@@ -116,56 +107,18 @@ class _HomeMenuState extends State<HomeMenu> {
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) {
-              List<Widget> menuItems = [];
-              // menuItems.add(MenuUser(user));
-              List<MenuApp> appWidgets =
-                  state.apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-              // menuItems.addAll(appWidgets);
-              for (int i = 0; i < appWidgets.length; i++) {
-                if (_menuItemIndex[appWidgets[i].key.hashCode] == null) {
-                  _menuItemIndex[appWidgets[i].key.hashCode] = i;
-                }
-
-                menuItems.insert(_menuItemIndex[appWidgets[i].key.hashCode]!, appWidgets[i]);
-              }
-
-              return menuItems;
-            },
+            selector: (state) => state.apps.map((app) => MenuApp(app)).toList(),
             builder: (context, menuItems) {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
                 header: Padding(
                   padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
-                  child: MenuUser(widget.user),
+                  child: MenuUser(user),
                 ),
-                onReorder: (oldIndex, newIndex) {
-                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
-
-                  Widget menu = menuItems.removeAt(oldIndex);
-                  menuItems.insert(index, menu);
-
-                  final menuBloc = context.read<MenuBloc>();
-                  menuBloc.state.apps.forEach((a) {
-                    var app = a.removeAt(oldIndex);
-                    a.insert(index, app);
-                  });
-
-                  _menuItemIndex[menu.key.hashCode] = index;
-                },
+                onReorder: (oldIndex, newIndex) => context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, newIndex)),
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
-                  //? @gaganyadav80: To mimic the ListView.separated behavior, we need to add a padding.
-                  // EdgeInsets padding = EdgeInsets.zero;
-                  // if (index == 0) {
-                  //   padding = EdgeInsets.only(bottom: MenuAppSizes.appVPadding / 2);
-                  // } else if (index == menuItems.length - 1) {
-                  //   padding = EdgeInsets.only(top: MenuAppSizes.appVPadding / 2);
-                  // } else {
-                  //   padding = EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2);
-                  // }
-
                   return ReorderableDragStartListener(
                     key: ValueKey(menuItems[index].hashCode),
                     index: index,
@@ -181,10 +134,6 @@ class _HomeMenuState extends State<HomeMenu> {
         ),
       ),
     );
-  }
-
-  Widget _renderTrash(BuildContext context) {
-    return const MenuTrash();
   }
 
   Widget _renderNewAppButton(BuildContext context) {
