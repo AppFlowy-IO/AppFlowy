@@ -1,8 +1,5 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,27 +10,18 @@ part 'selection_editor_bloc.freezed.dart';
 
 class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
-  final SingleFieldListener _fieldListener;
-  final CellListener _cellListener;
-  Timer? _delayOperation;
+  final GridSelectOptionCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   SelectOptionEditorBloc({
-    required GridCell cellData,
-    required List<SelectOption> options,
-    required List<SelectOption> selectedOptions,
-  })  : _selectOptionService = SelectOptionService(),
-        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        super(SelectOptionEditorState.initial(cellData, options, selectedOptions)) {
+    required this.cellContext,
+  })  : _selectOptionService = SelectOptionService(gridCell: cellContext.gridCell),
+        super(SelectOptionEditorState.initial(cellContext)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
         await event.map(
           initial: (_Initial value) async {
             _startListening();
-          },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(field: value.field));
-            _loadOptions();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             emit(state.copyWith(
@@ -51,7 +39,7 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
             _updateOption(value.option);
           },
           selectOption: (_SelectOption value) {
-            _makeOptionAsSelected(value.optionId);
+            _onSelectOption(value.optionId);
           },
         );
       },
@@ -60,27 +48,21 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   @override
   Future<void> close() async {
-    _delayOperation?.cancel();
-    await _fieldListener.stop();
-    await _cellListener.stop();
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    cellContext.dispose();
     return super.close();
   }
 
   void _createOption(String name) async {
-    final result = await _selectOptionService.create(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
-      name: name,
-    );
-    result.fold((l) => _loadOptions(), (err) => Log.error(err));
+    final result = await _selectOptionService.create(name: name);
+    result.fold((l) => {}, (err) => Log.error(err));
   }
 
   void _deleteOption(SelectOption option) async {
     final result = await _selectOptionService.delete(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
       option: option,
     );
 
@@ -89,72 +71,38 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   void _updateOption(SelectOption option) async {
     final result = await _selectOptionService.update(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
       option: option,
     );
 
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _makeOptionAsSelected(String optionId) {
-    _selectOptionService.select(
-      gridId: state.gridId,
-      fieldId: state.field.id,
-      rowId: state.rowId,
-      optionId: optionId,
-    );
-  }
-
-  void _loadOptions() async {
-    _delayOperation?.cancel();
-    _delayOperation = Timer(
-      const Duration(milliseconds: 1),
-      () async {
-        final result = await _selectOptionService.getOpitonContext(
-          gridId: state.gridId,
-          fieldId: state.field.id,
-          rowId: state.rowId,
-        );
-        if (isClosed) {
-          return;
-        }
-
-        result.fold(
-          (selectOptionContext) => add(SelectOptionEditorEvent.didReceiveOptions(
-            selectOptionContext.options,
-            selectOptionContext.selectOptions,
-          )),
-          (err) => Log.error(err),
-        );
-      },
-    );
+  void _onSelectOption(String optionId) {
+    final hasSelected = state.selectedOptions.firstWhereOrNull((option) => option.id == optionId);
+    if (hasSelected != null) {
+      _selectOptionService.unSelect(optionId: optionId);
+    } else {
+      _selectOptionService.select(optionId: optionId);
+    }
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notificationData) => _loadOptions(),
-        (err) => Log.error(err),
-      );
-    });
-    _cellListener.start();
-
-    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
-      result.fold(
-        (field) => add(SelectOptionEditorEvent.didReceiveFieldUpdate(field)),
-        (err) => Log.error(err),
-      );
-    }, listenWhen: () => !isClosed);
-    _fieldListener.start();
+    _onCellChangedFn = cellContext.startListening(
+      onCellChanged: ((selectOptionContext) {
+        if (!isClosed) {
+          add(SelectOptionEditorEvent.didReceiveOptions(
+            selectOptionContext.options,
+            selectOptionContext.selectOptions,
+          ));
+        }
+      }),
+    );
   }
 }
 
 @freezed
 class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
   const factory SelectOptionEditorEvent.initial() = _Initial;
-  const factory SelectOptionEditorEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
   const factory SelectOptionEditorEvent.didReceiveOptions(
       List<SelectOption> options, List<SelectOption> selectedOptions) = _DidReceiveOptions;
   const factory SelectOptionEditorEvent.newOption(String optionName) = _NewOption;
@@ -166,24 +114,15 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
 @freezed
 class SelectOptionEditorState with _$SelectOptionEditorState {
   const factory SelectOptionEditorState({
-    required String gridId,
-    required Field field,
-    required String rowId,
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   }) = _SelectOptionEditorState;
 
-  factory SelectOptionEditorState.initial(
-    GridCell cellData,
-    List<SelectOption> options,
-    List<SelectOption> selectedOptions,
-  ) {
+  factory SelectOptionEditorState.initial(GridSelectOptionCellContext context) {
+    final data = context.getCellData();
     return SelectOptionEditorState(
-      gridId: cellData.gridId,
-      field: cellData.field,
-      rowId: cellData.rowId,
-      options: options,
-      selectedOptions: selectedOptions,
+      options: data?.options ?? [],
+      selectedOptions: data?.selectOptions ?? [],
     );
   }
 }

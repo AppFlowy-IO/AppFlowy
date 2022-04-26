@@ -168,34 +168,34 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCell, void>(
-    (cellData, _) => TextCellBloc(
-      cellData: cellData,
+  getIt.registerFactoryParam<TextCellBloc, GridDefaultCellContext, void>(
+    (context, _) => TextCellBloc(
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridCell, void>(
-    (cellData, _) => SelectionCellBloc(
-      cellData: cellData,
+  getIt.registerFactoryParam<SelectionCellBloc, GridSelectOptionCellContext, void>(
+    (context, _) => SelectionCellBloc(
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCell, void>(
-    (cellData, _) => NumberCellBloc(
-      cellData: cellData,
+  getIt.registerFactoryParam<NumberCellBloc, GridDefaultCellContext, void>(
+    (context, _) => NumberCellBloc(
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridCell, void>(
-    (cellData, _) => DateCellBloc(
-      cellData: cellData,
+  getIt.registerFactoryParam<DateCellBloc, GridDefaultCellContext, void>(
+    (context, _) => DateCellBloc(
+      cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCell, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridDefaultCellContext, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
-      cellData: cellData,
+      cellContext: cellData,
     ),
   );
 

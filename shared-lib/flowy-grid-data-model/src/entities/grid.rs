@@ -352,7 +352,25 @@ pub struct IndexRowOrder {
     pub index: Option<i32>,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
+#[derive(Debug, Default, ProtoBuf)]
+pub struct UpdatedRowOrder {
+    #[pb(index = 1)]
+    pub row_order: RowOrder,
+
+    #[pb(index = 2)]
+    pub row: Row,
+}
+
+impl UpdatedRowOrder {
+    pub fn new(row_meta: &RowMeta, row: Row) -> Self {
+        Self {
+            row_order: RowOrder::from(row_meta),
+            row,
+        }
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
 pub struct GridRowsChangeset {
     #[pb(index = 1)]
     pub block_id: String,
@@ -364,7 +382,7 @@ pub struct GridRowsChangeset {
     pub deleted_rows: Vec<RowOrder>,
 
     #[pb(index = 4)]
-    pub updated_rows: Vec<RowOrder>,
+    pub updated_rows: Vec<UpdatedRowOrder>,
 }
 
 impl std::convert::From<RowOrder> for IndexRowOrder {
@@ -399,7 +417,7 @@ impl GridRowsChangeset {
         }
     }
 
-    pub fn update(block_id: &str, updated_rows: Vec<RowOrder>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowOrder>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows: vec![],
@@ -443,21 +461,6 @@ impl Cell {
             content,
         }
     }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct CellNotificationData {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
-    pub field_id: String,
-
-    #[pb(index = 3)]
-    pub row_id: String,
-
-    #[pb(index = 4, one_of)]
-    pub content: Option<String>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

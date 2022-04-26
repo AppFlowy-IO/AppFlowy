@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -23,7 +24,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             _loadCellData();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) {
-            emit(state.copyWith(cellDatas: value.cellDatas));
+            emit(state.copyWith(gridCells: value.gridCells));
           },
         );
       },
@@ -47,28 +48,26 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   }
 
   Future<void> _loadCellData() async {
-    final data = _rowCache.loadCellData(rowData.rowId);
-    data.foldRight(null, (cellDataMap, _) {
-      if (!isClosed) {
-        add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
-      }
-    });
+    final cellDataMap = _rowCache.loadGridCells(rowData.rowId);
+    if (!isClosed) {
+      add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
+    }
   }
 }
 
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
-  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> cellDatas) = _DidReceiveCellDatas;
+  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> gridCells) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<GridCell> cellDatas,
+    required List<GridCell> gridCells,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(
-        cellDatas: List.empty(),
+        gridCells: List.empty(),
       );
 }

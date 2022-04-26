@@ -1,6 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -10,15 +7,13 @@ import 'cell_service.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final CellService _service;
-  final CellListener _cellListener;
+  final GridDefaultCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
     required CellService service,
-    required GridCell cellData,
-  })  : _service = service,
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        super(CheckboxCellState.initial(cellData)) {
+    required this.cellContext,
+  }) : super(CheckboxCellState.initial(cellContext)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.map(
@@ -38,42 +33,25 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   @override
   Future<void> close() async {
-    await _cellListener.stop();
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+
+    cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notificationData) async => await _loadCellData(),
-        (err) => Log.error(err),
-      );
-    });
-    _cellListener.start();
-  }
-
-  Future<void> _loadCellData() async {
-    final result = await _service.getCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-    );
-    if (isClosed) {
-      return;
-    }
-    result.fold(
-      (cell) => add(CheckboxCellEvent.didReceiveCellUpdate(cell)),
-      (err) => Log.error(err),
-    );
+    _onCellChangedFn = cellContext.startListening(onCellChanged: ((cell) {
+      if (!isClosed) {
+        add(CheckboxCellEvent.didReceiveCellUpdate(cell));
+      }
+    }));
   }
 
   void _updateCellData() {
-    _service.updateCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-      data: !state.isSelected ? "Yes" : "No",
-    );
+    cellContext.saveCellData(!state.isSelected ? "Yes" : "No");
   }
 }
 
@@ -87,12 +65,11 @@ class CheckboxCellEvent with _$CheckboxCellEvent {
 @freezed
 class CheckboxCellState with _$CheckboxCellState {
   const factory CheckboxCellState({
-    required GridCell cellData,
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(GridCell cellData) {
-    return CheckboxCellState(cellData: cellData, isSelected: _isSelected(cellData.cell));
+  factory CheckboxCellState.initial(GridCellContext context) {
+    return CheckboxCellState(isSelected: _isSelected(context.getCellData()));
   }
 }
 

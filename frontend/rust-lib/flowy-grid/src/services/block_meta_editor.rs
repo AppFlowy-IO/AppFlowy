@@ -96,6 +96,12 @@ impl ClientGridBlockMetaEditor {
         Ok(())
     }
 
+    pub async fn get_row_meta(&self, row_id: &str) -> FlowyResult<Option<Arc<RowMeta>>> {
+        let row_ids = vec![Cow::Borrowed(row_id)];
+        let row_meta = self.get_row_metas(Some(row_ids)).await?.pop();
+        Ok(row_meta)
+    }
+
     pub async fn get_row_metas<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<Arc<RowMeta>>>
     where
         T: AsRef<str> + ToOwned + ?Sized,
@@ -111,6 +117,11 @@ impl ClientGridBlockMetaEditor {
     ) -> FlowyResult<Vec<CellMeta>> {
         let cell_metas = self.pad.read().await.get_cell_metas(field_id, row_ids)?;
         Ok(cell_metas)
+    }
+
+    pub async fn get_row_order(&self, row_id: &str) -> FlowyResult<Option<RowOrder>> {
+        let row_ids = Some(vec![Cow::Borrowed(row_id)]);
+        Ok(self.get_row_orders(row_ids).await?.pop())
     }
 
     pub async fn get_row_orders<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowOrder>>

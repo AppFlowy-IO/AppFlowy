@@ -1,12 +1,15 @@
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:easy_localization/easy_localization.dart';
@@ -18,10 +21,12 @@ import 'package:window_size/window_size.dart';
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   final GridRow rowData;
   final GridRowCache rowCache;
+  final GridCellCache cellCache;
 
   const RowDetailPage({
     required this.rowData,
     required this.rowCache,
+    required this.cellCache,
     Key? key,
   }) : super(key: key);
 
@@ -59,32 +64,45 @@ class _RowDetailPageState extends State<RowDetailPage> {
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: _PropertyList(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        child: _PropertyList(cellCache: widget.cellCache),
       ),
     );
   }
 }
 
 class _PropertyList extends StatelessWidget {
-  const _PropertyList({
+  final GridCellCache cellCache;
+  final ScrollController _scrollController;
+  _PropertyList({
+    required this.cellCache,
     Key? key,
-  }) : super(key: key);
+  })  : _scrollController = ScrollController(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
-      buildWhen: (previous, current) => previous.cellDatas != current.cellDatas,
+      buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
-        return ListView.separated(
-          itemCount: state.cellDatas.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _RowDetailCell(cellData: state.cellDatas[index]);
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return const VSpace(2);
-          },
+        return ScrollbarListStack(
+          axis: Axis.vertical,
+          controller: _scrollController,
+          barSize: GridSize.scrollBarSize,
+          child: ListView.separated(
+            controller: _scrollController,
+            itemCount: state.gridCells.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _RowDetailCell(
+                gridCell: state.gridCells[index],
+                cellCache: cellCache,
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return const VSpace(2);
+            },
+          ),
         );
       },
     );
@@ -92,15 +110,22 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCell cellData;
-  const _RowDetailCell({required this.cellData, Key? key}) : super(key: key);
+  final GridCell gridCell;
+  final GridCellCache cellCache;
+  const _RowDetailCell({
+    required this.gridCell,
+    required this.cellCache,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final cell = buildGridCell(
-      cellData,
-      style: _buildCellStyle(theme, cellData.field.fieldType),
+
+    final cell = buildGridCellWidget(
+      gridCell,
+      cellCache,
+      style: _buildCellStyle(theme, gridCell.field.fieldType),
     );
     return SizedBox(
       height: 36,
@@ -110,7 +135,7 @@ class _RowDetailCell extends StatelessWidget {
         children: [
           SizedBox(
             width: 150,
-            child: FieldCellButton(field: cellData.field, onTap: () => _showFieldEditor(context)),
+            child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
           ),
           const HSpace(10),
           Expanded(
@@ -126,10 +151,10 @@ class _RowDetailCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
-      gridId: cellData.gridId,
+      gridId: gridCell.gridId,
       fieldContextLoader: FieldContextLoaderAdaptor(
-        gridId: cellData.gridId,
-        field: cellData.field,
+        gridId: gridCell.gridId,
+        field: gridCell.field,
       ),
     ).show(context);
   }
@@ -142,7 +167,9 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
     case FieldType.DateTime:
       return null;
     case FieldType.MultiSelect:
-      return null;
+      return SelectOptionCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
     case FieldType.Number:
       return null;
     case FieldType.RichText:
@@ -150,7 +177,9 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
     case FieldType.SingleSelect:
-      return null;
+      return SelectOptionCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
     default:
       return null;
   }

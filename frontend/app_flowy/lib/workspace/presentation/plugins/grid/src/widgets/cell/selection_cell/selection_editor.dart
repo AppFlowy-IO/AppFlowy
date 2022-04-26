@@ -1,6 +1,6 @@
 import 'dart:collection';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell/selection_editor_bloc.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
@@ -25,15 +25,11 @@ import 'text_field.dart';
 const double _editorPannelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
-  final GridCell cellData;
-  final List<SelectOption> options;
-  final List<SelectOption> selectedOptions;
+  final GridSelectOptionCellContext cellContext;
   final VoidCallback onDismissed;
 
   const SelectOptionCellEditor({
-    required this.cellData,
-    required this.options,
-    required this.selectedOptions,
+    required this.cellContext,
     required this.onDismissed,
     Key? key,
   }) : super(key: key);
@@ -42,9 +38,7 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SelectOptionEditorBloc(
-        cellData: cellData,
-        options: options,
-        selectedOptions: selectedOptions,
+        cellContext: cellContext,
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
@@ -66,16 +60,12 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   static void show(
     BuildContext context,
-    GridCell cellData,
-    List<SelectOption> options,
-    List<SelectOption> selectedOptions,
+    GridSelectOptionCellContext cellContext,
     VoidCallback onDismissed,
   ) {
     SelectOptionCellEditor.remove(context);
     final editor = SelectOptionCellEditor(
-      cellData: cellData,
-      options: options,
-      selectedOptions: selectedOptions,
+      cellContext: cellContext,
       onDismissed: onDismissed,
     );
 

@@ -5,6 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'cell/cell_service.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
 
@@ -14,6 +15,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final GridService _gridService;
   final GridFieldCache fieldCache;
   late final GridRowCache rowCache;
+  late final GridCellCache cellCache;
 
   GridBloc({required View view})
       : _gridService = GridService(gridId: view.id),
@@ -21,7 +23,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         super(GridState.initial(view.id)) {
     rowCache = GridRowCache(
       gridId: view.id,
-      dataDelegate: GridRowDataDelegateAdaptor(fieldCache),
+      fieldDelegate: GridRowCacheDelegateImpl(fieldCache),
+    );
+
+    cellCache = GridCellCache(
+      gridId: view.id,
+      fieldDelegate: GridCellCacheDelegateImpl(fieldCache),
     );
 
     on<GridEvent>(
@@ -48,8 +55,9 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _gridService.closeGrid();
-    await fieldCache.dispose();
+    await cellCache.dispose();
     await rowCache.dispose();
+    await fieldCache.dispose();
     return super.close();
   }
 
@@ -81,7 +89,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.fields = fields.items;
-          rowCache.updateWithBlock(grid.blockOrders);
+          rowCache.resetRows(grid.blockOrders);
 
           emit(state.copyWith(
             grid: Some(grid),

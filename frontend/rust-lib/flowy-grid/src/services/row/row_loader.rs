@@ -47,6 +47,10 @@ pub(crate) fn make_row_orders_from_row_metas(row_metas: &[Arc<RowMeta>]) -> Vec<
     row_metas.iter().map(RowOrder::from).collect::<Vec<_>>()
 }
 
+pub(crate) fn make_row_from_row_meta(fields: &[FieldMeta], row_meta: Arc<RowMeta>) -> Option<Row> {
+    make_rows_from_row_metas(fields, &[row_meta]).pop()
+}
+
 pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<RowMeta>]) -> Vec<Row> {
     let field_meta_map = fields
         .iter()

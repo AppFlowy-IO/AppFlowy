@@ -8,17 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'row_action_sheet.dart';
-import 'package:dartz/dartz.dart' show Option;
 
 import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRow rowData;
   final GridRowCache rowCache;
+  final GridCellCache cellCache;
 
   const GridRowWidget({
     required this.rowData,
     required this.rowCache,
+    required this.cellCache,
     Key? key,
   }) : super(key: key);
 
@@ -49,7 +50,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
           builder: (context, state) {
             final children = [
               const _RowLeading(),
-              _RowCells(onExpand: () => onExpandCell(context)),
+              _RowCells(cellCache: widget.cellCache, onExpand: () => onExpandCell(context)),
               const _RowTrailing(),
             ];
 
@@ -73,7 +74,11 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   }
 
   void onExpandCell(BuildContext context) {
-    final page = RowDetailPage(rowData: widget.rowData, rowCache: widget.rowCache);
+    final page = RowDetailPage(
+      rowData: widget.rowData,
+      rowCache: widget.rowCache,
+      cellCache: widget.cellCache,
+    );
     page.show(context);
   }
 }
@@ -147,13 +152,14 @@ class _DeleteRowButton extends StatelessWidget {
 }
 
 class _RowCells extends StatelessWidget {
+  final GridCellCache cellCache;
   final VoidCallback onExpand;
-  const _RowCells({required this.onExpand, Key? key}) : super(key: key);
+  const _RowCells({required this.cellCache, required this.onExpand, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
+      buildWhen: (previous, current) => previous.cellDataMap.length != current.cellDataMap.length,
       builder: (context, state) {
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -164,24 +170,21 @@ class _RowCells extends StatelessWidget {
     );
   }
 
-  List<Widget> _makeCells(Option<CellDataMap> data) {
-    return data.fold(
-      () => [],
-      (cellDataMap) => cellDataMap.values.map(
-        (cellData) {
-          Widget? expander;
-          if (cellData.field.isPrimary) {
-            expander = _CellExpander(onExpand: onExpand);
-          }
+  List<Widget> _makeCells(GridCellMap gridCellMap) {
+    return gridCellMap.values.map(
+      (gridCell) {
+        Widget? expander;
+        if (gridCell.field.isPrimary) {
+          expander = _CellExpander(onExpand: onExpand);
+        }
 
-          return CellContainer(
-            width: cellData.field.width.toDouble(),
-            child: buildGridCell(cellData),
-            expander: expander,
-          );
-        },
-      ).toList(),
-    );
+        return CellContainer(
+          width: gridCell.field.width.toDouble(),
+          child: buildGridCellWidget(gridCell, cellCache),
+          expander: expander,
+        );
+      },
+    ).toList();
   }
 }
 

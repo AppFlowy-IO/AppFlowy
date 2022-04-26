@@ -73,11 +73,15 @@ message IndexRowOrder {
     RowOrder row_order = 1;
     oneof one_of_index { int32 index = 2; };
 }
+message UpdatedRowOrder {
+    RowOrder row_order = 1;
+    Row row = 2;
+}
 message GridRowsChangeset {
     string block_id = 1;
     repeated IndexRowOrder inserted_rows = 2;
     repeated RowOrder deleted_rows = 3;
-    repeated RowOrder updated_rows = 4;
+    repeated UpdatedRowOrder updated_rows = 4;
 }
 message GridBlock {
     string id = 1;
@@ -86,12 +90,6 @@ message GridBlock {
 message Cell {
     string field_id = 1;
     string content = 2;
-}
-message CellNotificationData {
-    string grid_id = 1;
-    string field_id = 2;
-    string row_id = 3;
-    oneof one_of_content { string content = 4; };
 }
 message RepeatedCell {
     repeated Cell items = 1;

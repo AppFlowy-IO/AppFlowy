@@ -8,6 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'cell/cell_service.dart';
 import 'row/row_service.dart';
 
 class GridService {
@@ -53,31 +54,35 @@ class FieldsNotifier extends ChangeNotifier {
   List<Field> get fields => _fields;
 }
 
+typedef ChangesetListener = void Function(GridFieldChangeset);
+
 class GridFieldCache {
   final String gridId;
   late final GridFieldsListener _fieldListener;
   final FieldsNotifier _fieldNotifier = FieldsNotifier();
+  final List<ChangesetListener> _changesetListener = [];
+
   GridFieldCache({required this.gridId}) {
     _fieldListener = GridFieldsListener(gridId: gridId);
-    _fieldListener.updateFieldsNotifier?.addPublishListener((result) {
+    _fieldListener.start(onFieldsChanged: (result) {
       result.fold(
         (changeset) {
           _deleteFields(changeset.deletedFields);
           _insertFields(changeset.insertedFields);
           _updateFields(changeset.updatedFields);
+          for (final listener in _changesetListener) {
+            listener(changeset);
+          }
         },
         (err) => Log.error(err),
       );
     });
-    _fieldListener.start();
   }
 
   Future<void> dispose() async {
     await _fieldListener.stop();
     _fieldNotifier.dispose();
   }
-
-  void applyChangeset(GridFieldChangeset changeset) {}
 
   UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier.fields);
 
@@ -109,6 +114,17 @@ class GridFieldCache {
 
   void removeListener(VoidCallback f) {
     _fieldNotifier.removeListener(f);
+  }
+
+  void addChangesetListener(ChangesetListener listener) {
+    _changesetListener.add(listener);
+  }
+
+  void removeChangesetListener(ChangesetListener listener) {
+    final index = _changesetListener.indexWhere((element) => element == listener);
+    if (index != -1) {
+      _changesetListener.removeAt(index);
+    }
   }
 
   void _deleteFields(List<FieldOrder> deletedFields) {
@@ -155,22 +171,12 @@ class GridFieldCache {
   }
 }
 
-class GridRowDataDelegateAdaptor extends GridRowDataDelegate {
+class GridRowCacheDelegateImpl extends GridRowFieldDelegate {
   final GridFieldCache _cache;
+  GridRowCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
-  GridRowDataDelegateAdaptor(GridFieldCache cache) : _cache = cache;
   @override
   UnmodifiableListView<Field> get fields => _cache.unmodifiableFields;
-
-  @override
-  GridRow buildGridRow(RowOrder rowOrder) {
-    return GridRow(
-      gridId: _cache.gridId,
-      fields: _cache.unmodifiableFields,
-      rowId: rowOrder.rowId,
-      height: rowOrder.height.toDouble(),
-    );
-  }
 
   @override
   void onFieldChanged(FieldDidUpdateCallback callback) {
@@ -178,20 +184,30 @@ class GridRowDataDelegateAdaptor extends GridRowDataDelegate {
       callback();
     });
   }
+}
+
+class GridCellCacheDelegateImpl extends GridCellFieldDelegate {
+  final GridFieldCache _cache;
+  ChangesetListener? _changesetFn;
+  GridCellCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  CellDataMap buildCellDataMap(Row rowData) {
-    var map = CellDataMap.new();
-    for (final field in fields) {
-      if (field.visibility) {
-        map[field.id] = GridCell(
-          rowId: rowData.id,
-          gridId: _cache.gridId,
-          cell: rowData.cellByFieldId[field.id],
-          field: field,
-        );
+  void onFieldChanged(void Function(String) callback) {
+    changesetFn(GridFieldChangeset changeset) {
+      for (final updatedField in changeset.updatedFields) {
+        callback(updatedField.id);
       }
     }
-    return map;
+
+    _cache.addChangesetListener(changesetFn);
+    _changesetFn = changesetFn;
+  }
+
+  @override
+  void dispose() {
+    if (_changesetFn != null) {
+      _cache.removeChangesetListener(_changesetFn!);
+      _changesetFn = null;
+    }
   }
 }

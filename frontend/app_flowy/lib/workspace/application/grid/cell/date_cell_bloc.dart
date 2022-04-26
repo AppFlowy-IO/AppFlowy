@@ -1,7 +1,3 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
-import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,15 +7,10 @@ import 'cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final CellService _service;
-  final CellListener _cellListener;
-  final SingleFieldListener _fieldListener;
+  final GridDefaultCellContext cellContext;
+  void Function()? _onCellChangedFn;
 
-  DateCellBloc({required GridCell cellData})
-      : _service = CellService(),
-        _cellListener = CellListener(rowId: cellData.rowId, fieldId: cellData.field.id),
-        _fieldListener = SingleFieldListener(fieldId: cellData.field.id),
-        super(DateCellState.initial(cellData)) {
+  DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.map(
@@ -31,13 +22,11 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
             emit(state.copyWith(
-              cellData: state.cellData.copyWith(cell: value.cell),
               content: value.cell.content,
             ));
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(field: value.field));
-            _loadCellData();
           },
         );
       },
@@ -46,52 +35,27 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   @override
   Future<void> close() async {
-    await _cellListener.stop();
-    await _fieldListener.stop();
+    if (_onCellChangedFn != null) {
+      cellContext.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    cellContext.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _cellListener.updateCellNotifier?.addPublishListener((result) {
-      result.fold(
-        (notificationData) => _loadCellData(),
-        (err) => Log.error(err),
-      );
-    }, listenWhen: () => !isClosed);
-    _cellListener.start();
-
-    _fieldListener.updateFieldNotifier?.addPublishListener((result) {
-      result.fold(
-        (field) => add(DateCellEvent.didReceiveFieldUpdate(field)),
-        (err) => Log.error(err),
-      );
-    }, listenWhen: () => !isClosed);
-    _fieldListener.start();
-  }
-
-  Future<void> _loadCellData() async {
-    final result = await _service.getCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-    );
-    if (isClosed) {
-      return;
-    }
-    result.fold(
-      (cell) => add(DateCellEvent.didReceiveCellUpdate(cell)),
-      (err) => Log.error(err),
+    _onCellChangedFn = cellContext.startListening(
+      onCellChanged: ((cell) {
+        if (!isClosed) {
+          add(DateCellEvent.didReceiveCellUpdate(cell));
+        }
+      }),
     );
   }
 
   void _updateCellData(DateTime day) {
     final data = day.millisecondsSinceEpoch ~/ 1000;
-    _service.updateCell(
-      gridId: state.cellData.gridId,
-      fieldId: state.cellData.field.id,
-      rowId: state.cellData.rowId,
-      data: data.toString(),
-    );
+    cellContext.saveCellData(data.toString());
   }
 }
 
@@ -106,15 +70,13 @@ class DateCellEvent with _$DateCellEvent {
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required GridCell cellData,
     required String content,
     required Field field,
     DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial(GridCell cellData) => DateCellState(
-        cellData: cellData,
-        field: cellData.field,
-        content: cellData.cell?.content ?? "",
+  factory DateCellState.initial(GridCellContext context) => DateCellState(
+        field: context.field,
+        content: context.getCellData()?.content ?? "",
       );
 }

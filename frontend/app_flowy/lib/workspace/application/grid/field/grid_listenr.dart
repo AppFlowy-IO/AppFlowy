@@ -15,7 +15,8 @@ class GridFieldsListener {
   GridNotificationListener? _listener;
   GridFieldsListener({required this.gridId});
 
-  void start() {
+  void start({required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
+    updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = GridNotificationListener(
       objectId: gridId,
       handler: _handler,

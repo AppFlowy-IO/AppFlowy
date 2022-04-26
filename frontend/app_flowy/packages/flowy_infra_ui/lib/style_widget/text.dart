@@ -46,7 +46,7 @@ class FlowyText extends StatelessWidget {
         style: TextStyle(
           color: color ?? theme.textColor,
           fontWeight: fontWeight,
-          fontSize: fontSize + 2,
+          fontSize: fontSize,
           fontFamily: 'Mulish',
         ));
   }

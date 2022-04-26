@@ -1,9 +1,9 @@
 import 'dart:collection';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'row_service.dart';
-import 'package:dartz/dartz.dart';
 
 part 'row_bloc.freezed.dart';
 
@@ -17,19 +17,18 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     required GridRowCache rowCache,
   })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
         _rowCache = rowCache,
-        super(RowState.initial(rowData)) {
+        super(RowState.initial(rowData, rowCache.loadGridCells(rowData.rowId))) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
             await _startListening();
-            await _loadRow(emit);
           },
           createRow: (_CreateRow value) {
             _rowService.createRow();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) async {
-            emit(state.copyWith(cellDataMap: Some(value.cellData)));
+            emit(state.copyWith(cellDataMap: value.cellData));
           },
         );
       },
@@ -41,6 +40,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     if (_rowListenFn != null) {
       _rowCache.removeRowListener(_rowListenFn!);
     }
+
     return super.close();
   }
 
@@ -51,33 +51,24 @@ class RowBloc extends Bloc<RowEvent, RowState> {
       listenWhen: () => !isClosed,
     );
   }
-
-  Future<void> _loadRow(Emitter<RowState> emit) async {
-    final data = _rowCache.loadCellData(state.rowData.rowId);
-    data.foldRight(null, (cellDatas, _) {
-      if (!isClosed) {
-        add(RowEvent.didReceiveCellDatas(cellDatas));
-      }
-    });
-  }
 }
 
 @freezed
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveCellDatas(CellDataMap cellData) = _DidReceiveCellDatas;
+  const factory RowEvent.didReceiveCellDatas(GridCellMap cellData) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
-    required Option<CellDataMap> cellDataMap,
+    required GridCellMap cellDataMap,
   }) = _RowState;
 
-  factory RowState.initial(GridRow rowData) => RowState(
+  factory RowState.initial(GridRow rowData, GridCellMap cellDataMap) => RowState(
         rowData: rowData,
-        cellDataMap: none(),
+        cellDataMap: cellDataMap,
       );
 }
