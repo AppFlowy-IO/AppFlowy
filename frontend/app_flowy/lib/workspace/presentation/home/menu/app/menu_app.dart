@@ -18,11 +18,11 @@ class MenuApp extends StatefulWidget {
 }
 
 class _MenuAppState extends State<MenuApp> {
-  late AppViewDataNotifier notifier;
+  late AppViewDataContext viewDataContext;
 
   @override
   void initState() {
-    notifier = AppViewDataNotifier();
+    viewDataContext = AppViewDataContext(appId: widget.app.id);
     super.initState();
   }
 
@@ -46,16 +46,16 @@ class _MenuAppState extends State<MenuApp> {
           ),
           BlocListener<AppBloc, AppState>(
             listenWhen: (p, c) => p.views != c.views,
-            listener: (context, state) => notifier.views = state.views,
+            listener: (context, state) => viewDataContext.views = state.views,
           ),
         ],
         child: BlocBuilder<AppBloc, AppState>(
           builder: (context, state) {
             return ChangeNotifierProvider.value(
-              value: notifier,
-              child: Consumer<AppViewDataNotifier>(
-                builder: (context, notifier, _) {
-                  return expandableWrapper(context, notifier);
+              value: viewDataContext,
+              child: Consumer<AppViewDataContext>(
+                builder: (context, viewDataContext, _) {
+                  return expandableWrapper(context, viewDataContext);
                 },
               ),
             );
@@ -65,9 +65,9 @@ class _MenuAppState extends State<MenuApp> {
     );
   }
 
-  ExpandableNotifier expandableWrapper(BuildContext context, AppViewDataNotifier notifier) {
+  ExpandableNotifier expandableWrapper(BuildContext context, AppViewDataContext viewDataContext) {
     return ExpandableNotifier(
-      controller: notifier.expandController,
+      controller: viewDataContext.expandController,
       child: ScrollOnExpand(
         scrollOnExpand: false,
         scrollOnCollapse: false,
@@ -86,7 +86,7 @@ class _MenuAppState extends State<MenuApp> {
                 value: Provider.of<AppearanceSettingModel>(context, listen: true),
                 child: MenuAppHeader(widget.app),
               ),
-              expanded: _renderViewSection(notifier),
+              expanded: ViewSection(appViewData: viewDataContext),
               collapsed: const SizedBox(),
             ),
           ],
@@ -95,20 +95,9 @@ class _MenuAppState extends State<MenuApp> {
     );
   }
 
-  Widget _renderViewSection(AppViewDataNotifier notifier) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: notifier)],
-      child: Consumer(
-        builder: (context, AppViewDataNotifier notifier, child) {
-          return ViewSection(appData: notifier);
-        },
-      ),
-    );
-  }
-
   @override
   void dispose() {
-    notifier.dispose();
+    viewDataContext.dispose();
     super.dispose();
   }
 }

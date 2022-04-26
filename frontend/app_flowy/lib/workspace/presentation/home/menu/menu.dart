@@ -13,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -199,9 +198,7 @@ class MenuSharedState {
   final ValueNotifier<View?> _latestOpenView = ValueNotifier<View?>(null);
 
   MenuSharedState({View? view}) {
-    if (view != null) {
-      _latestOpenView.value = view;
-    }
+    _latestOpenView.value = view;
   }
 
   View? get latestOpenView => _latestOpenView.value;
@@ -210,17 +207,17 @@ class MenuSharedState {
     _latestOpenView.value = view;
   }
 
-  VoidCallback addLatestViewListener(void Function(View?) latestViewDidChange) {
-    onChanged() {
-      latestViewDidChange(_latestOpenView.value);
+  VoidCallback addLatestViewListener(void Function(View?) callback) {
+    listener() {
+      callback(_latestOpenView.value);
     }
 
-    _latestOpenView.addListener(onChanged);
-    return onChanged;
+    _latestOpenView.addListener(listener);
+    return listener;
   }
 
-  void removeLatestViewListener(VoidCallback fn) {
-    _latestOpenView.removeListener(fn);
+  void removeLatestViewListener(VoidCallback listener) {
+    _latestOpenView.removeListener(listener);
   }
 }
 

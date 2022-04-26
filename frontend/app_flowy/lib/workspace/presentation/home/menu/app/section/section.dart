@@ -3,35 +3,34 @@ import 'dart:developer';
 
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
+import 'package:app_flowy/workspace/application/menu/menu_view_section_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 
 class ViewSection extends StatelessWidget {
-  final AppViewDataNotifier appData;
-  const ViewSection({Key? key, required this.appData}) : super(key: key);
+  final AppViewDataContext appViewData;
+  const ViewSection({Key? key, required this.appViewData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
-    return ChangeNotifierProxyProvider<AppViewDataNotifier, ViewSectionNotifier>(
-      create: (_) {
-        return ViewSectionNotifier(
-          context: context,
-          views: appData.views,
-          initialSelectedView: appData.selectedView,
-        );
+    return BlocProvider(
+      create: (context) {
+        final bloc = ViewSectionBloc(appViewData: appViewData);
+        bloc.add(const ViewSectionEvent.initial());
+        return bloc;
       },
-      update: (_, notifier, controller) => controller!..update(notifier),
-      child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
-        return _SectionItems(views: notifier.views);
-      }),
+      child: BlocBuilder<ViewSectionBloc, ViewSectionState>(
+        builder: (context, state) {
+          return _SectionItems(views: state.views);
+        },
+      ),
     );
   }
 
@@ -135,11 +134,12 @@ class _SectionItemsState extends State<_SectionItems> {
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
-    final view = context.read<ViewSectionNotifier>().selectedView;
-    if (view == null) {
-      return false;
-    }
-    return view.id == viewId;
+    // final view = context.read<ViewSectionNotifier>().selectedView;
+    // if (view == null) {
+    //   return false;
+    // }
+    // return view.id == viewId;
+    return false;
   }
 }
 
@@ -151,7 +151,6 @@ class ViewSectionNotifier with ChangeNotifier {
   VoidCallback? _latestViewDidChangeFn;
 
   ViewSectionNotifier({
-    required BuildContext context,
     required List<View> views,
     View? initialSelectedView,
   })  : _views = views,
@@ -192,7 +191,7 @@ class ViewSectionNotifier with ChangeNotifier {
 
   View? get selectedView => _selectedView;
 
-  void update(AppViewDataNotifier notifier) {
+  void update(AppViewDataContext notifier) {
     views = notifier.views;
   }
 

@@ -43,11 +43,19 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     appListener.start(
       viewsChanged: (result) {
         result.fold(
-          (views) => add(AppEvent.didReceiveViewUpdated(views)),
+          (views) {
+            if (!isClosed) {
+              add(AppEvent.didReceiveViewUpdated(views));
+            }
+          },
           (error) => Log.error(error),
         );
       },
-      appUpdated: (app) => add(AppEvent.appDidUpdate(app)),
+      appUpdated: (app) {
+        if (!isClosed) {
+          add(AppEvent.appDidUpdate(app));
+        }
+      },
     );
   }
 
@@ -149,40 +157,73 @@ class AppState with _$AppState {
       );
 }
 
-class AppViewDataNotifier extends ChangeNotifier {
-  List<View> _views = [];
-  View? _selectedView;
+class AppViewDataContext extends ChangeNotifier {
+  final String appId;
+  final ValueNotifier<List<View>> _viewsNotifier = ValueNotifier([]);
+  final ValueNotifier<View?> _selectedViewNotifier = ValueNotifier(null);
   ExpandableController expandController = ExpandableController(initialExpanded: false);
 
-  AppViewDataNotifier() {
+  AppViewDataContext({required this.appId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
     getIt<MenuSharedState>().addLatestViewListener((view) {
       _setLatestView(view);
     });
   }
 
-  void _setLatestView(View? view) {
-    view?.freeze();
-    _selectedView = view;
-    _expandIfNeed();
+  VoidCallback addSelectedViewChangeListener(void Function(View?) callback) {
+    listener() {
+      callback(_selectedViewNotifier.value);
+    }
+
+    _selectedViewNotifier.addListener(listener);
+    return listener;
   }
 
-  View? get selectedView => _selectedView;
+  void removeSelectedViewListener(VoidCallback listener) {
+    _selectedViewNotifier.removeListener(listener);
+  }
 
-  set views(List<View> views) {
-    if (_views != views) {
-      _views = views;
+  void _setLatestView(View? view) {
+    view?.freeze();
+
+    if (_selectedViewNotifier.value != view) {
+      _selectedViewNotifier.value = view;
       _expandIfNeed();
       notifyListeners();
     }
   }
 
+  View? get selectedView => _selectedViewNotifier.value;
+
+  set views(List<View> views) {
+    if (_viewsNotifier.value != views) {
+      _viewsNotifier.value = views;
+      _expandIfNeed();
+      notifyListeners();
+    }
+  }
+
+  UnmodifiableListView<View> get views => UnmodifiableListView(_viewsNotifier.value);
+
+  VoidCallback addViewsChangeListener(void Function(UnmodifiableListView<View>) callback) {
+    listener() {
+      callback(views);
+    }
+
+    _viewsNotifier.addListener(listener);
+    return listener;
+  }
+
+  void removeViewsListener(VoidCallback listener) {
+    _viewsNotifier.removeListener(listener);
+  }
+
   void _expandIfNeed() {
-    if (_selectedView == null) {
+    if (_selectedViewNotifier.value == null) {
       return;
     }
 
-    if (!_views.contains(_selectedView!)) {
+    if (!_viewsNotifier.value.contains(_selectedViewNotifier.value)) {
       return;
     }
 
@@ -193,6 +234,4 @@ class AppViewDataNotifier extends ChangeNotifier {
       });
     }
   }
-
-  UnmodifiableListView<View> get views => UnmodifiableListView(_views);
 }
