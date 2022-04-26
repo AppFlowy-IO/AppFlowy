@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
@@ -13,13 +14,13 @@ import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 
 class ViewSection extends StatelessWidget {
-  final AppDataNotifier appData;
+  final AppViewDataNotifier appData;
   const ViewSection({Key? key, required this.appData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
-    return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
+    return ChangeNotifierProxyProvider<AppViewDataNotifier, ViewSectionNotifier>(
       create: (_) {
         return ViewSectionNotifier(
           context: context,
@@ -29,7 +30,7 @@ class ViewSection extends StatelessWidget {
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
-        return RenderSectionItems(views: notifier.views);
+        return _SectionItems(views: notifier.views);
       }),
     );
   }
@@ -63,16 +64,16 @@ class ViewSection extends StatelessWidget {
   // }
 }
 
-class RenderSectionItems extends StatefulWidget {
-  const RenderSectionItems({Key? key, required this.views}) : super(key: key);
+class _SectionItems extends StatefulWidget {
+  const _SectionItems({Key? key, required this.views}) : super(key: key);
 
   final List<View> views;
 
   @override
-  State<RenderSectionItems> createState() => _RenderSectionItemsState();
+  State<_SectionItems> createState() => _SectionItemsState();
 }
 
-class _RenderSectionItemsState extends State<RenderSectionItems> {
+class _SectionItemsState extends State<_SectionItems> {
   List<View> views = <View>[];
 
   /// Maps the hasmap value of the section items to their index in the reorderable list.
@@ -123,10 +124,7 @@ class _RenderSectionItemsState extends State<RenderSectionItems> {
                   (view) => ViewSectionItem(
                     view: view,
                     isSelected: _isViewSelected(context, view.id),
-                    onSelected: (view) {
-                      context.read<ViewSectionNotifier>().selectedView = view;
-                      Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
-                    },
+                    onSelected: (view) => getIt<MenuSharedState>().latestOpenView = view,
                   ).padding(vertical: 4),
                 )
                 .toList()[index],
@@ -150,6 +148,7 @@ class ViewSectionNotifier with ChangeNotifier {
   List<View> _views;
   View? _selectedView;
   Timer? _notifyListenerOperation;
+  VoidCallback? _latestViewDidChangeFn;
 
   ViewSectionNotifier({
     required BuildContext context,
@@ -157,16 +156,10 @@ class ViewSectionNotifier with ChangeNotifier {
     View? initialSelectedView,
   })  : _views = views,
         _selectedView = initialSelectedView {
-    final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
-    // The forcedOpenView will be the view after creating the new view
-    menuSharedState.forcedOpenView.addPublishListener((forcedOpenView) {
-      selectedView = forcedOpenView;
-    });
-
-    menuSharedState.selectedView.addListener(() {
-      // Cancel the selected view of this section by setting the selectedView to null
-      // that will notify the listener to refresh the ViewSection UI
-      if (menuSharedState.selectedView.value != _selectedView) {
+    _latestViewDidChangeFn = getIt<MenuSharedState>().addLatestViewListener((latestOpenView) {
+      if (_views.contains(latestOpenView)) {
+        selectedView = latestOpenView;
+      } else {
         selectedView = null;
       }
     });
@@ -199,7 +192,7 @@ class ViewSectionNotifier with ChangeNotifier {
 
   View? get selectedView => _selectedView;
 
-  void update(AppDataNotifier notifier) {
+  void update(AppViewDataNotifier notifier) {
     views = notifier.views;
   }
 
@@ -216,6 +209,10 @@ class ViewSectionNotifier with ChangeNotifier {
   void dispose() {
     isDisposed = true;
     _notifyListenerOperation?.cancel();
+    if (_latestViewDidChangeFn != null) {
+      getIt<MenuSharedState>().removeLatestViewListener(_latestViewDidChangeFn!);
+      _latestViewDidChangeFn = null;
+    }
     super.dispose();
   }
 }

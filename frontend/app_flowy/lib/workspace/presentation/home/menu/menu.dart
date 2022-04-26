@@ -88,30 +88,24 @@ class _HomeMenuState extends State<HomeMenu> {
     final theme = context.watch<AppTheme>();
     return Container(
       color: theme.bg1,
-      child: ChangeNotifierProvider(
-        create: (_) =>
-            MenuSharedState(view: widget.workspaceSetting.hasLatestView() ? widget.workspaceSetting.latestView : null),
-        child: Consumer(builder: (context, MenuSharedState sharedState, child) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const MenuTopBar(),
-                    const VSpace(10),
-                    _renderApps(context),
-                  ],
-                ).padding(horizontal: Insets.l),
-              ),
-              const VSpace(20),
-              _renderTrash(context).padding(horizontal: Insets.l),
-              const VSpace(20),
-              _renderNewAppButton(context),
-            ],
-          );
-        }),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const MenuTopBar(),
+                const VSpace(10),
+                _renderApps(context),
+              ],
+            ).padding(horizontal: Insets.l),
+          ),
+          const VSpace(20),
+          _renderTrash(context).padding(horizontal: Insets.l),
+          const VSpace(20),
+          _renderNewAppButton(context),
+        ],
       ),
     );
   }
@@ -201,18 +195,32 @@ class _HomeMenuState extends State<HomeMenu> {
   }
 }
 
-class MenuSharedState extends ChangeNotifier {
-  PublishNotifier<View> forcedOpenView = PublishNotifier();
-  ValueNotifier<View?> selectedView = ValueNotifier<View?>(null);
+class MenuSharedState {
+  final ValueNotifier<View?> _latestOpenView = ValueNotifier<View?>(null);
 
   MenuSharedState({View? view}) {
     if (view != null) {
-      selectedView.value = view;
+      _latestOpenView.value = view;
+    }
+  }
+
+  View? get latestOpenView => _latestOpenView.value;
+
+  set latestOpenView(View? view) {
+    _latestOpenView.value = view;
+  }
+
+  VoidCallback addLatestViewListener(void Function(View?) latestViewDidChange) {
+    onChanged() {
+      latestViewDidChange(_latestOpenView.value);
     }
 
-    forcedOpenView.addPublishListener((view) {
-      selectedView.value = view;
-    });
+    _latestOpenView.addListener(onChanged);
+    return onChanged;
+  }
+
+  void removeLatestViewListener(VoidCallback fn) {
+    _latestOpenView.removeListener(fn);
   }
 }
 

@@ -121,6 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
+    final latestView = widget.workspaceSetting.hasLatestView() ? widget.workspaceSetting.latestView : null;
+    getIt<MenuSharedState>().latestOpenView = latestView;
+
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
