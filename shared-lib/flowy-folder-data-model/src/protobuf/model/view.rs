@@ -2777,6 +2777,266 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct MoveFolderItemPayload {
+    // message fields
+    pub item_id: ::std::string::String,
+    pub from: i32,
+    pub to: i32,
+    pub ty: MoveFolderItemType,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a MoveFolderItemPayload {
+    fn default() -> &'a MoveFolderItemPayload {
+        <MoveFolderItemPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl MoveFolderItemPayload {
+    pub fn new() -> MoveFolderItemPayload {
+        ::std::default::Default::default()
+    }
+
+    // string item_id = 1;
+
+
+    pub fn get_item_id(&self) -> &str {
+        &self.item_id
+    }
+    pub fn clear_item_id(&mut self) {
+        self.item_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_item_id(&mut self, v: ::std::string::String) {
+        self.item_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_item_id(&mut self) -> &mut ::std::string::String {
+        &mut self.item_id
+    }
+
+    // Take field
+    pub fn take_item_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.item_id, ::std::string::String::new())
+    }
+
+    // int32 from = 2;
+
+
+    pub fn get_from(&self) -> i32 {
+        self.from
+    }
+    pub fn clear_from(&mut self) {
+        self.from = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_from(&mut self, v: i32) {
+        self.from = v;
+    }
+
+    // int32 to = 3;
+
+
+    pub fn get_to(&self) -> i32 {
+        self.to
+    }
+    pub fn clear_to(&mut self) {
+        self.to = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_to(&mut self, v: i32) {
+        self.to = v;
+    }
+
+    // .MoveFolderItemType ty = 4;
+
+
+    pub fn get_ty(&self) -> MoveFolderItemType {
+        self.ty
+    }
+    pub fn clear_ty(&mut self) {
+        self.ty = MoveFolderItemType::MoveApp;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ty(&mut self, v: MoveFolderItemType) {
+        self.ty = v;
+    }
+}
+
+impl ::protobuf::Message for MoveFolderItemPayload {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.item_id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.from = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.to = tmp;
+                },
+                4 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.ty, 4, &mut self.unknown_fields)?
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.item_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.item_id);
+        }
+        if self.from != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.from, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.to != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.to, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.ty != MoveFolderItemType::MoveApp {
+            my_size += ::protobuf::rt::enum_size(4, self.ty);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.item_id.is_empty() {
+            os.write_string(1, &self.item_id)?;
+        }
+        if self.from != 0 {
+            os.write_int32(2, self.from)?;
+        }
+        if self.to != 0 {
+            os.write_int32(3, self.to)?;
+        }
+        if self.ty != MoveFolderItemType::MoveApp {
+            os.write_enum(4, ::protobuf::ProtobufEnum::value(&self.ty))?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> MoveFolderItemPayload {
+        MoveFolderItemPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "item_id",
+                |m: &MoveFolderItemPayload| { &m.item_id },
+                |m: &mut MoveFolderItemPayload| { &mut m.item_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "from",
+                |m: &MoveFolderItemPayload| { &m.from },
+                |m: &mut MoveFolderItemPayload| { &mut m.from },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "to",
+                |m: &MoveFolderItemPayload| { &m.to },
+                |m: &mut MoveFolderItemPayload| { &mut m.to },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<MoveFolderItemType>>(
+                "ty",
+                |m: &MoveFolderItemPayload| { &m.ty },
+                |m: &mut MoveFolderItemPayload| { &mut m.ty },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<MoveFolderItemPayload>(
+                "MoveFolderItemPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static MoveFolderItemPayload {
+        static instance: ::protobuf::rt::LazyV2<MoveFolderItemPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(MoveFolderItemPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for MoveFolderItemPayload {
+    fn clear(&mut self) {
+        self.item_id.clear();
+        self.from = 0;
+        self.to = 0;
+        self.ty = MoveFolderItemType::MoveApp;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for MoveFolderItemPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for MoveFolderItemPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ViewDataType {
     TextBlock = 0,
@@ -2827,6 +3087,56 @@ impl ::protobuf::reflect::ProtobufValue for ViewDataType {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum MoveFolderItemType {
+    MoveApp = 0,
+    MoveView = 1,
+}
+
+impl ::protobuf::ProtobufEnum for MoveFolderItemType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<MoveFolderItemType> {
+        match value {
+            0 => ::std::option::Option::Some(MoveFolderItemType::MoveApp),
+            1 => ::std::option::Option::Some(MoveFolderItemType::MoveView),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [MoveFolderItemType] = &[
+            MoveFolderItemType::MoveApp,
+            MoveFolderItemType::MoveView,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<MoveFolderItemType>("MoveFolderItemType", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for MoveFolderItemType {
+}
+
+impl ::std::default::Default for MoveFolderItemType {
+    fn default() -> Self {
+        MoveFolderItemType::MoveApp
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for MoveFolderItemType {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\nview.proto\"\xf5\x02\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
     \x02id\x12\x20\n\x0cbelong_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\
@@ -2862,8 +3172,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
     \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
     mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
-    l*'\n\x0cViewDataType\x12\r\n\tTextBlock\x10\0\x12\x08\n\x04Grid\x10\x01\
-    b\x06proto3\
+    l\"y\n\x15MoveFolderItemPayload\x12\x17\n\x07item_id\x18\x01\x20\x01(\tR\
+    \x06itemId\x12\x12\n\x04from\x18\x02\x20\x01(\x05R\x04from\x12\x0e\n\x02\
+    to\x18\x03\x20\x01(\x05R\x02to\x12#\n\x02ty\x18\x04\x20\x01(\x0e2\x13.Mo\
+    veFolderItemTypeR\x02ty*'\n\x0cViewDataType\x12\r\n\tTextBlock\x10\0\x12\
+    \x08\n\x04Grid\x10\x01*/\n\x12MoveFolderItemType\x12\x0b\n\x07MoveApp\
+    \x10\0\x12\x0c\n\x08MoveView\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

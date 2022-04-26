@@ -63,6 +63,10 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
         Ok(App::from(table))
     }
 
+    fn move_app(&self, _app_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
+        Ok(())
+    }
+
     fn create_view(&self, view: View) -> FlowyResult<()> {
         let _ = ViewTableSql::create_view(view, &*self.0)?;
         Ok(())
@@ -86,6 +90,10 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
 
     fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
         let _ = ViewTableSql::delete_view(view_id, &*self.0)?;
+        Ok(())
+    }
+
+    fn move_view(&self, _view_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
         Ok(())
     }
 
@@ -160,6 +168,10 @@ where
         (**self).delete_app(app_id)
     }
 
+    fn move_app(&self, _app_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
+        Ok(())
+    }
+
     fn create_view(&self, view: View) -> FlowyResult<()> {
         (**self).create_view(view)
     }
@@ -178,6 +190,10 @@ where
 
     fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
         (**self).delete_view(view_id)
+    }
+
+    fn move_view(&self, _view_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
+        Ok(())
     }
 
     fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {

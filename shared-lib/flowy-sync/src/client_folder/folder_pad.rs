@@ -235,6 +235,21 @@ impl FolderPad {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub fn move_view(&mut self, view_id: &str, _from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+        let view = self.read_view(view_id)?;
+        self.with_app(&view.belong_to_id, |app| {
+            match app.belongings.iter().position(|view| view.id == view_id) {
+                None => Ok(None),
+                Some(index) => {
+                    let view = app.belongings.remove(index);
+                    app.belongings.insert(to, view);
+                    Ok(Some(()))
+                }
+            }
+        })
+    }
+
     pub fn create_trash(&mut self, trash: Vec<Trash>) -> CollaborateResult<Option<FolderChange>> {
         self.with_trash(|t| {
             let mut new_trash = trash.into_iter().map(Arc::new).collect::<Vec<Arc<Trash>>>();

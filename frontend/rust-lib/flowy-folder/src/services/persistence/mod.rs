@@ -34,12 +34,14 @@ pub trait FolderPersistenceTransaction {
     fn read_app(&self, app_id: &str) -> FlowyResult<App>;
     fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>>;
     fn delete_app(&self, app_id: &str) -> FlowyResult<App>;
+    fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
     fn create_view(&self, view: View) -> FlowyResult<()>;
     fn read_view(&self, view_id: &str) -> FlowyResult<View>;
     fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>>;
     fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()>;
     fn delete_view(&self, view_id: &str) -> FlowyResult<()>;
+    fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
     fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()>;
     fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash>;

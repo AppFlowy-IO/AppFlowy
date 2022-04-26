@@ -62,7 +62,8 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::DeleteView, delete_view_handler)
         .event(FolderEvent::DuplicateView, duplicate_view_handler)
         .event(FolderEvent::SetLatestView, set_latest_view_handler)
-        .event(FolderEvent::CloseView, close_view_handler);
+        .event(FolderEvent::CloseView, close_view_handler)
+        .event(FolderEvent::MoveItem, move_item_handler);
 
     module = module
         .event(FolderEvent::ReadTrash, read_trash_handler)
@@ -130,6 +131,9 @@ pub enum FolderEvent {
 
     #[event(input = "ViewId")]
     CloseView = 208,
+
+    #[event(input = "MoveFolderItemPayload")]
+    MoveItem = 209,
 
     #[event(output = "RepeatedTrash")]
     ReadTrash = 300,

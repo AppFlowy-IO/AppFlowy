@@ -95,6 +95,19 @@ impl AppController {
         Ok(())
     }
 
+    pub(crate) async fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.move_app(app_id, from, to)?;
+                let app = transaction.read_app(app_id)?;
+                let _ = notify_apps_changed(&app.workspace_id, self.trash_controller.clone(), &transaction)?;
+                Ok(())
+            })
+            .await?;
+        Ok(())
+    }
+
     pub(crate) async fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<App>, FlowyError> {
         let apps = self
             .persistence

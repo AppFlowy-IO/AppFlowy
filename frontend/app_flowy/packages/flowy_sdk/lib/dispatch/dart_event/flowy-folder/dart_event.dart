@@ -301,6 +301,23 @@ class FolderEventCloseView {
     }
 }
 
+class FolderEventMoveItem {
+     MoveFolderItemPayload request;
+     FolderEventMoveItem(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = FolderEvent.MoveItem.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class FolderEventReadTrash {
     FolderEventReadTrash();
 

@@ -286,6 +286,54 @@ impl TryInto<UpdateViewParams> for UpdateViewPayload {
     }
 }
 
+#[derive(ProtoBuf_Enum)]
+pub enum MoveFolderItemType {
+    MoveApp = 0,
+    MoveView = 1,
+}
+
+impl std::default::Default for MoveFolderItemType {
+    fn default() -> Self {
+        MoveFolderItemType::MoveApp
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct MoveFolderItemPayload {
+    #[pb(index = 1)]
+    pub item_id: String,
+
+    #[pb(index = 2)]
+    pub from: i32,
+
+    #[pb(index = 3)]
+    pub to: i32,
+
+    #[pb(index = 4)]
+    pub ty: MoveFolderItemType,
+}
+
+pub struct MoveFolderItemParams {
+    pub item_id: String,
+    pub from: usize,
+    pub to: usize,
+    pub ty: MoveFolderItemType,
+}
+
+impl TryInto<MoveFolderItemParams> for MoveFolderItemPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<MoveFolderItemParams, Self::Error> {
+        let view_id = ViewIdentify::parse(self.item_id)?.0;
+        Ok(MoveFolderItemParams {
+            item_id: view_id,
+            from: self.from as usize,
+            to: self.to as usize,
+            ty: self.ty,
+        })
+    }
+}
+
 // impl<'de> Deserialize<'de> for ViewDataType {
 //     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
 //     where

@@ -155,6 +155,20 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn move_view(&self, view_id: &str, from: usize, to: usize) -> Result<(), FlowyError> {
+        let _ = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.move_view(view_id, from, to)?;
+                let view = transaction.read_view(view_id)?;
+                let _ = notify_views_changed(&view.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                Ok(())
+            })
+            .await?;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let view = self
             .persistence

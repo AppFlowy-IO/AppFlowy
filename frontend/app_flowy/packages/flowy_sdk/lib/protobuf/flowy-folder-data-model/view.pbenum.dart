@@ -24,3 +24,18 @@ class ViewDataType extends $pb.ProtobufEnum {
   const ViewDataType._($core.int v, $core.String n) : super(v, n);
 }
 
+class MoveFolderItemType extends $pb.ProtobufEnum {
+  static const MoveFolderItemType MoveApp = MoveFolderItemType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveApp');
+  static const MoveFolderItemType MoveView = MoveFolderItemType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveView');
+
+  static const $core.List<MoveFolderItemType> values = <MoveFolderItemType> [
+    MoveApp,
+    MoveView,
+  ];
+
+  static final $core.Map<$core.int, MoveFolderItemType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static MoveFolderItemType? valueOf($core.int value) => _byValue[value];
+
+  const MoveFolderItemType._($core.int v, $core.String n) : super(v, n);
+}
+

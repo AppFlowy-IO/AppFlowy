@@ -3,22 +3,23 @@ import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart' show MoveFolderItemPayload, MoveItemType;
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class WorkspaceService {
   Future<Either<App, FlowyError>> createApp({required String workspaceId, required String name, required String desc}) {
-    final request = CreateAppPayload.create()
+    final payload = CreateAppPayload.create()
       ..name = name
       ..workspaceId = workspaceId
       ..desc = desc;
-    return FolderEventCreateApp(request).send();
+    return FolderEventCreateApp(payload).send();
   }
 
   Future<Either<Workspace, FlowyError>> getWorkspace({required String workspaceId}) {
-    final request = WorkspaceId.create()..value = workspaceId;
-    return FolderEventReadWorkspaces(request).send().then((result) {
+    final payload = WorkspaceId.create()..value = workspaceId;
+    return FolderEventReadWorkspaces(payload).send().then((result) {
       return result.fold(
         (workspaces) {
           assert(workspaces.items.length == 1);
@@ -35,12 +36,26 @@ class WorkspaceService {
   }
 
   Future<Either<List<App>, FlowyError>> getApps({required String workspaceId}) {
-    final request = WorkspaceId.create()..value = workspaceId;
-    return FolderEventReadWorkspaceApps(request).send().then((result) {
+    final payload = WorkspaceId.create()..value = workspaceId;
+    return FolderEventReadWorkspaceApps(payload).send().then((result) {
       return result.fold(
         (apps) => left(apps.items),
         (error) => right(error),
       );
     });
+  }
+
+  Future<Either<Unit, FlowyError>> moveApp({
+    required String appId,
+    required int fromIndex,
+    required int toIndex,
+  }) {
+    final payload = MoveFolderItemPayload.create()
+      ..itemId = appId
+      ..from = fromIndex
+      ..to = toIndex
+      ..ty = MoveItemType.MoveApp;
+
+    return FolderEventMoveItem(payload).send();
   }
 }

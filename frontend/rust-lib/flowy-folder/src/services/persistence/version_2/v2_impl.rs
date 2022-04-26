@@ -83,6 +83,13 @@ impl FolderPersistenceTransaction for ClientFolderEditor {
         Ok(app)
     }
 
+    fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        if let Some(change) = self.folder.write().move_app(app_id, from, to)? {
+            let _ = self.apply_change(change)?;
+        }
+        Ok(())
+    }
+
     fn create_view(&self, view: View) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_view(view)? {
             let _ = self.apply_change(change)?;
@@ -113,6 +120,13 @@ impl FolderPersistenceTransaction for ClientFolderEditor {
 
     fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().delete_view(view_id)? {
+            let _ = self.apply_change(change)?;
+        }
+        Ok(())
+    }
+
+    fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        if let Some(change) = self.folder.write().move_view(view_id, from, to)? {
             let _ = self.apply_change(change)?;
         }
         Ok(())
@@ -178,6 +192,10 @@ where
         (**self).delete_app(app_id)
     }
 
+    fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        (**self).move_app(app_id, from, to)
+    }
+
     fn create_view(&self, view: View) -> FlowyResult<()> {
         (**self).create_view(view)
     }
@@ -196,6 +214,10 @@ where
 
     fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
         (**self).delete_view(view_id)
+    }
+
+    fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+        (**self).move_view(view_id, from, to)
     }
 
     fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
