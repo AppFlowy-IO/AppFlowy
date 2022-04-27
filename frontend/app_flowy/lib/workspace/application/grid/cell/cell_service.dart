@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -10,12 +12,51 @@ import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:equatable/equatable.dart';
+
 part 'cell_service.freezed.dart';
 
 typedef GridDefaultCellContext = GridCellContext<Cell>;
 typedef GridSelectOptionCellContext = GridCellContext<SelectOptionContext>;
+
+class GridCellContextBuilder {
+  final GridCellCache _cellCache;
+  final GridCell _gridCell;
+  GridCellContextBuilder({
+    required GridCellCache cellCache,
+    required GridCell gridCell,
+  })  : _cellCache = cellCache,
+        _gridCell = gridCell;
+
+  GridCellContext build() {
+    switch (_gridCell.field.fieldType) {
+      case FieldType.Checkbox:
+      case FieldType.DateTime:
+      case FieldType.Number:
+        return GridDefaultCellContext(
+          gridCell: _gridCell,
+          cellCache: _cellCache,
+          cellDataLoader: DefaultCellDataLoader(gridCell: _gridCell, reloadOnCellChanged: true),
+        );
+      case FieldType.RichText:
+        return GridDefaultCellContext(
+          gridCell: _gridCell,
+          cellCache: _cellCache,
+          cellDataLoader: DefaultCellDataLoader(gridCell: _gridCell),
+        );
+      case FieldType.MultiSelect:
+      case FieldType.SingleSelect:
+        return GridSelectOptionCellContext(
+          gridCell: _gridCell,
+          cellCache: _cellCache,
+          cellDataLoader: SelectOptionCellDataLoader(gridCell: _gridCell),
+        );
+      default:
+        throw UnimplementedError;
+    }
+  }
+}
 
 // ignore: must_be_immutable
 class GridCellContext<T> extends Equatable {

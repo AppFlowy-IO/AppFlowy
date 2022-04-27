@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
-import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:flutter/widgets.dart';
@@ -12,49 +11,22 @@ import 'text_cell.dart';
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
   final key = ValueKey(gridCell.rowId + gridCell.field.id);
 
-  final cellContext = makeCellContext(gridCell, cellCache);
+  final cellContextBuilder = GridCellContextBuilder(gridCell: gridCell, cellCache: cellCache);
 
   switch (gridCell.field.fieldType) {
     case FieldType.Checkbox:
-      return CheckboxCell(cellContext: cellContext, key: key);
+      return CheckboxCell(cellContextBuilder: cellContextBuilder, key: key);
     case FieldType.DateTime:
-      return DateCell(cellContext: cellContext, key: key);
-    case FieldType.MultiSelect:
-      return MultiSelectCell(cellContext: cellContext as GridSelectOptionCellContext, style: style, key: key);
-    case FieldType.Number:
-      return NumberCell(cellContext: cellContext, key: key);
-    case FieldType.RichText:
-      return GridTextCell(cellContext: cellContext, style: style, key: key);
+      return DateCell(cellContextBuilder: cellContextBuilder, key: key);
     case FieldType.SingleSelect:
-      return SingleSelectCell(cellContext: cellContext as GridSelectOptionCellContext, style: style, key: key);
-    default:
-      throw UnimplementedError;
-  }
-}
+      return SingleSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+    case FieldType.MultiSelect:
+      return MultiSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+    case FieldType.Number:
+      return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
+    case FieldType.RichText:
+      return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
 
-GridCellContext makeCellContext(GridCell gridCell, GridCellCache cellCache) {
-  switch (gridCell.field.fieldType) {
-    case FieldType.Checkbox:
-    case FieldType.DateTime:
-    case FieldType.Number:
-      return GridDefaultCellContext(
-        gridCell: gridCell,
-        cellCache: cellCache,
-        cellDataLoader: DefaultCellDataLoader(gridCell: gridCell, reloadOnCellChanged: true),
-      );
-    case FieldType.RichText:
-      return GridDefaultCellContext(
-        gridCell: gridCell,
-        cellCache: cellCache,
-        cellDataLoader: DefaultCellDataLoader(gridCell: gridCell),
-      );
-    case FieldType.MultiSelect:
-    case FieldType.SingleSelect:
-      return GridSelectOptionCellContext(
-        gridCell: gridCell,
-        cellCache: cellCache,
-        cellDataLoader: SelectOptionCellDataLoader(gridCell: gridCell),
-      );
     default:
       throw UnimplementedError;
   }
