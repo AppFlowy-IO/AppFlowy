@@ -19,6 +19,17 @@ const ViewDataType$json = const {
 
 /// Descriptor for `ViewDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List viewDataTypeDescriptor = $convert.base64Decode('CgxWaWV3RGF0YVR5cGUSDQoJVGV4dEJsb2NrEAASCAoER3JpZBAB');
+@$core.Deprecated('Use moveFolderItemTypeDescriptor instead')
+const MoveFolderItemType$json = const {
+  '1': 'MoveFolderItemType',
+  '2': const [
+    const {'1': 'MoveApp', '2': 0},
+    const {'1': 'MoveView', '2': 1},
+  ],
+};
+
+/// Descriptor for `MoveFolderItemType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List moveFolderItemTypeDescriptor = $convert.base64Decode('ChJNb3ZlRm9sZGVySXRlbVR5cGUSCwoHTW92ZUFwcBAAEgwKCE1vdmVWaWV3EAE=');
 @$core.Deprecated('Use viewDescriptor instead')
 const View$json = const {
   '1': 'View',
@@ -142,3 +153,16 @@ const UpdateViewParams$json = const {
 
 /// Descriptor for `UpdateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List updateViewParamsDescriptor = $convert.base64Decode('ChBVcGRhdGVWaWV3UGFyYW1zEhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgCUgl0aHVtYm5haWxCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEgoQb25lX29mX3RodW1ibmFpbA==');
+@$core.Deprecated('Use moveFolderItemPayloadDescriptor instead')
+const MoveFolderItemPayload$json = const {
+  '1': 'MoveFolderItemPayload',
+  '2': const [
+    const {'1': 'item_id', '3': 1, '4': 1, '5': 9, '10': 'itemId'},
+    const {'1': 'from', '3': 2, '4': 1, '5': 5, '10': 'from'},
+    const {'1': 'to', '3': 3, '4': 1, '5': 5, '10': 'to'},
+    const {'1': 'ty', '3': 4, '4': 1, '5': 14, '6': '.MoveFolderItemType', '10': 'ty'},
+  ],
+};
+
+/// Descriptor for `MoveFolderItemPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List moveFolderItemPayloadDescriptor = $convert.base64Decode('ChVNb3ZlRm9sZGVySXRlbVBheWxvYWQSFwoHaXRlbV9pZBgBIAEoCVIGaXRlbUlkEhIKBGZyb20YAiABKAVSBGZyb20SDgoCdG8YAyABKAVSAnRvEiMKAnR5GAQgASgOMhMuTW92ZUZvbGRlckl0ZW1UeXBlUgJ0eQ==');

@@ -75,6 +75,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("lib_ws={}", level));
     filters.push(format!("lib_infra={}", level));
     filters.push(format!("flowy_sync={}", level));
+    // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
     filters.push(format!("flowy_database={}", "info"));

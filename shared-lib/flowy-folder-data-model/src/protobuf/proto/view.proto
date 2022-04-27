@@ -54,7 +54,17 @@ message UpdateViewParams {
     oneof one_of_desc { string desc = 3; };
     oneof one_of_thumbnail { string thumbnail = 4; };
 }
+message MoveFolderItemPayload {
+    string item_id = 1;
+    int32 from = 2;
+    int32 to = 3;
+    MoveFolderItemType ty = 4;
+}
 enum ViewDataType {
     TextBlock = 0;
     Grid = 1;
+}
+enum MoveFolderItemType {
+    MoveApp = 0;
+    MoveView = 1;
 }

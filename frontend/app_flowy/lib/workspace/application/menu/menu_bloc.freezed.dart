@@ -21,25 +21,32 @@ class _$MenuEventTearOff {
     return const _Initial();
   }
 
-  Collapse collapse() {
-    return const Collapse();
+  _Collapse collapse() {
+    return const _Collapse();
   }
 
-  OpenPage openPage(Plugin plugin) {
-    return OpenPage(
+  _OpenPage openPage(Plugin plugin) {
+    return _OpenPage(
       plugin,
     );
   }
 
-  CreateApp createApp(String name, {String? desc}) {
-    return CreateApp(
+  _CreateApp createApp(String name, {String? desc}) {
+    return _CreateApp(
       name,
       desc: desc,
     );
   }
 
-  ReceiveApps didReceiveApps(Either<List<App>, FlowyError> appsOrFail) {
-    return ReceiveApps(
+  _MoveApp moveApp(int fromIndex, int toIndex) {
+    return _MoveApp(
+      fromIndex,
+      toIndex,
+    );
+  }
+
+  _ReceiveApps didReceiveApps(Either<List<App>, FlowyError> appsOrFail) {
+    return _ReceiveApps(
       appsOrFail,
     );
   }
@@ -56,6 +63,7 @@ mixin _$MenuEvent {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) =>
@@ -66,6 +74,7 @@ mixin _$MenuEvent {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) =>
       throw _privateConstructorUsedError;
@@ -75,6 +84,7 @@ mixin _$MenuEvent {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) =>
@@ -82,28 +92,31 @@ mixin _$MenuEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -165,6 +178,7 @@ class _$_Initial implements _Initial {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
@@ -178,6 +192,7 @@ class _$_Initial implements _Initial {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return initial?.call();
@@ -190,6 +205,7 @@ class _$_Initial implements _Initial {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
@@ -203,10 +219,11 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) {
     return initial(this);
   }
@@ -215,10 +232,11 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) {
     return initial?.call(this);
   }
@@ -227,10 +245,11 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -245,25 +264,25 @@ abstract class _Initial implements MenuEvent {
 }
 
 /// @nodoc
-abstract class $CollapseCopyWith<$Res> {
-  factory $CollapseCopyWith(Collapse value, $Res Function(Collapse) then) =
-      _$CollapseCopyWithImpl<$Res>;
+abstract class _$CollapseCopyWith<$Res> {
+  factory _$CollapseCopyWith(_Collapse value, $Res Function(_Collapse) then) =
+      __$CollapseCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$CollapseCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements $CollapseCopyWith<$Res> {
-  _$CollapseCopyWithImpl(Collapse _value, $Res Function(Collapse) _then)
-      : super(_value, (v) => _then(v as Collapse));
+class __$CollapseCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$CollapseCopyWith<$Res> {
+  __$CollapseCopyWithImpl(_Collapse _value, $Res Function(_Collapse) _then)
+      : super(_value, (v) => _then(v as _Collapse));
 
   @override
-  Collapse get _value => super._value as Collapse;
+  _Collapse get _value => super._value as _Collapse;
 }
 
 /// @nodoc
 
-class _$Collapse implements Collapse {
-  const _$Collapse();
+class _$_Collapse implements _Collapse {
+  const _$_Collapse();
 
   @override
   String toString() {
@@ -272,7 +291,7 @@ class _$Collapse implements Collapse {
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is Collapse);
+    return identical(this, other) || (other is _Collapse);
   }
 
   @override
@@ -285,6 +304,7 @@ class _$Collapse implements Collapse {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
@@ -298,6 +318,7 @@ class _$Collapse implements Collapse {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return collapse?.call();
@@ -310,6 +331,7 @@ class _$Collapse implements Collapse {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
@@ -323,10 +345,11 @@ class _$Collapse implements Collapse {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) {
     return collapse(this);
   }
@@ -335,10 +358,11 @@ class _$Collapse implements Collapse {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) {
     return collapse?.call(this);
   }
@@ -347,10 +371,11 @@ class _$Collapse implements Collapse {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -360,31 +385,31 @@ class _$Collapse implements Collapse {
   }
 }
 
-abstract class Collapse implements MenuEvent {
-  const factory Collapse() = _$Collapse;
+abstract class _Collapse implements MenuEvent {
+  const factory _Collapse() = _$_Collapse;
 }
 
 /// @nodoc
-abstract class $OpenPageCopyWith<$Res> {
-  factory $OpenPageCopyWith(OpenPage value, $Res Function(OpenPage) then) =
-      _$OpenPageCopyWithImpl<$Res>;
+abstract class _$OpenPageCopyWith<$Res> {
+  factory _$OpenPageCopyWith(_OpenPage value, $Res Function(_OpenPage) then) =
+      __$OpenPageCopyWithImpl<$Res>;
   $Res call({Plugin plugin});
 }
 
 /// @nodoc
-class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements $OpenPageCopyWith<$Res> {
-  _$OpenPageCopyWithImpl(OpenPage _value, $Res Function(OpenPage) _then)
-      : super(_value, (v) => _then(v as OpenPage));
+class __$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$OpenPageCopyWith<$Res> {
+  __$OpenPageCopyWithImpl(_OpenPage _value, $Res Function(_OpenPage) _then)
+      : super(_value, (v) => _then(v as _OpenPage));
 
   @override
-  OpenPage get _value => super._value as OpenPage;
+  _OpenPage get _value => super._value as _OpenPage;
 
   @override
   $Res call({
     Object? plugin = freezed,
   }) {
-    return _then(OpenPage(
+    return _then(_OpenPage(
       plugin == freezed
           ? _value.plugin
           : plugin // ignore: cast_nullable_to_non_nullable
@@ -395,8 +420,8 @@ class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OpenPage implements OpenPage {
-  const _$OpenPage(this.plugin);
+class _$_OpenPage implements _OpenPage {
+  const _$_OpenPage(this.plugin);
 
   @override
   final Plugin plugin;
@@ -409,7 +434,7 @@ class _$OpenPage implements OpenPage {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is OpenPage &&
+        (other is _OpenPage &&
             (identical(other.plugin, plugin) ||
                 const DeepCollectionEquality().equals(other.plugin, plugin)));
   }
@@ -420,8 +445,8 @@ class _$OpenPage implements OpenPage {
 
   @JsonKey(ignore: true)
   @override
-  $OpenPageCopyWith<OpenPage> get copyWith =>
-      _$OpenPageCopyWithImpl<OpenPage>(this, _$identity);
+  _$OpenPageCopyWith<_OpenPage> get copyWith =>
+      __$OpenPageCopyWithImpl<_OpenPage>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -430,6 +455,7 @@ class _$OpenPage implements OpenPage {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
@@ -443,6 +469,7 @@ class _$OpenPage implements OpenPage {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return openPage?.call(plugin);
@@ -455,6 +482,7 @@ class _$OpenPage implements OpenPage {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
@@ -468,10 +496,11 @@ class _$OpenPage implements OpenPage {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) {
     return openPage(this);
   }
@@ -480,10 +509,11 @@ class _$OpenPage implements OpenPage {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) {
     return openPage?.call(this);
   }
@@ -492,10 +522,11 @@ class _$OpenPage implements OpenPage {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -505,37 +536,38 @@ class _$OpenPage implements OpenPage {
   }
 }
 
-abstract class OpenPage implements MenuEvent {
-  const factory OpenPage(Plugin plugin) = _$OpenPage;
+abstract class _OpenPage implements MenuEvent {
+  const factory _OpenPage(Plugin plugin) = _$_OpenPage;
 
   Plugin get plugin => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $OpenPageCopyWith<OpenPage> get copyWith =>
+  _$OpenPageCopyWith<_OpenPage> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $CreateAppCopyWith<$Res> {
-  factory $CreateAppCopyWith(CreateApp value, $Res Function(CreateApp) then) =
-      _$CreateAppCopyWithImpl<$Res>;
+abstract class _$CreateAppCopyWith<$Res> {
+  factory _$CreateAppCopyWith(
+          _CreateApp value, $Res Function(_CreateApp) then) =
+      __$CreateAppCopyWithImpl<$Res>;
   $Res call({String name, String? desc});
 }
 
 /// @nodoc
-class _$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements $CreateAppCopyWith<$Res> {
-  _$CreateAppCopyWithImpl(CreateApp _value, $Res Function(CreateApp) _then)
-      : super(_value, (v) => _then(v as CreateApp));
+class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$CreateAppCopyWith<$Res> {
+  __$CreateAppCopyWithImpl(_CreateApp _value, $Res Function(_CreateApp) _then)
+      : super(_value, (v) => _then(v as _CreateApp));
 
   @override
-  CreateApp get _value => super._value as CreateApp;
+  _CreateApp get _value => super._value as _CreateApp;
 
   @override
   $Res call({
     Object? name = freezed,
     Object? desc = freezed,
   }) {
-    return _then(CreateApp(
+    return _then(_CreateApp(
       name == freezed
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -550,8 +582,8 @@ class _$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CreateApp implements CreateApp {
-  const _$CreateApp(this.name, {this.desc});
+class _$_CreateApp implements _CreateApp {
+  const _$_CreateApp(this.name, {this.desc});
 
   @override
   final String name;
@@ -566,7 +598,7 @@ class _$CreateApp implements CreateApp {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is CreateApp &&
+        (other is _CreateApp &&
             (identical(other.name, name) ||
                 const DeepCollectionEquality().equals(other.name, name)) &&
             (identical(other.desc, desc) ||
@@ -581,8 +613,8 @@ class _$CreateApp implements CreateApp {
 
   @JsonKey(ignore: true)
   @override
-  $CreateAppCopyWith<CreateApp> get copyWith =>
-      _$CreateAppCopyWithImpl<CreateApp>(this, _$identity);
+  _$CreateAppCopyWith<_CreateApp> get copyWith =>
+      __$CreateAppCopyWithImpl<_CreateApp>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -591,6 +623,7 @@ class _$CreateApp implements CreateApp {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
@@ -604,6 +637,7 @@ class _$CreateApp implements CreateApp {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return createApp?.call(name, desc);
@@ -616,6 +650,7 @@ class _$CreateApp implements CreateApp {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
@@ -629,10 +664,11 @@ class _$CreateApp implements CreateApp {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) {
     return createApp(this);
   }
@@ -641,10 +677,11 @@ class _$CreateApp implements CreateApp {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) {
     return createApp?.call(this);
   }
@@ -653,10 +690,11 @@ class _$CreateApp implements CreateApp {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -666,39 +704,208 @@ class _$CreateApp implements CreateApp {
   }
 }
 
-abstract class CreateApp implements MenuEvent {
-  const factory CreateApp(String name, {String? desc}) = _$CreateApp;
+abstract class _CreateApp implements MenuEvent {
+  const factory _CreateApp(String name, {String? desc}) = _$_CreateApp;
 
   String get name => throw _privateConstructorUsedError;
   String? get desc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $CreateAppCopyWith<CreateApp> get copyWith =>
+  _$CreateAppCopyWith<_CreateApp> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ReceiveAppsCopyWith<$Res> {
-  factory $ReceiveAppsCopyWith(
-          ReceiveApps value, $Res Function(ReceiveApps) then) =
-      _$ReceiveAppsCopyWithImpl<$Res>;
+abstract class _$MoveAppCopyWith<$Res> {
+  factory _$MoveAppCopyWith(_MoveApp value, $Res Function(_MoveApp) then) =
+      __$MoveAppCopyWithImpl<$Res>;
+  $Res call({int fromIndex, int toIndex});
+}
+
+/// @nodoc
+class __$MoveAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$MoveAppCopyWith<$Res> {
+  __$MoveAppCopyWithImpl(_MoveApp _value, $Res Function(_MoveApp) _then)
+      : super(_value, (v) => _then(v as _MoveApp));
+
+  @override
+  _MoveApp get _value => super._value as _MoveApp;
+
+  @override
+  $Res call({
+    Object? fromIndex = freezed,
+    Object? toIndex = freezed,
+  }) {
+    return _then(_MoveApp(
+      fromIndex == freezed
+          ? _value.fromIndex
+          : fromIndex // ignore: cast_nullable_to_non_nullable
+              as int,
+      toIndex == freezed
+          ? _value.toIndex
+          : toIndex // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$_MoveApp implements _MoveApp {
+  const _$_MoveApp(this.fromIndex, this.toIndex);
+
+  @override
+  final int fromIndex;
+  @override
+  final int toIndex;
+
+  @override
+  String toString() {
+    return 'MenuEvent.moveApp(fromIndex: $fromIndex, toIndex: $toIndex)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _MoveApp &&
+            (identical(other.fromIndex, fromIndex) ||
+                const DeepCollectionEquality()
+                    .equals(other.fromIndex, fromIndex)) &&
+            (identical(other.toIndex, toIndex) ||
+                const DeepCollectionEquality().equals(other.toIndex, toIndex)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(fromIndex) ^
+      const DeepCollectionEquality().hash(toIndex);
+
+  @JsonKey(ignore: true)
+  @override
+  _$MoveAppCopyWith<_MoveApp> get copyWith =>
+      __$MoveAppCopyWithImpl<_MoveApp>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() collapse,
+    required TResult Function(Plugin plugin) openPage,
+    required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
+    required TResult Function(Either<List<App>, FlowyError> appsOrFail)
+        didReceiveApps,
+  }) {
+    return moveApp(fromIndex, toIndex);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(Plugin plugin)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
+  }) {
+    return moveApp?.call(fromIndex, toIndex);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(Plugin plugin)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
+    TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
+    required TResult orElse(),
+  }) {
+    if (moveApp != null) {
+      return moveApp(fromIndex, toIndex);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
+  }) {
+    return moveApp(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
+  }) {
+    return moveApp?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
+    required TResult orElse(),
+  }) {
+    if (moveApp != null) {
+      return moveApp(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _MoveApp implements MenuEvent {
+  const factory _MoveApp(int fromIndex, int toIndex) = _$_MoveApp;
+
+  int get fromIndex => throw _privateConstructorUsedError;
+  int get toIndex => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  _$MoveAppCopyWith<_MoveApp> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$ReceiveAppsCopyWith<$Res> {
+  factory _$ReceiveAppsCopyWith(
+          _ReceiveApps value, $Res Function(_ReceiveApps) then) =
+      __$ReceiveAppsCopyWithImpl<$Res>;
   $Res call({Either<List<App>, FlowyError> appsOrFail});
 }
 
 /// @nodoc
-class _$ReceiveAppsCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements $ReceiveAppsCopyWith<$Res> {
-  _$ReceiveAppsCopyWithImpl(
-      ReceiveApps _value, $Res Function(ReceiveApps) _then)
-      : super(_value, (v) => _then(v as ReceiveApps));
+class __$ReceiveAppsCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$ReceiveAppsCopyWith<$Res> {
+  __$ReceiveAppsCopyWithImpl(
+      _ReceiveApps _value, $Res Function(_ReceiveApps) _then)
+      : super(_value, (v) => _then(v as _ReceiveApps));
 
   @override
-  ReceiveApps get _value => super._value as ReceiveApps;
+  _ReceiveApps get _value => super._value as _ReceiveApps;
 
   @override
   $Res call({
     Object? appsOrFail = freezed,
   }) {
-    return _then(ReceiveApps(
+    return _then(_ReceiveApps(
       appsOrFail == freezed
           ? _value.appsOrFail
           : appsOrFail // ignore: cast_nullable_to_non_nullable
@@ -709,8 +916,8 @@ class _$ReceiveAppsCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ReceiveApps implements ReceiveApps {
-  const _$ReceiveApps(this.appsOrFail);
+class _$_ReceiveApps implements _ReceiveApps {
+  const _$_ReceiveApps(this.appsOrFail);
 
   @override
   final Either<List<App>, FlowyError> appsOrFail;
@@ -723,7 +930,7 @@ class _$ReceiveApps implements ReceiveApps {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ReceiveApps &&
+        (other is _ReceiveApps &&
             (identical(other.appsOrFail, appsOrFail) ||
                 const DeepCollectionEquality()
                     .equals(other.appsOrFail, appsOrFail)));
@@ -735,8 +942,8 @@ class _$ReceiveApps implements ReceiveApps {
 
   @JsonKey(ignore: true)
   @override
-  $ReceiveAppsCopyWith<ReceiveApps> get copyWith =>
-      _$ReceiveAppsCopyWithImpl<ReceiveApps>(this, _$identity);
+  _$ReceiveAppsCopyWith<_ReceiveApps> get copyWith =>
+      __$ReceiveAppsCopyWithImpl<_ReceiveApps>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -745,6 +952,7 @@ class _$ReceiveApps implements ReceiveApps {
     required TResult Function() collapse,
     required TResult Function(Plugin plugin) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(int fromIndex, int toIndex) moveApp,
     required TResult Function(Either<List<App>, FlowyError> appsOrFail)
         didReceiveApps,
   }) {
@@ -758,6 +966,7 @@ class _$ReceiveApps implements ReceiveApps {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
   }) {
     return didReceiveApps?.call(appsOrFail);
@@ -770,6 +979,7 @@ class _$ReceiveApps implements ReceiveApps {
     TResult Function()? collapse,
     TResult Function(Plugin plugin)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(int fromIndex, int toIndex)? moveApp,
     TResult Function(Either<List<App>, FlowyError> appsOrFail)? didReceiveApps,
     required TResult orElse(),
   }) {
@@ -783,10 +993,11 @@ class _$ReceiveApps implements ReceiveApps {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(ReceiveApps value) didReceiveApps,
+    required TResult Function(_Collapse value) collapse,
+    required TResult Function(_OpenPage value) openPage,
+    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(_MoveApp value) moveApp,
+    required TResult Function(_ReceiveApps value) didReceiveApps,
   }) {
     return didReceiveApps(this);
   }
@@ -795,10 +1006,11 @@ class _$ReceiveApps implements ReceiveApps {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
   }) {
     return didReceiveApps?.call(this);
   }
@@ -807,10 +1019,11 @@ class _$ReceiveApps implements ReceiveApps {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(ReceiveApps value)? didReceiveApps,
+    TResult Function(_Collapse value)? collapse,
+    TResult Function(_OpenPage value)? openPage,
+    TResult Function(_CreateApp value)? createApp,
+    TResult Function(_MoveApp value)? moveApp,
+    TResult Function(_ReceiveApps value)? didReceiveApps,
     required TResult orElse(),
   }) {
     if (didReceiveApps != null) {
@@ -820,14 +1033,14 @@ class _$ReceiveApps implements ReceiveApps {
   }
 }
 
-abstract class ReceiveApps implements MenuEvent {
-  const factory ReceiveApps(Either<List<App>, FlowyError> appsOrFail) =
-      _$ReceiveApps;
+abstract class _ReceiveApps implements MenuEvent {
+  const factory _ReceiveApps(Either<List<App>, FlowyError> appsOrFail) =
+      _$_ReceiveApps;
 
   Either<List<App>, FlowyError> get appsOrFail =>
       throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ReceiveAppsCopyWith<ReceiveApps> get copyWith =>
+  _$ReceiveAppsCopyWith<_ReceiveApps> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -837,7 +1050,7 @@ class _$MenuStateTearOff {
 
   _MenuState call(
       {required bool isCollapse,
-      required Option<List<App>> apps,
+      required List<App> apps,
       required Either<Unit, FlowyError> successOrFailure,
       required Plugin plugin}) {
     return _MenuState(
@@ -855,7 +1068,7 @@ const $MenuState = _$MenuStateTearOff();
 /// @nodoc
 mixin _$MenuState {
   bool get isCollapse => throw _privateConstructorUsedError;
-  Option<List<App>> get apps => throw _privateConstructorUsedError;
+  List<App> get apps => throw _privateConstructorUsedError;
   Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   Plugin get plugin => throw _privateConstructorUsedError;
@@ -871,7 +1084,7 @@ abstract class $MenuStateCopyWith<$Res> {
       _$MenuStateCopyWithImpl<$Res>;
   $Res call(
       {bool isCollapse,
-      Option<List<App>> apps,
+      List<App> apps,
       Either<Unit, FlowyError> successOrFailure,
       Plugin plugin});
 }
@@ -899,7 +1112,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
-              as Option<List<App>>,
+              as List<App>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -920,7 +1133,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
   @override
   $Res call(
       {bool isCollapse,
-      Option<List<App>> apps,
+      List<App> apps,
       Either<Unit, FlowyError> successOrFailure,
       Plugin plugin});
 }
@@ -949,7 +1162,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
-              as Option<List<App>>,
+              as List<App>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -974,7 +1187,7 @@ class _$_MenuState implements _MenuState {
   @override
   final bool isCollapse;
   @override
-  final Option<List<App>> apps;
+  final List<App> apps;
   @override
   final Either<Unit, FlowyError> successOrFailure;
   @override
@@ -1018,14 +1231,14 @@ class _$_MenuState implements _MenuState {
 abstract class _MenuState implements MenuState {
   const factory _MenuState(
       {required bool isCollapse,
-      required Option<List<App>> apps,
+      required List<App> apps,
       required Either<Unit, FlowyError> successOrFailure,
       required Plugin plugin}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
   @override
-  Option<List<App>> get apps => throw _privateConstructorUsedError;
+  List<App> get apps => throw _privateConstructorUsedError;
   @override
   Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;

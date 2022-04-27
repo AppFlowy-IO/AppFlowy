@@ -13,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -27,7 +26,7 @@ import 'app/menu_app.dart';
 import 'app/create_button.dart';
 import 'menu_user.dart';
 
-class HomeMenu extends StatefulWidget {
+class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
@@ -41,21 +40,12 @@ class HomeMenu extends StatefulWidget {
         super(key: key);
 
   @override
-  State<HomeMenu> createState() => _HomeMenuState();
-}
-
-class _HomeMenuState extends State<HomeMenu> {
-  /// Maps the hashmap of the menu items to their index in reorderable list view.
-  //TODO @gaganyadav80: Retain this map to persist on app restarts.
-  final Map<int, int> _menuItemIndex = <int, int>{};
-
-  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(param1: widget.user, param2: widget.workspaceSetting.workspace.id);
+            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceSetting.workspace.id);
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -72,7 +62,7 @@ class _HomeMenuState extends State<HomeMenu> {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
             listener: (context, state) {
-              widget._collapsedNotifier.value = state.isCollapse;
+              _collapsedNotifier.value = state.isCollapse;
             },
           )
         ],
@@ -88,30 +78,24 @@ class _HomeMenuState extends State<HomeMenu> {
     final theme = context.watch<AppTheme>();
     return Container(
       color: theme.bg1,
-      child: ChangeNotifierProvider(
-        create: (_) =>
-            MenuSharedState(view: widget.workspaceSetting.hasLatestView() ? widget.workspaceSetting.latestView : null),
-        child: Consumer(builder: (context, MenuSharedState sharedState, child) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const MenuTopBar(),
-                    const VSpace(10),
-                    _renderApps(context),
-                  ],
-                ).padding(horizontal: Insets.l),
-              ),
-              const VSpace(20),
-              _renderTrash(context).padding(horizontal: Insets.l),
-              const VSpace(20),
-              _renderNewAppButton(context),
-            ],
-          );
-        }),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const MenuTopBar(),
+                const VSpace(10),
+                _renderApps(context),
+              ],
+            ).padding(horizontal: Insets.l),
+          ),
+          const VSpace(20),
+          const MenuTrash().padding(horizontal: Insets.l),
+          const VSpace(20),
+          _renderNewAppButton(context),
+        ],
       ),
     );
   }
@@ -123,56 +107,18 @@ class _HomeMenuState extends State<HomeMenu> {
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) {
-              List<Widget> menuItems = [];
-              // menuItems.add(MenuUser(user));
-              List<MenuApp> appWidgets =
-                  state.apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-              // menuItems.addAll(appWidgets);
-              for (int i = 0; i < appWidgets.length; i++) {
-                if (_menuItemIndex[appWidgets[i].key.hashCode] == null) {
-                  _menuItemIndex[appWidgets[i].key.hashCode] = i;
-                }
-
-                menuItems.insert(_menuItemIndex[appWidgets[i].key.hashCode]!, appWidgets[i]);
-              }
-
-              return menuItems;
-            },
+            selector: (state) => state.apps.map((app) => MenuApp(app)).toList(),
             builder: (context, menuItems) {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
                 header: Padding(
                   padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
-                  child: MenuUser(widget.user),
+                  child: MenuUser(user),
                 ),
-                onReorder: (oldIndex, newIndex) {
-                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
-
-                  Widget menu = menuItems.removeAt(oldIndex);
-                  menuItems.insert(index, menu);
-
-                  final menuBloc = context.read<MenuBloc>();
-                  menuBloc.state.apps.forEach((a) {
-                    var app = a.removeAt(oldIndex);
-                    a.insert(index, app);
-                  });
-
-                  _menuItemIndex[menu.key.hashCode] = index;
-                },
+                onReorder: (oldIndex, newIndex) => context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, newIndex)),
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
-                  //? @gaganyadav80: To mimic the ListView.separated behavior, we need to add a padding.
-                  // EdgeInsets padding = EdgeInsets.zero;
-                  // if (index == 0) {
-                  //   padding = EdgeInsets.only(bottom: MenuAppSizes.appVPadding / 2);
-                  // } else if (index == menuItems.length - 1) {
-                  //   padding = EdgeInsets.only(top: MenuAppSizes.appVPadding / 2);
-                  // } else {
-                  //   padding = EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2);
-                  // }
-
                   return ReorderableDragStartListener(
                     key: ValueKey(menuItems[index].hashCode),
                     index: index,
@@ -190,10 +136,6 @@ class _HomeMenuState extends State<HomeMenu> {
     );
   }
 
-  Widget _renderTrash(BuildContext context) {
-    return const MenuTrash();
-  }
-
   Widget _renderNewAppButton(BuildContext context) {
     return NewAppButton(
       press: (appName) => context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
@@ -201,18 +143,30 @@ class _HomeMenuState extends State<HomeMenu> {
   }
 }
 
-class MenuSharedState extends ChangeNotifier {
-  PublishNotifier<View> forcedOpenView = PublishNotifier();
-  ValueNotifier<View?> selectedView = ValueNotifier<View?>(null);
+class MenuSharedState {
+  final ValueNotifier<View?> _latestOpenView = ValueNotifier<View?>(null);
 
   MenuSharedState({View? view}) {
-    if (view != null) {
-      selectedView.value = view;
+    _latestOpenView.value = view;
+  }
+
+  View? get latestOpenView => _latestOpenView.value;
+
+  set latestOpenView(View? view) {
+    _latestOpenView.value = view;
+  }
+
+  VoidCallback addLatestViewListener(void Function(View?) callback) {
+    listener() {
+      callback(_latestOpenView.value);
     }
 
-    forcedOpenView.addPublishListener((view) {
-      selectedView.value = view;
-    });
+    _latestOpenView.addListener(listener);
+    return listener;
+  }
+
+  void removeLatestViewListener(VoidCallback listener) {
+    _latestOpenView.removeListener(listener);
   }
 }
 

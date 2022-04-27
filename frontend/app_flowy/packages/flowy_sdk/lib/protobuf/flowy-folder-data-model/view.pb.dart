@@ -891,3 +891,92 @@ class UpdateViewParams extends $pb.GeneratedMessage {
   void clearThumbnail() => clearField(4);
 }
 
+class MoveFolderItemPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MoveFolderItemPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'itemId')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'from', $pb.PbFieldType.O3)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'to', $pb.PbFieldType.O3)
+    ..e<MoveFolderItemType>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: MoveFolderItemType.MoveApp, valueOf: MoveFolderItemType.valueOf, enumValues: MoveFolderItemType.values)
+    ..hasRequiredFields = false
+  ;
+
+  MoveFolderItemPayload._() : super();
+  factory MoveFolderItemPayload({
+    $core.String? itemId,
+    $core.int? from,
+    $core.int? to,
+    MoveFolderItemType? ty,
+  }) {
+    final _result = create();
+    if (itemId != null) {
+      _result.itemId = itemId;
+    }
+    if (from != null) {
+      _result.from = from;
+    }
+    if (to != null) {
+      _result.to = to;
+    }
+    if (ty != null) {
+      _result.ty = ty;
+    }
+    return _result;
+  }
+  factory MoveFolderItemPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory MoveFolderItemPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  MoveFolderItemPayload clone() => MoveFolderItemPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MoveFolderItemPayload copyWith(void Function(MoveFolderItemPayload) updates) => super.copyWith((message) => updates(message as MoveFolderItemPayload)) as MoveFolderItemPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static MoveFolderItemPayload create() => MoveFolderItemPayload._();
+  MoveFolderItemPayload createEmptyInstance() => create();
+  static $pb.PbList<MoveFolderItemPayload> createRepeated() => $pb.PbList<MoveFolderItemPayload>();
+  @$core.pragma('dart2js:noInline')
+  static MoveFolderItemPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MoveFolderItemPayload>(create);
+  static MoveFolderItemPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get itemId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set itemId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasItemId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearItemId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get from => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set from($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFrom() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFrom() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get to => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set to($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTo() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTo() => clearField(3);
+
+  @$pb.TagNumber(4)
+  MoveFolderItemType get ty => $_getN(3);
+  @$pb.TagNumber(4)
+  set ty(MoveFolderItemType v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTy() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTy() => clearField(4);
+}
+

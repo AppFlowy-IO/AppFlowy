@@ -1,3 +1,4 @@
+use crate::services::AppController;
 use crate::{
     entities::{
         trash::Trash,
@@ -8,6 +9,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
+use flowy_folder_data_model::entities::view::{MoveFolderItemParams, MoveFolderItemPayload, MoveFolderItemType};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -80,6 +82,26 @@ pub(crate) async fn close_view_handler(
 ) -> Result<(), FlowyError> {
     let view_id: ViewId = data.into_inner();
     let _ = controller.close_view(&view_id.value).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn move_item_handler(
+    data: Data<MoveFolderItemPayload>,
+    view_controller: AppData<Arc<ViewController>>,
+    app_controller: AppData<Arc<AppController>>,
+) -> Result<(), FlowyError> {
+    let params: MoveFolderItemParams = data.into_inner().try_into()?;
+    match params.ty {
+        MoveFolderItemType::MoveApp => {
+            let _ = app_controller.move_app(&params.item_id, params.from, params.to).await?;
+        }
+        MoveFolderItemType::MoveView => {
+            let _ = view_controller
+                .move_view(&params.item_id, params.from, params.to)
+                .await?;
+        }
+    }
     Ok(())
 }
 

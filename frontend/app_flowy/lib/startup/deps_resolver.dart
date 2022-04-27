@@ -14,6 +14,7 @@ import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
@@ -50,6 +51,8 @@ void _resolveUserDeps(GetIt getIt) {
 }
 
 void _resolveHomeDeps(GetIt getIt) {
+  getIt.registerSingleton(MenuSharedState());
+
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
     (user, _) => UserListener(user: user),
   );
@@ -96,7 +99,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
     (user, workspaceId) => MenuBloc(
       workspaceId: workspaceId,
-      service: WorkspaceService(),
       listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
     ),
   );
@@ -113,8 +115,8 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<AppBloc, App, void>(
     (app, _) => AppBloc(
       app: app,
-      service: AppService(),
-      listener: AppListener(appId: app.id),
+      appService: AppService(appId: app.id),
+      appListener: AppListener(appId: app.id),
     ),
   );
 
