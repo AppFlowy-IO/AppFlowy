@@ -24,6 +24,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellContext)..add(const CheckboxCellEvent.initial());
+    _listenCellRequestFocus();
     super.initState();
   }
 
@@ -49,8 +50,20 @@ class _CheckboxCellState extends State<CheckboxCell> {
   }
 
   @override
+  void didUpdateWidget(covariant CheckboxCell oldWidget) {
+    _listenCellRequestFocus();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Future<void> dispose() async {
     _cellBloc.close();
     super.dispose();
+  }
+
+  void _listenCellRequestFocus() {
+    widget.requestFocus.addListener(() {
+      _cellBloc.add(const CheckboxCellEvent.select());
+    });
   }
 }
