@@ -9,27 +9,21 @@ class InitRustSDKTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    switch (context.env) {
-      case IntegrationMode.release:
-        Directory documentsDir = await getApplicationDocumentsDirectory();
-        return Directory('${documentsDir.path}/flowy').create().then(
-          (Directory directory) async {
-            await context.getIt<FlowySDK>().init(directory);
-          },
-        );
-      case IntegrationMode.develop:
-        Directory documentsDir = await getApplicationDocumentsDirectory();
-        return Directory('${documentsDir.path}/flowy_dev').create().then(
-          (Directory directory) async {
-            await context.getIt<FlowySDK>().init(directory);
-          },
-        );
-      case IntegrationMode.test:
-        final directory = Directory("${Directory.current.path}/.sandbox");
-        await context.getIt<FlowySDK>().init(directory);
-        break;
-      default:
-        assert(false, 'Unsupported env');
-    }
+    await appFlowyDocumentDirectory().then((directory) async {
+      await context.getIt<FlowySDK>().init(directory);
+    });
+  }
+}
+
+Future<Directory> appFlowyDocumentDirectory() async {
+  Directory documentsDir = await getApplicationDocumentsDirectory();
+
+  switch (integrationEnv()) {
+    case IntegrationMode.develop:
+      return Directory('${documentsDir.path}/flowy_dev').create();
+    case IntegrationMode.release:
+      return Directory('${documentsDir.path}/flowy').create();
+    case IntegrationMode.test:
+      return Directory("${Directory.current.path}/.sandbox");
   }
 }
