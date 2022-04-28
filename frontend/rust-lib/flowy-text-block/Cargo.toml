@@ -45,7 +45,7 @@ derive_more = {version = "0.99", features = ["display"]}
 
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
-rand = "0.7.3"
+rand = "0.8.5"
 
 [build-dependencies]
 lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen", "proto_gen"] }

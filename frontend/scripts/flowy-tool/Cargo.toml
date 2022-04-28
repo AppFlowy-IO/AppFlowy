@@ -16,7 +16,7 @@ env_logger = "0.8.2"
 cmd_lib = "1.1"
 flowy-ast = { path = "../../../shared-lib/flowy-ast" }
 console = "0.14.0"
-fancy-regex = "0.5.0"
+fancy-regex = "0.10.0"
 lazy_static = "1.4.0"
 phf = { version = "0.8.0", features = ["macros"] }
 similar = "1.2.2"

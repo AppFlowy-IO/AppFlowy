@@ -1,9 +1,4 @@
-pub fn move_vec_element<T, F>(
-    vec: &mut Vec<T>,
-    filter: F,
-    _from_index: usize,
-    mut to_index: usize,
-) -> Result<bool, String>
+pub fn move_vec_element<T, F>(vec: &mut Vec<T>, filter: F, _from_index: usize, to_index: usize) -> Result<bool, String>
 where
     F: FnMut(&T) -> bool,
 {

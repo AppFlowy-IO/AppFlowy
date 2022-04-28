@@ -29,7 +29,7 @@ bytes = "1.0"
 nanoid = "0.4.0"
 
 [dev-dependencies]
-quickcheck = "0.9.2"
+quickcheck = "1.0.3"
 quickcheck_macros = "0.9.1"
 fake = "~2.3.0"
 claim = "0.4.0"

@@ -309,9 +309,9 @@ impl Rng {
             let i = if left == 1 {
                 1
             } else {
-                1 + self.0.gen_range(0, std::cmp::min(left - 1, 20))
+                1 + self.0.gen_range(0..std::cmp::min(left - 1, 20))
             };
-            match self.0.gen_range(0.0, 1.0) {
+            match self.0.gen_range(0.0..1.0) {
                 f if f < 0.2 => {
                     delta.insert(&self.gen_string(i), RichTextAttributes::default());
                 }
@@ -323,7 +323,7 @@ impl Rng {
                 }
             }
         }
-        if self.0.gen_range(0.0, 1.0) < 0.3 {
+        if self.0.gen_range(0.0..1.0) < 0.3 {
             delta.insert(&("1".to_owned() + &self.gen_string(10)), RichTextAttributes::default());
         }
         delta
