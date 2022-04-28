@@ -20,11 +20,11 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class SingleSelectCell extends GridCellWidget {
-  final GridSelectOptionCellContext cellContext;
+  final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   SingleSelectCell({
-    required this.cellContext,
+    required this.cellContextBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -45,7 +45,8 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
   @override
   void initState() {
     // Log.trace("init widget $hashCode");
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext)..add(const SelectionCellEvent.initial());
+    final cellContext = _buildCellContext();
+    _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
@@ -69,7 +70,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
                 widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
-                  widget.cellContext.clone(),
+                  _buildCellContext(),
                   () => widget.onFocus.value = false,
                 );
               },
@@ -81,12 +82,8 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
     );
   }
 
-  @override
-  void didUpdateWidget(covariant SingleSelectCell oldWidget) {
-    if (oldWidget.cellContext != widget.cellContext) {
-      // Log.trace("did update widget $hashCode");
-    }
-    super.didUpdateWidget(oldWidget);
+  GridSelectOptionCellContext _buildCellContext() {
+    return widget.cellContextBuilder.build() as GridSelectOptionCellContext;
   }
 
   @override
@@ -99,11 +96,11 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends GridCellWidget {
-  final GridSelectOptionCellContext cellContext;
+  final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   MultiSelectCell({
-    required this.cellContext,
+    required this.cellContextBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -123,7 +120,8 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<SelectionCellBloc>(param1: widget.cellContext)..add(const SelectionCellEvent.initial());
+    final cellContext = _buildCellContext();
+    _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
@@ -145,7 +143,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
                 widget.onFocus.value = true;
                 SelectOptionCellEditor.show(
                   context,
-                  widget.cellContext,
+                  _buildCellContext(),
                   () => widget.onFocus.value = false,
                 );
               },
@@ -161,5 +159,9 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
   Future<void> dispose() async {
     _cellBloc.close();
     super.dispose();
+  }
+
+  GridSelectOptionCellContext _buildCellContext() {
+    return widget.cellContextBuilder.build() as GridSelectOptionCellContext;
   }
 }

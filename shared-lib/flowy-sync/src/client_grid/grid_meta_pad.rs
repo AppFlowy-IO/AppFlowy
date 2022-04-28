@@ -6,6 +6,7 @@ use flowy_grid_data_model::entities::{
     gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset,
     GridMeta,
 };
+use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -208,20 +209,22 @@ impl GridMetaPad {
     pub fn move_field(
         &mut self,
         field_id: &str,
-        _from_index: usize,
+        from_index: usize,
         to_index: usize,
     ) -> CollaborateResult<Option<GridChangeset>> {
-        self.modify_grid(
-            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
-                None => Ok(None),
-                Some(index) => {
-                    // debug_assert_eq!(index, from_index);
-                    let field_meta = grid_meta.fields.remove(index);
-                    grid_meta.fields.insert(to_index, field_meta);
-                    Ok(Some(()))
-                }
-            },
-        )
+        self.modify_grid(|grid_meta| {
+            match move_vec_element(
+                &mut grid_meta.fields,
+                |field| field.id == field_id,
+                from_index,
+                to_index,
+            )
+            .map_err(internal_error)?
+            {
+                true => Ok(Some(())),
+                false => Ok(None),
+            }
+        })
     }
 
     pub fn contain_field(&self, field_id: &str) -> bool {

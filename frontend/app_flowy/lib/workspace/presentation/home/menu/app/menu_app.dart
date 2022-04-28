@@ -11,7 +11,7 @@ import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
   final App app;
-  MenuApp(this.app, {Key? key}) : super(key: ValueKey(app.hashCode));
+  const MenuApp(this.app, {Key? key}) : super(key: key);
 
   @override
   State<MenuApp> createState() => _MenuAppState();
@@ -93,6 +93,11 @@ class _MenuAppState extends State<MenuApp> {
         ),
       ),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant MenuApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/row/grid_row.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,17 +32,20 @@ class CellContainer extends StatelessWidget {
   final GridCellWidget child;
   final Widget? expander;
   final double width;
+  final RegionStateNotifier rowStateNotifier;
   const CellContainer({
     Key? key,
     required this.child,
     required this.width,
+    required this.rowStateNotifier,
     this.expander,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
+    return ChangeNotifierProxyProvider<RegionStateNotifier, CellStateNotifier>(
       create: (_) => CellStateNotifier(),
+      update: (_, row, cell) => cell!..onEnter = row.onEnter,
       child: Selector<CellStateNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
         builder: (context, isFocus, _) {
@@ -54,11 +58,15 @@ class CellContainer extends StatelessWidget {
             container = _CellEnterRegion(child: container, expander: expander!);
           }
 
-          return Container(
-            constraints: BoxConstraints(maxWidth: width),
-            decoration: _makeBoxDecoration(context, isFocus),
-            padding: GridSize.cellContentInsets,
-            child: container,
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => child.requestFocus.notify(),
+            child: Container(
+              constraints: BoxConstraints(maxWidth: width),
+              decoration: _makeBoxDecoration(context, isFocus),
+              padding: GridSize.cellContentInsets,
+              child: container,
+            ),
           );
         },
       ),

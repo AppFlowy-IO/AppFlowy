@@ -107,7 +107,7 @@ class HomeMenu extends StatelessWidget {
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) => state.apps.map((app) => MenuApp(app)).toList(),
+            selector: (state) => state.apps.map((app) => MenuApp(app, key: ValueKey(app.id))).toList(),
             builder: (context, menuItems) {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
@@ -116,11 +116,18 @@ class HomeMenu extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
                   child: MenuUser(user),
                 ),
-                onReorder: (oldIndex, newIndex) => context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, newIndex)),
+                onReorder: (oldIndex, newIndex) {
+                  // Moving item1 from index 0 to index 1
+                  //  expect:   oldIndex: 0, newIndex: 1
+                  //  receive:  oldIndex: 0, newIndex: 2
+                  //  Workaround: if newIndex > oldIndex, we just minus one
+                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, index));
+                },
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   return ReorderableDragStartListener(
-                    key: ValueKey(menuItems[index].hashCode),
+                    key: ValueKey(menuItems[index].key),
                     index: index,
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2),

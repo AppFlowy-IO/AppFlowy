@@ -10,6 +10,8 @@ use crate::{
 use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
 use lib_ot::core::*;
 
+use crate::errors::internal_error;
+use lib_infra::util::move_vec_element;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -170,16 +172,12 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn move_app(&mut self, app_id: &str, _from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+    pub fn move_app(&mut self, app_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
         let app = self.read_app(app_id)?;
         self.with_workspace(&app.workspace_id, |workspace| {
-            match workspace.apps.iter().position(|app| app.id == app_id) {
-                None => Ok(None),
-                Some(index) => {
-                    let app = workspace.apps.remove(index);
-                    workspace.apps.insert(to, app);
-                    Ok(Some(()))
-                }
+            match move_vec_element(&mut workspace.apps, |app| app.id == app_id, from, to).map_err(internal_error)? {
+                true => Ok(Some(())),
+                false => Ok(None),
             }
         })
     }
@@ -251,16 +249,12 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn move_view(&mut self, view_id: &str, _from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+    pub fn move_view(&mut self, view_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
         let view = self.read_view(view_id)?;
         self.with_app(&view.belong_to_id, |app| {
-            match app.belongings.iter().position(|view| view.id == view_id) {
-                None => Ok(None),
-                Some(index) => {
-                    let view = app.belongings.remove(index);
-                    app.belongings.insert(to, view);
-                    Ok(Some(()))
-                }
+            match move_vec_element(&mut app.belongings, |view| view.id == view_id, from, to).map_err(internal_error)? {
+                true => Ok(Some(())),
+                false => Ok(None),
             }
         })
     }

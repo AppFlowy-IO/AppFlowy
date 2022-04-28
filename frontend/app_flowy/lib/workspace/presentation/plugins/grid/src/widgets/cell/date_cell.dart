@@ -14,10 +14,10 @@ abstract class GridCellDelegate {
 }
 
 class DateCell extends GridCellWidget {
-  final GridCellContext cellContext;
+  final GridCellContextBuilder cellContextBuilder;
 
   DateCell({
-    required this.cellContext,
+    required this.cellContextBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -30,7 +30,8 @@ class _DateCellState extends State<DateCell> {
 
   @override
   void initState() {
-    _cellBloc = getIt<DateCellBloc>(param1: widget.cellContext)..add(const DateCellEvent.initial());
+    final cellContext = widget.cellContextBuilder.build();
+    _cellBloc = getIt<DateCellBloc>(param1: cellContext)..add(const DateCellEvent.initial());
     super.initState();
   }
 

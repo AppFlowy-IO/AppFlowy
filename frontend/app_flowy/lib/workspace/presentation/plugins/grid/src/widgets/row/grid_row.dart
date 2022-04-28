@@ -88,7 +88,7 @@ class _RowLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<_RegionStateNotifier>(
+    return Consumer<RegionStateNotifier>(
       builder: (context, state, _) {
         return SizedBox(width: GridSize.leadingHeaderPadding, child: state.onEnter ? _activeWidget() : null);
       },
@@ -164,13 +164,13 @@ class _RowCells extends StatelessWidget {
         return Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: _makeCells(state.cellDataMap),
+          children: _makeCells(context, state.cellDataMap),
         );
       },
     );
   }
 
-  List<Widget> _makeCells(GridCellMap gridCellMap) {
+  List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
       (gridCell) {
         Widget? expander;
@@ -181,6 +181,7 @@ class _RowCells extends StatelessWidget {
         return CellContainer(
           width: gridCell.field.width.toDouble(),
           child: buildGridCellWidget(gridCell, cellCache),
+          rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
           expander: expander,
         );
       },
@@ -188,7 +189,7 @@ class _RowCells extends StatelessWidget {
   }
 }
 
-class _RegionStateNotifier extends ChangeNotifier {
+class RegionStateNotifier extends ChangeNotifier {
   bool _onEnter = false;
 
   set onEnter(bool value) {
@@ -226,11 +227,11 @@ class _RowEnterRegion extends StatefulWidget {
 }
 
 class _RowEnterRegionState extends State<_RowEnterRegion> {
-  late _RegionStateNotifier _rowStateNotifier;
+  late RegionStateNotifier _rowStateNotifier;
 
   @override
   void initState() {
-    _rowStateNotifier = _RegionStateNotifier();
+    _rowStateNotifier = RegionStateNotifier();
     super.initState();
   }
 

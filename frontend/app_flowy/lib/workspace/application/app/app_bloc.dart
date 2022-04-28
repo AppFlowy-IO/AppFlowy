@@ -161,11 +161,12 @@ class AppViewDataContext extends ChangeNotifier {
   final String appId;
   final ValueNotifier<List<View>> _viewsNotifier = ValueNotifier([]);
   final ValueNotifier<View?> _selectedViewNotifier = ValueNotifier(null);
+  VoidCallback? _menuSharedStateListener;
   ExpandableController expandController = ExpandableController(initialExpanded: false);
 
   AppViewDataContext({required this.appId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
-    getIt<MenuSharedState>().addLatestViewListener((view) {
+    _menuSharedStateListener = getIt<MenuSharedState>().addLatestViewListener((view) {
       _setLatestView(view);
     });
   }
@@ -233,5 +234,13 @@ class AppViewDataContext extends ChangeNotifier {
         expandController.expanded = true;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    if (_menuSharedStateListener != null) {
+      getIt<MenuSharedState>().removeLatestViewListener(_menuSharedStateListener!);
+    }
+    super.dispose();
   }
 }

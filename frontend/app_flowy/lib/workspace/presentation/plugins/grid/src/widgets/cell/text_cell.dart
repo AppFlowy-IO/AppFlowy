@@ -14,10 +14,10 @@ class GridTextCellStyle extends GridCellStyle {
 }
 
 class GridTextCell extends GridCellWidget {
-  final GridCellContext cellContext;
+  final GridCellContextBuilder cellContextBuilder;
   late final GridTextCellStyle? cellStyle;
   GridTextCell({
-    required this.cellContext,
+    required this.cellContextBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -36,12 +36,13 @@ class _GridTextCellState extends State<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
   late FocusNode _focusNode;
-
+  VoidCallback? _focusListener;
   Timer? _delayOperation;
 
   @override
   void initState() {
-    _cellBloc = getIt<TextCellBloc>(param1: widget.cellContext);
+    final cellContext = widget.cellContextBuilder.build();
+    _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     _focusNode = FocusNode();
@@ -49,11 +50,14 @@ class _GridTextCellState extends State<GridTextCell> {
       widget.onFocus.value = _focusNode.hasFocus;
       focusChanged();
     });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    _listenCellRequestFocus(context);
+
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
@@ -83,8 +87,26 @@ class _GridTextCellState extends State<GridTextCell> {
     );
   }
 
+  void _listenCellRequestFocus(BuildContext context) {
+    if (_focusListener != null) {
+      widget.requestFocus.removeListener(_focusListener!);
+    }
+
+    focusListener() {
+      if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
+        FocusScope.of(context).requestFocus(_focusNode);
+      }
+    }
+
+    _focusListener = focusListener;
+    widget.requestFocus.addListener(focusListener);
+  }
+
   @override
   Future<void> dispose() async {
+    if (_focusListener != null) {
+      widget.requestFocus.removeListener(_focusListener!);
+    }
     _delayOperation?.cancel();
     _cellBloc.close();
     _focusNode.dispose();

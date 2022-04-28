@@ -32,7 +32,7 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
           emit(state.copyWith(views: value.views));
         },
         moveView: (_MoveView value) async {
-          await _moveView(value);
+          _moveView(value, emit);
         },
       );
     });
@@ -59,9 +59,13 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
     }
   }
 
-  Future<void> _moveView(_MoveView value) async {
+  Future<void> _moveView(_MoveView value, Emitter<ViewSectionState> emit) async {
     if (value.fromIndex < state.views.length) {
       final viewId = state.views[value.fromIndex].id;
+      final views = List<View>.from(state.views);
+      views.insert(value.toIndex, views.removeAt(value.fromIndex));
+      emit(state.copyWith(views: views));
+
       final result = await _appService.moveView(
         viewId: viewId,
         fromIndex: value.fromIndex,
