@@ -27,12 +27,24 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
             emit(state.copyWith(fields: value.fields));
           },
           moveField: (_MoveField value) async {
-            final result = await _fieldService.moveField(value.field.id, value.fromIndex, value.toIndex);
-            result.fold((l) {}, (err) => Log.error(err));
+            await _moveField(value, emit);
           },
         );
       },
     );
+  }
+
+  Future<void> _moveField(_MoveField value, Emitter<GridHeaderState> emit) async {
+    final fields = List<Field>.from(state.fields);
+    fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
+    emit(state.copyWith(fields: fields));
+
+    final result = await _fieldService.moveField(
+      value.field.id,
+      value.fromIndex,
+      value.toIndex,
+    );
+    result.fold((l) {}, (err) => Log.error(err));
   }
 
   Future<void> _startListening() async {
