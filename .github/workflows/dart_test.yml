@@ -58,7 +58,7 @@ jobs:
         working-directory: frontend/app_flowy
         run: |
           flutter packages pub get
-          flutter packages pub run easy_localization:generate -S ./assets/translations -f keys -O lib/generated -o locale_keys.g.dart
+          flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
           flutter packages pub run build_runner build --delete-conflicting-outputs
       
       - name: Build FlowySDK
