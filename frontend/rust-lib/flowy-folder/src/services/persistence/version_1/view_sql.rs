@@ -12,7 +12,7 @@ use flowy_database::{
     schema::{view_table, view_table::dsl},
     SqliteConnection,
 };
-use lib_infra::timestamp;
+use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();
 impl ViewTableSql {

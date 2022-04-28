@@ -8,6 +8,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
@@ -116,7 +117,14 @@ class HomeMenu extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
                   child: MenuUser(user),
                 ),
-                onReorder: (oldIndex, newIndex) => context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, newIndex)),
+                onReorder: (oldIndex, newIndex) {
+                  // Moving item1 from index 0 to index 1
+                  //  expect:   oldIndex: 0, newIndex: 1
+                  //  receive:  oldIndex: 0, newIndex: 2
+                  //  Workaround: if newIndex > oldIndex, we just minus one
+                  int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                  context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, index));
+                },
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   return ReorderableDragStartListener(

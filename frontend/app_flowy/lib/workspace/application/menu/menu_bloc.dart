@@ -45,6 +45,9 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           if (state.apps.length > value.fromIndex) {
             final app = state.apps[value.fromIndex];
             _workspaceService.moveApp(appId: app.id, fromIndex: value.fromIndex, toIndex: value.toIndex);
+            final apps = List<App>.from(state.apps);
+            apps.insert(value.toIndex, apps.removeAt(value.fromIndex));
+            emit(state.copyWith(apps: apps));
           }
         },
       );
