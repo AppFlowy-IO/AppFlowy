@@ -12,7 +12,7 @@ bytes = { version = "1.0" }
 pin-project = "1.0"
 futures-core = { version = "0.3" }
 tokio = { version = "1.0", features = ["time", "rt"] }
-rand = "0.8.3"
+rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 
@@ -23,7 +23,7 @@ walkdir = { version = "2", optional = true }
 flowy-ast = { path = "../flowy-ast", optional = true}
 similar = { version = "1.2.2", optional = true }
 syn = { version = "1.0.60", features = ["extra-traits", "parsing", "derive", "full"], optional = true }
-fancy-regex = { version = "0.5.0", optional = true }
+fancy-regex = { version = "0.10.0", optional = true }
 lazy_static = { version = "1.4.0", optional = true }
 tera = { version = "1.5.0", optional = true}
 itertools = { version = "0.10", optional = true }
