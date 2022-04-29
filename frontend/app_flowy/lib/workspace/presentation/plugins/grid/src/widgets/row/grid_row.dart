@@ -48,19 +48,13 @@ class _GridRowWidgetState extends State<GridRowWidget> {
         child: BlocBuilder<RowBloc, RowState>(
           buildWhen: (p, c) => p.rowData.height != c.rowData.height,
           builder: (context, state) {
-            final children = [
-              const _RowLeading(),
-              _RowCells(cellCache: widget.cellCache, onExpand: () => onExpandCell(context)),
-              const _RowTrailing(),
-            ];
-
-            final child = Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: children,
+            return Row(
+              children: [
+                const _RowLeading(),
+                Expanded(child: _RowCells(cellCache: widget.cellCache, onExpand: () => _expandRow(context))),
+                const _RowTrailing(),
+              ],
             );
-
-            return SizedBox(height: 42, child: child);
           },
         ),
       ),
@@ -73,7 +67,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
     super.dispose();
   }
 
-  void onExpandCell(BuildContext context) {
+  void _expandRow(BuildContext context) {
     final page = RowDetailPage(
       rowData: widget.rowData,
       rowCache: widget.rowCache,
@@ -161,11 +155,13 @@ class _RowCells extends StatelessWidget {
     return BlocBuilder<RowBloc, RowState>(
       buildWhen: (previous, current) => previous.cellDataMap.length != current.cellDataMap.length,
       builder: (context, state) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+        return IntrinsicHeight(
+            child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: _makeCells(context, state.cellDataMap),
-        );
+        ));
       },
     );
   }

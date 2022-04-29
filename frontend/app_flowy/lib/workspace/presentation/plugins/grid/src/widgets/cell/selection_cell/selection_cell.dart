@@ -64,7 +64,8 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           if (children.isEmpty && widget.cellStyle != null) {
             children.add(FlowyText.medium(widget.cellStyle!.placeholder, fontSize: 14, color: theme.shader3));
           }
-          return SizedBox.expand(
+          return SizedBox(
+            height: 69,
             child: InkWell(
               onTap: () {
                 widget.onFocus.value = true;
