@@ -68,21 +68,18 @@ class _GridTextCellState extends State<GridTextCell> {
         },
         buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
-          return SizedBox(
-            height: 42,
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              onChanged: (value) => focusChanged(),
-              onEditingComplete: () => _focusNode.unfocus(),
-              maxLines: 1,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.zero,
-                border: InputBorder.none,
-                hintText: widget.cellStyle?.placeholder,
-                isDense: true,
-              ),
+          return TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            onChanged: (value) => focusChanged(),
+            onEditingComplete: () => _focusNode.unfocus(),
+            maxLines: null,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              hintText: widget.cellStyle?.placeholder,
+              isDense: true,
             ),
           );
         },

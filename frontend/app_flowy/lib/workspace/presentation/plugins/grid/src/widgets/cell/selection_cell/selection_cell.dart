@@ -44,7 +44,6 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    // Log.trace("init widget $hashCode");
     final cellContext = _buildCellContext();
     _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
@@ -64,8 +63,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           if (children.isEmpty && widget.cellStyle != null) {
             children.add(FlowyText.medium(widget.cellStyle!.placeholder, fontSize: 14, color: theme.shader3));
           }
-          return SizedBox(
-            height: 69,
+          return SizedBox.expand(
             child: InkWell(
               onTap: () {
                 widget.onFocus.value = true;
@@ -75,7 +73,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
                   () => widget.onFocus.value = false,
                 );
               },
-              child: ClipRRect(child: Row(children: children)),
+              child: Center(child: Wrap(children: children)),
             ),
           );
         },
@@ -89,7 +87,6 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   Future<void> dispose() async {
-    // Log.trace("dispose widget $hashCode");
     _cellBloc.close();
     super.dispose();
   }
@@ -148,7 +145,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
                   () => widget.onFocus.value = false,
                 );
               },
-              child: ClipRRect(child: Row(children: children)),
+              child: Wrap(children: children, spacing: 4, runSpacing: 4),
             ),
           );
         },

@@ -36,7 +36,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
         builder: (context, state) {
           final icon = state.isSelected ? svgWidget('editor/editor_check') : svgWidget('editor/editor_uncheck');
           return SizedBox(
-            height: 42,
+            height: 20,
             child: Align(
               alignment: Alignment.centerLeft,
               child: FlowyIconButton(

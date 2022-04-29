@@ -55,7 +55,7 @@ class _NumberCellState extends State<NumberCell> {
             controller: _controller,
             focusNode: _focusNode,
             onEditingComplete: () => _focusNode.unfocus(),
-            maxLines: 1,
+            maxLines: null,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.zero,
