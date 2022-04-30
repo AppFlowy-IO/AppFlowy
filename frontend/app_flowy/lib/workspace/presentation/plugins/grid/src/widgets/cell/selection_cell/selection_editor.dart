@@ -184,38 +184,47 @@ class _SelectOptionCell extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: InkWell(
-        onTap: () {
-          context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
-        },
-        child: FlowyHover(
-          style: HoverStyle(hoverColor: theme.hover),
-          builder: (_, onHover) {
-            List<Widget> children = [
-              SelectOptionTag(option: option, isSelected: isSelected),
-              const Spacer(),
-            ];
-
-            if (isSelected) {
-              children.add(svgWidget("grid/checkmark"));
-            }
-
-            if (onHover) {
-              children.add(FlowyIconButton(
-                width: 30,
-                onPressed: () => _showEditPannel(context),
-                iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                icon: svgWidget("editor/details", color: theme.iconColor),
-              ));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: Row(children: children),
-            );
-          },
-        ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _body(theme, context),
+          InkWell(
+            onTap: () {
+              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+            },
+          ),
+        ],
       ),
+    );
+  }
+
+  FlowyHover _body(AppTheme theme, BuildContext context) {
+    return FlowyHover(
+      style: HoverStyle(hoverColor: theme.hover),
+      builder: (_, onHover) {
+        List<Widget> children = [
+          SelectOptionTag(option: option, isSelected: isSelected),
+          const Spacer(),
+        ];
+
+        if (isSelected) {
+          children.add(svgWidget("grid/checkmark"));
+        }
+
+        if (onHover) {
+          children.add(FlowyIconButton(
+            width: 30,
+            onPressed: () => _showEditPannel(context),
+            iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+            icon: svgWidget("editor/details", color: theme.iconColor),
+          ));
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(3.0),
+          child: Row(children: children),
+        );
+      },
     );
   }
 

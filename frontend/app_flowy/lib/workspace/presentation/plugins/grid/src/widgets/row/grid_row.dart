@@ -4,6 +4,7 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/p
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -48,19 +49,13 @@ class _GridRowWidgetState extends State<GridRowWidget> {
         child: BlocBuilder<RowBloc, RowState>(
           buildWhen: (p, c) => p.rowData.height != c.rowData.height,
           builder: (context, state) {
-            final children = [
-              const _RowLeading(),
-              _RowCells(cellCache: widget.cellCache, onExpand: () => onExpandCell(context)),
-              const _RowTrailing(),
-            ];
-
-            final child = Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: children,
+            return Row(
+              children: [
+                const _RowLeading(),
+                Expanded(child: _RowCells(cellCache: widget.cellCache, onExpand: () => _expandRow(context))),
+                const _RowTrailing(),
+              ],
             );
-
-            return SizedBox(height: 42, child: child);
           },
         ),
       ),
@@ -73,7 +68,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
     super.dispose();
   }
 
-  void onExpandCell(BuildContext context) {
+  void _expandRow(BuildContext context) {
     final page = RowDetailPage(
       rowData: widget.rowData,
       rowCache: widget.rowCache,
@@ -159,13 +154,15 @@ class _RowCells extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) => previous.cellDataMap.length != current.cellDataMap.length,
+      buildWhen: (previous, current) => !listEquals(previous.snapshots, current.snapshots),
       builder: (context, state) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: _makeCells(context, state.cellDataMap),
-        );
+        return IntrinsicHeight(
+            child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _makeCells(context, state.gridCellMap),
+        ));
       },
     );
   }
@@ -209,11 +206,14 @@ class _CellExpander extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return FlowyIconButton(
-      width: 20,
-      onPressed: onExpand,
-      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-      icon: svgWidget("grid/expander", color: theme.main1),
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: FlowyIconButton(
+        onPressed: onExpand,
+        iconPadding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+        fillColor: theme.surface,
+        icon: svgWidget("grid/expander", color: theme.main1),
+      ),
     );
   }
 }

@@ -57,6 +57,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
 
   @override
   Future<void> dispose() async {
+    widget.requestFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
   }

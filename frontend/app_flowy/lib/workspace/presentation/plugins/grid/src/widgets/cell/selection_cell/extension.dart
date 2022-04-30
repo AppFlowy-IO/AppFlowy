@@ -66,15 +66,25 @@ class SelectOptionTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: option.color.make(context),
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Center(child: FlowyText.medium(option.name, fontSize: 12)),
-      margin: const EdgeInsets.symmetric(horizontal: 3.0),
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+    return ChoiceChip(
+      pressElevation: 1,
+      label: FlowyText.medium(option.name, fontSize: 12),
+      selectedColor: option.color.make(context),
+      backgroundColor: option.color.make(context),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+      selected: true,
+      onSelected: (_) {},
     );
+
+    // return Container(
+    //   decoration: BoxDecoration(
+    //     color: option.color.make(context),
+    //     shape: BoxShape.rectangle,
+    //     borderRadius: BorderRadius.circular(8.0),
+    //   ),
+    //   child: Center(child: FlowyText.medium(option.name, fontSize: 12)),
+    //   margin: const EdgeInsets.symmetric(horizontal: 3.0),
+    //   padding: const EdgeInsets.symmetric(horizontal: 6.0),
+    // );
   }
 }

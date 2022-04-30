@@ -22,8 +22,7 @@ class NumberCell extends GridCellWidget {
 class _NumberCellState extends State<NumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
-  late FocusNode _focusNode;
-  VoidCallback? _focusListener;
+  late CellSingleFocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
@@ -31,11 +30,8 @@ class _NumberCellState extends State<NumberCell> {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      widget.onFocus.value = _focusNode.hasFocus;
-      focusChanged();
-    });
+    _focusNode = CellSingleFocusNode();
+    _listenFocusNode();
     super.initState();
   }
 
@@ -55,7 +51,7 @@ class _NumberCellState extends State<NumberCell> {
             controller: _controller,
             focusNode: _focusNode,
             onEditingComplete: () => _focusNode.unfocus(),
-            maxLines: 1,
+            maxLines: null,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.zero,
@@ -70,13 +66,20 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   Future<void> dispose() async {
-    if (_focusListener != null) {
-      widget.requestFocus.removeListener(_focusListener!);
-    }
+    widget.requestFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
+    _focusNode.removeSingleListener();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant NumberCell oldWidget) {
+    if (oldWidget != widget) {
+      _listenFocusNode();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<void> focusChanged() async {
@@ -95,18 +98,19 @@ class _NumberCellState extends State<NumberCell> {
     }
   }
 
-  void _listenCellRequestFocus(BuildContext context) {
-    if (_focusListener != null) {
-      widget.requestFocus.removeListener(_focusListener!);
-    }
+  void _listenFocusNode() {
+    widget.onFocus.value = _focusNode.hasFocus;
+    _focusNode.setSingleListener(() {
+      widget.onFocus.value = _focusNode.hasFocus;
+      focusChanged();
+    });
+  }
 
-    focusListener() {
+  void _listenCellRequestFocus(BuildContext context) {
+    widget.requestFocus.addListener(() {
       if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
         FocusScope.of(context).requestFocus(_focusNode);
       }
-    }
-
-    _focusListener = focusListener;
-    widget.requestFocus.addListener(focusListener);
+    });
   }
 }

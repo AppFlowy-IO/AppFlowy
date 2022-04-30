@@ -42,7 +42,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   Future<void> _startListening() async {
     _rowListenFn = _rowCache.addRowListener(
       rowId: rowData.rowId,
-      onUpdated: (cellDatas) => add(RowDetailEvent.didReceiveCellDatas(cellDatas.values.toList())),
+      onUpdated: (cellDatas, reason) => add(RowDetailEvent.didReceiveCellDatas(cellDatas.values.toList())),
       listenWhen: () => !isClosed,
     );
   }
