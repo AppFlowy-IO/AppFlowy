@@ -1,5 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -28,7 +30,13 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             _rowService.createRow();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) async {
-            emit(state.copyWith(cellDataMap: value.cellData));
+            final fields = value.gridCellMap.values.map((e) => CellSnapshot(e.field)).toList();
+            final snapshots = UnmodifiableListView(fields);
+            emit(state.copyWith(
+              gridCellMap: value.gridCellMap,
+              snapshots: snapshots,
+              changeReason: value.reason,
+            ));
           },
         );
       },
@@ -47,7 +55,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   Future<void> _startListening() async {
     _rowListenFn = _rowCache.addRowListener(
       rowId: state.rowData.rowId,
-      onUpdated: (cellDatas) => add(RowEvent.didReceiveCellDatas(cellDatas)),
+      onUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
       listenWhen: () => !isClosed,
     );
   }
@@ -57,18 +65,35 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveCellDatas(GridCellMap cellData) = _DidReceiveCellDatas;
+  const factory RowEvent.didReceiveCellDatas(GridCellMap gridCellMap, GridRowChangeReason reason) =
+      _DidReceiveCellDatas;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
-    required GridCellMap cellDataMap,
+    required GridCellMap gridCellMap,
+    required UnmodifiableListView<CellSnapshot> snapshots,
+    GridRowChangeReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial(GridRow rowData, GridCellMap cellDataMap) => RowState(
         rowData: rowData,
-        cellDataMap: cellDataMap,
+        gridCellMap: cellDataMap,
+        snapshots: UnmodifiableListView(cellDataMap.values.map((e) => CellSnapshot(e.field)).toList()),
       );
+}
+
+class CellSnapshot extends Equatable {
+  final Field _field;
+
+  const CellSnapshot(Field field) : _field = field;
+
+  @override
+  List<Object?> get props => [
+        _field.id,
+        _field.fieldType,
+        _field.visibility,
+      ];
 }

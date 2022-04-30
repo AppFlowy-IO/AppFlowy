@@ -15,7 +15,7 @@ import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';
 
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
-  final key = ValueKey(gridCell.rowId + gridCell.field.id);
+  final key = ValueKey(gridCell.cellId());
 
   final cellContextBuilder = GridCellContextBuilder(gridCell: gridCell, cellCache: cellCache);
 
@@ -81,6 +81,25 @@ class GridCellRequestFocusNotifier extends ChangeNotifier {
 }
 
 abstract class GridCellStyle {}
+
+class CellSingleFocusNode extends FocusNode {
+  VoidCallback? _listener;
+
+  void setSingleListener(VoidCallback listener) {
+    if (_listener != null) {
+      removeListener(_listener!);
+    }
+
+    _listener = listener;
+    super.addListener(listener);
+  }
+
+  void removeSingleListener() {
+    if (_listener != null) {
+      removeListener(_listener!);
+    }
+  }
+}
 
 class CellStateNotifier extends ChangeNotifier {
   bool _isFocus = false;

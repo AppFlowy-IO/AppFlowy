@@ -22,7 +22,7 @@ class NumberCell extends GridCellWidget {
 class _NumberCellState extends State<NumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
-  late FocusNode _focusNode;
+  late CellSingleFocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
@@ -30,11 +30,8 @@ class _NumberCellState extends State<NumberCell> {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      widget.onFocus.value = _focusNode.hasFocus;
-      focusChanged();
-    });
+    _focusNode = CellSingleFocusNode();
+    _listenFocusNode();
     super.initState();
   }
 
@@ -72,8 +69,17 @@ class _NumberCellState extends State<NumberCell> {
     widget.requestFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
+    _focusNode.removeSingleListener();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant NumberCell oldWidget) {
+    if (oldWidget != widget) {
+      _listenFocusNode();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<void> focusChanged() async {
@@ -90,6 +96,14 @@ class _NumberCellState extends State<NumberCell> {
         }
       });
     }
+  }
+
+  void _listenFocusNode() {
+    widget.onFocus.value = _focusNode.hasFocus;
+    _focusNode.setSingleListener(() {
+      widget.onFocus.value = _focusNode.hasFocus;
+      focusChanged();
+    });
   }
 
   void _listenCellRequestFocus(BuildContext context) {

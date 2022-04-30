@@ -365,4 +365,11 @@ class GridCell with _$GridCell {
     required Field field,
     Cell? cell,
   }) = _GridCell;
+
+  // ignore: unused_element
+  const GridCell._();
+
+  String cellId() {
+    return rowId + field.id + "${field.fieldType}";
+  }
 }

@@ -83,7 +83,7 @@ class GridRowCache {
 
   RowUpdateCallback addRowListener({
     required String rowId,
-    void Function(GridCellMap)? onUpdated,
+    void Function(GridCellMap, GridRowChangeReason)? onUpdated,
     bool Function()? listenWhen,
   }) {
     listenrHandler() async {
@@ -99,7 +99,7 @@ class GridRowCache {
         final row = _rowsNotifier.rowDataWithId(rowId);
         if (row != null) {
           final GridCellMap cellDataMap = _makeGridCells(rowId, row);
-          onUpdated(cellDataMap);
+          onUpdated(cellDataMap, _rowsNotifier._changeReason);
         }
       }
 
@@ -339,7 +339,7 @@ class GridRow with _$GridRow {
   const factory GridRow({
     required String gridId,
     required String rowId,
-    required List<Field> fields,
+    required UnmodifiableListView<Field> fields,
     required double height,
     Row? data,
   }) = _GridRow;

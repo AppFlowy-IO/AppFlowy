@@ -35,9 +35,7 @@ class GridTextCell extends GridCellWidget {
 class _GridTextCellState extends State<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
-  late FocusNode _focusNode;
-
-  VoidCallback? _focusNodeListener;
+  late CellSingleFocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
@@ -46,44 +44,37 @@ class _GridTextCellState extends State<GridTextCell> {
     _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      widget.onFocus.value = _focusNode.hasFocus;
-      focusChanged();
-    });
+    _focusNode = CellSingleFocusNode();
 
+    _listenFocusNode();
+    _listenRequestFocus(context);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _listenCellRequestFocus(context);
-
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocConsumer<TextCellBloc, TextCellState>(
+      child: BlocListener<TextCellBloc, TextCellState>(
         listener: (context, state) {
           if (_controller.text != state.content) {
             _controller.text = state.content;
           }
         },
-        buildWhen: (previous, current) => previous.content != current.content,
-        builder: (context, state) {
-          return TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            onChanged: (value) => focusChanged(),
-            onEditingComplete: () => _focusNode.unfocus(),
-            maxLines: null,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-              hintText: widget.cellStyle?.placeholder,
-              isDense: true,
-            ),
-          );
-        },
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          onChanged: (value) => focusChanged(),
+          onEditingComplete: () => _focusNode.unfocus(),
+          maxLines: null,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.zero,
+            border: InputBorder.none,
+            hintText: widget.cellStyle?.placeholder,
+            isDense: true,
+          ),
+        ),
       ),
     );
   }
@@ -93,17 +84,29 @@ class _GridTextCellState extends State<GridTextCell> {
     widget.requestFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
+    _focusNode.removeSingleListener();
     _focusNode.dispose();
+
     super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant GridTextCell oldWidget) {
-    // TODO: implement didUpdateWidget
+    if (oldWidget != widget) {
+      _listenFocusNode();
+    }
     super.didUpdateWidget(oldWidget);
   }
 
-  void _listenCellRequestFocus(BuildContext context) {
+  void _listenFocusNode() {
+    widget.onFocus.value = _focusNode.hasFocus;
+    _focusNode.setSingleListener(() {
+      widget.onFocus.value = _focusNode.hasFocus;
+      focusChanged();
+    });
+  }
+
+  void _listenRequestFocus(BuildContext context) {
     widget.requestFocus.addListener(() {
       if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
         FocusScope.of(context).requestFocus(_focusNode);

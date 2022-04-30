@@ -4,6 +4,7 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/p
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -153,14 +154,14 @@ class _RowCells extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
+      buildWhen: (previous, current) => !listEquals(previous.snapshots, current.snapshots),
       builder: (context, state) {
         return IntrinsicHeight(
             child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _makeCells(context, state.cellDataMap),
+          children: _makeCells(context, state.gridCellMap),
         ));
       },
     );
