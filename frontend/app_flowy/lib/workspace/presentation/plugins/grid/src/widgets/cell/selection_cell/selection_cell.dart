@@ -157,7 +157,6 @@ class _SelectOptionCell extends StatelessWidget {
       );
     }
 
-    final cellContext = cellContextBuilder.build() as GridSelectOptionCellContext;
     return Stack(
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
@@ -166,6 +165,7 @@ class _SelectOptionCell extends StatelessWidget {
         InkWell(
           onTap: () {
             onFocus(true);
+            final cellContext = cellContextBuilder.build() as GridSelectOptionCellContext;
             SelectOptionCellEditor.show(context, cellContext, () => onFocus(false));
           },
         ),

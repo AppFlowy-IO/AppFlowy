@@ -153,7 +153,7 @@ class _RowCells extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
-      buildWhen: (previous, current) => previous.cellDataMap.length != current.cellDataMap.length,
+      buildWhen: (previous, current) => previous.cellDataMap != current.cellDataMap,
       builder: (context, state) {
         return IntrinsicHeight(
             child: Row(

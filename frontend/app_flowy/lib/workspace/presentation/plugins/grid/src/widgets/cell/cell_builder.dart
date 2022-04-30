@@ -57,6 +57,24 @@ abstract class GridCellWidget extends HoverWidget {
 }
 
 class GridCellRequestFocusNotifier extends ChangeNotifier {
+  VoidCallback? _listener;
+
+  @override
+  void addListener(VoidCallback listener) {
+    if (_listener != null) {
+      removeListener(_listener!);
+    }
+
+    _listener = listener;
+    super.addListener(listener);
+  }
+
+  void removeAllListener() {
+    if (_listener != null) {
+      removeListener(_listener!);
+    }
+  }
+
   void notify() {
     notifyListeners();
   }

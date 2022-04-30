@@ -23,7 +23,6 @@ class _NumberCellState extends State<NumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
   late FocusNode _focusNode;
-  VoidCallback? _focusListener;
   Timer? _delayOperation;
 
   @override
@@ -70,9 +69,7 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   Future<void> dispose() async {
-    if (_focusListener != null) {
-      widget.requestFocus.removeListener(_focusListener!);
-    }
+    widget.requestFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
     _focusNode.dispose();
@@ -96,17 +93,10 @@ class _NumberCellState extends State<NumberCell> {
   }
 
   void _listenCellRequestFocus(BuildContext context) {
-    if (_focusListener != null) {
-      widget.requestFocus.removeListener(_focusListener!);
-    }
-
-    focusListener() {
+    widget.requestFocus.addListener(() {
       if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
         FocusScope.of(context).requestFocus(_focusNode);
       }
-    }
-
-    _focusListener = focusListener;
-    widget.requestFocus.addListener(focusListener);
+    });
   }
 }
