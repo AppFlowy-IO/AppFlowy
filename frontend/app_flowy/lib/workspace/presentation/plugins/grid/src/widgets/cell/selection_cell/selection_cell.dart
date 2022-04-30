@@ -5,6 +5,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,45 +45,25 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    final cellContext = _buildCellContext();
+    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
     _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    // Log.trace("build widget $hashCode");
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
         builder: (context, state) {
-          List<Widget> children = [];
-          children.addAll(state.selectedOptions.map((option) => SelectOptionTag(option: option)).toList());
-
-          if (children.isEmpty && widget.cellStyle != null) {
-            children.add(FlowyText.medium(widget.cellStyle!.placeholder, fontSize: 14, color: theme.shader3));
-          }
-          return SizedBox.expand(
-            child: InkWell(
-              onTap: () {
-                widget.onFocus.value = true;
-                SelectOptionCellEditor.show(
-                  context,
-                  _buildCellContext(),
-                  () => widget.onFocus.value = false,
-                );
-              },
-              child: Center(child: Wrap(children: children)),
-            ),
-          );
+          return _SelectOptionCell(
+              selectOptions: state.selectedOptions,
+              cellStyle: widget.cellStyle,
+              onFocus: (value) => widget.onFocus.value = value,
+              cellContextBuilder: widget.cellContextBuilder);
         },
       ),
     );
-  }
-
-  GridSelectOptionCellContext _buildCellContext() {
-    return widget.cellContextBuilder.build() as GridSelectOptionCellContext;
   }
 
   @override
@@ -118,7 +99,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    final cellContext = _buildCellContext();
+    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
     _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
     super.initState();
   }
@@ -129,25 +110,11 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
       value: _cellBloc,
       child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
         builder: (context, state) {
-          List<Widget> children = state.selectedOptions.map((option) => SelectOptionTag(option: option)).toList();
-
-          if (children.isEmpty && widget.cellStyle != null) {
-            children.add(FlowyText.medium(widget.cellStyle!.placeholder, fontSize: 14));
-          }
-
-          return SizedBox.expand(
-            child: InkWell(
-              onTap: () {
-                widget.onFocus.value = true;
-                SelectOptionCellEditor.show(
-                  context,
-                  _buildCellContext(),
-                  () => widget.onFocus.value = false,
-                );
-              },
-              child: Wrap(children: children, spacing: 4, runSpacing: 4),
-            ),
-          );
+          return _SelectOptionCell(
+              selectOptions: state.selectedOptions,
+              cellStyle: widget.cellStyle,
+              onFocus: (value) => widget.onFocus.value = value,
+              cellContextBuilder: widget.cellContextBuilder);
         },
       ),
     );
@@ -158,8 +125,51 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
     _cellBloc.close();
     super.dispose();
   }
+}
 
-  GridSelectOptionCellContext _buildCellContext() {
-    return widget.cellContextBuilder.build() as GridSelectOptionCellContext;
+class _SelectOptionCell extends StatelessWidget {
+  final List<SelectOption> selectOptions;
+  final void Function(bool) onFocus;
+  final SelectOptionCellStyle? cellStyle;
+  final GridCellContextBuilder cellContextBuilder;
+  const _SelectOptionCell({
+    required this.selectOptions,
+    required this.onFocus,
+    required this.cellStyle,
+    required this.cellContextBuilder,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    final Widget child;
+    if (selectOptions.isEmpty && cellStyle != null) {
+      child = Align(
+        alignment: Alignment.centerLeft,
+        child: FlowyText.medium(cellStyle!.placeholder, fontSize: 14, color: theme.shader3),
+      );
+    } else {
+      final tags = selectOptions.map((option) => SelectOptionTag(option: option)).toList();
+      child = Align(
+        alignment: Alignment.centerLeft,
+        child: Wrap(children: tags, spacing: 4, runSpacing: 4),
+      );
+    }
+
+    final cellContext = cellContextBuilder.build() as GridSelectOptionCellContext;
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      fit: StackFit.expand,
+      children: [
+        child,
+        InkWell(
+          onTap: () {
+            onFocus(true);
+            SelectOptionCellEditor.show(context, cellContext, () => onFocus(false));
+          },
+        ),
+      ],
+    );
   }
 }

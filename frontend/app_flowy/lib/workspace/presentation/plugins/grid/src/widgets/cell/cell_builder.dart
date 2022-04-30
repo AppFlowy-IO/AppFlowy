@@ -121,7 +121,7 @@ class CellContainer extends StatelessWidget {
             behavior: HitTestBehavior.translucent,
             onTap: () => child.requestFocus.notify(),
             child: Container(
-              constraints: BoxConstraints(maxWidth: width),
+              constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),
               padding: GridSize.cellContentInsets,
               child: container,

@@ -35,16 +35,13 @@ class _CheckboxCellState extends State<CheckboxCell> {
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
           final icon = state.isSelected ? svgWidget('editor/editor_check') : svgWidget('editor/editor_uncheck');
-          return SizedBox(
-            height: 20,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: FlowyIconButton(
-                onPressed: () => context.read<CheckboxCellBloc>().add(const CheckboxCellEvent.select()),
-                iconPadding: EdgeInsets.zero,
-                icon: icon,
-                width: 23,
-              ),
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: FlowyIconButton(
+              onPressed: () => context.read<CheckboxCellBloc>().add(const CheckboxCellEvent.select()),
+              iconPadding: EdgeInsets.zero,
+              icon: icon,
+              width: 23,
             ),
           );
         },

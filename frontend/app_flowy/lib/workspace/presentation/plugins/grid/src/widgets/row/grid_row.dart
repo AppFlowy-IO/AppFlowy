@@ -205,13 +205,14 @@ class _CellExpander extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return FlowyIconButton(
-      width: 30,
-      height: 24,
-      onPressed: onExpand,
-      iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-      fillColor: theme.surface,
-      icon: svgWidget("grid/expander", color: theme.main1),
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: FlowyIconButton(
+        onPressed: onExpand,
+        iconPadding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+        fillColor: theme.surface,
+        icon: svgWidget("grid/expander", color: theme.main1),
+      ),
     );
   }
 }
