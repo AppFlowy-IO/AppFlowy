@@ -351,11 +351,11 @@ dependencies = [
 
 [[package]]
 name = "fake"
-version = "2.3.0"
+version = "2.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6479fa2c7e83ddf8be7d435421e093b072ca891b99a49bc84eba098f4044f818"
+checksum = "21a8531dd3a64fd1cfbe92fad4160bc2060489c6195fe847e045e5788f710bae"
 dependencies = [
- "rand 0.7.3",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -505,6 +505,8 @@ dependencies = [
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
+ "rand 0.8.5",
+ "rand_core 0.6.3",
  "serde",
  "serial_test",
  "unicode-segmentation",
