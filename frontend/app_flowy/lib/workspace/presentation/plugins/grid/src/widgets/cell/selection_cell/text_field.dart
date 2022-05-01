@@ -21,6 +21,7 @@ class SelectOptionTextField extends StatelessWidget {
   final double distanceToText;
 
   final Function(String) onNewTag;
+  final Function(String) newText;
 
   SelectOptionTextField({
     required this.options,
@@ -28,6 +29,7 @@ class SelectOptionTextField extends StatelessWidget {
     required this.distanceToText,
     required this.tagController,
     required this.onNewTag,
+    required this.newText,
     TextEditingController? controller,
     FocusNode? focusNode,
     Key? key,
@@ -51,7 +53,12 @@ class SelectOptionTextField extends StatelessWidget {
             autofocus: true,
             controller: editController,
             focusNode: focusNode,
-            onChanged: onChanged,
+            onChanged: (text) {
+              if (onChanged != null) {
+                onChanged(text);
+              }
+              newText(text);
+            },
             onSubmitted: (text) {
               if (onSubmitted != null) {
                 onSubmitted(text);
