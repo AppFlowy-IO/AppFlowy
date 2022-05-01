@@ -25,7 +25,8 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             emit(state.copyWith(
-              options: value.options,
+              allOptions: value.options,
+              options: _makeOptions(state.filter, value.options),
               selectedOptions: value.selectedOptions,
             ));
           },
@@ -40,6 +41,9 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
           },
           selectOption: (_SelectOption value) {
             _onSelectOption(value.optionId);
+          },
+          filterOption: (_SelectOptionFilter value) {
+            _filterOption(value.optionName, emit);
           },
         );
       },
@@ -86,6 +90,16 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
     }
   }
 
+  void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
+    emit(state.copyWith(filter: optionName, options: _makeOptions(optionName, state.allOptions)));
+  }
+
+  List<SelectOption> _makeOptions(String filter, List<SelectOption> allOptions) {
+    final List<SelectOption> options = List.from(allOptions);
+    options.retainWhere((option) => option.name.contains(filter));
+    return options;
+  }
+
   void _startListening() {
     _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((selectOptionContext) {
@@ -109,20 +123,25 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
   const factory SelectOptionEditorEvent.selectOption(String optionId) = _SelectOption;
   const factory SelectOptionEditorEvent.updateOption(SelectOption option) = _UpdateOption;
   const factory SelectOptionEditorEvent.deleteOption(SelectOption option) = _DeleteOption;
+  const factory SelectOptionEditorEvent.filterOption(String optionName) = _SelectOptionFilter;
 }
 
 @freezed
 class SelectOptionEditorState with _$SelectOptionEditorState {
   const factory SelectOptionEditorState({
     required List<SelectOption> options,
+    required List<SelectOption> allOptions,
     required List<SelectOption> selectedOptions,
+    required String filter,
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(GridSelectOptionCellContext context) {
     final data = context.getCellData();
     return SelectOptionEditorState(
       options: data?.options ?? [],
+      allOptions: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
+      filter: "",
     );
   }
 }

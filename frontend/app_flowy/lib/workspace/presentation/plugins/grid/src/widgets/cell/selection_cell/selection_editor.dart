@@ -144,6 +144,9 @@ class _TextField extends StatelessWidget {
             selectedOptionMap: optionMap,
             distanceToText: _editorPannelWidth * 0.7,
             tagController: _tagController,
+            newText: (text) {
+              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.filterOption(text));
+            },
             onNewTag: (tagName) {
               context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.newOption(tagName));
             },

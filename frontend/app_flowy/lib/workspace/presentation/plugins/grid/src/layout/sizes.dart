@@ -9,8 +9,8 @@ class GridSize {
   static double get leadingHeaderPadding => 50 * scale;
   static double get trailHeaderPadding => 140 * scale;
   static double get headerContainerPadding => 0 * scale;
-  static double get cellHPadding => 8 * scale;
-  static double get cellVPadding => 8 * scale;
+  static double get cellHPadding => 10 * scale;
+  static double get cellVPadding => 10 * scale;
   static double get typeOptionItemHeight => 32 * scale;
   static double get typeOptionSeparatorHeight => 6 * scale;
 
