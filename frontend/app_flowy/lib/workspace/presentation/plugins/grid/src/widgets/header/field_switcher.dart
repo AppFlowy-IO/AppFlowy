@@ -146,7 +146,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: child,
-        constraints: BoxConstraints.loose(const Size(340, 400)),
+        constraints: BoxConstraints.loose(const Size(460, 440)),
       ),
       identifier: identifier,
       anchorContext: context,

@@ -7,9 +7,8 @@ use flowy_grid_data_model::entities::{
 };
 
 use lazy_static::lazy_static;
-
 use rust_decimal::Decimal;
-use rusty_money::iso::{Currency, CNY, EUR, USD};
+use rusty_money::iso::*;
 use serde::{Deserialize, Serialize};
 
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -88,16 +87,14 @@ impl CellDataOperation for NumberTypeOption {
 
             let cell_data = type_option_cell_data.data;
             match self.format {
-                NumberFormat::Number => {
+                NumberFormat::Number | NumberFormat::Percent => {
                     if cell_data.parse::<i64>().is_ok() {
                         cell_data
                     } else {
                         String::new()
                     }
                 }
-                NumberFormat::USD => self.money_from_str(&cell_data, USD),
-                NumberFormat::CNY => self.money_from_str(&cell_data, CNY),
-                NumberFormat::EUR => self.money_from_str(&cell_data, EUR),
+                _ => self.money_from_str(&cell_data, self.format.currency()),
             }
         } else {
             String::new()
@@ -170,8 +167,40 @@ impl NumberTypeOption {
 pub enum NumberFormat {
     Number = 0,
     USD = 1,
-    CNY = 2,
-    EUR = 3,
+    CanadianDollar = 2,
+    EUR = 4,
+    Pound = 5,
+    Yen = 6,
+    Ruble = 7,
+    Rupee = 8,
+    Won = 9,
+    Yuan = 10,
+    Real = 11,
+    Lira = 12,
+    Rupiah = 13,
+    Franc = 14,
+    HongKongDollar = 15,
+    NewZealandDollar = 16,
+    Krona = 17,
+    NorwegianKrone = 18,
+    MexicanPeso = 19,
+    Rand = 20,
+    NewTaiwanDollar = 21,
+    DanishKrone = 22,
+    Baht = 23,
+    Forint = 24,
+    Koruna = 25,
+    Shekel = 26,
+    ChileanPeso = 27,
+    PhilippinePeso = 28,
+    Dirham = 29,
+    ColombianPeso = 30,
+    Riyal = 31,
+    Ringgit = 32,
+    Leu = 33,
+    ArgentinePeso = 34,
+    UruguayanPeso = 35,
+    Percent = 36,
 }
 
 impl std::default::Default for NumberFormat {
@@ -181,22 +210,84 @@ impl std::default::Default for NumberFormat {
 }
 
 impl NumberFormat {
+    pub fn currency(&self) -> &'static Currency {
+        match self {
+            NumberFormat::Number => USD,
+            NumberFormat::USD => USD,
+            NumberFormat::CanadianDollar => USD,
+            NumberFormat::EUR => EUR,
+            NumberFormat::Pound => GIP,
+            NumberFormat::Yen => CNY,
+            NumberFormat::Ruble => RUB,
+            NumberFormat::Rupee => INR,
+            NumberFormat::Won => KRW,
+            NumberFormat::Yuan => CNY,
+            NumberFormat::Real => BRL,
+            NumberFormat::Lira => TRY,
+            NumberFormat::Rupiah => IDR,
+            NumberFormat::Franc => CHF,
+            NumberFormat::HongKongDollar => USD,
+            NumberFormat::NewZealandDollar => USD,
+            NumberFormat::Krona => SEK,
+            NumberFormat::NorwegianKrone => NOK,
+            NumberFormat::MexicanPeso => USD,
+            NumberFormat::Rand => ZAR,
+            NumberFormat::NewTaiwanDollar => USD,
+            NumberFormat::DanishKrone => DKK,
+            NumberFormat::Baht => THB,
+            NumberFormat::Forint => HUF,
+            NumberFormat::Koruna => CZK,
+            NumberFormat::Shekel => CZK,
+            NumberFormat::ChileanPeso => CLP,
+            NumberFormat::PhilippinePeso => PHP,
+            NumberFormat::Dirham => AED,
+            NumberFormat::ColombianPeso => COP,
+            NumberFormat::Riyal => SAR,
+            NumberFormat::Ringgit => MYR,
+            NumberFormat::Leu => RON,
+            NumberFormat::ArgentinePeso => ARS,
+            NumberFormat::UruguayanPeso => UYU,
+            NumberFormat::Percent => USD,
+        }
+    }
     pub fn symbol(&self) -> String {
         match self {
             NumberFormat::Number => "".to_string(),
             NumberFormat::USD => USD.symbol.to_string(),
-            NumberFormat::CNY => CNY.symbol.to_string(),
+            NumberFormat::CanadianDollar => format!("CA{}", USD.symbol.to_string()),
             NumberFormat::EUR => EUR.symbol.to_string(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn code(&self) -> String {
-        match self {
-            NumberFormat::Number => "".to_string(),
-            NumberFormat::USD => USD.iso_alpha_code.to_string(),
-            NumberFormat::CNY => CNY.iso_alpha_code.to_string(),
-            NumberFormat::EUR => EUR.iso_alpha_code.to_string(),
+            NumberFormat::Pound => GIP.symbol.to_string(),
+            NumberFormat::Yen => CNY.symbol.to_string(),
+            NumberFormat::Ruble => RUB.iso_alpha_code.to_string(),
+            NumberFormat::Rupee => INR.symbol.to_string(),
+            NumberFormat::Won => KRW.symbol.to_string(),
+            NumberFormat::Yuan => format!("CN{}", CNY.symbol.to_string()),
+            NumberFormat::Real => BRL.symbol.to_string(),
+            NumberFormat::Lira => TRY.iso_alpha_code.to_string(),
+            NumberFormat::Rupiah => IDR.iso_alpha_code.to_string(),
+            NumberFormat::Franc => CHF.iso_alpha_code.to_string(),
+            NumberFormat::HongKongDollar => format!("HK{}", USD.symbol.to_string()),
+            NumberFormat::NewZealandDollar => format!("NZ{}", USD.symbol.to_string()),
+            NumberFormat::Krona => SEK.iso_alpha_code.to_string(),
+            NumberFormat::NorwegianKrone => NOK.iso_alpha_code.to_string(),
+            NumberFormat::MexicanPeso => format!("MX{}", USD.symbol.to_string()),
+            NumberFormat::Rand => ZAR.iso_alpha_code.to_string(),
+            NumberFormat::NewTaiwanDollar => format!("NT{}", USD.symbol.to_string()),
+            NumberFormat::DanishKrone => DKK.iso_alpha_code.to_string(),
+            NumberFormat::Baht => THB.iso_alpha_code.to_string(),
+            NumberFormat::Forint => HUF.iso_alpha_code.to_string(),
+            NumberFormat::Koruna => CZK.iso_alpha_code.to_string(),
+            NumberFormat::Shekel => CZK.symbol.to_string(),
+            NumberFormat::ChileanPeso => CLP.iso_alpha_code.to_string(),
+            NumberFormat::PhilippinePeso => PHP.symbol.to_string(),
+            NumberFormat::Dirham => AED.iso_alpha_code.to_string(),
+            NumberFormat::ColombianPeso => COP.iso_alpha_code.to_string(),
+            NumberFormat::Riyal => SAR.iso_alpha_code.to_string(),
+            NumberFormat::Ringgit => MYR.iso_alpha_code.to_string(),
+            NumberFormat::Leu => RON.iso_alpha_code.to_string(),
+            NumberFormat::ArgentinePeso => ARS.iso_alpha_code.to_string(),
+            NumberFormat::UruguayanPeso => UYU.iso_alpha_code.to_string(),
+            NumberFormat::Percent => "%".to_string(),
         }
     }
 }
@@ -250,7 +341,7 @@ mod tests {
                     assert_eq!(type_option.decode_cell_data(data(""), &field_meta), "".to_owned());
                     assert_eq!(type_option.decode_cell_data(data("abc"), &field_meta), "".to_owned());
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "¥18,443".to_owned()
@@ -293,7 +384,7 @@ mod tests {
                         "$1,844.3".to_owned()
                     );
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "¥1,844.3".to_owned()
@@ -332,7 +423,7 @@ mod tests {
                         "-$18,443".to_owned()
                     );
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "-¥18,443".to_owned()
