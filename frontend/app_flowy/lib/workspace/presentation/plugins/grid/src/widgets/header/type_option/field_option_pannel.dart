@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/field_option_pannel_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -13,7 +14,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'edit_option_pannel.dart';
-import 'widget.dart';
 
 class FieldSelectOptionPannel extends StatelessWidget {
   final List<SelectOption> options;
@@ -222,8 +222,8 @@ class _OptionNameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NameTextField(
-      name: "",
+    return InputTextField(
+      text: "",
       onCanceled: () {
         context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.endAddingOption());
       },

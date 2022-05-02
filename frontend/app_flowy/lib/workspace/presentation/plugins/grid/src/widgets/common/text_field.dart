@@ -3,23 +3,25 @@ import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NameTextField extends StatefulWidget {
-  final void Function(String) onDone;
+class InputTextField extends StatefulWidget {
+  final void Function(String)? onDone;
+  final void Function(String)? onChanged;
   final void Function() onCanceled;
-  final String name;
+  final String text;
 
-  const NameTextField({
-    required this.name,
-    required this.onDone,
+  const InputTextField({
+    required this.text,
+    this.onDone,
     required this.onCanceled,
+    this.onChanged,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<NameTextField> createState() => _NameTextFieldState();
+  State<InputTextField> createState() => _InputTextFieldState();
 }
 
-class _NameTextFieldState extends State<NameTextField> {
+class _InputTextFieldState extends State<InputTextField> {
   late FocusNode _focusNode;
   var isEdited = false;
   late TextEditingController _controller;
@@ -27,7 +29,7 @@ class _NameTextFieldState extends State<NameTextField> {
   @override
   void initState() {
     _focusNode = FocusNode();
-    _controller = TextEditingController(text: widget.name);
+    _controller = TextEditingController(text: widget.text);
 
     _focusNode.addListener(notifyDidEndEditing);
     super.initState();
@@ -46,8 +48,15 @@ class _NameTextFieldState extends State<NameTextField> {
       normalBorderColor: theme.shader4,
       focusBorderColor: theme.main1,
       cursorColor: theme.main1,
+      onChanged: (text) {
+        if (widget.onChanged != null) {
+          widget.onChanged!(text);
+        }
+      },
       onEditingComplete: () {
-        widget.onDone(_controller.text);
+        if (widget.onDone != null) {
+          widget.onDone!(_controller.text);
+        }
       },
     );
   }
@@ -64,7 +73,9 @@ class _NameTextFieldState extends State<NameTextField> {
       if (_controller.text.isEmpty) {
         widget.onCanceled();
       } else {
-        widget.onDone(_controller.text);
+        if (widget.onDone != null) {
+          widget.onDone!(_controller.text);
+        }
       }
     }
   }

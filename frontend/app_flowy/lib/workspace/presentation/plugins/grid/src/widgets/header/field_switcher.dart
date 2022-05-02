@@ -14,13 +14,11 @@ import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
-
 import 'field_type_extension.dart';
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';

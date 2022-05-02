@@ -12,7 +12,7 @@ class GridSize {
   static double get cellHPadding => 10 * scale;
   static double get cellVPadding => 10 * scale;
   static double get typeOptionItemHeight => 32 * scale;
-  static double get typeOptionSeparatorHeight => 6 * scale;
+  static double get typeOptionSeparatorHeight => 4 * scale;
 
   //
   static EdgeInsets get headerContentInsets => EdgeInsets.symmetric(

@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/edit_select_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/extension.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -95,8 +95,8 @@ class _OptionNameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NameTextField(
-      name: name,
+    return InputTextField(
+      text: name,
       onCanceled: () {},
       onDone: (optionName) {
         if (name != optionName) {
