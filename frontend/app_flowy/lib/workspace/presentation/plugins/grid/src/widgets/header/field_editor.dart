@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,11 +30,12 @@ class FieldEditor extends FlowyOverlayDelegate {
     BuildContext context, {
     AnchorDirection anchorDirection = AnchorDirection.bottomWithLeftAligned,
   }) {
+    Log.trace("Show $identifier()");
     FlowyOverlay.of(context).remove(identifier());
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: _FieldEditorWidget(_fieldEditorBloc, fieldContextLoader),
-        constraints: BoxConstraints.loose(const Size(220, 400)),
+        constraints: BoxConstraints.loose(const Size(280, 400)),
       ),
       identifier: identifier(),
       anchorContext: context,
@@ -68,7 +70,7 @@ class _FieldEditorWidget extends StatelessWidget {
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         builder: (context, state) {
           return state.field.fold(
-            () => const SizedBox(width: 200),
+            () => const SizedBox(),
             (field) => ListView(
               shrinkWrap: true,
               children: [

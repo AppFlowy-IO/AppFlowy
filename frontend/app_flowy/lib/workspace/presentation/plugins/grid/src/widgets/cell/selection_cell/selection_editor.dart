@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/cell/selection_editor_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/widget.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

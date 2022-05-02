@@ -1,19 +1,16 @@
 use crate::impl_type_option;
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
     CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
-
 use lazy_static::lazy_static;
-
 use rust_decimal::Decimal;
-use rusty_money::iso::{Currency, CNY, EUR, USD};
+use rusty_money::define_currency_set;
 use serde::{Deserialize, Serialize};
-
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use bytes::Bytes;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -88,16 +85,9 @@ impl CellDataOperation for NumberTypeOption {
 
             let cell_data = type_option_cell_data.data;
             match self.format {
-                NumberFormat::Number => {
-                    if cell_data.parse::<i64>().is_ok() {
-                        cell_data
-                    } else {
-                        String::new()
-                    }
-                }
-                NumberFormat::USD => self.money_from_str(&cell_data, USD),
-                NumberFormat::CNY => self.money_from_str(&cell_data, CNY),
-                NumberFormat::EUR => self.money_from_str(&cell_data, EUR),
+                NumberFormat::Number => cell_data.parse::<i64>().map_or(String::new(), |v| v.to_string()),
+                NumberFormat::Percent => cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string()),
+                _ => self.money_from_str(&cell_data),
             }
         } else {
             String::new()
@@ -140,7 +130,7 @@ impl NumberTypeOption {
         self.symbol = format.symbol();
     }
 
-    fn money_from_str(&self, s: &str, currency: &'static Currency) -> String {
+    fn money_from_str(&self, s: &str) -> String {
         match Decimal::from_str(s) {
             Ok(mut decimal) => {
                 match decimal.set_scale(self.scale) {
@@ -149,8 +139,9 @@ impl NumberTypeOption {
                         tracing::error!("Set decimal scale failed: {:?}", e);
                     }
                 }
+
                 decimal.set_sign_positive(self.sign_positive);
-                let money = rusty_money::Money::from_decimal(decimal, currency);
+                let money = rusty_money::Money::from_decimal(decimal, self.format.currency());
                 money.to_string()
             }
             Err(_) => String::new(),
@@ -170,8 +161,40 @@ impl NumberTypeOption {
 pub enum NumberFormat {
     Number = 0,
     USD = 1,
-    CNY = 2,
-    EUR = 3,
+    CanadianDollar = 2,
+    EUR = 4,
+    Pound = 5,
+    Yen = 6,
+    Ruble = 7,
+    Rupee = 8,
+    Won = 9,
+    Yuan = 10,
+    Real = 11,
+    Lira = 12,
+    Rupiah = 13,
+    Franc = 14,
+    HongKongDollar = 15,
+    NewZealandDollar = 16,
+    Krona = 17,
+    NorwegianKrone = 18,
+    MexicanPeso = 19,
+    Rand = 20,
+    NewTaiwanDollar = 21,
+    DanishKrone = 22,
+    Baht = 23,
+    Forint = 24,
+    Koruna = 25,
+    Shekel = 26,
+    ChileanPeso = 27,
+    PhilippinePeso = 28,
+    Dirham = 29,
+    ColombianPeso = 30,
+    Riyal = 31,
+    Ringgit = 32,
+    Leu = 33,
+    ArgentinePeso = 34,
+    UruguayanPeso = 35,
+    Percent = 36,
 }
 
 impl std::default::Default for NumberFormat {
@@ -180,24 +203,389 @@ impl std::default::Default for NumberFormat {
     }
 }
 
-impl NumberFormat {
-    pub fn symbol(&self) -> String {
-        match self {
-            NumberFormat::Number => "".to_string(),
-            NumberFormat::USD => USD.symbol.to_string(),
-            NumberFormat::CNY => CNY.symbol.to_string(),
-            NumberFormat::EUR => EUR.symbol.to_string(),
+define_currency_set!(
+    number_currency {
+        NUMBER : {
+            code: "",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "number",
+            symbol: "RUB",
+            symbol_first: false,
+        },
+        USD : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "United States Dollar",
+            symbol: "$",
+            symbol_first: true,
+        },
+        CANADIAN_DOLLAR : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Canadian Dollar",
+            symbol: "CA$",
+            symbol_first: true,
+        },
+         NEW_TAIWAN_DOLLAR : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "NewTaiwan Dollar",
+            symbol: "NT$",
+            symbol_first: true,
+        },
+        HONG_KONG_DOLLAR : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "HongKong Dollar",
+            symbol: "HZ$",
+            symbol_first: true,
+        },
+        NEW_ZEALAND_DOLLAR : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "NewZealand Dollar",
+            symbol: "NZ$",
+            symbol_first: true,
+        },
+        EUR : {
+            code: "EUR",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Euro",
+            symbol: "€",
+            symbol_first: true,
+        },
+        GIP : {
+            code: "GIP",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Gibraltar Pound",
+            symbol: "£",
+            symbol_first: true,
+        },
+        CNY : {
+            code: "CNY",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Chinese Renminbi Yuan",
+            symbol: "¥",
+            symbol_first: true,
+        },
+        YUAN : {
+            code: "CNY",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Chinese Renminbi Yuan",
+            symbol: "CN¥",
+            symbol_first: true,
+        },
+        RUB : {
+            code: "RUB",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Russian Ruble",
+            symbol: "RUB",
+            symbol_first: false,
+        },
+        INR : {
+            code: "INR",
+            exponent: 2,
+            locale: EnIn,
+            minor_units: 50,
+            name: "Indian Rupee",
+            symbol: "₹",
+            symbol_first: true,
+        },
+        KRW : {
+            code: "KRW",
+            exponent: 0,
+            locale: EnUs,
+            minor_units: 1,
+            name: "South Korean Won",
+            symbol: "₩",
+            symbol_first: true,
+        },
+        BRL : {
+            code: "BRL",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 5,
+            name: "Brazilian real",
+            symbol: "R$",
+            symbol_first: true,
+        },
+        TRY : {
+            code: "TRY",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Turkish Lira",
+            // symbol: "₺",
+            symbol: "TRY",
+            symbol_first: true,
+        },
+        IDR : {
+            code: "IDR",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 5000,
+            name: "Indonesian Rupiah",
+            // symbol: "Rp",
+            symbol: "IDR",
+            symbol_first: true,
+        },
+        CHF : {
+            code: "CHF",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 5,
+            name: "Swiss Franc",
+            // symbol: "Fr",
+            symbol: "CHF",
+            symbol_first: true,
+        },
+        SEK : {
+            code: "SEK",
+            exponent: 2,
+            locale: EnBy,
+            minor_units: 100,
+            name: "Swedish Krona",
+            // symbol: "kr",
+            symbol: "SEK",
+            symbol_first: false,
+        },
+        NOK : {
+            code: "NOK",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 100,
+            name: "Norwegian Krone",
+            // symbol: "kr",
+            symbol: "NOK",
+            symbol_first: false,
+        },
+        MEXICAN_PESO : {
+            code: "USD",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Mexican Peso",
+            symbol: "MX$",
+            symbol_first: true,
+        },
+        ZAR : {
+            code: "ZAR",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 10,
+            name: "South African Rand",
+            // symbol: "R",
+            symbol: "ZAR",
+            symbol_first: true,
+        },
+        DKK : {
+            code: "DKK",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 50,
+            name: "Danish Krone",
+            // symbol: "kr.",
+            symbol: "DKK",
+            symbol_first: false,
+        },
+        THB : {
+            code: "THB",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Thai Baht",
+            // symbol: "฿",
+            symbol: "THB",
+            symbol_first: true,
+        },
+        HUF : {
+            code: "HUF",
+            exponent: 0,
+            locale: EnBy,
+            minor_units: 5,
+            name: "Hungarian Forint",
+            // symbol: "Ft",
+            symbol: "HUF",
+            symbol_first: false,
+        },
+        KORUNA : {
+            code: "CZK",
+            exponent: 2,
+            locale: EnBy,
+            minor_units: 100,
+            name: "Czech Koruna",
+            // symbol: "Kč",
+            symbol: "CZK",
+            symbol_first: false,
+        },
+        SHEKEL : {
+            code: "CZK",
+            exponent: 2,
+            locale: EnBy,
+            minor_units: 100,
+            name: "Czech Koruna",
+            symbol: "Kč",
+            symbol_first: false,
+        },
+        CLP : {
+            code: "CLP",
+            exponent: 0,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Chilean Peso",
+            // symbol: "$",
+            symbol: "CLP",
+            symbol_first: true,
+        },
+        PHP : {
+            code: "PHP",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 1,
+            name: "Philippine Peso",
+            symbol: "₱",
+            symbol_first: true,
+        },
+        AED : {
+            code: "AED",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 25,
+            name: "United Arab Emirates Dirham",
+            // symbol: "د.إ",
+            symbol: "AED",
+            symbol_first: false,
+        },
+        COP : {
+            code: "COP",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 20,
+            name: "Colombian Peso",
+            // symbol: "$",
+            symbol: "COP",
+            symbol_first: true,
+        },
+        SAR : {
+            code: "SAR",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 5,
+            name: "Saudi Riyal",
+            // symbol: "ر.س",
+            symbol: "SAR",
+            symbol_first: true,
+        },
+        MYR : {
+            code: "MYR",
+            exponent: 2,
+            locale: EnUs,
+            minor_units: 5,
+            name: "Malaysian Ringgit",
+            // symbol: "RM",
+            symbol: "MYR",
+            symbol_first: true,
+        },
+        RON : {
+            code: "RON",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Romanian Leu",
+            // symbol: "ر.ق",
+            symbol: "RON",
+            symbol_first: false,
+        },
+        ARS : {
+            code: "ARS",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 1,
+            name: "Argentine Peso",
+            // symbol: "$",
+            symbol: "ARS",
+            symbol_first: true,
+        },
+        UYU : {
+            code: "UYU",
+            exponent: 2,
+            locale: EnEu,
+            minor_units: 100,
+            name: "Uruguayan Peso",
+            // symbol: "$U",
+            symbol: "UYU",
+            symbol_first: true,
         }
     }
+);
 
-    #[allow(dead_code)]
-    pub fn code(&self) -> String {
-        match self {
-            NumberFormat::Number => "".to_string(),
-            NumberFormat::USD => USD.iso_alpha_code.to_string(),
-            NumberFormat::CNY => CNY.iso_alpha_code.to_string(),
-            NumberFormat::EUR => EUR.iso_alpha_code.to_string(),
-        }
+impl NumberFormat {
+    pub fn currency(&self) -> &'static number_currency::Currency {
+        let currency = match self {
+            NumberFormat::Number => number_currency::NUMBER,
+            NumberFormat::USD => number_currency::USD,
+            NumberFormat::CanadianDollar => number_currency::CANADIAN_DOLLAR,
+            NumberFormat::EUR => number_currency::EUR,
+            NumberFormat::Pound => number_currency::GIP,
+            NumberFormat::Yen => number_currency::CNY,
+            NumberFormat::Ruble => number_currency::RUB,
+            NumberFormat::Rupee => number_currency::INR,
+            NumberFormat::Won => number_currency::KRW,
+            NumberFormat::Yuan => number_currency::YUAN,
+            NumberFormat::Real => number_currency::BRL,
+            NumberFormat::Lira => number_currency::TRY,
+            NumberFormat::Rupiah => number_currency::IDR,
+            NumberFormat::Franc => number_currency::CHF,
+            NumberFormat::HongKongDollar => number_currency::HONG_KONG_DOLLAR,
+            NumberFormat::NewZealandDollar => number_currency::NEW_ZEALAND_DOLLAR,
+            NumberFormat::Krona => number_currency::SEK,
+            NumberFormat::NorwegianKrone => number_currency::NOK,
+            NumberFormat::MexicanPeso => number_currency::MEXICAN_PESO,
+            NumberFormat::Rand => number_currency::ZAR,
+            NumberFormat::NewTaiwanDollar => number_currency::NEW_TAIWAN_DOLLAR,
+            NumberFormat::DanishKrone => number_currency::DKK,
+            NumberFormat::Baht => number_currency::THB,
+            NumberFormat::Forint => number_currency::HUF,
+            NumberFormat::Koruna => number_currency::KORUNA,
+            NumberFormat::Shekel => number_currency::SHEKEL,
+            NumberFormat::ChileanPeso => number_currency::CLP,
+            NumberFormat::PhilippinePeso => number_currency::PHP,
+            NumberFormat::Dirham => number_currency::AED,
+            NumberFormat::ColombianPeso => number_currency::COP,
+            NumberFormat::Riyal => number_currency::SAR,
+            NumberFormat::Ringgit => number_currency::MYR,
+            NumberFormat::Leu => number_currency::RON,
+            NumberFormat::ArgentinePeso => number_currency::ARS,
+            NumberFormat::UruguayanPeso => number_currency::UYU,
+            NumberFormat::Percent => number_currency::USD,
+        };
+        currency
+    }
+
+    pub fn symbol(&self) -> String {
+        self.currency().symbol.to_string()
     }
 }
 
@@ -250,10 +638,16 @@ mod tests {
                     assert_eq!(type_option.decode_cell_data(data(""), &field_meta), "".to_owned());
                     assert_eq!(type_option.decode_cell_data(data("abc"), &field_meta), "".to_owned());
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "¥18,443".to_owned()
+                    );
+                }
+                NumberFormat::Yuan => {
+                    assert_eq!(
+                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        "CN¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
@@ -262,6 +656,7 @@ mod tests {
                         "€18.443".to_owned()
                     );
                 }
+                _ => {}
             }
         }
     }
@@ -293,7 +688,7 @@ mod tests {
                         "$1,844.3".to_owned()
                     );
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "¥1,844.3".to_owned()
@@ -305,6 +700,7 @@ mod tests {
                         "€1.844,3".to_owned()
                     );
                 }
+                _ => {}
             }
         }
     }
@@ -332,7 +728,7 @@ mod tests {
                         "-$18,443".to_owned()
                     );
                 }
-                NumberFormat::CNY => {
+                NumberFormat::Yen => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
                         "-¥18,443".to_owned()
@@ -344,6 +740,7 @@ mod tests {
                         "-€18.443".to_owned()
                     );
                 }
+                _ => {}
             }
         }
     }

@@ -1,6 +1,8 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -50,14 +52,27 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
           builder: (context, state) {
             return FlowyButton(
-              text: FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(), fontSize: 12),
+              text: Row(
+                children: [
+                  FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(), fontSize: 12),
+                  // const HSpace(6),
+                  const Spacer(),
+                  FlowyText.regular(state.typeOption.format.title(), fontSize: 12),
+                ],
+              ),
               padding: GridSize.typeOptionContentInsets,
               hoverColor: theme.hover,
               onTap: () {
-                final list = NumberFormatList(onSelected: (format) {
-                  context.read<NumberTypeOptionBloc>().add(NumberTypeOptionEvent.didSelectFormat(format));
-                });
-                overlayDelegate.showOverlay(context, list);
+                final list = NumberFormatList(
+                  onSelected: (format) {
+                    context.read<NumberTypeOptionBloc>().add(NumberTypeOptionEvent.didSelectFormat(format));
+                  },
+                  selectedFormat: state.typeOption.format,
+                );
+                overlayDelegate.showOverlay(
+                  context,
+                  list,
+                );
               },
               rightIcon: svgWidget("grid/more", color: theme.iconColor),
             );
@@ -72,31 +87,47 @@ typedef _SelectNumberFormatCallback = Function(NumberFormat format);
 
 class NumberFormatList extends StatelessWidget {
   final _SelectNumberFormatCallback onSelected;
-  const NumberFormatList({required this.onSelected, Key? key}) : super(key: key);
+  final NumberFormat selectedFormat;
+  const NumberFormatList({required this.selectedFormat, required this.onSelected, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cells = NumberFormat.values.map((format) {
-      return NumberFormatCell(
-          format: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(NumberFormatList.identifier());
-          });
-    }).toList();
+    return BlocProvider(
+      create: (context) => NumberFormatBloc(),
+      child: SizedBox(
+        width: 180,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _FilterTextField(),
+            BlocBuilder<NumberFormatBloc, NumberFormatState>(
+              builder: (context, state) {
+                final cells = state.formats.map((format) {
+                  return NumberFormatCell(
+                      isSelected: format == selectedFormat,
+                      format: format,
+                      onSelected: (format) {
+                        onSelected(format);
+                        FlowyOverlay.of(context).remove(NumberFormatList.identifier());
+                      });
+                }).toList();
 
-    return SizedBox(
-      width: 120,
-      child: ListView.separated(
-        shrinkWrap: true,
-        controller: ScrollController(),
-        separatorBuilder: (context, index) {
-          return VSpace(GridSize.typeOptionSeparatorHeight);
-        },
-        itemCount: cells.length,
-        itemBuilder: (BuildContext context, int index) {
-          return cells[index];
-        },
+                final list = ListView.separated(
+                  shrinkWrap: true,
+                  controller: ScrollController(),
+                  separatorBuilder: (context, index) {
+                    return VSpace(GridSize.typeOptionSeparatorHeight);
+                  },
+                  itemCount: cells.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return cells[index];
+                  },
+                );
+                return Expanded(child: list);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,52 +139,45 @@ class NumberFormatList extends StatelessWidget {
 
 class NumberFormatCell extends StatelessWidget {
   final NumberFormat format;
+  final bool isSelected;
   final Function(NumberFormat format) onSelected;
-  const NumberFormatCell({required this.format, required this.onSelected, Key? key}) : super(key: key);
+  const NumberFormatCell({
+    required this.isSelected,
+    required this.format,
+    required this.onSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    Widget? checkmark;
+    if (isSelected) {
+      checkmark = svgWidget("grid/checkmark");
+    }
+
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title(), fontSize: 12),
         hoverColor: theme.hover,
         onTap: () => onSelected(format),
-        leftIcon: svgWidget(format.iconName(), color: theme.iconColor),
+        rightIcon: checkmark,
       ),
     );
   }
 }
 
-extension NumberFormatExtension on NumberFormat {
-  String title() {
-    switch (this) {
-      case NumberFormat.CNY:
-        return "Yen";
-      case NumberFormat.EUR:
-        return "Euro";
-      case NumberFormat.Number:
-        return "Numbers";
-      case NumberFormat.USD:
-        return "US Dollar";
-      default:
-        throw UnimplementedError;
-    }
-  }
-
-  String iconName() {
-    switch (this) {
-      case NumberFormat.CNY:
-        return "grid/field/yen";
-      case NumberFormat.EUR:
-        return "grid/field/euro";
-      case NumberFormat.Number:
-        return "grid/field/numbers";
-      case NumberFormat.USD:
-        return "grid/field/us_dollar";
-      default:
-        throw UnimplementedError;
-    }
+class _FilterTextField extends StatelessWidget {
+  const _FilterTextField({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return InputTextField(
+      text: "",
+      onCanceled: () {},
+      onChanged: (text) {
+        context.read<NumberFormatBloc>().add(NumberFormatEvent.setFilter(text));
+      },
+    );
   }
 }

@@ -96,7 +96,10 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
 
   List<SelectOption> _makeOptions(String filter, List<SelectOption> allOptions) {
     final List<SelectOption> options = List.from(allOptions);
-    options.retainWhere((option) => option.name.contains(filter));
+    if (filter.isNotEmpty) {
+      options.retainWhere((option) => option.name.toLowerCase().contains(filter.toLowerCase()));
+    }
+
     return options;
   }
 

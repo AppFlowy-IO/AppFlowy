@@ -176,6 +176,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     FlowyOverlayStyle? style,
     Offset? anchorOffset,
   }) {
+    debugPrint("Show overlay: $identifier");
     this.style = style ?? FlowyOverlayStyle();
 
     _showOverlay(
