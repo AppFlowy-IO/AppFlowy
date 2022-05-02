@@ -644,6 +644,12 @@ mod tests {
                         "¥18,443".to_owned()
                     );
                 }
+                NumberFormat::Yuan => {
+                    assert_eq!(
+                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        "CN¥18,443".to_owned()
+                    );
+                }
                 NumberFormat::EUR => {
                     assert_eq!(
                         type_option.decode_cell_data(data("18443"), &field_meta),
