@@ -8,7 +8,7 @@ export 'grid_header_bloc.dart';
 export 'field/field_service.dart';
 export 'field/field_action_sheet_bloc.dart';
 export 'field/field_editor_bloc.dart';
-export 'field/field_switch_bloc.dart';
+export 'field/field_editor_pannel_bloc.dart';
 
 // Field Type Option
 export 'field/type_option/date_bloc.dart';

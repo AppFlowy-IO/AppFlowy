@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/field_option_pannel_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';

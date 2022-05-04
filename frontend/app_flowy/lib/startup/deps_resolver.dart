@@ -17,6 +17,7 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show EditFieldContext;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -201,8 +202,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldSwitcherBloc, SwitchFieldContext, void>(
-    (context, _) => FieldSwitcherBloc(context),
+  getIt.registerFactoryParam<FieldEditorPannelBloc, EditFieldContext, void>(
+    (context, _) => FieldEditorPannelBloc(context),
   );
 
   getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(

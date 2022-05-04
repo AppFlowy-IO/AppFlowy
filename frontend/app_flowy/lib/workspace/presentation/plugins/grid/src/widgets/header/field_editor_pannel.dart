@@ -30,30 +30,30 @@ typedef SwitchToFieldCallback = Future<Either<EditFieldContext, FlowyError>> Fun
   FieldType fieldType,
 );
 
-class FieldSwitcher extends StatefulWidget {
-  final SwitchFieldContext switchContext;
+class FieldEditorPannel extends StatefulWidget {
+  final EditFieldContext editFieldContext;
   final UpdateFieldCallback onUpdated;
   final SwitchToFieldCallback onSwitchToField;
 
-  const FieldSwitcher({
-    required this.switchContext,
+  const FieldEditorPannel({
+    required this.editFieldContext,
     required this.onUpdated,
     required this.onSwitchToField,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<FieldSwitcher> createState() => _FieldSwitcherState();
+  State<FieldEditorPannel> createState() => _FieldEditorPannelState();
 }
 
-class _FieldSwitcherState extends State<FieldSwitcher> {
+class _FieldEditorPannelState extends State<FieldEditorPannel> {
   String? currentOverlayIdentifier;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldSwitcherBloc>(param1: widget.switchContext),
-      child: BlocConsumer<FieldSwitcherBloc, FieldSwitchState>(
+      create: (context) => getIt<FieldEditorPannelBloc>(param1: widget.editFieldContext),
+      child: BlocConsumer<FieldEditorPannelBloc, FieldEditorPannelState>(
         listener: (context, state) {
           widget.onUpdated(state.field, state.typeOptionData);
         },
@@ -87,8 +87,8 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
             widget.onSwitchToField(field.id, newFieldType).then((result) {
               result.fold(
                 (editFieldContext) {
-                  context.read<FieldSwitcherBloc>().add(
-                        FieldSwitchEvent.toFieldType(
+                  context.read<FieldEditorPannelBloc>().add(
+                        FieldEditorPannelEvent.toFieldType(
                           editFieldContext.gridField,
                           editFieldContext.typeOptionData,
                         ),
@@ -108,7 +108,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
 
   Widget? _typeOptionWidget({
     required BuildContext context,
-    required FieldSwitchState state,
+    required FieldEditorPannelState state,
   }) {
     final overlayDelegate = TypeOptionOverlayDelegate(
       showOverlay: _showOverlay,
@@ -116,7 +116,7 @@ class _FieldSwitcherState extends State<FieldSwitcher> {
     );
 
     final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
-      context.read<FieldSwitcherBloc>().add(FieldSwitchEvent.didUpdateTypeOptionData(data));
+      context.read<FieldEditorPannelBloc>().add(FieldEditorPannelEvent.didUpdateTypeOptionData(data));
     });
 
     final typeOptionContext = TypeOptionContext(
