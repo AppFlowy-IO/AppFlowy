@@ -8,6 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'cell_builder.dart';
 
+class DateCellStyle extends GridCellStyle {
+  Alignment alignment;
+
+  DateCellStyle({this.alignment = Alignment.center});
+}
+
 abstract class GridCellDelegate {
   void onFocus(bool isFocus);
   GridCellDelegate get delegate;
@@ -15,11 +21,19 @@ abstract class GridCellDelegate {
 
 class DateCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
+  late final DateCellStyle? cellStyle;
 
   DateCell({
+    GridCellStyle? style,
     required this.cellContextBuilder,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key) {
+    if (style != null) {
+      cellStyle = (style as DateCellStyle);
+    } else {
+      cellStyle = null;
+    }
+  }
 
   @override
   State<DateCell> createState() => _DateCellState();
@@ -37,6 +51,7 @@ class _DateCellState extends State<DateCell> {
 
   @override
   Widget build(BuildContext context) {
+    final alignment = widget.cellStyle != null ? widget.cellStyle!.alignment : Alignment.center;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
@@ -57,7 +72,7 @@ class _DateCellState extends State<DateCell> {
               child: MouseRegion(
                 opaque: false,
                 cursor: SystemMouseCursors.click,
-                child: Center(child: FlowyText.medium(state.content, fontSize: 12)),
+                child: Align(alignment: alignment, child: FlowyText.medium(state.content, fontSize: 12)),
               ),
             ),
           );

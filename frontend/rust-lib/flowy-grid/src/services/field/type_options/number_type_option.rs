@@ -110,11 +110,13 @@ impl CellDataOperation for NumberTypeOption {
         _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
-        let data = changeset.to_string();
-        let data = self.strip_symbol(data.trim());
+        let mut data = changeset.trim().to_string();
 
-        if !data.chars().all(char::is_numeric) {
-            return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+        if self.format != NumberFormat::Number {
+            data = self.strip_symbol(data);
+            if !data.chars().all(char::is_numeric) {
+                return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+            }
         }
 
         Ok(TypeOptionCellData::new(&data, self.field_type()).json())
@@ -168,7 +170,7 @@ impl NumberTypeOption {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum NumberFormat {
     Number = 0,
     USD = 1,

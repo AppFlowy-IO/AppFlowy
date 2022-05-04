@@ -165,7 +165,9 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
     case FieldType.Checkbox:
       return null;
     case FieldType.DateTime:
-      return null;
+      return DateCellStyle(
+        alignment: Alignment.centerLeft,
+      );
     case FieldType.MultiSelect:
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
