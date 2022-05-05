@@ -20,8 +20,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
       await event.map(
         initial: (_) async {
           userListener.start(
-            profileDidUpdate: _profileUpdated,
-            workspaceListDidUpdate: _workspaceListUpdated,
+            onProfileUpdated: _profileUpdated,
+            onWorkspaceListUpdated: _workspaceListUpdated,
           );
           await _initUser();
         },

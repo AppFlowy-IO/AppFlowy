@@ -20,10 +20,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       await event.map(
         initial: (_Initial value) {
           _listener.start(
-            authDidChange: (result) {
+            onAuthChanged: (result) {
               _authDidChanged(result);
             },
-            workspaceSettingDidUpdate: (result) {
+            onWorkspaceSettingUpdated: (result) {
               result.fold(
                 (setting) => add(HomeEvent.didReceiveWorkspaceSetting(setting)),
                 (r) => Log.error(r),

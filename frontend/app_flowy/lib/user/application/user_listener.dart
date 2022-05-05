@@ -12,17 +12,17 @@ import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
 import 'package:flowy_sdk/rust_stream.dart';
 
-typedef UserProfileDidUpdate = Either<UserProfile, FlowyError>;
-typedef AuthDidUpdate = Either<Unit, FlowyError>;
-typedef WorkspaceListDidUpdate = Either<List<Workspace>, FlowyError>;
-typedef WorkspaceSettingDidUpdate = Either<CurrentWorkspaceSetting, FlowyError>;
+typedef UserProfileNotifyValue = Either<UserProfile, FlowyError>;
+typedef AuthNotifyValue = Either<Unit, FlowyError>;
+typedef WorkspaceListNotifyValue = Either<List<Workspace>, FlowyError>;
+typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSetting, FlowyError>;
 
 class UserListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  final _profileNotifier = PublishNotifier<UserProfileDidUpdate>();
-  final _authNotifier = PublishNotifier<AuthDidUpdate>();
-  final _workspaceListNotifier = PublishNotifier<WorkspaceListDidUpdate>();
-  final _workSettingNotifier = PublishNotifier<WorkspaceSettingDidUpdate>();
+  final _profileNotifier = PublishNotifier<UserProfileNotifyValue>();
+  final _authNotifier = PublishNotifier<AuthNotifyValue>();
+  final _workspaceListNotifier = PublishNotifier<WorkspaceListNotifyValue>();
+  final _workSettingNotifier = PublishNotifier<WorkspaceSettingNotifyValue>();
 
   FolderNotificationParser? _workspaceParser;
   UserNotificationParser? _userParser;
@@ -32,32 +32,32 @@ class UserListener {
   }) : _user = user;
 
   void start({
-    void Function(AuthDidUpdate)? authDidChange,
-    void Function(UserProfileDidUpdate)? profileDidUpdate,
-    void Function(WorkspaceListDidUpdate)? workspaceListDidUpdate,
-    void Function(WorkspaceSettingDidUpdate)? workspaceSettingDidUpdate,
+    void Function(AuthNotifyValue)? onAuthChanged,
+    void Function(UserProfileNotifyValue)? onProfileUpdated,
+    void Function(WorkspaceListNotifyValue)? onWorkspaceListUpdated,
+    void Function(WorkspaceSettingNotifyValue)? onWorkspaceSettingUpdated,
   }) {
-    if (authDidChange != null) {
+    if (onAuthChanged != null) {
       _authNotifier.addListener(() {
-        authDidChange(_authNotifier.currentValue!);
+        onAuthChanged(_authNotifier.currentValue!);
       });
     }
 
-    if (profileDidUpdate != null) {
+    if (onProfileUpdated != null) {
       _profileNotifier.addListener(() {
-        profileDidUpdate(_profileNotifier.currentValue!);
+        onProfileUpdated(_profileNotifier.currentValue!);
       });
     }
 
-    if (workspaceListDidUpdate != null) {
+    if (onWorkspaceListUpdated != null) {
       _workspaceListNotifier.addListener(() {
-        workspaceListDidUpdate(_workspaceListNotifier.currentValue!);
+        onWorkspaceListUpdated(_workspaceListNotifier.currentValue!);
       });
     }
 
-    if (workspaceSettingDidUpdate != null) {
+    if (onWorkspaceSettingUpdated != null) {
       _workSettingNotifier.addListener(() {
-        workspaceSettingDidUpdate(_workSettingNotifier.currentValue!);
+        onWorkspaceSettingUpdated(_workSettingNotifier.currentValue!);
       });
     }
 

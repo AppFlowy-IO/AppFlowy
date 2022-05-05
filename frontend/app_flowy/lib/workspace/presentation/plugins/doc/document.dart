@@ -60,7 +60,7 @@ class DocumentPlugin implements Plugin {
   DocumentPlugin({required PluginType pluginType, required View view, Key? key}) : _view = view {
     _pluginType = pluginType;
     _listener = getIt<ViewListener>(param1: view);
-    _listener?.updatedNotifier.addPublishListener((result) {
+    _listener?.start(onViewUpdated: (result) {
       result.fold(
         (newView) {
           _view = newView;
@@ -69,12 +69,11 @@ class DocumentPlugin implements Plugin {
         (error) {},
       );
     });
-    _listener?.start();
   }
 
   @override
   void dispose() {
-    _listener?.close();
+    _listener?.stop();
     _listener = null;
   }
 

@@ -59,7 +59,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   @override
   Future<void> close() async {
-    await listener.close();
+    await listener.stop();
 
     if (_subscription != null) {
       await _subscription?.cancel();
@@ -70,21 +70,20 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
-    listener.deletedNotifier.addPublishListener((result) {
-      result.fold(
-        (view) => add(const DocumentEvent.deleted()),
-        (error) {},
-      );
-    });
-
-    listener.restoredNotifier.addPublishListener((result) {
-      result.fold(
-        (view) => add(const DocumentEvent.restore()),
-        (error) {},
-      );
-    });
-
-    listener.start();
+    listener.start(
+      onViewDeleted: (result) {
+        result.fold(
+          (view) => add(const DocumentEvent.deleted()),
+          (error) {},
+        );
+      },
+      onViewRestored: (result) {
+        result.fold(
+          (view) => add(const DocumentEvent.restore()),
+          (error) {},
+        );
+      },
+    );
     final result = await service.openDocument(docId: view.id);
     result.fold(
       (block) {

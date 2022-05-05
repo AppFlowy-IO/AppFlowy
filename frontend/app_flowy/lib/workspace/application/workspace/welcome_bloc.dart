@@ -17,7 +17,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
       (event, emit) async {
         await event.map(initial: (e) async {
           userListener.start(
-            workspaceListDidUpdate: (result) => add(WelcomeEvent.workspacesReveived(result)),
+            onWorkspaceListUpdated: (result) => add(WelcomeEvent.workspacesReveived(result)),
           );
           //
           await _fetchWorkspaces(emit);

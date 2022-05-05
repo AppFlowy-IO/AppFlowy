@@ -41,7 +41,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   void _startListening() {
     appListener.start(
-      viewsChanged: (result) {
+      onViewsChanged: (result) {
         result.fold(
           (views) {
             if (!isClosed) {
@@ -51,7 +51,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
           (error) => Log.error(error),
         );
       },
-      appUpdated: (app) {
+      onAppUpdated: (app) {
         if (!isClosed) {
           add(AppEvent.appDidUpdate(app));
         }
@@ -97,7 +97,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   Future<void> close() async {
-    await appListener.close();
+    await appListener.stop();
     return super.close();
   }
 
