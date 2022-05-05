@@ -19,9 +19,10 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     on<MenuUserEvent>((event, emit) async {
       await event.map(
         initial: (_) async {
-          userListener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
-          userListener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
-          userListener.start();
+          userListener.start(
+            profileDidUpdate: _profileUpdated,
+            workspaceListDidUpdate: _workspaceListUpdated,
+          );
           await _initUser();
         },
         fetchWorkspaces: (_FetchWorkspaces value) async {},
@@ -41,7 +42,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   void _profileUpdated(Either<UserProfile, FlowyError> userOrFailed) {}
-  void _workspacesUpdated(Either<List<Workspace>, FlowyError> workspacesOrFailed) {
+  void _workspaceListUpdated(Either<List<Workspace>, FlowyError> workspacesOrFailed) {
     // fetch workspaces
     // iUserImpl.fetchWorkspaces().then((result) {
     //   result.fold(

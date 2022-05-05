@@ -7,9 +7,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
-import 'package:app_flowy/workspace/application/home/prelude.dart';
 import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
@@ -45,7 +43,6 @@ void _resolveUserDeps(GetIt getIt) {
   getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<AuthService>()));
 
   getIt.registerFactory<SplashRoute>(() => SplashRoute());
-  getIt.registerFactory<HomeBloc>(() => HomeBloc());
   getIt.registerFactory<EditPannelBloc>(() => EditPannelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
@@ -56,10 +53,6 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
     (user, _) => UserListener(user: user),
-  );
-
-  getIt.registerFactoryParam<HomeListenBloc, UserProfile, void>(
-    (user, _) => HomeListenBloc(getIt<UserListener>(param1: user)),
   );
 
   //

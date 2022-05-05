@@ -16,6 +16,7 @@ class FolderNotification extends $pb.ProtobufEnum {
   static const FolderNotification WorkspaceUpdated = FolderNotification._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
   static const FolderNotification WorkspaceListUpdated = FolderNotification._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
   static const FolderNotification WorkspaceAppsChanged = FolderNotification._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceAppsChanged');
+  static const FolderNotification WorkspaceSetting = FolderNotification._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceSetting');
   static const FolderNotification AppUpdated = FolderNotification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
   static const FolderNotification AppViewsChanged = FolderNotification._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsChanged');
   static const FolderNotification ViewUpdated = FolderNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
@@ -31,6 +32,7 @@ class FolderNotification extends $pb.ProtobufEnum {
     WorkspaceUpdated,
     WorkspaceListUpdated,
     WorkspaceAppsChanged,
+    WorkspaceSetting,
     AppUpdated,
     AppViewsChanged,
     ViewUpdated,

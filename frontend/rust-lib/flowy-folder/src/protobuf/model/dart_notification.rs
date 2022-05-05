@@ -31,6 +31,7 @@ pub enum FolderNotification {
     WorkspaceUpdated = 12,
     WorkspaceListUpdated = 13,
     WorkspaceAppsChanged = 14,
+    WorkspaceSetting = 15,
     AppUpdated = 21,
     AppViewsChanged = 24,
     ViewUpdated = 31,
@@ -53,6 +54,7 @@ impl ::protobuf::ProtobufEnum for FolderNotification {
             12 => ::std::option::Option::Some(FolderNotification::WorkspaceUpdated),
             13 => ::std::option::Option::Some(FolderNotification::WorkspaceListUpdated),
             14 => ::std::option::Option::Some(FolderNotification::WorkspaceAppsChanged),
+            15 => ::std::option::Option::Some(FolderNotification::WorkspaceSetting),
             21 => ::std::option::Option::Some(FolderNotification::AppUpdated),
             24 => ::std::option::Option::Some(FolderNotification::AppViewsChanged),
             31 => ::std::option::Option::Some(FolderNotification::ViewUpdated),
@@ -72,6 +74,7 @@ impl ::protobuf::ProtobufEnum for FolderNotification {
             FolderNotification::WorkspaceUpdated,
             FolderNotification::WorkspaceListUpdated,
             FolderNotification::WorkspaceAppsChanged,
+            FolderNotification::WorkspaceSetting,
             FolderNotification::AppUpdated,
             FolderNotification::AppViewsChanged,
             FolderNotification::ViewUpdated,
@@ -107,14 +110,15 @@ impl ::protobuf::reflect::ProtobufValue for FolderNotification {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x17dart_notification.proto*\x9f\x02\n\x12FolderNotification\x12\x0b\n\
+    \n\x17dart_notification.proto*\xb5\x02\n\x12FolderNotification\x12\x0b\n\
     \x07Unknown\x10\0\x12\x17\n\x13UserCreateWorkspace\x10\n\x12\x17\n\x13Us\
     erDeleteWorkspace\x10\x0b\x12\x14\n\x10WorkspaceUpdated\x10\x0c\x12\x18\
     \n\x14WorkspaceListUpdated\x10\r\x12\x18\n\x14WorkspaceAppsChanged\x10\
-    \x0e\x12\x0e\n\nAppUpdated\x10\x15\x12\x13\n\x0fAppViewsChanged\x10\x18\
-    \x12\x0f\n\x0bViewUpdated\x10\x1f\x12\x0f\n\x0bViewDeleted\x10\x20\x12\
-    \x10\n\x0cViewRestored\x10!\x12\x14\n\x10UserUnauthorized\x10d\x12\x11\n\
-    \x0cTrashUpdated\x10\xe8\x07b\x06proto3\
+    \x0e\x12\x14\n\x10WorkspaceSetting\x10\x0f\x12\x0e\n\nAppUpdated\x10\x15\
+    \x12\x13\n\x0fAppViewsChanged\x10\x18\x12\x0f\n\x0bViewUpdated\x10\x1f\
+    \x12\x0f\n\x0bViewDeleted\x10\x20\x12\x10\n\x0cViewRestored\x10!\x12\x14\
+    \n\x10UserUnauthorized\x10d\x12\x11\n\x0cTrashUpdated\x10\xe8\x07b\x06pr\
+    oto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

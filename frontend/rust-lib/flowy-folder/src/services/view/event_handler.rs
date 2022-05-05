@@ -1,4 +1,5 @@
-use crate::services::AppController;
+use crate::manager::FolderManager;
+use crate::services::{notify_workspace_setting_did_change, AppController};
 use crate::{
     entities::{
         trash::Trash,
@@ -69,10 +70,12 @@ pub(crate) async fn delete_view_handler(
 
 pub(crate) async fn set_latest_view_handler(
     data: Data<ViewId>,
+    folder: AppData<Arc<FolderManager>>,
     controller: AppData<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
     let view_id: ViewId = data.into_inner();
     let _ = controller.set_latest_view(&view_id.value)?;
+    let _ = notify_workspace_setting_did_change(&folder, &view_id).await?;
     Ok(())
 }
 
