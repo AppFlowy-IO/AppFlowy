@@ -150,7 +150,14 @@ class _SelectOptionCell extends StatelessWidget {
         child: FlowyText.medium(cellStyle!.placeholder, fontSize: 14, color: theme.shader3),
       );
     } else {
-      final tags = selectOptions.map((option) => SelectOptionTag(option: option)).toList();
+      final tags = selectOptions
+          .map(
+            (option) => SelectOptionTag.fromSelectOption(
+              context: context,
+              option: option,
+            ),
+          )
+          .toList();
       child = Align(
         alignment: Alignment.centerLeft,
         child: Wrap(children: tags, spacing: 4, runSpacing: 4),

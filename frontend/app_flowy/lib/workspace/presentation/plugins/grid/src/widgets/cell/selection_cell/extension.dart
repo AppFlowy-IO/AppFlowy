@@ -60,17 +60,35 @@ extension SelectOptionColorExtension on SelectOptionColor {
 }
 
 class SelectOptionTag extends StatelessWidget {
-  final SelectOption option;
+  final String name;
+  final Color color;
   final bool isSelected;
-  const SelectOptionTag({required this.option, this.isSelected = false, Key? key}) : super(key: key);
+  const SelectOptionTag({
+    required this.name,
+    required this.color,
+    this.isSelected = false,
+    Key? key,
+  }) : super(key: key);
+
+  factory SelectOptionTag.fromSelectOption({
+    required BuildContext context,
+    required SelectOption option,
+    bool isSelected = false,
+  }) {
+    return SelectOptionTag(
+      name: option.name,
+      color: option.color.make(context),
+      isSelected: isSelected,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return ChoiceChip(
       pressElevation: 1,
-      label: FlowyText.medium(option.name, fontSize: 12),
-      selectedColor: option.color.make(context),
-      backgroundColor: option.color.make(context),
+      label: FlowyText.medium(name, fontSize: 12),
+      selectedColor: color,
+      backgroundColor: color,
       labelPadding: const EdgeInsets.symmetric(horizontal: 6),
       selected: true,
       onSelected: (_) {},
