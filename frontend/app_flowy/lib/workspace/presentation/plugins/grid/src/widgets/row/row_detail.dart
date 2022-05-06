@@ -6,9 +6,11 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.d
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
@@ -66,8 +68,32 @@ class _RowDetailPageState extends State<RowDetailPage> {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-        child: _PropertyList(cellCache: widget.cellCache),
+        child: Column(
+          children: [
+            SizedBox(
+                height: 40,
+                child: Row(
+                  children: const [Spacer(), _CloseButton()],
+                )),
+            Expanded(child: _PropertyList(cellCache: widget.cellCache)),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return FlowyIconButton(
+      width: 24,
+      onPressed: () => FlowyOverlay.of(context).remove(RowDetailPage.identifier()),
+      iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+      icon: svgWidget("home/close", color: theme.iconColor),
     );
   }
 }
