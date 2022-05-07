@@ -15,9 +15,9 @@ typedef RestoreViewNotifiedValue = Either<View, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
-  PublishNotifier<UpdateViewNotifiedValue> updatedNotifier = PublishNotifier<UpdateViewNotifiedValue>();
-  PublishNotifier<DeleteViewNotifyValue> deletedNotifier = PublishNotifier<DeleteViewNotifyValue>();
-  PublishNotifier<RestoreViewNotifiedValue> restoredNotifier = PublishNotifier<RestoreViewNotifiedValue>();
+  final PublishNotifier<UpdateViewNotifiedValue> _updatedViewNotifier = PublishNotifier();
+  final PublishNotifier<DeleteViewNotifyValue> _deletedNotifier = PublishNotifier();
+  final PublishNotifier<RestoreViewNotifiedValue> _restoredNotifier = PublishNotifier();
   FolderNotificationParser? _parser;
   View view;
 
@@ -25,7 +25,29 @@ class ViewListener {
     required this.view,
   });
 
-  void start() {
+  void start({
+    void Function(UpdateViewNotifiedValue)? onViewUpdated,
+    void Function(DeleteViewNotifyValue)? onViewDeleted,
+    void Function(RestoreViewNotifiedValue)? onViewRestored,
+  }) {
+    if (onViewUpdated != null) {
+      _updatedViewNotifier.addListener(() {
+        onViewUpdated(_updatedViewNotifier.currentValue!);
+      });
+    }
+
+    if (onViewDeleted != null) {
+      _deletedNotifier.addListener(() {
+        onViewDeleted(_deletedNotifier.currentValue!);
+      });
+    }
+
+    if (onViewRestored != null) {
+      _restoredNotifier.addListener(() {
+        onViewRestored(_restoredNotifier.currentValue!);
+      });
+    }
+
     _parser = FolderNotificationParser(
       id: view.id,
       callback: (ty, result) {
@@ -40,20 +62,20 @@ class ViewListener {
     switch (ty) {
       case FolderNotification.ViewUpdated:
         result.fold(
-          (payload) => updatedNotifier.value = left(View.fromBuffer(payload)),
-          (error) => updatedNotifier.value = right(error),
+          (payload) => _updatedViewNotifier.value = left(View.fromBuffer(payload)),
+          (error) => _updatedViewNotifier.value = right(error),
         );
         break;
       case FolderNotification.ViewDeleted:
         result.fold(
-          (payload) => deletedNotifier.value = left(View.fromBuffer(payload)),
-          (error) => deletedNotifier.value = right(error),
+          (payload) => _deletedNotifier.value = left(View.fromBuffer(payload)),
+          (error) => _deletedNotifier.value = right(error),
         );
         break;
       case FolderNotification.ViewRestored:
         result.fold(
-          (payload) => restoredNotifier.value = left(View.fromBuffer(payload)),
-          (error) => restoredNotifier.value = right(error),
+          (payload) => _restoredNotifier.value = left(View.fromBuffer(payload)),
+          (error) => _restoredNotifier.value = right(error),
         );
         break;
       default:
@@ -61,11 +83,11 @@ class ViewListener {
     }
   }
 
-  Future<void> close() async {
+  Future<void> stop() async {
     _parser = null;
     await _subscription?.cancel();
-    updatedNotifier.dispose();
-    deletedNotifier.dispose();
-    restoredNotifier.dispose();
+    _updatedViewNotifier.dispose();
+    _deletedNotifier.dispose();
+    _restoredNotifier.dispose();
   }
 }

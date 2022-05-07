@@ -24,9 +24,9 @@ class AppListener {
     required this.appId,
   });
 
-  void start({ViewsDidChangeCallback? viewsChanged, AppDidUpdateCallback? appUpdated}) {
-    _viewsChanged = viewsChanged;
-    _updated = appUpdated;
+  void start({ViewsDidChangeCallback? onViewsChanged, AppDidUpdateCallback? onAppUpdated}) {
+    _viewsChanged = onViewsChanged;
+    _updated = onAppUpdated;
     _parser = FolderNotificationParser(id: appId, callback: _bservableCallback);
     _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
@@ -60,7 +60,7 @@ class AppListener {
     }
   }
 
-  Future<void> close() async {
+  Future<void> stop() async {
     _parser = null;
     await _subscription?.cancel();
     _viewsChanged = null;

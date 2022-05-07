@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'field_service.dart';
 import 'package:dartz/dartz.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'field_editor_bloc.freezed.dart';
 
@@ -25,10 +26,13 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             await _getEditFieldContext(emit);
           },
           updateName: (_UpdateName value) {
-            emit(state.copyWith(fieldName: value.name));
+            final newContext = _updateEditContext(name: value.name);
+            emit(state.copyWith(editFieldContext: newContext));
           },
-          switchField: (_SwitchField value) {
-            emit(state.copyWith(field: Some(value.field), typeOptionData: value.typeOptionData));
+          updateField: (_UpdateField value) {
+            final newContext = _updateEditContext(field: value.field, typeOptionData: value.typeOptionData);
+
+            emit(state.copyWith(editFieldContext: newContext));
           },
           done: (_Done value) async {
             await _saveField(emit);
@@ -43,14 +47,49 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     return super.close();
   }
 
+  Option<EditFieldContext> _updateEditContext({
+    String? name,
+    Field? field,
+    List<int>? typeOptionData,
+  }) {
+    return state.editFieldContext.fold(
+      () => none(),
+      (context) {
+        context.freeze();
+        final newContext = context.rebuild((newContext) {
+          newContext.gridField.rebuild((newField) {
+            if (name != null) {
+              newField.name = name;
+            }
+
+            newContext.gridField = newField;
+          });
+
+          if (field != null) {
+            newContext.gridField = field;
+          }
+
+          if (typeOptionData != null) {
+            newContext.typeOptionData = typeOptionData;
+          }
+        });
+        service.insertField(
+          field: newContext.gridField,
+          typeOptionData: newContext.typeOptionData,
+        );
+
+        return Some(newContext);
+      },
+    );
+  }
+
   Future<void> _saveField(Emitter<FieldEditorState> emit) async {
-    await state.field.fold(
+    await state.editFieldContext.fold(
       () async => null,
-      (field) async {
-        field.name = state.fieldName;
+      (context) async {
         final result = await service.insertField(
-          field: field,
-          typeOptionData: state.typeOptionData,
+          field: context.gridField,
+          typeOptionData: context.typeOptionData,
         );
         result.fold((l) => null, (r) => null);
       },
@@ -60,11 +99,9 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   Future<void> _getEditFieldContext(Emitter<FieldEditorState> emit) async {
     final result = await _loader.load();
     result.fold(
-      (editContext) {
+      (context) {
         emit(state.copyWith(
-          field: Some(editContext.gridField),
-          typeOptionData: editContext.typeOptionData,
-          fieldName: editContext.gridField.name,
+          editFieldContext: Some(context),
         ));
       },
       (err) => Log.error(err),
@@ -76,25 +113,21 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
-  const factory FieldEditorEvent.switchField(Field field, Uint8List typeOptionData) = _SwitchField;
+  const factory FieldEditorEvent.updateField(Field field, Uint8List typeOptionData) = _UpdateField;
   const factory FieldEditorEvent.done() = _Done;
 }
 
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required String fieldName,
     required String gridId,
     required String errorText,
-    required Option<Field> field,
-    required List<int> typeOptionData,
+    required Option<EditFieldContext> editFieldContext,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(String gridId) => FieldEditorState(
         gridId: gridId,
-        fieldName: '',
-        field: none(),
+        editFieldContext: none(),
         errorText: '',
-        typeOptionData: List<int>.empty(),
       );
 }

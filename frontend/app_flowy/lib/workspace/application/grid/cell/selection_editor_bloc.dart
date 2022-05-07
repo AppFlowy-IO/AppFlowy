@@ -1,9 +1,13 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
+
+import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+
 import 'select_option_service.dart';
 
 part 'selection_editor_bloc.freezed.dart';
@@ -24,14 +28,19 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
             _startListening();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
+            final result = _makeOptions(state.filter, value.options);
             emit(state.copyWith(
               allOptions: value.options,
-              options: _makeOptions(state.filter, value.options),
+              options: result.options,
+              createOption: result.createOption,
               selectedOptions: value.selectedOptions,
             ));
           },
           newOption: (_NewOption value) {
             _createOption(value.optionName);
+            emit(state.copyWith(
+              filter: none(),
+            ));
           },
           deleteOption: (_DeleteOption value) {
             _deleteOption(value.option);
@@ -91,16 +100,37 @@ class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionE
   }
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
-    emit(state.copyWith(filter: optionName, options: _makeOptions(optionName, state.allOptions)));
+    final _MakeOptionResult result = _makeOptions(Some(optionName), state.allOptions);
+    emit(state.copyWith(
+      filter: Some(optionName),
+      options: result.options,
+      createOption: result.createOption,
+    ));
   }
 
-  List<SelectOption> _makeOptions(String filter, List<SelectOption> allOptions) {
+  _MakeOptionResult _makeOptions(Option<String> filter, List<SelectOption> allOptions) {
     final List<SelectOption> options = List.from(allOptions);
-    if (filter.isNotEmpty) {
-      options.retainWhere((option) => option.name.toLowerCase().contains(filter.toLowerCase()));
-    }
+    Option<String> createOption = filter;
 
-    return options;
+    filter.foldRight(null, (filter, previous) {
+      if (filter.isNotEmpty) {
+        options.retainWhere((option) {
+          final name = option.name.toLowerCase();
+          final lFilter = filter.toLowerCase();
+
+          if (name == lFilter) {
+            createOption = none();
+          }
+
+          return name.contains(lFilter);
+        });
+      }
+    });
+
+    return _MakeOptionResult(
+      options: options,
+      createOption: createOption,
+    );
   }
 
   void _startListening() {
@@ -135,7 +165,8 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
     required List<SelectOption> options,
     required List<SelectOption> allOptions,
     required List<SelectOption> selectedOptions,
-    required String filter,
+    required Option<String> createOption,
+    required Option<String> filter,
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(GridSelectOptionCellContext context) {
@@ -144,7 +175,18 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
       options: data?.options ?? [],
       allOptions: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
-      filter: "",
+      createOption: none(),
+      filter: none(),
     );
   }
+}
+
+class _MakeOptionResult {
+  List<SelectOption> options;
+  Option<String> createOption;
+
+  _MakeOptionResult({
+    required this.options,
+    required this.createOption,
+  });
 }

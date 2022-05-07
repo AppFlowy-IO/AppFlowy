@@ -1,3 +1,4 @@
+use crate::manager::FolderManager;
 use crate::{
     dart_notification::*,
     errors::*,
@@ -188,6 +189,44 @@ impl WorkspaceController {
         });
         Ok(())
     }
+}
+
+pub async fn notify_workspace_setting_did_change(
+    folder_manager: &Arc<FolderManager>,
+    view_id: &str,
+) -> FlowyResult<()> {
+    let user_id = folder_manager.user.user_id()?;
+    let token = folder_manager.user.token()?;
+    let workspace_id = get_current_workspace()?;
+
+    let workspace_setting = folder_manager
+        .persistence
+        .begin_transaction(|transaction| {
+            let workspace = folder_manager.workspace_controller.read_local_workspace(
+                workspace_id.clone(),
+                &user_id,
+                &transaction,
+            )?;
+
+            let setting = match transaction.read_view(view_id) {
+                Ok(latest_view) => CurrentWorkspaceSetting {
+                    workspace,
+                    latest_view: Some(latest_view),
+                },
+                Err(_) => CurrentWorkspaceSetting {
+                    workspace,
+                    latest_view: None,
+                },
+            };
+
+            Ok(setting)
+        })
+        .await?;
+
+    send_dart_notification(&token, FolderNotification::WorkspaceSetting)
+        .payload(workspace_setting)
+        .send();
+    Ok(())
 }
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";

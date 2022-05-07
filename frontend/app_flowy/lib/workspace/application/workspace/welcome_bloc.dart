@@ -16,8 +16,9 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     on<WelcomeEvent>(
       (event, emit) async {
         await event.map(initial: (e) async {
-          userListener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
-          userListener.start();
+          userListener.start(
+            onWorkspaceListUpdated: (result) => add(WelcomeEvent.workspacesReveived(result)),
+          );
           //
           await _fetchWorkspaces(emit);
         }, openWorkspace: (e) async {
@@ -73,10 +74,6 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
         return state.copyWith(successOrFailure: right(error));
       },
     ));
-  }
-
-  void _workspacesUpdated(Either<List<Workspace>, FlowyError> workspacesOrFail) {
-    add(WelcomeEvent.workspacesReveived(workspacesOrFail));
   }
 }
 

@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_pannel/pannel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -46,22 +45,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeListenBloc>(
-          create: (context) => getIt<HomeListenBloc>(param1: widget.user)..add(const HomeListenEvent.started()),
+        BlocProvider<HomeBloc>(
+          create: (context) {
+            return HomeBloc(widget.user, widget.workspaceSetting)..add(const HomeEvent.initial());
+          },
         ),
-        BlocProvider<HomeBloc>(create: (context) => getIt<HomeBloc>()),
       ],
       child: Scaffold(
         key: HomeScreen.scaffoldKey,
-        body: BlocListener<HomeListenBloc, HomeListenState>(
+        body: BlocListener<HomeBloc, HomeState>(
+          listenWhen: (p, c) => p.unauthorized != c.unauthorized,
           listener: (context, state) {
-            state.map(
-              loading: (_) {},
-              unauthorized: (unauthorized) {
-                // TODO: push to login screen when user token was invalid
-                Log.error("Push to login screen when user token was invalid");
-              },
-            );
+            if (state.unauthorized) {
+              Log.error("Push to login screen when user token was invalid");
+            }
           },
           child: BlocBuilder<HomeBloc, HomeState>(
             buildWhen: (previous, current) => previous != current,
@@ -73,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
                 // Colors.white,
-                child: _buildBody(state, context.read<HomeBloc>().state.forceCollapse),
+                child: _buildBody(state),
               );
             },
           ),
@@ -82,14 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(HomeState state, bool forceCollapse) {
+  Widget _buildBody(HomeState state) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final layout = HomeLayout(context, constraints, forceCollapse);
+        final layout = HomeLayout(context, constraints, state.forceCollapse);
         const homeStack = HomeStack();
         final menu = _buildHomeMenu(
           layout: layout,
           context: context,
+          state: state,
         );
         final editPannel = _buildEditPannel(
           homeState: state,
@@ -108,20 +106,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
-    if (initialView == null && widget.workspaceSetting.hasLatestView()) {
-      initialView = widget.workspaceSetting.latestView;
+  Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context, required HomeState state}) {
+    final workspaceSetting = state.workspaceSetting;
+    if (initialView == null && workspaceSetting.hasLatestView()) {
+      initialView = workspaceSetting.latestView;
       final plugin = makePlugin(pluginType: initialView!.pluginType, data: initialView);
       getIt<HomeStackManager>().setPlugin(plugin);
     }
 
     HomeMenu homeMenu = HomeMenu(
       user: widget.user,
-      workspaceSetting: widget.workspaceSetting,
+      workspaceSetting: workspaceSetting,
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
-    final latestView = widget.workspaceSetting.hasLatestView() ? widget.workspaceSetting.latestView : null;
+    final latestView = workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
     getIt<MenuSharedState>().latestOpenView = latestView;
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

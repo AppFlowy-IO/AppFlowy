@@ -18,6 +18,7 @@ const FolderNotification$json = const {
     const {'1': 'WorkspaceUpdated', '2': 12},
     const {'1': 'WorkspaceListUpdated', '2': 13},
     const {'1': 'WorkspaceAppsChanged', '2': 14},
+    const {'1': 'WorkspaceSetting', '2': 15},
     const {'1': 'AppUpdated', '2': 21},
     const {'1': 'AppViewsChanged', '2': 24},
     const {'1': 'ViewUpdated', '2': 31},
@@ -29,4 +30,4 @@ const FolderNotification$json = const {
 };
 
 /// Descriptor for `FolderNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List folderNotificationDescriptor = $convert.base64Decode('ChJGb2xkZXJOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA0SGAoUV29ya3NwYWNlQXBwc0NoYW5nZWQQDhIOCgpBcHBVcGRhdGVkEBUSEwoPQXBwVmlld3NDaGFuZ2VkEBgSDwoLVmlld1VwZGF0ZWQQHxIPCgtWaWV3RGVsZXRlZBAgEhAKDFZpZXdSZXN0b3JlZBAhEhQKEFVzZXJVbmF1dGhvcml6ZWQQZBIRCgxUcmFzaFVwZGF0ZWQQ6Ac=');
+final $typed_data.Uint8List folderNotificationDescriptor = $convert.base64Decode('ChJGb2xkZXJOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA0SGAoUV29ya3NwYWNlQXBwc0NoYW5nZWQQDhIUChBXb3Jrc3BhY2VTZXR0aW5nEA8SDgoKQXBwVXBkYXRlZBAVEhMKD0FwcFZpZXdzQ2hhbmdlZBAYEg8KC1ZpZXdVcGRhdGVkEB8SDwoLVmlld0RlbGV0ZWQQIBIQCgxWaWV3UmVzdG9yZWQQIRIUChBVc2VyVW5hdXRob3JpemVkEGQSEQoMVHJhc2hVcGRhdGVkEOgH');

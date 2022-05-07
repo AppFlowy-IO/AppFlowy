@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/application/grid/field/type_option/number_bl
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_switcher.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

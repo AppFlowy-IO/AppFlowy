@@ -104,9 +104,18 @@ class _OptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        final cells = state.options.map((option) {
+        List<Widget> cells = [];
+        cells.addAll(state.options.map((option) {
           return _SelectOptionCell(option, state.selectedOptions.contains(option));
-        }).toList();
+        }).toList());
+
+        state.createOption.fold(
+          () => null,
+          (createOption) {
+            cells.add(_CreateOptionCell(name: createOption));
+          },
+        );
+
         final list = ListView.separated(
           shrinkWrap: true,
           controller: ScrollController(),
@@ -119,7 +128,11 @@ class _OptionList extends StatelessWidget {
             return cells[index];
           },
         );
-        return list;
+
+        return Padding(
+          padding: const EdgeInsets.all(3.0),
+          child: list,
+        );
       },
     );
   }
@@ -177,6 +190,30 @@ class _Title extends StatelessWidget {
   }
 }
 
+class _CreateOptionCell extends StatelessWidget {
+  final String name;
+  const _CreateOptionCell({required this.name, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return Row(
+      children: [
+        FlowyText.medium(
+          LocaleKeys.grid_selectOption_create.tr(),
+          fontSize: 12,
+          color: theme.shader3,
+        ),
+        const HSpace(10),
+        SelectOptionTag(
+          name: name,
+          color: theme.shader6,
+        ),
+      ],
+    );
+  }
+}
+
 class _SelectOptionCell extends StatelessWidget {
   final SelectOption option;
   final bool isSelected;
@@ -206,7 +243,11 @@ class _SelectOptionCell extends StatelessWidget {
       style: HoverStyle(hoverColor: theme.hover),
       builder: (_, onHover) {
         List<Widget> children = [
-          SelectOptionTag(option: option, isSelected: isSelected),
+          SelectOptionTag(
+            name: option.name,
+            color: option.color.make(context),
+            isSelected: isSelected,
+          ),
           const Spacer(),
         ];
 
@@ -223,10 +264,7 @@ class _SelectOptionCell extends StatelessWidget {
           ));
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Row(children: children),
-        );
+        return Row(children: children);
       },
     );
   }

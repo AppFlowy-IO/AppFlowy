@@ -23,7 +23,7 @@ GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {
     case FieldType.Checkbox:
       return CheckboxCell(cellContextBuilder: cellContextBuilder, key: key);
     case FieldType.DateTime:
-      return DateCell(cellContextBuilder: cellContextBuilder, key: key);
+      return DateCell(cellContextBuilder: cellContextBuilder, key: key, style: style);
     case FieldType.SingleSelect:
       return SingleSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
     case FieldType.MultiSelect:

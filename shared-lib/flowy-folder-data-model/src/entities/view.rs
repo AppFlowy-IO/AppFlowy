@@ -201,6 +201,14 @@ impl std::convert::From<&str> for ViewId {
     }
 }
 
+impl std::ops::Deref for ViewId {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct RepeatedViewId {
     #[pb(index = 1)]

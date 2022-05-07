@@ -76,7 +76,7 @@ class SelectOptionTextField extends StatelessWidget {
                 borderRadius: Corners.s10Border,
               ),
               isDense: true,
-              prefixIcon: _renderTags(sc),
+              prefixIcon: _renderTags(context, sc),
               hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
               prefixIconConstraints: BoxConstraints(maxWidth: distanceToText),
               focusedBorder: OutlineInputBorder(
@@ -90,12 +90,14 @@ class SelectOptionTextField extends StatelessWidget {
     );
   }
 
-  Widget? _renderTags(ScrollController sc) {
+  Widget? _renderTags(BuildContext context, ScrollController sc) {
     if (selectedOptionMap.isEmpty) {
       return null;
     }
 
-    final children = selectedOptionMap.values.map((option) => SelectOptionTag(option: option)).toList();
+    final children = selectedOptionMap.values
+        .map((option) => SelectOptionTag.fromSelectOption(context: context, option: option))
+        .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(

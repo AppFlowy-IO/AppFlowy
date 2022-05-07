@@ -85,7 +85,17 @@ impl CellDataOperation for NumberTypeOption {
 
             let cell_data = type_option_cell_data.data;
             match self.format {
-                NumberFormat::Number => cell_data.parse::<i64>().map_or(String::new(), |v| v.to_string()),
+                NumberFormat::Number => {
+                    if let Ok(v) = cell_data.parse::<f64>() {
+                        return v.to_string();
+                    }
+
+                    if let Ok(v) = cell_data.parse::<i64>() {
+                        return v.to_string();
+                    }
+
+                    return String::new();
+                }
                 NumberFormat::Percent => cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string()),
                 _ => self.money_from_str(&cell_data),
             }
@@ -100,10 +110,13 @@ impl CellDataOperation for NumberTypeOption {
         _cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.into();
-        let data = self.strip_symbol(changeset);
+        let mut data = changeset.trim().to_string();
 
-        if !data.chars().all(char::is_numeric) {
-            return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+        if self.format != NumberFormat::Number {
+            data = self.strip_symbol(data);
+            if !data.chars().all(char::is_numeric) {
+                return Err(FlowyError::invalid_data().context("Should only contain numbers"));
+            }
         }
 
         Ok(TypeOptionCellData::new(&data, self.field_type()).json())
@@ -157,7 +170,7 @@ impl NumberTypeOption {
     }
 }
 
-#[derive(Clone, Copy, Debug, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum NumberFormat {
     Number = 0,
     USD = 1,

@@ -7,9 +7,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
-import 'package:app_flowy/workspace/application/home/prelude.dart';
 import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
@@ -17,6 +15,7 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show EditFieldContext;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -44,7 +43,6 @@ void _resolveUserDeps(GetIt getIt) {
   getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<AuthService>()));
 
   getIt.registerFactory<SplashRoute>(() => SplashRoute());
-  getIt.registerFactory<HomeBloc>(() => HomeBloc());
   getIt.registerFactory<EditPannelBloc>(() => EditPannelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
@@ -55,10 +53,6 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
     (user, _) => UserListener(user: user),
-  );
-
-  getIt.registerFactoryParam<HomeListenBloc, UserProfile, void>(
-    (user, _) => HomeListenBloc(getIt<UserListener>(param1: user)),
   );
 
   //
@@ -201,8 +195,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldSwitcherBloc, SwitchFieldContext, void>(
-    (context, _) => FieldSwitcherBloc(context),
+  getIt.registerFactoryParam<FieldEditorPannelBloc, EditFieldContext, void>(
+    (context, _) => FieldEditorPannelBloc(context),
   );
 
   getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(

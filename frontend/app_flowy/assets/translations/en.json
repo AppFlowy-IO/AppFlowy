@@ -181,6 +181,7 @@
       "textPlaceholder": "Empty"
     },
     "selectOption": {
+      "create": "Create",
       "purpleColor": "Purple",
       "pinkColor": "Pink",
       "lightPinkColor": "Light Pink",

@@ -316,7 +316,11 @@ impl ClientGridEditor {
 
         let cell_data_changeset = changeset.data.unwrap();
         let cell_meta = self.get_cell_meta(&changeset.row_id, &changeset.field_id).await?;
-        tracing::trace!("{}: {:?}", &changeset.field_id, cell_meta);
+        tracing::trace!(
+            "field changeset: id:{} / value:{}",
+            &changeset.field_id,
+            cell_data_changeset
+        );
         match self.grid_pad.read().await.get_field_meta(&changeset.field_id) {
             None => {
                 let msg = format!("Field not found with id: {}", &changeset.field_id);
