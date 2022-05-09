@@ -490,8 +490,18 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
   void clearFieldType() => clearField(3);
 }
 
+enum EditFieldPayload_OneOfFieldId {
+  fieldId, 
+  notSet
+}
+
 class EditFieldPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, EditFieldPayload_OneOfFieldId> _EditFieldPayload_OneOfFieldIdByTag = {
+    2 : EditFieldPayload_OneOfFieldId.fieldId,
+    0 : EditFieldPayload_OneOfFieldId.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditFieldPayload', createEmptyInstance: create)
+    ..oo(0, [2])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..e<FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
@@ -536,6 +546,9 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static EditFieldPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EditFieldPayload>(create);
   static EditFieldPayload? _defaultInstance;
+
+  EditFieldPayload_OneOfFieldId whichOneOfFieldId() => _EditFieldPayload_OneOfFieldIdByTag[$_whichOneof(0)]!;
+  void clearOneOfFieldId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);

@@ -64,13 +64,13 @@ pub enum GridEvent {
     #[event(input = "FieldIdentifierPayload")]
     DuplicateField = 15,
 
-    #[event(input = "GetEditFieldContextPayload", output = "EditFieldContext")]
+    #[event(input = "EditFieldPayload", output = "EditFieldContext")]
     GetEditFieldContext = 16,
 
     #[event(input = "MoveItemPayload")]
     MoveItem = 17,
 
-    #[event(input = "GetEditFieldContextPayload", output = "FieldTypeOptionData")]
+    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
     GetFieldTypeOption = 18,
 
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]

@@ -1644,8 +1644,9 @@ impl ::protobuf::reflect::ProtobufValue for GetEditFieldContextPayload {
 pub struct EditFieldPayload {
     // message fields
     pub grid_id: ::std::string::String,
-    pub field_id: ::std::string::String,
     pub field_type: FieldType,
+    // message oneof groups
+    pub one_of_field_id: ::std::option::Option<EditFieldPayload_oneof_one_of_field_id>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1655,6 +1656,11 @@ impl<'a> ::std::default::Default for &'a EditFieldPayload {
     fn default() -> &'a EditFieldPayload {
         <EditFieldPayload as ::protobuf::Message>::default_instance()
     }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum EditFieldPayload_oneof_one_of_field_id {
+    field_id(::std::string::String),
 }
 
 impl EditFieldPayload {
@@ -1692,26 +1698,49 @@ impl EditFieldPayload {
 
 
     pub fn get_field_id(&self) -> &str {
-        &self.field_id
+        match self.one_of_field_id {
+            ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(ref v)) => v,
+            _ => "",
+        }
     }
     pub fn clear_field_id(&mut self) {
-        self.field_id.clear();
+        self.one_of_field_id = ::std::option::Option::None;
+    }
+
+    pub fn has_field_id(&self) -> bool {
+        match self.one_of_field_id {
+            ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(..)) => true,
+            _ => false,
+        }
     }
 
     // Param is passed by value, moved
     pub fn set_field_id(&mut self, v: ::std::string::String) {
-        self.field_id = v;
+        self.one_of_field_id = ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(v))
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
     pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.field_id
+        if let ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(_)) = self.one_of_field_id {
+        } else {
+            self.one_of_field_id = ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(::std::string::String::new()));
+        }
+        match self.one_of_field_id {
+            ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(ref mut v)) => v,
+            _ => panic!(),
+        }
     }
 
     // Take field
     pub fn take_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+        if self.has_field_id() {
+            match self.one_of_field_id.take() {
+                ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
     }
 
     // .FieldType field_type = 3;
@@ -1743,7 +1772,10 @@ impl ::protobuf::Message for EditFieldPayload {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_field_id = ::std::option::Option::Some(EditFieldPayload_oneof_one_of_field_id::field_id(is.read_string()?));
                 },
                 3 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.field_type, 3, &mut self.unknown_fields)?
@@ -1763,11 +1795,15 @@ impl ::protobuf::Message for EditFieldPayload {
         if !self.grid_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.grid_id);
         }
-        if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.field_id);
-        }
         if self.field_type != FieldType::RichText {
             my_size += ::protobuf::rt::enum_size(3, self.field_type);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_field_id {
+            match v {
+                &EditFieldPayload_oneof_one_of_field_id::field_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(2, &v);
+                },
+            };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1778,11 +1814,15 @@ impl ::protobuf::Message for EditFieldPayload {
         if !self.grid_id.is_empty() {
             os.write_string(1, &self.grid_id)?;
         }
-        if !self.field_id.is_empty() {
-            os.write_string(2, &self.field_id)?;
-        }
         if self.field_type != FieldType::RichText {
             os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.field_type))?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_field_id {
+            match v {
+                &EditFieldPayload_oneof_one_of_field_id::field_id(ref v) => {
+                    os.write_string(2, v)?;
+                },
+            };
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1827,10 +1867,10 @@ impl ::protobuf::Message for EditFieldPayload {
                 |m: &EditFieldPayload| { &m.grid_id },
                 |m: &mut EditFieldPayload| { &mut m.grid_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "field_id",
-                |m: &EditFieldPayload| { &m.field_id },
-                |m: &mut EditFieldPayload| { &mut m.field_id },
+                EditFieldPayload::has_field_id,
+                EditFieldPayload::get_field_id,
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<FieldType>>(
                 "field_type",
@@ -1854,7 +1894,7 @@ impl ::protobuf::Message for EditFieldPayload {
 impl ::protobuf::Clear for EditFieldPayload {
     fn clear(&mut self) {
         self.grid_id.clear();
-        self.field_id.clear();
+        self.one_of_field_id = ::std::option::Option::None;
         self.field_type = FieldType::RichText;
         self.unknown_fields.clear();
     }
@@ -7928,78 +7968,79 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x05index\x18\x02\x20\x01(\x05R\x05index\"\x90\x01\n\x1aGetEditFieldCont\
     extPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x1b\n\
     \x08field_id\x18\x02\x20\x01(\tH\0R\x07fieldId\x12)\n\nfield_type\x18\
-    \x03\x20\x01(\x0e2\n.FieldTypeR\tfieldTypeB\x11\n\x0fone_of_field_id\"q\
-    \n\x10EditFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridI\
-    d\x12\x19\n\x08field_id\x18\x02\x20\x01(\tR\x07fieldId\x12)\n\nfield_typ\
-    e\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tfieldType\"|\n\x10EditFieldContext\
-    \x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12%\n\ngrid_field\
-    \x18\x02\x20\x01(\x0b2\x06.FieldR\tgridField\x12(\n\x10type_option_data\
-    \x18\x03\x20\x01(\x0cR\x0etypeOptionData\"Z\n\x13FieldTypeOptionData\x12\
-    \x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12(\n\x10type_option_\
-    data\x18\x02\x20\x01(\x0cR\x0etypeOptionData\"-\n\rRepeatedField\x12\x1c\
-    \n\x05items\x18\x01\x20\x03(\x0b2\x06.FieldR\x05items\"7\n\x12RepeatedFi\
-    eldOrder\x12!\n\x05items\x18\x01\x20\x03(\x0b2\x0b.FieldOrderR\x05items\
-    \"T\n\x08RowOrder\x12\x15\n\x06row_id\x18\x01\x20\x01(\tR\x05rowId\x12\
-    \x19\n\x08block_id\x18\x02\x20\x01(\tR\x07blockId\x12\x16\n\x06height\
-    \x18\x03\x20\x01(\x05R\x06height\"\xb8\x01\n\x03Row\x12\x0e\n\x02id\x18\
-    \x01\x20\x01(\tR\x02id\x12@\n\x10cell_by_field_id\x18\x02\x20\x03(\x0b2\
-    \x17.Row.CellByFieldIdEntryR\rcellByFieldId\x12\x16\n\x06height\x18\x03\
-    \x20\x01(\x05R\x06height\x1aG\n\x12CellByFieldIdEntry\x12\x10\n\x03key\
-    \x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05value\x18\x02\x20\x01(\x0b2\x05\
-    .CellR\x05value:\x028\x01\")\n\x0bRepeatedRow\x12\x1a\n\x05items\x18\x01\
-    \x20\x03(\x0b2\x04.RowR\x05items\"5\n\x11RepeatedGridBlock\x12\x20\n\x05\
-    items\x18\x01\x20\x03(\x0b2\n.GridBlockR\x05items\"U\n\x0eGridBlockOrder\
-    \x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07blockId\x12(\n\nrow_orders\
-    \x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrders\"_\n\rIndexRowOrder\x12&\n\
-    \trow_order\x18\x01\x20\x01(\x0b2\t.RowOrderR\x08rowOrder\x12\x16\n\x05i\
-    ndex\x18\x02\x20\x01(\x05H\0R\x05indexB\x0e\n\x0cone_of_index\"Q\n\x0fUp\
-    datedRowOrder\x12&\n\trow_order\x18\x01\x20\x01(\x0b2\t.RowOrderR\x08row\
-    Order\x12\x16\n\x03row\x18\x02\x20\x01(\x0b2\x04.RowR\x03row\"\xc6\x01\n\
-    \x11GridRowsChangeset\x12\x19\n\x08block_id\x18\x01\x20\x01(\tR\x07block\
-    Id\x123\n\rinserted_rows\x18\x02\x20\x03(\x0b2\x0e.IndexRowOrderR\x0cins\
-    ertedRows\x12,\n\x0cdeleted_rows\x18\x03\x20\x03(\x0b2\t.RowOrderR\x0bde\
-    letedRows\x123\n\x0cupdated_rows\x18\x04\x20\x03(\x0b2\x10.UpdatedRowOrd\
-    erR\x0bupdatedRows\"E\n\tGridBlock\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
-    \x02id\x12(\n\nrow_orders\x18\x02\x20\x03(\x0b2\t.RowOrderR\trowOrders\"\
-    ;\n\x04Cell\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x18\
-    \n\x07content\x18\x02\x20\x01(\tR\x07content\"+\n\x0cRepeatedCell\x12\
-    \x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.CellR\x05items\"'\n\x11CreateG\
-    ridPayload\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\"\x1e\n\x06Grid\
-    Id\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"#\n\x0bGridBlockId\
-    \x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\"f\n\x10CreateRowPayloa\
-    d\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\"\n\x0cstart_ro\
-    w_id\x18\x02\x20\x01(\tH\0R\nstartRowIdB\x15\n\x13one_of_start_row_id\"\
-    \xb6\x01\n\x12InsertFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\t\
-    R\x06gridId\x12\x1c\n\x05field\x18\x02\x20\x01(\x0b2\x06.FieldR\x05field\
-    \x12(\n\x10type_option_data\x18\x03\x20\x01(\x0cR\x0etypeOptionData\x12&\
-    \n\x0estart_field_id\x18\x04\x20\x01(\tH\0R\x0cstartFieldIdB\x17\n\x15on\
-    e_of_start_field_id\"d\n\x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\
-    \x01\x20\x01(\tR\x06gridId\x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\
-    \x13.RepeatedFieldOrderR\x0bfieldOrders\"e\n\x16QueryGridBlocksPayload\
-    \x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_orde\
-    rs\x18\x02\x20\x03(\x0b2\x0f.GridBlockOrderR\x0bblockOrders\"\xa8\x03\n\
-    \x15FieldChangesetPayload\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07f\
-    ieldId\x12\x17\n\x07grid_id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\x04n\
-    ame\x18\x03\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\
-    \x01R\x04desc\x12+\n\nfield_type\x18\x05\x20\x01(\x0e2\n.FieldTypeH\x02R\
-    \tfieldType\x12\x18\n\x06frozen\x18\x06\x20\x01(\x08H\x03R\x06frozen\x12\
-    \x20\n\nvisibility\x18\x07\x20\x01(\x08H\x04R\nvisibility\x12\x16\n\x05w\
-    idth\x18\x08\x20\x01(\x05H\x05R\x05width\x12*\n\x10type_option_data\x18\
-    \t\x20\x01(\x0cH\x06R\x0etypeOptionDataB\r\n\x0bone_of_nameB\r\n\x0bone_\
-    of_descB\x13\n\x11one_of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one_\
-    of_visibilityB\x0e\n\x0cone_of_widthB\x19\n\x17one_of_type_option_data\"\
-    \x9c\x01\n\x0fMoveItemPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
-    \x06gridId\x12\x17\n\x07item_id\x18\x02\x20\x01(\tR\x06itemId\x12\x1d\n\
-    \nfrom_index\x18\x03\x20\x01(\x05R\tfromIndex\x12\x19\n\x08to_index\x18\
-    \x04\x20\x01(\x05R\x07toIndex\x12\x1d\n\x02ty\x18\x05\x20\x01(\x0e2\r.Mo\
-    veItemTypeR\x02ty\"\x7f\n\rCellChangeset\x12\x17\n\x07grid_id\x18\x01\
-    \x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\
-    \x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\
-    \x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data**\n\x0cMoveItemType\
-    \x12\r\n\tMoveField\x10\0\x12\x0b\n\x07MoveRow\x10\x01*d\n\tFieldType\
-    \x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08Date\
-    Time\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\
-    \x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    \x03\x20\x01(\x0e2\n.FieldTypeR\tfieldTypeB\x11\n\x0fone_of_field_id\"\
+    \x86\x01\n\x10EditFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\
+    \x06gridId\x12\x1b\n\x08field_id\x18\x02\x20\x01(\tH\0R\x07fieldId\x12)\
+    \n\nfield_type\x18\x03\x20\x01(\x0e2\n.FieldTypeR\tfieldTypeB\x11\n\x0fo\
+    ne_of_field_id\"|\n\x10EditFieldContext\x12\x17\n\x07grid_id\x18\x01\x20\
+    \x01(\tR\x06gridId\x12%\n\ngrid_field\x18\x02\x20\x01(\x0b2\x06.FieldR\t\
+    gridField\x12(\n\x10type_option_data\x18\x03\x20\x01(\x0cR\x0etypeOption\
+    Data\"Z\n\x13FieldTypeOptionData\x12\x19\n\x08field_id\x18\x01\x20\x01(\
+    \tR\x07fieldId\x12(\n\x10type_option_data\x18\x02\x20\x01(\x0cR\x0etypeO\
+    ptionData\"-\n\rRepeatedField\x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\
+    \x06.FieldR\x05items\"7\n\x12RepeatedFieldOrder\x12!\n\x05items\x18\x01\
+    \x20\x03(\x0b2\x0b.FieldOrderR\x05items\"T\n\x08RowOrder\x12\x15\n\x06ro\
+    w_id\x18\x01\x20\x01(\tR\x05rowId\x12\x19\n\x08block_id\x18\x02\x20\x01(\
+    \tR\x07blockId\x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\"\xb8\
+    \x01\n\x03Row\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12@\n\x10cell_b\
+    y_field_id\x18\x02\x20\x03(\x0b2\x17.Row.CellByFieldIdEntryR\rcellByFiel\
+    dId\x12\x16\n\x06height\x18\x03\x20\x01(\x05R\x06height\x1aG\n\x12CellBy\
+    FieldIdEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x1b\n\x05va\
+    lue\x18\x02\x20\x01(\x0b2\x05.CellR\x05value:\x028\x01\")\n\x0bRepeatedR\
+    ow\x12\x1a\n\x05items\x18\x01\x20\x03(\x0b2\x04.RowR\x05items\"5\n\x11Re\
+    peatedGridBlock\x12\x20\n\x05items\x18\x01\x20\x03(\x0b2\n.GridBlockR\
+    \x05items\"U\n\x0eGridBlockOrder\x12\x19\n\x08block_id\x18\x01\x20\x01(\
+    \tR\x07blockId\x12(\n\nrow_orders\x18\x02\x20\x03(\x0b2\t.RowOrderR\trow\
+    Orders\"_\n\rIndexRowOrder\x12&\n\trow_order\x18\x01\x20\x01(\x0b2\t.Row\
+    OrderR\x08rowOrder\x12\x16\n\x05index\x18\x02\x20\x01(\x05H\0R\x05indexB\
+    \x0e\n\x0cone_of_index\"Q\n\x0fUpdatedRowOrder\x12&\n\trow_order\x18\x01\
+    \x20\x01(\x0b2\t.RowOrderR\x08rowOrder\x12\x16\n\x03row\x18\x02\x20\x01(\
+    \x0b2\x04.RowR\x03row\"\xc6\x01\n\x11GridRowsChangeset\x12\x19\n\x08bloc\
+    k_id\x18\x01\x20\x01(\tR\x07blockId\x123\n\rinserted_rows\x18\x02\x20\
+    \x03(\x0b2\x0e.IndexRowOrderR\x0cinsertedRows\x12,\n\x0cdeleted_rows\x18\
+    \x03\x20\x03(\x0b2\t.RowOrderR\x0bdeletedRows\x123\n\x0cupdated_rows\x18\
+    \x04\x20\x03(\x0b2\x10.UpdatedRowOrderR\x0bupdatedRows\"E\n\tGridBlock\
+    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12(\n\nrow_orders\x18\x02\
+    \x20\x03(\x0b2\t.RowOrderR\trowOrders\";\n\x04Cell\x12\x19\n\x08field_id\
+    \x18\x01\x20\x01(\tR\x07fieldId\x12\x18\n\x07content\x18\x02\x20\x01(\tR\
+    \x07content\"+\n\x0cRepeatedCell\x12\x1b\n\x05items\x18\x01\x20\x03(\x0b\
+    2\x05.CellR\x05items\"'\n\x11CreateGridPayload\x12\x12\n\x04name\x18\x01\
+    \x20\x01(\tR\x04name\"\x1e\n\x06GridId\x12\x14\n\x05value\x18\x01\x20\
+    \x01(\tR\x05value\"#\n\x0bGridBlockId\x12\x14\n\x05value\x18\x01\x20\x01\
+    (\tR\x05value\"f\n\x10CreateRowPayload\x12\x17\n\x07grid_id\x18\x01\x20\
+    \x01(\tR\x06gridId\x12\"\n\x0cstart_row_id\x18\x02\x20\x01(\tH\0R\nstart\
+    RowIdB\x15\n\x13one_of_start_row_id\"\xb6\x01\n\x12InsertFieldPayload\
+    \x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x1c\n\x05field\
+    \x18\x02\x20\x01(\x0b2\x06.FieldR\x05field\x12(\n\x10type_option_data\
+    \x18\x03\x20\x01(\x0cR\x0etypeOptionData\x12&\n\x0estart_field_id\x18\
+    \x04\x20\x01(\tH\0R\x0cstartFieldIdB\x17\n\x15one_of_start_field_id\"d\n\
+    \x11QueryFieldPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\
+    \x126\n\x0cfield_orders\x18\x02\x20\x01(\x0b2\x13.RepeatedFieldOrderR\
+    \x0bfieldOrders\"e\n\x16QueryGridBlocksPayload\x12\x17\n\x07grid_id\x18\
+    \x01\x20\x01(\tR\x06gridId\x122\n\x0cblock_orders\x18\x02\x20\x03(\x0b2\
+    \x0f.GridBlockOrderR\x0bblockOrders\"\xa8\x03\n\x15FieldChangesetPayload\
+    \x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\x12\x17\n\x07grid_\
+    id\x18\x02\x20\x01(\tR\x06gridId\x12\x14\n\x04name\x18\x03\x20\x01(\tH\0\
+    R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\x01R\x04desc\x12+\n\nfie\
+    ld_type\x18\x05\x20\x01(\x0e2\n.FieldTypeH\x02R\tfieldType\x12\x18\n\x06\
+    frozen\x18\x06\x20\x01(\x08H\x03R\x06frozen\x12\x20\n\nvisibility\x18\
+    \x07\x20\x01(\x08H\x04R\nvisibility\x12\x16\n\x05width\x18\x08\x20\x01(\
+    \x05H\x05R\x05width\x12*\n\x10type_option_data\x18\t\x20\x01(\x0cH\x06R\
+    \x0etypeOptionDataB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x13\n\x11one\
+    _of_field_typeB\x0f\n\rone_of_frozenB\x13\n\x11one_of_visibilityB\x0e\n\
+    \x0cone_of_widthB\x19\n\x17one_of_type_option_data\"\x9c\x01\n\x0fMoveIt\
+    emPayload\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x17\n\
+    \x07item_id\x18\x02\x20\x01(\tR\x06itemId\x12\x1d\n\nfrom_index\x18\x03\
+    \x20\x01(\x05R\tfromIndex\x12\x19\n\x08to_index\x18\x04\x20\x01(\x05R\
+    \x07toIndex\x12\x1d\n\x02ty\x18\x05\x20\x01(\x0e2\r.MoveItemTypeR\x02ty\
+    \"\x7f\n\rCellChangeset\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06grid\
+    Id\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_i\
+    d\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\x04data\x18\x04\x20\x01(\tH\0\
+    R\x04dataB\r\n\x0bone_of_data**\n\x0cMoveItemType\x12\r\n\tMoveField\x10\
+    \0\x12\x0b\n\x07MoveRow\x10\x01*d\n\tFieldType\x12\x0c\n\x08RichText\x10\
+    \0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0c\
+    SingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Check\
+    box\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

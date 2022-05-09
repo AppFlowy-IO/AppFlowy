@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'cell_service.dart';
-
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
@@ -72,7 +71,6 @@ class DateCellState with _$DateCellState {
   const factory DateCellState({
     required String content,
     required Field field,
-    DateTime? selectedDay,
   }) = _DateCellState;
 
   factory DateCellState.initial(GridCellContext context) => DateCellState(

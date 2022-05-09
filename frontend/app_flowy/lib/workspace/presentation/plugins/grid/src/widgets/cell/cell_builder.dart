@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'checkbox_cell.dart';
-import 'date_cell.dart';
+import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';

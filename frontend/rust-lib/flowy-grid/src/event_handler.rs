@@ -87,20 +87,15 @@ pub(crate) async fn switch_to_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<EditFieldContext, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
+    if params.field_id.is_none() {
+        return Err(ErrorCode::FieldIdIsEmpty.into());
+    }
+    let field_id = params.field_id.unwrap();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    editor
-        .switch_to_field_type(&params.field_id, &params.field_type)
-        .await?;
-
-    let field_meta = editor.get_field_meta(&params.field_id).await;
-    let edit_context = make_field_edit_context(
-        &params.grid_id,
-        Some(params.field_id),
-        params.field_type,
-        editor,
-        field_meta,
-    )
-    .await?;
+    editor.switch_to_field_type(&field_id, &params.field_type).await?;
+    let field_meta = editor.get_field_meta(&field_id).await;
+    let edit_context =
+        make_edit_field_context(&params.grid_id, Some(field_id), params.field_type, editor, field_meta).await?;
     data_result(edit_context)
 }
 
@@ -117,23 +112,23 @@ pub(crate) async fn duplicate_field_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_field_context_handler(
-    data: Data<GetEditFieldContextPayload>,
+    data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<EditFieldContext, FlowyError> {
-    let params = data.into_inner();
+    let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let edit_context =
-        make_field_edit_context(&params.grid_id, params.field_id, params.field_type, editor, None).await?;
+        make_edit_field_context(&params.grid_id, params.field_id, params.field_type, editor, None).await?;
 
     data_result(edit_context)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
-    data: Data<GetEditFieldContextPayload>,
+    data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionData, FlowyError> {
-    let params = data.into_inner();
+    let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_meta = get_or_create_field_meta(params.field_id, &params.field_type, editor).await?;
     let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
@@ -155,7 +150,7 @@ pub(crate) async fn move_item_handler(
     Ok(())
 }
 
-async fn make_field_edit_context(
+async fn make_edit_field_context(
     grid_id: &str,
     field_id: Option<String>,
     field_type: FieldType,

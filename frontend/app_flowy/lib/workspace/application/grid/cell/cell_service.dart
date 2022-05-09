@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -12,7 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 
 part 'cell_service.freezed.dart';
@@ -59,15 +59,16 @@ class GridCellContextBuilder {
 }
 
 // ignore: must_be_immutable
-class GridCellContext<C> extends Equatable {
+class GridCellContext<T> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
   final GridCellCacheKey _cacheKey;
-  final GridCellDataLoader<C> cellDataLoader;
+  final GridCellDataLoader<T> cellDataLoader;
   final CellService _cellService = CellService();
+  final FieldService _fieldService;
 
   late final CellListener _cellListener;
-  late final ValueNotifier<C?> _cellDataNotifier;
+  late final ValueNotifier<T?> _cellDataNotifier;
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
   Timer? _delayOperation;
@@ -76,9 +77,10 @@ class GridCellContext<C> extends Equatable {
     required this.gridCell,
     required this.cellCache,
     required this.cellDataLoader,
-  }) : _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
+  })  : _fieldService = FieldService(gridId: gridCell.gridId, fieldId: gridCell.field.id),
+        _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
 
-  GridCellContext<C> clone() {
+  GridCellContext<T> clone() {
     return GridCellContext(
       gridCell: gridCell,
       cellDataLoader: cellDataLoader,
@@ -98,16 +100,14 @@ class GridCellContext<C> extends Equatable {
 
   FieldType get fieldType => gridCell.field.fieldType;
 
-  GridCellCacheKey get cacheKey => _cacheKey;
-
-  VoidCallback? startListening({required void Function(C) onCellChanged}) {
+  VoidCallback? startListening({required void Function(T) onCellChanged}) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
     }
 
     isListening = true;
-    _cellDataNotifier = ValueNotifier(cellCache.get(cacheKey));
+    _cellDataNotifier = ValueNotifier(cellCache.get(_cacheKey));
     _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id);
     _cellListener.start(onCellChanged: (result) {
       result.fold(
@@ -120,12 +120,12 @@ class GridCellContext<C> extends Equatable {
       _onFieldChangedFn = () {
         _loadData();
       };
-      cellCache.addListener(cacheKey, _onFieldChangedFn!);
+      cellCache.addListener(_cacheKey, _onFieldChangedFn!);
     }
 
     onCellChangedFn() {
       final value = _cellDataNotifier.value;
-      if (value is C) {
+      if (value is T) {
         onCellChanged(value);
       }
 
@@ -142,12 +142,16 @@ class GridCellContext<C> extends Equatable {
     _cellDataNotifier.removeListener(fn);
   }
 
-  C? getCellData() {
-    final data = cellCache.get(cacheKey);
+  T? getCellData() {
+    final data = cellCache.get(_cacheKey);
     if (data == null) {
       _loadData();
     }
     return data;
+  }
+
+  Future<Either<List<int>, FlowyError>> getTypeOptionData() {
+    return _fieldService.getTypeOptionData(fieldType: fieldType);
   }
 
   void saveCellData(String data) {
@@ -161,7 +165,7 @@ class GridCellContext<C> extends Equatable {
     _delayOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
         _cellDataNotifier.value = data;
-        cellCache.insert(GridCellCacheData(key: cacheKey, object: data));
+        cellCache.insert(GridCellCacheData(key: _cacheKey, object: data));
       });
     });
   }
@@ -170,13 +174,13 @@ class GridCellContext<C> extends Equatable {
     _delayOperation?.cancel();
 
     if (_onFieldChangedFn != null) {
-      cellCache.removeListener(cacheKey, _onFieldChangedFn!);
+      cellCache.removeListener(_cacheKey, _onFieldChangedFn!);
       _onFieldChangedFn = null;
     }
   }
 
   @override
-  List<Object> get props => [cellCache.get(cacheKey) ?? "", cellId];
+  List<Object> get props => [cellCache.get(_cacheKey) ?? "", cellId];
 }
 
 abstract class GridCellDataLoader<T> {

@@ -35,7 +35,7 @@ message GetEditFieldContextPayload {
 }
 message EditFieldPayload {
     string grid_id = 1;
-    string field_id = 2;
+    oneof one_of_field_id { string field_id = 2; };
     FieldType field_type = 3;
 }
 message EditFieldContext {

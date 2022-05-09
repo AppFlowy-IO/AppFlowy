@@ -167,8 +167,8 @@ pub struct EditFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
-    pub field_id: String,
+    #[pb(index = 2, one_of)]
+    pub field_id: Option<String>,
 
     #[pb(index = 3)]
     pub field_type: FieldType,
@@ -176,7 +176,7 @@ pub struct EditFieldPayload {
 
 pub struct EditFieldParams {
     pub grid_id: String,
-    pub field_id: String,
+    pub field_id: Option<String>,
     pub field_type: FieldType,
 }
 
@@ -185,10 +185,10 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        // let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
             grid_id: grid_id.0,
-            field_id: field_id.0,
+            field_id: self.field_id,
             field_type: self.field_type,
         })
     }

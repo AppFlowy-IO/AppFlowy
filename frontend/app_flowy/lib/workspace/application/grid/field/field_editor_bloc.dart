@@ -11,14 +11,14 @@ import 'package:protobuf/protobuf.dart';
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final FieldService service;
+  final String gridId;
   final EditFieldContextLoader _loader;
 
   FieldEditorBloc({
-    required this.service,
+    required this.gridId,
     required EditFieldContextLoader fieldLoader,
   })  : _loader = fieldLoader,
-        super(FieldEditorState.initial(service.gridId)) {
+        super(FieldEditorState.initial(gridId)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.map(
@@ -73,7 +73,9 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             newContext.typeOptionData = typeOptionData;
           }
         });
-        service.insertField(
+
+        FieldService.insertField(
+          gridId: gridId,
           field: newContext.gridField,
           typeOptionData: newContext.typeOptionData,
         );
@@ -87,7 +89,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     await state.editFieldContext.fold(
       () async => null,
       (context) async {
-        final result = await service.insertField(
+        final result = await FieldService.insertField(
+          gridId: gridId,
           field: context.gridField,
           typeOptionData: context.typeOptionData,
         );

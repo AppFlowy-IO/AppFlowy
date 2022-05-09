@@ -8,36 +8,36 @@ import 'field_service.dart';
 part 'field_action_sheet_bloc.freezed.dart';
 
 class FieldActionSheetBloc extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
-  final FieldService service;
+  final FieldService fieldService;
 
-  FieldActionSheetBloc({required Field field, required this.service})
+  FieldActionSheetBloc({required Field field, required this.fieldService})
       : super(FieldActionSheetState.initial(EditFieldContext.create()..gridField = field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
           updateFieldName: (_UpdateFieldName value) async {
-            final result = await service.updateField(fieldId: field.id, name: value.name);
+            final result = await fieldService.updateField(name: value.name);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           hideField: (_HideField value) async {
-            final result = await service.updateField(fieldId: field.id, visibility: false);
+            final result = await fieldService.updateField(visibility: false);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           deleteField: (_DeleteField value) async {
-            final result = await service.deleteField(fieldId: field.id);
+            final result = await fieldService.deleteField();
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           duplicateField: (_DuplicateField value) async {
-            final result = await service.duplicateField(fieldId: field.id);
+            final result = await fieldService.duplicateField();
             result.fold(
               (l) => null,
               (err) => Log.error(err),

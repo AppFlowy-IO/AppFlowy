@@ -153,13 +153,13 @@ void _resolveGridDeps(GetIt getIt) {
   getIt.registerFactoryParam<FieldActionSheetBloc, GridFieldCellContext, void>(
     (data, _) => FieldActionSheetBloc(
       field: data.field,
-      service: FieldService(gridId: data.gridId),
+      fieldService: FieldService(gridId: data.gridId, fieldId: data.field.id),
     ),
   );
 
   getIt.registerFactoryParam<FieldEditorBloc, String, EditFieldContextLoader>(
     (gridId, fieldLoader) => FieldEditorBloc(
-      service: FieldService(gridId: gridId),
+      gridId: gridId,
       fieldLoader: fieldLoader,
     ),
   );

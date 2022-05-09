@@ -138,7 +138,7 @@ class GridEventDuplicateField {
 }
 
 class GridEventGetEditFieldContext {
-     GetEditFieldContextPayload request;
+     EditFieldPayload request;
      GridEventGetEditFieldContext(this.request);
 
     Future<Either<EditFieldContext, FlowyError>> send() {
@@ -172,7 +172,7 @@ class GridEventMoveItem {
 }
 
 class GridEventGetFieldTypeOption {
-     GetEditFieldContextPayload request;
+     EditFieldPayload request;
      GridEventGetFieldTypeOption(this.request);
 
     Future<Either<FieldTypeOptionData, FlowyError>> send() {
