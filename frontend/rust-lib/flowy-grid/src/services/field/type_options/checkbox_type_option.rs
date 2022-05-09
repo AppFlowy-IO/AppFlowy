@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
@@ -44,18 +44,18 @@ const YES: &str = "Yes";
 const NO: &str = "No";
 
 impl CellDataOperation for CheckboxTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_checkbox() {
-                return String::new();
+                return DecodedCellData::default();
             }
             let cell_data = type_option_cell_data.data;
             if cell_data == YES || cell_data == NO {
-                return cell_data;
+                return DecodedCellData::from_content(cell_data);
             }
         }
 
-        String::new()
+        DecodedCellData::default()
     }
 
     fn apply_changeset<T: Into<CellDataChangeset>>(

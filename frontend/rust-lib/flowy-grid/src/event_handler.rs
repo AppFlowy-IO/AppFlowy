@@ -245,7 +245,7 @@ pub(crate) async fn get_cell_handler(
     let params: CellIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_cell(&params).await {
-        None => data_result(Cell::new(&params.field_id, "".to_owned())),
+        None => data_result(Cell::empty(&params.field_id)),
         Some(cell) => data_result(cell),
     }
 }

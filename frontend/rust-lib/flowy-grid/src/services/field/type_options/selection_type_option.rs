@@ -1,7 +1,7 @@
 use crate::impl_type_option;
 use crate::services::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -95,22 +95,21 @@ impl SelectOptionOperation for SingleSelectTypeOption {
 }
 
 impl CellDataOperation for SingleSelectTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_single_select() {
-                return String::new();
+                return DecodedCellData::default();
             }
 
-            match select_option_ids(type_option_cell_data.data).first() {
-                None => String::new(),
-                Some(option_id) => match self.options.iter().find(|option| &option.id == option_id) {
-                    None => String::new(),
-                    Some(option) => option.name.clone(),
-                },
+            if let Some(option_id) = select_option_ids(type_option_cell_data.data).first() {
+                return match self.options.iter().find(|option| &option.id == option_id) {
+                    None => DecodedCellData::default(),
+                    Some(option) => DecodedCellData::from_content(option.name.clone()),
+                };
             }
-        } else {
-            String::new()
         }
+
+        DecodedCellData::default()
     }
 
     fn apply_changeset<T: Into<CellDataChangeset>>(
@@ -194,20 +193,22 @@ impl SelectOptionOperation for MultiSelectTypeOption {
 }
 
 impl CellDataOperation for MultiSelectTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_multi_select() {
-                return String::new();
+                return DecodedCellData::default();
             }
             let option_ids = select_option_ids(type_option_cell_data.data);
-            self.options
+            let content = self
+                .options
                 .iter()
                 .filter(|option| option_ids.contains(&option.id))
                 .map(|option| option.name.clone())
                 .collect::<Vec<String>>()
-                .join(SELECTION_IDS_SEPARATOR)
+                .join(SELECTION_IDS_SEPARATOR);
+            DecodedCellData::from_content(content)
         } else {
-            String::new()
+            DecodedCellData::default()
         }
     }
 

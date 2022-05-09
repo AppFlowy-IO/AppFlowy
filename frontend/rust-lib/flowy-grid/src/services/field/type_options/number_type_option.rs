@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
@@ -77,30 +77,36 @@ pub struct NumberTypeOption {
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
 impl CellDataOperation for NumberTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date() {
-                return String::new();
+                return DecodedCellData::default();
             }
 
             let cell_data = type_option_cell_data.data;
-            match self.format {
+            return match self.format {
                 NumberFormat::Number => {
                     if let Ok(v) = cell_data.parse::<f64>() {
-                        return v.to_string();
+                        return DecodedCellData::from_content(v.to_string());
                     }
 
                     if let Ok(v) = cell_data.parse::<i64>() {
-                        return v.to_string();
+                        return DecodedCellData::from_content(v.to_string());
                     }
 
-                    return String::new();
+                    DecodedCellData::default()
                 }
-                NumberFormat::Percent => cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string()),
-                _ => self.money_from_str(&cell_data),
-            }
+                NumberFormat::Percent => {
+                    let content = cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string());
+                    DecodedCellData::from_content(content)
+                }
+                _ => {
+                    let content = self.money_from_str(&cell_data);
+                    DecodedCellData::from_content(content)
+                }
+            };
         } else {
-            String::new()
+            DecodedCellData::default()
         }
     }
 

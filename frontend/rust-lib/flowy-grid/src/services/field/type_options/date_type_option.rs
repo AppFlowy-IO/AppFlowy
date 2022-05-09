@@ -1,8 +1,8 @@
 use crate::impl_type_option;
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, ParseResult};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{
@@ -53,24 +53,25 @@ impl DateTypeOption {
 }
 
 impl CellDataOperation for DateTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_date() {
-                return String::new();
+                return DecodedCellData::default();
             }
 
             let cell_data = type_option_cell_data.data;
             if let Ok(timestamp) = cell_data.parse::<i64>() {
                 let native = NaiveDateTime::from_timestamp(timestamp, 0);
-                return self.today_from_native(native);
+                return DecodedCellData::new(format!("{}", timestamp), self.today_from_native(native));
             }
 
-            if NaiveDateTime::parse_from_str(&cell_data, &self.fmt_str()).is_ok() {
-                return cell_data;
-            }
+            return match NaiveDateTime::parse_from_str(&cell_data, &self.fmt_str()) {
+                Ok(date_time) => DecodedCellData::new(format!("{}", date_time.timestamp()), cell_data),
+                Err(_) => DecodedCellData::default(),
+            };
         }
 
-        String::new()
+        DecodedCellData::default()
     }
 
     fn apply_changeset<T: Into<CellDataChangeset>>(

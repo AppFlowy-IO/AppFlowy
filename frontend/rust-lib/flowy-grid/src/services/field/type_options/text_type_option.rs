@@ -1,6 +1,8 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{decode_cell_data, CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{
+    decode_cell_data, CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
@@ -33,19 +35,20 @@ pub struct RichTextTypeOption {
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
 impl CellDataOperation for RichTextTypeOption {
-    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date()
                 || type_option_cell_data.is_single_select()
                 || type_option_cell_data.is_multi_select()
                 || type_option_cell_data.is_number()
             {
-                decode_cell_data(data, field_meta, &type_option_cell_data.field_type).unwrap_or_else(|| "".to_owned())
+                decode_cell_data(data, field_meta, &type_option_cell_data.field_type)
+                    .unwrap_or_else(|| DecodedCellData::default())
             } else {
-                type_option_cell_data.data
+                DecodedCellData::from_content(type_option_cell_data.data)
             }
         } else {
-            String::new()
+            DecodedCellData::default()
         }
     }
 

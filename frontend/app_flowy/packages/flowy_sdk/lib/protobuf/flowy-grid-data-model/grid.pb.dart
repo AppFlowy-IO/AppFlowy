@@ -1350,6 +1350,7 @@ class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..hasRequiredFields = false
   ;
 
@@ -1357,6 +1358,7 @@ class Cell extends $pb.GeneratedMessage {
   factory Cell({
     $core.String? fieldId,
     $core.String? content,
+    $core.String? data,
   }) {
     final _result = create();
     if (fieldId != null) {
@@ -1364,6 +1366,9 @@ class Cell extends $pb.GeneratedMessage {
     }
     if (content != null) {
       _result.content = content;
+    }
+    if (data != null) {
+      _result.data = data;
     }
     return _result;
   }
@@ -1405,6 +1410,15 @@ class Cell extends $pb.GeneratedMessage {
   $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
   void clearContent() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get data => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set data($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearData() => clearField(3);
 }
 
 class RepeatedCell extends $pb.GeneratedMessage {

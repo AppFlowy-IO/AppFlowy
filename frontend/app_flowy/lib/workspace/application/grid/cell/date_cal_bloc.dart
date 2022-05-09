@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'cell_service.dart';
 import 'package:dartz/dartz.dart';
+import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
@@ -15,9 +17,10 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   DateCalBloc({required this.cellContext}) : super(DateCalState.initial(cellContext)) {
     on<DateCalEvent>(
       (event, emit) async {
-        event.map(
-          initial: (_Initial value) {
+        await event.map(
+          initial: (_Initial value) async {
             _startListening();
+            await _loadDateTypeOption(emit);
           },
           selectDay: (_SelectDay value) {
             if (!isSameDay(state.selectedDay, value.day)) {
@@ -60,6 +63,30 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     );
   }
 
+  Future<void> _loadDateTypeOption(Emitter<DateCalState> emit) async {
+    final result = await cellContext.getTypeOptionData();
+    result.fold(
+      (data) {
+        final typeOptionData = DateTypeOption.fromBuffer(data);
+
+        DateTime? selectedDay;
+        final cellData = cellContext.getCellData()?.data;
+
+        if (cellData != null) {
+          final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
+          selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+        }
+
+        emit(state.copyWith(
+          typeOptinoData: some(typeOptionData),
+          includeTime: typeOptionData.includeTime,
+          selectedDay: selectedDay,
+        ));
+      },
+      (err) => Log.error(err),
+    );
+  }
+
   void _updateCellData(DateTime day) {
     final data = day.millisecondsSinceEpoch ~/ 1000;
     cellContext.saveCellData(data.toString());
@@ -83,6 +110,7 @@ class DateCalState with _$DateCalState {
     required Option<DateTypeOption> typeOptinoData,
     required CalendarFormat format,
     required DateTime focusedDay,
+    required bool includeTime,
     DateTime? selectedDay,
   }) = _DateCalState;
 
@@ -91,5 +119,6 @@ class DateCalState with _$DateCalState {
         typeOptinoData: none(),
         format: CalendarFormat.month,
         focusedDay: DateTime.now(),
+        includeTime: false,
       );
 }

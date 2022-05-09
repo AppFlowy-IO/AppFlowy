@@ -119,6 +119,7 @@ class FieldService {
     required FieldType fieldType,
   }) {
     final payload = EditFieldPayload.create()
+      ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
     return GridEventGetFieldTypeOption(payload).send().then((result) {
