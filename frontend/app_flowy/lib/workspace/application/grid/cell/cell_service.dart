@@ -59,15 +59,15 @@ class GridCellContextBuilder {
 }
 
 // ignore: must_be_immutable
-class GridCellContext<T> extends Equatable {
+class GridCellContext<C> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
   final GridCellCacheKey _cacheKey;
-  final GridCellDataLoader<T> cellDataLoader;
+  final GridCellDataLoader<C> cellDataLoader;
   final CellService _cellService = CellService();
 
   late final CellListener _cellListener;
-  late final ValueNotifier<T?> _cellDataNotifier;
+  late final ValueNotifier<C?> _cellDataNotifier;
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
   Timer? _delayOperation;
@@ -78,7 +78,7 @@ class GridCellContext<T> extends Equatable {
     required this.cellDataLoader,
   }) : _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
 
-  GridCellContext<T> clone() {
+  GridCellContext<C> clone() {
     return GridCellContext(
       gridCell: gridCell,
       cellDataLoader: cellDataLoader,
@@ -100,7 +100,7 @@ class GridCellContext<T> extends Equatable {
 
   GridCellCacheKey get cacheKey => _cacheKey;
 
-  VoidCallback? startListening({required void Function(T) onCellChanged}) {
+  VoidCallback? startListening({required void Function(C) onCellChanged}) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
@@ -125,7 +125,7 @@ class GridCellContext<T> extends Equatable {
 
     onCellChangedFn() {
       final value = _cellDataNotifier.value;
-      if (value is T) {
+      if (value is C) {
         onCellChanged(value);
       }
 
@@ -142,7 +142,7 @@ class GridCellContext<T> extends Equatable {
     _cellDataNotifier.removeListener(fn);
   }
 
-  T? getCellData() {
+  C? getCellData() {
     final data = cellCache.get(cacheKey);
     if (data == null) {
       _loadData();

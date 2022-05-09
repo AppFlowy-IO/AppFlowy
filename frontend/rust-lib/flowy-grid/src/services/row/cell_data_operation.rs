@@ -121,7 +121,6 @@ pub fn apply_cell_data_changeset<T: Into<CellDataChangeset>>(
 //     Ok(s)
 // }
 
-#[tracing::instrument(level = "trace", skip(field_meta, data), fields(content))]
 pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &FieldType) -> Option<String> {
     let s = match field_type {
         FieldType::RichText => field_meta

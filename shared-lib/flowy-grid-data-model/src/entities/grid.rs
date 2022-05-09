@@ -207,6 +207,15 @@ pub struct EditFieldContext {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
+pub struct FieldTypeOptionData {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub type_option_data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedField {
     #[pb(index = 1)]
     pub items: Vec<Field>,

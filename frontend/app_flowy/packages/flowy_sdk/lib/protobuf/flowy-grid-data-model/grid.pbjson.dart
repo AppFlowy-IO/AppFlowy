@@ -136,6 +136,17 @@ const EditFieldContext$json = const {
 
 /// Descriptor for `EditFieldContext`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List editFieldContextDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRDb250ZXh0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIlCgpncmlkX2ZpZWxkGAIgASgLMgYuRmllbGRSCWdyaWRGaWVsZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
+@$core.Deprecated('Use fieldTypeOptionDataDescriptor instead')
+const FieldTypeOptionData$json = const {
+  '1': 'FieldTypeOptionData',
+  '2': const [
+    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'type_option_data', '3': 2, '4': 1, '5': 12, '10': 'typeOptionData'},
+  ],
+};
+
+/// Descriptor for `FieldTypeOptionData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldTypeOptionDataDescriptor = $convert.base64Decode('ChNGaWVsZFR5cGVPcHRpb25EYXRhEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEigKEHR5cGVfb3B0aW9uX2RhdGEYAiABKAxSDnR5cGVPcHRpb25EYXRh');
 @$core.Deprecated('Use repeatedFieldDescriptor instead')
 const RepeatedField$json = const {
   '1': 'RepeatedField',

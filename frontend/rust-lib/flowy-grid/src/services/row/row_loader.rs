@@ -36,7 +36,6 @@ pub fn make_cell_by_field_id(
     Some((field_id, cell))
 }
 
-#[allow(dead_code)]
 pub fn make_cell(field_id: &str, field_meta: &FieldMeta, row_meta: &RowMeta) -> Option<Cell> {
     let cell_meta = row_meta.cells.get(field_id)?.clone();
     let content = decode_cell_data(cell_meta.data, field_meta, &field_meta.field_type)?;

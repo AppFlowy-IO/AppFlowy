@@ -43,6 +43,10 @@ message EditFieldContext {
     Field grid_field = 2;
     bytes type_option_data = 3;
 }
+message FieldTypeOptionData {
+    string field_id = 1;
+    bytes type_option_data = 2;
+}
 message RepeatedField {
     repeated Field items = 1;
 }

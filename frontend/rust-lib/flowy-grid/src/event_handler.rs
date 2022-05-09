@@ -129,6 +129,22 @@ pub(crate) async fn get_field_context_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn get_field_type_option_data_handler(
+    data: Data<GetEditFieldContextPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<FieldTypeOptionData, FlowyError> {
+    let params = data.into_inner();
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let field_meta = get_or_create_field_meta(params.field_id, &params.field_type, editor).await?;
+    let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
+
+    data_result(FieldTypeOptionData {
+        field_id: field_meta.id.clone(),
+        type_option_data,
+    })
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn move_item_handler(
     data: Data<MoveItemPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -147,18 +163,23 @@ async fn make_field_edit_context(
     field_meta: Option<FieldMeta>,
 ) -> FlowyResult<EditFieldContext> {
     let field_meta = field_meta.unwrap_or(get_or_create_field_meta(field_id, &field_type, editor).await?);
-    let s = field_meta
-        .get_type_option_str(None)
-        .unwrap_or_else(|| default_type_option_builder_from_type(&field_type).entry().json_str());
-
-    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
-    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+    let type_option_data = get_type_option_data(&field_meta, &field_type).await?;
     let field: Field = field_meta.into();
     Ok(EditFieldContext {
         grid_id: grid_id.to_string(),
         grid_field: field,
         type_option_data,
     })
+}
+
+async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
+    let s = field_meta
+        .get_type_option_str(&field_type)
+        .unwrap_or_else(|| default_type_option_builder_from_type(&field_type).entry().json_str());
+    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
+    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+
+    Ok(type_option_data)
 }
 
 async fn get_or_create_field_meta(
@@ -221,7 +242,7 @@ pub(crate) async fn create_row_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+// #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_cell_handler(
     data: Data<CellIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,

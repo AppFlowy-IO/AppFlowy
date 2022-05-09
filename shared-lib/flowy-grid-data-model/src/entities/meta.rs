@@ -95,7 +95,6 @@ pub struct FieldMeta {
 
     pub width: i32,
 
-    // #[pb(index = 8)]
     /// type_options contains key/value pairs
     /// key: id of the FieldType
     /// value: type option data that can be parsed into specified TypeOptionStruct.
@@ -144,8 +143,7 @@ impl FieldMeta {
         self.type_options.insert(field_type.type_id(), json_str);
     }
 
-    pub fn get_type_option_str(&self, field_type: Option<FieldType>) -> Option<String> {
-        let field_type = field_type.as_ref().unwrap_or(&self.field_type);
+    pub fn get_type_option_str(&self, field_type: &FieldType) -> Option<String> {
         self.type_options.get(&field_type.type_id()).map(|s| s.to_owned())
     }
 }

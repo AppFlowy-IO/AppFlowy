@@ -119,14 +119,12 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
       context.read<FieldEditorPannelBloc>().add(FieldEditorPannelEvent.didUpdateTypeOptionData(data));
     });
 
-    final typeOptionContext = TypeOptionContext(
-      gridId: state.gridId,
-      field: state.field,
-      data: state.typeOptionData,
-    );
-
     final builder = _makeTypeOptionBuild(
-      typeOptionContext: typeOptionContext,
+      typeOptionContext: TypeOptionContext(
+        gridId: state.gridId,
+        field: state.field,
+        data: state.typeOptionData,
+      ),
       overlayDelegate: overlayDelegate,
       dataDelegate: dataDelegate,
     );

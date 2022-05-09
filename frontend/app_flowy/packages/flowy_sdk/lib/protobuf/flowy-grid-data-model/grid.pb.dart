@@ -642,6 +642,67 @@ class EditFieldContext extends $pb.GeneratedMessage {
   void clearTypeOptionData() => clearField(3);
 }
 
+class FieldTypeOptionData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldTypeOptionData', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  FieldTypeOptionData._() : super();
+  factory FieldTypeOptionData({
+    $core.String? fieldId,
+    $core.List<$core.int>? typeOptionData,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    return _result;
+  }
+  factory FieldTypeOptionData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldTypeOptionData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldTypeOptionData clone() => FieldTypeOptionData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldTypeOptionData copyWith(void Function(FieldTypeOptionData) updates) => super.copyWith((message) => updates(message as FieldTypeOptionData)) as FieldTypeOptionData; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldTypeOptionData create() => FieldTypeOptionData._();
+  FieldTypeOptionData createEmptyInstance() => create();
+  static $pb.PbList<FieldTypeOptionData> createRepeated() => $pb.PbList<FieldTypeOptionData>();
+  @$core.pragma('dart2js:noInline')
+  static FieldTypeOptionData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldTypeOptionData>(create);
+  static FieldTypeOptionData? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get typeOptionData => $_getN(1);
+  @$pb.TagNumber(2)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTypeOptionData() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTypeOptionData() => clearField(2);
+}
+
 class RepeatedField extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedField', createEmptyInstance: create)
     ..pc<Field>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Field.create)

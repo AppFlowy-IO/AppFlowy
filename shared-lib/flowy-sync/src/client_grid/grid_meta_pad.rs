@@ -118,7 +118,7 @@ impl GridMetaPad {
                     Ok(None)
                 }
                 Some(field_meta) => {
-                    if field_meta.get_type_option_str(Some(field_type.clone())).is_none() {
+                    if field_meta.get_type_option_str(&field_type).is_none() {
                         let type_option_json = type_option_json_builder(&field_type);
                         field_meta.insert_type_option_str(&field_type, type_option_json);
                     }
