@@ -80,7 +80,7 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         hoverColor: theme.hover,
         onTap: () {
           final list = FieldTypeList(onSelectField: (newFieldType) {

@@ -50,8 +50,8 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
         builder: (context, state) {
           return Column(children: [
-            _dateFormatButton(context, state.typeOption.dateFormat),
-            _timeFormatButton(context, state.typeOption.timeFormat),
+            _renderDateFormatButton(context, state.typeOption.dateFormat),
+            _renderTimeFormatButton(context, state.typeOption.timeFormat),
             const _IncludeTimeButton(),
           ]);
         },
@@ -59,44 +59,68 @@ class DateTypeOptionWidget extends TypeOptionWidget {
     );
   }
 
-  Widget _dateFormatButton(BuildContext context, DateFormat dataFormat) {
+  Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
+    return DateFormatButton(onTap: () {
+      final list = DateFormatList(
+        selectedFormat: dataFormat,
+        onSelected: (format) {
+          context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
+        },
+      );
+      overlayDelegate.showOverlay(context, list);
+    });
+  }
+
+  Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
+    return TimeFormatButton(
+      timeFormat: timeFormat,
+      onTap: () {
+        final list = TimeFormatList(
+            selectedFormat: timeFormat,
+            onSelected: (format) {
+              context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
+            });
+        overlayDelegate.showOverlay(context, list);
+      },
+    );
+  }
+}
+
+class DateFormatButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const DateFormatButton({required this.onTap, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr(), fontSize: 12),
-        padding: GridSize.typeOptionContentInsets,
+        margin: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
-        onTap: () {
-          final list = DateFormatList(
-            selectedFormat: dataFormat,
-            onSelected: (format) {
-              context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
-            },
-          );
-          overlayDelegate.showOverlay(context, list);
-        },
+        onTap: onTap,
         rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );
   }
+}
 
-  Widget _timeFormatButton(BuildContext context, TimeFormat timeFormat) {
+class TimeFormatButton extends StatelessWidget {
+  final TimeFormat timeFormat;
+  final VoidCallback onTap;
+  const TimeFormatButton({required this.timeFormat, required this.onTap, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr(), fontSize: 12),
-        padding: GridSize.typeOptionContentInsets,
+        margin: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
-        onTap: () {
-          final list = TimeFormatList(
-              selectedFormat: timeFormat,
-              onSelected: (format) {
-                context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
-              });
-          overlayDelegate.showOverlay(context, list);
-        },
+        onTap: onTap,
         rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );

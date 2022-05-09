@@ -1,6 +1,15 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/cell/date_cal_bloc.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/date.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -9,6 +18,7 @@ import 'package:app_flowy/workspace/application/grid/prelude.dart';
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
 class CellCalendar with FlowyOverlayDelegate {
   final VoidCallback onDismissed;
@@ -47,7 +57,7 @@ class CellCalendar with FlowyOverlayDelegate {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: calendar,
-        constraints: BoxConstraints.tight(const Size(320, 320)),
+        constraints: BoxConstraints.tight(const Size(320, 500)),
       ),
       identifier: CellCalendar.identifier(),
       anchorContext: context,
@@ -67,6 +77,9 @@ class CellCalendar with FlowyOverlayDelegate {
 
   @override
   void didRemove() => onDismissed();
+
+  @override
+  bool asBarrier() => true;
 }
 
 class _CellCalendarWidget extends StatelessWidget {
@@ -94,46 +107,175 @@ class _CellCalendarWidget extends StatelessWidget {
         },
         listenWhen: (p, c) => p.selectedDay != c.selectedDay,
         builder: (context, state) {
-          return TableCalendar(
-            firstDay: kFirstDay,
-            lastDay: kLastDay,
-            focusedDay: state.focusedDay,
-            rowHeight: 40,
-            calendarFormat: state.format,
-            headerStyle: const HeaderStyle(formatButtonVisible: false),
-            calendarStyle: CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: theme.main1,
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: theme.shader4,
-                shape: BoxShape.circle,
-              ),
-              selectedTextStyle: TextStyle(
-                color: theme.surface,
-                fontSize: 14.0,
-              ),
-              todayTextStyle: TextStyle(
-                color: theme.surface,
-                fontSize: 14.0,
-              ),
-            ),
-            selectedDayPredicate: (day) {
-              return isSameDay(state.selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              context.read<DateCalBloc>().add(DateCalEvent.selectDay(selectedDay));
-            },
-            onFormatChanged: (format) {
-              context.read<DateCalBloc>().add(DateCalEvent.setFormat(format));
-            },
-            onPageChanged: (focusedDay) {
-              context.read<DateCalBloc>().add(DateCalEvent.setFocusedDay(focusedDay));
-            },
-          );
+          List<Widget> children = [];
+
+          children.addAll([
+            _buildCalendar(state, theme, context),
+            const VSpace(10),
+          ]);
+
+          if (state.includeTime) {
+            children.addAll([
+              const _TimeTextField(),
+              const VSpace(10),
+            ]);
+          }
+
+          children.addAll([
+            Divider(height: 1, color: theme.shader5),
+            const _IncludeTimeButton(),
+          ]);
+
+          state.typeOptinoData.fold(() => null, (dateTypeOption) {
+            children.add(_DateTypeOptionButton(dateTypeOption: dateTypeOption));
+          });
+
+          return Column(children: children);
         },
       ),
     );
   }
+
+  TableCalendar<dynamic> _buildCalendar(DateCalState state, AppTheme theme, BuildContext context) {
+    return TableCalendar(
+      firstDay: kFirstDay,
+      lastDay: kLastDay,
+      focusedDay: state.focusedDay,
+      rowHeight: 40,
+      calendarFormat: state.format,
+      headerStyle: HeaderStyle(
+        formatButtonVisible: false,
+        titleCentered: true,
+        leftChevronMargin: EdgeInsets.zero,
+        leftChevronPadding: EdgeInsets.zero,
+        leftChevronIcon: svgWidget("home/arrow_left"),
+        rightChevronPadding: EdgeInsets.zero,
+        rightChevronMargin: EdgeInsets.zero,
+        rightChevronIcon: svgWidget("home/arrow_right"),
+      ),
+      calendarStyle: CalendarStyle(
+        selectedDecoration: BoxDecoration(
+          color: theme.main1,
+          shape: BoxShape.circle,
+        ),
+        todayDecoration: BoxDecoration(
+          color: theme.shader4,
+          shape: BoxShape.circle,
+        ),
+        selectedTextStyle: TextStyle(
+          color: theme.surface,
+          fontSize: 14.0,
+        ),
+        todayTextStyle: TextStyle(
+          color: theme.surface,
+          fontSize: 14.0,
+        ),
+      ),
+      selectedDayPredicate: (day) {
+        return isSameDay(state.selectedDay, day);
+      },
+      onDaySelected: (selectedDay, focusedDay) {
+        context.read<DateCalBloc>().add(DateCalEvent.selectDay(selectedDay));
+      },
+      onFormatChanged: (format) {
+        context.read<DateCalBloc>().add(DateCalEvent.setCalFormat(format));
+      },
+      onPageChanged: (focusedDay) {
+        context.read<DateCalBloc>().add(DateCalEvent.setFocusedDay(focusedDay));
+      },
+    );
+  }
+}
+
+class _IncludeTimeButton extends StatelessWidget {
+  const _IncludeTimeButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return BlocSelector<DateCalBloc, DateCalState, bool>(
+      selector: (state) => state.includeTime,
+      builder: (context, includeTime) {
+        return SizedBox(
+          height: 50,
+          child: Padding(
+            padding: kMargin,
+            child: Row(
+              children: [
+                svgWidget("grid/clock", color: theme.iconColor),
+                const HSpace(4),
+                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(), fontSize: 14),
+                const Spacer(),
+                Switch(
+                  value: includeTime,
+                  onChanged: (newValue) => context.read<DateCalBloc>().add(DateCalEvent.setIncludeTime(newValue)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _TimeTextField extends StatelessWidget {
+  const _TimeTextField({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class _DateTypeOptionButton extends StatelessWidget {
+  final DateTypeOption dateTypeOption;
+  const _DateTypeOptionButton({required this.dateTypeOption, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    final title = LocaleKeys.grid_field_dateFormat.tr() + " &" + LocaleKeys.grid_field_timeFormat.tr();
+    return FlowyButton(
+      text: FlowyText.medium(title, fontSize: 12),
+      hoverColor: theme.hover,
+      margin: kMargin,
+      onTap: () {
+        final setting = _CalDateTimeSetting(dateTypeOption: dateTypeOption);
+        setting.show(context);
+      },
+      rightIcon: svgWidget("grid/more", color: theme.iconColor),
+    );
+  }
+}
+
+class _CalDateTimeSetting extends StatelessWidget {
+  final DateTypeOption dateTypeOption;
+  const _CalDateTimeSetting({required this.dateTypeOption, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      DateFormatButton(onTap: () {
+        final list = DateFormatList(
+          selectedFormat: dateTypeOption.dateFormat,
+          onSelected: (format) {
+            context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectDateFormat(format));
+          },
+        );
+      }),
+      TimeFormatButton(
+        timeFormat: dateTypeOption.timeFormat,
+        onTap: () {
+          final list = TimeFormatList(
+              selectedFormat: dateTypeOption.timeFormat,
+              onSelected: (format) {
+                context.read<DateTypeOptionBloc>().add(DateTypeOptionEvent.didSelectTimeFormat(format));
+              });
+        },
+      ),
+    ]);
+  }
+
+  void show(BuildContext context) {}
 }

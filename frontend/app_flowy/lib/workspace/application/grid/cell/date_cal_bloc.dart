@@ -28,7 +28,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
               emit(state.copyWith(selectedDay: value.day));
             }
           },
-          setFormat: (_CalendarFormat value) {
+          setCalFormat: (_CalendarFormat value) {
             emit(state.copyWith(format: value.format));
           },
           setFocusedDay: (_FocusedDay value) {
@@ -38,6 +38,11 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(state.copyWith(field: value.field));
           },
+          setIncludeTime: (_IncludeTime value) {
+            emit(state.copyWith(includeTime: value.includeTime));
+          },
+          setDateFormat: (_DateFormat value) {},
+          setTimeFormat: (_TimeFormat value) {},
         );
       },
     );
@@ -97,8 +102,11 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
 class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.initial() = _Initial;
   const factory DateCalEvent.selectDay(DateTime day) = _SelectDay;
-  const factory DateCalEvent.setFormat(CalendarFormat format) = _CalendarFormat;
+  const factory DateCalEvent.setCalFormat(CalendarFormat format) = _CalendarFormat;
   const factory DateCalEvent.setFocusedDay(DateTime day) = _FocusedDay;
+  const factory DateCalEvent.setTimeFormat(TimeFormat value) = _TimeFormat;
+  const factory DateCalEvent.setDateFormat(DateFormat value) = _DateFormat;
+  const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
   const factory DateCalEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
@@ -111,6 +119,7 @@ class DateCalState with _$DateCalState {
     required CalendarFormat format,
     required DateTime focusedDay,
     required bool includeTime,
+    required Option<String> time,
     DateTime? selectedDay,
   }) = _DateCalState;
 
@@ -120,5 +129,6 @@ class DateCalState with _$DateCalState {
         format: CalendarFormat.month,
         focusedDay: DateTime.now(),
         includeTime: false,
+        time: none(),
       );
 }
