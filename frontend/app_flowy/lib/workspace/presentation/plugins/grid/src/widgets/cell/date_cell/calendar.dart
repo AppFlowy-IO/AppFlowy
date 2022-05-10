@@ -8,13 +8,15 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:dartz/dartz.dart' show Option;
+import 'package:fixnum/fixnum.dart' as $fixnum;
 
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
@@ -35,22 +37,38 @@ class CellCalendar with FlowyOverlayDelegate {
   }) async {
     CellCalendar.remove(context);
 
-    final calendar = _CellCalendarWidget(
-      onSelected: onSelected,
-      includeTime: false,
-      cellContext: cellContext,
-    );
+    final result = await cellContext.getTypeOptionData();
+    result.fold(
+      (data) {
+        final typeOptionData = DateTypeOption.fromBuffer(data);
+        DateTime? selectedDay;
+        final cellData = cellContext.getCellData()?.data;
 
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: calendar,
-        constraints: BoxConstraints.loose(const Size(320, 500)),
-      ),
-      identifier: CellCalendar.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      delegate: this,
+        if (cellData != null) {
+          final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
+          selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+        }
+
+        final calendar = _CellCalendarWidget(
+          onSelected: onSelected,
+          cellContext: cellContext,
+          dateTypeOption: typeOptionData,
+          selectedDay: selectedDay,
+        );
+
+        FlowyOverlay.of(context).insertWithAnchor(
+          widget: OverlayContainer(
+            child: calendar,
+            constraints: BoxConstraints.loose(const Size(320, 500)),
+          ),
+          identifier: CellCalendar.identifier(),
+          anchorContext: context,
+          anchorDirection: AnchorDirection.leftWithCenterAligned,
+          style: FlowyOverlayStyle(blur: false),
+          delegate: this,
+        );
+      },
+      (err) => Log.error(err),
     );
   }
 
@@ -70,14 +88,16 @@ class CellCalendar with FlowyOverlayDelegate {
 }
 
 class _CellCalendarWidget extends StatelessWidget {
-  final bool includeTime;
   final GridDefaultCellContext cellContext;
+  final DateTypeOption dateTypeOption;
+  final DateTime? selectedDay;
   final void Function(DateTime) onSelected;
 
   const _CellCalendarWidget({
     required this.onSelected,
-    required this.includeTime,
     required this.cellContext,
+    required this.dateTypeOption,
+    this.selectedDay,
     Key? key,
   }) : super(key: key);
 
@@ -85,7 +105,11 @@ class _CellCalendarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => DateCalBloc(cellContext: cellContext)..add(const DateCalEvent.initial()),
+      create: (context) => DateCalBloc(
+        dateTypeOption: dateTypeOption,
+        selectedDay: selectedDay,
+        cellContext: cellContext,
+      )..add(const DateCalEvent.initial()),
       child: BlocConsumer<DateCalBloc, DateCalState>(
         listener: (context, state) {
           if (state.selectedDay != null) {
@@ -101,12 +125,11 @@ class _CellCalendarWidget extends StatelessWidget {
             const VSpace(10),
           ]);
 
-          state.dateTypeOption.foldRight(null, (dateTypeOption, _) {
+          if (state.dateTypeOption.includeTime) {
             children.addAll([
               const _TimeTextField(),
-              const VSpace(10),
             ]);
-          });
+          }
 
           children.addAll([
             Divider(height: 1, color: theme.shader5),
@@ -189,7 +212,7 @@ class _IncludeTimeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocSelector<DateCalBloc, DateCalState, bool>(
-      selector: (state) => state.dateTypeOption.foldRight(false, (option, _) => option.includeTime),
+      selector: (state) => state.dateTypeOption.includeTime,
       builder: (context, includeTime) {
         return SizedBox(
           height: 50,
@@ -219,7 +242,19 @@ class _TimeTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final theme = context.watch<AppTheme>();
+    return Padding(
+      padding: kMargin,
+      child: RoundedInputField(
+        height: 40,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        normalBorderColor: theme.shader4,
+        errorBorderColor: theme.red,
+        cursorColor: theme.main1,
+        errorText: context.read<DateCalBloc>().state.inputTimeError.fold(() => "", (error) => error.toString()),
+        onEditingComplete: (value) => context.read<DateCalBloc>().add(DateCalEvent.setTime(value)),
+      ),
+    );
   }
 }
 
@@ -230,29 +265,33 @@ class _DateTypeOptionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     final title = LocaleKeys.grid_field_dateFormat.tr() + " &" + LocaleKeys.grid_field_timeFormat.tr();
-    return BlocSelector<DateCalBloc, DateCalState, Option<DateTypeOption>>(
+    return BlocSelector<DateCalBloc, DateCalState, DateTypeOption>(
       selector: (state) => state.dateTypeOption,
       builder: (context, dateTypeOption) {
         return FlowyButton(
           text: FlowyText.medium(title, fontSize: 12),
           hoverColor: theme.hover,
           margin: kMargin,
-          onTap: () {
-            dateTypeOption.fold(() => null, (dateTypeOption) {
-              final setting = _CalDateTimeSetting(dateTypeOption: dateTypeOption);
-              setting.show(context);
-            });
-          },
+          onTap: () => _showTimeSetting(dateTypeOption, context),
           rightIcon: svgWidget("grid/more", color: theme.iconColor),
         );
       },
     );
   }
+
+  void _showTimeSetting(DateTypeOption dateTypeOption, BuildContext context) {
+    final setting = _CalDateTimeSetting(
+      dateTypeOption: dateTypeOption,
+      onEvent: (event) => context.read<DateCalBloc>().add(event),
+    );
+    setting.show(context);
+  }
 }
 
 class _CalDateTimeSetting extends StatefulWidget {
   final DateTypeOption dateTypeOption;
-  const _CalDateTimeSetting({required this.dateTypeOption, Key? key}) : super(key: key);
+  final Function(DateCalEvent) onEvent;
+  const _CalDateTimeSetting({required this.dateTypeOption, required this.onEvent, Key? key}) : super(key: key);
 
   @override
   State<_CalDateTimeSetting> createState() => _CalDateTimeSettingState();
@@ -283,9 +322,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       DateFormatButton(onTap: () {
         final list = DateFormatList(
           selectedFormat: widget.dateTypeOption.dateFormat,
-          onSelected: (format) {
-            context.read<DateCalBloc>().add(DateCalEvent.setDateFormat(format));
-          },
+          onSelected: (format) => widget.onEvent(DateCalEvent.setDateFormat(format)),
         );
         _showOverlay(context, list);
       }),
@@ -294,9 +331,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         onTap: () {
           final list = TimeFormatList(
             selectedFormat: widget.dateTypeOption.timeFormat,
-            onSelected: (format) {
-              context.read<DateCalBloc>().add(DateCalEvent.setTimeFormat(format));
-            },
+            onSelected: (format) => widget.onEvent(DateCalEvent.setTimeFormat(format)),
           );
           _showOverlay(context, list);
         },

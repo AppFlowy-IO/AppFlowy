@@ -15,7 +15,7 @@ class RoundedInputField extends StatefulWidget {
   final String errorText;
   final TextStyle style;
   final ValueChanged<String>? onChanged;
-  final VoidCallback? onEditingComplete;
+  final Function(String)? onEditingComplete;
   final String? initialValue;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -90,7 +90,11 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
             }
             setState(() {});
           },
-          onEditingComplete: widget.onEditingComplete,
+          onEditingComplete: () {
+            if (widget.onEditingComplete != null) {
+              widget.onEditingComplete!(inputText);
+            }
+          },
           cursorColor: widget.cursorColor,
           obscureText: obscuteText,
           style: widget.style,
