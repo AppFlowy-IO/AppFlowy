@@ -99,6 +99,19 @@ class FieldService {
     return GridEventInsertField(payload).send();
   }
 
+  static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
+    required String gridId,
+    required String fieldId,
+    required List<int> typeOptionData,
+  }) {
+    var payload = UpdateFieldTypeOptionPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..typeOptionData = typeOptionData;
+
+    return GridEventUpdateFieldTypeOption(payload).send();
+  }
+
   Future<Either<Unit, FlowyError>> deleteField() {
     final payload = FieldIdentifierPayload.create()
       ..gridId = gridId

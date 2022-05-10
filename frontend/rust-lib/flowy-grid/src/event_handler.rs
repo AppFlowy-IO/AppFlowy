@@ -71,6 +71,19 @@ pub(crate) async fn insert_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn update_field_type_option_handler(
+    data: Data<UpdateFieldTypeOptionPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: UpdateFieldTypeOptionParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let _ = editor
+        .update_field_type_option(&params.grid_id, &params.field_id, params.type_option_data)
+        .await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,

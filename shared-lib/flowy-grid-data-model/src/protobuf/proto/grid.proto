@@ -118,6 +118,11 @@ message InsertFieldPayload {
     bytes type_option_data = 3;
     oneof one_of_start_field_id { string start_field_id = 4; };
 }
+message UpdateFieldTypeOptionPayload {
+    string grid_id = 1;
+    string field_id = 2;
+    bytes type_option_data = 3;
+}
 message QueryFieldPayload {
     string grid_id = 1;
     RepeatedFieldOrder field_orders = 2;

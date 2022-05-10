@@ -93,6 +93,34 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn update_field_type_option(
+        &self,
+        grid_id: &str,
+        field_id: &str,
+        type_option_data: Vec<u8>,
+    ) -> FlowyResult<()> {
+        let result = self.get_field_meta(field_id).await;
+        if result.is_none() {
+            tracing::warn!("Can't find the field with id: {}", field_id);
+            return Ok(());
+        }
+        let field_meta = result.unwrap();
+        let _ = self
+            .modify(|grid| {
+                let deserializer = TypeOptionJsonDeserializer(field_meta.field_type.clone());
+                let changeset = FieldChangesetParams {
+                    field_id: field_id.to_owned(),
+                    grid_id: grid_id.to_owned(),
+                    type_option_data: Some(type_option_data),
+                    ..Default::default()
+                };
+                Ok(grid.update_field_meta(changeset, deserializer)?)
+            })
+            .await?;
+        let _ = self.notify_did_update_grid_field(&field_id).await?;
+        Ok(())
+    }
+
     pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
         let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();

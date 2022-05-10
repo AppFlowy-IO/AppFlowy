@@ -69,6 +69,23 @@ class GridEventUpdateField {
     }
 }
 
+class GridEventUpdateFieldTypeOption {
+     UpdateFieldTypeOptionPayload request;
+     GridEventUpdateFieldTypeOption(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.UpdateFieldTypeOption.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventInsertField {
      InsertFieldPayload request;
      GridEventInsertField(this.request);

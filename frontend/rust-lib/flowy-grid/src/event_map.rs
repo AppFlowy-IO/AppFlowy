@@ -14,6 +14,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::InsertField, insert_field_handler)
+        .event(GridEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
@@ -52,26 +53,29 @@ pub enum GridEvent {
     #[event(input = "FieldChangesetPayload")]
     UpdateField = 11,
 
+    #[event(input = "UpdateFieldTypeOptionPayload")]
+    UpdateFieldTypeOption = 12,
+
     #[event(input = "InsertFieldPayload")]
-    InsertField = 12,
+    InsertField = 13,
 
     #[event(input = "FieldIdentifierPayload")]
-    DeleteField = 13,
+    DeleteField = 14,
 
     #[event(input = "EditFieldPayload", output = "EditFieldContext")]
-    SwitchToField = 14,
+    SwitchToField = 20,
 
     #[event(input = "FieldIdentifierPayload")]
-    DuplicateField = 15,
+    DuplicateField = 21,
 
     #[event(input = "EditFieldPayload", output = "EditFieldContext")]
-    GetEditFieldContext = 16,
+    GetEditFieldContext = 22,
 
     #[event(input = "MoveItemPayload")]
-    MoveItem = 17,
+    MoveItem = 23,
 
     #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
-    GetFieldTypeOption = 18,
+    GetFieldTypeOption = 24,
 
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     NewSelectOption = 30,

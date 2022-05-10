@@ -367,6 +367,18 @@ const InsertFieldPayload$json = const {
 
 /// Descriptor for `InsertFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List insertFieldPayloadDescriptor = $convert.base64Decode('ChJJbnNlcnRGaWVsZFBheWxvYWQSFwoHZ3JpZF9pZBgBIAEoCVIGZ3JpZElkEhwKBWZpZWxkGAIgASgLMgYuRmllbGRSBWZpZWxkEigKEHR5cGVfb3B0aW9uX2RhdGEYAyABKAxSDnR5cGVPcHRpb25EYXRhEiYKDnN0YXJ0X2ZpZWxkX2lkGAQgASgJSABSDHN0YXJ0RmllbGRJZEIXChVvbmVfb2Zfc3RhcnRfZmllbGRfaWQ=');
+@$core.Deprecated('Use updateFieldTypeOptionPayloadDescriptor instead')
+const UpdateFieldTypeOptionPayload$json = const {
+  '1': 'UpdateFieldTypeOptionPayload',
+  '2': const [
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
+    const {'1': 'type_option_data', '3': 3, '4': 1, '5': 12, '10': 'typeOptionData'},
+  ],
+};
+
+/// Descriptor for `UpdateFieldTypeOptionPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateFieldTypeOptionPayloadDescriptor = $convert.base64Decode('ChxVcGRhdGVGaWVsZFR5cGVPcHRpb25QYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
 @$core.Deprecated('Use queryFieldPayloadDescriptor instead')
 const QueryFieldPayload$json = const {
   '1': 'QueryFieldPayload',

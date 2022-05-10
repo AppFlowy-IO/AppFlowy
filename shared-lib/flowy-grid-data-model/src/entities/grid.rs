@@ -617,6 +617,40 @@ impl TryInto<InsertFieldParams> for InsertFieldPayload {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct UpdateFieldTypeOptionPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+}
+
+#[derive(Clone)]
+pub struct UpdateFieldTypeOptionParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub type_option_data: Vec<u8>,
+}
+
+impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<UpdateFieldTypeOptionParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let _ = NotEmptyStr::parse(self.field_id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+
+        Ok(UpdateFieldTypeOptionParams {
+            grid_id: grid_id.0,
+            field_id: self.field_id,
+            type_option_data: self.type_option_data,
+        })
+    }
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct QueryFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,

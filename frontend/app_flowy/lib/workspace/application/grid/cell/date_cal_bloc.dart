@@ -1,5 +1,6 @@
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
+import 'package:protobuf/protobuf.dart';
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
@@ -35,14 +37,15 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
             emit(state.copyWith(focusedDay: value.day));
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {},
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(field: value.field));
+          setIncludeTime: (_IncludeTime value) async {
+            await _updateTypeOption(emit, includeTime: value.includeTime);
           },
-          setIncludeTime: (_IncludeTime value) {
-            emit(state.copyWith(includeTime: value.includeTime));
+          setDateFormat: (_DateFormat value) async {
+            await _updateTypeOption(emit, dateFormat: value.dateFormat);
           },
-          setDateFormat: (_DateFormat value) {},
-          setTimeFormat: (_TimeFormat value) {},
+          setTimeFormat: (_TimeFormat value) async {
+            await _updateTypeOption(emit, timeFormat: value.timeFormat);
+          },
         );
       },
     );
@@ -83,8 +86,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         }
 
         emit(state.copyWith(
-          typeOptinoData: some(typeOptionData),
-          includeTime: typeOptionData.includeTime,
+          dateTypeOption: some(typeOptionData),
           selectedDay: selectedDay,
         ));
       },
@@ -96,6 +98,43 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     final data = day.millisecondsSinceEpoch ~/ 1000;
     cellContext.saveCellData(data.toString());
   }
+
+  Future<void>? _updateTypeOption(
+    Emitter<DateCalState> emit, {
+    DateFormat? dateFormat,
+    TimeFormat? timeFormat,
+    bool? includeTime,
+  }) async {
+    final newDateTypeOption = state.dateTypeOption.fold(() => null, (dateTypeOption) {
+      dateTypeOption.freeze();
+      return dateTypeOption.rebuild((typeOption) {
+        if (dateFormat != null) {
+          typeOption.dateFormat = dateFormat;
+        }
+
+        if (timeFormat != null) {
+          typeOption.timeFormat = timeFormat;
+        }
+
+        if (includeTime != null) {
+          typeOption.includeTime = includeTime;
+        }
+      });
+    });
+
+    if (newDateTypeOption != null) {
+      final result = await FieldService.updateFieldTypeOption(
+        gridId: cellContext.gridId,
+        fieldId: cellContext.field.id,
+        typeOptionData: newDateTypeOption.writeToBuffer(),
+      );
+
+      result.fold(
+        (l) => emit(state.copyWith(dateTypeOption: Some(newDateTypeOption))),
+        (err) => Log.error(err),
+      );
+    }
+  }
 }
 
 @freezed
@@ -104,31 +143,26 @@ class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.selectDay(DateTime day) = _SelectDay;
   const factory DateCalEvent.setCalFormat(CalendarFormat format) = _CalendarFormat;
   const factory DateCalEvent.setFocusedDay(DateTime day) = _FocusedDay;
-  const factory DateCalEvent.setTimeFormat(TimeFormat value) = _TimeFormat;
-  const factory DateCalEvent.setDateFormat(DateFormat value) = _DateFormat;
+  const factory DateCalEvent.setTimeFormat(TimeFormat timeFormat) = _TimeFormat;
+  const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
   const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
-  const factory DateCalEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DateCalState with _$DateCalState {
   const factory DateCalState({
-    required Field field,
-    required Option<DateTypeOption> typeOptinoData,
+    required Option<DateTypeOption> dateTypeOption,
     required CalendarFormat format,
     required DateTime focusedDay,
-    required bool includeTime,
     required Option<String> time,
     DateTime? selectedDay,
   }) = _DateCalState;
 
   factory DateCalState.initial(GridCellContext context) => DateCalState(
-        field: context.field,
-        typeOptinoData: none(),
+        dateTypeOption: none(),
         format: CalendarFormat.month,
         focusedDay: DateTime.now(),
-        includeTime: false,
         time: none(),
       );
 }
