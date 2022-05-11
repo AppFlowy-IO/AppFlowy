@@ -309,6 +309,7 @@ class _CalDateTimeSetting extends StatefulWidget {
       identifier: _CalDateTimeSetting.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.rightWithCenterAligned,
+      anchorOffset: const Offset(20, 0),
     );
   }
 }
@@ -369,7 +370,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       anchorContext: context,
       anchorDirection: AnchorDirection.rightWithCenterAligned,
       style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(-20, 0),
+      anchorOffset: const Offset(20, 0),
     );
   }
 }

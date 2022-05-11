@@ -33,9 +33,10 @@ const GridEvent$json = const {
     const {'1': 'DuplicateRow', '2': 53},
     const {'1': 'GetCell', '2': 70},
     const {'1': 'UpdateCell', '2': 71},
-    const {'1': 'UpdateCellSelectOption', '2': 72},
+    const {'1': 'UpdateSelectOptionCell', '2': 72},
+    const {'1': 'UpdateDateCell', '2': 80},
   ],
 };
 
 /// Descriptor for `GridEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIZChVVcGRhdGVGaWVsZFR5cGVPcHRpb24QDBIPCgtJbnNlcnRGaWVsZBANEg8KC0RlbGV0ZUZpZWxkEA4SEQoNU3dpdGNoVG9GaWVsZBAUEhIKDkR1cGxpY2F0ZUZpZWxkEBUSFwoTR2V0RWRpdEZpZWxkQ29udGV4dBAWEgwKCE1vdmVJdGVtEBcSFgoSR2V0RmllbGRUeXBlT3B0aW9uEBgSEwoPTmV3U2VsZWN0T3B0aW9uEB4SGgoWR2V0U2VsZWN0T3B0aW9uQ29udGV4dBAfEhYKElVwZGF0ZVNlbGVjdE9wdGlvbhAgEg0KCUNyZWF0ZVJvdxAyEgoKBkdldFJvdxAzEg0KCURlbGV0ZVJvdxA0EhAKDER1cGxpY2F0ZVJvdxA1EgsKB0dldENlbGwQRhIOCgpVcGRhdGVDZWxsEEcSGgoWVXBkYXRlQ2VsbFNlbGVjdE9wdGlvbhBI');
+final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIZChVVcGRhdGVGaWVsZFR5cGVPcHRpb24QDBIPCgtJbnNlcnRGaWVsZBANEg8KC0RlbGV0ZUZpZWxkEA4SEQoNU3dpdGNoVG9GaWVsZBAUEhIKDkR1cGxpY2F0ZUZpZWxkEBUSFwoTR2V0RWRpdEZpZWxkQ29udGV4dBAWEgwKCE1vdmVJdGVtEBcSFgoSR2V0RmllbGRUeXBlT3B0aW9uEBgSEwoPTmV3U2VsZWN0T3B0aW9uEB4SGgoWR2V0U2VsZWN0T3B0aW9uQ29udGV4dBAfEhYKElVwZGF0ZVNlbGVjdE9wdGlvbhAgEg0KCUNyZWF0ZVJvdxAyEgoKBkdldFJvdxAzEg0KCURlbGV0ZVJvdxA0EhAKDER1cGxpY2F0ZVJvdxA1EgsKB0dldENlbGwQRhIOCgpVcGRhdGVDZWxsEEcSGgoWVXBkYXRlU2VsZWN0T3B0aW9uQ2VsbBBIEhIKDlVwZGF0ZURhdGVDZWxsEFA=');

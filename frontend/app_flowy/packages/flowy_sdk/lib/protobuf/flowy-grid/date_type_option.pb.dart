@@ -9,6 +9,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'cell_entities.pb.dart' as $0;
+
 import 'date_type_option.pbenum.dart';
 
 export 'date_type_option.pbenum.dart';
@@ -86,5 +88,108 @@ class DateTypeOption extends $pb.GeneratedMessage {
   $core.bool hasIncludeTime() => $_has(2);
   @$pb.TagNumber(3)
   void clearIncludeTime() => clearField(3);
+}
+
+enum DateChangesetPayload_OneOfDate {
+  date, 
+  notSet
+}
+
+enum DateChangesetPayload_OneOfTime {
+  time, 
+  notSet
+}
+
+class DateChangesetPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, DateChangesetPayload_OneOfDate> _DateChangesetPayload_OneOfDateByTag = {
+    2 : DateChangesetPayload_OneOfDate.date,
+    0 : DateChangesetPayload_OneOfDate.notSet
+  };
+  static const $core.Map<$core.int, DateChangesetPayload_OneOfTime> _DateChangesetPayload_OneOfTimeByTag = {
+    3 : DateChangesetPayload_OneOfTime.time,
+    0 : DateChangesetPayload_OneOfTime.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DateChangesetPayload', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..oo(1, [3])
+    ..aOM<$0.CellIdentifierPayload>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellIdentifier', subBuilder: $0.CellIdentifierPayload.create)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'date')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time')
+    ..hasRequiredFields = false
+  ;
+
+  DateChangesetPayload._() : super();
+  factory DateChangesetPayload({
+    $0.CellIdentifierPayload? cellIdentifier,
+    $core.String? date,
+    $core.String? time,
+  }) {
+    final _result = create();
+    if (cellIdentifier != null) {
+      _result.cellIdentifier = cellIdentifier;
+    }
+    if (date != null) {
+      _result.date = date;
+    }
+    if (time != null) {
+      _result.time = time;
+    }
+    return _result;
+  }
+  factory DateChangesetPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DateChangesetPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DateChangesetPayload clone() => DateChangesetPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DateChangesetPayload copyWith(void Function(DateChangesetPayload) updates) => super.copyWith((message) => updates(message as DateChangesetPayload)) as DateChangesetPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DateChangesetPayload create() => DateChangesetPayload._();
+  DateChangesetPayload createEmptyInstance() => create();
+  static $pb.PbList<DateChangesetPayload> createRepeated() => $pb.PbList<DateChangesetPayload>();
+  @$core.pragma('dart2js:noInline')
+  static DateChangesetPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DateChangesetPayload>(create);
+  static DateChangesetPayload? _defaultInstance;
+
+  DateChangesetPayload_OneOfDate whichOneOfDate() => _DateChangesetPayload_OneOfDateByTag[$_whichOneof(0)]!;
+  void clearOneOfDate() => clearField($_whichOneof(0));
+
+  DateChangesetPayload_OneOfTime whichOneOfTime() => _DateChangesetPayload_OneOfTimeByTag[$_whichOneof(1)]!;
+  void clearOneOfTime() => clearField($_whichOneof(1));
+
+  @$pb.TagNumber(1)
+  $0.CellIdentifierPayload get cellIdentifier => $_getN(0);
+  @$pb.TagNumber(1)
+  set cellIdentifier($0.CellIdentifierPayload v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCellIdentifier() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCellIdentifier() => clearField(1);
+  @$pb.TagNumber(1)
+  $0.CellIdentifierPayload ensureCellIdentifier() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get date => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set date($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDate() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDate() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get time => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set time($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTime() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTime() => clearField(3);
 }
 

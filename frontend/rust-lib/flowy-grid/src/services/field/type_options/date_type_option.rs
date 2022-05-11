@@ -1,17 +1,19 @@
 use crate::impl_type_option;
-use crate::services::row::{CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
-use chrono::{NaiveDateTime, ParseResult};
+use chrono::{Datelike, NaiveDateTime};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
+    CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
+use crate::services::entities::{CellIdentifier, CellIdentifierPayload};
+use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use strum_macros::EnumIter;
 
@@ -53,7 +55,7 @@ impl DateTypeOption {
 }
 
 impl CellDataOperation for DateTypeOption {
-    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_date() {
                 return DecodedCellData::default();
@@ -74,7 +76,7 @@ impl CellDataOperation for DateTypeOption {
         DecodedCellData::default()
     }
 
-    fn apply_changeset<T: Into<CellDataChangeset>>(
+    fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
         _cell_meta: Option<CellMeta>,
@@ -196,6 +198,59 @@ impl std::default::Default for TimeFormat {
     }
 }
 
+#[derive(Clone, Debug, Default, ProtoBuf)]
+pub struct DateChangesetPayload {
+    #[pb(index = 1)]
+    pub cell_identifier: CellIdentifierPayload,
+
+    #[pb(index = 2, one_of)]
+    pub date: Option<String>,
+
+    #[pb(index = 3, one_of)]
+    pub time: Option<String>,
+}
+
+pub struct DateChangesetParams {
+    pub cell_identifier: CellIdentifier,
+    pub date: Option<String>,
+    pub time: Option<String>,
+}
+
+impl TryInto<DateChangesetParams> for DateChangesetPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<DateChangesetParams, Self::Error> {
+        let cell_identifier: CellIdentifier = self.cell_identifier.try_into()?;
+        Ok(DateChangesetParams {
+            cell_identifier,
+            date: self.date,
+            time: self.time,
+        })
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct DateCellContentChangeset {
+    pub date: Option<String>,
+    pub time: Option<String>,
+}
+
+impl std::convert::From<DateChangesetParams> for CellChangeset {
+    fn from(params: DateChangesetParams) -> Self {
+        let changeset = DateCellContentChangeset {
+            date: params.date,
+            time: params.time,
+        };
+        let s = serde_json::to_string(&changeset).unwrap();
+        CellChangeset {
+            grid_id: params.cell_identifier.grid_id,
+            row_id: params.cell_identifier.row_id,
+            field_id: params.cell_identifier.field_id,
+            cell_content_changeset: Some(s),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::services::field::FieldBuilder;
@@ -210,7 +265,7 @@ mod tests {
         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
         assert_eq!(
             "".to_owned(),
-            type_option.decode_cell_data("1e".to_owned(), &field_meta)
+            type_option.decode_cell_data("1e".to_owned(), &field_meta).content
         );
     }
 
@@ -224,35 +279,39 @@ mod tests {
                 DateFormat::Friendly => {
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                     assert_eq!(
                         // "Mar 14,2022".to_owned(),
                         "".to_owned(),
-                        type_option.decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
+                        type_option
+                            .decode_cell_data(data("Mar 14,2022 17:56"), &field_meta)
+                            .content
                     );
                 }
                 DateFormat::US => {
                     assert_eq!(
                         "2022/03/14".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                     assert_eq!(
                         // "2022/03/14".to_owned(),
                         "".to_owned(),
-                        type_option.decode_cell_data(data("2022/03/14 17:56"), &field_meta)
+                        type_option
+                            .decode_cell_data(data("2022/03/14 17:56"), &field_meta)
+                            .content
                     );
                 }
                 DateFormat::ISO => {
                     assert_eq!(
                         "2022-03-14".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                 }
                 DateFormat::Local => {
                     assert_eq!(
                         "2022/03/14".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                 }
             }
@@ -270,14 +329,14 @@ mod tests {
                     assert_eq!("Mar 14,2022".to_owned(), type_option.today_from_timestamp(1647251762));
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                 }
                 TimeFormat::TwelveHour => {
                     assert_eq!("Mar 14,2022".to_owned(), type_option.today_from_timestamp(1647251762));
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
-                        type_option.decode_cell_data(data("1647251762"), &field_meta)
+                        type_option.decode_cell_data(data("1647251762"), &field_meta).content
                     );
                 }
             }

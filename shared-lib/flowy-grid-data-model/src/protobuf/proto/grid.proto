@@ -153,7 +153,7 @@ message CellChangeset {
     string grid_id = 1;
     string row_id = 2;
     string field_id = 3;
-    oneof one_of_data { string data = 4; };
+    oneof one_of_cell_content_changeset { string cell_content_changeset = 4; };
 }
 enum MoveItemType {
     MoveField = 0;

@@ -56,6 +56,7 @@ mod tests {
     impl quickcheck::Arbitrary for ValidEmailFixture {
         fn arbitrary(g: &mut quickcheck::Gen) -> Self {
             let mut rand_slice: [u8; 32] = [0; 32];
+            #[allow(clippy::needless_range_loop)]
             for i in 0..32 {
                 rand_slice[i] = u8::arbitrary(g);
             }

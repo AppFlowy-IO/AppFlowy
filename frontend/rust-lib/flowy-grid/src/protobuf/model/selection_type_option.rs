@@ -1102,9 +1102,7 @@ impl ::protobuf::reflect::ProtobufValue for SelectOptionChangesetPayload {
 #[derive(PartialEq,Clone,Default)]
 pub struct SelectOptionCellChangesetPayload {
     // message fields
-    pub grid_id: ::std::string::String,
-    pub row_id: ::std::string::String,
-    pub field_id: ::std::string::String,
+    pub cell_identifier: ::protobuf::SingularPtrField<super::cell_entities::CellIdentifierPayload>,
     // message oneof groups
     pub one_of_insert_option_id: ::std::option::Option<SelectOptionCellChangesetPayload_oneof_one_of_insert_option_id>,
     pub one_of_delete_option_id: ::std::option::Option<SelectOptionCellChangesetPayload_oneof_one_of_delete_option_id>,
@@ -1134,85 +1132,40 @@ impl SelectOptionCellChangesetPayload {
         ::std::default::Default::default()
     }
 
-    // string grid_id = 1;
+    // .CellIdentifierPayload cell_identifier = 1;
 
 
-    pub fn get_grid_id(&self) -> &str {
-        &self.grid_id
+    pub fn get_cell_identifier(&self) -> &super::cell_entities::CellIdentifierPayload {
+        self.cell_identifier.as_ref().unwrap_or_else(|| <super::cell_entities::CellIdentifierPayload as ::protobuf::Message>::default_instance())
     }
-    pub fn clear_grid_id(&mut self) {
-        self.grid_id.clear();
+    pub fn clear_cell_identifier(&mut self) {
+        self.cell_identifier.clear();
+    }
+
+    pub fn has_cell_identifier(&self) -> bool {
+        self.cell_identifier.is_some()
     }
 
     // Param is passed by value, moved
-    pub fn set_grid_id(&mut self, v: ::std::string::String) {
-        self.grid_id = v;
+    pub fn set_cell_identifier(&mut self, v: super::cell_entities::CellIdentifierPayload) {
+        self.cell_identifier = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_grid_id(&mut self) -> &mut ::std::string::String {
-        &mut self.grid_id
+    pub fn mut_cell_identifier(&mut self) -> &mut super::cell_entities::CellIdentifierPayload {
+        if self.cell_identifier.is_none() {
+            self.cell_identifier.set_default();
+        }
+        self.cell_identifier.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_grid_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.grid_id, ::std::string::String::new())
+    pub fn take_cell_identifier(&mut self) -> super::cell_entities::CellIdentifierPayload {
+        self.cell_identifier.take().unwrap_or_else(|| super::cell_entities::CellIdentifierPayload::new())
     }
 
-    // string row_id = 2;
-
-
-    pub fn get_row_id(&self) -> &str {
-        &self.row_id
-    }
-    pub fn clear_row_id(&mut self) {
-        self.row_id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_row_id(&mut self, v: ::std::string::String) {
-        self.row_id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_row_id(&mut self) -> &mut ::std::string::String {
-        &mut self.row_id
-    }
-
-    // Take field
-    pub fn take_row_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.row_id, ::std::string::String::new())
-    }
-
-    // string field_id = 3;
-
-
-    pub fn get_field_id(&self) -> &str {
-        &self.field_id
-    }
-    pub fn clear_field_id(&mut self) {
-        self.field_id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_field_id(&mut self, v: ::std::string::String) {
-        self.field_id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.field_id
-    }
-
-    // Take field
-    pub fn take_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
-    }
-
-    // string insert_option_id = 4;
+    // string insert_option_id = 2;
 
 
     pub fn get_insert_option_id(&self) -> &str {
@@ -1261,7 +1214,7 @@ impl SelectOptionCellChangesetPayload {
         }
     }
 
-    // string delete_option_id = 5;
+    // string delete_option_id = 3;
 
 
     pub fn get_delete_option_id(&self) -> &str {
@@ -1313,6 +1266,11 @@ impl SelectOptionCellChangesetPayload {
 
 impl ::protobuf::Message for SelectOptionCellChangesetPayload {
     fn is_initialized(&self) -> bool {
+        for v in &self.cell_identifier {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -1321,21 +1279,15 @@ impl ::protobuf::Message for SelectOptionCellChangesetPayload {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.grid_id)?;
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.cell_identifier)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.row_id)?;
-                },
-                3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
-                },
-                4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     self.one_of_insert_option_id = ::std::option::Option::Some(SelectOptionCellChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(is.read_string()?));
                 },
-                5 => {
+                3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -1353,26 +1305,21 @@ impl ::protobuf::Message for SelectOptionCellChangesetPayload {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.grid_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.grid_id);
-        }
-        if !self.row_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.row_id);
-        }
-        if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.field_id);
+        if let Some(ref v) = self.cell_identifier.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_insert_option_id {
             match v {
                 &SelectOptionCellChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref v) => {
-                    my_size += ::protobuf::rt::string_size(4, &v);
+                    my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_delete_option_id {
             match v {
                 &SelectOptionCellChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref v) => {
-                    my_size += ::protobuf::rt::string_size(5, &v);
+                    my_size += ::protobuf::rt::string_size(3, &v);
                 },
             };
         }
@@ -1382,26 +1329,22 @@ impl ::protobuf::Message for SelectOptionCellChangesetPayload {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.grid_id.is_empty() {
-            os.write_string(1, &self.grid_id)?;
-        }
-        if !self.row_id.is_empty() {
-            os.write_string(2, &self.row_id)?;
-        }
-        if !self.field_id.is_empty() {
-            os.write_string(3, &self.field_id)?;
+        if let Some(ref v) = self.cell_identifier.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_insert_option_id {
             match v {
                 &SelectOptionCellChangesetPayload_oneof_one_of_insert_option_id::insert_option_id(ref v) => {
-                    os.write_string(4, v)?;
+                    os.write_string(2, v)?;
                 },
             };
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_delete_option_id {
             match v {
                 &SelectOptionCellChangesetPayload_oneof_one_of_delete_option_id::delete_option_id(ref v) => {
-                    os.write_string(5, v)?;
+                    os.write_string(3, v)?;
                 },
             };
         }
@@ -1443,20 +1386,10 @@ impl ::protobuf::Message for SelectOptionCellChangesetPayload {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "grid_id",
-                |m: &SelectOptionCellChangesetPayload| { &m.grid_id },
-                |m: &mut SelectOptionCellChangesetPayload| { &mut m.grid_id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "row_id",
-                |m: &SelectOptionCellChangesetPayload| { &m.row_id },
-                |m: &mut SelectOptionCellChangesetPayload| { &mut m.row_id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "field_id",
-                |m: &SelectOptionCellChangesetPayload| { &m.field_id },
-                |m: &mut SelectOptionCellChangesetPayload| { &mut m.field_id },
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::cell_entities::CellIdentifierPayload>>(
+                "cell_identifier",
+                |m: &SelectOptionCellChangesetPayload| { &m.cell_identifier },
+                |m: &mut SelectOptionCellChangesetPayload| { &mut m.cell_identifier },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "insert_option_id",
@@ -1484,9 +1417,7 @@ impl ::protobuf::Message for SelectOptionCellChangesetPayload {
 
 impl ::protobuf::Clear for SelectOptionCellChangesetPayload {
     fn clear(&mut self) {
-        self.grid_id.clear();
-        self.row_id.clear();
-        self.field_id.clear();
+        self.cell_identifier.clear();
         self.one_of_insert_option_id = ::std::option::Option::None;
         self.one_of_delete_option_id = ::std::option::Option::None;
         self.unknown_fields.clear();
@@ -1806,19 +1737,18 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     _option\x18\x03\x20\x01(\x0b2\r.SelectOptionH\x01R\x0cupdateOption\x124\
     \n\rdelete_option\x18\x04\x20\x01(\x0b2\r.SelectOptionH\x02R\x0cdeleteOp\
     tionB\x16\n\x14one_of_insert_optionB\x16\n\x14one_of_update_optionB\x16\
-    \n\x14one_of_delete_option\"\xfb\x01\n\x20SelectOptionCellChangesetPaylo\
-    ad\x12\x17\n\x07grid_id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_i\
-    d\x18\x02\x20\x01(\tR\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\
-    \x07fieldId\x12*\n\x10insert_option_id\x18\x04\x20\x01(\tH\0R\x0einsertO\
-    ptionId\x12*\n\x10delete_option_id\x18\x05\x20\x01(\tH\x01R\x0edeleteOpt\
-    ionIdB\x19\n\x17one_of_insert_option_idB\x19\n\x17one_of_delete_option_i\
-    d\"t\n\x13SelectOptionContext\x12'\n\x07options\x18\x01\x20\x03(\x0b2\r.\
-    SelectOptionR\x07options\x124\n\x0eselect_options\x18\x02\x20\x03(\x0b2\
-    \r.SelectOptionR\rselectOptions*y\n\x11SelectOptionColor\x12\n\n\x06Purp\
-    le\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\x10\x02\x12\n\n\
-    \x06Orange\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\x04Lime\x10\x05\
-    \x12\t\n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\x08\n\x04Blue\
-    \x10\x08b\x06proto3\
+    \n\x14one_of_delete_option\"\xf1\x01\n\x20SelectOptionCellChangesetPaylo\
+    ad\x12?\n\x0fcell_identifier\x18\x01\x20\x01(\x0b2\x16.CellIdentifierPay\
+    loadR\x0ecellIdentifier\x12*\n\x10insert_option_id\x18\x02\x20\x01(\tH\0\
+    R\x0einsertOptionId\x12*\n\x10delete_option_id\x18\x03\x20\x01(\tH\x01R\
+    \x0edeleteOptionIdB\x19\n\x17one_of_insert_option_idB\x19\n\x17one_of_de\
+    lete_option_id\"t\n\x13SelectOptionContext\x12'\n\x07options\x18\x01\x20\
+    \x03(\x0b2\r.SelectOptionR\x07options\x124\n\x0eselect_options\x18\x02\
+    \x20\x03(\x0b2\r.SelectOptionR\rselectOptions*y\n\x11SelectOptionColor\
+    \x12\n\n\x06Purple\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\
+    \x10\x02\x12\n\n\x06Orange\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\
+    \x04Lime\x10\x05\x12\t\n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\
+    \x08\n\x04Blue\x10\x08b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

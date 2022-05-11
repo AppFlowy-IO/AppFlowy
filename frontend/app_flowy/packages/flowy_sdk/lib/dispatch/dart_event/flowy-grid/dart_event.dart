@@ -358,13 +358,30 @@ class GridEventUpdateCell {
     }
 }
 
-class GridEventUpdateCellSelectOption {
+class GridEventUpdateSelectOptionCell {
      SelectOptionCellChangesetPayload request;
-     GridEventUpdateCellSelectOption(this.request);
+     GridEventUpdateSelectOptionCell(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.UpdateCellSelectOption.toString()
+          ..event = GridEvent.UpdateSelectOptionCell.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventUpdateDateCell {
+     DateChangesetPayload request;
+     GridEventUpdateDateCell(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.UpdateDateCell.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

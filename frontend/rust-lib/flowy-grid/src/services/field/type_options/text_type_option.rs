@@ -1,7 +1,7 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    decode_cell_data, CellDataChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData,
+    decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -42,8 +42,7 @@ impl CellDataOperation for RichTextTypeOption {
                 || type_option_cell_data.is_multi_select()
                 || type_option_cell_data.is_number()
             {
-                decode_cell_data(data, field_meta, &type_option_cell_data.field_type)
-                    .unwrap_or_else(|| DecodedCellData::default())
+                decode_cell_data(data, field_meta, &type_option_cell_data.field_type).unwrap_or_default()
             } else {
                 DecodedCellData::from_content(type_option_cell_data.data)
             }
@@ -52,7 +51,7 @@ impl CellDataOperation for RichTextTypeOption {
         }
     }
 
-    fn apply_changeset<T: Into<CellDataChangeset>>(
+    fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
         _cell_meta: Option<CellMeta>,
@@ -81,7 +80,7 @@ mod tests {
         let date_time_field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         let data = TypeOptionCellData::new("1647251762", FieldType::DateTime).json();
         assert_eq!(
-            type_option.decode_cell_data(data, &date_time_field_meta),
+            type_option.decode_cell_data(data, &date_time_field_meta).content,
             "Mar 14,2022".to_owned()
         );
 
@@ -92,7 +91,9 @@ mod tests {
         let single_select_field_meta = FieldBuilder::new(single_select).build();
         let cell_data = TypeOptionCellData::new(&done_option_id, FieldType::SingleSelect).json();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &single_select_field_meta),
+            type_option
+                .decode_cell_data(cell_data, &single_select_field_meta)
+                .content,
             "Done".to_owned()
         );
 
@@ -100,7 +101,7 @@ mod tests {
         let google_option = SelectOption::new("Google");
         let facebook_option = SelectOption::new("Facebook");
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-        let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).cell_data();
+        let cell_data_changeset = SelectOptionCellContentChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option)
             .option(facebook_option);
@@ -108,7 +109,9 @@ mod tests {
         let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_meta);
         let cell_data = multi_type_option.apply_changeset(cell_data_changeset, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &multi_select_field_meta),
+            type_option
+                .decode_cell_data(cell_data, &multi_select_field_meta)
+                .content,
             "Google,Facebook".to_owned()
         );
 
@@ -117,7 +120,7 @@ mod tests {
         let number_field_meta = FieldBuilder::new(number).build();
         let data = TypeOptionCellData::new("18443", FieldType::Number).json();
         assert_eq!(
-            type_option.decode_cell_data(data, &number_field_meta),
+            type_option.decode_cell_data(data, &number_field_meta).content,
             "$18,443".to_owned()
         );
     }

@@ -22,5 +22,6 @@ enum GridEvent {
     DuplicateRow = 53;
     GetCell = 70;
     UpdateCell = 71;
-    UpdateCellSelectOption = 72;
+    UpdateSelectOptionCell = 72;
+    UpdateDateCell = 80;
 }

@@ -2327,22 +2327,22 @@ class MoveItemPayload extends $pb.GeneratedMessage {
   void clearTy() => clearField(5);
 }
 
-enum CellChangeset_OneOfData {
-  data, 
+enum CellChangeset_OneOfCellContentChangeset {
+  cellContentChangeset, 
   notSet
 }
 
 class CellChangeset extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, CellChangeset_OneOfData> _CellChangeset_OneOfDataByTag = {
-    4 : CellChangeset_OneOfData.data,
-    0 : CellChangeset_OneOfData.notSet
+  static const $core.Map<$core.int, CellChangeset_OneOfCellContentChangeset> _CellChangeset_OneOfCellContentChangesetByTag = {
+    4 : CellChangeset_OneOfCellContentChangeset.cellContentChangeset,
+    0 : CellChangeset_OneOfCellContentChangeset.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellChangeset', createEmptyInstance: create)
     ..oo(0, [4])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellContentChangeset')
     ..hasRequiredFields = false
   ;
 
@@ -2351,7 +2351,7 @@ class CellChangeset extends $pb.GeneratedMessage {
     $core.String? gridId,
     $core.String? rowId,
     $core.String? fieldId,
-    $core.String? data,
+    $core.String? cellContentChangeset,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -2363,8 +2363,8 @@ class CellChangeset extends $pb.GeneratedMessage {
     if (fieldId != null) {
       _result.fieldId = fieldId;
     }
-    if (data != null) {
-      _result.data = data;
+    if (cellContentChangeset != null) {
+      _result.cellContentChangeset = cellContentChangeset;
     }
     return _result;
   }
@@ -2389,8 +2389,8 @@ class CellChangeset extends $pb.GeneratedMessage {
   static CellChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellChangeset>(create);
   static CellChangeset? _defaultInstance;
 
-  CellChangeset_OneOfData whichOneOfData() => _CellChangeset_OneOfDataByTag[$_whichOneof(0)]!;
-  void clearOneOfData() => clearField($_whichOneof(0));
+  CellChangeset_OneOfCellContentChangeset whichOneOfCellContentChangeset() => _CellChangeset_OneOfCellContentChangesetByTag[$_whichOneof(0)]!;
+  void clearOneOfCellContentChangeset() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);
@@ -2420,12 +2420,12 @@ class CellChangeset extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get data => $_getSZ(3);
+  $core.String get cellContentChangeset => $_getSZ(3);
   @$pb.TagNumber(4)
-  set data($core.String v) { $_setString(3, v); }
+  set cellContentChangeset($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
+  $core.bool hasCellContentChangeset() => $_has(3);
   @$pb.TagNumber(4)
-  void clearData() => clearField(4);
+  void clearCellContentChangeset() => clearField(4);
 }
 

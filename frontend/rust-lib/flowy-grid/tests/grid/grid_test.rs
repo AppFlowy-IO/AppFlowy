@@ -2,7 +2,8 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+    MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset, SingleSelectTypeOption,
+    SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
@@ -317,11 +318,11 @@ async fn grid_cell_update() {
                     FieldType::DateTime => "123".to_string(),
                     FieldType::SingleSelect => {
                         let type_option = SingleSelectTypeOption::from(field_meta);
-                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
+                        SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::MultiSelect => {
                         let type_option = MultiSelectTypeOption::from(field_meta);
-                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
+                        SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::Checkbox => "1".to_string(),
                 };
@@ -331,7 +332,7 @@ async fn grid_cell_update() {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
-                        data: Some(data),
+                        cell_content_changeset: Some(data),
                     },
                     is_err: false,
                 });
@@ -342,8 +343,8 @@ async fn grid_cell_update() {
                     FieldType::RichText => ("1".to_string().repeat(10001), true),
                     FieldType::Number => ("abc".to_string(), true),
                     FieldType::DateTime => ("abc".to_string(), true),
-                    FieldType::SingleSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
-                    FieldType::MultiSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
+                    FieldType::SingleSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
+                    FieldType::MultiSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
                     FieldType::Checkbox => ("2".to_string(), false),
                 };
 
@@ -352,7 +353,7 @@ async fn grid_cell_update() {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
-                        data: Some(data),
+                        cell_content_changeset: Some(data),
                     },
                     is_err,
                 });

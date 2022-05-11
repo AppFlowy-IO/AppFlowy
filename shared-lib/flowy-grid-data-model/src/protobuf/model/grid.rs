@@ -7803,7 +7803,7 @@ pub struct CellChangeset {
     pub row_id: ::std::string::String,
     pub field_id: ::std::string::String,
     // message oneof groups
-    pub one_of_data: ::std::option::Option<CellChangeset_oneof_one_of_data>,
+    pub one_of_cell_content_changeset: ::std::option::Option<CellChangeset_oneof_one_of_cell_content_changeset>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -7816,8 +7816,8 @@ impl<'a> ::std::default::Default for &'a CellChangeset {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum CellChangeset_oneof_one_of_data {
-    data(::std::string::String),
+pub enum CellChangeset_oneof_one_of_cell_content_changeset {
+    cell_content_changeset(::std::string::String),
 }
 
 impl CellChangeset {
@@ -7903,48 +7903,48 @@ impl CellChangeset {
         ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
     }
 
-    // string data = 4;
+    // string cell_content_changeset = 4;
 
 
-    pub fn get_data(&self) -> &str {
-        match self.one_of_data {
-            ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(ref v)) => v,
+    pub fn get_cell_content_changeset(&self) -> &str {
+        match self.one_of_cell_content_changeset {
+            ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_data(&mut self) {
-        self.one_of_data = ::std::option::Option::None;
+    pub fn clear_cell_content_changeset(&mut self) {
+        self.one_of_cell_content_changeset = ::std::option::Option::None;
     }
 
-    pub fn has_data(&self) -> bool {
-        match self.one_of_data {
-            ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(..)) => true,
+    pub fn has_cell_content_changeset(&self) -> bool {
+        match self.one_of_cell_content_changeset {
+            ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_data(&mut self, v: ::std::string::String) {
-        self.one_of_data = ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(v))
+    pub fn set_cell_content_changeset(&mut self, v: ::std::string::String) {
+        self.one_of_cell_content_changeset = ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_data(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(_)) = self.one_of_data {
+    pub fn mut_cell_content_changeset(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(_)) = self.one_of_cell_content_changeset {
         } else {
-            self.one_of_data = ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(::std::string::String::new()));
+            self.one_of_cell_content_changeset = ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(::std::string::String::new()));
         }
-        match self.one_of_data {
-            ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(ref mut v)) => v,
+        match self.one_of_cell_content_changeset {
+            ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_data(&mut self) -> ::std::string::String {
-        if self.has_data() {
-            match self.one_of_data.take() {
-                ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(v)) => v,
+    pub fn take_cell_content_changeset(&mut self) -> ::std::string::String {
+        if self.has_cell_content_changeset() {
+            match self.one_of_cell_content_changeset.take() {
+                ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -7975,7 +7975,7 @@ impl ::protobuf::Message for CellChangeset {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_data = ::std::option::Option::Some(CellChangeset_oneof_one_of_data::data(is.read_string()?));
+                    self.one_of_cell_content_changeset = ::std::option::Option::Some(CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -7998,9 +7998,9 @@ impl ::protobuf::Message for CellChangeset {
         if !self.field_id.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.field_id);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+        if let ::std::option::Option::Some(ref v) = self.one_of_cell_content_changeset {
             match v {
-                &CellChangeset_oneof_one_of_data::data(ref v) => {
+                &CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
@@ -8020,9 +8020,9 @@ impl ::protobuf::Message for CellChangeset {
         if !self.field_id.is_empty() {
             os.write_string(3, &self.field_id)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+        if let ::std::option::Option::Some(ref v) = self.one_of_cell_content_changeset {
             match v {
-                &CellChangeset_oneof_one_of_data::data(ref v) => {
+                &CellChangeset_oneof_one_of_cell_content_changeset::cell_content_changeset(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
@@ -8081,9 +8081,9 @@ impl ::protobuf::Message for CellChangeset {
                 |m: &mut CellChangeset| { &mut m.field_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "data",
-                CellChangeset::has_data,
-                CellChangeset::get_data,
+                "cell_content_changeset",
+                CellChangeset::has_cell_content_changeset,
+                CellChangeset::get_cell_content_changeset,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CellChangeset>(
                 "CellChangeset",
@@ -8104,7 +8104,7 @@ impl ::protobuf::Clear for CellChangeset {
         self.grid_id.clear();
         self.row_id.clear();
         self.field_id.clear();
-        self.one_of_data = ::std::option::Option::None;
+        self.one_of_cell_content_changeset = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -8321,14 +8321,15 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\tR\x06gridId\x12\x17\n\x07item_id\x18\x02\x20\x01(\tR\x06itemId\
     \x12\x1d\n\nfrom_index\x18\x03\x20\x01(\x05R\tfromIndex\x12\x19\n\x08to_\
     index\x18\x04\x20\x01(\x05R\x07toIndex\x12\x1d\n\x02ty\x18\x05\x20\x01(\
-    \x0e2\r.MoveItemTypeR\x02ty\"\x7f\n\rCellChangeset\x12\x17\n\x07grid_id\
-    \x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\tR\
-    \x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x12\x14\n\
-    \x04data\x18\x04\x20\x01(\tH\0R\x04dataB\r\n\x0bone_of_data**\n\x0cMoveI\
-    temType\x12\r\n\tMoveField\x10\0\x12\x0b\n\x07MoveRow\x10\x01*d\n\tField\
-    Type\x12\x0c\n\x08RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08\
-    DateTime\x10\x02\x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSel\
-    ect\x10\x04\x12\x0c\n\x08Checkbox\x10\x05b\x06proto3\
+    \x0e2\r.MoveItemTypeR\x02ty\"\xb3\x01\n\rCellChangeset\x12\x17\n\x07grid\
+    _id\x18\x01\x20\x01(\tR\x06gridId\x12\x15\n\x06row_id\x18\x02\x20\x01(\t\
+    R\x05rowId\x12\x19\n\x08field_id\x18\x03\x20\x01(\tR\x07fieldId\x126\n\
+    \x16cell_content_changeset\x18\x04\x20\x01(\tH\0R\x14cellContentChangese\
+    tB\x1f\n\x1done_of_cell_content_changeset**\n\x0cMoveItemType\x12\r\n\tM\
+    oveField\x10\0\x12\x0b\n\x07MoveRow\x10\x01*d\n\tFieldType\x12\x0c\n\x08\
+    RichText\x10\0\x12\n\n\x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\
+    \x12\x10\n\x0cSingleSelect\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\
+    \x0c\n\x08Checkbox\x10\x05b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

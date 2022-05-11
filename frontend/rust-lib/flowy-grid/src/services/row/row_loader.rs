@@ -31,14 +31,14 @@ pub fn make_cell_by_field_id(
     cell_meta: CellMeta,
 ) -> Option<(String, Cell)> {
     let field_meta = field_map.get(&field_id)?;
-    let (raw, content) = decode_cell_data(cell_meta.data.clone(), field_meta, &field_meta.field_type)?.split();
+    let (raw, content) = decode_cell_data(cell_meta.data, field_meta, &field_meta.field_type)?.split();
     let cell = Cell::new(&field_id, content, raw);
     Some((field_id, cell))
 }
 
 pub fn make_cell(field_id: &str, field_meta: &FieldMeta, row_meta: &RowMeta) -> Option<Cell> {
     let cell_meta = row_meta.cells.get(field_id)?.clone();
-    let (raw, content) = decode_cell_data(cell_meta.data.clone(), field_meta, &field_meta.field_type)?.split();
+    let (raw, content) = decode_cell_data(cell_meta.data, field_meta, &field_meta.field_type)?.split();
     Some(Cell::new(field_id, content, raw))
 }
 

@@ -51,7 +51,9 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setTimeFormat: (_TimeFormat value) async {
             await _updateTypeOption(emit, timeFormat: value.timeFormat);
           },
-          setTime: (_Time value) {},
+          setTime: (_Time value) {
+            //
+          },
         );
       },
     );

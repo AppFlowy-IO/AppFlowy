@@ -44,3 +44,19 @@ const DateTypeOption$json = const {
 
 /// Descriptor for `DateTypeOption`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List dateTypeOptionDescriptor = $convert.base64Decode('Cg5EYXRlVHlwZU9wdGlvbhIsCgtkYXRlX2Zvcm1hdBgBIAEoDjILLkRhdGVGb3JtYXRSCmRhdGVGb3JtYXQSLAoLdGltZV9mb3JtYXQYAiABKA4yCy5UaW1lRm9ybWF0Ugp0aW1lRm9ybWF0EiEKDGluY2x1ZGVfdGltZRgDIAEoCFILaW5jbHVkZVRpbWU=');
+@$core.Deprecated('Use dateChangesetPayloadDescriptor instead')
+const DateChangesetPayload$json = const {
+  '1': 'DateChangesetPayload',
+  '2': const [
+    const {'1': 'cell_identifier', '3': 1, '4': 1, '5': 11, '6': '.CellIdentifierPayload', '10': 'cellIdentifier'},
+    const {'1': 'date', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'date'},
+    const {'1': 'time', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'time'},
+  ],
+  '8': const [
+    const {'1': 'one_of_date'},
+    const {'1': 'one_of_time'},
+  ],
+};
+
+/// Descriptor for `DateChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List dateChangesetPayloadDescriptor = $convert.base64Decode('ChREYXRlQ2hhbmdlc2V0UGF5bG9hZBI/Cg9jZWxsX2lkZW50aWZpZXIYASABKAsyFi5DZWxsSWRlbnRpZmllclBheWxvYWRSDmNlbGxJZGVudGlmaWVyEhQKBGRhdGUYAiABKAlIAFIEZGF0ZRIUCgR0aW1lGAMgASgJSAFSBHRpbWVCDQoLb25lX29mX2RhdGVCDQoLb25lX29mX3RpbWU=');

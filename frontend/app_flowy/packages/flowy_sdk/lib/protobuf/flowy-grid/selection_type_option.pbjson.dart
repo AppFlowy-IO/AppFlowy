@@ -82,11 +82,9 @@ final $typed_data.Uint8List selectOptionChangesetPayloadDescriptor = $convert.ba
 const SelectOptionCellChangesetPayload$json = const {
   '1': 'SelectOptionCellChangesetPayload',
   '2': const [
-    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
-    const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'insert_option_id', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'insertOptionId'},
-    const {'1': 'delete_option_id', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'deleteOptionId'},
+    const {'1': 'cell_identifier', '3': 1, '4': 1, '5': 11, '6': '.CellIdentifierPayload', '10': 'cellIdentifier'},
+    const {'1': 'insert_option_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'insertOptionId'},
+    const {'1': 'delete_option_id', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'deleteOptionId'},
   ],
   '8': const [
     const {'1': 'one_of_insert_option_id'},
@@ -95,7 +93,7 @@ const SelectOptionCellChangesetPayload$json = const {
 };
 
 /// Descriptor for `SelectOptionCellChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionCellChangesetPayloadDescriptor = $convert.base64Decode('CiBTZWxlY3RPcHRpb25DZWxsQ2hhbmdlc2V0UGF5bG9hZBIXCgdncmlkX2lkGAEgASgJUgZncmlkSWQSFQoGcm93X2lkGAIgASgJUgVyb3dJZBIZCghmaWVsZF9pZBgDIAEoCVIHZmllbGRJZBIqChBpbnNlcnRfb3B0aW9uX2lkGAQgASgJSABSDmluc2VydE9wdGlvbklkEioKEGRlbGV0ZV9vcHRpb25faWQYBSABKAlIAVIOZGVsZXRlT3B0aW9uSWRCGQoXb25lX29mX2luc2VydF9vcHRpb25faWRCGQoXb25lX29mX2RlbGV0ZV9vcHRpb25faWQ=');
+final $typed_data.Uint8List selectOptionCellChangesetPayloadDescriptor = $convert.base64Decode('CiBTZWxlY3RPcHRpb25DZWxsQ2hhbmdlc2V0UGF5bG9hZBI/Cg9jZWxsX2lkZW50aWZpZXIYASABKAsyFi5DZWxsSWRlbnRpZmllclBheWxvYWRSDmNlbGxJZGVudGlmaWVyEioKEGluc2VydF9vcHRpb25faWQYAiABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgDIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
 @$core.Deprecated('Use selectOptionContextDescriptor instead')
 const SelectOptionContext$json = const {
   '1': 'SelectOptionContext',

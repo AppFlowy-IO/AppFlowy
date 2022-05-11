@@ -237,6 +237,343 @@ impl ::protobuf::reflect::ProtobufValue for DateTypeOption {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct DateChangesetPayload {
+    // message fields
+    pub cell_identifier: ::protobuf::SingularPtrField<super::cell_entities::CellIdentifierPayload>,
+    // message oneof groups
+    pub one_of_date: ::std::option::Option<DateChangesetPayload_oneof_one_of_date>,
+    pub one_of_time: ::std::option::Option<DateChangesetPayload_oneof_one_of_time>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a DateChangesetPayload {
+    fn default() -> &'a DateChangesetPayload {
+        <DateChangesetPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum DateChangesetPayload_oneof_one_of_date {
+    date(::std::string::String),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum DateChangesetPayload_oneof_one_of_time {
+    time(::std::string::String),
+}
+
+impl DateChangesetPayload {
+    pub fn new() -> DateChangesetPayload {
+        ::std::default::Default::default()
+    }
+
+    // .CellIdentifierPayload cell_identifier = 1;
+
+
+    pub fn get_cell_identifier(&self) -> &super::cell_entities::CellIdentifierPayload {
+        self.cell_identifier.as_ref().unwrap_or_else(|| <super::cell_entities::CellIdentifierPayload as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_cell_identifier(&mut self) {
+        self.cell_identifier.clear();
+    }
+
+    pub fn has_cell_identifier(&self) -> bool {
+        self.cell_identifier.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_cell_identifier(&mut self, v: super::cell_entities::CellIdentifierPayload) {
+        self.cell_identifier = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_cell_identifier(&mut self) -> &mut super::cell_entities::CellIdentifierPayload {
+        if self.cell_identifier.is_none() {
+            self.cell_identifier.set_default();
+        }
+        self.cell_identifier.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_cell_identifier(&mut self) -> super::cell_entities::CellIdentifierPayload {
+        self.cell_identifier.take().unwrap_or_else(|| super::cell_entities::CellIdentifierPayload::new())
+    }
+
+    // string date = 2;
+
+
+    pub fn get_date(&self) -> &str {
+        match self.one_of_date {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_date(&mut self) {
+        self.one_of_date = ::std::option::Option::None;
+    }
+
+    pub fn has_date(&self) -> bool {
+        match self.one_of_date {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_date(&mut self, v: ::std::string::String) {
+        self.one_of_date = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_date(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(_)) = self.one_of_date {
+        } else {
+            self.one_of_date = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(::std::string::String::new()));
+        }
+        match self.one_of_date {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_date(&mut self) -> ::std::string::String {
+        if self.has_date() {
+            match self.one_of_date.take() {
+                ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+
+    // string time = 3;
+
+
+    pub fn get_time(&self) -> &str {
+        match self.one_of_time {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_time(&mut self) {
+        self.one_of_time = ::std::option::Option::None;
+    }
+
+    pub fn has_time(&self) -> bool {
+        match self.one_of_time {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_time(&mut self, v: ::std::string::String) {
+        self.one_of_time = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_time(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(_)) = self.one_of_time {
+        } else {
+            self.one_of_time = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(::std::string::String::new()));
+        }
+        match self.one_of_time {
+            ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_time(&mut self) -> ::std::string::String {
+        if self.has_time() {
+            match self.one_of_time.take() {
+                ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for DateChangesetPayload {
+    fn is_initialized(&self) -> bool {
+        for v in &self.cell_identifier {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.cell_identifier)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_date = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_date::date(is.read_string()?));
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_time = ::std::option::Option::Some(DateChangesetPayload_oneof_one_of_time::time(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.cell_identifier.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_date {
+            match v {
+                &DateChangesetPayload_oneof_one_of_date::date(ref v) => {
+                    my_size += ::protobuf::rt::string_size(2, &v);
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_time {
+            match v {
+                &DateChangesetPayload_oneof_one_of_time::time(ref v) => {
+                    my_size += ::protobuf::rt::string_size(3, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.cell_identifier.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_date {
+            match v {
+                &DateChangesetPayload_oneof_one_of_date::date(ref v) => {
+                    os.write_string(2, v)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_time {
+            match v {
+                &DateChangesetPayload_oneof_one_of_time::time(ref v) => {
+                    os.write_string(3, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> DateChangesetPayload {
+        DateChangesetPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::cell_entities::CellIdentifierPayload>>(
+                "cell_identifier",
+                |m: &DateChangesetPayload| { &m.cell_identifier },
+                |m: &mut DateChangesetPayload| { &mut m.cell_identifier },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "date",
+                DateChangesetPayload::has_date,
+                DateChangesetPayload::get_date,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "time",
+                DateChangesetPayload::has_time,
+                DateChangesetPayload::get_time,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateChangesetPayload>(
+                "DateChangesetPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static DateChangesetPayload {
+        static instance: ::protobuf::rt::LazyV2<DateChangesetPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DateChangesetPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for DateChangesetPayload {
+    fn clear(&mut self) {
+        self.cell_identifier.clear();
+        self.one_of_date = ::std::option::Option::None;
+        self.one_of_time = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for DateChangesetPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for DateChangesetPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum DateFormat {
     Local = 0,
@@ -344,13 +681,17 @@ impl ::protobuf::reflect::ProtobufValue for TimeFormat {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16date_type_option.proto\"\x8f\x01\n\x0eDateTypeOption\x12,\n\x0bdat\
-    e_format\x18\x01\x20\x01(\x0e2\x0b.DateFormatR\ndateFormat\x12,\n\x0btim\
-    e_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormatR\ntimeFormat\x12!\n\x0cinc\
-    lude_time\x18\x03\x20\x01(\x08R\x0bincludeTime*6\n\nDateFormat\x12\t\n\
-    \x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\x0c\
-    \n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\x12\
-    \x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\
+    \n\x16date_type_option.proto\x1a\x13cell_entities.proto\"\x8f\x01\n\x0eD\
+    ateTypeOption\x12,\n\x0bdate_format\x18\x01\x20\x01(\x0e2\x0b.DateFormat\
+    R\ndateFormat\x12,\n\x0btime_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormat\
+    R\ntimeFormat\x12!\n\x0cinclude_time\x18\x03\x20\x01(\x08R\x0bincludeTim\
+    e\"\xa1\x01\n\x14DateChangesetPayload\x12?\n\x0fcell_identifier\x18\x01\
+    \x20\x01(\x0b2\x16.CellIdentifierPayloadR\x0ecellIdentifier\x12\x14\n\
+    \x04date\x18\x02\x20\x01(\tH\0R\x04date\x12\x14\n\x04time\x18\x03\x20\
+    \x01(\tH\x01R\x04timeB\r\n\x0bone_of_dateB\r\n\x0bone_of_time*6\n\nDateF\
+    ormat\x12\t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\
+    \x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelve\
+    Hour\x10\0\x12\x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

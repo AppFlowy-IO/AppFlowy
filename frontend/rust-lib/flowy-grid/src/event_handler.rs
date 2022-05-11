@@ -182,8 +182,8 @@ async fn make_edit_field_context(
 
 async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_meta
-        .get_type_option_str(&field_type)
-        .unwrap_or_else(|| default_type_option_builder_from_type(&field_type).entry().json_str());
+        .get_type_option_str(field_type)
+        .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
     let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
@@ -301,10 +301,10 @@ pub(crate) async fn update_select_option_handler(
 
     if let Some(mut field_meta) = editor.get_field_meta(&changeset.cell_identifier.field_id).await {
         let mut type_option = select_option_operation(&field_meta)?;
-        let mut cell_data = None;
+        let mut cell_content_changeset = None;
 
         if let Some(option) = changeset.insert_option {
-            cell_data = Some(SelectOptionCellChangeset::from_insert(&option.id).cell_data());
+            cell_content_changeset = Some(SelectOptionCellContentChangeset::from_insert(&option.id).to_str());
             type_option.insert_option(option);
         }
 
@@ -313,7 +313,7 @@ pub(crate) async fn update_select_option_handler(
         }
 
         if let Some(option) = changeset.delete_option {
-            cell_data = Some(SelectOptionCellChangeset::from_delete(&option.id).cell_data());
+            cell_content_changeset = Some(SelectOptionCellContentChangeset::from_delete(&option.id).to_str());
             type_option.delete_option(option);
         }
 
@@ -324,7 +324,7 @@ pub(crate) async fn update_select_option_handler(
             grid_id: changeset.cell_identifier.grid_id,
             row_id: changeset.cell_identifier.row_id,
             field_id: changeset.cell_identifier.field_id,
-            data: cell_data,
+            cell_content_changeset,
         };
         let _ = editor.update_cell(changeset).await?;
     }
@@ -365,13 +365,23 @@ pub(crate) async fn get_select_option_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn update_cell_select_option_handler(
+pub(crate) async fn update_select_option_cell_handler(
     data: Data<SelectOptionCellChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    let changeset: CellChangeset = params.into();
-    let _ = editor.update_cell(changeset).await?;
+    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
+    let _ = editor.update_cell(params.into()).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_date_cell_handler(
+    data: Data<DateChangesetPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: DateChangesetParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
+    let _ = editor.update_cell(params.into()).await?;
     Ok(())
 }

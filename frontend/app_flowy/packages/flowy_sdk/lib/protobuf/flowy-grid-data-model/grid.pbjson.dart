@@ -449,12 +449,12 @@ const CellChangeset$json = const {
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'row_id', '3': 2, '4': 1, '5': 9, '10': 'rowId'},
     const {'1': 'field_id', '3': 3, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'data', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'data'},
+    const {'1': 'cell_content_changeset', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'cellContentChangeset'},
   ],
   '8': const [
-    const {'1': 'one_of_data'},
+    const {'1': 'one_of_cell_content_changeset'},
   ],
 };
 
 /// Descriptor for `CellChangeset`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellChangesetDescriptor = $convert.base64Decode('Cg1DZWxsQ2hhbmdlc2V0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEhQKBGRhdGEYBCABKAlIAFIEZGF0YUINCgtvbmVfb2ZfZGF0YQ==');
+final $typed_data.Uint8List cellChangesetDescriptor = $convert.base64Decode('Cg1DZWxsQ2hhbmdlc2V0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIVCgZyb3dfaWQYAiABKAlSBXJvd0lkEhkKCGZpZWxkX2lkGAMgASgJUgdmaWVsZElkEjYKFmNlbGxfY29udGVudF9jaGFuZ2VzZXQYBCABKAlIAFIUY2VsbENvbnRlbnRDaGFuZ2VzZXRCHwodb25lX29mX2NlbGxfY29udGVudF9jaGFuZ2VzZXQ=');
