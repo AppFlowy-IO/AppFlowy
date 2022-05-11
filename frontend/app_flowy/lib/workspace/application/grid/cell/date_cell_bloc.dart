@@ -2,11 +2,11 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'cell_service.dart';
+import 'cell_service/cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final GridDefaultCellContext cellContext;
+  final GridDateCellContext cellContext;
   void Function()? _onCellChangedFn;
 
   DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
@@ -17,7 +17,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
             _startListening();
           },
           selectDay: (_SelectDay value) {
-            _updateCellData(value.day);
+            cellContext.saveCellData(value.data);
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
             emit(state.copyWith(
@@ -51,17 +51,12 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       }),
     );
   }
-
-  void _updateCellData(DateTime day) {
-    final data = day.millisecondsSinceEpoch ~/ 1000;
-    cellContext.saveCellData(data.toString());
-  }
 }
 
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.selectDay(DateTime day) = _SelectDay;
+  const factory DateCellEvent.selectDay(DateCellPersistenceData data) = _SelectDay;
   const factory DateCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
   const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
@@ -73,7 +68,7 @@ class DateCellState with _$DateCellState {
     required Field field,
   }) = _DateCellState;
 
-  factory DateCellState.initial(GridCellContext context) => DateCellState(
+  factory DateCellState.initial(GridDateCellContext context) => DateCellState(
         field: context.field,
         content: context.getCellData()?.content ?? "",
       );

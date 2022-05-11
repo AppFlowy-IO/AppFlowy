@@ -79,14 +79,25 @@ impl CellDataOperation for DateTypeOption {
     fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
-        _cell_meta: Option<CellMeta>,
+        cell_meta: Option<CellMeta>,
     ) -> Result<String, FlowyError> {
-        let changeset = changeset.into();
-        if changeset.parse::<f64>().is_err() || changeset.parse::<i64>().is_err() {
-            return Err(FlowyError::internal().context(format!("Parse {} failed", changeset)));
-        };
+        let content_changeset: DateCellContentChangeset = serde_json::from_str(&changeset.into())?;
+        match cell_meta {
+            None => Ok(TypeOptionCellData::new("", self.field_type()).json()),
+            Some(cell_meta) => {
+                let s = match content_changeset.timestamp() {
+                    None => get_cell_data(&cell_meta),
+                    Some(timestamp) => timestamp.to_string(),
+                };
 
-        Ok(TypeOptionCellData::new(changeset, self.field_type()).json())
+                Ok(TypeOptionCellData::new(s, self.field_type()).json())
+
+                // let changeset = changeset.into();
+                // if changeset.parse::<f64>().is_err() || changeset.parse::<i64>().is_err() {
+                //     return Err(FlowyError::internal().context(format!("Parse {} failed", changeset)));
+                // };
+            }
+        }
     }
 }
 
@@ -233,6 +244,31 @@ impl TryInto<DateChangesetParams> for DateChangesetPayload {
 pub struct DateCellContentChangeset {
     pub date: Option<String>,
     pub time: Option<String>,
+}
+
+impl DateCellContentChangeset {
+    pub fn timestamp(self) -> Option<i64> {
+        let mut timestamp = 0;
+        if let Some(date) = self.date {
+            match date.parse::<i64>() {
+                Ok(date_timestamp) => {
+                    timestamp += date_timestamp;
+                }
+                Err(_) => {}
+            }
+        } else {
+            return None;
+        }
+
+        if let Some(time) = self.time {
+            match time.parse::<i64>() {
+                Ok(time_timestamp) => timestamp += time_timestamp,
+                Err(_) => {}
+            }
+        }
+
+        return Some(timestamp);
+    }
 }
 
 impl std::convert::From<DateChangesetParams> for CellChangeset {

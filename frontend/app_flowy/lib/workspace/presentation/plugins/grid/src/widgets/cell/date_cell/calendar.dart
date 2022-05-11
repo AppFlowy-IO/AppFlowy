@@ -32,8 +32,8 @@ class CellCalendar with FlowyOverlayDelegate {
 
   Future<void> show(
     BuildContext context, {
-    required GridDefaultCellContext cellContext,
-    required void Function(DateTime) onSelected,
+    required GridDateCellContext cellContext,
+    required void Function(DateCellPersistenceData) onSelected,
   }) async {
     CellCalendar.remove(context);
 
@@ -88,10 +88,10 @@ class CellCalendar with FlowyOverlayDelegate {
 }
 
 class _CellCalendarWidget extends StatelessWidget {
-  final GridDefaultCellContext cellContext;
+  final GridDateCellContext cellContext;
   final DateTypeOption dateTypeOption;
   final DateTime? selectedDay;
-  final void Function(DateTime) onSelected;
+  final void Function(DateCellPersistenceData) onSelected;
 
   const _CellCalendarWidget({
     required this.onSelected,
@@ -113,7 +113,7 @@ class _CellCalendarWidget extends StatelessWidget {
       child: BlocConsumer<DateCalBloc, DateCalState>(
         listener: (context, state) {
           if (state.selectedDay != null) {
-            onSelected(state.selectedDay!);
+            onSelected(DateCellPersistenceData(date: state.selectedDay!));
           }
         },
         listenWhen: (p, c) => p.selectedDay != c.selectedDay,

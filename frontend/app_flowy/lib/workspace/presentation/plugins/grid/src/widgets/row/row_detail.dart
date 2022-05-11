@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';

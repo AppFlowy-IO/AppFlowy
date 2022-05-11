@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'cell/cell_service.dart';
+import 'cell/cell_service/cell_service.dart';
 import 'row/row_service.dart';
 
 class GridService {

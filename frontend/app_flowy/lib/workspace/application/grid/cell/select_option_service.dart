@@ -1,33 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
-
 import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
-
-import 'cell_service.dart';
-
-class SelectOptionCellDataLoader extends GridCellDataLoader<SelectOptionContext> {
-  final SelectOptionService service;
-  final GridCell gridCell;
-  SelectOptionCellDataLoader({
-    required this.gridCell,
-  }) : service = SelectOptionService(gridCell: gridCell);
-  @override
-  Future<SelectOptionContext?> loadData() async {
-    return service.getOpitonContext().then((result) {
-      return result.fold(
-        (data) => data,
-        (err) {
-          Log.error(err);
-          return null;
-        },
-      );
-    });
-  }
-}
+import 'cell_service/cell_service.dart';
 
 class SelectOptionService {
   final GridCell gridCell;

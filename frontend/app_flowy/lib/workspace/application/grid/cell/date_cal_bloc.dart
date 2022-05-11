@@ -7,14 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'cell_service.dart';
+import 'cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart';
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
-  final GridDefaultCellContext cellContext;
+  final GridDateCellContext cellContext;
   void Function()? _onCellChangedFn;
 
   DateCalBloc({
@@ -103,8 +103,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   }
 
   void _updateCellData(DateTime day) {
-    final data = day.millisecondsSinceEpoch ~/ 1000;
-    cellContext.saveCellData(data.toString());
+    cellContext.saveCellData(DateCellPersistenceData(date: day));
   }
 
   Future<void>? _updateTypeOption(
