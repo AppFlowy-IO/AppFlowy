@@ -112,11 +112,11 @@ class _CellCalendarWidget extends StatelessWidget {
       )..add(const DateCalEvent.initial()),
       child: BlocConsumer<DateCalBloc, DateCalState>(
         listener: (context, state) {
-          if (state.selectedDay != null) {
-            onSelected(DateCellPersistenceData(date: state.selectedDay!));
+          if (state.dateData != null) {
+            onSelected(state.dateData!);
           }
         },
-        listenWhen: (p, c) => p.selectedDay != c.selectedDay,
+        listenWhen: (p, c) => p.dateData != c.dateData,
         builder: (context, state) {
           List<Widget> children = [];
 
@@ -190,7 +190,11 @@ class _CellCalendarWidget extends StatelessWidget {
         ),
       ),
       selectedDayPredicate: (day) {
-        return isSameDay(state.selectedDay, day);
+        if (state.dateData != null) {
+          return isSameDay(state.dateData!.date, day);
+        } else {
+          return false;
+        }
       },
       onDaySelected: (selectedDay, focusedDay) {
         context.read<DateCalBloc>().add(DateCalEvent.selectDay(selectedDay));

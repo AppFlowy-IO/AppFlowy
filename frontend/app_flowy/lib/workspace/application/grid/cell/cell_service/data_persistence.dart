@@ -27,13 +27,9 @@ class CellDataPersistence implements _GridCellDataPersistence<String> {
   }
 }
 
-class DateCellPersistenceData {
-  final DateTime date;
-  final String? time;
-  DateCellPersistenceData({
-    required this.date,
-    this.time,
-  });
+@freezed
+class DateCellPersistenceData with _$DateCellPersistenceData {
+  const factory DateCellPersistenceData({required DateTime date, String? time}) = _DateCellPersistenceData;
 }
 
 class NumberCellDataPersistence implements _GridCellDataPersistence<DateCellPersistenceData> {

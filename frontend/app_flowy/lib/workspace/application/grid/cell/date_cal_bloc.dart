@@ -9,7 +9,6 @@ import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
-import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart';
 part 'date_cal_bloc.freezed.dart';
 
@@ -30,9 +29,13 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
             // await _loadDateTypeOption(emit);
           },
           selectDay: (_SelectDay value) {
-            if (!isSameDay(state.selectedDay, value.day)) {
-              _updateCellData(value.day);
-              emit(state.copyWith(selectedDay: value.day));
+            if (state.dateData != null) {
+              if (!isSameDay(state.dateData!.date, value.day)) {
+                final newDateData = state.dateData!.copyWith(date: value.day);
+                emit(state.copyWith(dateData: newDateData));
+              }
+            } else {
+              emit(state.copyWith(dateData: DateCellPersistenceData(date: value.day)));
             }
           },
           setCalFormat: (_CalendarFormat value) {
@@ -52,7 +55,12 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
             await _updateTypeOption(emit, timeFormat: value.timeFormat);
           },
           setTime: (_Time value) {
-            //
+            if (state.dateData != null) {
+              final newDateData = state.dateData!.copyWith(time: value.time);
+              emit(state.copyWith(dateData: newDateData));
+            } else {
+              emit(state.copyWith(dateData: DateCellPersistenceData(date: DateTime.now(), time: value.time)));
+            }
           },
         );
       },
@@ -77,33 +85,6 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         }
       }),
     );
-  }
-
-  // ignore: unused_element
-  Future<void> _loadDateTypeOption(Emitter<DateCalState> emit) async {
-    final result = await cellContext.getTypeOptionData();
-    result.fold(
-      (data) {
-        final typeOptionData = DateTypeOption.fromBuffer(data);
-        DateTime? selectedDay;
-        final cellData = cellContext.getCellData()?.data;
-
-        if (cellData != null) {
-          final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
-          selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-        }
-
-        emit(state.copyWith(
-          dateTypeOption: typeOptionData,
-          selectedDay: selectedDay,
-        ));
-      },
-      (err) => Log.error(err),
-    );
-  }
-
-  void _updateCellData(DateTime day) {
-    cellContext.saveCellData(DateCellPersistenceData(date: day));
   }
 
   Future<void>? _updateTypeOption(
@@ -161,19 +142,25 @@ class DateCalState with _$DateCalState {
     required DateTime focusedDay,
     required String time,
     required Option<FlowyError> inputTimeError,
-    DateTime? selectedDay,
+    DateCellPersistenceData? dateData,
   }) = _DateCalState;
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
     DateTime? selectedDay,
-  ) =>
-      DateCalState(
-        dateTypeOption: dateTypeOption,
-        format: CalendarFormat.month,
-        focusedDay: DateTime.now(),
-        selectedDay: selectedDay,
-        time: "",
-        inputTimeError: none(),
-      );
+  ) {
+    DateCellPersistenceData? dateData;
+    if (selectedDay != null) {
+      dateData = DateCellPersistenceData(date: selectedDay);
+    }
+
+    return DateCalState(
+      dateTypeOption: dateTypeOption,
+      format: CalendarFormat.month,
+      focusedDay: DateTime.now(),
+      dateData: dateData,
+      time: "",
+      inputTimeError: none(),
+    );
+  }
 }
