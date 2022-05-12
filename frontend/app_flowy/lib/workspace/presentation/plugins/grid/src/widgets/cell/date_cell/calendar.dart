@@ -112,9 +112,10 @@ class _CellCalendarWidget extends StatelessWidget {
       )..add(const DateCalEvent.initial()),
       child: BlocConsumer<DateCalBloc, DateCalState>(
         listener: (context, state) {
-          if (state.dateData != null) {
-            onSelected(state.dateData!);
-          }
+          state.dateData.fold(
+            () => null,
+            (dateData) => onSelected(dateData),
+          );
         },
         listenWhen: (p, c) => p.dateData != c.dateData,
         builder: (context, state) {
@@ -127,7 +128,13 @@ class _CellCalendarWidget extends StatelessWidget {
 
           if (state.dateTypeOption.includeTime) {
             children.addAll([
-              const _TimeTextField(),
+              _TimeTextField(
+                time: "",
+                errorText: state.inputTimeError.fold(() => "", (error) => error.toString()),
+                onEditingComplete: (text) {
+                  context.read<DateCalBloc>().add(DateCalEvent.setTime(text));
+                },
+              ),
             ]);
           }
 
@@ -190,11 +197,10 @@ class _CellCalendarWidget extends StatelessWidget {
         ),
       ),
       selectedDayPredicate: (day) {
-        if (state.dateData != null) {
-          return isSameDay(state.dateData!.date, day);
-        } else {
-          return false;
-        }
+        return state.dateData.fold(
+          () => false,
+          (dateData) => isSameDay(dateData.date, day),
+        );
       },
       onDaySelected: (selectedDay, focusedDay) {
         context.read<DateCalBloc>().add(DateCalEvent.selectDay(selectedDay));
@@ -241,8 +247,36 @@ class _IncludeTimeButton extends StatelessWidget {
   }
 }
 
-class _TimeTextField extends StatelessWidget {
-  const _TimeTextField({Key? key}) : super(key: key);
+class _TimeTextField extends StatefulWidget {
+  final String errorText;
+  final String time;
+  final void Function(String) onEditingComplete;
+  const _TimeTextField({
+    Key? key,
+    required this.time,
+    required this.errorText,
+    required this.onEditingComplete,
+  }) : super(key: key);
+
+  @override
+  State<_TimeTextField> createState() => _TimeTextFieldState();
+}
+
+class _TimeTextFieldState extends State<_TimeTextField> {
+  late final FocusNode _focusNode;
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    _controller = TextEditingController(text: widget.time);
+    _focusNode.addListener(() {
+      if (mounted) {
+        widget.onEditingComplete(_controller.text);
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,14 +285,24 @@ class _TimeTextField extends StatelessWidget {
       padding: kMargin,
       child: RoundedInputField(
         height: 40,
+        focusNode: _focusNode,
+        controller: _controller,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         normalBorderColor: theme.shader4,
         errorBorderColor: theme.red,
         cursorColor: theme.main1,
-        errorText: context.read<DateCalBloc>().state.inputTimeError.fold(() => "", (error) => error.toString()),
-        onEditingComplete: (value) => context.read<DateCalBloc>().add(DateCalEvent.setTime(value)),
+        errorText: widget.errorText,
+        onEditingComplete: (value) {
+          widget.onEditingComplete(value);
+        },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 }
 

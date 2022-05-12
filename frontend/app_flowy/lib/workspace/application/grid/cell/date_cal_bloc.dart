@@ -23,46 +23,57 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   }) : super(DateCalState.initial(dateTypeOption, selectedDay)) {
     on<DateCalEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) async {
-            _startListening();
-            // await _loadDateTypeOption(emit);
+        await event.when(
+          initial: () async => _startListening(),
+          selectDay: (date) {
+            _updateDateData(emit, date: date);
           },
-          selectDay: (_SelectDay value) {
-            if (state.dateData != null) {
-              if (!isSameDay(state.dateData!.date, value.day)) {
-                final newDateData = state.dateData!.copyWith(date: value.day);
-                emit(state.copyWith(dateData: newDateData));
-              }
-            } else {
-              emit(state.copyWith(dateData: DateCellPersistenceData(date: value.day)));
-            }
+          setCalFormat: (format) {
+            emit(state.copyWith(format: format));
           },
-          setCalFormat: (_CalendarFormat value) {
-            emit(state.copyWith(format: value.format));
+          setFocusedDay: (focusedDay) {
+            emit(state.copyWith(focusedDay: focusedDay));
           },
-          setFocusedDay: (_FocusedDay value) {
-            emit(state.copyWith(focusedDay: value.day));
+          didReceiveCellUpdate: (value) {},
+          setIncludeTime: (includeTime) async {
+            await _updateTypeOption(emit, includeTime: includeTime);
           },
-          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {},
-          setIncludeTime: (_IncludeTime value) async {
-            await _updateTypeOption(emit, includeTime: value.includeTime);
+          setDateFormat: (dateFormat) async {
+            await _updateTypeOption(emit, dateFormat: dateFormat);
           },
-          setDateFormat: (_DateFormat value) async {
-            await _updateTypeOption(emit, dateFormat: value.dateFormat);
+          setTimeFormat: (timeFormat) async {
+            await _updateTypeOption(emit, timeFormat: timeFormat);
           },
-          setTimeFormat: (_TimeFormat value) async {
-            await _updateTypeOption(emit, timeFormat: value.timeFormat);
-          },
-          setTime: (_Time value) {
-            if (state.dateData != null) {
-              final newDateData = state.dateData!.copyWith(time: value.time);
-              emit(state.copyWith(dateData: newDateData));
-            } else {
-              emit(state.copyWith(dateData: DateCellPersistenceData(date: DateTime.now(), time: value.time)));
-            }
+          setTime: (time) {
+            _updateDateData(emit, time: time);
           },
         );
+      },
+    );
+  }
+
+  void _updateDateData(Emitter<DateCalState> emit, {DateTime? date, String? time}) {
+    state.dateData.fold(
+      () {
+        var newDateData = DateCellPersistenceData(date: date ?? DateTime.now());
+        if (time != null) {
+          newDateData = newDateData.copyWith(time: time);
+        }
+        emit(state.copyWith(dateData: Some(newDateData)));
+      },
+      (dateData) {
+        var newDateData = dateData;
+        if (date != null && !isSameDay(newDateData.date, date)) {
+          newDateData = newDateData.copyWith(date: date);
+        }
+
+        if (newDateData.time != time) {
+          newDateData = newDateData.copyWith(time: time);
+        }
+
+        if (newDateData != dateData) {
+          emit(state.copyWith(dateData: Some(newDateData)));
+        }
       },
     );
   }
@@ -142,16 +153,16 @@ class DateCalState with _$DateCalState {
     required DateTime focusedDay,
     required String time,
     required Option<FlowyError> inputTimeError,
-    DateCellPersistenceData? dateData,
+    required Option<DateCellPersistenceData> dateData,
   }) = _DateCalState;
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
     DateTime? selectedDay,
   ) {
-    DateCellPersistenceData? dateData;
+    Option<DateCellPersistenceData> dateData = none();
     if (selectedDay != null) {
-      dateData = DateCellPersistenceData(date: selectedDay);
+      dateData = Some(DateCellPersistenceData(date: selectedDay));
     }
 
     return DateCalState(

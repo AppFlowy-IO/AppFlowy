@@ -337,7 +337,7 @@ impl ClientGridEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell(&self, mut cell_changeset: CellChangeset) -> FlowyResult<()> {
+    pub async fn update_cell(&self, cell_changeset: CellChangeset) -> FlowyResult<()> {
         if cell_changeset.cell_content_changeset.as_ref().is_none() {
             return Ok(());
         }
