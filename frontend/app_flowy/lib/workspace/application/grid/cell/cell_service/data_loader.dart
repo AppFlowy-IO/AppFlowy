@@ -59,14 +59,42 @@ class CellDataLoader extends _GridCellDataLoader<Cell> {
   GridCellDataConfig get config => _config;
 }
 
-class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionContext> {
+class DateCellDataLoader extends _GridCellDataLoader<DateCellData> {
+  final GridCell gridCell;
+  DateCellDataLoader({
+    required this.gridCell,
+  });
+
+  @override
+  GridCellDataConfig get config => DefaultCellDataConfig();
+
+  @override
+  Future<DateCellData?> loadData() {
+    final payload = CellIdentifierPayload.create()
+      ..gridId = gridCell.gridId
+      ..fieldId = gridCell.field.id
+      ..rowId = gridCell.rowId;
+
+    return GridEventGetDateCellData(payload).send().then((result) {
+      return result.fold(
+        (data) => data,
+        (err) {
+          Log.error(err);
+          return null;
+        },
+      );
+    });
+  }
+}
+
+class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionCellData> {
   final SelectOptionService service;
   final GridCell gridCell;
   SelectOptionCellDataLoader({
     required this.gridCell,
   }) : service = SelectOptionService(gridCell: gridCell);
   @override
-  Future<SelectOptionContext?> loadData() async {
+  Future<SelectOptionCellData?> loadData() async {
     return service.getOpitonContext().then((result) {
       return result.fold(
         (data) => data,

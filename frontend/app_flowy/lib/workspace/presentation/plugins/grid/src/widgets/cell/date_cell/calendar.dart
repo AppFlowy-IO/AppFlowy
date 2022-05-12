@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:fixnum/fixnum.dart' as $fixnum;
 
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
@@ -41,19 +40,18 @@ class CellCalendar with FlowyOverlayDelegate {
     result.fold(
       (data) {
         final typeOptionData = DateTypeOption.fromBuffer(data);
-        DateTime? selectedDay;
-        final cellData = cellContext.getCellData()?.data;
+        // DateTime? selectedDay;
+        // final cellData = cellContext.getCellData();
 
-        if (cellData != null) {
-          final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
-          selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-        }
+        // if (cellData != null) {
+        //   final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
+        //   selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+        // }
 
         final calendar = _CellCalendarWidget(
           onSelected: onSelected,
           cellContext: cellContext,
           dateTypeOption: typeOptionData,
-          selectedDay: selectedDay,
         );
 
         FlowyOverlay.of(context).insertWithAnchor(
@@ -90,14 +88,12 @@ class CellCalendar with FlowyOverlayDelegate {
 class _CellCalendarWidget extends StatelessWidget {
   final GridDateCellContext cellContext;
   final DateTypeOption dateTypeOption;
-  final DateTime? selectedDay;
   final void Function(DateCellPersistenceData) onSelected;
 
   const _CellCalendarWidget({
     required this.onSelected,
     required this.cellContext,
     required this.dateTypeOption,
-    this.selectedDay,
     Key? key,
   }) : super(key: key);
 
@@ -105,11 +101,13 @@ class _CellCalendarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => DateCalBloc(
-        dateTypeOption: dateTypeOption,
-        selectedDay: selectedDay,
-        cellContext: cellContext,
-      )..add(const DateCalEvent.initial()),
+      create: (context) {
+        return DateCalBloc(
+          dateTypeOption: dateTypeOption,
+          cellData: cellContext.getCellData(),
+          cellContext: cellContext,
+        )..add(const DateCalEvent.initial());
+      },
       child: BlocConsumer<DateCalBloc, DateCalState>(
         listener: (context, state) {
           state.dateData.fold(

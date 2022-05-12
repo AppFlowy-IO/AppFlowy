@@ -53,13 +53,13 @@ class SelectOptionService {
     return GridEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<SelectOptionContext, FlowyError>> getOpitonContext() {
+  Future<Either<SelectOptionCellData, FlowyError>> getOpitonContext() {
     final payload = CellIdentifierPayload.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;
 
-    return GridEventGetSelectOptionContext(payload).send();
+    return GridEventGetSelectOptionCellData(payload).send();
   }
 
   Future<Either<void, FlowyError>> select({required String optionId}) {

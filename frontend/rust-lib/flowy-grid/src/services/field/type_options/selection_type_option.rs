@@ -42,7 +42,7 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
         SelectOption::with_color(name, color)
     }
 
-    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext;
+    fn select_option_cell_data(&self, cell_meta: &Option<CellMeta>) -> SelectOptionCellData;
 
     fn options(&self) -> &Vec<SelectOption>;
 
@@ -78,9 +78,9 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl SelectOptionOperation for SingleSelectTypeOption {
-    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+    fn select_option_cell_data(&self, cell_meta: &Option<CellMeta>) -> SelectOptionCellData {
         let select_options = make_select_context_from(cell_meta, &self.options);
-        SelectOptionContext {
+        SelectOptionCellData {
             options: self.options.clone(),
             select_options,
         }
@@ -167,9 +167,9 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn option_context(&self, cell_meta: &Option<CellMeta>) -> SelectOptionContext {
+    fn select_option_cell_data(&self, cell_meta: &Option<CellMeta>) -> SelectOptionCellData {
         let select_options = make_select_context_from(cell_meta, &self.options);
-        SelectOptionContext {
+        SelectOptionCellData {
             options: self.options.clone(),
             select_options,
         }
@@ -426,7 +426,7 @@ impl SelectOptionCellContentChangeset {
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct SelectOptionContext {
+pub struct SelectOptionCellData {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 

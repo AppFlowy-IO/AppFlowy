@@ -77,6 +77,21 @@ impl DateTypeOption {
             self.date_format.format_str().to_string()
         }
     }
+
+    pub fn date_cell_data(&self, cell_meta: &Option<CellMeta>) -> FlowyResult<DateCellData> {
+        if cell_meta.is_none() {
+            return Ok(DateCellData::default());
+        }
+
+        let json = &cell_meta.as_ref().unwrap().data;
+        let result = TypeOptionCellData::from_str(json);
+        if result.is_err() {
+            return Ok(DateCellData::default());
+        }
+
+        let data: DateCellData = serde_json::from_str(&result.unwrap().data)?;
+        Ok(data)
+    }
 }
 
 impl CellDataOperation for DateTypeOption {
@@ -233,6 +248,15 @@ impl std::default::Default for TimeFormat {
     fn default() -> Self {
         TimeFormat::TwentyFourHour
     }
+}
+
+#[derive(Clone, Debug, Default, ProtoBuf, Serialize, Deserialize)]
+pub struct DateCellData {
+    #[pb(index = 1)]
+    pub date: String,
+
+    #[pb(index = 2)]
+    pub time: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -461,15 +485,6 @@ mod tests {
             time: Some("1:".to_owned()),
         };
         let _ = type_option.apply_changeset(changeset, None).unwrap();
-
-        // let changeset = DateCellContentChangeset {
-        //     date: Some(date_timestamp),
-        //     time: Some("1:00 am".to_owned()),
-        // };
-        // type_option.time_format = TimeFormat::TwelveHour;
-        // let result = type_option.apply_changeset(changeset, None).unwrap();
-        // let content = type_option.decode_cell_data(result, &field_meta).content;
-        // assert_eq!(content, "May 27,2022 01:00 AM".to_owned());
     }
 
     #[test]

@@ -1437,7 +1437,7 @@ impl ::protobuf::reflect::ProtobufValue for SelectOptionCellChangesetPayload {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct SelectOptionContext {
+pub struct SelectOptionCellData {
     // message fields
     pub options: ::protobuf::RepeatedField<SelectOption>,
     pub select_options: ::protobuf::RepeatedField<SelectOption>,
@@ -1446,14 +1446,14 @@ pub struct SelectOptionContext {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a SelectOptionContext {
-    fn default() -> &'a SelectOptionContext {
-        <SelectOptionContext as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SelectOptionCellData {
+    fn default() -> &'a SelectOptionCellData {
+        <SelectOptionCellData as ::protobuf::Message>::default_instance()
     }
 }
 
-impl SelectOptionContext {
-    pub fn new() -> SelectOptionContext {
+impl SelectOptionCellData {
+    pub fn new() -> SelectOptionCellData {
         ::std::default::Default::default()
     }
 
@@ -1508,7 +1508,7 @@ impl SelectOptionContext {
     }
 }
 
-impl ::protobuf::Message for SelectOptionContext {
+impl ::protobuf::Message for SelectOptionCellData {
     fn is_initialized(&self) -> bool {
         for v in &self.options {
             if !v.is_initialized() {
@@ -1599,8 +1599,8 @@ impl ::protobuf::Message for SelectOptionContext {
         Self::descriptor_static()
     }
 
-    fn new() -> SelectOptionContext {
-        SelectOptionContext::new()
+    fn new() -> SelectOptionCellData {
+        SelectOptionCellData::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -1609,29 +1609,29 @@ impl ::protobuf::Message for SelectOptionContext {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "options",
-                |m: &SelectOptionContext| { &m.options },
-                |m: &mut SelectOptionContext| { &mut m.options },
+                |m: &SelectOptionCellData| { &m.options },
+                |m: &mut SelectOptionCellData| { &mut m.options },
             ));
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SelectOption>>(
                 "select_options",
-                |m: &SelectOptionContext| { &m.select_options },
-                |m: &mut SelectOptionContext| { &mut m.select_options },
+                |m: &SelectOptionCellData| { &m.select_options },
+                |m: &mut SelectOptionCellData| { &mut m.select_options },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SelectOptionContext>(
-                "SelectOptionContext",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SelectOptionCellData>(
+                "SelectOptionCellData",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static SelectOptionContext {
-        static instance: ::protobuf::rt::LazyV2<SelectOptionContext> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(SelectOptionContext::new)
+    fn default_instance() -> &'static SelectOptionCellData {
+        static instance: ::protobuf::rt::LazyV2<SelectOptionCellData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SelectOptionCellData::new)
     }
 }
 
-impl ::protobuf::Clear for SelectOptionContext {
+impl ::protobuf::Clear for SelectOptionCellData {
     fn clear(&mut self) {
         self.options.clear();
         self.select_options.clear();
@@ -1639,13 +1639,13 @@ impl ::protobuf::Clear for SelectOptionContext {
     }
 }
 
-impl ::std::fmt::Debug for SelectOptionContext {
+impl ::std::fmt::Debug for SelectOptionCellData {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SelectOptionContext {
+impl ::protobuf::reflect::ProtobufValue for SelectOptionCellData {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1742,10 +1742,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     loadR\x0ecellIdentifier\x12*\n\x10insert_option_id\x18\x02\x20\x01(\tH\0\
     R\x0einsertOptionId\x12*\n\x10delete_option_id\x18\x03\x20\x01(\tH\x01R\
     \x0edeleteOptionIdB\x19\n\x17one_of_insert_option_idB\x19\n\x17one_of_de\
-    lete_option_id\"t\n\x13SelectOptionContext\x12'\n\x07options\x18\x01\x20\
-    \x03(\x0b2\r.SelectOptionR\x07options\x124\n\x0eselect_options\x18\x02\
-    \x20\x03(\x0b2\r.SelectOptionR\rselectOptions*y\n\x11SelectOptionColor\
-    \x12\n\n\x06Purple\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\
+    lete_option_id\"u\n\x14SelectOptionCellData\x12'\n\x07options\x18\x01\
+    \x20\x03(\x0b2\r.SelectOptionR\x07options\x124\n\x0eselect_options\x18\
+    \x02\x20\x03(\x0b2\r.SelectOptionR\rselectOptions*y\n\x11SelectOptionCol\
+    or\x12\n\n\x06Purple\x10\0\x12\x08\n\x04Pink\x10\x01\x12\r\n\tLightPink\
     \x10\x02\x12\n\n\x06Orange\x10\x03\x12\n\n\x06Yellow\x10\x04\x12\x08\n\
     \x04Lime\x10\x05\x12\t\n\x05Green\x10\x06\x12\x08\n\x04Aqua\x10\x07\x12\
     \x08\n\x04Blue\x10\x08b\x06proto3\

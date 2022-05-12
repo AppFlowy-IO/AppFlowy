@@ -238,6 +238,207 @@ impl ::protobuf::reflect::ProtobufValue for DateTypeOption {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct DateCellData {
+    // message fields
+    pub date: ::std::string::String,
+    pub time: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a DateCellData {
+    fn default() -> &'a DateCellData {
+        <DateCellData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl DateCellData {
+    pub fn new() -> DateCellData {
+        ::std::default::Default::default()
+    }
+
+    // string date = 1;
+
+
+    pub fn get_date(&self) -> &str {
+        &self.date
+    }
+    pub fn clear_date(&mut self) {
+        self.date.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_date(&mut self, v: ::std::string::String) {
+        self.date = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_date(&mut self) -> &mut ::std::string::String {
+        &mut self.date
+    }
+
+    // Take field
+    pub fn take_date(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.date, ::std::string::String::new())
+    }
+
+    // string time = 2;
+
+
+    pub fn get_time(&self) -> &str {
+        &self.time
+    }
+    pub fn clear_time(&mut self) {
+        self.time.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_time(&mut self, v: ::std::string::String) {
+        self.time = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_time(&mut self) -> &mut ::std::string::String {
+        &mut self.time
+    }
+
+    // Take field
+    pub fn take_time(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.time, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for DateCellData {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.date)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.time)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.date.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.date);
+        }
+        if !self.time.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.time);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.date.is_empty() {
+            os.write_string(1, &self.date)?;
+        }
+        if !self.time.is_empty() {
+            os.write_string(2, &self.time)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> DateCellData {
+        DateCellData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "date",
+                |m: &DateCellData| { &m.date },
+                |m: &mut DateCellData| { &mut m.date },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "time",
+                |m: &DateCellData| { &m.time },
+                |m: &mut DateCellData| { &mut m.time },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateCellData>(
+                "DateCellData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static DateCellData {
+        static instance: ::protobuf::rt::LazyV2<DateCellData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DateCellData::new)
+    }
+}
+
+impl ::protobuf::Clear for DateCellData {
+    fn clear(&mut self) {
+        self.date.clear();
+        self.time.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for DateCellData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for DateCellData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct DateChangesetPayload {
     // message fields
     pub cell_identifier: ::protobuf::SingularPtrField<super::cell_entities::CellIdentifierPayload>,
@@ -685,13 +886,15 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ateTypeOption\x12,\n\x0bdate_format\x18\x01\x20\x01(\x0e2\x0b.DateFormat\
     R\ndateFormat\x12,\n\x0btime_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormat\
     R\ntimeFormat\x12!\n\x0cinclude_time\x18\x03\x20\x01(\x08R\x0bincludeTim\
-    e\"\xa1\x01\n\x14DateChangesetPayload\x12?\n\x0fcell_identifier\x18\x01\
-    \x20\x01(\x0b2\x16.CellIdentifierPayloadR\x0ecellIdentifier\x12\x14\n\
-    \x04date\x18\x02\x20\x01(\tH\0R\x04date\x12\x14\n\x04time\x18\x03\x20\
-    \x01(\tH\x01R\x04timeB\r\n\x0bone_of_dateB\r\n\x0bone_of_time*6\n\nDateF\
-    ormat\x12\t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\x12\x07\n\x03ISO\
-    \x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\x12\x0e\n\nTwelve\
-    Hour\x10\0\x12\x12\n\x0eTwentyFourHour\x10\x01b\x06proto3\
+    e\"6\n\x0cDateCellData\x12\x12\n\x04date\x18\x01\x20\x01(\tR\x04date\x12\
+    \x12\n\x04time\x18\x02\x20\x01(\tR\x04time\"\xa1\x01\n\x14DateChangesetP\
+    ayload\x12?\n\x0fcell_identifier\x18\x01\x20\x01(\x0b2\x16.CellIdentifie\
+    rPayloadR\x0ecellIdentifier\x12\x14\n\x04date\x18\x02\x20\x01(\tH\0R\x04\
+    date\x12\x14\n\x04time\x18\x03\x20\x01(\tH\x01R\x04timeB\r\n\x0bone_of_d\
+    ateB\r\n\x0bone_of_time*6\n\nDateFormat\x12\t\n\x05Local\x10\0\x12\x06\n\
+    \x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\
+    \n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\x12\x12\n\x0eTwentyFourHour\
+    \x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

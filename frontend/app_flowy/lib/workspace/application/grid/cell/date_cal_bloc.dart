@@ -1,7 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -10,6 +9,7 @@ import 'dart:async';
 import 'cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
+import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
@@ -18,9 +18,9 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
 
   DateCalBloc({
     required DateTypeOption dateTypeOption,
-    required DateTime? selectedDay,
+    required DateCellData? cellData,
     required this.cellContext,
-  }) : super(DateCalState.initial(dateTypeOption, selectedDay)) {
+  }) : super(DateCalState.initial(dateTypeOption, cellData)) {
     on<DateCalEvent>(
       (event, emit) async {
         await event.when(
@@ -142,7 +142,7 @@ class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
   const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.setTime(String time) = _Time;
-  const factory DateCalEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory DateCalEvent.didReceiveCellUpdate(DateCellData data) = _DidReceiveCellUpdate;
 }
 
 @freezed
@@ -158,10 +158,13 @@ class DateCalState with _$DateCalState {
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
-    DateTime? selectedDay,
+    DateCellData? cellData,
   ) {
     Option<DateCellPersistenceData> dateData = none();
-    if (selectedDay != null) {
+    final time = cellData?.time ?? "";
+    if (cellData != null) {
+      final timestamp = $fixnum.Int64.parseInt(cellData.date).toInt();
+      final selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
       dateData = Some(DateCellPersistenceData(date: selectedDay));
     }
 
@@ -170,7 +173,7 @@ class DateCalState with _$DateCalState {
       format: CalendarFormat.month,
       focusedDay: DateTime.now(),
       dateData: dateData,
-      time: "",
+      time: time,
       inputTimeError: none(),
     );
   }

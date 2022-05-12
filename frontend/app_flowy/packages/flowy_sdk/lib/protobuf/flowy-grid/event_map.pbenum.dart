@@ -23,7 +23,7 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent MoveItem = GridEvent._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveItem');
   static const GridEvent GetFieldTypeOption = GridEvent._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetFieldTypeOption');
   static const GridEvent NewSelectOption = GridEvent._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'NewSelectOption');
-  static const GridEvent GetSelectOptionContext = GridEvent._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetSelectOptionContext');
+  static const GridEvent GetSelectOptionCellData = GridEvent._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetSelectOptionCellData');
   static const GridEvent UpdateSelectOption = GridEvent._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateSelectOption');
   static const GridEvent CreateRow = GridEvent._(50, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateRow');
   static const GridEvent GetRow = GridEvent._(51, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetRow');
@@ -33,6 +33,7 @@ class GridEvent extends $pb.ProtobufEnum {
   static const GridEvent UpdateCell = GridEvent._(71, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateCell');
   static const GridEvent UpdateSelectOptionCell = GridEvent._(72, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateSelectOptionCell');
   static const GridEvent UpdateDateCell = GridEvent._(80, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateDateCell');
+  static const GridEvent GetDateCellData = GridEvent._(90, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetDateCellData');
 
   static const $core.List<GridEvent> values = <GridEvent> [
     GetGridData,
@@ -48,7 +49,7 @@ class GridEvent extends $pb.ProtobufEnum {
     MoveItem,
     GetFieldTypeOption,
     NewSelectOption,
-    GetSelectOptionContext,
+    GetSelectOptionCellData,
     UpdateSelectOption,
     CreateRow,
     GetRow,
@@ -58,6 +59,7 @@ class GridEvent extends $pb.ProtobufEnum {
     UpdateCell,
     UpdateSelectOptionCell,
     UpdateDateCell,
+    GetDateCellData,
   ];
 
   static final $core.Map<$core.int, GridEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

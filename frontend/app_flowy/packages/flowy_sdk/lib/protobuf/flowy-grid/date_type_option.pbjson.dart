@@ -44,6 +44,17 @@ const DateTypeOption$json = const {
 
 /// Descriptor for `DateTypeOption`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List dateTypeOptionDescriptor = $convert.base64Decode('Cg5EYXRlVHlwZU9wdGlvbhIsCgtkYXRlX2Zvcm1hdBgBIAEoDjILLkRhdGVGb3JtYXRSCmRhdGVGb3JtYXQSLAoLdGltZV9mb3JtYXQYAiABKA4yCy5UaW1lRm9ybWF0Ugp0aW1lRm9ybWF0EiEKDGluY2x1ZGVfdGltZRgDIAEoCFILaW5jbHVkZVRpbWU=');
+@$core.Deprecated('Use dateCellDataDescriptor instead')
+const DateCellData$json = const {
+  '1': 'DateCellData',
+  '2': const [
+    const {'1': 'date', '3': 1, '4': 1, '5': 9, '10': 'date'},
+    const {'1': 'time', '3': 2, '4': 1, '5': 9, '10': 'time'},
+  ],
+};
+
+/// Descriptor for `DateCellData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List dateCellDataDescriptor = $convert.base64Decode('CgxEYXRlQ2VsbERhdGESEgoEZGF0ZRgBIAEoCVIEZGF0ZRISCgR0aW1lGAIgASgJUgR0aW1l');
 @$core.Deprecated('Use dateChangesetPayloadDescriptor instead')
 const DateChangesetPayload$json = const {
   '1': 'DateChangesetPayload',

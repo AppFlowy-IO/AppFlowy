@@ -1,8 +1,8 @@
 part of 'cell_service.dart';
 
 typedef GridCellContext = _GridCellContext<Cell, String>;
-typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionContext, String>;
-typedef GridDateCellContext = _GridCellContext<Cell, DateCellPersistenceData>;
+typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
+typedef GridDateCellContext = _GridCellContext<DateCellData, DateCellPersistenceData>;
 
 class GridCellContextBuilder {
   final GridCellCache _cellCache;
@@ -26,7 +26,7 @@ class GridCellContextBuilder {
         return GridDateCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: CellDataLoader(gridCell: _gridCell),
+          cellDataLoader: DateCellDataLoader(gridCell: _gridCell),
           cellDataPersistence: NumberCellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.Number:
@@ -154,8 +154,8 @@ class _GridCellContext<T, D> extends Equatable {
     return _fieldService.getTypeOptionData(fieldType: fieldType);
   }
 
-  void saveCellData(D data) {
-    cellDataPersistence.save(data);
+  Future<Option<FlowyError>> saveCellData(D data) {
+    return cellDataPersistence.save(data);
   }
 
   void _loadData() {

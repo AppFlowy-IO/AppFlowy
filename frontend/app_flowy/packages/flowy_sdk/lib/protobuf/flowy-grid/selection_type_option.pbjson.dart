@@ -94,14 +94,14 @@ const SelectOptionCellChangesetPayload$json = const {
 
 /// Descriptor for `SelectOptionCellChangesetPayload`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List selectOptionCellChangesetPayloadDescriptor = $convert.base64Decode('CiBTZWxlY3RPcHRpb25DZWxsQ2hhbmdlc2V0UGF5bG9hZBI/Cg9jZWxsX2lkZW50aWZpZXIYASABKAsyFi5DZWxsSWRlbnRpZmllclBheWxvYWRSDmNlbGxJZGVudGlmaWVyEioKEGluc2VydF9vcHRpb25faWQYAiABKAlIAFIOaW5zZXJ0T3B0aW9uSWQSKgoQZGVsZXRlX29wdGlvbl9pZBgDIAEoCUgBUg5kZWxldGVPcHRpb25JZEIZChdvbmVfb2ZfaW5zZXJ0X29wdGlvbl9pZEIZChdvbmVfb2ZfZGVsZXRlX29wdGlvbl9pZA==');
-@$core.Deprecated('Use selectOptionContextDescriptor instead')
-const SelectOptionContext$json = const {
-  '1': 'SelectOptionContext',
+@$core.Deprecated('Use selectOptionCellDataDescriptor instead')
+const SelectOptionCellData$json = const {
+  '1': 'SelectOptionCellData',
   '2': const [
     const {'1': 'options', '3': 1, '4': 3, '5': 11, '6': '.SelectOption', '10': 'options'},
     const {'1': 'select_options', '3': 2, '4': 3, '5': 11, '6': '.SelectOption', '10': 'selectOptions'},
   ],
 };
 
-/// Descriptor for `SelectOptionContext`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List selectOptionContextDescriptor = $convert.base64Decode('ChNTZWxlY3RPcHRpb25Db250ZXh0EicKB29wdGlvbnMYASADKAsyDS5TZWxlY3RPcHRpb25SB29wdGlvbnMSNAoOc2VsZWN0X29wdGlvbnMYAiADKAsyDS5TZWxlY3RPcHRpb25SDXNlbGVjdE9wdGlvbnM=');
+/// Descriptor for `SelectOptionCellData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectOptionCellDataDescriptor = $convert.base64Decode('ChRTZWxlY3RPcHRpb25DZWxsRGF0YRInCgdvcHRpb25zGAEgAygLMg0uU2VsZWN0T3B0aW9uUgdvcHRpb25zEjQKDnNlbGVjdF9vcHRpb25zGAIgAygLMg0uU2VsZWN0T3B0aW9uUg1zZWxlY3RPcHRpb25z');

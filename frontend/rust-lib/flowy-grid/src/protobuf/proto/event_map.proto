@@ -14,7 +14,7 @@ enum GridEvent {
     MoveItem = 23;
     GetFieldTypeOption = 24;
     NewSelectOption = 30;
-    GetSelectOptionContext = 31;
+    GetSelectOptionCellData = 31;
     UpdateSelectOption = 32;
     CreateRow = 50;
     GetRow = 51;
@@ -24,4 +24,5 @@ enum GridEvent {
     UpdateCell = 71;
     UpdateSelectOptionCell = 72;
     UpdateDateCell = 80;
+    GetDateCellData = 90;
 }

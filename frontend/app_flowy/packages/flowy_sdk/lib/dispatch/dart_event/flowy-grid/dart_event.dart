@@ -222,18 +222,18 @@ class GridEventNewSelectOption {
     }
 }
 
-class GridEventGetSelectOptionContext {
+class GridEventGetSelectOptionCellData {
      CellIdentifierPayload request;
-     GridEventGetSelectOptionContext(this.request);
+     GridEventGetSelectOptionCellData(this.request);
 
-    Future<Either<SelectOptionContext, FlowyError>> send() {
+    Future<Either<SelectOptionCellData, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.GetSelectOptionContext.toString()
+          ..event = GridEvent.GetSelectOptionCellData.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(SelectOptionContext.fromBuffer(okBytes)),
+           (okBytes) => left(SelectOptionCellData.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
@@ -387,6 +387,23 @@ class GridEventUpdateDateCell {
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventGetDateCellData {
+     CellIdentifierPayload request;
+     GridEventGetDateCellData(this.request);
+
+    Future<Either<DateCellData, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetDateCellData.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(DateCellData.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

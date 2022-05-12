@@ -62,7 +62,10 @@ class _DateCellState extends State<DateCell> {
               child: MouseRegion(
                 opaque: false,
                 cursor: SystemMouseCursors.click,
-                child: Align(alignment: alignment, child: FlowyText.medium(state.content, fontSize: 12)),
+                child: Align(
+                  alignment: alignment,
+                  child: FlowyText.medium(state.data.foldRight("", (data, _) => data.date), fontSize: 12),
+                ),
               ),
             ),
           );

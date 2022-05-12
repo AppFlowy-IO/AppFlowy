@@ -6,6 +6,10 @@ message DateTypeOption {
     TimeFormat time_format = 2;
     bool include_time = 3;
 }
+message DateCellData {
+    string date = 1;
+    string time = 2;
+}
 message DateChangesetPayload {
     CellIdentifierPayload cell_identifier = 1;
     oneof one_of_date { string date = 2; };

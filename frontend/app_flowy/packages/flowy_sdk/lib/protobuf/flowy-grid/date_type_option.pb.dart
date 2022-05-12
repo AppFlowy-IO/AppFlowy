@@ -90,6 +90,67 @@ class DateTypeOption extends $pb.GeneratedMessage {
   void clearIncludeTime() => clearField(3);
 }
 
+class DateCellData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DateCellData', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'date')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time')
+    ..hasRequiredFields = false
+  ;
+
+  DateCellData._() : super();
+  factory DateCellData({
+    $core.String? date,
+    $core.String? time,
+  }) {
+    final _result = create();
+    if (date != null) {
+      _result.date = date;
+    }
+    if (time != null) {
+      _result.time = time;
+    }
+    return _result;
+  }
+  factory DateCellData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DateCellData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DateCellData clone() => DateCellData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DateCellData copyWith(void Function(DateCellData) updates) => super.copyWith((message) => updates(message as DateCellData)) as DateCellData; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DateCellData create() => DateCellData._();
+  DateCellData createEmptyInstance() => create();
+  static $pb.PbList<DateCellData> createRepeated() => $pb.PbList<DateCellData>();
+  @$core.pragma('dart2js:noInline')
+  static DateCellData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DateCellData>(create);
+  static DateCellData? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get date => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set date($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDate() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDate() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get time => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set time($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTime() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTime() => clearField(2);
+}
+
 enum DateChangesetPayload_OneOfDate {
   date, 
   notSet

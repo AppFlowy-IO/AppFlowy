@@ -1,7 +1,7 @@
 part of 'cell_service.dart';
 
 abstract class _GridCellDataPersistence<D> {
-  void save(D data);
+  Future<Option<FlowyError>> save(D data);
 }
 
 class CellDataPersistence implements _GridCellDataPersistence<String> {
@@ -13,16 +13,19 @@ class CellDataPersistence implements _GridCellDataPersistence<String> {
   final CellService _cellService = CellService();
 
   @override
-  void save(String data) {
-    _cellService
-        .updateCell(
+  Future<Option<FlowyError>> save(String data) async {
+    final fut = _cellService.updateCell(
       gridId: gridCell.gridId,
       fieldId: gridCell.field.id,
       rowId: gridCell.rowId,
       data: data,
-    )
-        .then((result) {
-      result.fold((l) => null, (err) => Log.error(err));
+    );
+
+    return fut.then((result) {
+      return result.fold(
+        (l) => none(),
+        (err) => Some(err),
+      );
     });
   }
 }
@@ -39,7 +42,7 @@ class NumberCellDataPersistence implements _GridCellDataPersistence<DateCellPers
   });
 
   @override
-  void save(DateCellPersistenceData data) {
+  Future<Option<FlowyError>> save(DateCellPersistenceData data) {
     var payload = DateChangesetPayload.create()..cellIdentifier = _cellIdentifier(gridCell);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
@@ -49,8 +52,11 @@ class NumberCellDataPersistence implements _GridCellDataPersistence<DateCellPers
       payload.time = data.time!;
     }
 
-    GridEventUpdateDateCell(payload).send().then((result) {
-      result.fold((l) => null, (err) => Log.error(err));
+    return GridEventUpdateDateCell(payload).send().then((result) {
+      return result.fold(
+        (l) => none(),
+        (err) => Some(err),
+      );
     });
   }
 }
