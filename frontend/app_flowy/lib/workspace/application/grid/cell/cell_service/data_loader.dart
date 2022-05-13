@@ -61,12 +61,13 @@ class CellDataLoader extends _GridCellDataLoader<Cell> {
 
 class DateCellDataLoader extends _GridCellDataLoader<DateCellData> {
   final GridCell gridCell;
+  final GridCellDataConfig _config;
   DateCellDataLoader({
     required this.gridCell,
-  });
+  }) : _config = DefaultCellDataConfig(reloadOnFieldChanged: true);
 
   @override
-  GridCellDataConfig get config => DefaultCellDataConfig();
+  GridCellDataConfig get config => _config;
 
   @override
   Future<DateCellData?> loadData() {

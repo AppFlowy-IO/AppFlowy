@@ -30,7 +30,7 @@ class GridCellCache {
   final GridCellFieldDelegate fieldDelegate;
 
   /// fieldId: {objectId: callback}
-  final Map<String, Map<String, List<VoidCallback>>> _listenerByFieldId = {};
+  final Map<String, Map<String, List<VoidCallback>>> _fieldListenerByFieldId = {};
 
   /// fieldId: {cacheKey: cacheData}
   final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
@@ -40,7 +40,7 @@ class GridCellCache {
   }) {
     fieldDelegate.onFieldChanged((fieldId) {
       _cellDataByFieldId.remove(fieldId);
-      final map = _listenerByFieldId[fieldId];
+      final map = _fieldListenerByFieldId[fieldId];
       if (map != null) {
         for (final callbacks in map.values) {
           for (final callback in callbacks) {
@@ -51,24 +51,24 @@ class GridCellCache {
     });
   }
 
-  void addListener(GridCellCacheKey cacheKey, VoidCallback callback) {
-    var map = _listenerByFieldId[cacheKey.fieldId];
+  void addFieldListener(GridCellCacheKey cacheKey, VoidCallback onFieldChanged) {
+    var map = _fieldListenerByFieldId[cacheKey.fieldId];
     if (map == null) {
-      _listenerByFieldId[cacheKey.fieldId] = {};
-      map = _listenerByFieldId[cacheKey.fieldId];
-      map![cacheKey.objectId] = [callback];
+      _fieldListenerByFieldId[cacheKey.fieldId] = {};
+      map = _fieldListenerByFieldId[cacheKey.fieldId];
+      map![cacheKey.objectId] = [onFieldChanged];
     } else {
       var objects = map[cacheKey.objectId];
       if (objects == null) {
-        map[cacheKey.objectId] = [callback];
+        map[cacheKey.objectId] = [onFieldChanged];
       } else {
-        objects.add(callback);
+        objects.add(onFieldChanged);
       }
     }
   }
 
-  void removeListener(GridCellCacheKey cacheKey, VoidCallback fn) {
-    var callbacks = _listenerByFieldId[cacheKey.fieldId]?[cacheKey.objectId];
+  void removeFieldListener(GridCellCacheKey cacheKey, VoidCallback fn) {
+    var callbacks = _fieldListenerByFieldId[cacheKey.fieldId]?[cacheKey.objectId];
     final index = callbacks?.indexWhere((callback) => callback == fn);
     if (index != null && index != -1) {
       callbacks?.removeAt(index);

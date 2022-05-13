@@ -35,9 +35,9 @@ class DateCellPersistenceData with _$DateCellPersistenceData {
   const factory DateCellPersistenceData({required DateTime date, String? time}) = _DateCellPersistenceData;
 }
 
-class NumberCellDataPersistence implements _GridCellDataPersistence<DateCellPersistenceData> {
+class DateCellDataPersistence implements _GridCellDataPersistence<DateCellPersistenceData> {
   final GridCell gridCell;
-  NumberCellDataPersistence({
+  DateCellDataPersistence({
     required this.gridCell,
   });
 
@@ -47,10 +47,7 @@ class NumberCellDataPersistence implements _GridCellDataPersistence<DateCellPers
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
-
-    if (data.time != null) {
-      payload.time = data.time!;
-    }
+    payload.time = data.time ?? "";
 
     return GridEventUpdateDateCell(payload).send().then((result) {
       return result.fold(

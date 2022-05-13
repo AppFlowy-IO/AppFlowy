@@ -5,6 +5,7 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
+use diesel::types::Time;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
@@ -30,35 +31,26 @@ pub struct DateTypeOption {
 impl_type_option!(DateTypeOption, FieldType::DateTime);
 
 impl DateTypeOption {
-    fn today_desc_from_timestamp(&self, timestamp: i64) -> String {
+    fn today_desc_from_timestamp(&self, timestamp: i64, time: &Option<String>) -> String {
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
-        self.today_desc_from_native(native)
+        self.today_desc_from_native(native, time)
     }
 
     #[allow(dead_code)]
-    fn today_desc_from_str(&self, s: String) -> String {
-        match NaiveDateTime::parse_from_str(&s, &self.fmt_str()) {
-            Ok(native) => self.today_desc_from_native(native),
+    fn today_desc_from_str(&self, s: String, time: &Option<String>) -> String {
+        match NaiveDateTime::parse_from_str(&s, &self.date_fmt(time)) {
+            Ok(native) => self.today_desc_from_native(native, time),
             Err(_) => "".to_owned(),
         }
     }
 
-    fn today_desc_from_native(&self, native: chrono::NaiveDateTime) -> String {
+    fn today_desc_from_native(&self, native: chrono::NaiveDateTime, time: &Option<String>) -> String {
         let utc = self.utc_date_time_from_native(native);
         // let china_timezone = FixedOffset::east(8 * 3600);
         // let a = utc.with_timezone(&china_timezone);
-        let output = format!("{}", utc.format_with_items(StrftimeItems::new(&self.fmt_str())));
+        let fmt = self.date_fmt(time);
+        let output = format!("{}", utc.format_with_items(StrftimeItems::new(&fmt)));
         output
-    }
-
-    fn timestamp_from_str(&self, s: &str) -> FlowyResult<i64> {
-        match NaiveDateTime::parse_from_str(s, &self.fmt_str()) {
-            Ok(native) => {
-                let utc = self.utc_date_time_from_native(native);
-                Ok(utc.timestamp())
-            }
-            Err(_) => Err(ErrorCode::InvalidData.into()),
-        }
     }
 
     fn utc_date_time_from_timestamp(&self, timestamp: i64) -> chrono::DateTime<chrono::Utc> {
@@ -70,9 +62,18 @@ impl DateTypeOption {
         chrono::DateTime::<chrono::Utc>::from_utc(naive, chrono::Utc)
     }
 
-    fn fmt_str(&self) -> String {
+    fn date_fmt(&self, time: &Option<String>) -> String {
         if self.include_time {
-            format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
+            match time.as_ref() {
+                None => self.date_format.format_str().to_string(),
+                Some(time_str) => {
+                    if time_str.is_empty() {
+                        self.date_format.format_str().to_string()
+                    } else {
+                        format!("{} {}", self.date_format.format_str(), self.time_format.format_str())
+                    }
+                }
+            }
         } else {
             self.date_format.format_str().to_string()
         }
@@ -90,29 +91,48 @@ impl DateTypeOption {
         }
 
         let serde_cell_data = DateCellDataSerde::from_str(&result.unwrap().data)?;
-        let time = serde_cell_data.time;
+        let date = self.decode_cell_data_from_timestamp(&serde_cell_data).content;
+        let time = serde_cell_data.time.unwrap_or("".to_owned());
         let timestamp = serde_cell_data.timestamp;
-        let date = self.decode_cell_data_from_timestamp(serde_cell_data.timestamp).content;
 
         return Ok(DateCellData { date, time, timestamp });
     }
 
-    fn decode_cell_data_from_timestamp(&self, timestamp: i64) -> DecodedCellData {
-        if timestamp == 0 {
+    fn decode_cell_data_from_timestamp(&self, serde_cell_data: &DateCellDataSerde) -> DecodedCellData {
+        if serde_cell_data.timestamp == 0 {
             return DecodedCellData::default();
         }
 
-        let cell_content = self.today_desc_from_timestamp(timestamp);
-        return DecodedCellData::new(timestamp.to_string(), cell_content);
+        let cell_content = self.today_desc_from_timestamp(serde_cell_data.timestamp, &serde_cell_data.time);
+        return DecodedCellData::new(serde_cell_data.timestamp.to_string(), cell_content);
     }
 
-    fn timestamp_from_utc_with_time(&self, utc: &chrono::DateTime<chrono::Utc>, time: &str) -> FlowyResult<i64> {
+    fn timestamp_from_utc_with_time(
+        &self,
+        utc: &chrono::DateTime<chrono::Utc>,
+        time: &Option<String>,
+    ) -> FlowyResult<i64> {
         let mut date_str = format!(
             "{}",
             utc.format_with_items(StrftimeItems::new(self.date_format.format_str()))
         );
-        date_str = date_str.add(&time);
-        self.timestamp_from_str(&date_str)
+
+        if let Some(time_str) = time.as_ref() {
+            if !time_str.is_empty() {
+                date_str = date_str.add(&time_str);
+            }
+        }
+        let fmt = self.date_fmt(time);
+        match NaiveDateTime::parse_from_str(&date_str, &fmt) {
+            Ok(native) => {
+                let utc = self.utc_date_time_from_native(native);
+                Ok(utc.timestamp())
+            }
+            Err(_e) => {
+                let msg = format!("Parse {} with format: {} failed", date_str, fmt);
+                Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
+            }
+        }
     }
 }
 
@@ -127,7 +147,7 @@ impl CellDataOperation for DateTypeOption {
                 return DecodedCellData::default();
             }
             return match DateCellDataSerde::from_str(&type_option_cell_data.data) {
-                Ok(serde_cell_data) => self.decode_cell_data_from_timestamp(serde_cell_data.timestamp),
+                Ok(serde_cell_data) => self.decode_cell_data_from_timestamp(&serde_cell_data),
                 Err(_) => DecodedCellData::default(),
             };
         }
@@ -145,12 +165,12 @@ impl CellDataOperation for DateTypeOption {
             None => DateCellDataSerde::default(),
             Some(date_timestamp) => match (self.include_time, content_changeset.time) {
                 (true, Some(time)) => {
-                    let time = time.to_uppercase();
+                    let time = Some(time.trim().to_uppercase());
                     let utc = self.utc_date_time_from_timestamp(date_timestamp);
                     let timestamp = self.timestamp_from_utc_with_time(&utc, &time)?;
-                    DateCellDataSerde { timestamp, time }
+                    DateCellDataSerde::new(timestamp, time, &self.time_format)
                 }
-                _ => DateCellDataSerde::from_timestamp(date_timestamp),
+                _ => DateCellDataSerde::from_timestamp(date_timestamp, &self.time_format),
             },
         };
 
@@ -281,14 +301,21 @@ pub struct DateCellData {
 #[derive(Default, Serialize, Deserialize)]
 pub struct DateCellDataSerde {
     pub timestamp: i64,
-    pub time: String,
+    pub time: Option<String>,
 }
 
 impl DateCellDataSerde {
-    fn from_timestamp(timestamp: i64) -> Self {
+    fn new(timestamp: i64, time: Option<String>, time_format: &TimeFormat) -> Self {
         Self {
             timestamp,
-            time: "".to_string(),
+            time: Some(time.unwrap_or(default_time_str(time_format))),
+        }
+    }
+
+    fn from_timestamp(timestamp: i64, time_format: &TimeFormat) -> Self {
+        Self {
+            timestamp,
+            time: Some(default_time_str(time_format)),
         }
     }
 
@@ -298,6 +325,13 @@ impl DateCellDataSerde {
 
     fn from_str(s: &str) -> FlowyResult<Self> {
         serde_json::from_str::<DateCellDataSerde>(s).map_err(internal_error)
+    }
+}
+
+fn default_time_str(time_format: &TimeFormat) -> String {
+    match time_format {
+        TimeFormat::TwelveHour => "12:00 AM".to_string(),
+        TimeFormat::TwentyFourHour => "00:00".to_string(),
     }
 }
 
@@ -439,7 +473,7 @@ mod tests {
                 TimeFormat::TwentyFourHour => {
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
-                        type_option.today_desc_from_timestamp(1647251762)
+                        type_option.today_desc_from_timestamp(1647251762, &None)
                     );
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
@@ -449,7 +483,7 @@ mod tests {
                 TimeFormat::TwelveHour => {
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
-                        type_option.today_desc_from_timestamp(1647251762)
+                        type_option.today_desc_from_timestamp(1647251762, &None)
                     );
                     assert_eq!(
                         "Mar 14,2022".to_owned(),
@@ -469,24 +503,47 @@ mod tests {
             type_option.include_time = true;
             match time_format {
                 TimeFormat::TwentyFourHour => {
-                    assert_eq!(
-                        "May 27,2022 00:00".to_owned(),
-                        type_option.today_desc_from_timestamp(1653609600)
-                    );
-                    assert_eq!(
-                        "May 27,2022 00:00".to_owned(),
-                        type_option.decode_cell_data(data(1653609600), &field_meta).content
-                    );
+                    let changeset = DateCellContentChangeset {
+                        date: Some(1653609600.to_string()),
+                        time: None,
+                    };
+                    let result = type_option.apply_changeset(changeset, None).unwrap();
+                    let content = type_option.decode_cell_data(result, &field_meta).content;
+                    assert_eq!("May 27,2022 00:00".to_owned(), content);
+
+                    let changeset = DateCellContentChangeset {
+                        date: Some(1653609600.to_string()),
+                        time: Some("23:00".to_owned()),
+                    };
+
+                    let result = type_option.apply_changeset(changeset, None).unwrap();
+                    let content = type_option.decode_cell_data(result, &field_meta).content;
+                    assert_eq!("May 27,2022 23:00".to_owned(), content);
                 }
                 TimeFormat::TwelveHour => {
-                    assert_eq!(
-                        "May 27,2022 12:00 AM".to_owned(),
-                        type_option.today_desc_from_timestamp(1653609600)
-                    );
-                    assert_eq!(
-                        "May 27,2022 12:00 AM".to_owned(),
-                        type_option.decode_cell_data(data(1653609600), &field_meta).content
-                    );
+                    let changeset = DateCellContentChangeset {
+                        date: Some(1653609600.to_string()),
+                        time: None,
+                    };
+                    let result = type_option.apply_changeset(changeset, None).unwrap();
+                    let content = type_option.decode_cell_data(result, &field_meta).content;
+                    assert_eq!("May 27,2022 12:00 AM".to_owned(), content);
+
+                    let changeset = DateCellContentChangeset {
+                        date: Some(1653609600.to_string()),
+                        time: Some("".to_owned()),
+                    };
+                    let result = type_option.apply_changeset(changeset, None).unwrap();
+                    let content = type_option.decode_cell_data(result, &field_meta).content;
+                    assert_eq!("May 27,2022".to_owned(), content);
+
+                    let changeset = DateCellContentChangeset {
+                        date: Some(1653609600.to_string()),
+                        time: Some("11:23 pm".to_owned()),
+                    };
+                    let result = type_option.apply_changeset(changeset, None).unwrap();
+                    let content = type_option.decode_cell_data(result, &field_meta).content;
+                    assert_eq!("May 27,2022 11:23 PM".to_owned(), content);
                 }
             }
         }
@@ -559,7 +616,7 @@ mod tests {
     fn data(s: i64) -> String {
         let json = serde_json::to_string(&DateCellDataSerde {
             timestamp: s,
-            time: "".to_string(),
+            time: None,
         })
         .unwrap();
         TypeOptionCellData::new(&json, FieldType::DateTime).json()

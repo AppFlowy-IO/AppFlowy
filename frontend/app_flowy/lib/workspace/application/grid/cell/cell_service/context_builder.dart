@@ -27,7 +27,7 @@ class GridCellContextBuilder {
           gridCell: _gridCell,
           cellCache: _cellCache,
           cellDataLoader: DateCellDataLoader(gridCell: _gridCell),
-          cellDataPersistence: NumberCellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: DateCellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.Number:
         return GridCellContext(
@@ -120,7 +120,7 @@ class _GridCellContext<T, D> extends Equatable {
       _onFieldChangedFn = () {
         _loadData();
       };
-      cellCache.addListener(_cacheKey, _onFieldChangedFn!);
+      cellCache.addFieldListener(_cacheKey, _onFieldChangedFn!);
     }
 
     onCellChangedFn() {
@@ -172,7 +172,7 @@ class _GridCellContext<T, D> extends Equatable {
     _delayOperation?.cancel();
 
     if (_onFieldChangedFn != null) {
-      cellCache.removeListener(_cacheKey, _onFieldChangedFn!);
+      cellCache.removeFieldListener(_cacheKey, _onFieldChangedFn!);
       _onFieldChangedFn = null;
     }
   }

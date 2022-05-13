@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -25,8 +25,8 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
       (event, emit) async {
         await event.when(
           initial: () async => _startListening(),
-          selectDay: (date) {
-            _updateDateData(emit, date: date);
+          selectDay: (date) async {
+            await _updateDateData(emit, date: date, time: state.time);
           },
           setCalFormat: (format) {
             emit(state.copyWith(format: format));
@@ -44,22 +44,19 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setTimeFormat: (timeFormat) async {
             await _updateTypeOption(emit, timeFormat: timeFormat);
           },
-          setTime: (time) {
-            _updateDateData(emit, time: time);
+          setTime: (time) async {
+            await _updateDateData(emit, time: time);
           },
         );
       },
     );
   }
 
-  void _updateDateData(Emitter<DateCalState> emit, {DateTime? date, String? time}) {
-    state.dateData.fold(
+  Future<void> _updateDateData(Emitter<DateCalState> emit, {DateTime? date, String? time}) {
+    final DateCellPersistenceData newDateData = state.dateData.fold(
       () {
         var newDateData = DateCellPersistenceData(date: date ?? DateTime.now());
-        if (time != null) {
-          newDateData = newDateData.copyWith(time: time);
-        }
-        emit(state.copyWith(dateData: Some(newDateData)));
+        return newDateData.copyWith(time: time);
       },
       (dateData) {
         var newDateData = dateData;
@@ -70,9 +67,34 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         if (newDateData.time != time) {
           newDateData = newDateData.copyWith(time: time);
         }
+        return newDateData;
+      },
+    );
 
-        if (newDateData != dateData) {
-          emit(state.copyWith(dateData: Some(newDateData)));
+    return _saveDateData(emit, newDateData);
+  }
+
+  Future<void> _saveDateData(Emitter<DateCalState> emit, DateCellPersistenceData newDateData) async {
+    if (state.dateData == Some(newDateData)) {
+      return;
+    }
+
+    final result = await cellContext.saveCellData(newDateData);
+    result.fold(
+      () => emit(state.copyWith(
+        dateData: Some(newDateData),
+        timeFormatError: none(),
+      )),
+      (err) {
+        switch (ErrorCode.valueOf(err.code)!) {
+          case ErrorCode.InvalidDateTimeFormat:
+            emit(state.copyWith(
+              dateData: Some(newDateData),
+              timeFormatError: Some(err.toString()),
+            ));
+            break;
+          default:
+            Log.error(err);
         }
       },
     );
@@ -152,7 +174,7 @@ class DateCalState with _$DateCalState {
     required CalendarFormat format,
     required DateTime focusedDay,
     required String time,
-    required Option<FlowyError> inputTimeError,
+    required Option<String> timeFormatError,
     required Option<DateCellPersistenceData> dateData,
   }) = _DateCalState;
 
@@ -175,7 +197,7 @@ class DateCalState with _$DateCalState {
       focusedDay: DateTime.now(),
       dateData: dateData,
       time: time,
-      inputTimeError: none(),
+      timeFormatError: none(),
     );
   }
 }

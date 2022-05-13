@@ -81,7 +81,6 @@ class _DateCellState extends State<DateCell> {
     calendar.show(
       context,
       cellContext: bloc.cellContext.clone(),
-      onSelected: (data) => bloc.add(DateCellEvent.selectDate(data)),
     );
   }
 

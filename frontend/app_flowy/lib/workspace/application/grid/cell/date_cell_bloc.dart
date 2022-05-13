@@ -16,7 +16,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       (event, emit) async {
         event.when(
           initial: () => _startListening(),
-          selectDate: (DateCellPersistenceData value) => cellContext.saveCellData(value),
           didReceiveCellUpdate: (DateCellData value) => emit(state.copyWith(data: Some(value))),
           didReceiveFieldUpdate: (Field value) => emit(state.copyWith(field: value)),
         );
@@ -48,7 +47,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.selectDate(DateCellPersistenceData data) = _SelectDay;
   const factory DateCellEvent.didReceiveCellUpdate(DateCellData data) = _DidReceiveCellUpdate;
   const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
