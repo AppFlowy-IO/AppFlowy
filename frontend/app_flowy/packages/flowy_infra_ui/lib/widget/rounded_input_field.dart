@@ -60,6 +60,12 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
   @override
   void initState() {
     obscuteText = widget.obscureText;
+    if (widget.controller != null) {
+      inputText = widget.controller!.text;
+    } else {
+      inputText = widget.initialValue ?? "";
+    }
+
     super.initState();
   }
 

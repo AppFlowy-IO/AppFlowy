@@ -9,6 +9,7 @@ message DateTypeOption {
 message DateCellData {
     string date = 1;
     string time = 2;
+    int64 timestamp = 3;
 }
 message DateChangesetPayload {
     CellIdentifierPayload cell_identifier = 1;

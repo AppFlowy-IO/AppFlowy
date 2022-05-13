@@ -7,6 +7,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'cell_entities.pb.dart' as $0;
@@ -94,6 +95,7 @@ class DateCellData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DateCellData', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'date')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'timestamp')
     ..hasRequiredFields = false
   ;
 
@@ -101,6 +103,7 @@ class DateCellData extends $pb.GeneratedMessage {
   factory DateCellData({
     $core.String? date,
     $core.String? time,
+    $fixnum.Int64? timestamp,
   }) {
     final _result = create();
     if (date != null) {
@@ -108,6 +111,9 @@ class DateCellData extends $pb.GeneratedMessage {
     }
     if (time != null) {
       _result.time = time;
+    }
+    if (timestamp != null) {
+      _result.timestamp = timestamp;
     }
     return _result;
   }
@@ -149,6 +155,15 @@ class DateCellData extends $pb.GeneratedMessage {
   $core.bool hasTime() => $_has(1);
   @$pb.TagNumber(2)
   void clearTime() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get timestamp => $_getI64(2);
+  @$pb.TagNumber(3)
+  set timestamp($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTimestamp() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimestamp() => clearField(3);
 }
 
 enum DateChangesetPayload_OneOfDate {

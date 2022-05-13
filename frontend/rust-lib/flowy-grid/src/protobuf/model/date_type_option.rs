@@ -242,6 +242,7 @@ pub struct DateCellData {
     // message fields
     pub date: ::std::string::String,
     pub time: ::std::string::String,
+    pub timestamp: i64,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -309,6 +310,21 @@ impl DateCellData {
     pub fn take_time(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.time, ::std::string::String::new())
     }
+
+    // int64 timestamp = 3;
+
+
+    pub fn get_timestamp(&self) -> i64 {
+        self.timestamp
+    }
+    pub fn clear_timestamp(&mut self) {
+        self.timestamp = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_timestamp(&mut self, v: i64) {
+        self.timestamp = v;
+    }
 }
 
 impl ::protobuf::Message for DateCellData {
@@ -325,6 +341,13 @@ impl ::protobuf::Message for DateCellData {
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.time)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int64()?;
+                    self.timestamp = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -344,6 +367,9 @@ impl ::protobuf::Message for DateCellData {
         if !self.time.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.time);
         }
+        if self.timestamp != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.timestamp, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -355,6 +381,9 @@ impl ::protobuf::Message for DateCellData {
         }
         if !self.time.is_empty() {
             os.write_string(2, &self.time)?;
+        }
+        if self.timestamp != 0 {
+            os.write_int64(3, self.timestamp)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -404,6 +433,11 @@ impl ::protobuf::Message for DateCellData {
                 |m: &DateCellData| { &m.time },
                 |m: &mut DateCellData| { &mut m.time },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
+                "timestamp",
+                |m: &DateCellData| { &m.timestamp },
+                |m: &mut DateCellData| { &mut m.timestamp },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<DateCellData>(
                 "DateCellData",
                 fields,
@@ -422,6 +456,7 @@ impl ::protobuf::Clear for DateCellData {
     fn clear(&mut self) {
         self.date.clear();
         self.time.clear();
+        self.timestamp = 0;
         self.unknown_fields.clear();
     }
 }
@@ -886,15 +921,16 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ateTypeOption\x12,\n\x0bdate_format\x18\x01\x20\x01(\x0e2\x0b.DateFormat\
     R\ndateFormat\x12,\n\x0btime_format\x18\x02\x20\x01(\x0e2\x0b.TimeFormat\
     R\ntimeFormat\x12!\n\x0cinclude_time\x18\x03\x20\x01(\x08R\x0bincludeTim\
-    e\"6\n\x0cDateCellData\x12\x12\n\x04date\x18\x01\x20\x01(\tR\x04date\x12\
-    \x12\n\x04time\x18\x02\x20\x01(\tR\x04time\"\xa1\x01\n\x14DateChangesetP\
-    ayload\x12?\n\x0fcell_identifier\x18\x01\x20\x01(\x0b2\x16.CellIdentifie\
-    rPayloadR\x0ecellIdentifier\x12\x14\n\x04date\x18\x02\x20\x01(\tH\0R\x04\
-    date\x12\x14\n\x04time\x18\x03\x20\x01(\tH\x01R\x04timeB\r\n\x0bone_of_d\
-    ateB\r\n\x0bone_of_time*6\n\nDateFormat\x12\t\n\x05Local\x10\0\x12\x06\n\
-    \x02US\x10\x01\x12\x07\n\x03ISO\x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\
-    \n\nTimeFormat\x12\x0e\n\nTwelveHour\x10\0\x12\x12\n\x0eTwentyFourHour\
-    \x10\x01b\x06proto3\
+    e\"T\n\x0cDateCellData\x12\x12\n\x04date\x18\x01\x20\x01(\tR\x04date\x12\
+    \x12\n\x04time\x18\x02\x20\x01(\tR\x04time\x12\x1c\n\ttimestamp\x18\x03\
+    \x20\x01(\x03R\ttimestamp\"\xa1\x01\n\x14DateChangesetPayload\x12?\n\x0f\
+    cell_identifier\x18\x01\x20\x01(\x0b2\x16.CellIdentifierPayloadR\x0ecell\
+    Identifier\x12\x14\n\x04date\x18\x02\x20\x01(\tH\0R\x04date\x12\x14\n\
+    \x04time\x18\x03\x20\x01(\tH\x01R\x04timeB\r\n\x0bone_of_dateB\r\n\x0bon\
+    e_of_time*6\n\nDateFormat\x12\t\n\x05Local\x10\0\x12\x06\n\x02US\x10\x01\
+    \x12\x07\n\x03ISO\x10\x02\x12\x0c\n\x08Friendly\x10\x03*0\n\nTimeFormat\
+    \x12\x0e\n\nTwelveHour\x10\0\x12\x12\n\x0eTwentyFourHour\x10\x01b\x06pro\
+    to3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

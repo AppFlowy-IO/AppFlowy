@@ -50,11 +50,12 @@ const DateCellData$json = const {
   '2': const [
     const {'1': 'date', '3': 1, '4': 1, '5': 9, '10': 'date'},
     const {'1': 'time', '3': 2, '4': 1, '5': 9, '10': 'time'},
+    const {'1': 'timestamp', '3': 3, '4': 1, '5': 3, '10': 'timestamp'},
   ],
 };
 
 /// Descriptor for `DateCellData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List dateCellDataDescriptor = $convert.base64Decode('CgxEYXRlQ2VsbERhdGESEgoEZGF0ZRgBIAEoCVIEZGF0ZRISCgR0aW1lGAIgASgJUgR0aW1l');
+final $typed_data.Uint8List dateCellDataDescriptor = $convert.base64Decode('CgxEYXRlQ2VsbERhdGESEgoEZGF0ZRgBIAEoCVIEZGF0ZRISCgR0aW1lGAIgASgJUgR0aW1lEhwKCXRpbWVzdGFtcBgDIAEoA1IJdGltZXN0YW1w');
 @$core.Deprecated('Use dateChangesetPayloadDescriptor instead')
 const DateChangesetPayload$json = const {
   '1': 'DateChangesetPayload',

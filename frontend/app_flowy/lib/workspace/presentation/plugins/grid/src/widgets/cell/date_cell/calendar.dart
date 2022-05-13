@@ -127,7 +127,7 @@ class _CellCalendarWidget extends StatelessWidget {
           if (state.dateTypeOption.includeTime) {
             children.addAll([
               _TimeTextField(
-                time: "",
+                text: state.time,
                 errorText: state.inputTimeError.fold(() => "", (error) => error.toString()),
                 onEditingComplete: (text) {
                   context.read<DateCalBloc>().add(DateCalEvent.setTime(text));
@@ -247,11 +247,11 @@ class _IncludeTimeButton extends StatelessWidget {
 
 class _TimeTextField extends StatefulWidget {
   final String errorText;
-  final String time;
+  final String text;
   final void Function(String) onEditingComplete;
   const _TimeTextField({
     Key? key,
-    required this.time,
+    required this.text,
     required this.errorText,
     required this.onEditingComplete,
   }) : super(key: key);
@@ -267,7 +267,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   @override
   void initState() {
     _focusNode = FocusNode();
-    _controller = TextEditingController(text: widget.time);
+    _controller = TextEditingController(text: widget.text);
     _focusNode.addListener(() {
       if (mounted) {
         widget.onEditingComplete(_controller.text);

@@ -9,7 +9,7 @@ import 'dart:async';
 import 'cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
-import 'package:fixnum/fixnum.dart' as $fixnum;
+// import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
@@ -163,9 +163,10 @@ class DateCalState with _$DateCalState {
     Option<DateCellPersistenceData> dateData = none();
     final time = cellData?.time ?? "";
     if (cellData != null) {
-      final timestamp = $fixnum.Int64.parseInt(cellData.date).toInt();
-      final selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-      dateData = Some(DateCellPersistenceData(date: selectedDay));
+      // final timestamp = $fixnum.Int64.parseInt(cellData.timestamp).toInt();
+      final timestamp = cellData.timestamp * 1000;
+      final selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+      dateData = Some(DateCellPersistenceData(date: selectedDay, time: time));
     }
 
     return DateCalState(
