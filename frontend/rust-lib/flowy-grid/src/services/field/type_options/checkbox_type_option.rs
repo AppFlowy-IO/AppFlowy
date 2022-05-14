@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::FlowyError;
@@ -44,21 +44,21 @@ const YES: &str = "Yes";
 const NO: &str = "No";
 
 impl CellDataOperation for CheckboxTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if !type_option_cell_data.is_checkbox() {
-                return String::new();
+                return DecodedCellData::default();
             }
             let cell_data = type_option_cell_data.data;
             if cell_data == YES || cell_data == NO {
-                return cell_data;
+                return DecodedCellData::from_content(cell_data);
             }
         }
 
-        String::new()
+        DecodedCellData::default()
     }
 
-    fn apply_changeset<T: Into<CellDataChangeset>>(
+    fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
         _cell_meta: Option<CellMeta>,
@@ -99,21 +99,21 @@ mod tests {
         let field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
         let data = type_option.apply_changeset("true", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, YES);
 
         let data = type_option.apply_changeset("1", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, YES);
 
         let data = type_option.apply_changeset("yes", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), YES);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, YES);
 
         let data = type_option.apply_changeset("false", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, NO);
 
         let data = type_option.apply_changeset("no", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, NO);
 
         let data = type_option.apply_changeset("123", None).unwrap();
-        assert_eq!(type_option.decode_cell_data(data, &field_meta), NO);
+        assert_eq!(type_option.decode_cell_data(data, &field_meta).content, NO);
     }
 }

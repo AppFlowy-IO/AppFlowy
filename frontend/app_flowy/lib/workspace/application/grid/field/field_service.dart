@@ -8,10 +8,11 @@ part 'field_service.freezed.dart';
 
 class FieldService {
   final String gridId;
+  final String fieldId;
 
-  FieldService({required this.gridId});
+  FieldService({required this.gridId, required this.fieldId});
 
-  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+  Future<Either<EditFieldContext, FlowyError>> switchToField(FieldType fieldType) {
     final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldId = fieldId
@@ -20,8 +21,8 @@ class FieldService {
     return GridEventSwitchToField(payload).send();
   }
 
-  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(String fieldId, FieldType fieldType) {
-    final payload = GetEditFieldContextPayload.create()
+  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(FieldType fieldType) {
+    final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -29,7 +30,7 @@ class FieldService {
     return GridEventGetEditFieldContext(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveField(String fieldId, int fromIndex, int toIndex) {
+  Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
     final payload = MoveItemPayload.create()
       ..gridId = gridId
       ..itemId = fieldId
@@ -41,7 +42,6 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> updateField({
-    required String fieldId,
     String? name,
     FieldType? fieldType,
     bool? frozen,
@@ -81,7 +81,8 @@ class FieldService {
   }
 
   // Create the field if it does not exist. Otherwise, update the field.
-  Future<Either<Unit, FlowyError>> insertField({
+  static Future<Either<Unit, FlowyError>> insertField({
+    required String gridId,
     required Field field,
     List<int>? typeOptionData,
     String? startFieldId,
@@ -98,9 +99,20 @@ class FieldService {
     return GridEventInsertField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteField({
+  static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
+    required String gridId,
     required String fieldId,
+    required List<int> typeOptionData,
   }) {
+    var payload = UpdateFieldTypeOptionPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..typeOptionData = typeOptionData;
+
+    return GridEventUpdateFieldTypeOption(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> deleteField() {
     final payload = FieldIdentifierPayload.create()
       ..gridId = gridId
       ..fieldId = fieldId;
@@ -108,14 +120,27 @@ class FieldService {
     return GridEventDeleteField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateField({
-    required String fieldId,
-  }) {
+  Future<Either<Unit, FlowyError>> duplicateField() {
     final payload = FieldIdentifierPayload.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
     return GridEventDuplicateField(payload).send();
+  }
+
+  Future<Either<List<int>, FlowyError>> getTypeOptionData({
+    required FieldType fieldType,
+  }) {
+    final payload = EditFieldPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+    return GridEventGetFieldTypeOption(payload).send().then((result) {
+      return result.fold(
+        (data) => left(data.typeOptionData),
+        (err) => right(err),
+      );
+    });
   }
 }
 
@@ -141,7 +166,7 @@ class NewFieldContextLoader extends EditFieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> load() {
-    final payload = GetEditFieldContextPayload.create()
+    final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
@@ -150,7 +175,7 @@ class NewFieldContextLoader extends EditFieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
-    final payload = GetEditFieldContextPayload.create()
+    final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldType = fieldType;
 
@@ -169,7 +194,7 @@ class FieldContextLoaderAdaptor extends EditFieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> load() {
-    final payload = GetEditFieldContextPayload.create()
+    final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
@@ -179,7 +204,7 @@ class FieldContextLoaderAdaptor extends EditFieldContextLoader {
 
   @override
   Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) async {
-    final fieldService = FieldService(gridId: gridId);
-    return fieldService.switchToField(fieldId, fieldType);
+    final fieldService = FieldService(gridId: gridId, fieldId: fieldId);
+    return fieldService.switchToField(fieldType);
   }
 }

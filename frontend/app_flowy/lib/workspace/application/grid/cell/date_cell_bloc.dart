@@ -1,33 +1,23 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell, Field;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'cell_service.dart';
-
+import 'cell_service/cell_service.dart';
+import 'package:dartz/dartz.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final GridDefaultCellContext cellContext;
+  final GridDateCellContext cellContext;
   void Function()? _onCellChangedFn;
 
   DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
     on<DateCellEvent>(
       (event, emit) async {
-        event.map(
-          initial: (_InitialCell value) {
-            _startListening();
-          },
-          selectDay: (_SelectDay value) {
-            _updateCellData(value.day);
-          },
-          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(
-              content: value.cell.content,
-            ));
-          },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(field: value.field));
-          },
+        event.when(
+          initial: () => _startListening(),
+          didReceiveCellUpdate: (DateCellData value) => emit(state.copyWith(data: Some(value))),
+          didReceiveFieldUpdate: (Field value) => emit(state.copyWith(field: value)),
         );
       },
     );
@@ -45,38 +35,40 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellContext.startListening(
-      onCellChanged: ((cell) {
+      onCellChanged: ((data) {
         if (!isClosed) {
-          add(DateCellEvent.didReceiveCellUpdate(cell));
+          add(DateCellEvent.didReceiveCellUpdate(data));
         }
       }),
     );
-  }
-
-  void _updateCellData(DateTime day) {
-    final data = day.millisecondsSinceEpoch ~/ 1000;
-    cellContext.saveCellData(data.toString());
   }
 }
 
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.selectDay(DateTime day) = _SelectDay;
-  const factory DateCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveCellUpdate(DateCellData data) = _DidReceiveCellUpdate;
   const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required String content,
+    required Option<DateCellData> data,
     required Field field,
-    DateTime? selectedDay,
   }) = _DateCellState;
 
-  factory DateCellState.initial(GridCellContext context) => DateCellState(
-        field: context.field,
-        content: context.getCellData()?.content ?? "",
-      );
+  factory DateCellState.initial(GridDateCellContext context) {
+    final cellData = context.getCellData();
+    Option<DateCellData> data = none();
+
+    if (cellData != null) {
+      data = Some(cellData);
+    }
+
+    return DateCellState(
+      field: context.field,
+      data: data,
+    );
+  }
 }

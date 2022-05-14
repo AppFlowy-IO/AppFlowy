@@ -2,7 +2,8 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+    DateCellContentChangeset, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
+    SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
@@ -239,7 +240,9 @@ async fn grid_row_add_cells_test() {
                 builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
             }
             FieldType::DateTime => {
-                builder.add_cell(&field.id, "1647251762".to_owned()).unwrap();
+                builder
+                    .add_cell(&field.id, make_date_cell_string("1647251762"))
+                    .unwrap();
             }
             FieldType::SingleSelect => {
                 let type_option = SingleSelectTypeOption::from(field);
@@ -277,17 +280,21 @@ async fn grid_row_add_date_cell_test() {
             date_field = Some(field.clone());
             NaiveDateTime::from_timestamp(123, 0);
             // The data should not be empty
-            assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
-
-            assert!(builder.add_cell(&field.id, "123".to_owned()).is_ok());
-            assert!(builder.add_cell(&field.id, format!("{}", timestamp)).is_ok());
+            assert!(builder.add_cell(&field.id, "".to_string()).is_err());
+            assert!(builder.add_cell(&field.id, make_date_cell_string("123")).is_ok());
+            assert!(builder
+                .add_cell(&field.id, make_date_cell_string(&timestamp.to_string()))
+                .is_ok());
         }
     }
     let context = builder.build();
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        decode_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type).unwrap(),
+        decode_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type)
+            .unwrap()
+            .split()
+            .1,
         "2022/03/16",
     );
     let scripts = vec![CreateRow { context }];
@@ -311,14 +318,14 @@ async fn grid_cell_update() {
                 let data = match field_meta.field_type {
                     FieldType::RichText => "".to_string(),
                     FieldType::Number => "123".to_string(),
-                    FieldType::DateTime => "123".to_string(),
+                    FieldType::DateTime => make_date_cell_string("123"),
                     FieldType::SingleSelect => {
                         let type_option = SingleSelectTypeOption::from(field_meta);
-                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
+                        SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::MultiSelect => {
                         let type_option = MultiSelectTypeOption::from(field_meta);
-                        SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).cell_data()
+                        SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::Checkbox => "1".to_string(),
                 };
@@ -328,7 +335,7 @@ async fn grid_cell_update() {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
-                        data: Some(data),
+                        cell_content_changeset: Some(data),
                     },
                     is_err: false,
                 });
@@ -339,8 +346,8 @@ async fn grid_cell_update() {
                     FieldType::RichText => ("1".to_string().repeat(10001), true),
                     FieldType::Number => ("abc".to_string(), true),
                     FieldType::DateTime => ("abc".to_string(), true),
-                    FieldType::SingleSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
-                    FieldType::MultiSelect => (SelectOptionCellChangeset::from_insert("abc").cell_data(), false),
+                    FieldType::SingleSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
+                    FieldType::MultiSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
                     FieldType::Checkbox => ("2".to_string(), false),
                 };
 
@@ -349,7 +356,7 @@ async fn grid_cell_update() {
                         grid_id: block_id.to_string(),
                         row_id: row_meta.id.clone(),
                         field_id: field_meta.id.clone(),
-                        data: Some(data),
+                        cell_content_changeset: Some(data),
                     },
                     is_err,
                 });
@@ -358,4 +365,12 @@ async fn grid_cell_update() {
     }
 
     test.run_scripts(scripts).await;
+}
+
+fn make_date_cell_string(s: &str) -> String {
+    serde_json::to_string(&DateCellContentChangeset {
+        date: Some(s.to_string()),
+        time: None,
+    })
+    .unwrap()
 }

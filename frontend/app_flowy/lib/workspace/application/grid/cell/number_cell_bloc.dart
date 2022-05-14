@@ -2,12 +2,12 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'cell_service.dart';
+import 'cell_service/cell_service.dart';
 
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final GridDefaultCellContext cellContext;
+  final GridCellContext cellContext;
   void Function()? _onCellChangedFn;
 
   NumberCellBloc({
@@ -68,7 +68,7 @@ class NumberCellState with _$NumberCellState {
     required String content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridDefaultCellContext context) {
+  factory NumberCellState.initial(GridCellContext context) {
     final cell = context.getCellData();
     return NumberCellState(content: cell?.content ?? "");
   }

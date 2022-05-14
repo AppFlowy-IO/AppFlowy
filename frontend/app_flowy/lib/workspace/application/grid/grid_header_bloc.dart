@@ -9,14 +9,13 @@ import 'grid_service.dart';
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  final FieldService _fieldService;
   final GridFieldCache fieldCache;
+  final String gridId;
 
   GridHeaderBloc({
-    required String gridId,
+    required this.gridId,
     required this.fieldCache,
-  })  : _fieldService = FieldService(gridId: gridId),
-        super(GridHeaderState.initial(fieldCache.clonedFields)) {
+  }) : super(GridHeaderState.initial(fieldCache.clonedFields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
@@ -39,8 +38,8 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final result = await _fieldService.moveField(
-      value.field.id,
+    final fieldService = FieldService(gridId: gridId, fieldId: value.field.id);
+    final result = await fieldService.moveField(
       value.fromIndex,
       value.toIndex,
     );

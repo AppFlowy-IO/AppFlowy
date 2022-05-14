@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class FlowyButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onTap;
-  final EdgeInsets padding;
+  final EdgeInsets margin;
   final Widget? leftIcon;
   final Widget? rightIcon;
   final Color hoverColor;
@@ -16,7 +16,7 @@ class FlowyButton extends StatelessWidget {
     Key? key,
     required this.text,
     this.onTap,
-    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    this.margin = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     this.leftIcon,
     this.rightIcon,
     this.hoverColor = Colors.transparent,
@@ -50,7 +50,7 @@ class FlowyButton extends StatelessWidget {
     }
 
     return Padding(
-      padding: padding,
+      padding: margin,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

@@ -3,7 +3,7 @@ mod date_type_option;
 mod number_type_option;
 mod selection_type_option;
 mod text_type_option;
-mod type_option_data;
+mod util;
 
 pub use checkbox_type_option::*;
 pub use date_type_option::*;

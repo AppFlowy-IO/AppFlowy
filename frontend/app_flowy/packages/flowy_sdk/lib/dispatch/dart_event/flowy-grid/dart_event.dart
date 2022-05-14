@@ -69,6 +69,23 @@ class GridEventUpdateField {
     }
 }
 
+class GridEventUpdateFieldTypeOption {
+     UpdateFieldTypeOptionPayload request;
+     GridEventUpdateFieldTypeOption(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.UpdateFieldTypeOption.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventInsertField {
      InsertFieldPayload request;
      GridEventInsertField(this.request);
@@ -138,7 +155,7 @@ class GridEventDuplicateField {
 }
 
 class GridEventGetEditFieldContext {
-     GetEditFieldContextPayload request;
+     EditFieldPayload request;
      GridEventGetEditFieldContext(this.request);
 
     Future<Either<EditFieldContext, FlowyError>> send() {
@@ -171,6 +188,23 @@ class GridEventMoveItem {
     }
 }
 
+class GridEventGetFieldTypeOption {
+     EditFieldPayload request;
+     GridEventGetFieldTypeOption(this.request);
+
+    Future<Either<FieldTypeOptionData, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetFieldTypeOption.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(FieldTypeOptionData.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class GridEventNewSelectOption {
      CreateSelectOptionPayload request;
      GridEventNewSelectOption(this.request);
@@ -188,18 +222,18 @@ class GridEventNewSelectOption {
     }
 }
 
-class GridEventGetSelectOptionContext {
+class GridEventGetSelectOptionCellData {
      CellIdentifierPayload request;
-     GridEventGetSelectOptionContext(this.request);
+     GridEventGetSelectOptionCellData(this.request);
 
-    Future<Either<SelectOptionContext, FlowyError>> send() {
+    Future<Either<SelectOptionCellData, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.GetSelectOptionContext.toString()
+          ..event = GridEvent.GetSelectOptionCellData.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(SelectOptionContext.fromBuffer(okBytes)),
+           (okBytes) => left(SelectOptionCellData.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
@@ -324,18 +358,52 @@ class GridEventUpdateCell {
     }
 }
 
-class GridEventUpdateCellSelectOption {
+class GridEventUpdateSelectOptionCell {
      SelectOptionCellChangesetPayload request;
-     GridEventUpdateCellSelectOption(this.request);
+     GridEventUpdateSelectOptionCell(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = GridEvent.UpdateCellSelectOption.toString()
+          ..event = GridEvent.UpdateSelectOptionCell.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventUpdateDateCell {
+     DateChangesetPayload request;
+     GridEventUpdateDateCell(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.UpdateDateCell.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class GridEventGetDateCellData {
+     CellIdentifierPayload request;
+     GridEventGetDateCellData(this.request);
+
+    Future<Either<DateCellData, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = GridEvent.GetDateCellData.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(DateCellData.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

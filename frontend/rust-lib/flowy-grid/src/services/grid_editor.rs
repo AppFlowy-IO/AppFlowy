@@ -93,6 +93,34 @@ impl ClientGridEditor {
         Ok(())
     }
 
+    pub async fn update_field_type_option(
+        &self,
+        grid_id: &str,
+        field_id: &str,
+        type_option_data: Vec<u8>,
+    ) -> FlowyResult<()> {
+        let result = self.get_field_meta(field_id).await;
+        if result.is_none() {
+            tracing::warn!("Can't find the field with id: {}", field_id);
+            return Ok(());
+        }
+        let field_meta = result.unwrap();
+        let _ = self
+            .modify(|grid| {
+                let deserializer = TypeOptionJsonDeserializer(field_meta.field_type.clone());
+                let changeset = FieldChangesetParams {
+                    field_id: field_id.to_owned(),
+                    grid_id: grid_id.to_owned(),
+                    type_option_data: Some(type_option_data),
+                    ..Default::default()
+                };
+                Ok(grid.update_field_meta(changeset, deserializer)?)
+            })
+            .await?;
+        let _ = self.notify_did_update_grid_field(field_id).await?;
+        Ok(())
+    }
+
     pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
         let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();
@@ -309,30 +337,45 @@ impl ClientGridEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell(&self, mut changeset: CellChangeset) -> FlowyResult<()> {
-        if changeset.data.as_ref().is_none() {
+    pub async fn update_cell(&self, cell_changeset: CellChangeset) -> FlowyResult<()> {
+        if cell_changeset.cell_content_changeset.as_ref().is_none() {
             return Ok(());
         }
 
-        let cell_data_changeset = changeset.data.unwrap();
-        let cell_meta = self.get_cell_meta(&changeset.row_id, &changeset.field_id).await?;
-        tracing::trace!(
-            "field changeset: id:{} / value:{}",
-            &changeset.field_id,
-            cell_data_changeset
-        );
-        match self.grid_pad.read().await.get_field_meta(&changeset.field_id) {
+        let CellChangeset {
+            grid_id,
+            row_id,
+            field_id,
+            mut cell_content_changeset,
+        } = cell_changeset;
+
+        match self.grid_pad.read().await.get_field_meta(&field_id) {
             None => {
-                let msg = format!("Field not found with id: {}", &changeset.field_id);
+                let msg = format!("Field not found with id: {}", &field_id);
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_meta)) => {
+                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, cell_content_changeset);
+
+                let cell_meta = self.get_cell_meta(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
-                changeset.data = Some(apply_cell_data_changeset(cell_data_changeset, cell_meta, field_meta)?);
+                cell_content_changeset = Some(apply_cell_data_changeset(
+                    cell_content_changeset.unwrap(),
+                    cell_meta,
+                    field_meta,
+                )?);
                 let field_metas = self.get_field_metas::<FieldOrder>(None).await?;
+                let cell_changeset = CellChangeset {
+                    grid_id,
+                    row_id,
+                    field_id,
+                    cell_content_changeset,
+                };
                 let _ = self
                     .block_meta_manager
-                    .update_cell(changeset, |row_meta| make_row_from_row_meta(&field_metas, row_meta))
+                    .update_cell(cell_changeset, |row_meta| {
+                        make_row_from_row_meta(&field_metas, row_meta)
+                    })
                     .await?;
                 Ok(())
             }

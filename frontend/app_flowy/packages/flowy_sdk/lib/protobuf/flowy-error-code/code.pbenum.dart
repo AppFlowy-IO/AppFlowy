@@ -52,7 +52,8 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode FieldNotExists = ErrorCode._(443, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldNotExists');
   static const ErrorCode FieldInvalidOperation = ErrorCode._(444, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'FieldInvalidOperation');
   static const ErrorCode TypeOptionDataIsEmpty = ErrorCode._(450, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TypeOptionDataIsEmpty');
-  static const ErrorCode InvalidData = ErrorCode._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
+  static const ErrorCode InvalidDateTimeFormat = ErrorCode._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidDateTimeFormat');
+  static const ErrorCode InvalidData = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InvalidData');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Internal,
@@ -97,6 +98,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     FieldNotExists,
     FieldInvalidOperation,
     TypeOptionDataIsEmpty,
+    InvalidDateTimeFormat,
     InvalidData,
   ];
 

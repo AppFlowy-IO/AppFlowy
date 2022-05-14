@@ -1,4 +1,4 @@
-use crate::services::field::SelectOptionCellChangeset;
+use crate::services::field::SelectOptionCellContentChangeset;
 use crate::services::row::apply_cell_data_changeset;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{gen_row_id, CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
@@ -52,7 +52,7 @@ impl<'a> CreateRowMetaBuilder<'a> {
                 Err(FlowyError::internal().context(msg))
             }
             Some(field_meta) => {
-                let cell_data = SelectOptionCellChangeset::from_insert(&data).cell_data();
+                let cell_data = SelectOptionCellContentChangeset::from_insert(&data).to_str();
                 let data = apply_cell_data_changeset(&cell_data, None, field_meta)?;
                 let cell = CellMeta::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);

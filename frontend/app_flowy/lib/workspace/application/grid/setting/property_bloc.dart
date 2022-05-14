@@ -9,13 +9,11 @@ import 'dart:async';
 part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
-  final FieldService _service;
   final GridFieldCache _fieldCache;
   Function()? _listenFieldCallback;
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
-      : _service = FieldService(gridId: gridId),
-        _fieldCache = fieldCache,
+      : _fieldCache = fieldCache,
         super(GridPropertyState.initial(gridId, fieldCache.clonedFields)) {
     on<GridPropertyEvent>(
       (event, emit) async {
@@ -24,7 +22,8 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
             _startListening();
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
-            final result = await _service.updateField(fieldId: value.fieldId, visibility: value.visibility);
+            final fieldService = FieldService(gridId: gridId, fieldId: value.fieldId);
+            final result = await fieldService.updateField(visibility: value.visibility);
             result.fold(
               (l) => null,
               (err) => Log.error(err),

@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellDataChangeset, CellDataOperation, TypeOptionCellData};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
@@ -77,34 +77,40 @@ pub struct NumberTypeOption {
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
 impl CellDataOperation for NumberTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> String {
+    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
         if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
             if type_option_cell_data.is_date() {
-                return String::new();
+                return DecodedCellData::default();
             }
 
             let cell_data = type_option_cell_data.data;
             match self.format {
                 NumberFormat::Number => {
                     if let Ok(v) = cell_data.parse::<f64>() {
-                        return v.to_string();
+                        return DecodedCellData::from_content(v.to_string());
                     }
 
                     if let Ok(v) = cell_data.parse::<i64>() {
-                        return v.to_string();
+                        return DecodedCellData::from_content(v.to_string());
                     }
 
-                    return String::new();
+                    DecodedCellData::default()
                 }
-                NumberFormat::Percent => cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string()),
-                _ => self.money_from_str(&cell_data),
+                NumberFormat::Percent => {
+                    let content = cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string());
+                    DecodedCellData::from_content(content)
+                }
+                _ => {
+                    let content = self.money_from_str(&cell_data);
+                    DecodedCellData::from_content(content)
+                }
             }
         } else {
-            String::new()
+            DecodedCellData::default()
         }
     }
 
-    fn apply_changeset<T: Into<CellDataChangeset>>(
+    fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
         _cell_meta: Option<CellMeta>,
@@ -556,7 +562,7 @@ define_currency_set!(
 
 impl NumberFormat {
     pub fn currency(&self) -> &'static number_currency::Currency {
-        let currency = match self {
+        match self {
             NumberFormat::Number => number_currency::NUMBER,
             NumberFormat::USD => number_currency::USD,
             NumberFormat::CanadianDollar => number_currency::CANADIAN_DOLLAR,
@@ -593,8 +599,7 @@ impl NumberFormat {
             NumberFormat::ArgentinePeso => number_currency::ARS,
             NumberFormat::UruguayanPeso => number_currency::UYU,
             NumberFormat::Percent => number_currency::USD,
-        };
-        currency
+        }
     }
 
     pub fn symbol(&self) -> String {
@@ -622,8 +627,14 @@ mod tests {
     fn number_description_invalid_input_test() {
         let type_option = NumberTypeOption::default();
         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-        assert_eq!("".to_owned(), type_option.decode_cell_data(data(""), &field_meta));
-        assert_eq!("".to_owned(), type_option.decode_cell_data(data("abc"), &field_meta));
+        assert_eq!(
+            "".to_owned(),
+            type_option.decode_cell_data(data(""), &field_meta).content
+        );
+        assert_eq!(
+            "".to_owned(),
+            type_option.decode_cell_data(data("abc"), &field_meta).content
+        );
     }
 
     #[test]
@@ -639,33 +650,39 @@ mod tests {
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "$18,443".to_owned()
                     );
-                    assert_eq!(type_option.decode_cell_data(data(""), &field_meta), "".to_owned());
-                    assert_eq!(type_option.decode_cell_data(data("abc"), &field_meta), "".to_owned());
+                    assert_eq!(
+                        type_option.decode_cell_data(data(""), &field_meta).content,
+                        "".to_owned()
+                    );
+                    assert_eq!(
+                        type_option.decode_cell_data(data("abc"), &field_meta).content,
+                        "".to_owned()
+                    );
                 }
                 NumberFormat::Yen => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "¥18,443".to_owned()
                     );
                 }
                 NumberFormat::Yuan => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "CN¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "€18.443".to_owned()
                     );
                 }
@@ -691,25 +708,25 @@ mod tests {
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "$1,844.3".to_owned()
                     );
                 }
                 NumberFormat::Yen => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "¥1,844.3".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "€1.844,3".to_owned()
                     );
                 }
@@ -731,25 +748,25 @@ mod tests {
             match format {
                 NumberFormat::Number => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "18443".to_owned()
                     );
                 }
                 NumberFormat::USD => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "-$18,443".to_owned()
                     );
                 }
                 NumberFormat::Yen => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "-¥18,443".to_owned()
                     );
                 }
                 NumberFormat::EUR => {
                     assert_eq!(
-                        type_option.decode_cell_data(data("18443"), &field_meta),
+                        type_option.decode_cell_data(data("18443"), &field_meta).content,
                         "-€18.443".to_owned()
                     );
                 }

@@ -1,13 +1,12 @@
 use crate::services::field::*;
-use std::fmt::Formatter;
-
 use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
+use std::fmt::Formatter;
 
 pub trait CellDataOperation {
-    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> String;
-    fn apply_changeset<T: Into<CellDataChangeset>>(
+    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData;
+    fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
         cell_meta: Option<CellMeta>,
@@ -15,22 +14,22 @@ pub trait CellDataOperation {
 }
 
 #[derive(Debug)]
-pub struct CellDataChangeset(String);
+pub struct CellContentChangeset(String);
 
-impl std::fmt::Display for CellDataChangeset {
+impl std::fmt::Display for CellContentChangeset {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", &self.0)
     }
 }
 
-impl<T: AsRef<str>> std::convert::From<T> for CellDataChangeset {
+impl<T: AsRef<str>> std::convert::From<T> for CellContentChangeset {
     fn from(s: T) -> Self {
         let s = s.as_ref().to_owned();
-        CellDataChangeset(s)
+        CellContentChangeset(s)
     }
 }
 
-impl std::ops::Deref for CellDataChangeset {
+impl std::ops::Deref for CellContentChangeset {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
@@ -92,7 +91,7 @@ impl TypeOptionCellData {
 
 /// The changeset will be deserialized into specific data base on the FieldType.
 /// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
-pub fn apply_cell_data_changeset<T: Into<CellDataChangeset>>(
+pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     changeset: T,
     cell_meta: Option<CellMeta>,
     field_meta: &FieldMeta,
@@ -106,23 +105,8 @@ pub fn apply_cell_data_changeset<T: Into<CellDataChangeset>>(
         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
     }
 }
-//
-// #[tracing::instrument(level = "trace", skip(field_meta, data), fields(content), err)]
-// pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &FieldType) -> Result<String, FlowyError> {
-//     let s = match field_meta.field_type {
-//         FieldType::RichText => RichTextTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//         FieldType::Number => NumberTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//         FieldType::DateTime => DateTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//         FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//         FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).decode_cell_data(data, field_meta),
-//     };
-//     tracing::Span::current().record("content", &format!("{:?}: {}", field_meta.field_type, s).as_str());
-//     Ok(s)
-// }
 
-#[tracing::instrument(level = "trace", skip(field_meta, data), fields(content))]
-pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &FieldType) -> Option<String> {
+pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &FieldType) -> Option<DecodedCellData> {
     let s = match field_type {
         FieldType::RichText => field_meta
             .get_type_option_entry::<RichTextTypeOption>(field_type)?
@@ -143,6 +127,32 @@ pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &Field
             .get_type_option_entry::<CheckboxTypeOption>(field_type)?
             .decode_cell_data(data, field_meta),
     };
-    tracing::Span::current().record("content", &format!("{:?}: {}", field_meta.field_type, s).as_str());
+    tracing::Span::current().record(
+        "content",
+        &format!("{:?}: {}", field_meta.field_type, s.content).as_str(),
+    );
     Some(s)
+}
+
+#[derive(Default)]
+pub struct DecodedCellData {
+    pub raw: String,
+    pub content: String,
+}
+
+impl DecodedCellData {
+    pub fn from_content(content: String) -> Self {
+        Self {
+            raw: content.clone(),
+            content,
+        }
+    }
+
+    pub fn new(raw: String, content: String) -> Self {
+        Self { raw, content }
+    }
+
+    pub fn split(self) -> (String, String) {
+        (self.raw, self.content)
+    }
 }

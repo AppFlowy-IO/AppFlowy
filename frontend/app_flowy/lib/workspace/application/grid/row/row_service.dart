@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';

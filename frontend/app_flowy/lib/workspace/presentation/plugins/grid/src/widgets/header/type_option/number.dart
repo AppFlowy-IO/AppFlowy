@@ -60,7 +60,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                   FlowyText.regular(state.typeOption.format.title(), fontSize: 12),
                 ],
               ),
-              padding: GridSize.typeOptionContentInsets,
+              margin: GridSize.typeOptionContentInsets,
               hoverColor: theme.hover,
               onTap: () {
                 final list = NumberFormatList(

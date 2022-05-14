@@ -15,7 +15,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   FieldCellBloc({
     required GridFieldCellContext cellContext,
   })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
-        _fieldService = FieldService(gridId: cellContext.gridId),
+        _fieldService = FieldService(gridId: cellContext.gridId, fieldId: cellContext.field.id),
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -30,7 +30,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             final defaultWidth = state.field.width.toDouble();
             final width = defaultWidth + value.offset;
             if (width > defaultWidth && width < 300) {
-              _fieldService.updateField(fieldId: state.field.id, width: width);
+              _fieldService.updateField(width: width);
             }
           },
         );

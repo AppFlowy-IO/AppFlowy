@@ -53,7 +53,7 @@ class _InputTextFieldState extends State<InputTextField> {
           widget.onChanged!(text);
         }
       },
-      onEditingComplete: () {
+      onEditingComplete: (_) {
         if (widget.onDone != null) {
           widget.onDone!(_controller.text);
         }

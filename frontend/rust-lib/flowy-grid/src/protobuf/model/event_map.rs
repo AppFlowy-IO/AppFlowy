@@ -29,14 +29,16 @@ pub enum GridEvent {
     GetGridBlocks = 1,
     GetFields = 10,
     UpdateField = 11,
-    InsertField = 12,
-    DeleteField = 13,
-    SwitchToField = 14,
-    DuplicateField = 15,
-    GetEditFieldContext = 16,
-    MoveItem = 17,
+    UpdateFieldTypeOption = 12,
+    InsertField = 13,
+    DeleteField = 14,
+    SwitchToField = 20,
+    DuplicateField = 21,
+    GetEditFieldContext = 22,
+    MoveItem = 23,
+    GetFieldTypeOption = 24,
     NewSelectOption = 30,
-    GetSelectOptionContext = 31,
+    GetSelectOptionCellData = 31,
     UpdateSelectOption = 32,
     CreateRow = 50,
     GetRow = 51,
@@ -44,7 +46,9 @@ pub enum GridEvent {
     DuplicateRow = 53,
     GetCell = 70,
     UpdateCell = 71,
-    UpdateCellSelectOption = 72,
+    UpdateSelectOptionCell = 72,
+    UpdateDateCell = 80,
+    GetDateCellData = 90,
 }
 
 impl ::protobuf::ProtobufEnum for GridEvent {
@@ -58,14 +62,16 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             1 => ::std::option::Option::Some(GridEvent::GetGridBlocks),
             10 => ::std::option::Option::Some(GridEvent::GetFields),
             11 => ::std::option::Option::Some(GridEvent::UpdateField),
-            12 => ::std::option::Option::Some(GridEvent::InsertField),
-            13 => ::std::option::Option::Some(GridEvent::DeleteField),
-            14 => ::std::option::Option::Some(GridEvent::SwitchToField),
-            15 => ::std::option::Option::Some(GridEvent::DuplicateField),
-            16 => ::std::option::Option::Some(GridEvent::GetEditFieldContext),
-            17 => ::std::option::Option::Some(GridEvent::MoveItem),
+            12 => ::std::option::Option::Some(GridEvent::UpdateFieldTypeOption),
+            13 => ::std::option::Option::Some(GridEvent::InsertField),
+            14 => ::std::option::Option::Some(GridEvent::DeleteField),
+            20 => ::std::option::Option::Some(GridEvent::SwitchToField),
+            21 => ::std::option::Option::Some(GridEvent::DuplicateField),
+            22 => ::std::option::Option::Some(GridEvent::GetEditFieldContext),
+            23 => ::std::option::Option::Some(GridEvent::MoveItem),
+            24 => ::std::option::Option::Some(GridEvent::GetFieldTypeOption),
             30 => ::std::option::Option::Some(GridEvent::NewSelectOption),
-            31 => ::std::option::Option::Some(GridEvent::GetSelectOptionContext),
+            31 => ::std::option::Option::Some(GridEvent::GetSelectOptionCellData),
             32 => ::std::option::Option::Some(GridEvent::UpdateSelectOption),
             50 => ::std::option::Option::Some(GridEvent::CreateRow),
             51 => ::std::option::Option::Some(GridEvent::GetRow),
@@ -73,7 +79,9 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             53 => ::std::option::Option::Some(GridEvent::DuplicateRow),
             70 => ::std::option::Option::Some(GridEvent::GetCell),
             71 => ::std::option::Option::Some(GridEvent::UpdateCell),
-            72 => ::std::option::Option::Some(GridEvent::UpdateCellSelectOption),
+            72 => ::std::option::Option::Some(GridEvent::UpdateSelectOptionCell),
+            80 => ::std::option::Option::Some(GridEvent::UpdateDateCell),
+            90 => ::std::option::Option::Some(GridEvent::GetDateCellData),
             _ => ::std::option::Option::None
         }
     }
@@ -84,14 +92,16 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             GridEvent::GetGridBlocks,
             GridEvent::GetFields,
             GridEvent::UpdateField,
+            GridEvent::UpdateFieldTypeOption,
             GridEvent::InsertField,
             GridEvent::DeleteField,
             GridEvent::SwitchToField,
             GridEvent::DuplicateField,
             GridEvent::GetEditFieldContext,
             GridEvent::MoveItem,
+            GridEvent::GetFieldTypeOption,
             GridEvent::NewSelectOption,
-            GridEvent::GetSelectOptionContext,
+            GridEvent::GetSelectOptionCellData,
             GridEvent::UpdateSelectOption,
             GridEvent::CreateRow,
             GridEvent::GetRow,
@@ -99,7 +109,9 @@ impl ::protobuf::ProtobufEnum for GridEvent {
             GridEvent::DuplicateRow,
             GridEvent::GetCell,
             GridEvent::UpdateCell,
-            GridEvent::UpdateCellSelectOption,
+            GridEvent::UpdateSelectOptionCell,
+            GridEvent::UpdateDateCell,
+            GridEvent::GetDateCellData,
         ];
         values
     }
@@ -128,16 +140,18 @@ impl ::protobuf::reflect::ProtobufValue for GridEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xfd\x02\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
+    \n\x0fevent_map.proto*\xda\x03\n\tGridEvent\x12\x0f\n\x0bGetGridData\x10\
     \0\x12\x11\n\rGetGridBlocks\x10\x01\x12\r\n\tGetFields\x10\n\x12\x0f\n\
-    \x0bUpdateField\x10\x0b\x12\x0f\n\x0bInsertField\x10\x0c\x12\x0f\n\x0bDe\
-    leteField\x10\r\x12\x11\n\rSwitchToField\x10\x0e\x12\x12\n\x0eDuplicateF\
-    ield\x10\x0f\x12\x17\n\x13GetEditFieldContext\x10\x10\x12\x0c\n\x08MoveI\
-    tem\x10\x11\x12\x13\n\x0fNewSelectOption\x10\x1e\x12\x1a\n\x16GetSelectO\
-    ptionContext\x10\x1f\x12\x16\n\x12UpdateSelectOption\x10\x20\x12\r\n\tCr\
-    eateRow\x102\x12\n\n\x06GetRow\x103\x12\r\n\tDeleteRow\x104\x12\x10\n\
-    \x0cDuplicateRow\x105\x12\x0b\n\x07GetCell\x10F\x12\x0e\n\nUpdateCell\
-    \x10G\x12\x1a\n\x16UpdateCellSelectOption\x10Hb\x06proto3\
+    \x0bUpdateField\x10\x0b\x12\x19\n\x15UpdateFieldTypeOption\x10\x0c\x12\
+    \x0f\n\x0bInsertField\x10\r\x12\x0f\n\x0bDeleteField\x10\x0e\x12\x11\n\r\
+    SwitchToField\x10\x14\x12\x12\n\x0eDuplicateField\x10\x15\x12\x17\n\x13G\
+    etEditFieldContext\x10\x16\x12\x0c\n\x08MoveItem\x10\x17\x12\x16\n\x12Ge\
+    tFieldTypeOption\x10\x18\x12\x13\n\x0fNewSelectOption\x10\x1e\x12\x1b\n\
+    \x17GetSelectOptionCellData\x10\x1f\x12\x16\n\x12UpdateSelectOption\x10\
+    \x20\x12\r\n\tCreateRow\x102\x12\n\n\x06GetRow\x103\x12\r\n\tDeleteRow\
+    \x104\x12\x10\n\x0cDuplicateRow\x105\x12\x0b\n\x07GetCell\x10F\x12\x0e\n\
+    \nUpdateCell\x10G\x12\x1a\n\x16UpdateSelectOptionCell\x10H\x12\x12\n\x0e\
+    UpdateDateCell\x10P\x12\x13\n\x0fGetDateCellData\x10Zb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

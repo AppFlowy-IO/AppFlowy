@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/cell/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:flutter/widgets.dart';
@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'checkbox_cell.dart';
-import 'date_cell.dart';
+import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'selection_cell/selection_cell.dart';
 import 'text_cell.dart';

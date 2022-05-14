@@ -1,9 +1,20 @@
 syntax = "proto3";
+import "cell_entities.proto";
 
 message DateTypeOption {
     DateFormat date_format = 1;
     TimeFormat time_format = 2;
     bool include_time = 3;
+}
+message DateCellData {
+    string date = 1;
+    string time = 2;
+    int64 timestamp = 3;
+}
+message DateChangesetPayload {
+    CellIdentifierPayload cell_identifier = 1;
+    oneof one_of_date { string date = 2; };
+    oneof one_of_time { string time = 3; };
 }
 enum DateFormat {
     Local = 0;

@@ -21,13 +21,11 @@ message SelectOptionChangesetPayload {
     oneof one_of_delete_option { SelectOption delete_option = 4; };
 }
 message SelectOptionCellChangesetPayload {
-    string grid_id = 1;
-    string row_id = 2;
-    string field_id = 3;
-    oneof one_of_insert_option_id { string insert_option_id = 4; };
-    oneof one_of_delete_option_id { string delete_option_id = 5; };
+    CellIdentifierPayload cell_identifier = 1;
+    oneof one_of_insert_option_id { string insert_option_id = 2; };
+    oneof one_of_delete_option_id { string delete_option_id = 3; };
 }
-message SelectOptionContext {
+message SelectOptionCellData {
     repeated SelectOption options = 1;
     repeated SelectOption select_options = 2;
 }

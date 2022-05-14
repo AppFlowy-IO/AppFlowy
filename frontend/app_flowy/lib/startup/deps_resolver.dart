@@ -153,18 +153,18 @@ void _resolveGridDeps(GetIt getIt) {
   getIt.registerFactoryParam<FieldActionSheetBloc, GridFieldCellContext, void>(
     (data, _) => FieldActionSheetBloc(
       field: data.field,
-      service: FieldService(gridId: data.gridId),
+      fieldService: FieldService(gridId: data.gridId, fieldId: data.field.id),
     ),
   );
 
   getIt.registerFactoryParam<FieldEditorBloc, String, EditFieldContextLoader>(
     (gridId, fieldLoader) => FieldEditorBloc(
-      service: FieldService(gridId: gridId),
+      gridId: gridId,
       fieldLoader: fieldLoader,
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridDefaultCellContext, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
     (context, _) => TextCellBloc(
       cellContext: context,
     ),
@@ -176,19 +176,19 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridDefaultCellContext, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellContext, void>(
     (context, _) => NumberCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridDefaultCellContext, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridDateCellContext, void>(
     (context, _) => DateCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridDefaultCellContext, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellContext: cellData,

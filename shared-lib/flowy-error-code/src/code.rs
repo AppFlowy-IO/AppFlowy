@@ -111,8 +111,11 @@ pub enum ErrorCode {
     #[display(fmt = "Field's type option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
 
+    #[display(fmt = "Invalid date time format")]
+    InvalidDateTimeFormat = 500,
+
     #[display(fmt = "Invalid data")]
-    InvalidData = 500,
+    InvalidData = 1000,
 }
 
 impl ErrorCode {

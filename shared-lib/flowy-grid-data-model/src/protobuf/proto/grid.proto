@@ -35,13 +35,17 @@ message GetEditFieldContextPayload {
 }
 message EditFieldPayload {
     string grid_id = 1;
-    string field_id = 2;
+    oneof one_of_field_id { string field_id = 2; };
     FieldType field_type = 3;
 }
 message EditFieldContext {
     string grid_id = 1;
     Field grid_field = 2;
     bytes type_option_data = 3;
+}
+message FieldTypeOptionData {
+    string field_id = 1;
+    bytes type_option_data = 2;
 }
 message RepeatedField {
     repeated Field items = 1;
@@ -90,6 +94,7 @@ message GridBlock {
 message Cell {
     string field_id = 1;
     string content = 2;
+    string data = 3;
 }
 message RepeatedCell {
     repeated Cell items = 1;
@@ -112,6 +117,11 @@ message InsertFieldPayload {
     Field field = 2;
     bytes type_option_data = 3;
     oneof one_of_start_field_id { string start_field_id = 4; };
+}
+message UpdateFieldTypeOptionPayload {
+    string grid_id = 1;
+    string field_id = 2;
+    bytes type_option_data = 3;
 }
 message QueryFieldPayload {
     string grid_id = 1;
@@ -143,7 +153,7 @@ message CellChangeset {
     string grid_id = 1;
     string row_id = 2;
     string field_id = 3;
-    oneof one_of_data { string data = 4; };
+    oneof one_of_cell_content_changeset { string cell_content_changeset = 4; };
 }
 enum MoveItemType {
     MoveField = 0;

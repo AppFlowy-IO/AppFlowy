@@ -167,8 +167,8 @@ pub struct EditFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2)]
-    pub field_id: String,
+    #[pb(index = 2, one_of)]
+    pub field_id: Option<String>,
 
     #[pb(index = 3)]
     pub field_type: FieldType,
@@ -176,7 +176,7 @@ pub struct EditFieldPayload {
 
 pub struct EditFieldParams {
     pub grid_id: String,
-    pub field_id: String,
+    pub field_id: Option<String>,
     pub field_type: FieldType,
 }
 
@@ -185,10 +185,10 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        // let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
             grid_id: grid_id.0,
-            field_id: field_id.0,
+            field_id: self.field_id,
             field_type: self.field_type,
         })
     }
@@ -203,6 +203,15 @@ pub struct EditFieldContext {
     pub grid_field: Field,
 
     #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct FieldTypeOptionData {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
     pub type_option_data: Vec<u8>,
 }
 
@@ -452,13 +461,25 @@ pub struct Cell {
 
     #[pb(index = 2)]
     pub content: String,
+
+    #[pb(index = 3)]
+    pub data: String,
 }
 
 impl Cell {
-    pub fn new(field_id: &str, content: String) -> Self {
+    pub fn new(field_id: &str, content: String, data: String) -> Self {
         Self {
             field_id: field_id.to_owned(),
             content,
+            data,
+        }
+    }
+
+    pub fn empty(field_id: &str) -> Self {
+        Self {
+            field_id: field_id.to_owned(),
+            content: "".to_string(),
+            data: "".to_string(),
         }
     }
 }
@@ -591,6 +612,40 @@ impl TryInto<InsertFieldParams> for InsertFieldPayload {
             field: self.field,
             type_option_data: self.type_option_data,
             start_field_id,
+        })
+    }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct UpdateFieldTypeOptionPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub type_option_data: Vec<u8>,
+}
+
+#[derive(Clone)]
+pub struct UpdateFieldTypeOptionParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub type_option_data: Vec<u8>,
+}
+
+impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<UpdateFieldTypeOptionParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let _ = NotEmptyStr::parse(self.field_id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+
+        Ok(UpdateFieldTypeOptionParams {
+            grid_id: grid_id.0,
+            field_id: self.field_id,
+            type_option_data: self.type_option_data,
         })
     }
 }
@@ -847,7 +902,7 @@ pub struct CellChangeset {
     pub field_id: String,
 
     #[pb(index = 4, one_of)]
-    pub data: Option<String>,
+    pub cell_content_changeset: Option<String>,
 }
 
 impl std::convert::From<CellChangeset> for RowMetaChangeset {
@@ -855,7 +910,7 @@ impl std::convert::From<CellChangeset> for RowMetaChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_meta = CellMeta {
-            data: changeset.data.unwrap_or_else(|| "".to_owned()),
+            data: changeset.cell_content_changeset.unwrap_or_else(|| "".to_owned()),
         };
         cell_by_field_id.insert(field_id, cell_meta);
 

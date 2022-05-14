@@ -490,8 +490,18 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
   void clearFieldType() => clearField(3);
 }
 
+enum EditFieldPayload_OneOfFieldId {
+  fieldId, 
+  notSet
+}
+
 class EditFieldPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, EditFieldPayload_OneOfFieldId> _EditFieldPayload_OneOfFieldIdByTag = {
+    2 : EditFieldPayload_OneOfFieldId.fieldId,
+    0 : EditFieldPayload_OneOfFieldId.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditFieldPayload', createEmptyInstance: create)
+    ..oo(0, [2])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..e<FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
@@ -536,6 +546,9 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static EditFieldPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EditFieldPayload>(create);
   static EditFieldPayload? _defaultInstance;
+
+  EditFieldPayload_OneOfFieldId whichOneOfFieldId() => _EditFieldPayload_OneOfFieldIdByTag[$_whichOneof(0)]!;
+  void clearOneOfFieldId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);
@@ -640,6 +653,67 @@ class EditFieldContext extends $pb.GeneratedMessage {
   $core.bool hasTypeOptionData() => $_has(2);
   @$pb.TagNumber(3)
   void clearTypeOptionData() => clearField(3);
+}
+
+class FieldTypeOptionData extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FieldTypeOptionData', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  FieldTypeOptionData._() : super();
+  factory FieldTypeOptionData({
+    $core.String? fieldId,
+    $core.List<$core.int>? typeOptionData,
+  }) {
+    final _result = create();
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    return _result;
+  }
+  factory FieldTypeOptionData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FieldTypeOptionData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FieldTypeOptionData clone() => FieldTypeOptionData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FieldTypeOptionData copyWith(void Function(FieldTypeOptionData) updates) => super.copyWith((message) => updates(message as FieldTypeOptionData)) as FieldTypeOptionData; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FieldTypeOptionData create() => FieldTypeOptionData._();
+  FieldTypeOptionData createEmptyInstance() => create();
+  static $pb.PbList<FieldTypeOptionData> createRepeated() => $pb.PbList<FieldTypeOptionData>();
+  @$core.pragma('dart2js:noInline')
+  static FieldTypeOptionData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FieldTypeOptionData>(create);
+  static FieldTypeOptionData? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fieldId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fieldId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFieldId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFieldId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get typeOptionData => $_getN(1);
+  @$pb.TagNumber(2)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTypeOptionData() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTypeOptionData() => clearField(2);
 }
 
 class RepeatedField extends $pb.GeneratedMessage {
@@ -1276,6 +1350,7 @@ class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..hasRequiredFields = false
   ;
 
@@ -1283,6 +1358,7 @@ class Cell extends $pb.GeneratedMessage {
   factory Cell({
     $core.String? fieldId,
     $core.String? content,
+    $core.String? data,
   }) {
     final _result = create();
     if (fieldId != null) {
@@ -1290,6 +1366,9 @@ class Cell extends $pb.GeneratedMessage {
     }
     if (content != null) {
       _result.content = content;
+    }
+    if (data != null) {
+      _result.data = data;
     }
     return _result;
   }
@@ -1331,6 +1410,15 @@ class Cell extends $pb.GeneratedMessage {
   $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
   void clearContent() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get data => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set data($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearData() => clearField(3);
 }
 
 class RepeatedCell extends $pb.GeneratedMessage {
@@ -1691,6 +1779,81 @@ class InsertFieldPayload extends $pb.GeneratedMessage {
   $core.bool hasStartFieldId() => $_has(3);
   @$pb.TagNumber(4)
   void clearStartFieldId() => clearField(4);
+}
+
+class UpdateFieldTypeOptionPayload extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateFieldTypeOptionPayload', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'typeOptionData', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  UpdateFieldTypeOptionPayload._() : super();
+  factory UpdateFieldTypeOptionPayload({
+    $core.String? gridId,
+    $core.String? fieldId,
+    $core.List<$core.int>? typeOptionData,
+  }) {
+    final _result = create();
+    if (gridId != null) {
+      _result.gridId = gridId;
+    }
+    if (fieldId != null) {
+      _result.fieldId = fieldId;
+    }
+    if (typeOptionData != null) {
+      _result.typeOptionData = typeOptionData;
+    }
+    return _result;
+  }
+  factory UpdateFieldTypeOptionPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateFieldTypeOptionPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UpdateFieldTypeOptionPayload clone() => UpdateFieldTypeOptionPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UpdateFieldTypeOptionPayload copyWith(void Function(UpdateFieldTypeOptionPayload) updates) => super.copyWith((message) => updates(message as UpdateFieldTypeOptionPayload)) as UpdateFieldTypeOptionPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static UpdateFieldTypeOptionPayload create() => UpdateFieldTypeOptionPayload._();
+  UpdateFieldTypeOptionPayload createEmptyInstance() => create();
+  static $pb.PbList<UpdateFieldTypeOptionPayload> createRepeated() => $pb.PbList<UpdateFieldTypeOptionPayload>();
+  @$core.pragma('dart2js:noInline')
+  static UpdateFieldTypeOptionPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateFieldTypeOptionPayload>(create);
+  static UpdateFieldTypeOptionPayload? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gridId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gridId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGridId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGridId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get fieldId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set fieldId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFieldId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFieldId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get typeOptionData => $_getN(2);
+  @$pb.TagNumber(3)
+  set typeOptionData($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTypeOptionData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTypeOptionData() => clearField(3);
 }
 
 class QueryFieldPayload extends $pb.GeneratedMessage {
@@ -2164,22 +2327,22 @@ class MoveItemPayload extends $pb.GeneratedMessage {
   void clearTy() => clearField(5);
 }
 
-enum CellChangeset_OneOfData {
-  data, 
+enum CellChangeset_OneOfCellContentChangeset {
+  cellContentChangeset, 
   notSet
 }
 
 class CellChangeset extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, CellChangeset_OneOfData> _CellChangeset_OneOfDataByTag = {
-    4 : CellChangeset_OneOfData.data,
-    0 : CellChangeset_OneOfData.notSet
+  static const $core.Map<$core.int, CellChangeset_OneOfCellContentChangeset> _CellChangeset_OneOfCellContentChangesetByTag = {
+    4 : CellChangeset_OneOfCellContentChangeset.cellContentChangeset,
+    0 : CellChangeset_OneOfCellContentChangeset.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CellChangeset', createEmptyInstance: create)
     ..oo(0, [4])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rowId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cellContentChangeset')
     ..hasRequiredFields = false
   ;
 
@@ -2188,7 +2351,7 @@ class CellChangeset extends $pb.GeneratedMessage {
     $core.String? gridId,
     $core.String? rowId,
     $core.String? fieldId,
-    $core.String? data,
+    $core.String? cellContentChangeset,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -2200,8 +2363,8 @@ class CellChangeset extends $pb.GeneratedMessage {
     if (fieldId != null) {
       _result.fieldId = fieldId;
     }
-    if (data != null) {
-      _result.data = data;
+    if (cellContentChangeset != null) {
+      _result.cellContentChangeset = cellContentChangeset;
     }
     return _result;
   }
@@ -2226,8 +2389,8 @@ class CellChangeset extends $pb.GeneratedMessage {
   static CellChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CellChangeset>(create);
   static CellChangeset? _defaultInstance;
 
-  CellChangeset_OneOfData whichOneOfData() => _CellChangeset_OneOfDataByTag[$_whichOneof(0)]!;
-  void clearOneOfData() => clearField($_whichOneof(0));
+  CellChangeset_OneOfCellContentChangeset whichOneOfCellContentChangeset() => _CellChangeset_OneOfCellContentChangesetByTag[$_whichOneof(0)]!;
+  void clearOneOfCellContentChangeset() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);
@@ -2257,12 +2420,12 @@ class CellChangeset extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get data => $_getSZ(3);
+  $core.String get cellContentChangeset => $_getSZ(3);
   @$pb.TagNumber(4)
-  set data($core.String v) { $_setString(3, v); }
+  set cellContentChangeset($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasData() => $_has(3);
+  $core.bool hasCellContentChangeset() => $_has(3);
   @$pb.TagNumber(4)
-  void clearData() => clearField(4);
+  void clearCellContentChangeset() => clearField(4);
 }
 

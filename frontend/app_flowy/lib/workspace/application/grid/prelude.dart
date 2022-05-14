@@ -21,7 +21,7 @@ export 'cell/number_cell_bloc.dart';
 export 'cell/selection_cell_bloc.dart';
 export 'cell/date_cell_bloc.dart';
 export 'cell/checkbox_cell_bloc.dart';
-export 'cell/cell_service.dart';
+export 'cell/cell_service/cell_service.dart';
 
 // Setting
 export 'setting/setting_bloc.dart';

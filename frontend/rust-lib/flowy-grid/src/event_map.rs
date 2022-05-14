@@ -14,11 +14,13 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
         .event(GridEvent::InsertField, insert_field_handler)
+        .event(GridEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
         .event(GridEvent::GetEditFieldContext, get_field_context_handler)
         .event(GridEvent::MoveItem, move_item_handler)
+        .event(GridEvent::GetFieldTypeOption, get_field_type_option_data_handler)
         // Row
         .event(GridEvent::CreateRow, create_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
@@ -27,11 +29,14 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Cell
         .event(GridEvent::GetCell, get_cell_handler)
         .event(GridEvent::UpdateCell, update_cell_handler)
+        .event(GridEvent::GetDateCellData, get_date_cell_data_handler)
         // SelectOption
         .event(GridEvent::NewSelectOption, new_select_option_handler)
         .event(GridEvent::UpdateSelectOption, update_select_option_handler)
-        .event(GridEvent::GetSelectOptionContext, get_select_option_handler)
-        .event(GridEvent::UpdateCellSelectOption, update_cell_select_option_handler);
+        .event(GridEvent::GetSelectOptionCellData, get_select_option_handler)
+        .event(GridEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
+        // Date
+        .event(GridEvent::UpdateDateCell, update_date_cell_handler);
 
     module
 }
@@ -51,29 +56,35 @@ pub enum GridEvent {
     #[event(input = "FieldChangesetPayload")]
     UpdateField = 11,
 
+    #[event(input = "UpdateFieldTypeOptionPayload")]
+    UpdateFieldTypeOption = 12,
+
     #[event(input = "InsertFieldPayload")]
-    InsertField = 12,
+    InsertField = 13,
 
     #[event(input = "FieldIdentifierPayload")]
-    DeleteField = 13,
+    DeleteField = 14,
 
     #[event(input = "EditFieldPayload", output = "EditFieldContext")]
-    SwitchToField = 14,
+    SwitchToField = 20,
 
     #[event(input = "FieldIdentifierPayload")]
-    DuplicateField = 15,
+    DuplicateField = 21,
 
-    #[event(input = "GetEditFieldContextPayload", output = "EditFieldContext")]
-    GetEditFieldContext = 16,
+    #[event(input = "EditFieldPayload", output = "EditFieldContext")]
+    GetEditFieldContext = 22,
 
     #[event(input = "MoveItemPayload")]
-    MoveItem = 17,
+    MoveItem = 23,
+
+    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
+    GetFieldTypeOption = 24,
 
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     NewSelectOption = 30,
 
-    #[event(input = "CellIdentifierPayload", output = "SelectOptionContext")]
-    GetSelectOptionContext = 31,
+    #[event(input = "CellIdentifierPayload", output = "SelectOptionCellData")]
+    GetSelectOptionCellData = 31,
 
     #[event(input = "SelectOptionChangesetPayload")]
     UpdateSelectOption = 32,
@@ -97,5 +108,11 @@ pub enum GridEvent {
     UpdateCell = 71,
 
     #[event(input = "SelectOptionCellChangesetPayload")]
-    UpdateCellSelectOption = 72,
+    UpdateSelectOptionCell = 72,
+
+    #[event(input = "DateChangesetPayload")]
+    UpdateDateCell = 80,
+
+    #[event(input = "CellIdentifierPayload", output = "DateCellData")]
+    GetDateCellData = 90,
 }

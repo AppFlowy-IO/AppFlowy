@@ -150,7 +150,7 @@ class FieldCellButton extends StatelessWidget {
       onTap: onTap,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
       text: FlowyText.medium(field.name, fontSize: 12),
-      padding: GridSize.cellContentInsets,
+      margin: GridSize.cellContentInsets,
     );
   }
 }
