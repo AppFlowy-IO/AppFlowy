@@ -135,7 +135,7 @@ class _EmojiPickerState extends State<EmojiPicker> {
     if (!loaded) {
       // Load emojis
       updateEmojiFuture.then(
-        (value) => WidgetsBinding.instance!.addPostFrameCallback((_) {
+        (value) => WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           setState(() {
             loaded = true;

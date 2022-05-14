@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.15.0-116.0.dev <3.0.0"
+  sdk: ">=2.17.1 <3.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -40,7 +40,7 @@ dependencies:
   flutter_quill:
     git:
       url: https://github.com/appflowy/flutter-quill.git
-      ref: dbc309f5e382963fa0122409a0aaf8e1417d51c1
+      ref: 306fd78b7a134abdde0fed6be67f59e8a6068509
 
   #  third party packages
   intl: ^0.17.0
@@ -74,7 +74,7 @@ dependencies:
   device_info_plus: ^3.2.1
   fluttertoast: ^8.0.8
   table_calendar: ^3.0.5
-  reorderables:
+  reorderables: ^0.5.0
   linked_scroll_controller: ^0.2.0
 
 dev_dependencies:

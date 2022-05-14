@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -6,8 +8,6 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'cell/cell_service/cell_service.dart';
 import 'row/row_service.dart';
 
