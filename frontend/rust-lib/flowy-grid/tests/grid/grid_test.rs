@@ -2,8 +2,8 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset, SingleSelectTypeOption,
-    SELECTION_IDS_SEPARATOR,
+    DateCellContentChangeset, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
+    SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
@@ -240,7 +240,9 @@ async fn grid_row_add_cells_test() {
                 builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
             }
             FieldType::DateTime => {
-                builder.add_cell(&field.id, "1647251762".to_owned()).unwrap();
+                builder
+                    .add_cell(&field.id, make_date_cell_string("1647251762"))
+                    .unwrap();
             }
             FieldType::SingleSelect => {
                 let type_option = SingleSelectTypeOption::from(field);
@@ -278,10 +280,11 @@ async fn grid_row_add_date_cell_test() {
             date_field = Some(field.clone());
             NaiveDateTime::from_timestamp(123, 0);
             // The data should not be empty
-            assert!(builder.add_cell(&field.id, "".to_owned()).is_err());
-
-            assert!(builder.add_cell(&field.id, "123".to_owned()).is_ok());
-            assert!(builder.add_cell(&field.id, format!("{}", timestamp)).is_ok());
+            assert!(builder.add_cell(&field.id, "".to_string()).is_err());
+            assert!(builder.add_cell(&field.id, make_date_cell_string("123")).is_ok());
+            assert!(builder
+                .add_cell(&field.id, make_date_cell_string(&timestamp.to_string()))
+                .is_ok());
         }
     }
     let context = builder.build();
@@ -315,7 +318,7 @@ async fn grid_cell_update() {
                 let data = match field_meta.field_type {
                     FieldType::RichText => "".to_string(),
                     FieldType::Number => "123".to_string(),
-                    FieldType::DateTime => "123".to_string(),
+                    FieldType::DateTime => make_date_cell_string("123"),
                     FieldType::SingleSelect => {
                         let type_option = SingleSelectTypeOption::from(field_meta);
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
@@ -362,4 +365,12 @@ async fn grid_cell_update() {
     }
 
     test.run_scripts(scripts).await;
+}
+
+fn make_date_cell_string(s: &str) -> String {
+    serde_json::to_string(&DateCellContentChangeset {
+        date: Some(s.to_string()),
+        time: None,
+    })
+    .unwrap()
 }

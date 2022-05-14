@@ -5,14 +5,12 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
-use diesel::types::Time;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 use serde::{Deserialize, Serialize};
-use std::ops::Add;
 use std::str::FromStr;
 use strum_macros::EnumIter;
 
@@ -79,7 +77,7 @@ impl DateTypeOption {
         }
     }
 
-    pub fn date_cell_data(&self, cell_meta: &Option<CellMeta>) -> FlowyResult<DateCellData> {
+    pub fn make_date_cell_data(&self, cell_meta: &Option<CellMeta>) -> FlowyResult<DateCellData> {
         if cell_meta.is_none() {
             return Ok(DateCellData::default());
         }
@@ -112,27 +110,28 @@ impl DateTypeOption {
         utc: &chrono::DateTime<chrono::Utc>,
         time: &Option<String>,
     ) -> FlowyResult<i64> {
-        let mut date_str = format!(
-            "{}",
-            utc.format_with_items(StrftimeItems::new(self.date_format.format_str()))
-        );
-
         if let Some(time_str) = time.as_ref() {
             if !time_str.is_empty() {
-                date_str = date_str.add(&time_str);
+                let date_str = format!(
+                    "{}{}",
+                    utc.format_with_items(StrftimeItems::new(self.date_format.format_str())),
+                    &time_str
+                );
+
+                return match NaiveDateTime::parse_from_str(&date_str, &self.date_fmt(time)) {
+                    Ok(native) => {
+                        let utc = self.utc_date_time_from_native(native);
+                        Ok(utc.timestamp())
+                    }
+                    Err(_e) => {
+                        let msg = format!("Parse {} failed", date_str);
+                        Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
+                    }
+                };
             }
         }
-        let fmt = self.date_fmt(time);
-        match NaiveDateTime::parse_from_str(&date_str, &fmt) {
-            Ok(native) => {
-                let utc = self.utc_date_time_from_native(native);
-                Ok(utc.timestamp())
-            }
-            Err(_e) => {
-                let msg = format!("Parse {} with format: {} failed", date_str, fmt);
-                Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, &msg))
-            }
-        }
+
+        return Ok(utc.timestamp());
     }
 }
 
@@ -170,7 +169,7 @@ impl CellDataOperation for DateTypeOption {
                     let timestamp = self.timestamp_from_utc_with_time(&utc, &time)?;
                     DateCellDataSerde::new(timestamp, time, &self.time_format)
                 }
-                _ => DateCellDataSerde::from_timestamp(date_timestamp, &self.time_format),
+                _ => DateCellDataSerde::from_timestamp(date_timestamp, Some(default_time_str(&self.time_format))),
             },
         };
 
@@ -312,11 +311,8 @@ impl DateCellDataSerde {
         }
     }
 
-    fn from_timestamp(timestamp: i64, time_format: &TimeFormat) -> Self {
-        Self {
-            timestamp,
-            time: Some(default_time_str(time_format)),
-        }
+    pub(crate) fn from_timestamp(timestamp: i64, time: Option<String>) -> Self {
+        Self { timestamp, time }
     }
 
     fn to_string(self) -> String {
@@ -614,11 +610,7 @@ mod tests {
     }
 
     fn data(s: i64) -> String {
-        let json = serde_json::to_string(&DateCellDataSerde {
-            timestamp: s,
-            time: None,
-        })
-        .unwrap();
+        let json = serde_json::to_string(&DateCellDataSerde::from_timestamp(s, None)).unwrap();
         TypeOptionCellData::new(&json, FieldType::DateTime).json()
     }
 }

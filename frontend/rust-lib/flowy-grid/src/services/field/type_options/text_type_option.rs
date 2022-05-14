@@ -78,7 +78,8 @@ mod tests {
 
         // date
         let date_time_field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
-        let data = TypeOptionCellData::new("1647251762", FieldType::DateTime).json();
+        let json = serde_json::to_string(&DateCellDataSerde::from_timestamp(1647251762, None)).unwrap();
+        let data = TypeOptionCellData::new(&json, FieldType::DateTime).json();
         assert_eq!(
             type_option.decode_cell_data(data, &date_time_field_meta).content,
             "Mar 14,2022".to_owned()

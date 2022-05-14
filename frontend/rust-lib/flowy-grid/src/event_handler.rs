@@ -289,7 +289,7 @@ pub(crate) async fn get_date_cell_data_handler(
         Some(field_meta) => {
             let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
             let type_option = DateTypeOption::from(&field_meta);
-            let date_cell_data = type_option.date_cell_data(&cell_meta)?;
+            let date_cell_data = type_option.make_date_cell_data(&cell_meta)?;
             data_result(date_cell_data)
         }
     }

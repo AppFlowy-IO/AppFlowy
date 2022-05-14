@@ -9,7 +9,7 @@ import 'dart:async';
 import 'cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
-// import 'package:fixnum/fixnum.dart' as $fixnum;
+import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
@@ -34,7 +34,11 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
           },
-          didReceiveCellUpdate: (value) {},
+          didReceiveCellUpdate: (DateCellData cellData) {
+            final dateData = dateDataFromCellData(cellData);
+            final time = dateData.foldRight("", (dateData, previous) => dateData.time);
+            emit(state.copyWith(dateData: dateData, time: time));
+          },
           setIncludeTime: (includeTime) async {
             await _updateTypeOption(emit, includeTime: includeTime);
           },
@@ -53,11 +57,8 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   }
 
   Future<void> _updateDateData(Emitter<DateCalState> emit, {DateTime? date, String? time}) {
-    final DateCellPersistenceData newDateData = state.dateData.fold(
-      () {
-        var newDateData = DateCellPersistenceData(date: date ?? DateTime.now());
-        return newDateData.copyWith(time: time);
-      },
+    final DateCalData newDateData = state.dateData.fold(
+      () => DateCalData(date: date ?? DateTime.now(), time: time),
       (dateData) {
         var newDateData = dateData;
         if (date != null && !isSameDay(newDateData.date, date)) {
@@ -74,7 +75,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     return _saveDateData(emit, newDateData);
   }
 
-  Future<void> _saveDateData(Emitter<DateCalState> emit, DateCellPersistenceData newDateData) async {
+  Future<void> _saveDateData(Emitter<DateCalState> emit, DateCalData newDateData) async {
     if (state.dateData == Some(newDateData)) {
       return;
     }
@@ -173,31 +174,48 @@ class DateCalState with _$DateCalState {
     required DateTypeOption dateTypeOption,
     required CalendarFormat format,
     required DateTime focusedDay,
-    required String time,
     required Option<String> timeFormatError,
-    required Option<DateCellPersistenceData> dateData,
+    required Option<DateCalData> dateData,
+    required String? time,
   }) = _DateCalState;
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
     DateCellData? cellData,
   ) {
-    Option<DateCellPersistenceData> dateData = none();
-    final time = cellData?.time ?? "";
-    if (cellData != null) {
-      // final timestamp = $fixnum.Int64.parseInt(cellData.timestamp).toInt();
-      final timestamp = cellData.timestamp * 1000;
-      final selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
-      dateData = Some(DateCellPersistenceData(date: selectedDay, time: time));
-    }
-
+    Option<DateCalData> dateData = dateDataFromCellData(cellData);
+    final time = dateData.foldRight("", (dateData, previous) => dateData.time);
     return DateCalState(
       dateTypeOption: dateTypeOption,
       format: CalendarFormat.month,
       focusedDay: DateTime.now(),
-      dateData: dateData,
       time: time,
+      dateData: dateData,
       timeFormatError: none(),
     );
   }
+}
+
+Option<DateCalData> dateDataFromCellData(DateCellData? cellData) {
+  String? time = timeFromCellData(cellData);
+  Option<DateCalData> dateData = none();
+  if (cellData != null) {
+    final timestamp = cellData.timestamp * 1000;
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+    dateData = Some(DateCalData(date: date, time: time));
+  }
+  return dateData;
+}
+
+$fixnum.Int64 timestampFromDateTime(DateTime dateTime) {
+  final timestamp = (dateTime.millisecondsSinceEpoch ~/ 1000);
+  return $fixnum.Int64(timestamp);
+}
+
+String? timeFromCellData(DateCellData? cellData) {
+  String? time;
+  if (cellData?.hasTime() ?? false) {
+    time = cellData?.time;
+  }
+  return time;
 }

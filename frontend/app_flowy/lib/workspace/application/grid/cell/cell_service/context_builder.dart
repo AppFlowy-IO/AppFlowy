@@ -2,7 +2,7 @@ part of 'cell_service.dart';
 
 typedef GridCellContext = _GridCellContext<Cell, String>;
 typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
-typedef GridDateCellContext = _GridCellContext<DateCellData, DateCellPersistenceData>;
+typedef GridDateCellContext = _GridCellContext<DateCellData, DateCalData>;
 
 class GridCellContextBuilder {
   final GridCellCache _cellCache;

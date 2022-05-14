@@ -254,7 +254,11 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return BlocBuilder<DateCalBloc, DateCalState>(
+    return BlocConsumer<DateCalBloc, DateCalState>(
+      listener: (context, state) {
+        _controller.text = state.time ?? "";
+      },
+      listenWhen: (p, c) => p.time != c.time,
       builder: (context, state) {
         if (state.dateTypeOption.includeTime) {
           return Padding(
