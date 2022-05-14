@@ -26,7 +26,7 @@ class ViewSection extends StatelessWidget {
         listenWhen: (p, c) => p.selectedView != c.selectedView,
         listener: (context, state) {
           if (state.selectedView != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance?.addPostFrameCallback((_) {
               getIt<HomeStackManager>().setPlugin(state.selectedView!.plugin());
             });
           }
