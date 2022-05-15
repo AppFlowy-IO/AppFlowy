@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/edit_select_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/selection_cell/extension.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/select_option_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -14,11 +14,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-class EditSelectOptionPannel extends StatelessWidget {
+class SelectOptionTypeOptionEditor extends StatelessWidget {
   final SelectOption option;
   final VoidCallback onDeleted;
   final Function(SelectOption) onUpdated;
-  const EditSelectOptionPannel({
+  const SelectOptionTypeOptionEditor({
     required this.option,
     required this.onDeleted,
     required this.onUpdated,

@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/application/grid/field/type_option/type_opti
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'field_option_pannel.dart';
+import 'select_option.dart';
 
 class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
   final SingleSelectTypeOptionWidget _widget;
@@ -42,18 +42,18 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
           dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());
         },
         builder: (context, state) {
-          return FieldSelectOptionPannel(
+          return SelectOptionTypeOptionWidget(
             options: state.typeOption.options,
             beginEdit: () {
               overlayDelegate.hideOverlay(context);
             },
-            createOptionCallback: (name) {
+            createSelectOptionCallback: (name) {
               context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.createOption(name));
             },
-            updateOptionCallback: (updateOption) {
+            updateSelectOptionCallback: (updateOption) {
               context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.updateOption(updateOption));
             },
-            deleteOptionCallback: (deleteOption) {
+            deleteSelectOptionCallback: (deleteOption) {
               context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.deleteOption(deleteOption));
             },
             overlayDelegate: overlayDelegate,

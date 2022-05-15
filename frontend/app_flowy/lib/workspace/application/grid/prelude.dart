@@ -18,7 +18,7 @@ export 'field/type_option/single_select_bloc.dart';
 // Cell
 export 'cell/text_cell_bloc.dart';
 export 'cell/number_cell_bloc.dart';
-export 'cell/selection_cell_bloc.dart';
+export 'cell/select_option_cell_bloc.dart';
 export 'cell/date_cell_bloc.dart';
 export 'cell/checkbox_cell_bloc.dart';
 export 'cell/cell_service/cell_service.dart';

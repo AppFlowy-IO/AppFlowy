@@ -13,22 +13,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-import 'edit_option_pannel.dart';
+import 'select_option_editor.dart';
 
-class FieldSelectOptionPannel extends StatelessWidget {
+class SelectOptionTypeOptionWidget extends StatelessWidget {
   final List<SelectOption> options;
   final VoidCallback beginEdit;
-  final Function(String optionName) createOptionCallback;
-  final Function(SelectOption) updateOptionCallback;
-  final Function(SelectOption) deleteOptionCallback;
+  final Function(String optionName) createSelectOptionCallback;
+  final Function(SelectOption) updateSelectOptionCallback;
+  final Function(SelectOption) deleteSelectOptionCallback;
   final TypeOptionOverlayDelegate overlayDelegate;
 
-  const FieldSelectOptionPannel({
+  const SelectOptionTypeOptionWidget({
     required this.options,
     required this.beginEdit,
-    required this.createOptionCallback,
-    required this.updateOptionCallback,
-    required this.deleteOptionCallback,
+    required this.createSelectOptionCallback,
+    required this.updateSelectOptionCallback,
+    required this.deleteSelectOptionCallback,
     required this.overlayDelegate,
     Key? key,
   }) : super(key: key);
@@ -44,17 +44,17 @@ class FieldSelectOptionPannel extends StatelessWidget {
           }
           state.newOptionName.fold(
             () => null,
-            (optionName) => createOptionCallback(optionName),
+            (optionName) => createSelectOptionCallback(optionName),
           );
 
           state.updateOption.fold(
             () => null,
-            (updateOption) => updateOptionCallback(updateOption),
+            (updateOption) => updateSelectOptionCallback(updateOption),
           );
 
           state.deleteOption.fold(
             () => null,
-            (deleteOption) => deleteOptionCallback(deleteOption),
+            (deleteOption) => deleteSelectOptionCallback(deleteOption),
           );
         },
         builder: (context, state) {
@@ -86,30 +86,12 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return BlocBuilder<FieldOptionPannelBloc, FieldOptionPannelState>(
       builder: (context, state) {
         List<Widget> children = [FlowyText.medium(LocaleKeys.grid_field_optionTitle.tr(), fontSize: 12)];
         if (state.options.isNotEmpty) {
           children.add(const Spacer());
-          children.add(
-            SizedBox(
-              width: 100,
-              height: 26,
-              child: FlowyButton(
-                text: FlowyText.medium(
-                  LocaleKeys.grid_field_addOption.tr(),
-                  fontSize: 12,
-                  textAlign: TextAlign.center,
-                ),
-                hoverColor: theme.hover,
-                onTap: () {
-                  context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.beginAddingOption());
-                },
-              ),
-            ),
-          );
+          children.add(const _OptionTitleAddOptionButton());
         }
 
         return SizedBox(
@@ -117,6 +99,30 @@ class OptionTitle extends StatelessWidget {
           child: Row(children: children),
         );
       },
+    );
+  }
+}
+
+class _OptionTitleAddOptionButton extends StatelessWidget {
+  const _OptionTitleAddOptionButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return SizedBox(
+      width: 100,
+      height: 26,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_addOption.tr(),
+          fontSize: 12,
+          textAlign: TextAlign.center,
+        ),
+        hoverColor: theme.hover,
+        onTap: () {
+          context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.beginAddingOption());
+        },
+      ),
     );
   }
 }
@@ -155,7 +161,7 @@ class _OptionList extends StatelessWidget {
     return _OptionCell(
       option: option,
       onEdited: (option) {
-        final pannel = EditSelectOptionPannel(
+        final pannel = SelectOptionTypeOptionEditor(
           option: option,
           onDeleted: () {
             delegate.hideOverlay(context);

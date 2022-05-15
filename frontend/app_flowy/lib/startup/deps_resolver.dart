@@ -170,8 +170,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<SelectionCellBloc, GridSelectOptionCellContext, void>(
-    (context, _) => SelectionCellBloc(
+  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellContext, void>(
+    (context, _) => SelectOptionCellBloc(
       cellContext: context,
     ),
   );

@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'field_option_pannel.dart';
+import 'select_option.dart';
 
 class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
   final MultiSelectTypeOptionWidget _widget;
@@ -43,18 +43,18 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
           dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer());
         },
         builder: (context, state) {
-          return FieldSelectOptionPannel(
+          return SelectOptionTypeOptionWidget(
             options: state.typeOption.options,
             beginEdit: () {
               overlayDelegate.hideOverlay(context);
             },
-            createOptionCallback: (name) {
+            createSelectOptionCallback: (name) {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.createOption(name));
             },
-            updateOptionCallback: (updateOption) {
+            updateSelectOptionCallback: (updateOption) {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.updateOption(updateOption));
             },
-            deleteOptionCallback: (deleteOption) {
+            deleteSelectOptionCallback: (deleteOption) {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.deleteOption(deleteOption));
             },
             overlayDelegate: overlayDelegate,

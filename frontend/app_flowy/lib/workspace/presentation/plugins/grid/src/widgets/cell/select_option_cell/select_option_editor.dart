@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/workspace/application/grid/cell/selection_editor_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/cell/select_option_editor_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/edit_option_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/select_option_editor.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -37,10 +37,10 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectOptionEditorBloc(
+      create: (context) => SelectOptionCellEditorBloc(
         cellContext: cellContext,
       )..add(const SelectOptionEditorEvent.initial()),
-      child: BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
+      child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
           return CustomScrollView(
             shrinkWrap: true,
@@ -102,7 +102,7 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
+    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         List<Widget> cells = [];
         cells.addAll(state.options.map((option) {
@@ -145,7 +145,7 @@ class _TextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionEditorBloc, SelectOptionEditorState>(
+    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
         final optionMap = LinkedHashMap<String, SelectOption>.fromIterable(state.selectedOptions,
             key: (option) => option.name, value: (option) => option);
@@ -158,10 +158,10 @@ class _TextField extends StatelessWidget {
             distanceToText: _editorPannelWidth * 0.7,
             tagController: _tagController,
             newText: (text) {
-              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.filterOption(text));
+              context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.filterOption(text));
             },
             onNewTag: (tagName) {
-              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.newOption(tagName));
+              context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.newOption(tagName));
             },
           ),
         );
@@ -230,7 +230,7 @@ class _SelectOptionCell extends StatelessWidget {
           _body(theme, context),
           InkWell(
             onTap: () {
-              context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+              context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
             },
           ),
         ],
@@ -270,17 +270,17 @@ class _SelectOptionCell extends StatelessWidget {
   }
 
   void _showEditPannel(BuildContext context) {
-    final pannel = EditSelectOptionPannel(
+    final pannel = SelectOptionTypeOptionEditor(
       option: option,
       onDeleted: () {
-        context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.deleteOption(option));
+        context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.deleteOption(option));
       },
       onUpdated: (updatedOption) {
-        context.read<SelectOptionEditorBloc>().add(SelectOptionEditorEvent.updateOption(updatedOption));
+        context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.updateOption(updatedOption));
       },
       key: ValueKey(option.id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
     );
-    final overlayIdentifier = (EditSelectOptionPannel).toString();
+    final overlayIdentifier = (SelectOptionTypeOptionEditor).toString();
 
     FlowyOverlay.of(context).remove(overlayIdentifier);
     FlowyOverlay.of(context).insertWithAnchor(

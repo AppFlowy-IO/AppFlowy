@@ -5,7 +5,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 
 import '../cell_builder.dart';
-import 'calendar.dart';
+import 'date_editor.dart';
 
 class DateCellStyle extends GridCellStyle {
   Alignment alignment;
@@ -77,7 +77,7 @@ class _DateCellState extends State<DateCell> {
   void _showCalendar(BuildContext context) {
     final bloc = context.read<DateCellBloc>();
     widget.onFocus.value = true;
-    final calendar = CellCalendar(onDismissed: () => widget.onFocus.value = false);
+    final calendar = DateCellEditor(onDismissed: () => widget.onFocus.value = false);
     calendar.show(
       context,
       cellContext: bloc.cellContext.clone(),

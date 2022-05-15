@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'extension.dart';
-import 'selection_editor.dart';
+import 'select_option_editor.dart';
 
 class SelectOptionCellStyle extends GridCellStyle {
   String placeholder;
@@ -41,12 +41,12 @@ class SingleSelectCell extends GridCellWidget {
 }
 
 class _SingleSelectCellState extends State<SingleSelectCell> {
-  late SelectionCellBloc _cellBloc;
+  late SelectOptionCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
-    _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
 
@@ -54,7 +54,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
+      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
@@ -95,12 +95,12 @@ class MultiSelectCell extends GridCellWidget {
 }
 
 class _MultiSelectCellState extends State<MultiSelectCell> {
-  late SelectionCellBloc _cellBloc;
+  late SelectOptionCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
-    _cellBloc = getIt<SelectionCellBloc>(param1: cellContext)..add(const SelectionCellEvent.initial());
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
 
@@ -108,7 +108,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<SelectionCellBloc, SelectionCellState>(
+      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
