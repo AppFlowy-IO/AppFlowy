@@ -75,9 +75,7 @@
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename",
-    "document":"Doc",
-    "grid":"Grid"
+    "renameDialog": "Rename"
   },
   "toolbar": {
     "undo": "Undo",
