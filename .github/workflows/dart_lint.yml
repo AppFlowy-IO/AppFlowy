@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
+          flutter-version: '2.10.0'
           channel: "stable"
       - name: Deps Flutter
         run: flutter packages pub get
