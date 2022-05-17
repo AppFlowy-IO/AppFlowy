@@ -25,18 +25,18 @@ import 'type_option/number.dart';
 import 'type_option/single_select.dart';
 
 typedef UpdateFieldCallback = void Function(Field, Uint8List);
-typedef SwitchToFieldCallback = Future<Either<EditFieldContext, FlowyError>> Function(
+typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionData, FlowyError>> Function(
   String fieldId,
   FieldType fieldType,
 );
 
 class FieldEditorPannel extends StatefulWidget {
-  final EditFieldContext editFieldContext;
+  final FieldTypeOptionData fieldTypeOptionData;
   final UpdateFieldCallback onUpdated;
   final SwitchToFieldCallback onSwitchToField;
 
   const FieldEditorPannel({
-    required this.editFieldContext,
+    required this.fieldTypeOptionData,
     required this.onUpdated,
     required this.onSwitchToField,
     Key? key,
@@ -52,7 +52,7 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldEditorPannelBloc>(param1: widget.editFieldContext),
+      create: (context) => getIt<FieldEditorPannelBloc>(param1: widget.fieldTypeOptionData),
       child: BlocConsumer<FieldEditorPannelBloc, FieldEditorPannelState>(
         listener: (context, state) {
           widget.onUpdated(state.field, state.typeOptionData);
@@ -86,11 +86,11 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
           final list = FieldTypeList(onSelectField: (newFieldType) {
             widget.onSwitchToField(field.id, newFieldType).then((result) {
               result.fold(
-                (editFieldContext) {
+                (fieldTypeOptionContext) {
                   context.read<FieldEditorPannelBloc>().add(
                         FieldEditorPannelEvent.toFieldType(
-                          editFieldContext.gridField,
-                          editFieldContext.typeOptionData,
+                          fieldTypeOptionContext.field_2,
+                          fieldTypeOptionContext.typeOptionData,
                         ),
                       );
                 },

@@ -3,17 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-part 'field_option_pannel_bloc.freezed.dart';
+part 'select_option_type_option_bloc.freezed.dart';
 
-class FieldOptionPannelBloc extends Bloc<FieldOptionPannelEvent, FieldOptionPannelState> {
-  FieldOptionPannelBloc({required List<SelectOption> options}) : super(FieldOptionPannelState.initial(options)) {
-    on<FieldOptionPannelEvent>(
+class SelectOptionTypeOptionBloc extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTyepOptionState> {
+  SelectOptionTypeOptionBloc({required List<SelectOption> options})
+      : super(SelectOptionTyepOptionState.initial(options)) {
+    on<SelectOptionTypeOptionEvent>(
       (event, emit) async {
         await event.map(
           createOption: (_CreateOption value) async {
-            emit(state.copyWith(isEditingOption: false, newOptionName: Some(value.optionName)));
+            emit(state.copyWith(isEditingOption: true, newOptionName: Some(value.optionName)));
           },
-          beginAddingOption: (_BeginAddingOption value) {
+          addingOption: (_AddingOption value) {
             emit(state.copyWith(isEditingOption: true, newOptionName: none()));
           },
           endAddingOption: (_EndAddingOption value) {
@@ -37,25 +38,25 @@ class FieldOptionPannelBloc extends Bloc<FieldOptionPannelEvent, FieldOptionPann
 }
 
 @freezed
-class FieldOptionPannelEvent with _$FieldOptionPannelEvent {
-  const factory FieldOptionPannelEvent.createOption(String optionName) = _CreateOption;
-  const factory FieldOptionPannelEvent.beginAddingOption() = _BeginAddingOption;
-  const factory FieldOptionPannelEvent.endAddingOption() = _EndAddingOption;
-  const factory FieldOptionPannelEvent.updateOption(SelectOption option) = _UpdateOption;
-  const factory FieldOptionPannelEvent.deleteOption(SelectOption option) = _DeleteOption;
+class SelectOptionTypeOptionEvent with _$SelectOptionTypeOptionEvent {
+  const factory SelectOptionTypeOptionEvent.createOption(String optionName) = _CreateOption;
+  const factory SelectOptionTypeOptionEvent.addingOption() = _AddingOption;
+  const factory SelectOptionTypeOptionEvent.endAddingOption() = _EndAddingOption;
+  const factory SelectOptionTypeOptionEvent.updateOption(SelectOption option) = _UpdateOption;
+  const factory SelectOptionTypeOptionEvent.deleteOption(SelectOption option) = _DeleteOption;
 }
 
 @freezed
-class FieldOptionPannelState with _$FieldOptionPannelState {
-  const factory FieldOptionPannelState({
+class SelectOptionTyepOptionState with _$SelectOptionTyepOptionState {
+  const factory SelectOptionTyepOptionState({
     required List<SelectOption> options,
     required bool isEditingOption,
     required Option<String> newOptionName,
     required Option<SelectOption> updateOption,
     required Option<SelectOption> deleteOption,
-  }) = _FieldOptionPannelState;
+  }) = _SelectOptionTyepOptionState;
 
-  factory FieldOptionPannelState.initial(List<SelectOption> options) => FieldOptionPannelState(
+  factory SelectOptionTyepOptionState.initial(List<SelectOption> options) => SelectOptionTyepOptionState(
         options: options,
         isEditingOption: false,
         newOptionName: none(),

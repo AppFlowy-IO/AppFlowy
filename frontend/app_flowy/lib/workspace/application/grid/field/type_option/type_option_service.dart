@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -32,13 +33,58 @@ class TypeOptionService {
   }
 }
 
+abstract class TypeOptionDataBuilder<T> {
+  T fromBuffer(List<int> buffer);
+}
+
 class TypeOptionContext {
   final String gridId;
   final Field field;
   final Uint8List data;
-  const TypeOptionContext({
+
+  TypeOptionContext({
     required this.gridId,
     required this.field,
     required this.data,
   });
+}
+
+abstract class TypeOptionFieldDelegate {
+  void onFieldChanged(void Function(String) callback);
+  void dispose();
+}
+
+class TypeOptionContext2<T> {
+  final String gridId;
+  final Field field;
+  final FieldService _fieldService;
+  T? _data;
+  final TypeOptionDataBuilder dataBuilder;
+
+  TypeOptionContext2({
+    required this.gridId,
+    required this.field,
+    required this.dataBuilder,
+    Uint8List? data,
+  }) : _fieldService = FieldService(gridId: gridId, fieldId: field.id) {
+    if (data != null) {
+      _data = dataBuilder.fromBuffer(data);
+    }
+  }
+
+  Future<Either<T, FlowyError>> typeOptionData() {
+    if (_data != null) {
+      return Future(() => left(_data!));
+    }
+
+    return _fieldService.getFieldTypeOptionData(fieldType: field.fieldType).then((result) {
+      return result.fold(
+        (data) {
+          _data = dataBuilder.fromBuffer(data.typeOptionData);
+          return left(_data!);
+        },
+        (err) => right(err),
+      );
+    });
+  }
 }

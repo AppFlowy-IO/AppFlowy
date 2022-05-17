@@ -11,7 +11,7 @@ class FieldActionSheetBloc extends Bloc<FieldActionSheetEvent, FieldActionSheetS
   final FieldService fieldService;
 
   FieldActionSheetBloc({required Field field, required this.fieldService})
-      : super(FieldActionSheetState.initial(EditFieldContext.create()..gridField = field)) {
+      : super(FieldActionSheetState.initial(FieldTypeOptionData.create()..field_2 = field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
@@ -67,14 +67,14 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
 @freezed
 class FieldActionSheetState with _$FieldActionSheetState {
   const factory FieldActionSheetState({
-    required EditFieldContext editContext,
+    required FieldTypeOptionData fieldTypeOptionData,
     required String errorText,
     required String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(EditFieldContext editContext) => FieldActionSheetState(
-        editContext: editContext,
+  factory FieldActionSheetState.initial(FieldTypeOptionData data) => FieldActionSheetState(
+        fieldTypeOptionData: data,
         errorText: '',
-        fieldName: editContext.gridField.name,
+        fieldName: data.field_2.name,
       );
 }

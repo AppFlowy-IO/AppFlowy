@@ -150,7 +150,7 @@ class CreateFieldButton extends StatelessWidget {
       hoverColor: theme.hover,
       onTap: () => FieldEditor(
         gridId: gridId,
-        fieldContextLoader: NewFieldContextLoader(gridId: gridId),
+        contextLoader: NewFieldContextLoader(gridId: gridId),
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );

@@ -57,7 +57,7 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
               context.read<SingleSelectTypeOptionBloc>().add(SingleSelectTypeOptionEvent.deleteOption(deleteOption));
             },
             overlayDelegate: overlayDelegate,
-            key: ValueKey(state.typeOption.hashCode),
+            // key: ValueKey(state.typeOption.hashCode),
           );
         },
       ),

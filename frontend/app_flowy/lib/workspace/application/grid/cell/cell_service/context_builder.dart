@@ -150,8 +150,8 @@ class _GridCellContext<T, D> extends Equatable {
     return data;
   }
 
-  Future<Either<List<int>, FlowyError>> getTypeOptionData() {
-    return _fieldService.getTypeOptionData(fieldType: fieldType);
+  Future<Either<FieldTypeOptionData, FlowyError>> getTypeOptionData() {
+    return _fieldService.getFieldTypeOptionData(fieldType: fieldType);
   }
 
   Future<Option<FlowyError>> saveCellData(D data) {

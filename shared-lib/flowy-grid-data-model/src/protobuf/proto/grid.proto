@@ -38,14 +38,15 @@ message EditFieldPayload {
     oneof one_of_field_id { string field_id = 2; };
     FieldType field_type = 3;
 }
-message EditFieldContext {
+message FieldTypeOptionContext {
     string grid_id = 1;
     Field grid_field = 2;
     bytes type_option_data = 3;
 }
 message FieldTypeOptionData {
-    string field_id = 1;
-    bytes type_option_data = 2;
+    string grid_id = 1;
+    string field_id = 2;
+    bytes type_option_data = 3;
 }
 message RepeatedField {
     repeated Field items = 1;

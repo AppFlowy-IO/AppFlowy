@@ -58,7 +58,7 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
               context.read<MultiSelectTypeOptionBloc>().add(MultiSelectTypeOptionEvent.deleteOption(deleteOption));
             },
             overlayDelegate: overlayDelegate,
-            key: ValueKey(state.typeOption.hashCode),
+            // key: ValueKey(state.typeOption.hashCode),
           );
         },
       ),

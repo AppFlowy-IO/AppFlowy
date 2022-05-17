@@ -14,12 +14,12 @@ import 'field_editor_pannel.dart';
 class FieldEditor extends FlowyOverlayDelegate {
   final String gridId;
   final FieldEditorBloc _fieldEditorBloc;
-  final EditFieldContextLoader fieldContextLoader;
+  final FieldContextLoader contextLoader;
   FieldEditor({
     required this.gridId,
-    required this.fieldContextLoader,
+    required this.contextLoader,
     Key? key,
-  }) : _fieldEditorBloc = getIt<FieldEditorBloc>(param1: gridId, param2: fieldContextLoader) {
+  }) : _fieldEditorBloc = getIt<FieldEditorBloc>(param1: gridId, param2: contextLoader) {
     _fieldEditorBloc.add(const FieldEditorEvent.initial());
   }
 
@@ -28,9 +28,10 @@ class FieldEditor extends FlowyOverlayDelegate {
     AnchorDirection anchorDirection = AnchorDirection.bottomWithLeftAligned,
   }) {
     FlowyOverlay.of(context).remove(identifier());
+    final child = _FieldEditorPage(_fieldEditorBloc, contextLoader);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: _FieldEditorWidget(_fieldEditorBloc, fieldContextLoader),
+        child: child,
         constraints: BoxConstraints.loose(const Size(280, 400)),
       ),
       identifier: identifier(),
@@ -54,10 +55,10 @@ class FieldEditor extends FlowyOverlayDelegate {
   bool asBarrier() => true;
 }
 
-class _FieldEditorWidget extends StatelessWidget {
+class _FieldEditorPage extends StatelessWidget {
   final FieldEditorBloc editorBloc;
-  final EditFieldContextLoader fieldContextLoader;
-  const _FieldEditorWidget(this.editorBloc, this.fieldContextLoader, {Key? key}) : super(key: key);
+  final FieldContextLoader contextLoader;
+  const _FieldEditorPage(this.editorBloc, this.contextLoader, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +66,9 @@ class _FieldEditorWidget extends StatelessWidget {
       value: editorBloc,
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         builder: (context, state) {
-          return state.editFieldContext.fold(
+          return state.fieldTypeOptionData.fold(
             () => const SizedBox(),
-            (editFieldContext) => ListView(
+            (fieldTypeOptionContext) => ListView(
               shrinkWrap: true,
               children: [
                 FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(), fontSize: 12),
@@ -75,9 +76,9 @@ class _FieldEditorWidget extends StatelessWidget {
                 const _FieldNameTextField(),
                 const VSpace(10),
                 FieldEditorPannel(
-                  editFieldContext: editFieldContext,
+                  fieldTypeOptionData: fieldTypeOptionContext,
                   onSwitchToField: (fieldId, fieldType) {
-                    return fieldContextLoader.switchToField(fieldId, fieldType);
+                    return contextLoader.switchToField(fieldId, fieldType);
                   },
                   onUpdated: (field, typeOptionData) {
                     context.read<FieldEditorBloc>().add(FieldEditorEvent.updateField(field, typeOptionData));
@@ -99,9 +100,9 @@ class _FieldNameTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<FieldEditorBloc, FieldEditorState, String>(
       selector: (state) {
-        return state.editFieldContext.fold(
+        return state.fieldTypeOptionData.fold(
           () => "",
-          (editFieldContext) => editFieldContext.gridField.name,
+          (fieldTypeOptionContext) => fieldTypeOptionContext.field_2.name,
         );
       },
       builder: (context, name) {

@@ -18,7 +18,6 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
-        .event(GridEvent::GetEditFieldContext, get_field_context_handler)
         .event(GridEvent::MoveItem, move_item_handler)
         .event(GridEvent::GetFieldTypeOption, get_field_type_option_data_handler)
         // Row
@@ -65,20 +64,17 @@ pub enum GridEvent {
     #[event(input = "FieldIdentifierPayload")]
     DeleteField = 14,
 
-    #[event(input = "EditFieldPayload", output = "EditFieldContext")]
+    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
     SwitchToField = 20,
 
     #[event(input = "FieldIdentifierPayload")]
     DuplicateField = 21,
 
-    #[event(input = "EditFieldPayload", output = "EditFieldContext")]
-    GetEditFieldContext = 22,
-
     #[event(input = "MoveItemPayload")]
-    MoveItem = 23,
+    MoveItem = 22,
 
     #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
-    GetFieldTypeOption = 24,
+    GetFieldTypeOption = 23,
 
     #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
     NewSelectOption = 30,

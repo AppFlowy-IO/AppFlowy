@@ -98,7 +98,7 @@ pub(crate) async fn delete_field_handler(
 pub(crate) async fn switch_to_field_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<EditFieldContext, FlowyError> {
+) -> DataResult<FieldTypeOptionData, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     if params.field_id.is_none() {
         return Err(ErrorCode::FieldIdIsEmpty.into());
@@ -107,9 +107,9 @@ pub(crate) async fn switch_to_field_handler(
     let editor = manager.get_grid_editor(&params.grid_id)?;
     editor.switch_to_field_type(&field_id, &params.field_type).await?;
     let field_meta = editor.get_field_meta(&field_id).await;
-    let edit_context =
-        make_edit_field_context(&params.grid_id, Some(field_id), params.field_type, editor, field_meta).await?;
-    data_result(edit_context)
+    let data =
+        make_field_type_option_data(&params.grid_id, Some(field_id), params.field_type, editor, field_meta).await?;
+    data_result(data)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -124,19 +124,6 @@ pub(crate) async fn duplicate_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_field_context_handler(
-    data: Data<EditFieldPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<EditFieldContext, FlowyError> {
-    let params: EditFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    let edit_context =
-        make_edit_field_context(&params.grid_id, params.field_id, params.field_type, editor, None).await?;
-
-    data_result(edit_context)
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -147,7 +134,8 @@ pub(crate) async fn get_field_type_option_data_handler(
     let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
 
     data_result(FieldTypeOptionData {
-        field_id: field_meta.id.clone(),
+        grid_id: params.grid_id,
+        field: field_meta.into(),
         type_option_data,
     })
 }
@@ -163,23 +151,24 @@ pub(crate) async fn move_item_handler(
     Ok(())
 }
 
-async fn make_edit_field_context(
+async fn make_field_type_option_data(
     grid_id: &str,
     field_id: Option<String>,
     field_type: FieldType,
     editor: Arc<ClientGridEditor>,
     field_meta: Option<FieldMeta>,
-) -> FlowyResult<EditFieldContext> {
+) -> FlowyResult<FieldTypeOptionData> {
     let field_meta = field_meta.unwrap_or(get_or_create_field_meta(field_id, &field_type, editor).await?);
     let type_option_data = get_type_option_data(&field_meta, &field_type).await?;
-    let field: Field = field_meta.into();
-    Ok(EditFieldContext {
+
+    Ok(FieldTypeOptionData {
         grid_id: grid_id.to_string(),
-        grid_field: field,
+        field: field_meta.into(),
         type_option_data,
     })
 }
 
+/// The FieldMeta contains multiple data, each of them belongs to a specific FieldType.
 async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_meta
         .get_type_option_str(field_type)

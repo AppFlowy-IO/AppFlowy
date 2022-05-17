@@ -7,7 +7,7 @@ import 'dart:async';
 part 'field_editor_pannel_bloc.freezed.dart';
 
 class FieldEditorPannelBloc extends Bloc<FieldEditorPannelEvent, FieldEditorPannelState> {
-  FieldEditorPannelBloc(EditFieldContext editContext) : super(FieldEditorPannelState.initial(editContext)) {
+  FieldEditorPannelBloc(FieldTypeOptionData editContext) : super(FieldEditorPannelState.initial(editContext)) {
     on<FieldEditorPannelEvent>(
       (event, emit) async {
         await event.map(
@@ -45,9 +45,9 @@ class FieldEditorPannelState with _$FieldEditorPannelState {
     required Uint8List typeOptionData,
   }) = _FieldEditorPannelState;
 
-  factory FieldEditorPannelState.initial(EditFieldContext context) => FieldEditorPannelState(
-        gridId: context.gridId,
-        field: context.gridField,
-        typeOptionData: Uint8List.fromList(context.typeOptionData),
+  factory FieldEditorPannelState.initial(FieldTypeOptionData data) => FieldEditorPannelState(
+        gridId: data.gridId,
+        field: data.field_2,
+        typeOptionData: Uint8List.fromList(data.typeOptionData),
       );
 }

@@ -40,7 +40,7 @@ class DateCellEditor with FlowyOverlayDelegate {
       (data) {
         final calendar = _CellCalendarWidget(
           cellContext: cellContext,
-          dateTypeOption: DateTypeOption.fromBuffer(data),
+          dateTypeOption: DateTypeOption.fromBuffer(data.typeOptionData),
         );
 
         FlowyOverlay.of(context).insertWithAnchor(

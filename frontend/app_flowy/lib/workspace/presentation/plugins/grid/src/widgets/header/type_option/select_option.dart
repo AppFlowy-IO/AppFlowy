@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/grid/field/type_option/field_option_pannel_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/select_option_type_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
@@ -36,8 +36,8 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FieldOptionPannelBloc(options: options),
-      child: BlocConsumer<FieldOptionPannelBloc, FieldOptionPannelState>(
+      create: (context) => SelectOptionTypeOptionBloc(options: options),
+      child: BlocConsumer<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
         listener: (context, state) {
           if (state.isEditingOption) {
             beginEdit();
@@ -61,18 +61,10 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
           List<Widget> children = [
             const TypeOptionSeparator(),
             const OptionTitle(),
+            if (state.isEditingOption) const _CreateOptionTextField(),
+            if (state.options.isEmpty && !state.isEditingOption) const _AddOptionButton(),
+            _OptionList(overlayDelegate)
           ];
-          if (state.isEditingOption) {
-            children.add(const _OptionNameTextField());
-          }
-
-          if (state.options.isEmpty && !state.isEditingOption) {
-            children.add(const _AddOptionButton());
-          }
-
-          if (state.options.isNotEmpty) {
-            children.add(_OptionList(overlayDelegate));
-          }
 
           return Column(children: children);
         },
@@ -86,12 +78,12 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FieldOptionPannelBloc, FieldOptionPannelState>(
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
       builder: (context, state) {
         List<Widget> children = [FlowyText.medium(LocaleKeys.grid_field_optionTitle.tr(), fontSize: 12)];
         if (state.options.isNotEmpty) {
           children.add(const Spacer());
-          children.add(const _OptionTitleAddOptionButton());
+          children.add(const _OptionTitleButton());
         }
 
         return SizedBox(
@@ -103,8 +95,8 @@ class OptionTitle extends StatelessWidget {
   }
 }
 
-class _OptionTitleAddOptionButton extends StatelessWidget {
-  const _OptionTitleAddOptionButton({Key? key}) : super(key: key);
+class _OptionTitleButton extends StatelessWidget {
+  const _OptionTitleButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +112,7 @@ class _OptionTitleAddOptionButton extends StatelessWidget {
         ),
         hoverColor: theme.hover,
         onTap: () {
-          context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.beginAddingOption());
+          context.read<SelectOptionTypeOptionBloc>().add(const SelectOptionTypeOptionEvent.addingOption());
         },
       ),
     );
@@ -133,7 +125,7 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FieldOptionPannelBloc, FieldOptionPannelState>(
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
       buildWhen: (previous, current) {
         return previous.options != current.options;
       },
@@ -160,16 +152,16 @@ class _OptionList extends StatelessWidget {
   _OptionCell _makeOptionCell(BuildContext context, SelectOption option) {
     return _OptionCell(
       option: option,
-      onEdited: (option) {
+      onSelected: (option) {
         final pannel = SelectOptionTypeOptionEditor(
           option: option,
           onDeleted: () {
             delegate.hideOverlay(context);
-            context.read<FieldOptionPannelBloc>().add(FieldOptionPannelEvent.deleteOption(option));
+            context.read<SelectOptionTypeOptionBloc>().add(SelectOptionTypeOptionEvent.deleteOption(option));
           },
           onUpdated: (updatedOption) {
             delegate.hideOverlay(context);
-            context.read<FieldOptionPannelBloc>().add(FieldOptionPannelEvent.updateOption(updatedOption));
+            context.read<SelectOptionTypeOptionBloc>().add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
           },
           key: ValueKey(option.id),
         );
@@ -181,10 +173,10 @@ class _OptionList extends StatelessWidget {
 
 class _OptionCell extends StatelessWidget {
   final SelectOption option;
-  final Function(SelectOption) onEdited;
+  final Function(SelectOption) onSelected;
   const _OptionCell({
     required this.option,
-    required this.onEdited,
+    required this.onSelected,
     Key? key,
   }) : super(key: key);
 
@@ -196,7 +188,7 @@ class _OptionCell extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(option.name, fontSize: 12),
         hoverColor: theme.hover,
-        onTap: () => onEdited(option),
+        onTap: () => onSelected(option),
         rightIcon: svgWidget("grid/details", color: theme.iconColor),
       ),
     );
@@ -215,7 +207,7 @@ class _AddOptionButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(), fontSize: 12),
         hoverColor: theme.hover,
         onTap: () {
-          context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.beginAddingOption());
+          context.read<SelectOptionTypeOptionBloc>().add(const SelectOptionTypeOptionEvent.addingOption());
         },
         leftIcon: svgWidget("home/add", color: theme.iconColor),
       ),
@@ -223,18 +215,18 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _OptionNameTextField extends StatelessWidget {
-  const _OptionNameTextField({Key? key}) : super(key: key);
+class _CreateOptionTextField extends StatelessWidget {
+  const _CreateOptionTextField({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InputTextField(
       text: "",
       onCanceled: () {
-        context.read<FieldOptionPannelBloc>().add(const FieldOptionPannelEvent.endAddingOption());
+        context.read<SelectOptionTypeOptionBloc>().add(const SelectOptionTypeOptionEvent.endAddingOption());
       },
       onDone: (optionName) {
-        context.read<FieldOptionPannelBloc>().add(FieldOptionPannelEvent.createOption(optionName));
+        context.read<SelectOptionTypeOptionBloc>().add(SelectOptionTypeOptionEvent.createOption(optionName));
       },
     );
   }

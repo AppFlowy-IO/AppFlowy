@@ -195,7 +195,7 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct EditFieldContext {
+pub struct FieldTypeOptionContext {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -209,9 +209,12 @@ pub struct EditFieldContext {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct FieldTypeOptionData {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub grid_id: String,
 
     #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
 

@@ -7,6 +7,7 @@ mod proto_info;
 mod template;
 
 use crate::code_gen::util::path_string_with_component;
+use itertools::Itertools;
 use log::info;
 pub use proto_gen::*;
 pub use proto_info::*;
@@ -132,7 +133,7 @@ fn generate_dart_protobuf_files(
     }
 }
 
-fn check_pb_dart_plugin() {
+pub fn check_pb_dart_plugin() {
     if cfg!(target_os = "windows") {
         //Command::new("cmd")
         //    .arg("/C")
@@ -141,15 +142,39 @@ fn check_pb_dart_plugin() {
         //    .expect("failed to execute process");
         //panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly."))
     } else {
-        let is_success = Command::new("sh")
+        let exit_result = Command::new("sh")
             .arg("-c")
             .arg("command -v protoc-gen-dart")
             .status()
-            .expect("failed to execute process")
-            .success();
+            .expect("failed to execute process");
 
-        if !is_success {
-            panic!("{}", format!("\n❌ The protoc-gen-dart was not installed correctly. \n✅ You can fix that by adding \"{}\" to your shell's config file.(.bashrc, .bash, etc.)", "dart pub global activate protoc_plugin"))
+        if !exit_result.success() {
+            let mut msg = "\n❌ Can't find protoc-gen-dart in $PATH:\n".to_string();
+            let output = Command::new("sh").arg("-c").arg("echo $PATH").output();
+            let paths = String::from_utf8(output.unwrap().stdout)
+                .unwrap()
+                .split(":")
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>();
+
+            paths.iter().for_each(|s| msg.push_str(&format!("{}\n", s)));
+
+            match Command::new("sh").arg("-c").arg("which protoc-gen-dart").output() {
+                Ok(output) => {
+                    msg.push_str(&format!(
+                        "Installed protoc-gen-dart path: {:?}\n",
+                        String::from_utf8(output.stdout).unwrap()
+                    ));
+                }
+                Err(_) => {}
+            }
+
+            msg.push_str(&format!("✅ You can fix that by adding:"));
+            msg.push_str(&format!("\n\texport PATH=\"$PATH\":\"$HOME/.pub-cache/bin\"\n",));
+            msg.push_str(&format!(
+                "to your shell's config file.(.bashrc, .bash, .profile, .zshrc etc.)"
+            ));
+            panic!("{}", msg)
         }
     }
 }

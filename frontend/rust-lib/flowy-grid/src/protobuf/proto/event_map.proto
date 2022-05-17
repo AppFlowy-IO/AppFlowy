@@ -10,9 +10,8 @@ enum GridEvent {
     DeleteField = 14;
     SwitchToField = 20;
     DuplicateField = 21;
-    GetEditFieldContext = 22;
-    MoveItem = 23;
-    GetFieldTypeOption = 24;
+    MoveItem = 22;
+    GetFieldTypeOption = 23;
     NewSelectOption = 30;
     GetSelectOptionCellData = 31;
     UpdateSelectOption = 32;

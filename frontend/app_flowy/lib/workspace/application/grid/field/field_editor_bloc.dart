@@ -12,27 +12,26 @@ part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final String gridId;
-  final EditFieldContextLoader _loader;
+  final FieldContextLoader _loader;
 
   FieldEditorBloc({
     required this.gridId,
-    required EditFieldContextLoader fieldLoader,
+    required FieldContextLoader fieldLoader,
   })  : _loader = fieldLoader,
         super(FieldEditorState.initial(gridId)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialField value) async {
-            await _getEditFieldContext(emit);
+            await _getFieldTypeOptionContext(emit);
           },
           updateName: (_UpdateName value) {
             final newContext = _updateEditContext(name: value.name);
-            emit(state.copyWith(editFieldContext: newContext));
+            emit(state.copyWith(fieldTypeOptionData: newContext));
           },
           updateField: (_UpdateField value) {
-            final newContext = _updateEditContext(field: value.field, typeOptionData: value.typeOptionData);
-
-            emit(state.copyWith(editFieldContext: newContext));
+            final data = _updateEditContext(field: value.field, typeOptionData: value.typeOptionData);
+            emit(state.copyWith(fieldTypeOptionData: data));
           },
           done: (_Done value) async {
             await _saveField(emit);
@@ -47,26 +46,26 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     return super.close();
   }
 
-  Option<EditFieldContext> _updateEditContext({
+  Option<FieldTypeOptionData> _updateEditContext({
     String? name,
     Field? field,
     List<int>? typeOptionData,
   }) {
-    return state.editFieldContext.fold(
+    return state.fieldTypeOptionData.fold(
       () => none(),
       (context) {
         context.freeze();
-        final newContext = context.rebuild((newContext) {
-          newContext.gridField.rebuild((newField) {
+        final newFieldTypeOptionData = context.rebuild((newContext) {
+          newContext.field_2.rebuild((newField) {
             if (name != null) {
               newField.name = name;
             }
 
-            newContext.gridField = newField;
+            newContext.field_2 = newField;
           });
 
           if (field != null) {
-            newContext.gridField = field;
+            newContext.field_2 = field;
           }
 
           if (typeOptionData != null) {
@@ -76,35 +75,35 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
         FieldService.insertField(
           gridId: gridId,
-          field: newContext.gridField,
-          typeOptionData: newContext.typeOptionData,
+          field: newFieldTypeOptionData.field_2,
+          typeOptionData: newFieldTypeOptionData.typeOptionData,
         );
 
-        return Some(newContext);
+        return Some(newFieldTypeOptionData);
       },
     );
   }
 
   Future<void> _saveField(Emitter<FieldEditorState> emit) async {
-    await state.editFieldContext.fold(
+    await state.fieldTypeOptionData.fold(
       () async => null,
-      (context) async {
+      (data) async {
         final result = await FieldService.insertField(
           gridId: gridId,
-          field: context.gridField,
-          typeOptionData: context.typeOptionData,
+          field: data.field_2,
+          typeOptionData: data.typeOptionData,
         );
         result.fold((l) => null, (r) => null);
       },
     );
   }
 
-  Future<void> _getEditFieldContext(Emitter<FieldEditorState> emit) async {
+  Future<void> _getFieldTypeOptionContext(Emitter<FieldEditorState> emit) async {
     final result = await _loader.load();
     result.fold(
       (context) {
         emit(state.copyWith(
-          editFieldContext: Some(context),
+          fieldTypeOptionData: Some(context),
         ));
       },
       (err) => Log.error(err),
@@ -125,12 +124,12 @@ class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
     required String gridId,
     required String errorText,
-    required Option<EditFieldContext> editFieldContext,
+    required Option<FieldTypeOptionData> fieldTypeOptionData,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(String gridId) => FieldEditorState(
         gridId: gridId,
-        editFieldContext: none(),
+        fieldTypeOptionData: none(),
         errorText: '',
       );
 }
