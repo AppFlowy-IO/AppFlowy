@@ -141,5 +141,11 @@
       "lightLabel": "Modalità Chiara",
       "darkLabel": "Modalità Scura"
     }
+  },
+  "grid": {
+    "menuName":"Griglia"
+  },
+  "document":{
+    "menuName":"Documento"
   }
 }

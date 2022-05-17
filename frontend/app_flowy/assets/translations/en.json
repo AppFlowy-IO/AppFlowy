@@ -75,7 +75,9 @@
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename"
+    "renameDialog": "Rename",
+    "document":"Doc",
+    "grid":"Grid"
   },
   "toolbar": {
     "undo": "Undo",
@@ -195,6 +197,10 @@
       "colorPannelTitle": "Colors",
       "pannelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
-    }
+    },
+    "menuName":"Grid"
+  },
+  "document":{
+    "menuName":"Doc"
   }
 }
