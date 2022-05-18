@@ -239,30 +239,13 @@ class _SelectOptionCell extends StatelessWidget {
   }
 
   Widget _body(AppTheme theme, BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
+    return SelectOptionTagCell(
+      option: option,
+      onSelected: (option) {
+        context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+      },
       children: [
-        FlowyHover(
-          style: HoverStyle(hoverColor: theme.hover),
-          builder: (_, onHover) {
-            return InkWell(
-              child: Row(children: [
-                const HSpace(6),
-                SelectOptionTag(
-                  name: option.name,
-                  color: option.color.make(context),
-                  isSelected: isSelected,
-                ),
-                const Spacer(),
-                if (isSelected) svgWidget("grid/checkmark"),
-                const HSpace(6),
-              ]),
-              onTap: () {
-                context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
-              },
-            );
-          },
-        ),
+        if (isSelected) svgWidget("grid/checkmark"),
       ],
     );
   }

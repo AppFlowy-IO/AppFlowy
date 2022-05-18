@@ -1,10 +1,12 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/select_option_type_option_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/select_option_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -183,13 +185,18 @@ class _OptionCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: FlowyButton(
-        text: FlowyText.medium(option.name, fontSize: 12),
-        hoverColor: theme.hover,
-        onTap: () => onSelected(option),
-        rightIcon: svgWidget("grid/details", color: theme.iconColor),
+      child: SelectOptionTagCell(
+        option: option,
+        onSelected: onSelected,
+        children: [
+          svgWidget(
+            "grid/details",
+            color: theme.iconColor,
+          ),
+        ],
       ),
     );
   }
