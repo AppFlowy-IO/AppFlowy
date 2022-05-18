@@ -64,7 +64,7 @@ class TypeOptionContext<T extends GeneratedMessage> {
 
   set typeOption(T typeOption) {
     _fieldContext.typeOptionData = typeOption.writeToBuffer();
-    _typeOptionObject = null;
+    _typeOptionObject = typeOption;
   }
 }
 

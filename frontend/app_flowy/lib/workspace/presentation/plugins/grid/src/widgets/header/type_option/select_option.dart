@@ -19,45 +19,22 @@ import 'select_option_editor.dart';
 class SelectOptionTypeOptionWidget extends StatelessWidget {
   final List<SelectOption> options;
   final VoidCallback beginEdit;
-  final Function(String optionName) createSelectOptionCallback;
-  final Function(SelectOption) updateSelectOptionCallback;
-  final Function(SelectOption) deleteSelectOptionCallback;
   final TypeOptionOverlayDelegate overlayDelegate;
+  final SelectOptionTypeOptionAction typeOptionAction;
 
   const SelectOptionTypeOptionWidget({
     required this.options,
     required this.beginEdit,
-    required this.createSelectOptionCallback,
-    required this.updateSelectOptionCallback,
-    required this.deleteSelectOptionCallback,
     required this.overlayDelegate,
+    required this.typeOptionAction,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectOptionTypeOptionBloc(options: options),
-      child: BlocConsumer<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
-        listener: (context, state) {
-          if (state.isEditingOption) {
-            beginEdit();
-          }
-          state.newOptionName.fold(
-            () => null,
-            (optionName) => createSelectOptionCallback(optionName),
-          );
-
-          state.updateOption.fold(
-            () => null,
-            (updateOption) => updateSelectOptionCallback(updateOption),
-          );
-
-          state.deleteOption.fold(
-            () => null,
-            (deleteOption) => deleteSelectOptionCallback(deleteOption),
-          );
-        },
+      create: (context) => SelectOptionTypeOptionBloc(options: options, typeOptionAction: typeOptionAction),
+      child: BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {
           List<Widget> children = [
             const TypeOptionSeparator(),
@@ -83,7 +60,7 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         List<Widget> children = [FlowyText.medium(LocaleKeys.grid_field_optionTitle.tr(), fontSize: 12)];
         if (state.options.isNotEmpty) {
@@ -130,7 +107,7 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTyepOptionState>(
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       buildWhen: (previous, current) {
         return previous.options != current.options;
       },
@@ -230,13 +207,19 @@ class _CreateOptionTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InputTextField(
-      text: "",
-      onCanceled: () {
-        context.read<SelectOptionTypeOptionBloc>().add(const SelectOptionTypeOptionEvent.endAddingOption());
-      },
-      onDone: (optionName) {
-        context.read<SelectOptionTypeOptionBloc>().add(SelectOptionTypeOptionEvent.createOption(optionName));
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
+      builder: (context, state) {
+        final text = state.newOptionName.foldRight("", (a, previous) => a);
+        return InputTextField(
+          autoClearWhenDone: true,
+          text: text,
+          onCanceled: () {
+            context.read<SelectOptionTypeOptionBloc>().add(const SelectOptionTypeOptionEvent.endAddingOption());
+          },
+          onDone: (optionName) {
+            context.read<SelectOptionTypeOptionBloc>().add(SelectOptionTypeOptionEvent.createOption(optionName));
+          },
+        );
       },
     );
   }

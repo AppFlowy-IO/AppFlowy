@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_bloc.dart';
+import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_type_option.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/checkbox.dart';
 import 'package:dartz/dartz.dart' show Either;

@@ -13,7 +13,7 @@ export 'field/field_editor_pannel_bloc.dart';
 // Field Type Option
 export 'field/type_option/date_bloc.dart';
 export 'field/type_option/number_bloc.dart';
-export 'field/type_option/single_select_bloc.dart';
+export 'field/type_option/single_select_type_option.dart';
 
 // Cell
 export 'cell/text_cell_bloc.dart';
