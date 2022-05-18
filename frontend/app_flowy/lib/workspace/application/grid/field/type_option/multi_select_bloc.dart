@@ -8,12 +8,24 @@ import 'type_option_service.dart';
 
 part 'multi_select_bloc.freezed.dart';
 
+typedef MultiSelectTypeOptionContext = TypeOptionContext<MultiSelectTypeOption>;
+
+class MultiSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<MultiSelectTypeOption> {
+  @override
+  MultiSelectTypeOption fromBuffer(List<int> buffer) {
+    return MultiSelectTypeOption.fromBuffer(buffer);
+  }
+}
+
 class MultiSelectTypeOptionBloc extends Bloc<MultiSelectTypeOptionEvent, MultiSelectTypeOptionState> {
   final TypeOptionService service;
 
-  MultiSelectTypeOptionBloc(TypeOptionContext typeOptionContext)
-      : service = TypeOptionService(gridId: typeOptionContext.gridId, fieldId: typeOptionContext.field.id),
-        super(MultiSelectTypeOptionState.initial(MultiSelectTypeOption.fromBuffer(typeOptionContext.data))) {
+  MultiSelectTypeOptionBloc(MultiSelectTypeOptionContext typeOptionContext)
+      : service = TypeOptionService(
+          gridId: typeOptionContext.gridId,
+          fieldId: typeOptionContext.field.id,
+        ),
+        super(MultiSelectTypeOptionState.initial(typeOptionContext.typeOption)) {
     on<MultiSelectTypeOptionEvent>(
       (event, emit) async {
         await event.map(

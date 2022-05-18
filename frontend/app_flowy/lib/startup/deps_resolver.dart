@@ -15,8 +15,6 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -185,14 +183,6 @@ void _resolveGridDeps(GetIt getIt) {
       service: CellService(),
       cellContext: cellData,
     ),
-  );
-
-  getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(
-    (typeOption, _) => DateTypeOptionBloc(typeOption: typeOption),
-  );
-
-  getIt.registerFactoryParam<NumberTypeOptionBloc, NumberTypeOption, void>(
-    (typeOption, _) => NumberTypeOptionBloc(typeOption: typeOption),
   );
 
   getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldCache>(

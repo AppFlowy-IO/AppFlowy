@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/type_option/checkbox.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -9,8 +11,6 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
@@ -20,6 +20,7 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header
 import 'field_type_extension.dart';
 import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
+import 'type_option/rich_text.dart';
 import 'type_option/single_select.dart';
 
 typedef UpdateFieldCallback = void Function(Field, Uint8List);
@@ -94,14 +95,9 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
       hideOverlay: _hideOverlay,
     );
 
-    final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
-      widget.fieldContext.typeOptionData = data;
-    });
-
     final builder = _makeTypeOptionBuild(
-      typeOptionContext: TypeOptionContext(fieldContext: widget.fieldContext),
+      typeOptionContext: _makeTypeOptionContext(widget.fieldContext),
       overlayDelegate: overlayDelegate,
-      dataDelegate: dataDelegate,
     );
 
     return builder.customWidget;
@@ -141,24 +137,76 @@ abstract class TypeOptionBuilder {
 TypeOptionBuilder _makeTypeOptionBuild({
   required TypeOptionContext typeOptionContext,
   required TypeOptionOverlayDelegate overlayDelegate,
-  required TypeOptionDataDelegate dataDelegate,
 }) {
   switch (typeOptionContext.field.fieldType) {
     case FieldType.Checkbox:
-      return CheckboxTypeOptionBuilder(typeOptionContext.data);
+      return CheckboxTypeOptionBuilder(
+        typeOptionContext as CheckboxTypeOptionContext,
+      );
     case FieldType.DateTime:
-      return DateTypeOptionBuilder(typeOptionContext.data, overlayDelegate, dataDelegate);
+      return DateTypeOptionBuilder(
+        typeOptionContext as DateTypeOptionContext,
+        overlayDelegate,
+      );
     case FieldType.SingleSelect:
-      return SingleSelectTypeOptionBuilder(typeOptionContext, overlayDelegate, dataDelegate);
+      return SingleSelectTypeOptionBuilder(
+        typeOptionContext as SingleSelectTypeOptionContext,
+        overlayDelegate,
+      );
     case FieldType.MultiSelect:
-      return MultiSelectTypeOptionBuilder(typeOptionContext, overlayDelegate, dataDelegate);
+      return MultiSelectTypeOptionBuilder(
+        typeOptionContext as MultiSelectTypeOptionContext,
+        overlayDelegate,
+      );
     case FieldType.Number:
-      return NumberTypeOptionBuilder(typeOptionContext.data, overlayDelegate, dataDelegate);
+      return NumberTypeOptionBuilder(
+        typeOptionContext as NumberTypeOptionContext,
+        overlayDelegate,
+      );
     case FieldType.RichText:
-      return RichTextTypeOptionBuilder(typeOptionContext.data);
+      return RichTextTypeOptionBuilder(
+        typeOptionContext as RichTextTypeOptionContext,
+      );
 
     default:
       throw UnimplementedError;
+  }
+}
+
+TypeOptionContext _makeTypeOptionContext(GridFieldContext fieldContext) {
+  switch (fieldContext.field.fieldType) {
+    case FieldType.Checkbox:
+      return CheckboxTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: CheckboxTypeOptionDataBuilder(),
+      );
+    case FieldType.DateTime:
+      return DateTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: DateTypeOptionDataBuilder(),
+      );
+    case FieldType.MultiSelect:
+      return MultiSelectTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: MultiSelectTypeOptionDataBuilder(),
+      );
+    case FieldType.Number:
+      return NumberTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: NumberTypeOptionDataBuilder(),
+      );
+    case FieldType.RichText:
+      return RichTextTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: RichTextTypeOptionDataBuilder(),
+      );
+    case FieldType.SingleSelect:
+      return SingleSelectTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: SingleSelectTypeOptionDataBuilder(),
+      );
+    default:
+      throw UnimplementedError();
   }
 }
 
@@ -182,30 +230,4 @@ class TypeOptionOverlayDelegate {
     required this.showOverlay,
     required this.hideOverlay,
   });
-}
-
-class TypeOptionDataDelegate {
-  TypeOptionDataCallback didUpdateTypeOptionData;
-
-  TypeOptionDataDelegate({
-    required this.didUpdateTypeOptionData,
-  });
-}
-
-class RichTextTypeOptionBuilder extends TypeOptionBuilder {
-  RichTextTypeOption typeOption;
-
-  RichTextTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = RichTextTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => null;
-}
-
-class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
-  CheckboxTypeOption typeOption;
-
-  CheckboxTypeOptionBuilder(TypeOptionData typeOptionData) : typeOption = CheckboxTypeOption.fromBuffer(typeOptionData);
-
-  @override
-  Widget? get customWidget => null;
 }

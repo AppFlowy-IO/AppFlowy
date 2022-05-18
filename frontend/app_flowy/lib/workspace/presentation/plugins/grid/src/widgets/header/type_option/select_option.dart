@@ -6,7 +6,6 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
@@ -63,7 +62,11 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
           List<Widget> children = [
             const TypeOptionSeparator(),
             const OptionTitle(),
-            if (state.isEditingOption) const _CreateOptionTextField(),
+            if (state.isEditingOption)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: _CreateOptionTextField(),
+              ),
             if (state.options.isEmpty && !state.isEditingOption) const _AddOptionButton(),
             _OptionList(overlayDelegate)
           ];

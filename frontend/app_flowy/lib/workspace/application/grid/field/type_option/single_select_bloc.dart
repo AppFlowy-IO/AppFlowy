@@ -8,15 +8,22 @@ import 'type_option_service.dart';
 
 part 'single_select_bloc.freezed.dart';
 
+typedef SingleSelectTypeOptionContext = TypeOptionContext<SingleSelectTypeOption>;
+
+class SingleSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<SingleSelectTypeOption> {
+  @override
+  SingleSelectTypeOption fromBuffer(List<int> buffer) {
+    return SingleSelectTypeOption.fromBuffer(buffer);
+  }
+}
+
 class SingleSelectTypeOptionBloc extends Bloc<SingleSelectTypeOptionEvent, SingleSelectTypeOptionState> {
   final TypeOptionService service;
 
   SingleSelectTypeOptionBloc(
-    TypeOptionContext typeOptionContext,
+    SingleSelectTypeOptionContext typeOptionContext,
   )   : service = TypeOptionService(gridId: typeOptionContext.gridId, fieldId: typeOptionContext.field.id),
-        super(
-          SingleSelectTypeOptionState.initial(SingleSelectTypeOption.fromBuffer(typeOptionContext.data)),
-        ) {
+        super(SingleSelectTypeOptionState.initial(typeOptionContext.typeOption)) {
     on<SingleSelectTypeOptionEvent>(
       (event, emit) async {
         await event.map(

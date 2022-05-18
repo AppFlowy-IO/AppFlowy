@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
@@ -20,12 +19,10 @@ class NumberTypeOptionBuilder extends TypeOptionBuilder {
   final NumberTypeOptionWidget _widget;
 
   NumberTypeOptionBuilder(
-    TypeOptionData typeOptionData,
+    NumberTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
-    TypeOptionDataDelegate dataDelegate,
   ) : _widget = NumberTypeOptionWidget(
-          typeOption: NumberTypeOption.fromBuffer(typeOptionData),
-          dataDelegate: dataDelegate,
+          typeOptionContext: typeOptionContext,
           overlayDelegate: overlayDelegate,
         );
 
@@ -34,22 +31,23 @@ class NumberTypeOptionBuilder extends TypeOptionBuilder {
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {
-  final TypeOptionDataDelegate dataDelegate;
   final TypeOptionOverlayDelegate overlayDelegate;
-  final NumberTypeOption typeOption;
-  const NumberTypeOptionWidget(
-      {required this.typeOption, required this.dataDelegate, required this.overlayDelegate, Key? key})
-      : super(key: key);
+  final NumberTypeOptionContext typeOptionContext;
+  const NumberTypeOptionWidget({
+    required this.typeOptionContext,
+    required this.overlayDelegate,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
-      create: (context) => getIt<NumberTypeOptionBloc>(param1: typeOption),
+      create: (context) => NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
-          listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
+          listener: (context, state) => typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
             return FlowyButton(
               text: Row(

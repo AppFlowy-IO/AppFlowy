@@ -8,6 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:protobuf/protobuf.dart';
 
 class TypeOptionService {
   final String gridId;
@@ -37,10 +38,13 @@ abstract class TypeOptionDataBuilder<T> {
   T fromBuffer(List<int> buffer);
 }
 
-class TypeOptionContext {
+class TypeOptionContext<T extends GeneratedMessage> {
+  T? _typeOptionObject;
   final GridFieldContext _fieldContext;
+  final TypeOptionDataBuilder<T> dataBuilder;
 
   TypeOptionContext({
+    required this.dataBuilder,
     required GridFieldContext fieldContext,
   }) : _fieldContext = fieldContext;
 
@@ -48,7 +52,20 @@ class TypeOptionContext {
 
   Field get field => _fieldContext.field;
 
-  Uint8List get data => Uint8List.fromList(_fieldContext.typeOptionData);
+  T get typeOption {
+    if (_typeOptionObject != null) {
+      return _typeOptionObject!;
+    }
+
+    final T object = dataBuilder.fromBuffer(_fieldContext.typeOptionData);
+    _typeOptionObject = object;
+    return object;
+  }
+
+  set typeOption(T typeOption) {
+    _fieldContext.typeOptionData = typeOption.writeToBuffer();
+    _typeOptionObject = null;
+  }
 }
 
 abstract class TypeOptionFieldDelegate {
