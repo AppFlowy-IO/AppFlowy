@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_editor_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,16 +10,42 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_name_input.dart';
 import 'field_editor_pannel.dart';
 
-class FieldEditor extends FlowyOverlayDelegate {
+class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
-  final FieldEditorBloc _fieldEditorBloc;
+  final String fieldName;
+
   final FieldContextLoader contextLoader;
-  FieldEditor({
+  const FieldEditor({
     required this.gridId,
+    required this.fieldName,
     required this.contextLoader,
     Key? key,
-  }) : _fieldEditorBloc = getIt<FieldEditorBloc>(param1: gridId, param2: contextLoader) {
-    _fieldEditorBloc.add(const FieldEditorEvent.initial());
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => FieldEditorBloc(
+        gridId: gridId,
+        fieldName: fieldName,
+        fieldContextLoader: contextLoader,
+      )..add(const FieldEditorEvent.initial()),
+      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
+        buildWhen: (p, c) => false,
+        builder: (context, state) {
+          return ListView(
+            shrinkWrap: true,
+            children: [
+              FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(), fontSize: 12),
+              const VSpace(10),
+              const _FieldNameTextField(),
+              const VSpace(10),
+              const _FieldPannel(),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   void show(
@@ -28,10 +53,9 @@ class FieldEditor extends FlowyOverlayDelegate {
     AnchorDirection anchorDirection = AnchorDirection.bottomWithLeftAligned,
   }) {
     FlowyOverlay.of(context).remove(identifier());
-    final child = _FieldEditorPage(_fieldEditorBloc, contextLoader);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: child,
+        child: this,
         constraints: BoxConstraints.loose(const Size(280, 400)),
       ),
       identifier: identifier(),
@@ -47,48 +71,22 @@ class FieldEditor extends FlowyOverlayDelegate {
   }
 
   @override
-  void didRemove() {
-    _fieldEditorBloc.add(const FieldEditorEvent.done());
-  }
-
-  @override
   bool asBarrier() => true;
 }
 
-class _FieldEditorPage extends StatelessWidget {
-  final FieldEditorBloc editorBloc;
-  final FieldContextLoader contextLoader;
-  const _FieldEditorPage(this.editorBloc, this.contextLoader, {Key? key}) : super(key: key);
+class _FieldPannel extends StatelessWidget {
+  const _FieldPannel({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: editorBloc,
-      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        builder: (context, state) {
-          return state.fieldTypeOptionData.fold(
-            () => const SizedBox(),
-            (fieldTypeOptionContext) => ListView(
-              shrinkWrap: true,
-              children: [
-                FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(), fontSize: 12),
-                const VSpace(10),
-                const _FieldNameTextField(),
-                const VSpace(10),
-                FieldEditorPannel(
-                  fieldTypeOptionData: fieldTypeOptionContext,
-                  onSwitchToField: (fieldId, fieldType) {
-                    return contextLoader.switchToField(fieldId, fieldType);
-                  },
-                  onUpdated: (field, typeOptionData) {
-                    context.read<FieldEditorBloc>().add(FieldEditorEvent.updateField(field, typeOptionData));
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      buildWhen: (p, c) => p.fieldContext != c.fieldContext,
+      builder: (context, state) {
+        return state.fieldContext.fold(
+          () => const SizedBox(),
+          (fieldContext) => FieldEditorPannel(fieldContext: fieldContext),
+        );
+      },
     );
   }
 }
@@ -98,16 +96,11 @@ class _FieldNameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<FieldEditorBloc, FieldEditorState, String>(
-      selector: (state) {
-        return state.fieldTypeOptionData.fold(
-          () => "",
-          (fieldTypeOptionContext) => fieldTypeOptionContext.field_2.name,
-        );
-      },
-      builder: (context, name) {
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      buildWhen: (p, c) => p.name != c.name,
+      builder: (context, state) {
         return FieldNameTextField(
-          name: name,
+          name: state.name,
           errorText: context.read<FieldEditorBloc>().state.errorText,
           onNameChanged: (newName) {
             context.read<FieldEditorBloc>().add(FieldEditorEvent.updateName(newName));

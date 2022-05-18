@@ -38,15 +38,17 @@ abstract class TypeOptionDataBuilder<T> {
 }
 
 class TypeOptionContext {
-  final String gridId;
-  final Field field;
-  final Uint8List data;
+  final GridFieldContext _fieldContext;
 
   TypeOptionContext({
-    required this.gridId,
-    required this.field,
-    required this.data,
-  });
+    required GridFieldContext fieldContext,
+  }) : _fieldContext = fieldContext;
+
+  String get gridId => _fieldContext.gridId;
+
+  Field get field => _fieldContext.field;
+
+  Uint8List get data => Uint8List.fromList(_fieldContext.typeOptionData);
 }
 
 abstract class TypeOptionFieldDelegate {

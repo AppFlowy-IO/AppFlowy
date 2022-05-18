@@ -45,7 +45,7 @@ message FieldTypeOptionContext {
 }
 message FieldTypeOptionData {
     string grid_id = 1;
-    string field_id = 2;
+    Field field = 2;
     bytes type_option_data = 3;
 }
 message RepeatedField {

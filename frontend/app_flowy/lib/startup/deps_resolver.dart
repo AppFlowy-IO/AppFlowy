@@ -15,7 +15,6 @@ import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldTypeOptionData;
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
@@ -157,13 +156,6 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<FieldEditorBloc, String, FieldContextLoader>(
-    (gridId, fieldLoader) => FieldEditorBloc(
-      gridId: gridId,
-      fieldLoader: fieldLoader,
-    ),
-  );
-
   getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
     (context, _) => TextCellBloc(
       cellContext: context,
@@ -193,10 +185,6 @@ void _resolveGridDeps(GetIt getIt) {
       service: CellService(),
       cellContext: cellData,
     ),
-  );
-
-  getIt.registerFactoryParam<FieldEditorPannelBloc, FieldTypeOptionData, void>(
-    (context, _) => FieldEditorPannelBloc(context),
   );
 
   getIt.registerFactoryParam<DateTypeOptionBloc, DateTypeOption, void>(

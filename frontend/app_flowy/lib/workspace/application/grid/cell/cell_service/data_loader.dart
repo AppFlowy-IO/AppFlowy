@@ -1,6 +1,6 @@
 part of 'cell_service.dart';
 
-abstract class GridCellDataConfig {
+abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
   bool get reloadOnFieldChanged;
 
@@ -11,34 +11,36 @@ abstract class GridCellDataConfig {
   bool get reloadOnCellChanged;
 }
 
-class DefaultCellDataConfig implements GridCellDataConfig {
+class GridCellDataConfig implements IGridCellDataConfig {
   @override
   final bool reloadOnCellChanged;
 
   @override
   final bool reloadOnFieldChanged;
 
-  DefaultCellDataConfig({
+  const GridCellDataConfig({
     this.reloadOnCellChanged = false,
     this.reloadOnFieldChanged = false,
   });
 }
 
-abstract class _GridCellDataLoader<T> {
+abstract class IGridCellDataLoader<T> {
   Future<T?> loadData();
 
-  GridCellDataConfig get config;
+  IGridCellDataConfig get config;
 }
 
-class CellDataLoader extends _GridCellDataLoader<Cell> {
+class GridCellDataLoader extends IGridCellDataLoader<Cell> {
   final CellService service = CellService();
   final GridCell gridCell;
-  final GridCellDataConfig _config;
 
-  CellDataLoader({
+  @override
+  final IGridCellDataConfig config;
+
+  GridCellDataLoader({
     required this.gridCell,
-    bool reloadOnCellChanged = false,
-  }) : _config = DefaultCellDataConfig(reloadOnCellChanged: reloadOnCellChanged);
+    this.config = const GridCellDataConfig(),
+  });
 
   @override
   Future<Cell?> loadData() {
@@ -54,20 +56,17 @@ class CellDataLoader extends _GridCellDataLoader<Cell> {
       });
     });
   }
-
-  @override
-  GridCellDataConfig get config => _config;
 }
 
-class DateCellDataLoader extends _GridCellDataLoader<DateCellData> {
+class DateCellDataLoader extends IGridCellDataLoader<DateCellData> {
   final GridCell gridCell;
-  final GridCellDataConfig _config;
+  final IGridCellDataConfig _config;
   DateCellDataLoader({
     required this.gridCell,
-  }) : _config = DefaultCellDataConfig(reloadOnFieldChanged: true);
+  }) : _config = const GridCellDataConfig(reloadOnFieldChanged: true);
 
   @override
-  GridCellDataConfig get config => _config;
+  IGridCellDataConfig get config => _config;
 
   @override
   Future<DateCellData?> loadData() {
@@ -88,7 +87,7 @@ class DateCellDataLoader extends _GridCellDataLoader<DateCellData> {
   }
 }
 
-class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionCellData> {
+class SelectOptionCellDataLoader extends IGridCellDataLoader<SelectOptionCellData> {
   final SelectOptionService service;
   final GridCell gridCell;
   SelectOptionCellDataLoader({
@@ -108,5 +107,5 @@ class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionCellDat
   }
 
   @override
-  GridCellDataConfig get config => DefaultCellDataConfig();
+  IGridCellDataConfig get config => const GridCellDataConfig(reloadOnFieldChanged: true);
 }

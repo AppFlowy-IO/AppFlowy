@@ -1,24 +1,29 @@
-import 'dart:typed_data';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
+import 'field_service.dart';
+
 part 'field_editor_pannel_bloc.freezed.dart';
 
 class FieldEditorPannelBloc extends Bloc<FieldEditorPannelEvent, FieldEditorPannelState> {
-  FieldEditorPannelBloc(FieldTypeOptionData editContext) : super(FieldEditorPannelState.initial(editContext)) {
+  final GridFieldContext _fieldContext;
+  void Function()? _fieldListenFn;
+
+  FieldEditorPannelBloc(GridFieldContext fieldContext)
+      : _fieldContext = fieldContext,
+        super(FieldEditorPannelState.initial(fieldContext)) {
     on<FieldEditorPannelEvent>(
       (event, emit) async {
-        await event.map(
-          toFieldType: (_ToFieldType value) async {
-            emit(state.copyWith(
-              field: value.field,
-              typeOptionData: Uint8List.fromList(value.typeOptionData),
-            ));
+        event.when(
+          initial: () {
+            _fieldListenFn = fieldContext.addFieldListener((field) {
+              add(FieldEditorPannelEvent.didReceiveFieldUpdated(field));
+            });
           },
-          didUpdateTypeOptionData: (_DidUpdateTypeOptionData value) {
-            emit(state.copyWith(typeOptionData: value.typeOptionData));
+          didReceiveFieldUpdated: (field) {
+            emit(state.copyWith(field: field));
           },
         );
       },
@@ -27,27 +32,26 @@ class FieldEditorPannelBloc extends Bloc<FieldEditorPannelEvent, FieldEditorPann
 
   @override
   Future<void> close() async {
+    if (_fieldListenFn != null) {
+      _fieldContext.removeFieldListener(_fieldListenFn!);
+    }
     return super.close();
   }
 }
 
 @freezed
 class FieldEditorPannelEvent with _$FieldEditorPannelEvent {
-  const factory FieldEditorPannelEvent.toFieldType(Field field, List<int> typeOptionData) = _ToFieldType;
-  const factory FieldEditorPannelEvent.didUpdateTypeOptionData(Uint8List typeOptionData) = _DidUpdateTypeOptionData;
+  const factory FieldEditorPannelEvent.initial() = _Initial;
+  const factory FieldEditorPannelEvent.didReceiveFieldUpdated(Field field) = _DidReceiveFieldUpdated;
 }
 
 @freezed
 class FieldEditorPannelState with _$FieldEditorPannelState {
   const factory FieldEditorPannelState({
-    required String gridId,
     required Field field,
-    required Uint8List typeOptionData,
   }) = _FieldEditorPannelState;
 
-  factory FieldEditorPannelState.initial(FieldTypeOptionData data) => FieldEditorPannelState(
-        gridId: data.gridId,
-        field: data.field_2,
-        typeOptionData: Uint8List.fromList(data.typeOptionData),
+  factory FieldEditorPannelState.initial(GridFieldContext fieldContext) => FieldEditorPannelState(
+        field: fieldContext.field,
       );
 }

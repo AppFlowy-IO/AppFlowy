@@ -63,6 +63,7 @@ class GridFieldCell extends StatelessWidget {
 
     FieldEditor(
       gridId: state.gridId,
+      fieldName: state.field.name,
       contextLoader: DefaultFieldContextLoader(
         gridId: state.gridId,
         field: state.field,

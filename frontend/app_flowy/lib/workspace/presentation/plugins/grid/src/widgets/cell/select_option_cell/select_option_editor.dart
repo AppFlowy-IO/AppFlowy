@@ -224,48 +224,46 @@ class _SelectOptionCell extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Row(
         children: [
-          _body(theme, context),
-          InkWell(
-            onTap: () {
-              context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
-            },
-          ),
+          Expanded(child: _body(theme, context)),
+          FlowyIconButton(
+            width: 30,
+            onPressed: () => _showEditPannel(context),
+            iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+            icon: svgWidget("editor/details", color: theme.iconColor),
+          )
         ],
       ),
     );
   }
 
-  FlowyHover _body(AppTheme theme, BuildContext context) {
-    return FlowyHover(
-      style: HoverStyle(hoverColor: theme.hover),
-      builder: (_, onHover) {
-        List<Widget> children = [
-          SelectOptionTag(
-            name: option.name,
-            color: option.color.make(context),
-            isSelected: isSelected,
-          ),
-          const Spacer(),
-        ];
-
-        if (isSelected) {
-          children.add(svgWidget("grid/checkmark"));
-        }
-
-        if (onHover) {
-          children.add(FlowyIconButton(
-            width: 30,
-            onPressed: () => _showEditPannel(context),
-            iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-            icon: svgWidget("editor/details", color: theme.iconColor),
-          ));
-        }
-
-        return Row(children: children);
-      },
+  Widget _body(AppTheme theme, BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FlowyHover(
+          style: HoverStyle(hoverColor: theme.hover),
+          builder: (_, onHover) {
+            return InkWell(
+              child: Row(children: [
+                const HSpace(6),
+                SelectOptionTag(
+                  name: option.name,
+                  color: option.color.make(context),
+                  isSelected: isSelected,
+                ),
+                const Spacer(),
+                if (isSelected) svgWidget("grid/checkmark"),
+                const HSpace(6),
+              ]),
+              onTap: () {
+                context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 

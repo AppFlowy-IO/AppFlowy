@@ -212,7 +212,7 @@ pub struct FieldTypeOptionData {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field_id: String,
+    pub field: Field,
 
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,

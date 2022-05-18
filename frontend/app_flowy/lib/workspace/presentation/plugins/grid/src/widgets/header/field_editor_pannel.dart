@@ -7,14 +7,12 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_list.dart';
@@ -31,14 +29,10 @@ typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionData, FlowyError>> 
 );
 
 class FieldEditorPannel extends StatefulWidget {
-  final FieldTypeOptionData fieldTypeOptionData;
-  final UpdateFieldCallback onUpdated;
-  final SwitchToFieldCallback onSwitchToField;
+  final GridFieldContext fieldContext;
 
   const FieldEditorPannel({
-    required this.fieldTypeOptionData,
-    required this.onUpdated,
-    required this.onSwitchToField,
+    required this.fieldContext,
     Key? key,
   }) : super(key: key);
 
@@ -52,13 +46,10 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FieldEditorPannelBloc>(param1: widget.fieldTypeOptionData),
-      child: BlocConsumer<FieldEditorPannelBloc, FieldEditorPannelState>(
-        listener: (context, state) {
-          widget.onUpdated(state.field, state.typeOptionData);
-        },
+      create: (context) => FieldEditorPannelBloc(widget.fieldContext)..add(const FieldEditorPannelEvent.initial()),
+      child: BlocBuilder<FieldEditorPannelBloc, FieldEditorPannelState>(
         builder: (context, state) {
-          List<Widget> children = [_switchFieldTypeButton(context, state.field)];
+          List<Widget> children = [_switchFieldTypeButton(context, widget.fieldContext.field)];
           final typeOptionWidget = _typeOptionWidget(context: context, state: state);
 
           if (typeOptionWidget != null) {
@@ -84,19 +75,7 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
         hoverColor: theme.hover,
         onTap: () {
           final list = FieldTypeList(onSelectField: (newFieldType) {
-            widget.onSwitchToField(field.id, newFieldType).then((result) {
-              result.fold(
-                (fieldTypeOptionContext) {
-                  context.read<FieldEditorPannelBloc>().add(
-                        FieldEditorPannelEvent.toFieldType(
-                          fieldTypeOptionContext.field_2,
-                          fieldTypeOptionContext.typeOptionData,
-                        ),
-                      );
-                },
-                (err) => Log.error(err),
-              );
-            });
+            widget.fieldContext.switchToField(newFieldType);
           });
           _showOverlay(context, list);
         },
@@ -116,15 +95,11 @@ class _FieldEditorPannelState extends State<FieldEditorPannel> {
     );
 
     final dataDelegate = TypeOptionDataDelegate(didUpdateTypeOptionData: (data) {
-      context.read<FieldEditorPannelBloc>().add(FieldEditorPannelEvent.didUpdateTypeOptionData(data));
+      widget.fieldContext.typeOptionData = data;
     });
 
     final builder = _makeTypeOptionBuild(
-      typeOptionContext: TypeOptionContext(
-        gridId: state.gridId,
-        field: state.field,
-        data: state.typeOptionData,
-      ),
+      typeOptionContext: TypeOptionContext(fieldContext: widget.fieldContext),
       overlayDelegate: overlayDelegate,
       dataDelegate: dataDelegate,
     );

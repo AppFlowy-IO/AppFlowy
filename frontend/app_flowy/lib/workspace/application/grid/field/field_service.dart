@@ -1,9 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
 class FieldService {
@@ -197,5 +200,113 @@ class DefaultFieldContextLoader extends FieldContextLoader {
   Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) async {
     final fieldService = FieldService(gridId: gridId, fieldId: fieldId);
     return fieldService.switchToField(fieldType);
+  }
+}
+
+class GridFieldContext {
+  final String gridId;
+  final FieldContextLoader _loader;
+
+  late FieldTypeOptionData _data;
+  ValueNotifier<Field>? _fieldNotifier;
+
+  GridFieldContext({
+    required this.gridId,
+    required FieldContextLoader loader,
+  }) : _loader = loader;
+
+  Future<Either<Unit, FlowyError>> loadData() async {
+    final result = await _loader.load();
+    return result.fold(
+      (data) {
+        data.freeze();
+        _data = data;
+
+        if (_fieldNotifier == null) {
+          _fieldNotifier = ValueNotifier(data.field_2);
+        } else {
+          _fieldNotifier?.value = data.field_2;
+        }
+
+        return left(unit);
+      },
+      (err) {
+        Log.error(err);
+        return right(err);
+      },
+    );
+  }
+
+  Field get field => _data.field_2;
+
+  set field(Field field) {
+    _updateData(newField: field);
+  }
+
+  List<int> get typeOptionData => _data.typeOptionData;
+
+  set fieldName(String name) {
+    _updateData(name: name);
+  }
+
+  set typeOptionData(List<int> typeOptionData) {
+    _updateData(typeOptionData: typeOptionData);
+  }
+
+  void _updateData({String? name, Field? newField, List<int>? typeOptionData}) {
+    _data = _data.rebuild((rebuildData) {
+      if (name != null) {
+        rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
+          rebuildField.name = name;
+        });
+      }
+
+      if (newField != null) {
+        rebuildData.field_2 = newField;
+      }
+
+      if (typeOptionData != null) {
+        rebuildData.typeOptionData = typeOptionData;
+      }
+    });
+
+    if (_data.field_2 != _fieldNotifier?.value) {
+      _fieldNotifier?.value = _data.field_2;
+    }
+
+    FieldService.insertField(
+      gridId: gridId,
+      field: field,
+      typeOptionData: typeOptionData,
+    );
+  }
+
+  Future<void> switchToField(FieldType newFieldType) {
+    return _loader.switchToField(field.id, newFieldType).then((result) {
+      return result.fold(
+        (fieldTypeOptionData) {
+          _updateData(
+            newField: fieldTypeOptionData.field_2,
+            typeOptionData: fieldTypeOptionData.typeOptionData,
+          );
+        },
+        (err) {
+          Log.error(err);
+        },
+      );
+    });
+  }
+
+  void Function() addFieldListener(void Function(Field) callback) {
+    listener() {
+      callback(field);
+    }
+
+    _fieldNotifier?.addListener(listener);
+    return listener;
+  }
+
+  void removeFieldListener(void Function() listener) {
+    _fieldNotifier?.removeListener(listener);
   }
 }

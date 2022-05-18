@@ -115,6 +115,7 @@ class _GridPropertyCell extends StatelessWidget {
       onTap: () {
         FieldEditor(
           gridId: gridId,
+          fieldName: field.name,
           contextLoader: DefaultFieldContextLoader(gridId: gridId, field: field),
         ).show(context, anchorDirection: AnchorDirection.bottomRight);
       },
