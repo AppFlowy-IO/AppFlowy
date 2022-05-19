@@ -14,7 +14,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
-        super(GridPropertyState.initial(gridId, fieldCache.clonedFields)) {
+        super(GridPropertyState.initial(gridId, fieldCache.fields)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(
