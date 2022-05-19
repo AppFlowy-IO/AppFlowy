@@ -490,21 +490,12 @@ class GetEditFieldContextPayload extends $pb.GeneratedMessage {
   void clearFieldType() => clearField(3);
 }
 
-enum EditFieldPayload_OneOfFieldId {
-  fieldId, 
-  notSet
-}
-
 class EditFieldPayload extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, EditFieldPayload_OneOfFieldId> _EditFieldPayload_OneOfFieldIdByTag = {
-    2 : EditFieldPayload_OneOfFieldId.fieldId,
-    0 : EditFieldPayload_OneOfFieldId.notSet
-  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditFieldPayload', createEmptyInstance: create)
-    ..oo(0, [2])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gridId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..e<FieldType>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldType', $pb.PbFieldType.OE, defaultOrMaker: FieldType.RichText, valueOf: FieldType.valueOf, enumValues: FieldType.values)
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createIfNotExist')
     ..hasRequiredFields = false
   ;
 
@@ -513,6 +504,7 @@ class EditFieldPayload extends $pb.GeneratedMessage {
     $core.String? gridId,
     $core.String? fieldId,
     FieldType? fieldType,
+    $core.bool? createIfNotExist,
   }) {
     final _result = create();
     if (gridId != null) {
@@ -523,6 +515,9 @@ class EditFieldPayload extends $pb.GeneratedMessage {
     }
     if (fieldType != null) {
       _result.fieldType = fieldType;
+    }
+    if (createIfNotExist != null) {
+      _result.createIfNotExist = createIfNotExist;
     }
     return _result;
   }
@@ -546,9 +541,6 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static EditFieldPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EditFieldPayload>(create);
   static EditFieldPayload? _defaultInstance;
-
-  EditFieldPayload_OneOfFieldId whichOneOfFieldId() => _EditFieldPayload_OneOfFieldIdByTag[$_whichOneof(0)]!;
-  void clearOneOfFieldId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get gridId => $_getSZ(0);
@@ -576,6 +568,15 @@ class EditFieldPayload extends $pb.GeneratedMessage {
   $core.bool hasFieldType() => $_has(2);
   @$pb.TagNumber(3)
   void clearFieldType() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get createIfNotExist => $_getBF(3);
+  @$pb.TagNumber(4)
+  set createIfNotExist($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCreateIfNotExist() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCreateIfNotExist() => clearField(4);
 }
 
 class FieldTypeOptionContext extends $pb.GeneratedMessage {

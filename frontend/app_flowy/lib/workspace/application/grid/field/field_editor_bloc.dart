@@ -9,7 +9,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required String gridId,
     required String fieldName,
-    required FieldContextLoader fieldContextLoader,
+    required IFieldContextLoader fieldContextLoader,
   }) : super(FieldEditorState.initial(gridId, fieldName, fieldContextLoader)) {
     on<FieldEditorEvent>(
       (event, emit) async {
@@ -18,7 +18,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             final fieldContext = GridFieldContext(gridId: gridId, loader: fieldContextLoader);
             await fieldContext.loadData().then((result) {
               result.fold(
-                (l) => emit(state.copyWith(fieldContext: Some(fieldContext))),
+                (l) => emit(state.copyWith(fieldContext: Some(fieldContext), name: fieldContext.field.name)),
                 (r) => null,
               );
             });
@@ -53,7 +53,7 @@ class FieldEditorState with _$FieldEditorState {
     required Option<GridFieldContext> fieldContext,
   }) = _FieldEditorState;
 
-  factory FieldEditorState.initial(String gridId, String fieldName, FieldContextLoader loader) => FieldEditorState(
+  factory FieldEditorState.initial(String gridId, String fieldName, IFieldContextLoader loader) => FieldEditorState(
         gridId: gridId,
         fieldContext: none(),
         errorText: '',

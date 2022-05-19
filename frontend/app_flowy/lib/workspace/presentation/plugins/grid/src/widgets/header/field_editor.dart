@@ -14,7 +14,7 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
   final String fieldName;
 
-  final FieldContextLoader contextLoader;
+  final IFieldContextLoader contextLoader;
   const FieldEditor({
     required this.gridId,
     required this.fieldName,
@@ -97,7 +97,6 @@ class _FieldNameTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      buildWhen: (p, c) => p.name != c.name,
       builder: (context, state) {
         return FieldNameTextField(
           name: state.name,

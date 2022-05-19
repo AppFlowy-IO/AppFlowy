@@ -121,9 +121,19 @@ impl ClientGridEditor {
         Ok(())
     }
 
-    pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
+    pub async fn next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
         let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
         let field_meta = FieldBuilder::from_field_type(field_type).name(&name).build();
+        Ok(field_meta)
+    }
+
+    pub async fn create_next_field_meta(&self, field_type: &FieldType) -> FlowyResult<FieldMeta> {
+        let field_meta = self.next_field_meta(field_type).await?;
+        let _ = self
+            .modify(|grid| Ok(grid.create_field_meta(field_meta.clone(), None)?))
+            .await?;
+        let _ = self.notify_did_insert_grid_field(&field_meta.id).await?;
+
         Ok(field_meta)
     }
 

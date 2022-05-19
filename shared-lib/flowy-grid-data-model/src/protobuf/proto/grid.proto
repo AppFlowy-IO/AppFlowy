@@ -35,8 +35,9 @@ message GetEditFieldContextPayload {
 }
 message EditFieldPayload {
     string grid_id = 1;
-    oneof one_of_field_id { string field_id = 2; };
+    string field_id = 2;
     FieldType field_type = 3;
+    bool create_if_not_exist = 4;
 }
 message FieldTypeOptionContext {
     string grid_id = 1;

@@ -15,15 +15,6 @@ class FieldService {
 
   FieldService({required this.gridId, required this.fieldId});
 
-  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(FieldType fieldType) {
-    final payload = EditFieldPayload.create()
-      ..gridId = gridId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-
-    return GridEventSwitchToField(payload).send();
-  }
-
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
     final payload = MoveItemPayload.create()
       ..gridId = gridId
@@ -146,13 +137,22 @@ class GridFieldCellContext with _$GridFieldCellContext {
   }) = _GridFieldCellContext;
 }
 
-abstract class FieldContextLoader {
+abstract class IFieldContextLoader {
+  String get gridId;
   Future<Either<FieldTypeOptionData, FlowyError>> load();
 
-  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType);
+  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+    final payload = EditFieldPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+
+    return GridEventSwitchToField(payload).send();
+  }
 }
 
-class NewFieldContextLoader extends FieldContextLoader {
+class NewFieldContextLoader extends IFieldContextLoader {
+  @override
   final String gridId;
   NewFieldContextLoader({
     required this.gridId,
@@ -164,24 +164,16 @@ class NewFieldContextLoader extends FieldContextLoader {
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
-    return GridEventGetFieldTypeOption(payload).send();
-  }
-
-  @override
-  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
-    final payload = EditFieldPayload.create()
-      ..gridId = gridId
-      ..fieldType = fieldType;
-
-    return GridEventGetFieldTypeOption(payload).send();
+    return GridEventCreateFieldTypeOption(payload).send();
   }
 }
 
-class DefaultFieldContextLoader extends FieldContextLoader {
+class FieldContextLoader extends IFieldContextLoader {
+  @override
   final String gridId;
   final Field field;
 
-  DefaultFieldContextLoader({
+  FieldContextLoader({
     required this.gridId,
     required this.field,
   });
@@ -195,24 +187,18 @@ class DefaultFieldContextLoader extends FieldContextLoader {
 
     return GridEventGetFieldTypeOption(payload).send();
   }
-
-  @override
-  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) async {
-    final fieldService = FieldService(gridId: gridId, fieldId: fieldId);
-    return fieldService.switchToField(fieldType);
-  }
 }
 
 class GridFieldContext {
   final String gridId;
-  final FieldContextLoader _loader;
+  final IFieldContextLoader _loader;
 
   late FieldTypeOptionData _data;
   ValueNotifier<Field>? _fieldNotifier;
 
   GridFieldContext({
     required this.gridId,
-    required FieldContextLoader loader,
+    required IFieldContextLoader loader,
   }) : _loader = loader;
 
   Future<Either<Unit, FlowyError>> loadData() async {
@@ -246,18 +232,18 @@ class GridFieldContext {
   List<int> get typeOptionData => _data.typeOptionData;
 
   set fieldName(String name) {
-    _updateData(name: name);
+    _updateData(newName: name);
   }
 
   set typeOptionData(List<int> typeOptionData) {
-    _updateData(typeOptionData: typeOptionData);
+    _updateData(newTypeOptionData: typeOptionData);
   }
 
-  void _updateData({String? name, Field? newField, List<int>? typeOptionData}) {
+  void _updateData({String? newName, Field? newField, List<int>? newTypeOptionData}) {
     _data = _data.rebuild((rebuildData) {
-      if (name != null) {
+      if (newName != null) {
         rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
-          rebuildField.name = name;
+          rebuildField.name = newName;
         });
       }
 
@@ -265,8 +251,8 @@ class GridFieldContext {
         rebuildData.field_2 = newField;
       }
 
-      if (typeOptionData != null) {
-        rebuildData.typeOptionData = typeOptionData;
+      if (newTypeOptionData != null) {
+        rebuildData.typeOptionData = newTypeOptionData;
       }
     });
 
@@ -287,7 +273,7 @@ class GridFieldContext {
         (fieldTypeOptionData) {
           _updateData(
             newField: fieldTypeOptionData.field_2,
-            typeOptionData: fieldTypeOptionData.typeOptionData,
+            newTypeOptionData: fieldTypeOptionData.typeOptionData,
           );
         },
         (err) {

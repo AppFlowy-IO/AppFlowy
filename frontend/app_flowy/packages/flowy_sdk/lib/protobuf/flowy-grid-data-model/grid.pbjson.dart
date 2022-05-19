@@ -117,16 +117,14 @@ const EditFieldPayload$json = const {
   '1': 'EditFieldPayload',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'fieldId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
     const {'1': 'field_type', '3': 3, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
-  ],
-  '8': const [
-    const {'1': 'one_of_field_id'},
+    const {'1': 'create_if_not_exist', '3': 4, '4': 1, '5': 8, '10': 'createIfNotExist'},
   ],
 };
 
 /// Descriptor for `EditFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List editFieldPayloadDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIbCghmaWVsZF9pZBgCIAEoCUgAUgdmaWVsZElkEikKCmZpZWxkX3R5cGUYAyABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZUIRCg9vbmVfb2ZfZmllbGRfaWQ=');
+final $typed_data.Uint8List editFieldPayloadDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIpCgpmaWVsZF90eXBlGAMgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSLQoTY3JlYXRlX2lmX25vdF9leGlzdBgEIAEoCFIQY3JlYXRlSWZOb3RFeGlzdA==');
 @$core.Deprecated('Use fieldTypeOptionContextDescriptor instead')
 const FieldTypeOptionContext$json = const {
   '1': 'FieldTypeOptionContext',
