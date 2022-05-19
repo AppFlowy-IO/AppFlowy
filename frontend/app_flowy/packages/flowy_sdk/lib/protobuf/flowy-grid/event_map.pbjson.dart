@@ -21,9 +21,9 @@ const GridEvent$json = const {
     const {'1': 'DeleteField', '2': 14},
     const {'1': 'SwitchToField', '2': 20},
     const {'1': 'DuplicateField', '2': 21},
-    const {'1': 'GetEditFieldContext', '2': 22},
-    const {'1': 'MoveItem', '2': 23},
-    const {'1': 'GetFieldTypeOption', '2': 24},
+    const {'1': 'MoveItem', '2': 22},
+    const {'1': 'GetFieldTypeOption', '2': 23},
+    const {'1': 'CreateFieldTypeOption', '2': 24},
     const {'1': 'NewSelectOption', '2': 30},
     const {'1': 'GetSelectOptionCellData', '2': 31},
     const {'1': 'UpdateSelectOption', '2': 32},
@@ -40,4 +40,4 @@ const GridEvent$json = const {
 };
 
 /// Descriptor for `GridEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIZChVVcGRhdGVGaWVsZFR5cGVPcHRpb24QDBIPCgtJbnNlcnRGaWVsZBANEg8KC0RlbGV0ZUZpZWxkEA4SEQoNU3dpdGNoVG9GaWVsZBAUEhIKDkR1cGxpY2F0ZUZpZWxkEBUSFwoTR2V0RWRpdEZpZWxkQ29udGV4dBAWEgwKCE1vdmVJdGVtEBcSFgoSR2V0RmllbGRUeXBlT3B0aW9uEBgSEwoPTmV3U2VsZWN0T3B0aW9uEB4SGwoXR2V0U2VsZWN0T3B0aW9uQ2VsbERhdGEQHxIWChJVcGRhdGVTZWxlY3RPcHRpb24QIBINCglDcmVhdGVSb3cQMhIKCgZHZXRSb3cQMxINCglEZWxldGVSb3cQNBIQCgxEdXBsaWNhdGVSb3cQNRILCgdHZXRDZWxsEEYSDgoKVXBkYXRlQ2VsbBBHEhoKFlVwZGF0ZVNlbGVjdE9wdGlvbkNlbGwQSBISCg5VcGRhdGVEYXRlQ2VsbBBQEhMKD0dldERhdGVDZWxsRGF0YRBa');
+final $typed_data.Uint8List gridEventDescriptor = $convert.base64Decode('CglHcmlkRXZlbnQSDwoLR2V0R3JpZERhdGEQABIRCg1HZXRHcmlkQmxvY2tzEAESDQoJR2V0RmllbGRzEAoSDwoLVXBkYXRlRmllbGQQCxIZChVVcGRhdGVGaWVsZFR5cGVPcHRpb24QDBIPCgtJbnNlcnRGaWVsZBANEg8KC0RlbGV0ZUZpZWxkEA4SEQoNU3dpdGNoVG9GaWVsZBAUEhIKDkR1cGxpY2F0ZUZpZWxkEBUSDAoITW92ZUl0ZW0QFhIWChJHZXRGaWVsZFR5cGVPcHRpb24QFxIZChVDcmVhdGVGaWVsZFR5cGVPcHRpb24QGBITCg9OZXdTZWxlY3RPcHRpb24QHhIbChdHZXRTZWxlY3RPcHRpb25DZWxsRGF0YRAfEhYKElVwZGF0ZVNlbGVjdE9wdGlvbhAgEg0KCUNyZWF0ZVJvdxAyEgoKBkdldFJvdxAzEg0KCURlbGV0ZVJvdxA0EhAKDER1cGxpY2F0ZVJvdxA1EgsKB0dldENlbGwQRhIOCgpVcGRhdGVDZWxsEEcSGgoWVXBkYXRlU2VsZWN0T3B0aW9uQ2VsbBBIEhIKDlVwZGF0ZURhdGVDZWxsEFASEwoPR2V0RGF0ZUNlbGxEYXRhEFo=');

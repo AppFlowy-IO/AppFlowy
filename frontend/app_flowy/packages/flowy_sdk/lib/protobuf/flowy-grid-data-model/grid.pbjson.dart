@@ -117,19 +117,17 @@ const EditFieldPayload$json = const {
   '1': 'EditFieldPayload',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
-    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'fieldId'},
+    const {'1': 'field_id', '3': 2, '4': 1, '5': 9, '10': 'fieldId'},
     const {'1': 'field_type', '3': 3, '4': 1, '5': 14, '6': '.FieldType', '10': 'fieldType'},
-  ],
-  '8': const [
-    const {'1': 'one_of_field_id'},
+    const {'1': 'create_if_not_exist', '3': 4, '4': 1, '5': 8, '10': 'createIfNotExist'},
   ],
 };
 
 /// Descriptor for `EditFieldPayload`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List editFieldPayloadDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIbCghmaWVsZF9pZBgCIAEoCUgAUgdmaWVsZElkEikKCmZpZWxkX3R5cGUYAyABKA4yCi5GaWVsZFR5cGVSCWZpZWxkVHlwZUIRCg9vbmVfb2ZfZmllbGRfaWQ=');
-@$core.Deprecated('Use editFieldContextDescriptor instead')
-const EditFieldContext$json = const {
-  '1': 'EditFieldContext',
+final $typed_data.Uint8List editFieldPayloadDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRQYXlsb2FkEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIZCghmaWVsZF9pZBgCIAEoCVIHZmllbGRJZBIpCgpmaWVsZF90eXBlGAMgASgOMgouRmllbGRUeXBlUglmaWVsZFR5cGUSLQoTY3JlYXRlX2lmX25vdF9leGlzdBgEIAEoCFIQY3JlYXRlSWZOb3RFeGlzdA==');
+@$core.Deprecated('Use fieldTypeOptionContextDescriptor instead')
+const FieldTypeOptionContext$json = const {
+  '1': 'FieldTypeOptionContext',
   '2': const [
     const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
     const {'1': 'grid_field', '3': 2, '4': 1, '5': 11, '6': '.Field', '10': 'gridField'},
@@ -137,19 +135,20 @@ const EditFieldContext$json = const {
   ],
 };
 
-/// Descriptor for `EditFieldContext`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List editFieldContextDescriptor = $convert.base64Decode('ChBFZGl0RmllbGRDb250ZXh0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIlCgpncmlkX2ZpZWxkGAIgASgLMgYuRmllbGRSCWdyaWRGaWVsZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
+/// Descriptor for `FieldTypeOptionContext`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fieldTypeOptionContextDescriptor = $convert.base64Decode('ChZGaWVsZFR5cGVPcHRpb25Db250ZXh0EhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIlCgpncmlkX2ZpZWxkGAIgASgLMgYuRmllbGRSCWdyaWRGaWVsZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
 @$core.Deprecated('Use fieldTypeOptionDataDescriptor instead')
 const FieldTypeOptionData$json = const {
   '1': 'FieldTypeOptionData',
   '2': const [
-    const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'type_option_data', '3': 2, '4': 1, '5': 12, '10': 'typeOptionData'},
+    const {'1': 'grid_id', '3': 1, '4': 1, '5': 9, '10': 'gridId'},
+    const {'1': 'field', '3': 2, '4': 1, '5': 11, '6': '.Field', '10': 'field'},
+    const {'1': 'type_option_data', '3': 3, '4': 1, '5': 12, '10': 'typeOptionData'},
   ],
 };
 
 /// Descriptor for `FieldTypeOptionData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fieldTypeOptionDataDescriptor = $convert.base64Decode('ChNGaWVsZFR5cGVPcHRpb25EYXRhEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEigKEHR5cGVfb3B0aW9uX2RhdGEYAiABKAxSDnR5cGVPcHRpb25EYXRh');
+final $typed_data.Uint8List fieldTypeOptionDataDescriptor = $convert.base64Decode('ChNGaWVsZFR5cGVPcHRpb25EYXRhEhcKB2dyaWRfaWQYASABKAlSBmdyaWRJZBIcCgVmaWVsZBgCIAEoCzIGLkZpZWxkUgVmaWVsZBIoChB0eXBlX29wdGlvbl9kYXRhGAMgASgMUg50eXBlT3B0aW9uRGF0YQ==');
 @$core.Deprecated('Use repeatedFieldDescriptor instead')
 const RepeatedField$json = const {
   '1': 'RepeatedField',

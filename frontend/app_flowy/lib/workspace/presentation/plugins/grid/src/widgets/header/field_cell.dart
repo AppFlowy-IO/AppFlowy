@@ -37,7 +37,7 @@ class GridFieldCell extends StatelessWidget {
             child: _DragToExpandLine(),
           );
 
-          return _CellContainer(
+          return _GridHeaderCellContainer(
             width: state.field.width.toDouble(),
             child: Stack(
               alignment: Alignment.centerRight,
@@ -63,7 +63,8 @@ class GridFieldCell extends StatelessWidget {
 
     FieldEditor(
       gridId: state.gridId,
-      fieldContextLoader: FieldContextLoaderAdaptor(
+      fieldName: state.field.name,
+      contextLoader: FieldContextLoader(
         gridId: state.gridId,
         field: state.field,
       ),
@@ -71,10 +72,10 @@ class GridFieldCell extends StatelessWidget {
   }
 }
 
-class _CellContainer extends StatelessWidget {
+class _GridHeaderCellContainer extends StatelessWidget {
   final Widget child;
   final double width;
-  const _CellContainer({
+  const _GridHeaderCellContainer({
     required this.child,
     required this.width,
     Key? key,

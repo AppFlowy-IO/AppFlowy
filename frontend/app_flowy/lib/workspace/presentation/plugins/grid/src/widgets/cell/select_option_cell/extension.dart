@@ -1,4 +1,5 @@
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
@@ -104,5 +105,41 @@ class SelectOptionTag extends StatelessWidget {
     //   margin: const EdgeInsets.symmetric(horizontal: 3.0),
     //   padding: const EdgeInsets.symmetric(horizontal: 6.0),
     // );
+  }
+}
+
+class SelectOptionTagCell extends StatelessWidget {
+  final List<Widget> children;
+  final void Function(SelectOption) onSelected;
+  final SelectOption option;
+  const SelectOptionTagCell({
+    required this.option,
+    required this.onSelected,
+    this.children = const [],
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FlowyHover(
+          style: HoverStyle(hoverColor: theme.hover),
+          child: InkWell(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Row(children: [
+                SelectOptionTag.fromSelectOption(context: context, option: option),
+                const Spacer(),
+                ...children,
+              ]),
+            ),
+            onTap: () => onSelected(option),
+          ),
+        ),
+      ],
+    );
   }
 }

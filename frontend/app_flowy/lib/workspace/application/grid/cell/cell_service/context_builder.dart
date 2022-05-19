@@ -19,7 +19,7 @@ class GridCellContextBuilder {
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: CellDataLoader(gridCell: _gridCell),
+          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.DateTime:
@@ -30,17 +30,24 @@ class GridCellContextBuilder {
           cellDataPersistence: DateCellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.Number:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          config: const GridCellDataConfig(
+            reloadOnCellChanged: true,
+            reloadOnFieldChanged: true,
+          ),
+        );
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: CellDataLoader(gridCell: _gridCell, reloadOnCellChanged: true),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.RichText:
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: CellDataLoader(gridCell: _gridCell),
+          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.MultiSelect:
@@ -62,7 +69,7 @@ class _GridCellContext<T, D> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
   final GridCellCacheKey _cacheKey;
-  final _GridCellDataLoader<T> cellDataLoader;
+  final IGridCellDataLoader<T> cellDataLoader;
   final _GridCellDataPersistence<D> cellDataPersistence;
   final FieldService _fieldService;
 
@@ -150,8 +157,8 @@ class _GridCellContext<T, D> extends Equatable {
     return data;
   }
 
-  Future<Either<List<int>, FlowyError>> getTypeOptionData() {
-    return _fieldService.getTypeOptionData(fieldType: fieldType);
+  Future<Either<FieldTypeOptionData, FlowyError>> getTypeOptionData() {
+    return _fieldService.getFieldTypeOptionData(fieldType: fieldType);
   }
 
   Future<Option<FlowyError>> saveCellData(D data) {

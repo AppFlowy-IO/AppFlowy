@@ -93,7 +93,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
           emit(state.copyWith(
             grid: Some(grid),
-            fields: fieldCache.clonedFields,
+            fields: fieldCache.fields,
             rows: rowCache.clonedRows,
             loadingState: GridLoadingState.finish(left(unit)),
           ));

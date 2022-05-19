@@ -22,10 +22,10 @@ final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
 const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
-class CellCalendar with FlowyOverlayDelegate {
+class DateCellEditor with FlowyOverlayDelegate {
   final VoidCallback onDismissed;
 
-  const CellCalendar({
+  const DateCellEditor({
     required this.onDismissed,
   });
 
@@ -33,23 +33,14 @@ class CellCalendar with FlowyOverlayDelegate {
     BuildContext context, {
     required GridDateCellContext cellContext,
   }) async {
-    CellCalendar.remove(context);
+    DateCellEditor.remove(context);
 
     final result = await cellContext.getTypeOptionData();
     result.fold(
       (data) {
-        final typeOptionData = DateTypeOption.fromBuffer(data);
-        // DateTime? selectedDay;
-        // final cellData = cellContext.getCellData();
-
-        // if (cellData != null) {
-        //   final timestamp = $fixnum.Int64.parseInt(cellData).toInt();
-        //   selectedDay = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-        // }
-
         final calendar = _CellCalendarWidget(
           cellContext: cellContext,
-          dateTypeOption: typeOptionData,
+          dateTypeOption: DateTypeOption.fromBuffer(data.typeOptionData),
         );
 
         FlowyOverlay.of(context).insertWithAnchor(
@@ -57,7 +48,7 @@ class CellCalendar with FlowyOverlayDelegate {
             child: calendar,
             constraints: BoxConstraints.loose(const Size(320, 500)),
           ),
-          identifier: CellCalendar.identifier(),
+          identifier: DateCellEditor.identifier(),
           anchorContext: context,
           anchorDirection: AnchorDirection.leftWithCenterAligned,
           style: FlowyOverlayStyle(blur: false),
@@ -73,7 +64,7 @@ class CellCalendar with FlowyOverlayDelegate {
   }
 
   static String identifier() {
-    return (CellCalendar).toString();
+    return (DateCellEditor).toString();
   }
 
   @override

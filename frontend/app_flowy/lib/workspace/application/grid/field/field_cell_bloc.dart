@@ -19,16 +19,16 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        event.when(
+          initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(field: value.field));
+          didReceiveFieldUpdate: (field) {
+            emit(state.copyWith(field: field));
           },
-          updateWidth: (_UpdateWidth value) {
+          updateWidth: (offset) {
             final defaultWidth = state.field.width.toDouble();
-            final width = defaultWidth + value.offset;
+            final width = defaultWidth + offset;
             if (width > defaultWidth && width < 300) {
               _fieldService.updateField(width: width);
             }

@@ -4,16 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 
-part 'selection_cell_bloc.freezed.dart';
+part 'select_option_cell_bloc.freezed.dart';
 
-class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
+class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellState> {
   final GridSelectOptionCellContext cellContext;
   void Function()? _onCellChangedFn;
 
-  SelectionCellBloc({
+  SelectOptionCellBloc({
     required this.cellContext,
-  }) : super(SelectionCellState.initial(cellContext)) {
-    on<SelectionCellEvent>(
+  }) : super(SelectOptionCellState.initial(cellContext)) {
+    on<SelectOptionCellEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialCell value) async {
@@ -44,7 +44,7 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
     _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
-          add(SelectionCellEvent.didReceiveOptions(
+          add(SelectOptionCellEvent.didReceiveOptions(
             selectOptionContext.options,
             selectOptionContext.selectOptions,
           ));
@@ -55,25 +55,25 @@ class SelectionCellBloc extends Bloc<SelectionCellEvent, SelectionCellState> {
 }
 
 @freezed
-class SelectionCellEvent with _$SelectionCellEvent {
-  const factory SelectionCellEvent.initial() = _InitialCell;
-  const factory SelectionCellEvent.didReceiveOptions(
+class SelectOptionCellEvent with _$SelectOptionCellEvent {
+  const factory SelectOptionCellEvent.initial() = _InitialCell;
+  const factory SelectOptionCellEvent.didReceiveOptions(
     List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) = _DidReceiveOptions;
 }
 
 @freezed
-class SelectionCellState with _$SelectionCellState {
-  const factory SelectionCellState({
+class SelectOptionCellState with _$SelectOptionCellState {
+  const factory SelectOptionCellState({
     required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
-  }) = _SelectionCellState;
+  }) = _SelectOptionCellState;
 
-  factory SelectionCellState.initial(GridSelectOptionCellContext context) {
+  factory SelectOptionCellState.initial(GridSelectOptionCellContext context) {
     final data = context.getCellData();
 
-    return SelectionCellState(
+    return SelectOptionCellState(
       options: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
     );

@@ -7,14 +7,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'select_option_service.dart';
 
-part 'selection_editor_bloc.freezed.dart';
+part 'select_option_editor_bloc.freezed.dart';
 
-class SelectOptionEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
+class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
   final GridSelectOptionCellContext cellContext;
   void Function()? _onCellChangedFn;
 
-  SelectOptionEditorBloc({
+  SelectOptionCellEditorBloc({
     required this.cellContext,
   })  : _selectOptionService = SelectOptionService(gridCell: cellContext.gridCell),
         super(SelectOptionEditorState.initial(cellContext)) {

@@ -109,7 +109,7 @@ abstract class HoverWidget extends StatefulWidget {
 }
 
 class FlowyHover2 extends StatefulWidget {
-  final HoverWidget child;
+  final Widget child;
   final EdgeInsets contentPadding;
   const FlowyHover2({
     required this.child,
@@ -127,9 +127,14 @@ class _FlowyHover2State extends State<FlowyHover2> {
   @override
   void initState() {
     _hoverState = FlowyHoverState();
-    widget.child.onFocus.addListener(() {
-      _hoverState.onFocus = widget.child.onFocus.value;
-    });
+
+    if (widget.child is HoverWidget) {
+      final hoverWidget = widget.child as HoverWidget;
+      hoverWidget.onFocus.addListener(() {
+        _hoverState.onFocus = hoverWidget.onFocus.value;
+      });
+    }
+
     super.initState();
   }
 

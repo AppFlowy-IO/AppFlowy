@@ -178,7 +178,8 @@ class _RowDetailCell extends StatelessWidget {
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
       gridId: gridCell.gridId,
-      fieldContextLoader: FieldContextLoaderAdaptor(
+      fieldName: gridCell.field.name,
+      contextLoader: FieldContextLoader(
         gridId: gridCell.gridId,
         field: gridCell.field,
       ),

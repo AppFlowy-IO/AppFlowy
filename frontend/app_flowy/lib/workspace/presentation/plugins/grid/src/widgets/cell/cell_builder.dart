@@ -11,7 +11,7 @@ import 'package:styled_widget/styled_widget.dart';
 import 'checkbox_cell.dart';
 import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
-import 'selection_cell/selection_cell.dart';
+import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {

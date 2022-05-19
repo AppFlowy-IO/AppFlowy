@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -6,8 +7,18 @@ import 'package:protobuf/protobuf.dart';
 
 part 'number_bloc.freezed.dart';
 
+typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
+
+class NumberTypeOptionDataBuilder extends TypeOptionDataBuilder<NumberTypeOption> {
+  @override
+  NumberTypeOption fromBuffer(List<int> buffer) {
+    return NumberTypeOption.fromBuffer(buffer);
+  }
+}
+
 class NumberTypeOptionBloc extends Bloc<NumberTypeOptionEvent, NumberTypeOptionState> {
-  NumberTypeOptionBloc({required NumberTypeOption typeOption}) : super(NumberTypeOptionState.initial(typeOption)) {
+  NumberTypeOptionBloc({required NumberTypeOptionContext typeOptionContext})
+      : super(NumberTypeOptionState.initial(typeOptionContext.typeOption)) {
     on<NumberTypeOptionEvent>(
       (event, emit) async {
         event.map(
