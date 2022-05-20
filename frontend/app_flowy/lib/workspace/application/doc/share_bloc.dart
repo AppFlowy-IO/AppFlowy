@@ -1,7 +1,5 @@
-import 'dart:typed_data';
 import 'dart:async';
 import 'dart:io';
-
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
@@ -9,7 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dartz/dartz.dart';
 part 'share_bloc.freezed.dart';
@@ -50,13 +47,11 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    print(view);
     return File('$path/${view.name}.md');
   }
 
   Future<File> writeFile(String md) async {
     final file = await _localFile;
-    print(file);
     return file.writeAsString(md);
   }
 }
