@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -91,7 +92,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           case ErrorCode.InvalidDateTimeFormat:
             emit(state.copyWith(
               dateData: Some(newDateData),
-              timeFormatError: Some(err.toString()),
+              timeFormatError: Some(messageFromFlowyError(err)),
             ));
             break;
           default:
@@ -99,6 +100,18 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         }
       },
     );
+  }
+
+  String messageFromFlowyError(FlowyError error) {
+    switch (ErrorCode.valueOf(error.code)!) {
+      case ErrorCode.EmailFormatInvalid:
+        return state.copyWith(isSubmitting: false, emailError: some(error.msg), passwordError: none());
+      case ErrorCode.PasswordFormatInvalid:
+        return state.copyWith(isSubmitting: false, passwordError: some(error.msg), emailError: none());
+      default:
+        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
+    }
+    return "";
   }
 
   @override
