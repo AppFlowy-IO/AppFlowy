@@ -3,9 +3,10 @@ use flowy_error::FlowyError;
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
+use std::str::FromStr;
 
 pub trait CellDataOperation {
-    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData;
+    fn decode_cell_data<T: Into<TypeOptionCellData>>(&self, data: T, field_meta: &FieldMeta) -> DecodedCellData;
     fn apply_changeset<T: Into<CellContentChangeset>>(
         &self,
         changeset: T,
@@ -52,6 +53,22 @@ impl std::str::FromStr for TypeOptionCellData {
     }
 }
 
+impl std::convert::TryInto<TypeOptionCellData> for String {
+    type Error = FlowyError;
+
+    fn try_into(self) -> Result<TypeOptionCellData, Self::Error> {
+        TypeOptionCellData::from_str(&self)
+    }
+}
+
+// impl std::convert::Into<TypeOptionCellData> for String {
+//     type Error = FlowyError;
+//
+//     fn try_into(self) -> Result<TypeOptionCellData, Self::Error> {
+//         TypeOptionCellData::from_str(&self)
+//     }
+// }
+
 impl TypeOptionCellData {
     pub fn new<T: ToString>(data: T, field_type: FieldType) -> Self {
         TypeOptionCellData {
@@ -87,6 +104,10 @@ impl TypeOptionCellData {
     pub fn is_multi_select(&self) -> bool {
         self.field_type == FieldType::MultiSelect
     }
+
+    pub fn is_select_option(&self) -> bool {
+        self.field_type == FieldType::MultiSelect || self.field_type == FieldType::SingleSelect
+    }
 }
 
 /// The changeset will be deserialized into specific data base on the FieldType.
@@ -96,47 +117,57 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     cell_meta: Option<CellMeta>,
     field_meta: &FieldMeta,
 ) -> Result<String, FlowyError> {
-    match field_meta.field_type {
+    let s = match field_meta.field_type {
         FieldType::RichText => RichTextTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Number => NumberTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::DateTime => DateTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
-    }
+    }?;
+
+    Ok(TypeOptionCellData::new(s, field_meta.field_type.clone()).json())
 }
 
-pub fn decode_cell_data(data: String, field_meta: &FieldMeta, field_type: &FieldType) -> Option<DecodedCellData> {
-    let s = match field_type {
-        FieldType::RichText => field_meta
-            .get_type_option_entry::<RichTextTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-        FieldType::Number => field_meta
-            .get_type_option_entry::<NumberTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-        FieldType::DateTime => field_meta
-            .get_type_option_entry::<DateTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-        FieldType::SingleSelect => field_meta
-            .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-        FieldType::MultiSelect => field_meta
-            .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-        FieldType::Checkbox => field_meta
-            .get_type_option_entry::<CheckboxTypeOption>(field_type)?
-            .decode_cell_data(data, field_meta),
-    };
-    tracing::Span::current().record(
-        "content",
-        &format!("{:?}: {}", field_meta.field_type, s.content).as_str(),
-    );
-    Some(s)
+pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(
+    data: T,
+    field_meta: &FieldMeta,
+    field_type: &FieldType,
+) -> Option<DecodedCellData> {
+    if let Ok(type_option_cell_data) = data.try_into() {
+        let s = match field_type {
+            FieldType::RichText => field_meta
+                .get_type_option_entry::<RichTextTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+            FieldType::Number => field_meta
+                .get_type_option_entry::<NumberTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+            FieldType::DateTime => field_meta
+                .get_type_option_entry::<DateTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+            FieldType::SingleSelect => field_meta
+                .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+            FieldType::MultiSelect => field_meta
+                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+            FieldType::Checkbox => field_meta
+                .get_type_option_entry::<CheckboxTypeOption>(field_type)?
+                .decode_cell_data(type_option_cell_data, field_meta),
+        };
+        tracing::Span::current().record(
+            "content",
+            &format!("{:?}: {}", field_meta.field_type, s.content).as_str(),
+        );
+        Some(s)
+    } else {
+        Some(DecodedCellData::default())
+    }
 }
 
 #[derive(Default)]
 pub struct DecodedCellData {
-    pub raw: String,
+    raw: String,
     pub content: String,
 }
 
