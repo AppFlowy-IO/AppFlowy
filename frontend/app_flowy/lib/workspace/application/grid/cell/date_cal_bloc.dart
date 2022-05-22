@@ -1,4 +1,6 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
+import 'package:easy_localization/easy_localization.dart' show StringTranslateExtension;
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -92,7 +94,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           case ErrorCode.InvalidDateTimeFormat:
             emit(state.copyWith(
               dateData: Some(newDateData),
-              timeFormatError: Some(messageFromFlowyError(err)),
+              timeFormatError: Some(timeFormatPrompt(err)),
             ));
             break;
           default:
@@ -102,16 +104,19 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     );
   }
 
-  String messageFromFlowyError(FlowyError error) {
-    switch (ErrorCode.valueOf(error.code)!) {
-      case ErrorCode.EmailFormatInvalid:
-        return state.copyWith(isSubmitting: false, emailError: some(error.msg), passwordError: none());
-      case ErrorCode.PasswordFormatInvalid:
-        return state.copyWith(isSubmitting: false, passwordError: some(error.msg), emailError: none());
+  String timeFormatPrompt(FlowyError error) {
+    String msg = LocaleKeys.grid_field_invalidTimeFormat.tr() + ". ";
+    switch (state.dateTypeOption.timeFormat) {
+      case TimeFormat.TwelveHour:
+        msg = msg + "e.g. 01: 00 AM";
+        break;
+      case TimeFormat.TwentyFourHour:
+        msg = msg + "e.g. 13: 00";
+        break;
       default:
-        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
+        break;
     }
-    return "";
+    return msg;
   }
 
   @override
