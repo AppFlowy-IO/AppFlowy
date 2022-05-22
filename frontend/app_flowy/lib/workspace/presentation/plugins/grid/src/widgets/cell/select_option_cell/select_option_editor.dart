@@ -225,7 +225,18 @@ class _SelectOptionCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: Row(
         children: [
-          Expanded(child: _body(theme, context)),
+          Flexible(
+            fit: FlexFit.loose,
+            child: SelectOptionTagCell(
+              option: option,
+              onSelected: (option) {
+                context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
+              },
+              children: [
+                if (isSelected) svgWidget("grid/checkmark"),
+              ],
+            ),
+          ),
           FlowyIconButton(
             width: 30,
             onPressed: () => _showEditPannel(context),
@@ -234,18 +245,6 @@ class _SelectOptionCell extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-
-  Widget _body(AppTheme theme, BuildContext context) {
-    return SelectOptionTagCell(
-      option: option,
-      onSelected: (option) {
-        context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
-      },
-      children: [
-        if (isSelected) svgWidget("grid/checkmark"),
-      ],
     );
   }
 

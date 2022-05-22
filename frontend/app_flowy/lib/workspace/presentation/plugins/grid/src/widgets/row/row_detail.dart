@@ -67,7 +67,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
         return bloc;
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: Column(
           children: [
             SizedBox(
