@@ -20,7 +20,7 @@ class SelectOptionCellStyle extends GridCellStyle {
   });
 }
 
-class SingleSelectCell extends GridCellWidget {
+class SingleSelectCell extends StatefulWidget with GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
@@ -74,7 +74,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends GridCellWidget {
+class MultiSelectCell extends StatefulWidget with GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
@@ -160,7 +160,7 @@ class _SelectOptionCell extends StatelessWidget {
           .toList();
       child = Align(
         alignment: Alignment.centerLeft,
-        child: Wrap(children: tags, spacing: 4, runSpacing: 4),
+        child: Wrap(children: tags, spacing: 4, runSpacing: 2),
       );
     }
 

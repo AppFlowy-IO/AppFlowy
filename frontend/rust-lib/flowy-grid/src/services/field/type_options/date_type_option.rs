@@ -1,5 +1,5 @@
+use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
-use crate::services::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
 use bytes::Bytes;
