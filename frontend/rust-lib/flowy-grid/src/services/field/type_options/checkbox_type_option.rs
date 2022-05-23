@@ -43,14 +43,15 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellDataOperation for CheckboxTypeOption {
+impl CellDataOperation<String> for CheckboxTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
-        if !type_option_cell_data.is_checkbox() {
+        if !decoded_field_type.is_checkbox() {
             return DecodedCellData::default();
         }
         let cell_data = type_option_cell_data.data;
@@ -61,11 +62,10 @@ impl CellDataOperation for CheckboxTypeOption {
         DecodedCellData::default()
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let changeset = changeset.into();
         let s = match string_to_bool(&changeset) {
             true => YES,

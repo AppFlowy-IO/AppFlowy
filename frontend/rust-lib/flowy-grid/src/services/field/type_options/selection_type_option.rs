@@ -95,14 +95,15 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation for SingleSelectTypeOption {
+impl CellDataOperation<String> for SingleSelectTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
-        if !type_option_cell_data.is_select_option() {
+        if !decoded_field_type.is_select_option() {
             return DecodedCellData::default();
         }
 
@@ -116,11 +117,10 @@ impl CellDataOperation for SingleSelectTypeOption {
         DecodedCellData::default()
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let changeset = changeset.into();
         let select_option_changeset: SelectOptionCellContentChangeset = serde_json::from_str(&changeset)?;
         let new_cell_data: String;
@@ -187,14 +187,15 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation for MultiSelectTypeOption {
+impl CellDataOperation<String> for MultiSelectTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
-        if !type_option_cell_data.is_select_option() {
+        if !decoded_field_type.is_select_option() {
             return DecodedCellData::default();
         }
 
@@ -210,11 +211,10 @@ impl CellDataOperation for MultiSelectTypeOption {
         DecodedCellData::from_content(content)
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<T>(&self, changeset: T, cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        T: Into<CellContentChangeset>,
+    {
         let content_changeset: SelectOptionCellContentChangeset = serde_json::from_str(&changeset.into())?;
         let new_cell_data: String;
         match cell_meta {

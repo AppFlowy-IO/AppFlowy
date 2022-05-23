@@ -76,14 +76,15 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
-impl CellDataOperation for NumberTypeOption {
+impl CellDataOperation<String> for NumberTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
-        if type_option_cell_data.is_date() {
+        if decoded_field_type.is_date() {
             return DecodedCellData::default();
         }
 
@@ -111,11 +112,10 @@ impl CellDataOperation for NumberTypeOption {
         }
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let changeset = changeset.into();
         let mut data = changeset.trim().to_string();
 

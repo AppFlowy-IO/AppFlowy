@@ -135,10 +135,11 @@ impl DateTypeOption {
     }
 }
 
-impl CellDataOperation for DateTypeOption {
+impl CellDataOperation<DateCellDataSerde> for DateTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
@@ -146,7 +147,7 @@ impl CellDataOperation for DateTypeOption {
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
-        if !type_option_cell_data.is_date() {
+        if !decoded_field_type.is_date() {
             return DecodedCellData::default();
         }
         match DateCellDataSerde::from_str(&type_option_cell_data.data) {
@@ -155,11 +156,10 @@ impl CellDataOperation for DateTypeOption {
         }
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<DateCellDataSerde, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let content_changeset: DateCellContentChangeset = serde_json::from_str(&changeset.into())?;
         let cell_data = match content_changeset.date_timestamp() {
             None => DateCellDataSerde::default(),
@@ -174,7 +174,7 @@ impl CellDataOperation for DateTypeOption {
             },
         };
 
-        Ok(cell_data.to_string())
+        Ok(cell_data)
     }
 }
 
@@ -316,12 +316,14 @@ impl DateCellDataSerde {
         Self { timestamp, time }
     }
 
-    fn to_string(self) -> String {
-        serde_json::to_string(&self).unwrap_or("".to_string())
-    }
-
     fn from_str(s: &str) -> FlowyResult<Self> {
         serde_json::from_str::<DateCellDataSerde>(s).map_err(internal_error)
+    }
+}
+
+impl ToString for DateCellDataSerde {
+    fn to_string(&self) -> String {
+        serde_json::to_string(&self).unwrap_or("".to_string())
     }
 }
 

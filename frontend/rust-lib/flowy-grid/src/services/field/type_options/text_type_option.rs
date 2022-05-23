@@ -34,17 +34,18 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation for RichTextTypeOption {
+impl CellDataOperation<String> for RichTextTypeOption {
     fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
         type_option_cell_data: T,
+        decoded_field_type: &FieldType,
         field_meta: &FieldMeta,
     ) -> DecodedCellData {
         let type_option_cell_data = type_option_cell_data.into();
-        if type_option_cell_data.is_date()
-            || type_option_cell_data.is_single_select()
-            || type_option_cell_data.is_multi_select()
-            || type_option_cell_data.is_number()
+        if decoded_field_type.is_date()
+            || decoded_field_type.is_single_select()
+            || decoded_field_type.is_multi_select()
+            || decoded_field_type.is_number()
         {
             let field_type = type_option_cell_data.field_type.clone();
             decode_cell_data(type_option_cell_data, field_meta, &field_type).unwrap_or_default()
@@ -53,16 +54,15 @@ impl CellDataOperation for RichTextTypeOption {
         }
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let data = changeset.into();
         if data.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(data.to_string())
+            Ok(data.0)
         }
     }
 }

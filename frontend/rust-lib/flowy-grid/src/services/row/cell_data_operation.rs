@@ -5,17 +5,22 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-pub trait CellDataOperation {
-    fn decode_cell_data<T: Into<TypeOptionCellData>>(&self, data: T, field_meta: &FieldMeta) -> DecodedCellData;
-    fn apply_changeset<T: Into<CellContentChangeset>>(
+pub trait CellDataOperation<D, CO: ToString> {
+    fn decode_cell_data<T: Into<TypeOptionCellData>>(
         &self,
-        changeset: T,
+        data: T,
+        decoded_field_type: &FieldType,
+        field_meta: &FieldMeta,
+    ) -> DecodedCellData;
+    fn apply_changeset<C: Into<CellContentChangeset>>(
+        &self,
+        changeset: C,
         cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError>;
+    ) -> Result<CO, FlowyError>;
 }
 
 #[derive(Debug)]
-pub struct CellContentChangeset(String);
+pub struct CellContentChangeset(pub String);
 
 impl std::fmt::Display for CellContentChangeset {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -42,6 +47,12 @@ impl std::ops::Deref for CellContentChangeset {
 pub struct TypeOptionCellData {
     pub data: String,
     pub field_type: FieldType,
+}
+
+impl TypeOptionCellData {
+    pub fn split(self) -> (String, FieldType) {
+        (self.data, self.field_type)
+    }
 }
 
 impl std::str::FromStr for TypeOptionCellData {
@@ -120,7 +131,9 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     let s = match field_meta.field_type {
         FieldType::RichText => RichTextTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Number => NumberTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
-        FieldType::DateTime => DateTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::DateTime => DateTypeOption::from(field_meta)
+            .apply_changeset(changeset, cell_meta)
+            .map(|data| data.to_string()),
         FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
@@ -135,25 +148,26 @@ pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(
     field_type: &FieldType,
 ) -> Option<DecodedCellData> {
     if let Ok(type_option_cell_data) = data.try_into() {
+        let (decoded_field_type, data) = &type_option_cell_data.split();
         let s = match field_type {
             FieldType::RichText => field_meta
                 .get_type_option_entry::<RichTextTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
             FieldType::Number => field_meta
                 .get_type_option_entry::<NumberTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
             FieldType::DateTime => field_meta
                 .get_type_option_entry::<DateTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
             FieldType::SingleSelect => field_meta
                 .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
             FieldType::MultiSelect => field_meta
                 .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
             FieldType::Checkbox => field_meta
                 .get_type_option_entry::<CheckboxTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, field_meta),
+                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
         };
         tracing::Span::current().record(
             "content",
