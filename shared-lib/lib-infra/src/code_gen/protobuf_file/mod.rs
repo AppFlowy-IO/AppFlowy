@@ -153,27 +153,22 @@ pub fn check_pb_dart_plugin() {
             let output = Command::new("sh").arg("-c").arg("echo $PATH").output();
             let paths = String::from_utf8(output.unwrap().stdout)
                 .unwrap()
-                .split(":")
+                .split(':')
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>();
 
             paths.iter().for_each(|s| msg.push_str(&format!("{}\n", s)));
 
-            match Command::new("sh").arg("-c").arg("which protoc-gen-dart").output() {
-                Ok(output) => {
-                    msg.push_str(&format!(
-                        "Installed protoc-gen-dart path: {:?}\n",
-                        String::from_utf8(output.stdout).unwrap()
-                    ));
-                }
-                Err(_) => {}
+            if let Ok(output) = Command::new("sh").arg("-c").arg("which protoc-gen-dart").output() {
+                msg.push_str(&format!(
+                    "Installed protoc-gen-dart path: {:?}\n",
+                    String::from_utf8(output.stdout).unwrap()
+                ));
             }
 
-            msg.push_str(&format!("✅ You can fix that by adding:"));
-            msg.push_str(&format!("\n\texport PATH=\"$PATH\":\"$HOME/.pub-cache/bin\"\n",));
-            msg.push_str(&format!(
-                "to your shell's config file.(.bashrc, .bash, .profile, .zshrc etc.)"
-            ));
+            msg.push_str(&"✅ You can fix that by adding:".to_string());
+            msg.push_str(&"\n\texport PATH=\"$PATH\":\"$HOME/.pub-cache/bin\"\n".to_string());
+            msg.push_str(&"to your shell's config file.(.bashrc, .bash, .profile, .zshrc etc.)".to_string());
             panic!("{}", msg)
         }
     }

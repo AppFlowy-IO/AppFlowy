@@ -1,9 +1,9 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
@@ -76,38 +76,40 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
-impl CellDataOperation<String> for NumberTypeOption {
-    fn decode_cell_data<T: Into<TypeOptionCellData>>(
+impl CellDataOperation<String, String> for NumberTypeOption {
+    fn decode_cell_data<T>(
         &self,
-        type_option_cell_data: T,
+        encoded_data: T,
         decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
-    ) -> DecodedCellData {
-        let type_option_cell_data = type_option_cell_data.into();
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
         if decoded_field_type.is_date() {
-            return DecodedCellData::default();
+            return Ok(DecodedCellData::default());
         }
 
-        let cell_data = type_option_cell_data.data;
+        let cell_data = encoded_data.into();
         match self.format {
             NumberFormat::Number => {
                 if let Ok(v) = cell_data.parse::<f64>() {
-                    return DecodedCellData::from_content(v.to_string());
+                    return Ok(DecodedCellData::from_content(v.to_string()));
                 }
 
                 if let Ok(v) = cell_data.parse::<i64>() {
-                    return DecodedCellData::from_content(v.to_string());
+                    return Ok(DecodedCellData::from_content(v.to_string()));
                 }
 
-                DecodedCellData::default()
+                Ok(DecodedCellData::default())
             }
             NumberFormat::Percent => {
                 let content = cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string());
-                DecodedCellData::from_content(content)
+                Ok(DecodedCellData::from_content(content))
             }
             _ => {
                 let content = self.money_from_str(&cell_data);
-                DecodedCellData::from_content(content)
+                Ok(DecodedCellData::from_content(content))
             }
         }
     }
@@ -616,163 +618,132 @@ fn make_strip_symbol() -> Vec<String> {
     symbols
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::services::field::FieldBuilder;
-//     use crate::services::field::{NumberFormat, NumberTypeOption};
-//     use crate::services::row::{CellDataOperation, TypeOptionCellData};
-//     use flowy_grid_data_model::entities::FieldType;
-//     use strum::IntoEnumIterator;
-//
-//     #[test]
-//     fn number_description_invalid_input_test() {
-//         let type_option = NumberTypeOption::default();
-//         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-//         assert_eq!(
-//             "".to_owned(),
-//             type_option.decode_cell_data(data(""), &field_meta).content
-//         );
-//         assert_eq!(
-//             "".to_owned(),
-//             type_option.decode_cell_data(data("abc"), &field_meta).content
-//         );
-//     }
-//
-//     #[test]
-//     fn number_description_test() {
-//         let mut type_option = NumberTypeOption::default();
-//         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-//         assert_eq!(type_option.strip_symbol("¥18,443"), "18443".to_owned());
-//         assert_eq!(type_option.strip_symbol("$18,443"), "18443".to_owned());
-//         assert_eq!(type_option.strip_symbol("€18.443"), "18443".to_owned());
-//
-//         for format in NumberFormat::iter() {
-//             type_option.format = format;
-//             match format {
-//                 NumberFormat::Number => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "18443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::USD => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "$18,443".to_owned()
-//                     );
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data(""), &field_meta).content,
-//                         "".to_owned()
-//                     );
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("abc"), &field_meta).content,
-//                         "".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::Yen => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "¥18,443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::Yuan => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "CN¥18,443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::EUR => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "€18.443".to_owned()
-//                     );
-//                 }
-//                 _ => {}
-//             }
-//         }
-//     }
-//
-//     fn data(s: &str) -> String {
-//         TypeOptionCellData::new(s, FieldType::Number).json()
-//     }
-//
-//     #[test]
-//     fn number_description_scale_test() {
-//         let mut type_option = NumberTypeOption {
-//             scale: 1,
-//             ..Default::default()
-//         };
-//         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-//
-//         for format in NumberFormat::iter() {
-//             type_option.format = format;
-//             match format {
-//                 NumberFormat::Number => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "18443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::USD => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "$1,844.3".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::Yen => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "¥1,844.3".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::EUR => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "€1.844,3".to_owned()
-//                     );
-//                 }
-//                 _ => {}
-//             }
-//         }
-//     }
-//
-//     #[test]
-//     fn number_description_sign_test() {
-//         let mut type_option = NumberTypeOption {
-//             sign_positive: false,
-//             ..Default::default()
-//         };
-//         let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-//
-//         for format in NumberFormat::iter() {
-//             type_option.format = format;
-//             match format {
-//                 NumberFormat::Number => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "18443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::USD => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "-$18,443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::Yen => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "-¥18,443".to_owned()
-//                     );
-//                 }
-//                 NumberFormat::EUR => {
-//                     assert_eq!(
-//                         type_option.decode_cell_data(data("18443"), &field_meta).content,
-//                         "-€18.443".to_owned()
-//                     );
-//                 }
-//                 _ => {}
-//             }
-//         }
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::services::field::FieldBuilder;
+    use crate::services::field::{NumberFormat, NumberTypeOption};
+    use crate::services::row::CellDataOperation;
+    use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+    use strum::IntoEnumIterator;
+
+    #[test]
+    fn number_description_invalid_input_test() {
+        let type_option = NumberTypeOption::default();
+        let field_type = FieldType::Number;
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        assert_equal(&type_option, "", "", &field_type, &field_meta);
+        assert_equal(&type_option, "abc", "", &field_type, &field_meta);
+    }
+
+    #[test]
+    fn number_description_test() {
+        let mut type_option = NumberTypeOption::default();
+        let field_type = FieldType::Number;
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        assert_eq!(type_option.strip_symbol("¥18,443"), "18443".to_owned());
+        assert_eq!(type_option.strip_symbol("$18,443"), "18443".to_owned());
+        assert_eq!(type_option.strip_symbol("€18.443"), "18443".to_owned());
+
+        for format in NumberFormat::iter() {
+            type_option.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                }
+                NumberFormat::USD => {
+                    assert_equal(&type_option, "18443", "$18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "", "", &field_type, &field_meta);
+                    assert_equal(&type_option, "abc", "", &field_type, &field_meta);
+                }
+                NumberFormat::Yen => {
+                    assert_equal(&type_option, "18443", "¥18,443", &field_type, &field_meta);
+                }
+                NumberFormat::Yuan => {
+                    assert_equal(&type_option, "18443", "CN¥18,443", &field_type, &field_meta);
+                }
+                NumberFormat::EUR => {
+                    assert_equal(&type_option, "18443", "€18.443", &field_type, &field_meta);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    #[test]
+    fn number_description_scale_test() {
+        let mut type_option = NumberTypeOption {
+            scale: 1,
+            ..Default::default()
+        };
+        let field_type = FieldType::Number;
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+
+        for format in NumberFormat::iter() {
+            type_option.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                }
+                NumberFormat::USD => {
+                    assert_equal(&type_option, "18443", "$1,844.3", &field_type, &field_meta);
+                }
+                NumberFormat::Yen => {
+                    assert_equal(&type_option, "18443", "¥1,844.3", &field_type, &field_meta);
+                }
+                NumberFormat::EUR => {
+                    assert_equal(&type_option, "18443", "€1.844,3", &field_type, &field_meta);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    #[test]
+    fn number_description_sign_test() {
+        let mut type_option = NumberTypeOption {
+            sign_positive: false,
+            ..Default::default()
+        };
+        let field_type = FieldType::Number;
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+
+        for format in NumberFormat::iter() {
+            type_option.format = format;
+            match format {
+                NumberFormat::Number => {
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                }
+                NumberFormat::USD => {
+                    assert_equal(&type_option, "18443", "-$18,443", &field_type, &field_meta);
+                }
+                NumberFormat::Yen => {
+                    assert_equal(&type_option, "18443", "-¥18,443", &field_type, &field_meta);
+                }
+                NumberFormat::EUR => {
+                    assert_equal(&type_option, "18443", "-€18.443", &field_type, &field_meta);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    fn assert_equal(
+        type_option: &NumberTypeOption,
+        cell_data: &str,
+        expected_str: &str,
+        field_type: &FieldType,
+        field_meta: &FieldMeta,
+    ) {
+        assert_eq!(
+            type_option
+                .decode_cell_data(data(cell_data), field_type, field_meta)
+                .unwrap()
+                .content,
+            expected_str.to_owned()
+        );
+    }
+
+    fn data(s: &str) -> String {
+        s.to_owned()
+    }
+}

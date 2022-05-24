@@ -1,22 +1,26 @@
 use crate::services::field::*;
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
 pub trait CellDataOperation<D, CO: ToString> {
-    fn decode_cell_data<T: Into<TypeOptionCellData>>(
+    fn decode_cell_data<T>(
         &self,
-        data: T,
+        encoded_data: T,
         decoded_field_type: &FieldType,
         field_meta: &FieldMeta,
-    ) -> DecodedCellData;
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<D>;
+
+    //
     fn apply_changeset<C: Into<CellContentChangeset>>(
         &self,
         changeset: C,
         cell_meta: Option<CellMeta>,
-    ) -> Result<CO, FlowyError>;
+    ) -> FlowyResult<CO>;
 }
 
 #[derive(Debug)]
@@ -71,14 +75,6 @@ impl std::convert::TryInto<TypeOptionCellData> for String {
         TypeOptionCellData::from_str(&self)
     }
 }
-
-// impl std::convert::Into<TypeOptionCellData> for String {
-//     type Error = FlowyError;
-//
-//     fn try_into(self) -> Result<TypeOptionCellData, Self::Error> {
-//         TypeOptionCellData::from_str(&self)
-//     }
-// }
 
 impl TypeOptionCellData {
     pub fn new<T: ToString>(data: T, field_type: FieldType) -> Self {
@@ -142,40 +138,89 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     Ok(TypeOptionCellData::new(s, field_meta.field_type.clone()).json())
 }
 
-pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(
+pub fn decode_cell_data_from_type_option_cell_data<T: TryInto<TypeOptionCellData>>(
     data: T,
     field_meta: &FieldMeta,
     field_type: &FieldType,
-) -> Option<DecodedCellData> {
+) -> DecodedCellData {
     if let Ok(type_option_cell_data) = data.try_into() {
-        let (decoded_field_type, data) = &type_option_cell_data.split();
-        let s = match field_type {
-            FieldType::RichText => field_meta
-                .get_type_option_entry::<RichTextTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-            FieldType::Number => field_meta
-                .get_type_option_entry::<NumberTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-            FieldType::DateTime => field_meta
-                .get_type_option_entry::<DateTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-            FieldType::SingleSelect => field_meta
-                .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-            FieldType::MultiSelect => field_meta
-                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-            FieldType::Checkbox => field_meta
-                .get_type_option_entry::<CheckboxTypeOption>(field_type)?
-                .decode_cell_data(type_option_cell_data, decoded_field_type, field_meta),
-        };
-        tracing::Span::current().record(
-            "content",
-            &format!("{:?}: {}", field_meta.field_type, s.content).as_str(),
-        );
-        Some(s)
+        let (encoded_data, s_field_type) = type_option_cell_data.split();
+        decode_cell_data(encoded_data, &s_field_type, field_type, field_meta).unwrap_or_default()
     } else {
-        Some(DecodedCellData::default())
+        DecodedCellData::default()
+    }
+}
+
+pub fn decode_cell_data<T: Into<String>>(
+    encoded_data: T,
+    s_field_type: &FieldType,
+    t_field_type: &FieldType,
+    field_meta: &FieldMeta,
+) -> FlowyResult<DecodedCellData> {
+    let encoded_data = encoded_data.into();
+    let get_cell_data = || {
+        let data = match t_field_type {
+            FieldType::RichText => field_meta
+                .get_type_option_entry::<RichTextTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::Number => field_meta
+                .get_type_option_entry::<NumberTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::DateTime => field_meta
+                .get_type_option_entry::<DateTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::SingleSelect => field_meta
+                .get_type_option_entry::<SingleSelectTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::MultiSelect => field_meta
+                .get_type_option_entry::<MultiSelectTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::Checkbox => field_meta
+                .get_type_option_entry::<CheckboxTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+        };
+        Some(data)
+    };
+
+    match get_cell_data() {
+        Some(Ok(data)) => {
+            tracing::Span::current().record(
+                "content",
+                &format!("{:?}: {}", field_meta.field_type, data.content).as_str(),
+            );
+            Ok(data)
+        }
+        Some(Err(err)) => {
+            tracing::error!("{:?}", err);
+            Ok(DecodedCellData::default())
+        }
+        None => Ok(DecodedCellData::default()),
+    }
+}
+
+pub(crate) struct EncodedCellData<T>(pub Option<T>);
+
+impl<T> EncodedCellData<T> {
+    pub fn try_into_inner(self) -> FlowyResult<T> {
+        match self.0 {
+            None => Err(ErrorCode::InvalidData.into()),
+            Some(data) => Ok(data),
+        }
+    }
+}
+
+impl<T> std::convert::From<String> for EncodedCellData<T>
+where
+    T: FromStr<Err = FlowyError>,
+{
+    fn from(s: String) -> Self {
+        match T::from_str(&s) {
+            Ok(inner) => EncodedCellData(Some(inner)),
+            Err(e) => {
+                tracing::error!("Deserialize Cell Data failed: {}", e);
+                EncodedCellData(None)
+            }
+        }
     }
 }
 

@@ -95,26 +95,30 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String> for SingleSelectTypeOption {
-    fn decode_cell_data<T: Into<TypeOptionCellData>>(
+impl CellDataOperation<String, String> for SingleSelectTypeOption {
+    fn decode_cell_data<T>(
         &self,
-        type_option_cell_data: T,
+        encoded_data: T,
         decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
-    ) -> DecodedCellData {
-        let type_option_cell_data = type_option_cell_data.into();
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
         if !decoded_field_type.is_select_option() {
-            return DecodedCellData::default();
+            return Ok(DecodedCellData::default());
         }
 
-        if let Some(option_id) = select_option_ids(type_option_cell_data.data).first() {
-            return match self.options.iter().find(|option| &option.id == option_id) {
+        let cell_data = encoded_data.into();
+        if let Some(option_id) = select_option_ids(cell_data).first() {
+            let data = match self.options.iter().find(|option| &option.id == option_id) {
                 None => DecodedCellData::default(),
                 Some(option) => DecodedCellData::from_content(option.name.clone()),
             };
+            Ok(data)
+        } else {
+            Ok(DecodedCellData::default())
         }
-
-        DecodedCellData::default()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
@@ -187,19 +191,21 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String> for MultiSelectTypeOption {
-    fn decode_cell_data<T: Into<TypeOptionCellData>>(
+impl CellDataOperation<String, String> for MultiSelectTypeOption {
+    fn decode_cell_data<T>(
         &self,
-        type_option_cell_data: T,
+        encoded_data: T,
         decoded_field_type: &FieldType,
         _field_meta: &FieldMeta,
-    ) -> DecodedCellData {
-        let type_option_cell_data = type_option_cell_data.into();
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
         if !decoded_field_type.is_select_option() {
-            return DecodedCellData::default();
+            return Ok(DecodedCellData::default());
         }
-
-        let option_ids = select_option_ids(type_option_cell_data.data);
+        let cell_data = encoded_data.into();
+        let option_ids = select_option_ids(cell_data);
         let content = self
             .options
             .iter()
@@ -208,7 +214,7 @@ impl CellDataOperation<String> for MultiSelectTypeOption {
             .collect::<Vec<String>>()
             .join(SELECTION_IDS_SEPARATOR);
 
-        DecodedCellData::from_content(content)
+        Ok(DecodedCellData::from_content(content))
     }
 
     fn apply_changeset<T>(&self, changeset: T, cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
@@ -491,108 +497,144 @@ fn make_select_context_from(cell_meta: &Option<CellMeta>, options: &[SelectOptio
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::services::field::FieldBuilder;
-//     use crate::services::field::{
-//         MultiSelectTypeOption, MultiSelectTypeOptionBuilder, SelectOption, SelectOptionCellContentChangeset,
-//         SingleSelectTypeOption, SingleSelectTypeOptionBuilder, SELECTION_IDS_SEPARATOR,
-//     };
-//     use crate::services::row::CellDataOperation;
-//
-//     #[test]
-//     fn single_select_test() {
-//         let google_option = SelectOption::new("Google");
-//         let facebook_option = SelectOption::new("Facebook");
-//         let twitter_option = SelectOption::new("Twitter");
-//         let single_select = SingleSelectTypeOptionBuilder::default()
-//             .option(google_option.clone())
-//             .option(facebook_option.clone())
-//             .option(twitter_option);
-//
-//         let field_meta = FieldBuilder::new(single_select)
-//             .name("Platform")
-//             .visibility(true)
-//             .build();
-//
-//         let type_option = SingleSelectTypeOption::from(&field_meta);
-//
-//         let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
-//         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
-//         let cell_data = type_option.apply_changeset(data, None).unwrap();
-//         assert_eq!(
-//             type_option.decode_cell_data(cell_data, &field_meta).content,
-//             google_option.name,
-//         );
-//
-//         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
-//         let cell_data = type_option.apply_changeset(data, None).unwrap();
-//         assert_eq!(
-//             type_option.decode_cell_data(cell_data, &field_meta).content,
-//             google_option.name,
-//         );
-//
-//         // Invalid option id
-//         let cell_data = type_option
-//             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
-//             .unwrap();
-//         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
-//
-//         // Invalid option id
-//         let cell_data = type_option
-//             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123").to_str(), None)
-//             .unwrap();
-//         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
-//
-//         // Invalid changeset
-//         assert!(type_option.apply_changeset("123", None).is_err());
-//     }
-//
-//     #[test]
-//     fn multi_select_test() {
-//         let google_option = SelectOption::new("Google");
-//         let facebook_option = SelectOption::new("Facebook");
-//         let twitter_option = SelectOption::new("Twitter");
-//         let multi_select = MultiSelectTypeOptionBuilder::default()
-//             .option(google_option.clone())
-//             .option(facebook_option.clone())
-//             .option(twitter_option);
-//
-//         let field_meta = FieldBuilder::new(multi_select)
-//             .name("Platform")
-//             .visibility(true)
-//             .build();
-//
-//         let type_option = MultiSelectTypeOption::from(&field_meta);
-//
-//         let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-//         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
-//         let cell_data = type_option.apply_changeset(data, None).unwrap();
-//         assert_eq!(
-//             type_option.decode_cell_data(cell_data, &field_meta).content,
-//             vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
-//         );
-//
-//         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
-//         let cell_data = type_option.apply_changeset(data, None).unwrap();
-//         assert_eq!(
-//             type_option.decode_cell_data(cell_data, &field_meta).content,
-//             google_option.name,
-//         );
-//
-//         // Invalid option id
-//         let cell_data = type_option
-//             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
-//             .unwrap();
-//         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
-//
-//         // Invalid option id
-//         let cell_data = type_option
-//             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123,456").to_str(), None)
-//             .unwrap();
-//         assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
-//
-//         // Invalid changeset
-//         assert!(type_option.apply_changeset("123", None).is_err());
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::services::field::FieldBuilder;
+    use crate::services::field::{
+        MultiSelectTypeOption, MultiSelectTypeOptionBuilder, SelectOption, SelectOptionCellContentChangeset,
+        SingleSelectTypeOption, SingleSelectTypeOptionBuilder, SELECTION_IDS_SEPARATOR,
+    };
+    use crate::services::row::CellDataOperation;
+
+    #[test]
+    fn single_select_test() {
+        let google_option = SelectOption::new("Google");
+        let facebook_option = SelectOption::new("Facebook");
+        let twitter_option = SelectOption::new("Twitter");
+        let single_select = SingleSelectTypeOptionBuilder::default()
+            .option(google_option.clone())
+            .option(facebook_option.clone())
+            .option(twitter_option);
+
+        let field_meta = FieldBuilder::new(single_select)
+            .name("Platform")
+            .visibility(true)
+            .build();
+
+        let type_option = SingleSelectTypeOption::from(&field_meta);
+
+        let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
+        let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
+        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            google_option.name,
+        );
+
+        let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
+        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            google_option.name,
+        );
+
+        // Invalid option id
+        let cell_data = type_option
+            .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
+            .unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
+
+        // Invalid option id
+        let cell_data = type_option
+            .apply_changeset(SelectOptionCellContentChangeset::from_insert("123").to_str(), None)
+            .unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
+
+        // Invalid changeset
+        assert!(type_option.apply_changeset("123", None).is_err());
+    }
+
+    #[test]
+    fn multi_select_test() {
+        let google_option = SelectOption::new("Google");
+        let facebook_option = SelectOption::new("Facebook");
+        let twitter_option = SelectOption::new("Twitter");
+        let multi_select = MultiSelectTypeOptionBuilder::default()
+            .option(google_option.clone())
+            .option(facebook_option.clone())
+            .option(twitter_option);
+
+        let field_meta = FieldBuilder::new(multi_select)
+            .name("Platform")
+            .visibility(true)
+            .build();
+
+        let type_option = MultiSelectTypeOption::from(&field_meta);
+
+        let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
+        let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
+        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
+        );
+
+        let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
+        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            google_option.name,
+        );
+
+        // Invalid option id
+        let cell_data = type_option
+            .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
+            .unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
+
+        // Invalid option id
+        let cell_data = type_option
+            .apply_changeset(SelectOptionCellContentChangeset::from_insert("123,456").to_str(), None)
+            .unwrap();
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
+
+        // Invalid changeset
+        assert!(type_option.apply_changeset("123", None).is_err());
+    }
+}
