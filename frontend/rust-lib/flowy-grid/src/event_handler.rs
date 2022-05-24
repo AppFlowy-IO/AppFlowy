@@ -1,5 +1,5 @@
+use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::entities::*;
 use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};

@@ -168,6 +168,7 @@
       "dateFormatLocal": "Month/Month/Day",
       "dateFormatUS": "Month/Month/Day",
       "timeFormat": " Time format",
+      "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",
       "addSelectOption": "Add an option",

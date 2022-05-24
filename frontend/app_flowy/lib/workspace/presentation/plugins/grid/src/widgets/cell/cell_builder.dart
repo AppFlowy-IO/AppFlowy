@@ -47,13 +47,11 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellWidget extends HoverWidget {
+abstract class GridCellWidget implements FlowyHoverWidget {
   @override
   final ValueNotifier<bool> onFocus = ValueNotifier<bool>(false);
 
   final GridCellRequestFocusNotifier requestFocus = GridCellRequestFocusNotifier();
-
-  GridCellWidget({Key? key}) : super(key: key);
 }
 
 class GridCellRequestFocusNotifier extends ChangeNotifier {

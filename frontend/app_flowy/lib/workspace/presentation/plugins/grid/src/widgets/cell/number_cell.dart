@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_builder.dart';
 
-class NumberCell extends GridCellWidget {
+class NumberCell extends StatefulWidget with GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
 
   NumberCell({

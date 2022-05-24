@@ -1,4 +1,4 @@
-use crate::services::entities::{FieldIdentifier, FieldIdentifierPayload};
+use crate::entities::{FieldIdentifier, FieldIdentifierPayload};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;

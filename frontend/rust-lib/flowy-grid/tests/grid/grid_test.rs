@@ -5,7 +5,7 @@ use flowy_grid::services::field::{
     DateCellContentChangeset, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
     SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{decode_cell_data, CreateRowMetaBuilder};
+use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
     CellChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
     TypeOptionDataEntry,
@@ -291,8 +291,7 @@ async fn grid_row_add_date_cell_test() {
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        decode_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type)
-            .unwrap()
+        decode_cell_data_from_type_option_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type)
             .split()
             .1,
         "2022/03/16",

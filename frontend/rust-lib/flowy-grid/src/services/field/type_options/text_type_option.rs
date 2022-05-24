@@ -1,16 +1,13 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData,
-};
+use crate::services::row::{decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 #[derive(Default)]
 pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
@@ -34,33 +31,37 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation for RichTextTypeOption {
-    fn decode_cell_data(&self, data: String, field_meta: &FieldMeta) -> DecodedCellData {
-        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if type_option_cell_data.is_date()
-                || type_option_cell_data.is_single_select()
-                || type_option_cell_data.is_multi_select()
-                || type_option_cell_data.is_number()
-            {
-                decode_cell_data(data, field_meta, &type_option_cell_data.field_type).unwrap_or_default()
-            } else {
-                DecodedCellData::from_content(type_option_cell_data.data)
-            }
+impl CellDataOperation<String, String> for RichTextTypeOption {
+    fn decode_cell_data<T>(
+        &self,
+        encoded_data: T,
+        decoded_field_type: &FieldType,
+        field_meta: &FieldMeta,
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
+        if decoded_field_type.is_date()
+            || decoded_field_type.is_single_select()
+            || decoded_field_type.is_multi_select()
+            || decoded_field_type.is_number()
+        {
+            decode_cell_data(encoded_data, decoded_field_type, decoded_field_type, field_meta)
         } else {
-            DecodedCellData::default()
+            let cell_data = encoded_data.into();
+            Ok(DecodedCellData::from_content(cell_data))
         }
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let data = changeset.into();
         if data.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(TypeOptionCellData::new(&data, self.field_type()).json())
+            Ok(data.0)
         }
     }
 }
@@ -69,7 +70,7 @@ impl CellDataOperation for RichTextTypeOption {
 mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
-    use crate::services::row::{CellDataOperation, TypeOptionCellData};
+    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::entities::FieldType;
 
     #[test]
@@ -77,11 +78,14 @@ mod tests {
         let type_option = RichTextTypeOption::default();
 
         // date
-        let date_time_field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
+        let field_type = FieldType::DateTime;
+        let date_time_field_meta = FieldBuilder::from_field_type(&field_type).build();
         let json = serde_json::to_string(&DateCellDataSerde::from_timestamp(1647251762, None)).unwrap();
-        let data = TypeOptionCellData::new(&json, FieldType::DateTime).json();
         assert_eq!(
-            type_option.decode_cell_data(data, &date_time_field_meta).content,
+            type_option
+                .decode_cell_data(json, &field_type, &date_time_field_meta)
+                .unwrap()
+                .content,
             "Mar 14,2022".to_owned()
         );
 
@@ -90,10 +94,11 @@ mod tests {
         let done_option_id = done_option.id.clone();
         let single_select = SingleSelectTypeOptionBuilder::default().option(done_option);
         let single_select_field_meta = FieldBuilder::new(single_select).build();
-        let cell_data = TypeOptionCellData::new(&done_option_id, FieldType::SingleSelect).json();
+
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, &single_select_field_meta)
+                .decode_cell_data(done_option_id, &FieldType::SingleSelect, &single_select_field_meta)
+                .unwrap()
                 .content,
             "Done".to_owned()
         );
@@ -111,7 +116,8 @@ mod tests {
         let cell_data = multi_type_option.apply_changeset(cell_data_changeset, None).unwrap();
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, &multi_select_field_meta)
+                .decode_cell_data(cell_data, &FieldType::MultiSelect, &multi_select_field_meta)
+                .unwrap()
                 .content,
             "Google,Facebook".to_owned()
         );
@@ -119,9 +125,11 @@ mod tests {
         //Number
         let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
         let number_field_meta = FieldBuilder::new(number).build();
-        let data = TypeOptionCellData::new("18443", FieldType::Number).json();
         assert_eq!(
-            type_option.decode_cell_data(data, &number_field_meta).content,
+            type_option
+                .decode_cell_data("18443".to_owned(), &FieldType::Number, &number_field_meta)
+                .unwrap()
+                .content,
             "$18,443".to_owned()
         );
     }

@@ -1,6 +1,9 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
+import 'package:easy_localization/easy_localization.dart' show StringTranslateExtension;
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -91,7 +94,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           case ErrorCode.InvalidDateTimeFormat:
             emit(state.copyWith(
               dateData: Some(newDateData),
-              timeFormatError: Some(err.toString()),
+              timeFormatError: Some(timeFormatPrompt(err)),
             ));
             break;
           default:
@@ -99,6 +102,21 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         }
       },
     );
+  }
+
+  String timeFormatPrompt(FlowyError error) {
+    String msg = LocaleKeys.grid_field_invalidTimeFormat.tr() + ". ";
+    switch (state.dateTypeOption.timeFormat) {
+      case TimeFormat.TwelveHour:
+        msg = msg + "e.g. 01: 00 AM";
+        break;
+      case TimeFormat.TwentyFourHour:
+        msg = msg + "e.g. 13: 00";
+        break;
+      default:
+        break;
+    }
+    return msg;
   }
 
   @override

@@ -912,6 +912,34 @@ impl FieldType {
             _ => 150,
         }
     }
+
+    pub fn is_number(&self) -> bool {
+        self == &FieldType::Number
+    }
+
+    pub fn is_text(&self) -> bool {
+        self == &FieldType::RichText
+    }
+
+    pub fn is_checkbox(&self) -> bool {
+        self == &FieldType::Checkbox
+    }
+
+    pub fn is_date(&self) -> bool {
+        self == &FieldType::DateTime
+    }
+
+    pub fn is_single_select(&self) -> bool {
+        self == &FieldType::SingleSelect
+    }
+
+    pub fn is_multi_select(&self) -> bool {
+        self == &FieldType::MultiSelect
+    }
+
+    pub fn is_select_option(&self) -> bool {
+        self == &FieldType::MultiSelect || self == &FieldType::SingleSelect
+    }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

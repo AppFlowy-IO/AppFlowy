@@ -87,7 +87,7 @@ class SelectOptionTag extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       pressElevation: 1,
-      label: FlowyText.medium(name, fontSize: 12),
+      label: FlowyText.medium(name, fontSize: 12, overflow: TextOverflow.ellipsis),
       selectedColor: color,
       backgroundColor: color,
       labelPadding: const EdgeInsets.symmetric(horizontal: 6),
@@ -130,11 +130,18 @@ class SelectOptionTagCell extends StatelessWidget {
           child: InkWell(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(children: [
-                SelectOptionTag.fromSelectOption(context: context, option: option),
-                const Spacer(),
-                ...children,
-              ]),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 2,
+                    child: SelectOptionTag.fromSelectOption(context: context, option: option),
+                  ),
+                  const Spacer(),
+                  ...children,
+                ],
+              ),
             ),
             onTap: () => onSelected(option),
           ),

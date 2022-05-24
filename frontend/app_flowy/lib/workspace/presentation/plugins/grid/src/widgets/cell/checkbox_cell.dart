@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 
-class CheckboxCell extends GridCellWidget {
+class CheckboxCell extends StatefulWidget with GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   CheckboxCell({
     required this.cellContextBuilder,
@@ -41,7 +41,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
               onPressed: () => context.read<CheckboxCellBloc>().add(const CheckboxCellEvent.select()),
               iconPadding: EdgeInsets.zero,
               icon: icon,
-              width: 23,
+              width: 20,
             ),
           );
         },

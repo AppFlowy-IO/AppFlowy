@@ -1,5 +1,5 @@
+use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
-use crate::services::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
@@ -95,29 +95,36 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation for SingleSelectTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
-        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if !type_option_cell_data.is_single_select() {
-                return DecodedCellData::default();
-            }
-
-            if let Some(option_id) = select_option_ids(type_option_cell_data.data).first() {
-                return match self.options.iter().find(|option| &option.id == option_id) {
-                    None => DecodedCellData::default(),
-                    Some(option) => DecodedCellData::from_content(option.name.clone()),
-                };
-            }
+impl CellDataOperation<String, String> for SingleSelectTypeOption {
+    fn decode_cell_data<T>(
+        &self,
+        encoded_data: T,
+        decoded_field_type: &FieldType,
+        _field_meta: &FieldMeta,
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
+        if !decoded_field_type.is_select_option() {
+            return Ok(DecodedCellData::default());
         }
 
-        DecodedCellData::default()
+        let cell_data = encoded_data.into();
+        if let Some(option_id) = select_option_ids(cell_data).first() {
+            let data = match self.options.iter().find(|option| &option.id == option_id) {
+                None => DecodedCellData::default(),
+                Some(option) => DecodedCellData::from_content(option.name.clone()),
+            };
+            Ok(data)
+        } else {
+            Ok(DecodedCellData::default())
+        }
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        _cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        C: Into<CellContentChangeset>,
+    {
         let changeset = changeset.into();
         let select_option_changeset: SelectOptionCellContentChangeset = serde_json::from_str(&changeset)?;
         let new_cell_data: String;
@@ -129,7 +136,7 @@ impl CellDataOperation for SingleSelectTypeOption {
             new_cell_data = "".to_string()
         }
 
-        Ok(TypeOptionCellData::new(&new_cell_data, self.field_type()).json())
+        Ok(new_cell_data)
     }
 }
 
@@ -184,31 +191,36 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation for MultiSelectTypeOption {
-    fn decode_cell_data(&self, data: String, _field_meta: &FieldMeta) -> DecodedCellData {
-        if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&data) {
-            if !type_option_cell_data.is_multi_select() {
-                return DecodedCellData::default();
-            }
-            let option_ids = select_option_ids(type_option_cell_data.data);
-            let content = self
-                .options
-                .iter()
-                .filter(|option| option_ids.contains(&option.id))
-                .map(|option| option.name.clone())
-                .collect::<Vec<String>>()
-                .join(SELECTION_IDS_SEPARATOR);
-            DecodedCellData::from_content(content)
-        } else {
-            DecodedCellData::default()
+impl CellDataOperation<String, String> for MultiSelectTypeOption {
+    fn decode_cell_data<T>(
+        &self,
+        encoded_data: T,
+        decoded_field_type: &FieldType,
+        _field_meta: &FieldMeta,
+    ) -> FlowyResult<DecodedCellData>
+    where
+        T: Into<String>,
+    {
+        if !decoded_field_type.is_select_option() {
+            return Ok(DecodedCellData::default());
         }
+        let cell_data = encoded_data.into();
+        let option_ids = select_option_ids(cell_data);
+        let content = self
+            .options
+            .iter()
+            .filter(|option| option_ids.contains(&option.id))
+            .map(|option| option.name.clone())
+            .collect::<Vec<String>>()
+            .join(SELECTION_IDS_SEPARATOR);
+
+        Ok(DecodedCellData::from_content(content))
     }
 
-    fn apply_changeset<T: Into<CellContentChangeset>>(
-        &self,
-        changeset: T,
-        cell_meta: Option<CellMeta>,
-    ) -> Result<String, FlowyError> {
+    fn apply_changeset<T>(&self, changeset: T, cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    where
+        T: Into<CellContentChangeset>,
+    {
         let content_changeset: SelectOptionCellContentChangeset = serde_json::from_str(&changeset.into())?;
         let new_cell_data: String;
         match cell_meta {
@@ -237,7 +249,7 @@ impl CellDataOperation for MultiSelectTypeOption {
             }
         }
 
-        Ok(TypeOptionCellData::new(&new_cell_data, self.field_type()).json())
+        Ok(new_cell_data)
     }
 }
 
@@ -515,14 +527,20 @@ mod tests {
         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &field_meta).content,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
             google_option.name,
         );
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &field_meta).content,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
             google_option.name,
         );
 
@@ -530,13 +548,25 @@ mod tests {
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
             .unwrap();
-        assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123").to_str(), None)
             .unwrap();
-        assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
 
         // Invalid changeset
         assert!(type_option.apply_changeset("123", None).is_err());
@@ -563,14 +593,20 @@ mod tests {
         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &field_meta).content,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
             vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
         );
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
         assert_eq!(
-            type_option.decode_cell_data(cell_data, &field_meta).content,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
             google_option.name,
         );
 
@@ -578,13 +614,25 @@ mod tests {
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
             .unwrap();
-        assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123,456").to_str(), None)
             .unwrap();
-        assert_eq!(type_option.decode_cell_data(cell_data, &field_meta).content, "",);
+        assert_eq!(
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .content,
+            "",
+        );
 
         // Invalid changeset
         assert!(type_option.apply_changeset("123", None).is_err());

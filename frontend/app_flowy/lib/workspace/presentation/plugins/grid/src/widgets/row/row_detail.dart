@@ -67,14 +67,15 @@ class _RowDetailPageState extends State<RowDetailPage> {
         return bloc;
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: Column(
           children: [
             SizedBox(
-                height: 40,
-                child: Row(
-                  children: const [Spacer(), _CloseButton()],
-                )),
+              height: 40,
+              child: Row(
+                children: const [Spacer(), _CloseButton()],
+              ),
+            ),
             Expanded(child: _PropertyList(cellCache: widget.cellCache)),
           ],
         ),
@@ -153,24 +154,26 @@ class _RowDetailCell extends StatelessWidget {
       cellCache,
       style: _buildCellStyle(theme, gridCell.field.fieldType),
     );
-    return SizedBox(
-      height: 36,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 150,
-            child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
-          ),
-          const HSpace(10),
-          Expanded(
-            child: FlowyHover2(
-              child: cell,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 40),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 150,
+              child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
             ),
-          ),
-        ],
+            const HSpace(10),
+            Expanded(
+              child: FlowyHover2(
+                child: cell,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
