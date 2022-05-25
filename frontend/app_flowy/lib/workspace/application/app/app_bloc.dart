@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_listener.dart';
