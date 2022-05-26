@@ -1,6 +1,6 @@
 use flowy_revision::disk::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
-use flowy_text_block::editor::ClientTextBlockEditor;
+use flowy_text_block::editor::TextBlockEditor;
 use flowy_text_block::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
@@ -19,7 +19,7 @@ pub enum EditorScript {
 
 pub struct TextBlockEditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<ClientTextBlockEditor>,
+    pub editor: Arc<TextBlockEditor>,
 }
 
 impl TextBlockEditorTest {
