@@ -21,7 +21,7 @@ use lib_ws::WSConnectState;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct ClientTextBlockEditor {
+pub struct TextBlockEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -30,7 +30,7 @@ pub struct ClientTextBlockEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ClientTextBlockEditor {
+impl TextBlockEditor {
     #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
@@ -185,7 +185,7 @@ impl ClientTextBlockEditor {
     pub(crate) fn receive_ws_state(&self, _state: &WSConnectState) {}
 }
 
-impl std::ops::Drop for ClientTextBlockEditor {
+impl std::ops::Drop for TextBlockEditor {
     fn drop(&mut self) {
         tracing::trace!("{} ClientBlockEditor was dropped", self.doc_id)
     }
@@ -204,7 +204,7 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl ClientTextBlockEditor {
+impl TextBlockEditor {
     pub async fn text_block_delta(&self) -> FlowyResult<RichTextDelta> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditorCommand::ReadDelta { ret };

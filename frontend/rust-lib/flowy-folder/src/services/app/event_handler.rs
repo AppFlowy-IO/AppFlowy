@@ -46,7 +46,7 @@ pub(crate) async fn update_app_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, app_controller, view_controller))]
+#[tracing::instrument(level = "trace", skip(data, app_controller, view_controller))]
 pub(crate) async fn read_app_handler(
     data: Data<AppId>,
     app_controller: AppData<Arc<AppController>>,

@@ -129,7 +129,7 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) fn set_latest_view(&self, view_id: &str) -> Result<(), FlowyError> {
         KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
         Ok(())
@@ -193,7 +193,7 @@ impl ViewController {
     }
 
     // belong_to_id will be the app_id or view_id.
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
