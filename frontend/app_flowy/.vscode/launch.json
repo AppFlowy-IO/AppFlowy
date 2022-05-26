@@ -5,18 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "app_flowy",
+            // This task builds the Rust and Dart code of AppFlowy.
+            "name": "Build",
             "request": "launch",
             "program": "${workspaceRoot}/lib/main.dart",
-            "type": "dart",
             "preLaunchTask": "build_flowy_sdk",
+            "type": "dart",
             "env": {
                 "RUST_LOG": "debug"
             },
             "cwd": "${workspaceRoot}"
         },
         {
-            "name": "app_flowy(trace)",
+            //  This task only build the Dart code of AppFlowy.
+            "name": "Build (Dart)",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "debug"
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "Build (trace log)",
             "request": "launch",
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
@@ -27,7 +39,7 @@
             "cwd": "${workspaceRoot}"
         },
         {
-            "name": "app_flowy (profile mode)",
+            "name": "Build (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
