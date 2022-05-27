@@ -262,6 +262,9 @@ async fn grid_row_add_cells_test() {
             FieldType::Checkbox => {
                 builder.add_cell(&field.id, "false".to_string()).unwrap();
             }
+            FieldType::URL => {
+                builder.add_cell(&field.id, "1".to_string()).unwrap();
+            }
         }
     }
     let context = builder.build();
@@ -327,6 +330,7 @@ async fn grid_cell_update() {
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::Checkbox => "1".to_string(),
+                    FieldType::URL => "1".to_string(),
                 };
 
                 scripts.push(UpdateCell {
@@ -348,6 +352,7 @@ async fn grid_cell_update() {
                     FieldType::SingleSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
                     FieldType::MultiSelect => (SelectOptionCellContentChangeset::from_insert("abc").to_str(), false),
                     FieldType::Checkbox => ("2".to_string(), false),
+                    FieldType::URL => ("2".to_string(), false),
                 };
 
                 scripts.push(UpdateCell {
