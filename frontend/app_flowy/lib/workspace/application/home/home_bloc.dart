@@ -49,6 +49,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         unauthorized: (_Unauthorized value) {
           emit(state.copyWith(unauthorized: true));
         },
+        collapseMenu: (e) {
+          emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
+        },
       );
     });
   }
@@ -77,6 +80,7 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.dismissEditPannel() = _DismissEditPannel;
   const factory HomeEvent.didReceiveWorkspaceSetting(CurrentWorkspaceSetting setting) = _DidReceiveWorkspaceSetting;
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
+  const factory HomeEvent.collapseMenu() = _CollapseMenu;
 }
 
 @freezed
@@ -87,6 +91,7 @@ class HomeState with _$HomeState {
     required Option<EditPannelContext> pannelContext,
     required CurrentWorkspaceSetting workspaceSetting,
     required bool unauthorized,
+    required bool isMenuCollapsed,
   }) = _HomeState;
 
   factory HomeState.initial(CurrentWorkspaceSetting workspaceSetting) => HomeState(
@@ -95,5 +100,6 @@ class HomeState with _$HomeState {
         pannelContext: none(),
         workspaceSetting: workspaceSetting,
         unauthorized: false,
+        isMenuCollapsed: false,
       );
 }

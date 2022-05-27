@@ -1,6 +1,8 @@
 export './app/header/header.dart';
 export './app/menu_app.dart';
 
+import 'dart:io' show Platform;
+import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
@@ -18,7 +20,9 @@ import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/core/frameless_window.dart';
+// import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
@@ -59,10 +63,10 @@ class HomeMenu extends StatelessWidget {
               getIt<HomeStackManager>().setPlugin(state.plugin);
             },
           ),
-          BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.isCollapse != c.isCollapse,
+          BlocListener<HomeBloc, HomeState>(
+            listenWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
             listener: (context, state) {
-              _collapsedNotifier.value = state.isCollapse;
+              _collapsedNotifier.value = state.isMenuCollapsed;
             },
           )
         ],
@@ -179,6 +183,17 @@ class MenuSharedState {
 
 class MenuTopBar extends StatelessWidget {
   const MenuTopBar({Key? key}) : super(key: key);
+
+  Widget renderIcon(BuildContext context) {
+    if (Platform.isMacOS) {
+      return Container();
+    }
+    final theme = context.watch<AppTheme>();
+    return (theme.isDark
+        ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
+        : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -186,20 +201,19 @@ class MenuTopBar extends StatelessWidget {
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
-          child: Row(
+          child: MoveWindowDetector(
+              child: Row(
             children: [
-              (theme.isDark
-                  ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
-                  : svgWithSize("flowy_logo_with_text", const Size(92, 17))),
+              renderIcon(context),
               const Spacer(),
               FlowyIconButton(
                 width: 28,
-                onPressed: () => context.read<MenuBloc>().add(const MenuEvent.collapse()),
+                onPressed: () => context.read<HomeBloc>().add(const HomeEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                 icon: svgWidget("home/hide_menu", color: theme.iconColor),
               )
             ],
-          ),
+          )),
         );
       },
     );
