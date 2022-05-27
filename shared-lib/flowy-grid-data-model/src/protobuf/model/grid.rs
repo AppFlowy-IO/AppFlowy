@@ -8231,6 +8231,7 @@ pub enum FieldType {
     SingleSelect = 3,
     MultiSelect = 4,
     Checkbox = 5,
+    URL = 6,
 }
 
 impl ::protobuf::ProtobufEnum for FieldType {
@@ -8246,6 +8247,7 @@ impl ::protobuf::ProtobufEnum for FieldType {
             3 => ::std::option::Option::Some(FieldType::SingleSelect),
             4 => ::std::option::Option::Some(FieldType::MultiSelect),
             5 => ::std::option::Option::Some(FieldType::Checkbox),
+            6 => ::std::option::Option::Some(FieldType::URL),
             _ => ::std::option::Option::None
         }
     }
@@ -8258,6 +8260,7 @@ impl ::protobuf::ProtobufEnum for FieldType {
             FieldType::SingleSelect,
             FieldType::MultiSelect,
             FieldType::Checkbox,
+            FieldType::URL,
         ];
         values
     }
@@ -8380,10 +8383,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ld_id\x18\x03\x20\x01(\tR\x07fieldId\x126\n\x16cell_content_changeset\
     \x18\x04\x20\x01(\tH\0R\x14cellContentChangesetB\x1f\n\x1done_of_cell_co\
     ntent_changeset**\n\x0cMoveItemType\x12\r\n\tMoveField\x10\0\x12\x0b\n\
-    \x07MoveRow\x10\x01*d\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\
+    \x07MoveRow\x10\x01*m\n\tFieldType\x12\x0c\n\x08RichText\x10\0\x12\n\n\
     \x06Number\x10\x01\x12\x0c\n\x08DateTime\x10\x02\x12\x10\n\x0cSingleSele\
     ct\x10\x03\x12\x0f\n\x0bMultiSelect\x10\x04\x12\x0c\n\x08Checkbox\x10\
-    \x05b\x06proto3\
+    \x05\x12\x07\n\x03URL\x10\x06b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

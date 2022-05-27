@@ -4,6 +4,7 @@ import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/url_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
 import 'package:flowy_infra/image.dart';
@@ -212,7 +213,11 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
-    default:
-      return null;
+
+    case FieldType.URL:
+      return GridURLCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
   }
+  return null;
 }

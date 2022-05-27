@@ -9,6 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event_map.pb.dart';

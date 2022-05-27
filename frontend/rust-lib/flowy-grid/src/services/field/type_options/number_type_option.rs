@@ -736,14 +736,10 @@ mod tests {
     ) {
         assert_eq!(
             type_option
-                .decode_cell_data(data(cell_data), field_type, field_meta)
+                .decode_cell_data(cell_data, field_type, field_meta)
                 .unwrap()
                 .content,
             expected_str.to_owned()
         );
-    }
-
-    fn data(s: &str) -> String {
-        s.to_owned()
     }
 }

@@ -3,6 +3,7 @@ part of 'cell_service.dart';
 typedef GridCellContext = _GridCellContext<Cell, String>;
 typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
 typedef GridDateCellContext = _GridCellContext<DateCellData, DateCalData>;
+typedef GridURLCellContext = _GridCellContext<Cell, String>;
 
 class GridCellContextBuilder {
   final GridCellCache _cellCache;
@@ -58,12 +59,21 @@ class GridCellContextBuilder {
           cellDataLoader: SelectOptionCellDataLoader(gridCell: _gridCell),
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
-      default:
-        throw UnimplementedError;
+
+      case FieldType.URL:
+        return GridURLCellContext(
+          gridCell: _gridCell,
+          cellCache: _cellCache,
+          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+        );
     }
+    throw UnimplementedError;
   }
 }
 
+// T: the type of the CellData
+// D: the type of the data that will be save to disk
 // ignore: must_be_immutable
 class _GridCellContext<T, D> extends Equatable {
   final GridCell gridCell;

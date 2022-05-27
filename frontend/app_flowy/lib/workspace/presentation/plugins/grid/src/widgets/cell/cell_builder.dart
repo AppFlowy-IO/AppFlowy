@@ -13,6 +13,7 @@ import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
+import 'url_cell.dart';
 
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
   final key = ValueKey(gridCell.cellId());
@@ -32,10 +33,11 @@ GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {
       return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
     case FieldType.RichText:
       return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-
-    default:
-      throw UnimplementedError;
+    case FieldType.URL:
+      return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+      
   }
+  throw UnimplementedError;
 }
 
 class BlankCell extends StatelessWidget {

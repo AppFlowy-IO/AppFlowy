@@ -11,17 +11,17 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class RichTextTypeOption extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RichTextTypeOption', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'format')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..hasRequiredFields = false
   ;
 
   RichTextTypeOption._() : super();
   factory RichTextTypeOption({
-    $core.String? format,
+    $core.String? data,
   }) {
     final _result = create();
-    if (format != null) {
-      _result.format = format;
+    if (data != null) {
+      _result.data = data;
     }
     return _result;
   }
@@ -47,12 +47,12 @@ class RichTextTypeOption extends $pb.GeneratedMessage {
   static RichTextTypeOption? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get format => $_getSZ(0);
+  $core.String get data => $_getSZ(0);
   @$pb.TagNumber(1)
-  set format($core.String v) { $_setString(0, v); }
+  set data($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasFormat() => $_has(0);
+  $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
-  void clearFormat() => clearField(1);
+  void clearData() => clearField(1);
 }
 

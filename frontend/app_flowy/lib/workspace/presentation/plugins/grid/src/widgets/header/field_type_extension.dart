@@ -17,9 +17,10 @@ extension FieldTypeListExtension on FieldType {
         return "grid/field/text";
       case FieldType.SingleSelect:
         return "grid/field/single_select";
-      default:
-        throw UnimplementedError;
+      case FieldType.URL:
+        return "grid/field/url";
     }
+    throw UnimplementedError;
   }
 
   String title() {
@@ -36,8 +37,9 @@ extension FieldTypeListExtension on FieldType {
         return LocaleKeys.grid_field_textFieldName.tr();
       case FieldType.SingleSelect:
         return LocaleKeys.grid_field_singleSelectFieldName.tr();
-      default:
-        throw UnimplementedError;
+      case FieldType.URL:
+        return LocaleKeys.grid_field_urlFieldName.tr();
     }
+    throw UnimplementedError;
   }
 }
