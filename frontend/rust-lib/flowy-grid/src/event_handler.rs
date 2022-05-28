@@ -7,7 +7,7 @@ use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_grid_data_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
@@ -34,7 +34,7 @@ pub(crate) async fn get_grid_blocks_handler(
     data_result(repeated_grid_block)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
     data: Data<QueryFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -47,7 +47,7 @@ pub(crate) async fn get_fields_handler(
     data_result(repeated_field)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
     data: Data<FieldChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -58,7 +58,7 @@ pub(crate) async fn update_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn insert_field_handler(
     data: Data<InsertFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -69,7 +69,7 @@ pub(crate) async fn insert_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_type_option_handler(
     data: Data<UpdateFieldTypeOptionPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -82,7 +82,7 @@ pub(crate) async fn update_field_type_option_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -93,7 +93,7 @@ pub(crate) async fn delete_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -120,7 +120,7 @@ pub(crate) async fn switch_to_field_handler(
     data_result(data)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn duplicate_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -132,7 +132,7 @@ pub(crate) async fn duplicate_field_handler(
 }
 
 /// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -154,7 +154,7 @@ pub(crate) async fn get_field_type_option_data_handler(
 }
 
 /// Create FieldMeta and save it. Return the FieldTypeOptionData.
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn create_field_type_option_data_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -171,7 +171,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     })
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn move_item_handler(
     data: Data<MoveItemPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -252,7 +252,7 @@ pub(crate) async fn get_cell_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_cell_handler(
     data: Data<CellChangeset>,
     manager: AppData<Arc<GridManager>>,
@@ -263,28 +263,7 @@ pub(crate) async fn update_cell_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_date_cell_data_handler(
-    data: Data<CellIdentifierPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<DateCellData, FlowyError> {
-    let params: CellIdentifier = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
-        None => {
-            tracing::error!("Can't find the date field with id: {}", params.field_id);
-            data_result(DateCellData::default())
-        }
-        Some(field_meta) => {
-            let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
-            let type_option = DateTypeOption::from(&field_meta);
-            let date_cell_data = type_option.make_date_cell_data(&cell_meta)?;
-            data_result(date_cell_data)
-        }
-    }
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn new_select_option_handler(
     data: Data<CreateSelectOptionPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -301,7 +280,7 @@ pub(crate) async fn new_select_option_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_handler(
     data: Data<SelectOptionChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -341,7 +320,7 @@ pub(crate) async fn update_select_option_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
     data: Data<CellIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -362,7 +341,7 @@ pub(crate) async fn get_select_option_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_cell_handler(
     data: Data<SelectOptionCellChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -373,7 +352,7 @@ pub(crate) async fn update_select_option_cell_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
     data: Data<DateChangesetPayload>,
     manager: AppData<Arc<GridManager>>,

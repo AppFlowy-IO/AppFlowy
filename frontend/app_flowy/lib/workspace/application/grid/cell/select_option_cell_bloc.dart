@@ -21,7 +21,6 @@ class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellS
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             emit(state.copyWith(
-              options: value.options,
               selectedOptions: value.selectedOptions,
             ));
           },
@@ -45,7 +44,6 @@ class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellS
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           add(SelectOptionCellEvent.didReceiveOptions(
-            selectOptionContext.options,
             selectOptionContext.selectOptions,
           ));
         }
@@ -58,7 +56,6 @@ class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellS
 class SelectOptionCellEvent with _$SelectOptionCellEvent {
   const factory SelectOptionCellEvent.initial() = _InitialCell;
   const factory SelectOptionCellEvent.didReceiveOptions(
-    List<SelectOption> options,
     List<SelectOption> selectedOptions,
   ) = _DidReceiveOptions;
 }
@@ -66,7 +63,6 @@ class SelectOptionCellEvent with _$SelectOptionCellEvent {
 @freezed
 class SelectOptionCellState with _$SelectOptionCellState {
   const factory SelectOptionCellState({
-    required List<SelectOption> options,
     required List<SelectOption> selectedOptions,
   }) = _SelectOptionCellState;
 
@@ -74,7 +70,6 @@ class SelectOptionCellState with _$SelectOptionCellState {
     final data = context.getCellData();
 
     return SelectOptionCellState(
-      options: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
     );
   }

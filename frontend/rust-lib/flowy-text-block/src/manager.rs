@@ -1,4 +1,4 @@
-use crate::{editor::ClientTextBlockEditor, errors::FlowyError, BlockCloudService};
+use crate::{editor::TextBlockEditor, errors::FlowyError, BlockCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -47,8 +47,8 @@ impl TextBlockManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, block_id), fields(block_id), err)]
-    pub async fn open_block<T: AsRef<str>>(&self, block_id: T) -> Result<Arc<ClientTextBlockEditor>, FlowyError> {
+    #[tracing::instrument(level = "trace", skip(self, block_id), fields(block_id), err)]
+    pub async fn open_block<T: AsRef<str>>(&self, block_id: T) -> Result<Arc<TextBlockEditor>, FlowyError> {
         let block_id = block_id.as_ref();
         tracing::Span::current().record("block_id", &block_id);
         self.get_block_editor(block_id).await
@@ -108,7 +108,7 @@ impl TextBlockManager {
 }
 
 impl TextBlockManager {
-    async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientTextBlockEditor>> {
+    async fn get_block_editor(&self, block_id: &str) -> FlowyResult<Arc<TextBlockEditor>> {
         match self.editor_map.get(block_id) {
             None => {
                 let db_pool = self.user.db_pool()?;
@@ -123,7 +123,7 @@ impl TextBlockManager {
         &self,
         block_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientTextBlockEditor>, FlowyError> {
+    ) -> Result<Arc<TextBlockEditor>, FlowyError> {
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_rev_manager(block_id, pool.clone())?;
@@ -132,7 +132,7 @@ impl TextBlockManager {
             server: self.cloud_service.clone(),
         });
         let doc_editor =
-            ClientTextBlockEditor::new(block_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+            TextBlockEditor::new(block_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
         self.editor_map.insert(block_id, &doc_editor);
         Ok(doc_editor)
     }
@@ -180,7 +180,7 @@ impl RevisionCloudService for TextBlockRevisionCloudService {
 }
 
 pub struct TextBlockEditorMap {
-    inner: DashMap<String, Arc<ClientTextBlockEditor>>,
+    inner: DashMap<String, Arc<TextBlockEditor>>,
 }
 
 impl TextBlockEditorMap {
@@ -188,14 +188,14 @@ impl TextBlockEditorMap {
         Self { inner: DashMap::new() }
     }
 
-    pub(crate) fn insert(&self, block_id: &str, doc: &Arc<ClientTextBlockEditor>) {
+    pub(crate) fn insert(&self, block_id: &str, doc: &Arc<TextBlockEditor>) {
         if self.inner.contains_key(block_id) {
             log::warn!("Doc:{} already exists in cache", block_id);
         }
         self.inner.insert(block_id.to_string(), doc.clone());
     }
 
-    pub(crate) fn get(&self, block_id: &str) -> Option<Arc<ClientTextBlockEditor>> {
+    pub(crate) fn get(&self, block_id: &str) -> Option<Arc<TextBlockEditor>> {
         Some(self.inner.get(block_id)?.clone())
     }
 

@@ -24,5 +24,4 @@ enum GridEvent {
     UpdateCell = 71;
     UpdateSelectOptionCell = 72;
     UpdateDateCell = 80;
-    GetDateCellData = 90;
 }

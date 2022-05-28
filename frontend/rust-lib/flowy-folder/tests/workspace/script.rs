@@ -1,5 +1,5 @@
 use flowy_folder::event_map::FolderEvent::*;
-use flowy_folder::{errors::ErrorCode, services::folder_editor::ClientFolderEditor};
+use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
 use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
 use flowy_folder_data_model::entities::workspace::WorkspaceId;
 use flowy_folder_data_model::entities::{
@@ -125,7 +125,7 @@ impl FolderTest {
 
     pub async fn run_script(&mut self, script: FolderScript) {
         let sdk = &self.sdk;
-        let folder_editor: Arc<ClientFolderEditor> = sdk.folder_manager.folder_editor().await;
+        let folder_editor: Arc<FolderEditor> = sdk.folder_manager.folder_editor().await;
         let rev_manager = folder_editor.rev_manager();
         let cache = rev_manager.revision_cache().await;
 

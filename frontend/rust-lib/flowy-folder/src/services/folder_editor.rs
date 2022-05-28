@@ -17,7 +17,7 @@ use lib_ot::core::PlainTextAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
-pub struct ClientFolderEditor {
+pub struct FolderEditor {
     user_id: String,
     #[allow(dead_code)]
     pub(crate) folder_id: FolderId,
@@ -27,7 +27,7 @@ pub struct ClientFolderEditor {
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
 }
 
-impl ClientFolderEditor {
+impl FolderEditor {
     #[allow(unused_variables)]
     pub async fn new(
         user_id: &str,
@@ -129,7 +129,7 @@ impl RevisionCloudService for FolderRevisionCloudService {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl ClientFolderEditor {
+impl FolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
     }

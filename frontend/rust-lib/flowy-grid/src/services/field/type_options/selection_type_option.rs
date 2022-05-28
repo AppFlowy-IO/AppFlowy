@@ -109,16 +109,18 @@ impl CellDataOperation<String, String> for SingleSelectTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        let cell_data = encoded_data.into();
-        if let Some(option_id) = select_option_ids(cell_data).first() {
-            let data = match self.options.iter().find(|option| &option.id == option_id) {
-                None => DecodedCellData::default(),
-                Some(option) => DecodedCellData::from_content(option.name.clone()),
-            };
-            Ok(data)
-        } else {
-            Ok(DecodedCellData::default())
+        let encoded_data = encoded_data.into();
+        let mut cell_data = SelectOptionCellData {
+            options: self.options.clone(),
+            select_options: vec![],
+        };
+        if let Some(option_id) = select_option_ids(encoded_data).first() {
+            if let Some(option) = self.options.iter().find(|option| &option.id == option_id) {
+                cell_data.select_options.push(option.clone());
+            }
         }
+
+        DecodedCellData::try_from_bytes(cell_data)
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
@@ -204,17 +206,21 @@ impl CellDataOperation<String, String> for MultiSelectTypeOption {
         if !decoded_field_type.is_select_option() {
             return Ok(DecodedCellData::default());
         }
-        let cell_data = encoded_data.into();
-        let option_ids = select_option_ids(cell_data);
-        let content = self
-            .options
-            .iter()
-            .filter(|option| option_ids.contains(&option.id))
-            .map(|option| option.name.clone())
-            .collect::<Vec<String>>()
-            .join(SELECTION_IDS_SEPARATOR);
 
-        Ok(DecodedCellData::from_content(content))
+        tracing::info!("😁{}", self.options.len());
+
+        let encoded_data = encoded_data.into();
+        let select_options = select_option_ids(encoded_data)
+            .into_iter()
+            .flat_map(|option_id| self.options.iter().find(|option| option.id == option_id).cloned())
+            .collect::<Vec<SelectOption>>();
+
+        let cell_data = SelectOptionCellData {
+            options: self.options.clone(),
+            select_options,
+        };
+
+        DecodedCellData::try_from_bytes(cell_data)
     }
 
     fn apply_changeset<T>(&self, changeset: T, cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
@@ -280,7 +286,7 @@ fn select_option_ids(data: String) -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOption {
     #[pb(index = 1)]
     pub id: String,
@@ -446,7 +452,7 @@ pub struct SelectOptionCellData {
     pub select_options: Vec<SelectOption>,
 }
 
-#[derive(ProtoBuf_Enum, Serialize, Deserialize, Debug, Clone)]
+#[derive(ProtoBuf_Enum, PartialEq, Eq, Serialize, Deserialize, Debug, Clone)]
 #[repr(u8)]
 pub enum SelectOptionColor {
     Purple = 0,
@@ -502,9 +508,10 @@ mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{
         MultiSelectTypeOption, MultiSelectTypeOptionBuilder, SelectOption, SelectOptionCellContentChangeset,
-        SingleSelectTypeOption, SingleSelectTypeOptionBuilder, SELECTION_IDS_SEPARATOR,
+        SelectOptionCellData, SingleSelectTypeOption, SingleSelectTypeOptionBuilder, SELECTION_IDS_SEPARATOR,
     };
     use crate::services::row::CellDataOperation;
+    use flowy_grid_data_model::entities::FieldMeta;
 
     #[test]
     fn single_select_test() {
@@ -526,47 +533,24 @@ mod tests {
         let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            google_option.name,
-        );
+        assert_single_select_options(cell_data, &type_option, &field_meta, vec![google_option.clone()]);
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            google_option.name,
-        );
+        assert_single_select_options(cell_data, &type_option, &field_meta, vec![google_option.clone()]);
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
             .unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            "",
-        );
+        assert_single_select_options(cell_data, &type_option, &field_meta, vec![]);
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123").to_str(), None)
             .unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            "",
-        );
+
+        assert_single_select_options(cell_data, &type_option, &field_meta, vec![]);
 
         // Invalid changeset
         assert!(type_option.apply_changeset("123", None).is_err());
@@ -592,49 +576,64 @@ mod tests {
         let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            vec![google_option.name.clone(), facebook_option.name].join(SELECTION_IDS_SEPARATOR),
+        assert_multi_select_options(
+            cell_data,
+            &type_option,
+            &field_meta,
+            vec![google_option.clone(), facebook_option.clone()],
         );
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            google_option.name,
-        );
+        assert_multi_select_options(cell_data, &type_option, &field_meta, vec![google_option.clone()]);
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
             .unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            "",
-        );
+        assert_multi_select_options(cell_data, &type_option, &field_meta, vec![]);
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellContentChangeset::from_insert("123,456").to_str(), None)
             .unwrap();
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
-                .unwrap()
-                .content,
-            "",
-        );
+        assert_multi_select_options(cell_data, &type_option, &field_meta, vec![]);
 
         // Invalid changeset
         assert!(type_option.apply_changeset("123", None).is_err());
+    }
+
+    fn assert_multi_select_options(
+        cell_data: String,
+        type_option: &MultiSelectTypeOption,
+        field_meta: &FieldMeta,
+        expected: Vec<SelectOption>,
+    ) {
+        assert_eq!(
+            expected,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .parse::<SelectOptionCellData>()
+                .unwrap()
+                .select_options,
+        );
+    }
+
+    fn assert_single_select_options(
+        cell_data: String,
+        type_option: &SingleSelectTypeOption,
+        field_meta: &FieldMeta,
+        expected: Vec<SelectOption>,
+    ) {
+        assert_eq!(
+            expected,
+            type_option
+                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .unwrap()
+                .parse::<SelectOptionCellData>()
+                .unwrap()
+                .select_options,
+        );
     }
 }

@@ -58,7 +58,7 @@ impl CellDataOperation<String, String> for CheckboxTypeOption {
 
         let encoded_data = encoded_data.into();
         if encoded_data == YES || encoded_data == NO {
-            return Ok(DecodedCellData::from_content(encoded_data));
+            return Ok(DecodedCellData::new(encoded_data));
         }
 
         Ok(DecodedCellData::default())
@@ -104,37 +104,37 @@ mod tests {
         let field_meta = FieldBuilder::from_field_type(&FieldType::Checkbox).build();
         let data = apply_cell_data_changeset("true", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             YES
         );
 
         let data = apply_cell_data_changeset("1", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             YES
         );
 
         let data = apply_cell_data_changeset("yes", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             YES
         );
 
         let data = apply_cell_data_changeset("false", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             NO
         );
 
         let data = apply_cell_data_changeset("no", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             NO
         );
 
         let data = apply_cell_data_changeset("12", None, &field_meta).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
+            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
             NO
         );
     }

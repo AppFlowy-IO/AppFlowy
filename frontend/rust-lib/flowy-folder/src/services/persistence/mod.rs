@@ -5,7 +5,7 @@ mod version_2;
 use crate::{
     event_map::WorkspaceDatabase,
     manager::FolderId,
-    services::{folder_editor::ClientFolderEditor, persistence::migration::FolderMigration},
+    services::{folder_editor::FolderEditor, persistence::migration::FolderMigration},
 };
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
@@ -50,14 +50,11 @@ pub trait FolderPersistenceTransaction {
 
 pub struct FolderPersistence {
     database: Arc<dyn WorkspaceDatabase>,
-    folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
+    folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>,
 }
 
 impl FolderPersistence {
-    pub fn new(
-        database: Arc<dyn WorkspaceDatabase>,
-        folder_editor: Arc<RwLock<Option<Arc<ClientFolderEditor>>>>,
-    ) -> Self {
+    pub fn new(database: Arc<dyn WorkspaceDatabase>, folder_editor: Arc<RwLock<Option<Arc<FolderEditor>>>>) -> Self {
         Self {
             database,
             folder_editor,

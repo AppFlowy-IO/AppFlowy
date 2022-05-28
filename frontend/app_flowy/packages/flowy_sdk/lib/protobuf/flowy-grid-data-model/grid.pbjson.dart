@@ -290,13 +290,12 @@ const Cell$json = const {
   '1': 'Cell',
   '2': const [
     const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
-    const {'1': 'data', '3': 3, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQSEgoEZGF0YRgDIAEoCVIEZGF0YQ==');
+final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhIKBGRhdGEYAiABKAxSBGRhdGE=');
 @$core.Deprecated('Use repeatedCellDescriptor instead')
 const RepeatedCell$json = const {
   '1': 'RepeatedCell',
