@@ -94,22 +94,22 @@ impl CellDataOperation<String, String> for NumberTypeOption {
         match self.format {
             NumberFormat::Number => {
                 if let Ok(v) = cell_data.parse::<f64>() {
-                    return Ok(DecodedCellData::from_content(v.to_string()));
+                    return Ok(DecodedCellData::new(v.to_string()));
                 }
 
                 if let Ok(v) = cell_data.parse::<i64>() {
-                    return Ok(DecodedCellData::from_content(v.to_string()));
+                    return Ok(DecodedCellData::new(v.to_string()));
                 }
 
                 Ok(DecodedCellData::default())
             }
             NumberFormat::Percent => {
                 let content = cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string());
-                Ok(DecodedCellData::from_content(content))
+                Ok(DecodedCellData::new(content))
             }
             _ => {
                 let content = self.money_from_str(&cell_data);
-                Ok(DecodedCellData::from_content(content))
+                Ok(DecodedCellData::new(content))
             }
         }
     }
@@ -738,7 +738,7 @@ mod tests {
             type_option
                 .decode_cell_data(data(cell_data), field_type, field_meta)
                 .unwrap()
-                .content,
+                .to_string(),
             expected_str.to_owned()
         );
     }

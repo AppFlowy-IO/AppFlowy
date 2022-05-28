@@ -1,5 +1,6 @@
 use crate::services::field::*;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use bytes::Bytes;
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{CellMeta, FieldMeta, FieldType};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
@@ -145,8 +146,15 @@ pub fn decode_cell_data_from_type_option_cell_data<T: TryInto<TypeOptionCellData
 ) -> DecodedCellData {
     if let Ok(type_option_cell_data) = data.try_into() {
         let (encoded_data, s_field_type) = type_option_cell_data.split();
-        decode_cell_data(encoded_data, &s_field_type, field_type, field_meta).unwrap_or_default()
+        match decode_cell_data(encoded_data, &s_field_type, field_type, field_meta) {
+            Ok(cell_data) => cell_data,
+            Err(e) => {
+                tracing::error!("Decode cell data failed, {:?}", e);
+                DecodedCellData::default()
+            }
+        }
     } else {
+        tracing::error!("Decode type option data failed");
         DecodedCellData::default()
     }
 }
@@ -158,6 +166,7 @@ pub fn decode_cell_data<T: Into<String>>(
     field_meta: &FieldMeta,
 ) -> FlowyResult<DecodedCellData> {
     let encoded_data = encoded_data.into();
+    tracing::info!("😁{:?}", field_meta.type_options);
     let get_cell_data = || {
         let data = match t_field_type {
             FieldType::RichText => field_meta
@@ -183,13 +192,7 @@ pub fn decode_cell_data<T: Into<String>>(
     };
 
     match get_cell_data() {
-        Some(Ok(data)) => {
-            tracing::Span::current().record(
-                "content",
-                &format!("{:?}: {}", field_meta.field_type, data.content).as_str(),
-            );
-            Ok(data)
-        }
+        Some(Ok(data)) => Ok(data),
         Some(Err(err)) => {
             tracing::error!("{:?}", err);
             Ok(DecodedCellData::default())
@@ -227,23 +230,39 @@ where
 #[derive(Default)]
 pub struct DecodedCellData {
     pub data: Vec<u8>,
-    pub content: String,
 }
 
 impl DecodedCellData {
-    pub fn from_content(content: String) -> Self {
+    pub fn new<T: AsRef<[u8]>>(data: T) -> Self {
         Self {
-            data: content.as_bytes().to_vec(),
-            content,
+            data: data.as_ref().to_vec(),
         }
     }
 
-    pub fn new<T: AsRef<[u8]>>(data: T, content: String) -> Self {
-        let data = data.as_ref().to_vec();
-        Self { data, content }
+    pub fn try_from_bytes<T: TryInto<Bytes>>(bytes: T) -> FlowyResult<Self>
+    where
+        <T as TryInto<Bytes>>::Error: std::fmt::Debug,
+    {
+        let bytes = bytes.try_into().map_err(internal_error)?;
+        Ok(Self { data: bytes.to_vec() })
     }
 
-    pub fn split(self) -> (Vec<u8>, String) {
-        (self.data, self.content)
+    pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
+    where
+        <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
+    {
+        T::try_from(self.data.as_ref()).map_err(internal_error)
+    }
+}
+
+impl ToString for DecodedCellData {
+    fn to_string(&self) -> String {
+        match String::from_utf8(self.data.clone()) {
+            Ok(s) => s,
+            Err(e) => {
+                tracing::error!("DecodedCellData to string failed: {:?}", e);
+                "".to_string()
+            }
+        }
     }
 }

@@ -13,19 +13,16 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   }) : super(TextCellState.initial(cellContext)) {
     on<TextCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        await event.when(
+          initial: () async {
             _startListening();
           },
-          updateText: (_UpdateText value) {
-            cellContext.saveCellData(value.text);
-            emit(state.copyWith(content: value.text));
+          updateText: (text) {
+            cellContext.saveCellData(text);
+            emit(state.copyWith(content: text));
           },
-          didReceiveCellData: (_DidReceiveCellData value) {
-            emit(state.copyWith(content: value.cellData.cell?.content ?? ""));
-          },
-          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(content: value.cellContent));
+          didReceiveCellUpdate: (content) {
+            emit(state.copyWith(content: content));
           },
         );
       },
@@ -56,7 +53,6 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 @freezed
 class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
-  const factory TextCellEvent.didReceiveCellData(GridCell cellData) = _DidReceiveCellData;
   const factory TextCellEvent.didReceiveCellUpdate(String cellContent) = _DidReceiveCellUpdate;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
 }

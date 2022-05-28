@@ -484,17 +484,13 @@ pub struct Cell {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub content: String,
-
-    #[pb(index = 3)]
     pub data: Vec<u8>,
 }
 
 impl Cell {
-    pub fn new(field_id: &str, content: String, data: Vec<u8>) -> Self {
+    pub fn new(field_id: &str, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
-            content,
             data,
         }
     }
@@ -502,7 +498,6 @@ impl Cell {
     pub fn empty(field_id: &str) -> Self {
         Self {
             field_id: field_id.to_owned(),
-            content: "".to_string(),
             data: vec![],
         }
     }

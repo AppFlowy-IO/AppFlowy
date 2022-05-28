@@ -29,7 +29,6 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Cell
         .event(GridEvent::GetCell, get_cell_handler)
         .event(GridEvent::UpdateCell, update_cell_handler)
-        .event(GridEvent::GetDateCellData, get_date_cell_data_handler)
         // SelectOption
         .event(GridEvent::NewSelectOption, new_select_option_handler)
         .event(GridEvent::UpdateSelectOption, update_select_option_handler)
@@ -112,7 +111,4 @@ pub enum GridEvent {
 
     #[event(input = "DateChangesetPayload")]
     UpdateDateCell = 80,
-
-    #[event(input = "CellIdentifierPayload", output = "DateCellData")]
-    GetDateCellData = 90,
 }

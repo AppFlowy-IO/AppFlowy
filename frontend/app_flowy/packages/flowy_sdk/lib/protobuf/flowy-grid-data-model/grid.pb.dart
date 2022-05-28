@@ -1366,23 +1366,18 @@ class GridBlock extends $pb.GeneratedMessage {
 class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
-    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   Cell._() : super();
   factory Cell({
     $core.String? fieldId,
-    $core.String? content,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (fieldId != null) {
       _result.fieldId = fieldId;
-    }
-    if (content != null) {
-      _result.content = content;
     }
     if (data != null) {
       _result.data = data;
@@ -1420,22 +1415,13 @@ class Cell extends $pb.GeneratedMessage {
   void clearFieldId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get content => $_getSZ(1);
+  $core.List<$core.int> get data => $_getN(1);
   @$pb.TagNumber(2)
-  set content($core.String v) { $_setString(1, v); }
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasContent() => $_has(1);
+  $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
-  void clearContent() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.List<$core.int> get data => $_getN(2);
-  @$pb.TagNumber(3)
-  set data($core.List<$core.int> v) { $_setBytes(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasData() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearData() => clearField(3);
+  void clearData() => clearField(2);
 }
 
 class RepeatedCell extends $pb.GeneratedMessage {

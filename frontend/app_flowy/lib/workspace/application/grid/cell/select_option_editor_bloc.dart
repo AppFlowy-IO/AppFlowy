@@ -24,6 +24,7 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
         await event.map(
           initial: (_Initial value) async {
             _startListening();
+            _loadOptions();
           },
           didReceiveOptions: (_DidReceiveOptions value) {
             final result = _makeOptions(state.filter, value.options);
@@ -104,6 +105,26 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
       options: result.options,
       createOption: result.createOption,
     ));
+  }
+
+  void _loadOptions() {
+    final selectionCellData = cellContext.getCellData();
+    if (selectionCellData == null) {
+      final service = SelectOptionService(gridCell: cellContext.gridCell);
+      service.getOpitonContext().then((result) {
+        return result.fold(
+          (data) {
+            if (!isClosed) {
+              add(SelectOptionEditorEvent.didReceiveOptions(data.options, data.selectOptions));
+            }
+          },
+          (err) {
+            Log.error(err);
+            return null;
+          },
+        );
+      });
+    }
   }
 
   _MakeOptionResult _makeOptions(Option<String> filter, List<SelectOption> allOptions) {

@@ -1,9 +1,7 @@
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    CellContentChangeset, CellDataOperation, DecodedCellData, EncodedCellData, TypeOptionCellData,
-};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, EncodedCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::NaiveDateTime;
@@ -79,32 +77,12 @@ impl DateTypeOption {
         }
     }
 
-    pub fn make_date_cell_data(&self, cell_meta: &Option<CellMeta>) -> FlowyResult<DateCellData> {
-        if cell_meta.is_none() {
-            return Ok(DateCellData::default());
-        }
-
-        let json = &cell_meta.as_ref().unwrap().data;
-        let result = TypeOptionCellData::from_str(json);
-        if result.is_err() {
-            return Ok(DateCellData::default());
-        }
-
-        let serde_cell_data = DateCellDataSerde::from_str(&result.unwrap().data)?;
-        let date = self.decode_cell_data_from_timestamp(&serde_cell_data).content;
-        let time = serde_cell_data.time.unwrap_or_else(|| "".to_owned());
-        let timestamp = serde_cell_data.timestamp;
-
-        Ok(DateCellData { date, time, timestamp })
-    }
-
-    fn decode_cell_data_from_timestamp(&self, serde_cell_data: &DateCellDataSerde) -> DecodedCellData {
+    fn date_desc_from_timestamp(&self, serde_cell_data: &DateCellDataSerde) -> String {
         if serde_cell_data.timestamp == 0 {
-            return DecodedCellData::default();
+            return "".to_owned();
         }
 
-        let cell_content = self.today_desc_from_timestamp(serde_cell_data.timestamp, &serde_cell_data.time);
-        DecodedCellData::new(serde_cell_data.timestamp.to_string(), cell_content)
+        self.today_desc_from_timestamp(serde_cell_data.timestamp, &serde_cell_data.time)
     }
 
     fn timestamp_from_utc_with_time(
@@ -156,7 +134,11 @@ impl CellDataOperation<EncodedCellData<DateCellDataSerde>, DateCellDataSerde> fo
         }
 
         let encoded_data = encoded_data.into().try_into_inner()?;
-        Ok(self.decode_cell_data_from_timestamp(&encoded_data))
+        let date = self.date_desc_from_timestamp(&encoded_data);
+        let time = encoded_data.time.unwrap_or_else(|| "".to_owned());
+        let timestamp = encoded_data.timestamp;
+
+        DecodedCellData::try_from_bytes(DateCellData { date, time, timestamp })
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<DateCellDataSerde, FlowyError>
@@ -417,20 +399,27 @@ impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
 #[cfg(test)]
 mod tests {
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{DateCellContentChangeset, DateCellDataSerde, DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::{
-        apply_cell_data_changeset, decode_cell_data_from_type_option_cell_data, CellDataOperation, EncodedCellData,
+    use crate::services::field::{
+        DateCellContentChangeset, DateCellData, DateCellDataSerde, DateFormat, DateTypeOption, TimeFormat,
     };
+    use crate::services::row::{CellDataOperation, EncodedCellData};
     use flowy_grid_data_model::entities::{FieldMeta, FieldType};
     use strum::IntoEnumIterator;
 
     #[test]
     fn date_description_invalid_input_test() {
-        let field_meta = FieldBuilder::from_field_type(&FieldType::Number).build();
-        let data = apply_cell_data_changeset("1e", None, &field_meta).unwrap();
-        assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).content,
-            "".to_owned()
+        let type_option = DateTypeOption::default();
+        let field_type = FieldType::DateTime;
+        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        assert_changeset_result(
+            &type_option,
+            DateCellContentChangeset {
+                date: Some("1e".to_string()),
+                time: Some("23:00".to_owned()),
+            },
+            &field_type,
+            &field_meta,
+            "",
         );
     }
 
@@ -442,40 +431,16 @@ mod tests {
             type_option.date_format = date_format;
             match date_format {
                 DateFormat::Friendly => {
-                    assert_eq!(
-                        "Mar 14,2022".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
+                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "Mar 14,2022");
                 }
                 DateFormat::US => {
-                    assert_eq!(
-                        "2022/03/14".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
+                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022/03/14");
                 }
                 DateFormat::ISO => {
-                    assert_eq!(
-                        "2022-03-14".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
+                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022-03-14");
                 }
                 DateFormat::Local => {
-                    assert_eq!(
-                        "2022/03/14".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
+                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022/03/14");
                 }
             }
         }
@@ -483,43 +448,6 @@ mod tests {
 
     #[test]
     fn date_description_time_format_test() {
-        let mut type_option = DateTypeOption::default();
-        let field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
-        for time_format in TimeFormat::iter() {
-            type_option.time_format = time_format;
-            match time_format {
-                TimeFormat::TwentyFourHour => {
-                    assert_eq!(
-                        "Mar 14,2022".to_owned(),
-                        type_option.today_desc_from_timestamp(1647251762, &None)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
-                }
-                TimeFormat::TwelveHour => {
-                    assert_eq!(
-                        "Mar 14,2022".to_owned(),
-                        type_option.today_desc_from_timestamp(1647251762, &None)
-                    );
-                    assert_eq!(
-                        "Mar 14,2022".to_owned(),
-                        type_option
-                            .decode_cell_data(data(1647251762), &FieldType::DateTime, &field_meta)
-                            .unwrap()
-                            .content
-                    );
-                }
-            }
-        }
-    }
-
-    #[test]
-    fn date_description_time_format_test2() {
         let mut type_option = DateTypeOption::default();
         let field_type = FieldType::DateTime;
         let field_meta = FieldBuilder::from_field_type(&field_type).build();
@@ -529,7 +457,7 @@ mod tests {
             type_option.include_time = true;
             match time_format {
                 TimeFormat::TwentyFourHour => {
-                    assert_result(
+                    assert_changeset_result(
                         &type_option,
                         DateCellContentChangeset {
                             date: Some(1653609600.to_string()),
@@ -539,7 +467,7 @@ mod tests {
                         &field_meta,
                         "May 27,2022 00:00",
                     );
-                    assert_result(
+                    assert_changeset_result(
                         &type_option,
                         DateCellContentChangeset {
                             date: Some(1653609600.to_string()),
@@ -551,7 +479,7 @@ mod tests {
                     );
                 }
                 TimeFormat::TwelveHour => {
-                    assert_result(
+                    assert_changeset_result(
                         &type_option,
                         DateCellContentChangeset {
                             date: Some(1653609600.to_string()),
@@ -562,7 +490,7 @@ mod tests {
                         "May 27,2022 12:00 AM",
                     );
 
-                    assert_result(
+                    assert_changeset_result(
                         &type_option,
                         DateCellContentChangeset {
                             date: Some(1653609600.to_string()),
@@ -573,7 +501,7 @@ mod tests {
                         "May 27,2022",
                     );
 
-                    assert_result(
+                    assert_changeset_result(
                         &type_option,
                         DateCellContentChangeset {
                             date: Some(1653609600.to_string()),
@@ -595,7 +523,7 @@ mod tests {
         let field_meta = FieldBuilder::from_field_type(&field_type).build();
         let date_timestamp = "1653609600".to_owned();
 
-        assert_result(
+        assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
                 date: Some(date_timestamp.clone()),
@@ -607,7 +535,7 @@ mod tests {
         );
 
         type_option.include_time = true;
-        assert_result(
+        assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
                 date: Some(date_timestamp.clone()),
@@ -618,7 +546,7 @@ mod tests {
             "May 27,2022 00:00",
         );
 
-        assert_result(
+        assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
                 date: Some(date_timestamp.clone()),
@@ -630,7 +558,7 @@ mod tests {
         );
 
         type_option.time_format = TimeFormat::TwelveHour;
-        assert_result(
+        assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
                 date: Some(date_timestamp),
@@ -670,22 +598,39 @@ mod tests {
         type_option.apply_changeset("he", None).unwrap();
     }
 
-    fn data(s: i64) -> String {
-        serde_json::to_string(&DateCellDataSerde::from_timestamp(s, None)).unwrap()
-    }
-
-    fn assert_result(
+    fn assert_changeset_result(
         type_option: &DateTypeOption,
         changeset: DateCellContentChangeset,
-        field_type: &FieldType,
+        _field_type: &FieldType,
         field_meta: &FieldMeta,
         expected: &str,
     ) {
         let encoded_data = EncodedCellData(Some(type_option.apply_changeset(changeset, None).unwrap()));
-        let content = type_option
-            .decode_cell_data(encoded_data, field_type, field_meta)
+        assert_eq!(
+            expected.to_owned(),
+            decode_cell_data(encoded_data, type_option, field_meta)
+        );
+    }
+
+    fn assert_decode_timestamp(timestamp: i64, type_option: &DateTypeOption, field_meta: &FieldMeta, expected: &str) {
+        let serde_json = DateCellDataSerde { timestamp, time: None }.to_string();
+
+        assert_eq!(
+            expected.to_owned(),
+            decode_cell_data(serde_json, type_option, field_meta)
+        );
+    }
+
+    fn decode_cell_data<T: Into<EncodedCellData<DateCellDataSerde>>>(
+        encoded_data: T,
+        type_option: &DateTypeOption,
+        field_meta: &FieldMeta,
+    ) -> String {
+        type_option
+            .decode_cell_data(encoded_data, &FieldType::DateTime, &field_meta)
             .unwrap()
-            .content;
-        assert_eq!(expected.to_owned(), content);
+            .parse::<DateCellData>()
+            .unwrap()
+            .date
     }
 }
