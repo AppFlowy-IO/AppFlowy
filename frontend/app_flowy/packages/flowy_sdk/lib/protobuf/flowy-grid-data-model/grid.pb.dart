@@ -1367,7 +1367,7 @@ class Cell extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Cell', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -1375,7 +1375,7 @@ class Cell extends $pb.GeneratedMessage {
   factory Cell({
     $core.String? fieldId,
     $core.String? content,
-    $core.String? data,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (fieldId != null) {
@@ -1429,9 +1429,9 @@ class Cell extends $pb.GeneratedMessage {
   void clearContent() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get data => $_getSZ(2);
+  $core.List<$core.int> get data => $_getN(2);
   @$pb.TagNumber(3)
-  set data($core.String v) { $_setString(2, v); }
+  set data($core.List<$core.int> v) { $_setBytes(2, v); }
   @$pb.TagNumber(3)
   $core.bool hasData() => $_has(2);
   @$pb.TagNumber(3)

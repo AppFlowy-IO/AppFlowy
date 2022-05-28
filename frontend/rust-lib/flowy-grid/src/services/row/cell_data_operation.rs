@@ -226,23 +226,24 @@ where
 
 #[derive(Default)]
 pub struct DecodedCellData {
-    raw: String,
+    pub data: Vec<u8>,
     pub content: String,
 }
 
 impl DecodedCellData {
     pub fn from_content(content: String) -> Self {
         Self {
-            raw: content.clone(),
+            data: content.as_bytes().to_vec(),
             content,
         }
     }
 
-    pub fn new(raw: String, content: String) -> Self {
-        Self { raw, content }
+    pub fn new<T: AsRef<[u8]>>(data: T, content: String) -> Self {
+        let data = data.as_ref().to_vec();
+        Self { data, content }
     }
 
-    pub fn split(self) -> (String, String) {
-        (self.raw, self.content)
+    pub fn split(self) -> (Vec<u8>, String) {
+        (self.data, self.content)
     }
 }

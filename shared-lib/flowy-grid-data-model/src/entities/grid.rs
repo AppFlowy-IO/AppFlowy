@@ -487,11 +487,11 @@ pub struct Cell {
     pub content: String,
 
     #[pb(index = 3)]
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
 impl Cell {
-    pub fn new(field_id: &str, content: String, data: String) -> Self {
+    pub fn new(field_id: &str, content: String, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
             content,
@@ -503,7 +503,7 @@ impl Cell {
         Self {
             field_id: field_id.to_owned(),
             content: "".to_string(),
-            data: "".to_string(),
+            data: vec![],
         }
     }
 }

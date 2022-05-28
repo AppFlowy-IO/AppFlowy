@@ -1,4 +1,3 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -26,9 +25,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
             emit(state.copyWith(content: value.cellData.cell?.content ?? ""));
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(
-              content: value.cell.content,
-            ));
+            emit(state.copyWith(content: value.cellContent));
           },
         );
       },
@@ -47,9 +44,9 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellContext.startListening(
-      onCellChanged: ((cell) {
+      onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(TextCellEvent.didReceiveCellUpdate(cell));
+          add(TextCellEvent.didReceiveCellUpdate(cellContent));
         }
       }),
     );
@@ -60,7 +57,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
   const factory TextCellEvent.didReceiveCellData(GridCell cellData) = _DidReceiveCellData;
-  const factory TextCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory TextCellEvent.didReceiveCellUpdate(String cellContent) = _DidReceiveCellUpdate;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
 }
 
@@ -71,6 +68,6 @@ class TextCellState with _$TextCellState {
   }) = _TextCellState;
 
   factory TextCellState.initial(GridCellContext context) => TextCellState(
-        content: context.getCellData()?.content ?? "",
+        content: context.getCellData() ?? "",
       );
 }

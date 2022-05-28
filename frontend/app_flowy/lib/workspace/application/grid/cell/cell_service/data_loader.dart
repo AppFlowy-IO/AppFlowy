@@ -30,7 +30,11 @@ abstract class IGridCellDataLoader<T> {
   IGridCellDataConfig get config;
 }
 
-class GridCellDataLoader extends IGridCellDataLoader<Cell> {
+abstract class ICellDataParser<T> {
+  T? parserData();
+}
+
+class GridCellDataLoader extends IGridCellDataLoader<String> {
   final CellService service = CellService();
   final GridCell gridCell;
 
@@ -43,16 +47,16 @@ class GridCellDataLoader extends IGridCellDataLoader<Cell> {
   });
 
   @override
-  Future<Cell?> loadData() {
+  Future<String> loadData() {
     final fut = service.getCell(
       gridId: gridCell.gridId,
       fieldId: gridCell.field.id,
       rowId: gridCell.rowId,
     );
     return fut.then((result) {
-      return result.fold((data) => data, (err) {
+      return result.fold((Cell data) => data.content, (err) {
         Log.error(err);
-        return null;
+        return "";
       });
     });
   }

@@ -96,7 +96,7 @@ message GridBlock {
 message Cell {
     string field_id = 1;
     string content = 2;
-    string data = 3;
+    bytes data = 3;
 }
 message RepeatedCell {
     repeated Cell items = 1;
