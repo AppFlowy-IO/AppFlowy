@@ -1,6 +1,6 @@
 part of 'cell_service.dart';
 
-typedef GridCellContext = _GridCellContext<Cell, String>;
+typedef GridCellContext = _GridCellContext<String, String>;
 typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
 typedef GridDateCellContext = _GridCellContext<DateCellData, DateCalData>;
 
@@ -16,26 +16,33 @@ class GridCellContextBuilder {
   _GridCellContext build() {
     switch (_gridCell.field.fieldType) {
       case FieldType.Checkbox:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: StringCellDataParser(),
+        );
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.DateTime:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: DateCellDataParser(),
+        );
+
         return GridDateCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: DateCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: DateCellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.Number:
         final cellDataLoader = GridCellDataLoader(
           gridCell: _gridCell,
-          config: const GridCellDataConfig(
-            reloadOnCellChanged: true,
-            reloadOnFieldChanged: true,
-          ),
+          parser: StringCellDataParser(),
+          config: const GridCellDataConfig(reloadOnCellChanged: true, reloadOnFieldChanged: true),
         );
         return GridCellContext(
           gridCell: _gridCell,
@@ -44,18 +51,28 @@ class GridCellContextBuilder {
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.RichText:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: StringCellDataParser(),
+        );
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: SelectOptionCellDataParser(),
+          config: const GridCellDataConfig(reloadOnFieldChanged: true),
+        );
+
         return GridSelectOptionCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: SelectOptionCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       default:
@@ -131,10 +148,7 @@ class _GridCellContext<T, D> extends Equatable {
     }
 
     onCellChangedFn() {
-      final value = _cellDataNotifier.value;
-      if (value is T) {
-        onCellChanged(value);
-      }
+      onCellChanged(_cellDataNotifier.value as T);
 
       if (cellDataLoader.config.reloadOnCellChanged) {
         _loadData();
@@ -149,9 +163,9 @@ class _GridCellContext<T, D> extends Equatable {
     _cellDataNotifier.removeListener(fn);
   }
 
-  T? getCellData() {
+  T? getCellData({bool loadIfNoCache = true}) {
     final data = cellCache.get(_cacheKey);
-    if (data == null) {
+    if (data == null && loadIfNoCache) {
       _loadData();
     }
     return data;

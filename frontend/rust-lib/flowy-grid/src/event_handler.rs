@@ -263,27 +263,6 @@ pub(crate) async fn update_cell_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_date_cell_data_handler(
-    data: Data<CellIdentifierPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<DateCellData, FlowyError> {
-    let params: CellIdentifier = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
-        None => {
-            tracing::error!("Can't find the corresponding field with id: {}", params.field_id);
-            data_result(DateCellData::default())
-        }
-        Some(field_meta) => {
-            let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
-            let type_option = DateTypeOption::from(&field_meta);
-            let date_cell_data = type_option.make_date_cell_data(&cell_meta)?;
-            data_result(date_cell_data)
-        }
-    }
-}
-
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn new_select_option_handler(
     data: Data<CreateSelectOptionPayload>,

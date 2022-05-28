@@ -2,7 +2,7 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    DateCellContentChangeset, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
+    DateCellContentChangeset, DateCellData, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
     SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
@@ -292,8 +292,9 @@ async fn grid_row_add_date_cell_test() {
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
         decode_cell_data_from_type_option_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type)
-            .split()
-            .1,
+            .parse::<DateCellData>()
+            .unwrap()
+            .date,
         "2022/03/16",
     );
     let scripts = vec![CreateRow { context }];

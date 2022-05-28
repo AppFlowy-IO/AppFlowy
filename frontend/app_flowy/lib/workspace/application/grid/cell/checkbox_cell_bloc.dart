@@ -1,4 +1,3 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -16,15 +15,15 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }) : super(CheckboxCellState.initial(cellContext)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) {
+        await event.when(
+          initial: () {
             _startListening();
           },
-          select: (_Selected value) async {
+          select: () async {
             _updateCellData();
           },
-          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(isSelected: _isSelected(value.cell)));
+          didReceiveCellUpdate: (cellData) {
+            emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
         );
       },
@@ -43,9 +42,9 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(onCellChanged: ((cell) {
+    _onCellChangedFn = cellContext.startListening(onCellChanged: ((cellData) {
       if (!isClosed) {
-        add(CheckboxCellEvent.didReceiveCellUpdate(cell));
+        add(CheckboxCellEvent.didReceiveCellUpdate(cellData));
       }
     }));
   }
@@ -59,7 +58,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _Initial;
   const factory CheckboxCellEvent.select() = _Selected;
-  const factory CheckboxCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory CheckboxCellEvent.didReceiveCellUpdate(String cellData) = _DidReceiveCellUpdate;
 }
 
 @freezed
@@ -73,7 +72,6 @@ class CheckboxCellState with _$CheckboxCellState {
   }
 }
 
-bool _isSelected(Cell? cell) {
-  final content = cell?.content ?? "";
-  return content == "Yes";
+bool _isSelected(String? cellData) {
+  return cellData == "Yes";
 }

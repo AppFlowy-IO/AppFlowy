@@ -30,6 +30,14 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
             }
         }
 
+        impl std::convert::TryFrom<&[u8]> for #struct_ident {
+            type Error = ::protobuf::ProtobufError;
+            fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+                let pb: crate::protobuf::#pb_ty = ::protobuf::Message::parse_from_bytes(bytes)?;
+                #struct_ident::try_from(pb)
+            }
+        }
+
         impl std::convert::TryFrom<crate::protobuf::#pb_ty> for #struct_ident {
             type Error = ::protobuf::ProtobufError;
             fn try_from(mut pb: crate::protobuf::#pb_ty) -> Result<Self, Self::Error> {
