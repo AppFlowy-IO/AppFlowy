@@ -163,9 +163,9 @@ class _GridCellContext<T, D> extends Equatable {
     _cellDataNotifier.removeListener(fn);
   }
 
-  T? getCellData() {
+  T? getCellData({bool loadIfNoCache = true}) {
     final data = cellCache.get(_cacheKey);
-    if (data == null) {
+    if (data == null && loadIfNoCache) {
       _loadData();
     }
     return data;
