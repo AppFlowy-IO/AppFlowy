@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
@@ -40,8 +41,21 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     return value;
   }
 
+  Future<Directory> appFlowyDocumentDirectory() async {
+    Directory documentsDir = await getApplicationDocumentsDirectory();
+
+    switch (integrationEnv()) {
+      case IntegrationMode.develop:
+        return Directory('${documentsDir.path}/flowy_dev').create();
+      case IntegrationMode.release:
+        return Directory('${documentsDir.path}/flowy').create();
+      case IntegrationMode.test:
+        return Directory("${Directory.current.path}/.sandbox");
+    }
+  }
+
   Future<String> get _localPath async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await appFlowyDocumentDirectory();
     return dir.path;
   }
 
