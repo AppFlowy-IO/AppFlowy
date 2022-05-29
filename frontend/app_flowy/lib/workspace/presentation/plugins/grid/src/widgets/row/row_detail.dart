@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/url_cell.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/url_cell/url_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
 import 'package:flowy_infra/image.dart';

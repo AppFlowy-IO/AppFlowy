@@ -44,7 +44,7 @@ class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellS
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           add(SelectOptionCellEvent.didReceiveOptions(
-            selectOptionContext.selectOptions,
+            selectOptionContext?.selectOptions ?? [],
           ));
         }
       }),

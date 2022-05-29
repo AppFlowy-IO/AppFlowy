@@ -62,7 +62,19 @@ impl CellDataOperation<EncodedCellData<URLCellData>, String> for URLTypeOption {
         };
 
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
-            cell_data.url = m.as_str().to_string();
+            // Only support https scheme by now
+            match url::Url::parse(m.as_str()) {
+                Ok(url) => {
+                    if url.scheme() == "https" {
+                        cell_data.url = url.into();
+                    } else {
+                        cell_data.url = format!("https://{}", m.as_str());
+                    }
+                }
+                Err(_) => {
+                    cell_data.url = format!("https://{}", m.as_str());
+                }
+            }
         }
 
         cell_data.to_json()
@@ -132,7 +144,7 @@ mod tests {
             &field_type,
             &field_meta,
             "AppFlowy website - https://www.appflowy.io",
-            "https://www.appflowy.io",
+            "https://www.appflowy.io/",
         );
 
         assert_changeset(
@@ -141,7 +153,7 @@ mod tests {
             &field_type,
             &field_meta,
             "AppFlowy website appflowy.io",
-            "appflowy.io",
+            "https://appflowy.io",
         );
     }
 

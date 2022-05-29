@@ -13,7 +13,7 @@ import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
-import 'url_cell.dart';
+import 'url_cell/url_cell.dart';
 
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
   final key = ValueKey(gridCell.cellId());
@@ -35,7 +35,6 @@ GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {
       return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
     case FieldType.URL:
       return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-      
   }
   throw UnimplementedError;
 }
@@ -151,7 +150,7 @@ class CellContainer extends StatelessWidget {
           });
 
           if (expander != null) {
-            container = _CellEnterRegion(child: container, expander: expander!);
+            container = CellEnterRegion(child: container, expander: expander!);
           }
 
           return GestureDetector(
@@ -181,10 +180,10 @@ class CellContainer extends StatelessWidget {
   }
 }
 
-class _CellEnterRegion extends StatelessWidget {
+class CellEnterRegion extends StatelessWidget {
   final Widget child;
   final Widget expander;
-  const _CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
+  const CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

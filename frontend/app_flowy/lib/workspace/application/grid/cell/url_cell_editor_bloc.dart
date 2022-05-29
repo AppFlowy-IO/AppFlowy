@@ -4,25 +4,26 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'cell_service/cell_service.dart';
 
-part 'url_cell_bloc.freezed.dart';
+part 'url_cell_editor_bloc.freezed.dart';
 
-class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
+class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
   final GridURLCellContext cellContext;
   void Function()? _onCellChangedFn;
-  URLCellBloc({
+  URLCellEditorBloc({
     required this.cellContext,
-  }) : super(URLCellState.initial(cellContext)) {
-    on<URLCellEvent>(
+  }) : super(URLCellEditorState.initial(cellContext)) {
+    on<URLCellEditorEvent>(
       (event, emit) async {
         event.when(
           initial: () {
             _startListening();
           },
+          updateText: (text) {
+            cellContext.saveCellData(text, deduplicate: true);
+            emit(state.copyWith(content: text));
+          },
           didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(
-              content: cellData?.content ?? "",
-              url: cellData?.url ?? "",
-            ));
+            emit(state.copyWith(content: cellData?.content ?? ""));
           },
         );
       },
@@ -43,7 +44,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
     _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((cellData) {
         if (!isClosed) {
-          add(URLCellEvent.didReceiveCellUpdate(cellData));
+          add(URLCellEditorEvent.didReceiveCellUpdate(cellData));
         }
       }),
     );
@@ -51,23 +52,22 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 }
 
 @freezed
-class URLCellEvent with _$URLCellEvent {
-  const factory URLCellEvent.initial() = _InitialCell;
-  const factory URLCellEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+class URLCellEditorEvent with _$URLCellEditorEvent {
+  const factory URLCellEditorEvent.initial() = _InitialCell;
+  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEditorEvent.updateText(String text) = _UpdateText;
 }
 
 @freezed
-class URLCellState with _$URLCellState {
-  const factory URLCellState({
+class URLCellEditorState with _$URLCellEditorState {
+  const factory URLCellEditorState({
     required String content,
-    required String url,
-  }) = _URLCellState;
+  }) = _URLCellEditorState;
 
-  factory URLCellState.initial(GridURLCellContext context) {
+  factory URLCellEditorState.initial(GridURLCellContext context) {
     final cellData = context.getCellData();
-    return URLCellState(
+    return URLCellEditorState(
       content: cellData?.content ?? "",
-      url: cellData?.url ?? "",
     );
   }
 }

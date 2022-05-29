@@ -207,8 +207,6 @@ impl CellDataOperation<String, String> for MultiSelectTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        tracing::info!("😁{}", self.options.len());
-
         let encoded_data = encoded_data.into();
         let select_options = select_option_ids(encoded_data)
             .into_iter()

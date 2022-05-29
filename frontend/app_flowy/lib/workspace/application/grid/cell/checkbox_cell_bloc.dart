@@ -58,7 +58,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _Initial;
   const factory CheckboxCellEvent.select() = _Selected;
-  const factory CheckboxCellEvent.didReceiveCellUpdate(String cellData) = _DidReceiveCellUpdate;
+  const factory CheckboxCellEvent.didReceiveCellUpdate(String? cellData) = _DidReceiveCellUpdate;
 }
 
 @freezed

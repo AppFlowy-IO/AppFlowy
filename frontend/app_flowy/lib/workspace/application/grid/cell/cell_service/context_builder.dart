@@ -108,7 +108,8 @@ class _GridCellContext<T, D> extends Equatable {
   late final ValueNotifier<T?> _cellDataNotifier;
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
-  Timer? _delayOperation;
+  Timer? _loadDataOperation;
+  Timer? _saveDataOperation;
 
   _GridCellContext({
     required this.gridCell,
@@ -138,7 +139,7 @@ class _GridCellContext<T, D> extends Equatable {
 
   FieldType get fieldType => gridCell.field.fieldType;
 
-  VoidCallback? startListening({required void Function(T) onCellChanged}) {
+  VoidCallback? startListening({required void Function(T?) onCellChanged}) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
@@ -162,7 +163,7 @@ class _GridCellContext<T, D> extends Equatable {
     }
 
     onCellChangedFn() {
-      onCellChanged(_cellDataNotifier.value as T);
+      onCellChanged(_cellDataNotifier.value);
 
       if (cellDataLoader.config.reloadOnCellChanged) {
         _loadData();
@@ -189,13 +190,26 @@ class _GridCellContext<T, D> extends Equatable {
     return _fieldService.getFieldTypeOptionData(fieldType: fieldType);
   }
 
-  Future<Option<FlowyError>> saveCellData(D data) {
-    return cellDataPersistence.save(data);
+  void saveCellData(D data, {bool deduplicate = false, void Function(Option<FlowyError>)? resultCallback}) async {
+    if (deduplicate) {
+      _loadDataOperation?.cancel();
+      _loadDataOperation = Timer(const Duration(milliseconds: 300), () async {
+        final result = await cellDataPersistence.save(data);
+        if (resultCallback != null) {
+          resultCallback(result);
+        }
+      });
+    } else {
+      final result = await cellDataPersistence.save(data);
+      if (resultCallback != null) {
+        resultCallback(result);
+      }
+    }
   }
 
   void _loadData() {
-    _delayOperation?.cancel();
-    _delayOperation = Timer(const Duration(milliseconds: 10), () {
+    _loadDataOperation?.cancel();
+    _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
         _cellDataNotifier.value = data;
         cellCache.insert(GridCellCacheData(key: _cacheKey, object: data));
@@ -204,7 +218,8 @@ class _GridCellContext<T, D> extends Equatable {
   }
 
   void dispose() {
-    _delayOperation?.cancel();
+    _loadDataOperation?.cancel();
+    _saveDataOperation?.cancel();
 
     if (_onFieldChangedFn != null) {
       cellCache.removeFieldListener(_cacheKey, _onFieldChangedFn!);

@@ -19,7 +19,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
             _startListening();
           },
           didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(content: value.cellContent));
+            emit(state.copyWith(content: value.cellContent ?? ""));
           },
           updateCell: (_UpdateCell value) async {
             await _updateCellValue(value, emit);
@@ -58,7 +58,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _Initial;
   const factory NumberCellEvent.updateCell(String text) = _UpdateCell;
-  const factory NumberCellEvent.didReceiveCellUpdate(String cellContent) = _DidReceiveCellUpdate;
+  const factory NumberCellEvent.didReceiveCellUpdate(String? cellContent) = _DidReceiveCellUpdate;
 }
 
 @freezed

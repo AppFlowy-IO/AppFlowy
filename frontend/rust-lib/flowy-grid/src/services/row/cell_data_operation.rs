@@ -167,7 +167,6 @@ pub fn decode_cell_data<T: Into<String>>(
     field_meta: &FieldMeta,
 ) -> FlowyResult<DecodedCellData> {
     let encoded_data = encoded_data.into();
-    tracing::info!("😁{:?}", field_meta.type_options);
     let get_cell_data = || {
         let data = match t_field_type {
             FieldType::RichText => field_meta
