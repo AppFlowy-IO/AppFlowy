@@ -875,6 +875,7 @@ pub enum FieldType {
     SingleSelect = 3,
     MultiSelect = 4,
     Checkbox = 5,
+    URL = 6,
 }
 
 impl std::default::Default for FieldType {
@@ -930,6 +931,10 @@ impl FieldType {
 
     pub fn is_multi_select(&self) -> bool {
         self == &FieldType::MultiSelect
+    }
+
+    pub fn is_url(&self) -> bool {
+        self == &FieldType::URL
     }
 
     pub fn is_select_option(&self) -> bool {

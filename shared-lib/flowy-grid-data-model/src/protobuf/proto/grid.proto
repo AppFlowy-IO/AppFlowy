@@ -167,4 +167,5 @@ enum FieldType {
     SingleSelect = 3;
     MultiSelect = 4;
     Checkbox = 5;
+    URL = 6;
 }

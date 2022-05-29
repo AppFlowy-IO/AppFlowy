@@ -207,8 +207,6 @@ impl CellDataOperation<String, String> for MultiSelectTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        tracing::info!("😁{}", self.options.len());
-
         let encoded_data = encoded_data.into();
         let select_options = select_option_ids(encoded_data)
             .into_iter()
@@ -537,7 +535,7 @@ mod tests {
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_meta, vec![google_option.clone()]);
+        assert_single_select_options(cell_data, &type_option, &field_meta, vec![google_option]);
 
         // Invalid option id
         let cell_data = type_option
@@ -580,12 +578,12 @@ mod tests {
             cell_data,
             &type_option,
             &field_meta,
-            vec![google_option.clone(), facebook_option.clone()],
+            vec![google_option.clone(), facebook_option],
         );
 
         let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data, None).unwrap();
-        assert_multi_select_options(cell_data, &type_option, &field_meta, vec![google_option.clone()]);
+        assert_multi_select_options(cell_data, &type_option, &field_meta, vec![google_option]);
 
         // Invalid option id
         let cell_data = type_option
@@ -612,7 +610,7 @@ mod tests {
         assert_eq!(
             expected,
             type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .decode_cell_data(cell_data, &field_meta.field_type, field_meta)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -629,7 +627,7 @@ mod tests {
         assert_eq!(
             expected,
             type_option
-                .decode_cell_data(cell_data, &field_meta.field_type, &field_meta)
+                .decode_cell_data(cell_data, &field_meta.field_type, field_meta)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()

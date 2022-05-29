@@ -354,6 +354,10 @@ fn make_template_1_grid() -> BuildGridContext {
     let checkbox = CheckboxTypeOptionBuilder::default();
     let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
 
+    // URL
+    let url = URLTypeOptionBuilder::default();
+    let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
+
     GridBuilder::default()
         .add_field(text_field)
         .add_field(single_select_field)
@@ -361,6 +365,7 @@ fn make_template_1_grid() -> BuildGridContext {
         .add_field(number_field)
         .add_field(date_field)
         .add_field(checkbox_field)
+        .add_field(url_field)
         .add_empty_row()
         .add_empty_row()
         .add_empty_row()

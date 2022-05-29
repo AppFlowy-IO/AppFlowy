@@ -22,6 +22,7 @@ import 'type_option/multi_select.dart';
 import 'type_option/number.dart';
 import 'type_option/rich_text.dart';
 import 'type_option/single_select.dart';
+import 'type_option/url.dart';
 
 typedef UpdateFieldCallback = void Function(Field, Uint8List);
 typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionData, FlowyError>> Function(
@@ -168,9 +169,12 @@ TypeOptionBuilder _makeTypeOptionBuild({
         typeOptionContext as RichTextTypeOptionContext,
       );
 
-    default:
-      throw UnimplementedError;
+    case FieldType.URL:
+      return URLTypeOptionBuilder(
+        typeOptionContext as URLTypeOptionContext,
+      );
   }
+  throw UnimplementedError;
 }
 
 TypeOptionContext _makeTypeOptionContext(GridFieldContext fieldContext) {
@@ -205,9 +209,15 @@ TypeOptionContext _makeTypeOptionContext(GridFieldContext fieldContext) {
         fieldContext: fieldContext,
         dataBuilder: SingleSelectTypeOptionDataBuilder(),
       );
-    default:
-      throw UnimplementedError();
+
+    case FieldType.URL:
+      return URLTypeOptionContext(
+        fieldContext: fieldContext,
+        dataBuilder: URLTypeOptionDataBuilder(),
+      );
   }
+
+  throw UnimplementedError();
 }
 
 abstract class TypeOptionWidget extends StatelessWidget {

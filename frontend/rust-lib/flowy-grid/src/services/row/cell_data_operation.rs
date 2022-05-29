@@ -134,6 +134,7 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
         FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
+        FieldType::URL => URLTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
     }?;
 
     Ok(TypeOptionCellData::new(s, field_meta.field_type.clone()).json())
@@ -166,7 +167,6 @@ pub fn decode_cell_data<T: Into<String>>(
     field_meta: &FieldMeta,
 ) -> FlowyResult<DecodedCellData> {
     let encoded_data = encoded_data.into();
-    tracing::info!("😁{:?}", field_meta.type_options);
     let get_cell_data = || {
         let data = match t_field_type {
             FieldType::RichText => field_meta
@@ -186,6 +186,9 @@ pub fn decode_cell_data<T: Into<String>>(
                 .decode_cell_data(encoded_data, s_field_type, field_meta),
             FieldType::Checkbox => field_meta
                 .get_type_option_entry::<CheckboxTypeOption>(t_field_type)?
+                .decode_cell_data(encoded_data, s_field_type, field_meta),
+            FieldType::URL => field_meta
+                .get_type_option_entry::<URLTypeOption>(t_field_type)?
                 .decode_cell_data(encoded_data, s_field_type, field_meta),
         };
         Some(data)

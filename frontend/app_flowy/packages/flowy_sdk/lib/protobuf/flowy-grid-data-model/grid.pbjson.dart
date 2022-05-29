@@ -29,11 +29,12 @@ const FieldType$json = const {
     const {'1': 'SingleSelect', '2': 3},
     const {'1': 'MultiSelect', '2': 4},
     const {'1': 'Checkbox', '2': 5},
+    const {'1': 'URL', '2': 6},
   ],
 };
 
 /// Descriptor for `FieldType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWVsZFR5cGUSDAoIUmljaFRleHQQABIKCgZOdW1iZXIQARIMCghEYXRlVGltZRACEhAKDFNpbmdsZVNlbGVjdBADEg8KC011bHRpU2VsZWN0EAQSDAoIQ2hlY2tib3gQBQ==');
+final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWVsZFR5cGUSDAoIUmljaFRleHQQABIKCgZOdW1iZXIQARIMCghEYXRlVGltZRACEhAKDFNpbmdsZVNlbGVjdBADEg8KC011bHRpU2VsZWN0EAQSDAoIQ2hlY2tib3gQBRIHCgNVUkwQBg==');
 @$core.Deprecated('Use gridDescriptor instead')
 const Grid$json = const {
   '1': 'Grid',

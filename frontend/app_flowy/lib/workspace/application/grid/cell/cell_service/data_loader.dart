@@ -58,7 +58,11 @@ class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
     return fut.then(
       (result) => result.fold((Cell cell) {
         try {
-          return parser.parserData(cell.data);
+          if (cell.data.isEmpty) {
+            return null;
+          } else {
+            return parser.parserData(cell.data);
+          }
         } catch (e, s) {
           Log.error('$parser parser cellData failed, $e');
           Log.error('Stack trace \n $s');
@@ -105,9 +109,6 @@ class StringCellDataParser implements ICellDataParser<String> {
 class DateCellDataParser implements ICellDataParser<DateCellData> {
   @override
   DateCellData? parserData(List<int> data) {
-    if (data.isEmpty) {
-      return null;
-    }
     return DateCellData.fromBuffer(data);
   }
 }
@@ -115,9 +116,13 @@ class DateCellDataParser implements ICellDataParser<DateCellData> {
 class SelectOptionCellDataParser implements ICellDataParser<SelectOptionCellData> {
   @override
   SelectOptionCellData? parserData(List<int> data) {
-    if (data.isEmpty) {
-      return null;
-    }
     return SelectOptionCellData.fromBuffer(data);
+  }
+}
+
+class URLCellDataParser implements ICellDataParser<URLCellData> {
+  @override
+  URLCellData? parserData(List<int> data) {
+    return URLCellData.fromBuffer(data);
   }
 }

@@ -627,7 +627,7 @@ mod tests {
         field_meta: &FieldMeta,
     ) -> String {
         type_option
-            .decode_cell_data(encoded_data, &FieldType::DateTime, &field_meta)
+            .decode_cell_data(encoded_data, &FieldType::DateTime, field_meta)
             .unwrap()
             .parse::<DateCellData>()
             .unwrap()

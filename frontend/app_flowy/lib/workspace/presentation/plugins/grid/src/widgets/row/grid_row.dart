@@ -209,9 +209,10 @@ class _CellExpander extends StatelessWidget {
     return FittedBox(
       fit: BoxFit.contain,
       child: FlowyIconButton(
+        width: 26,
         onPressed: onExpand,
-        iconPadding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-        fillColor: theme.surface,
+        iconPadding: const EdgeInsets.all(5),
+        radius: BorderRadius.circular(4),
         icon: svgWidget("grid/expander", color: theme.main1),
       ),
     );

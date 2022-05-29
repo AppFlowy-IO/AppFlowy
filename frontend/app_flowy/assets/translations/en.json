@@ -160,6 +160,7 @@
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
+      "urlFieldName": "URL",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
       "includeTime": " Include time",

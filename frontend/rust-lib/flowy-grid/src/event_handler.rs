@@ -329,7 +329,7 @@ pub(crate) async fn get_select_option_handler(
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_meta(&params.field_id).await {
         None => {
-            tracing::error!("Can't find the corresponding field with id: {}", params.field_id);
+            tracing::error!("Can't find the select option field with id: {}", params.field_id);
             data_result(SelectOptionCellData::default())
         }
         Some(field_meta) => {
