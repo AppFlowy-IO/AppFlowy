@@ -928,6 +928,7 @@ dependencies = [
  "dart-notify",
  "dashmap",
  "diesel",
+ "fancy-regex",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
@@ -953,7 +954,6 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
- "url",
 ]
 
 [[package]]

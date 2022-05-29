@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Cell;
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -23,7 +23,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
             emit(state.copyWith(content: text));
           },
           didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(content: cellData.content));
+            emit(state.copyWith(content: cellData.content, url: cellData.url));
           },
         );
       },
@@ -54,7 +54,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 @freezed
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
-  const factory URLCellEvent.didReceiveCellUpdate(Cell cell) = _DidReceiveCellUpdate;
+  const factory URLCellEvent.didReceiveCellUpdate(URLCellData cell) = _DidReceiveCellUpdate;
   const factory URLCellEvent.updateText(String text) = _UpdateText;
 }
 
@@ -67,6 +67,9 @@ class URLCellState with _$URLCellState {
 
   factory URLCellState.initial(GridURLCellContext context) {
     final cellData = context.getCellData();
-    return URLCellState(content: cellData?.content ?? "", url: "");
+    return URLCellState(
+      content: cellData?.content ?? "",
+      url: cellData?.url ?? "",
+    );
   }
 }
