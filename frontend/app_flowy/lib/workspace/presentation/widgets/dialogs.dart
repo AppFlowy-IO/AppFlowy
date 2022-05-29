@@ -14,6 +14,7 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class TextFieldDialog extends StatefulWidget {
   final String value;
@@ -217,5 +218,29 @@ class OkCancelButton extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class BubbleNotification extends StatelessWidget {
+  final String msgTitle;
+  final String msgBody;
+
+  const BubbleNotification({Key? key, required this.msgTitle, required this.msgBody}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: SafeArea(
+          child: ListTile(
+            leading: SizedBox.fromSize(
+              size: const Size(40, 40),
+              // child: ClipOval(child: )
+            ),
+            title: Text(msgTitle),
+            subtitle: Text(msgBody),
+          ),
+          // title: Text('Action')
+        ));
   }
 }

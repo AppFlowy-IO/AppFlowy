@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -34,6 +35,8 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     });
   }
 
+  bool checkFile = false;
+
   ExportData _convertDeltaToMarkdown(ExportData value) {
     final result = deltaToMarkdown(value.data);
     value.data = result;
@@ -61,11 +64,16 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
+    checkFile = true;
     return File('$path/${view.name}.md');
   }
 
   Future<File> writeFile(String md) async {
     final file = await _localFile;
+    if (checkFile)
+      BubbleNotification(msgTitle: 'Export To Markdown', msgBody: 'File saved to $file');
+    else
+      BubbleNotification(msgTitle: 'Failed to write to file', msgBody: '$file');
     return file.writeAsString(md);
   }
 }
