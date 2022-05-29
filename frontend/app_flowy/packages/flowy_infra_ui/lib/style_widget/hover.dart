@@ -102,14 +102,14 @@ class FlowyHoverContainer extends StatelessWidget {
 }
 
 //
-abstract class HoverWidget extends StatefulWidget {
-  const HoverWidget({Key? key}) : super(key: key);
+abstract class FlowyHoverWidget extends Widget {
+  const FlowyHoverWidget({Key? key}) : super(key: key);
 
-  ValueNotifier<bool> get onFocus;
+  ValueNotifier<bool>? get onFocus;
 }
 
 class FlowyHover2 extends StatefulWidget {
-  final Widget child;
+  final FlowyHoverWidget child;
   final EdgeInsets contentPadding;
   const FlowyHover2({
     required this.child,
@@ -123,17 +123,18 @@ class FlowyHover2 extends StatefulWidget {
 
 class _FlowyHover2State extends State<FlowyHover2> {
   late FlowyHoverState _hoverState;
+  VoidCallback? _listenerFn;
 
   @override
   void initState() {
     _hoverState = FlowyHoverState();
 
-    if (widget.child is HoverWidget) {
-      final hoverWidget = widget.child as HoverWidget;
-      hoverWidget.onFocus.addListener(() {
-        _hoverState.onFocus = hoverWidget.onFocus.value;
-      });
+    listener() {
+      _hoverState.onFocus = widget.child.onFocus?.value ?? false;
     }
+
+    _listenerFn = listener;
+    widget.child.onFocus?.addListener(listener);
 
     super.initState();
   }
@@ -141,6 +142,11 @@ class _FlowyHover2State extends State<FlowyHover2> {
   @override
   void dispose() {
     _hoverState.dispose();
+
+    if (_listenerFn != null) {
+      widget.child.onFocus?.removeListener(_listenerFn!);
+      _listenerFn = null;
+    }
     super.dispose();
   }
 
@@ -179,10 +185,7 @@ class _HoverBackground extends StatelessWidget {
       builder: (context, state, child) {
         if (state.onHover || state.onFocus) {
           return FlowyHoverContainer(
-            style: HoverStyle(
-              borderRadius: Corners.s6Border,
-              hoverColor: theme.shader6,
-            ),
+            style: HoverStyle(borderRadius: Corners.s6Border, hoverColor: theme.shader6),
           );
         } else {
           return const SizedBox();

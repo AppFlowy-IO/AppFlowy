@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
@@ -95,6 +96,7 @@ class FlowyNavigation extends StatelessWidget {
                 width: 24,
                 onPressed: () {
                   notifier.value = false;
+                  ctx.read<HomeBloc>().add(const HomeEvent.collapseMenu());
                 },
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: svgWidget("home/hide_menu", color: theme.iconColor),

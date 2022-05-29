@@ -95,8 +95,7 @@ message GridBlock {
 }
 message Cell {
     string field_id = 1;
-    string content = 2;
-    string data = 3;
+    bytes data = 2;
 }
 message RepeatedCell {
     repeated Cell items = 1;
@@ -168,4 +167,5 @@ enum FieldType {
     SingleSelect = 3;
     MultiSelect = 4;
     Checkbox = 5;
+    URL = 6;
 }

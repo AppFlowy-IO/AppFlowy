@@ -13,7 +13,7 @@ class GridTextCellStyle extends GridCellStyle {
   });
 }
 
-class GridTextCell extends GridCellWidget {
+class GridTextCell extends StatefulWidget with GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final GridTextCellStyle? cellStyle;
   GridTextCell({

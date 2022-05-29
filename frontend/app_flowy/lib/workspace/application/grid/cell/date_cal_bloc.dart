@@ -1,6 +1,9 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
+import 'package:easy_localization/easy_localization.dart' show StringTranslateExtension;
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -34,7 +37,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
           },
-          didReceiveCellUpdate: (DateCellData cellData) {
+          didReceiveCellUpdate: (DateCellData? cellData) {
             final dateData = dateDataFromCellData(cellData);
             final time = dateData.foldRight("", (dateData, previous) => dateData.time);
             emit(state.copyWith(dateData: dateData, time: time));
@@ -80,25 +83,41 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
       return;
     }
 
-    final result = await cellContext.saveCellData(newDateData);
-    result.fold(
-      () => emit(state.copyWith(
-        dateData: Some(newDateData),
-        timeFormatError: none(),
-      )),
-      (err) {
-        switch (ErrorCode.valueOf(err.code)!) {
-          case ErrorCode.InvalidDateTimeFormat:
-            emit(state.copyWith(
-              dateData: Some(newDateData),
-              timeFormatError: Some(err.toString()),
-            ));
-            break;
-          default:
-            Log.error(err);
-        }
-      },
-    );
+    cellContext.saveCellData(newDateData, resultCallback: (result) {
+      result.fold(
+        () => emit(state.copyWith(
+          dateData: Some(newDateData),
+          timeFormatError: none(),
+        )),
+        (err) {
+          switch (ErrorCode.valueOf(err.code)!) {
+            case ErrorCode.InvalidDateTimeFormat:
+              emit(state.copyWith(
+                dateData: Some(newDateData),
+                timeFormatError: Some(timeFormatPrompt(err)),
+              ));
+              break;
+            default:
+              Log.error(err);
+          }
+        },
+      );
+    });
+  }
+
+  String timeFormatPrompt(FlowyError error) {
+    String msg = LocaleKeys.grid_field_invalidTimeFormat.tr() + ". ";
+    switch (state.dateTypeOption.timeFormat) {
+      case TimeFormat.TwelveHour:
+        msg = msg + "e.g. 01: 00 AM";
+        break;
+      case TimeFormat.TwentyFourHour:
+        msg = msg + "e.g. 13: 00";
+        break;
+      default:
+        break;
+    }
+    return msg;
   }
 
   @override
@@ -165,7 +184,7 @@ class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
   const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.setTime(String time) = _Time;
-  const factory DateCalEvent.didReceiveCellUpdate(DateCellData data) = _DidReceiveCellUpdate;
+  const factory DateCalEvent.didReceiveCellUpdate(DateCellData? data) = _DidReceiveCellUpdate;
 }
 
 @freezed

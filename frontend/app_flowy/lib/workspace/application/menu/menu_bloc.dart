@@ -25,10 +25,6 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           listener.start(addAppCallback: _handleAppsOrFail);
           await _fetchApps(emit);
         },
-        collapse: (e) async {
-          final isCollapse = state.isCollapse;
-          emit(state.copyWith(isCollapse: !isCollapse));
-        },
         openPage: (e) async {
           emit(state.copyWith(plugin: e.plugin));
         },
@@ -94,7 +90,6 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 @freezed
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
-  const factory MenuEvent.collapse() = _Collapse;
   const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
@@ -104,14 +99,12 @@ class MenuEvent with _$MenuEvent {
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
-    required bool isCollapse,
     required List<App> apps,
     required Either<Unit, FlowyError> successOrFailure,
     required Plugin plugin,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
-        isCollapse: false,
         apps: [],
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: DefaultPlugin.blank.type()),

@@ -1,8 +1,9 @@
 part of 'cell_service.dart';
 
-typedef GridCellContext = _GridCellContext<Cell, String>;
+typedef GridCellContext = _GridCellContext<String, String>;
 typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
 typedef GridDateCellContext = _GridCellContext<DateCellData, DateCalData>;
+typedef GridURLCellContext = _GridCellContext<URLCellData, String>;
 
 class GridCellContextBuilder {
   final GridCellCache _cellCache;
@@ -16,26 +17,33 @@ class GridCellContextBuilder {
   _GridCellContext build() {
     switch (_gridCell.field.fieldType) {
       case FieldType.Checkbox:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: StringCellDataParser(),
+        );
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.DateTime:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: DateCellDataParser(),
+        );
+
         return GridDateCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: DateCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: DateCellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.Number:
         final cellDataLoader = GridCellDataLoader(
           gridCell: _gridCell,
-          config: const GridCellDataConfig(
-            reloadOnCellChanged: true,
-            reloadOnFieldChanged: true,
-          ),
+          parser: StringCellDataParser(),
+          config: const GridCellDataConfig(reloadOnCellChanged: true, reloadOnFieldChanged: true),
         );
         return GridCellContext(
           gridCell: _gridCell,
@@ -44,26 +52,49 @@ class GridCellContextBuilder {
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.RichText:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: StringCellDataParser(),
+        );
         return GridCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: GridCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: SelectOptionCellDataParser(),
+          config: const GridCellDataConfig(reloadOnFieldChanged: true),
+        );
+
         return GridSelectOptionCellContext(
           gridCell: _gridCell,
           cellCache: _cellCache,
-          cellDataLoader: SelectOptionCellDataLoader(gridCell: _gridCell),
+          cellDataLoader: cellDataLoader,
           cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
         );
-      default:
-        throw UnimplementedError;
+
+      case FieldType.URL:
+        final cellDataLoader = GridCellDataLoader(
+          gridCell: _gridCell,
+          parser: URLCellDataParser(),
+        );
+        return GridURLCellContext(
+          gridCell: _gridCell,
+          cellCache: _cellCache,
+          cellDataLoader: cellDataLoader,
+          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+        );
     }
+    throw UnimplementedError;
   }
 }
 
+// T: the type of the CellData
+// D: the type of the data that will be save to disk
 // ignore: must_be_immutable
 class _GridCellContext<T, D> extends Equatable {
   final GridCell gridCell;
@@ -77,7 +108,8 @@ class _GridCellContext<T, D> extends Equatable {
   late final ValueNotifier<T?> _cellDataNotifier;
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
-  Timer? _delayOperation;
+  Timer? _loadDataOperation;
+  Timer? _saveDataOperation;
 
   _GridCellContext({
     required this.gridCell,
@@ -107,7 +139,7 @@ class _GridCellContext<T, D> extends Equatable {
 
   FieldType get fieldType => gridCell.field.fieldType;
 
-  VoidCallback? startListening({required void Function(T) onCellChanged}) {
+  VoidCallback? startListening({required void Function(T?) onCellChanged}) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
@@ -131,10 +163,7 @@ class _GridCellContext<T, D> extends Equatable {
     }
 
     onCellChangedFn() {
-      final value = _cellDataNotifier.value;
-      if (value is T) {
-        onCellChanged(value);
-      }
+      onCellChanged(_cellDataNotifier.value);
 
       if (cellDataLoader.config.reloadOnCellChanged) {
         _loadData();
@@ -149,9 +178,9 @@ class _GridCellContext<T, D> extends Equatable {
     _cellDataNotifier.removeListener(fn);
   }
 
-  T? getCellData() {
+  T? getCellData({bool loadIfNoCache = true}) {
     final data = cellCache.get(_cacheKey);
-    if (data == null) {
+    if (data == null && loadIfNoCache) {
       _loadData();
     }
     return data;
@@ -161,13 +190,26 @@ class _GridCellContext<T, D> extends Equatable {
     return _fieldService.getFieldTypeOptionData(fieldType: fieldType);
   }
 
-  Future<Option<FlowyError>> saveCellData(D data) {
-    return cellDataPersistence.save(data);
+  void saveCellData(D data, {bool deduplicate = false, void Function(Option<FlowyError>)? resultCallback}) async {
+    if (deduplicate) {
+      _loadDataOperation?.cancel();
+      _loadDataOperation = Timer(const Duration(milliseconds: 300), () async {
+        final result = await cellDataPersistence.save(data);
+        if (resultCallback != null) {
+          resultCallback(result);
+        }
+      });
+    } else {
+      final result = await cellDataPersistence.save(data);
+      if (resultCallback != null) {
+        resultCallback(result);
+      }
+    }
   }
 
   void _loadData() {
-    _delayOperation?.cancel();
-    _delayOperation = Timer(const Duration(milliseconds: 10), () {
+    _loadDataOperation?.cancel();
+    _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
         _cellDataNotifier.value = data;
         cellCache.insert(GridCellCacheData(key: _cacheKey, object: data));
@@ -176,7 +218,8 @@ class _GridCellContext<T, D> extends Equatable {
   }
 
   void dispose() {
-    _delayOperation?.cancel();
+    _loadDataOperation?.cancel();
+    _saveDataOperation?.cancel();
 
     if (_onFieldChangedFn != null) {
       cellCache.removeFieldListener(_cacheKey, _onFieldChangedFn!);

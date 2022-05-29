@@ -1,5 +1,5 @@
-use crate::services::grid_editor::ClientGridEditor;
-use crate::services::persistence::block_index::BlockIndexPersistence;
+use crate::services::grid_editor::GridMetaEditor;
+use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
@@ -20,9 +20,9 @@ pub trait GridUser: Send + Sync {
 }
 
 pub struct GridManager {
-    editor_map: Arc<GridEditorMap>,
+    editor_map: Arc<DashMap<String, Arc<GridMetaEditor>>>,
     grid_user: Arc<dyn GridUser>,
-    block_index_persistence: Arc<BlockIndexPersistence>,
+    block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
     kv_persistence: Arc<GridKVPersistence>,
 }
@@ -33,14 +33,14 @@ impl GridManager {
         _rev_web_socket: Arc<dyn RevisionWebSocket>,
         database: Arc<dyn GridDatabase>,
     ) -> Self {
-        let grid_editors = Arc::new(GridEditorMap::new());
+        let grid_editors = Arc::new(DashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
-        let block_index_persistence = Arc::new(BlockIndexPersistence::new(database));
+        let block_index_persistence = Arc::new(BlockIndexCache::new(database));
         Self {
             editor_map: grid_editors,
             grid_user,
             kv_persistence,
-            block_index_persistence,
+            block_index_cache: block_index_persistence,
         }
     }
 
@@ -67,7 +67,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
-    pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<ClientGridEditor>> {
+    pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridMetaEditor>> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
         self.get_or_create_grid_editor(grid_id).await
@@ -90,23 +90,27 @@ impl GridManager {
     }
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
-    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
+    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridMetaEditor>> {
         match self.editor_map.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
-            Some(editor) => Ok(editor),
+            Some(editor) => Ok(editor.clone()),
         }
     }
 
-    async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<ClientGridEditor>> {
+    async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridMetaEditor>> {
         match self.editor_map.get(grid_id) {
             None => {
                 tracing::trace!("Create grid editor with id: {}", grid_id);
                 let db_pool = self.grid_user.db_pool()?;
                 let editor = self.make_grid_editor(grid_id, db_pool).await?;
-                self.editor_map.insert(grid_id, &editor);
+
+                if self.editor_map.contains_key(grid_id) {
+                    tracing::warn!("Grid:{} already exists in cache", grid_id);
+                }
+                self.editor_map.insert(grid_id.to_string(), editor.clone());
                 Ok(editor)
             }
-            Some(editor) => Ok(editor),
+            Some(editor) => Ok(editor.clone()),
         }
     }
 
@@ -115,11 +119,10 @@ impl GridManager {
         &self,
         grid_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientGridEditor>, FlowyError> {
+    ) -> Result<Arc<GridMetaEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let grid_editor =
-            ClientGridEditor::new(grid_id, user, rev_manager, self.block_index_persistence.clone()).await?;
+        let grid_editor = GridMetaEditor::new(grid_id, user, rev_manager, self.block_index_cache.clone()).await?;
         Ok(grid_editor)
     }
 
@@ -145,31 +148,6 @@ impl GridManager {
     }
 }
 
-pub struct GridEditorMap {
-    inner: DashMap<String, Arc<ClientGridEditor>>,
-}
-
-impl GridEditorMap {
-    fn new() -> Self {
-        Self { inner: DashMap::new() }
-    }
-
-    pub(crate) fn insert(&self, grid_id: &str, grid_editor: &Arc<ClientGridEditor>) {
-        if self.inner.contains_key(grid_id) {
-            tracing::warn!("Grid:{} already exists in cache", grid_id);
-        }
-        self.inner.insert(grid_id.to_string(), grid_editor.clone());
-    }
-
-    pub(crate) fn get(&self, grid_id: &str) -> Option<Arc<ClientGridEditor>> {
-        Some(self.inner.get(grid_id)?.clone())
-    }
-
-    pub(crate) fn remove(&self, grid_id: &str) {
-        self.inner.remove(grid_id);
-    }
-}
-
 pub async fn make_grid_view_data(
     user_id: &str,
     view_id: &str,
@@ -192,9 +170,7 @@ pub async fn make_grid_view_data(
 
     // Indexing the block's rows
     build_context.block_meta_data.rows.iter().for_each(|row| {
-        let _ = grid_manager
-            .block_index_persistence
-            .insert_or_update(&row.block_id, &row.id);
+        let _ = grid_manager.block_index_cache.insert(&row.block_id, &row.id);
     });
 
     // Create grid's block

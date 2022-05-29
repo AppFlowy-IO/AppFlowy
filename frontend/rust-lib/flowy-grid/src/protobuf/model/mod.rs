@@ -19,6 +19,9 @@ pub use row_entities::*;
 mod cell_entities;
 pub use cell_entities::*;
 
+mod url_type_option;
+pub use url_type_option::*;
+
 mod checkbox_type_option;
 pub use checkbox_type_option::*;
 

@@ -1,30 +1,18 @@
 
-[tasks.test_local]
-category = "Build"
-dependencies = ["rm_cache"]
-description = "Build desktop targets."
+[tasks.rust_unit_test]
+run_task = { name = ["rust_lib_unit_test", "shared_lib_unit_test"] }
+
+[tasks.rust_lib_unit_test]
+description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-cargo test
+RUST_LOG=info cargo test --no-default-features --features="sync"
 '''
 
+[tasks.shared_lib_unit_test]
+description = "Run shared-lib unit test"
+script = '''
+cd ../shared-lib
+RUST_LOG=info cargo test --no-default-features
+'''
 
-[tasks.test_remote]
-dependencies = ["rm_cache"]
-script = """
-cd rust-lib
-cargo test --features "flowy-folder/http_server","flowy-user/http_server"
-"""
-
-
-[tasks.run_server]
-script = """
-cd backend
-cargo run
-"""
-
-
-[tasks.rm_cache]
-script = """
-rm -rf rust-lib/flowy-test/temp
-"""

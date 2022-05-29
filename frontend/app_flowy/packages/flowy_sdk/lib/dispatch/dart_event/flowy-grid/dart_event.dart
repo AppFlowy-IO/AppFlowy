@@ -392,20 +392,3 @@ class GridEventUpdateDateCell {
     }
 }
 
-class GridEventGetDateCellData {
-     CellIdentifierPayload request;
-     GridEventGetDateCellData(this.request);
-
-    Future<Either<DateCellData, FlowyError>> send() {
-    final request = FFIRequest.create()
-          ..event = GridEvent.GetDateCellData.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DateCellData.fromBuffer(okBytes)),
-           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
-        ));
-    }
-}
-

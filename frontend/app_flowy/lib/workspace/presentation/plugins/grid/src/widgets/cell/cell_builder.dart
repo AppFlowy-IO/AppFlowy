@@ -13,6 +13,7 @@ import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
 import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
+import 'url_cell/url_cell.dart';
 
 GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
   final key = ValueKey(gridCell.cellId());
@@ -32,10 +33,10 @@ GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {
       return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
     case FieldType.RichText:
       return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-
-    default:
-      throw UnimplementedError;
+    case FieldType.URL:
+      return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
   }
+  throw UnimplementedError;
 }
 
 class BlankCell extends StatelessWidget {
@@ -47,13 +48,11 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellWidget extends HoverWidget {
+abstract class GridCellWidget implements FlowyHoverWidget {
   @override
   final ValueNotifier<bool> onFocus = ValueNotifier<bool>(false);
 
   final GridCellRequestFocusNotifier requestFocus = GridCellRequestFocusNotifier();
-
-  GridCellWidget({Key? key}) : super(key: key);
 }
 
 class GridCellRequestFocusNotifier extends ChangeNotifier {
@@ -151,7 +150,7 @@ class CellContainer extends StatelessWidget {
           });
 
           if (expander != null) {
-            container = _CellEnterRegion(child: container, expander: expander!);
+            container = CellEnterRegion(child: container, expander: expander!);
           }
 
           return GestureDetector(
@@ -181,10 +180,10 @@ class CellContainer extends StatelessWidget {
   }
 }
 
-class _CellEnterRegion extends StatelessWidget {
+class CellEnterRegion extends StatelessWidget {
   final Widget child;
   final Widget expander;
-  const _CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
+  const CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

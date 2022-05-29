@@ -8,18 +8,17 @@ use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;
 use std::borrow::Cow;
-
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct ClientGridBlockMetaEditor {
+pub struct GridBlockMetaEditor {
     user_id: String,
     pub block_id: String,
     pad: Arc<RwLock<GridBlockMetaPad>>,
     rev_manager: Arc<RevisionManager>,
 }
 
-impl ClientGridBlockMetaEditor {
+impl GridBlockMetaEditor {
     pub async fn new(
         user_id: &str,
         token: &str,

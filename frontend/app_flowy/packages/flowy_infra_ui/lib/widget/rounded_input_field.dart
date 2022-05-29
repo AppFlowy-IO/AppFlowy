@@ -132,9 +132,12 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
       children.add(
         Align(
           alignment: Alignment.centerLeft,
-          child: Text(
-            widget.errorText,
-            style: widget.style,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              widget.errorText,
+              style: widget.style,
+            ),
           ),
         ),
       );

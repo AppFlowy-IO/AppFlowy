@@ -34,6 +34,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+          flutter-version: '3.0.0'
 
       - name: Cache Cargo
         uses: actions/cache@v2

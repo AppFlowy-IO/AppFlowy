@@ -12,9 +12,9 @@ import 'dart:typed_data' as $typed_data;
 const RichTextTypeOption$json = const {
   '1': 'RichTextTypeOption',
   '2': const [
-    const {'1': 'format', '3': 1, '4': 1, '5': 9, '10': 'format'},
+    const {'1': 'data', '3': 1, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `RichTextTypeOption`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List richTextTypeOptionDescriptor = $convert.base64Decode('ChJSaWNoVGV4dFR5cGVPcHRpb24SFgoGZm9ybWF0GAEgASgJUgZmb3JtYXQ=');
+final $typed_data.Uint8List richTextTypeOptionDescriptor = $convert.base64Decode('ChJSaWNoVGV4dFR5cGVPcHRpb24SEgoEZGF0YRgBIAEoCVIEZGF0YQ==');

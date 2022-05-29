@@ -29,11 +29,12 @@ const FieldType$json = const {
     const {'1': 'SingleSelect', '2': 3},
     const {'1': 'MultiSelect', '2': 4},
     const {'1': 'Checkbox', '2': 5},
+    const {'1': 'URL', '2': 6},
   ],
 };
 
 /// Descriptor for `FieldType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWVsZFR5cGUSDAoIUmljaFRleHQQABIKCgZOdW1iZXIQARIMCghEYXRlVGltZRACEhAKDFNpbmdsZVNlbGVjdBADEg8KC011bHRpU2VsZWN0EAQSDAoIQ2hlY2tib3gQBQ==');
+final $typed_data.Uint8List fieldTypeDescriptor = $convert.base64Decode('CglGaWVsZFR5cGUSDAoIUmljaFRleHQQABIKCgZOdW1iZXIQARIMCghEYXRlVGltZRACEhAKDFNpbmdsZVNlbGVjdBADEg8KC011bHRpU2VsZWN0EAQSDAoIQ2hlY2tib3gQBRIHCgNVUkwQBg==');
 @$core.Deprecated('Use gridDescriptor instead')
 const Grid$json = const {
   '1': 'Grid',
@@ -289,13 +290,12 @@ const Cell$json = const {
   '1': 'Cell',
   '2': const [
     const {'1': 'field_id', '3': 1, '4': 1, '5': 9, '10': 'fieldId'},
-    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
-    const {'1': 'data', '3': 3, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
 /// Descriptor for `Cell`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQSEgoEZGF0YRgDIAEoCVIEZGF0YQ==');
+final $typed_data.Uint8List cellDescriptor = $convert.base64Decode('CgRDZWxsEhkKCGZpZWxkX2lkGAEgASgJUgdmaWVsZElkEhIKBGRhdGEYAiABKAxSBGRhdGE=');
 @$core.Deprecated('Use repeatedCellDescriptor instead')
 const RepeatedCell$json = const {
   '1': 'RepeatedCell',
