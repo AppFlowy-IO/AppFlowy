@@ -14,7 +14,6 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 class TextFieldDialog extends StatefulWidget {
   final String value;

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
-import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
