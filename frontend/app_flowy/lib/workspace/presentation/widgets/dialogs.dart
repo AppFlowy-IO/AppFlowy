@@ -221,26 +221,41 @@ class OkCancelButton extends StatelessWidget {
   }
 }
 
-class BubbleNotification extends StatelessWidget {
+class BubbleNotification extends StatefulWidget {
   final String msgTitle;
   final String msgBody;
 
   const BubbleNotification({Key? key, required this.msgTitle, required this.msgBody}) : super(key: key);
 
   @override
+  State<BubbleNotification> createState() => _BubbleNotification();
+}
+
+class _BubbleNotification extends State<BubbleNotification> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        child: SafeArea(
-          child: ListTile(
-            leading: SizedBox.fromSize(
-              size: const Size(40, 40),
-              // child: ClipOval(child: )
-            ),
-            title: Text(msgTitle),
-            subtitle: Text(msgBody),
-          ),
-          // title: Text('Action')
-        ));
+    return StyledDialog(
+        // maxWidth: 800,
+        maxHeight: 200,
+        shrinkWrap: true,
+        child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            child: SafeArea(
+              child: ListTile(
+                leading: SizedBox.fromSize(
+                  size: const Size(40, 40),
+                  child: ClipOval(
+                    child: Icon(Icons.file_copy),
+                  ),
+                ),
+                title: Text(widget.msgTitle),
+                subtitle: Text(widget.msgBody),
+              ),
+            )));
   }
 }

@@ -35,8 +35,6 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     });
   }
 
-  bool checkFile = false;
-
   ExportData _convertDeltaToMarkdown(ExportData value) {
     final result = deltaToMarkdown(value.data);
     value.data = result;
@@ -64,16 +62,11 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    checkFile = true;
     return File('$path/${view.name}.md');
   }
 
   Future<File> writeFile(String md) async {
     final file = await _localFile;
-    if (checkFile)
-      BubbleNotification(msgTitle: 'Export To Markdown', msgBody: 'File saved to $file');
-    else
-      BubbleNotification(msgTitle: 'Failed to write to file', msgBody: '$file');
     return file.writeAsString(md);
   }
 }
