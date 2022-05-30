@@ -1,7 +1,8 @@
-import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+import 'package:dartz/dartz.dart';
 import 'cell_service/cell_service.dart';
 
 part 'number_cell_bloc.freezed.dart';
@@ -15,16 +16,21 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }) : super(NumberCellState.initial(cellContext)) {
     on<NumberCellEvent>(
       (event, emit) async {
-        await event.when(
-          initial: () async {
+        event.when(
+          initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellContent) {
-            emit(state.copyWith(content: cellContent ?? ""));
+          didReceiveCellUpdate: (content) {
+            emit(state.copyWith(content: content));
           },
-          updateCell: (text) async {
+          updateCell: (text) {
             cellContext.saveCellData(text, resultCallback: (result) {
-              result.fold(() => null, (err) => Log.error(err));
+              result.fold(
+                () => null,
+                (err) {
+                  if (!isClosed) add(NumberCellEvent.didReceiveCellUpdate(right(err)));
+                },
+              );
             });
           },
         );
@@ -46,7 +52,7 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
     _onCellChangedFn = cellContext.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(NumberCellEvent.didReceiveCellUpdate(cellContent));
+          add(NumberCellEvent.didReceiveCellUpdate(left(cellContent ?? "")));
         }
       }),
     );
@@ -57,17 +63,19 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _Initial;
   const factory NumberCellEvent.updateCell(String text) = _UpdateCell;
-  const factory NumberCellEvent.didReceiveCellUpdate(String? cellContent) = _DidReceiveCellUpdate;
+  const factory NumberCellEvent.didReceiveCellUpdate(Either<String, FlowyError> cellContent) = _DidReceiveCellUpdate;
 }
 
 @freezed
 class NumberCellState with _$NumberCellState {
   const factory NumberCellState({
-    required String content,
+    required Either<String, FlowyError> content,
   }) = _NumberCellState;
 
   factory NumberCellState.initial(GridCellContext context) {
     final cellContent = context.getCellData() ?? "";
-    return NumberCellState(content: cellContent);
+    return NumberCellState(
+      content: left(cellContent),
+    );
   }
 }
