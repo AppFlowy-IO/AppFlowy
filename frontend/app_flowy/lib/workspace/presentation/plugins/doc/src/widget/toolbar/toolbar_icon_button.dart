@@ -29,9 +29,9 @@ class ToolbarIconButton extends StatelessWidget {
       iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       onPressed: onPressed,
       width: width,
-      icon: isToggled == true ? svgWidget(iconName, color: Colors.white) : svgWidget(iconName),
+      icon: isToggled == true ? svgWidget(iconName, color: Colors.white) : svgWidget(iconName, color: theme.iconColor),
       fillColor: isToggled == true ? theme.main1 : theme.shader6,
-      hoverColor: isToggled == true ? theme.main1 : theme.shader5,
+      hoverColor: isToggled == true ? theme.main1 : theme.hover,
       tooltipText: tooltipText,
     );
   }

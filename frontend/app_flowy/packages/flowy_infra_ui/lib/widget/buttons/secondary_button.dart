@@ -17,7 +17,7 @@ class SecondaryTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.main1);
+    TextStyle txtStyle = TextStyles.Btn.textColor(theme.main1);
     return SecondaryButton(bigMode: bigMode, onPressed: onPressed, child: Text(label, style: txtStyle));
   }
 }
