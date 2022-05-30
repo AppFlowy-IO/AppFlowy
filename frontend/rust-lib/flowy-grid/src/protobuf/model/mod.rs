@@ -25,6 +25,9 @@ pub use url_type_option::*;
 mod checkbox_type_option;
 pub use checkbox_type_option::*;
 
+mod format;
+pub use format::*;
+
 mod event_map;
 pub use event_map::*;
 

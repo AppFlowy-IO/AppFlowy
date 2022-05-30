@@ -233,7 +233,11 @@ class _SelectOptionCell extends StatelessWidget {
                 context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
               },
               children: [
-                if (isSelected) svgWidget("grid/checkmark"),
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: svgWidget("grid/checkmark"),
+                  ),
               ],
             ),
           ),

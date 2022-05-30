@@ -72,7 +72,10 @@ class _GridURLCellState extends State<GridURLCell> {
 
           return CellEnterRegion(
             child: Align(alignment: Alignment.centerLeft, child: richText),
-            expander: _EditCellIndicator(onTap: () {}),
+            expander: _EditCellIndicator(onTap: () {
+              final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
+              URLCellEditor.show(context, cellContext);
+            }),
           );
         },
       ),

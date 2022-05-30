@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct NumberTypeOption {
     // message fields
-    pub format: NumberFormat,
+    pub format: super::format::NumberFormat,
     pub scale: u32,
     pub symbol: ::std::string::String,
     pub sign_positive: bool,
@@ -50,15 +50,15 @@ impl NumberTypeOption {
     // .NumberFormat format = 1;
 
 
-    pub fn get_format(&self) -> NumberFormat {
+    pub fn get_format(&self) -> super::format::NumberFormat {
         self.format
     }
     pub fn clear_format(&mut self) {
-        self.format = NumberFormat::Number;
+        self.format = super::format::NumberFormat::Number;
     }
 
     // Param is passed by value, moved
-    pub fn set_format(&mut self, v: NumberFormat) {
+    pub fn set_format(&mut self, v: super::format::NumberFormat) {
         self.format = v;
     }
 
@@ -189,7 +189,7 @@ impl ::protobuf::Message for NumberTypeOption {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.format != NumberFormat::Number {
+        if self.format != super::format::NumberFormat::Number {
             my_size += ::protobuf::rt::enum_size(1, self.format);
         }
         if self.scale != 0 {
@@ -210,7 +210,7 @@ impl ::protobuf::Message for NumberTypeOption {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.format != NumberFormat::Number {
+        if self.format != super::format::NumberFormat::Number {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.format))?;
         }
         if self.scale != 0 {
@@ -263,7 +263,7 @@ impl ::protobuf::Message for NumberTypeOption {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<NumberFormat>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<super::format::NumberFormat>>(
                 "format",
                 |m: &NumberTypeOption| { &m.format },
                 |m: &mut NumberTypeOption| { &mut m.format },
@@ -304,7 +304,7 @@ impl ::protobuf::Message for NumberTypeOption {
 
 impl ::protobuf::Clear for NumberTypeOption {
     fn clear(&mut self) {
-        self.format = NumberFormat::Number;
+        self.format = super::format::NumberFormat::Number;
         self.scale = 0;
         self.symbol.clear();
         self.sign_positive = false;
@@ -325,179 +325,13 @@ impl ::protobuf::reflect::ProtobufValue for NumberTypeOption {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum NumberFormat {
-    Number = 0,
-    USD = 1,
-    CanadianDollar = 2,
-    EUR = 4,
-    Pound = 5,
-    Yen = 6,
-    Ruble = 7,
-    Rupee = 8,
-    Won = 9,
-    Yuan = 10,
-    Real = 11,
-    Lira = 12,
-    Rupiah = 13,
-    Franc = 14,
-    HongKongDollar = 15,
-    NewZealandDollar = 16,
-    Krona = 17,
-    NorwegianKrone = 18,
-    MexicanPeso = 19,
-    Rand = 20,
-    NewTaiwanDollar = 21,
-    DanishKrone = 22,
-    Baht = 23,
-    Forint = 24,
-    Koruna = 25,
-    Shekel = 26,
-    ChileanPeso = 27,
-    PhilippinePeso = 28,
-    Dirham = 29,
-    ColombianPeso = 30,
-    Riyal = 31,
-    Ringgit = 32,
-    Leu = 33,
-    ArgentinePeso = 34,
-    UruguayanPeso = 35,
-    Percent = 36,
-}
-
-impl ::protobuf::ProtobufEnum for NumberFormat {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<NumberFormat> {
-        match value {
-            0 => ::std::option::Option::Some(NumberFormat::Number),
-            1 => ::std::option::Option::Some(NumberFormat::USD),
-            2 => ::std::option::Option::Some(NumberFormat::CanadianDollar),
-            4 => ::std::option::Option::Some(NumberFormat::EUR),
-            5 => ::std::option::Option::Some(NumberFormat::Pound),
-            6 => ::std::option::Option::Some(NumberFormat::Yen),
-            7 => ::std::option::Option::Some(NumberFormat::Ruble),
-            8 => ::std::option::Option::Some(NumberFormat::Rupee),
-            9 => ::std::option::Option::Some(NumberFormat::Won),
-            10 => ::std::option::Option::Some(NumberFormat::Yuan),
-            11 => ::std::option::Option::Some(NumberFormat::Real),
-            12 => ::std::option::Option::Some(NumberFormat::Lira),
-            13 => ::std::option::Option::Some(NumberFormat::Rupiah),
-            14 => ::std::option::Option::Some(NumberFormat::Franc),
-            15 => ::std::option::Option::Some(NumberFormat::HongKongDollar),
-            16 => ::std::option::Option::Some(NumberFormat::NewZealandDollar),
-            17 => ::std::option::Option::Some(NumberFormat::Krona),
-            18 => ::std::option::Option::Some(NumberFormat::NorwegianKrone),
-            19 => ::std::option::Option::Some(NumberFormat::MexicanPeso),
-            20 => ::std::option::Option::Some(NumberFormat::Rand),
-            21 => ::std::option::Option::Some(NumberFormat::NewTaiwanDollar),
-            22 => ::std::option::Option::Some(NumberFormat::DanishKrone),
-            23 => ::std::option::Option::Some(NumberFormat::Baht),
-            24 => ::std::option::Option::Some(NumberFormat::Forint),
-            25 => ::std::option::Option::Some(NumberFormat::Koruna),
-            26 => ::std::option::Option::Some(NumberFormat::Shekel),
-            27 => ::std::option::Option::Some(NumberFormat::ChileanPeso),
-            28 => ::std::option::Option::Some(NumberFormat::PhilippinePeso),
-            29 => ::std::option::Option::Some(NumberFormat::Dirham),
-            30 => ::std::option::Option::Some(NumberFormat::ColombianPeso),
-            31 => ::std::option::Option::Some(NumberFormat::Riyal),
-            32 => ::std::option::Option::Some(NumberFormat::Ringgit),
-            33 => ::std::option::Option::Some(NumberFormat::Leu),
-            34 => ::std::option::Option::Some(NumberFormat::ArgentinePeso),
-            35 => ::std::option::Option::Some(NumberFormat::UruguayanPeso),
-            36 => ::std::option::Option::Some(NumberFormat::Percent),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [NumberFormat] = &[
-            NumberFormat::Number,
-            NumberFormat::USD,
-            NumberFormat::CanadianDollar,
-            NumberFormat::EUR,
-            NumberFormat::Pound,
-            NumberFormat::Yen,
-            NumberFormat::Ruble,
-            NumberFormat::Rupee,
-            NumberFormat::Won,
-            NumberFormat::Yuan,
-            NumberFormat::Real,
-            NumberFormat::Lira,
-            NumberFormat::Rupiah,
-            NumberFormat::Franc,
-            NumberFormat::HongKongDollar,
-            NumberFormat::NewZealandDollar,
-            NumberFormat::Krona,
-            NumberFormat::NorwegianKrone,
-            NumberFormat::MexicanPeso,
-            NumberFormat::Rand,
-            NumberFormat::NewTaiwanDollar,
-            NumberFormat::DanishKrone,
-            NumberFormat::Baht,
-            NumberFormat::Forint,
-            NumberFormat::Koruna,
-            NumberFormat::Shekel,
-            NumberFormat::ChileanPeso,
-            NumberFormat::PhilippinePeso,
-            NumberFormat::Dirham,
-            NumberFormat::ColombianPeso,
-            NumberFormat::Riyal,
-            NumberFormat::Ringgit,
-            NumberFormat::Leu,
-            NumberFormat::ArgentinePeso,
-            NumberFormat::UruguayanPeso,
-            NumberFormat::Percent,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<NumberFormat>("NumberFormat", file_descriptor_proto())
-        })
-    }
-}
-
-impl ::std::marker::Copy for NumberFormat {
-}
-
-impl ::std::default::Default for NumberFormat {
-    fn default() -> Self {
-        NumberFormat::Number
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for NumberFormat {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x18number_type_option.proto\"\xa0\x01\n\x10NumberTypeOption\x12%\n\
-    \x06format\x18\x01\x20\x01(\x0e2\r.NumberFormatR\x06format\x12\x14\n\x05\
-    scale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\x18\x03\x20\x01(\
-    \tR\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\x08R\x0csignPositiv\
-    e\x12\x12\n\x04name\x18\x05\x20\x01(\tR\x04name*\xf8\x03\n\x0cNumberForm\
-    at\x12\n\n\x06Number\x10\0\x12\x07\n\x03USD\x10\x01\x12\x12\n\x0eCanadia\
-    nDollar\x10\x02\x12\x07\n\x03EUR\x10\x04\x12\t\n\x05Pound\x10\x05\x12\
-    \x07\n\x03Yen\x10\x06\x12\t\n\x05Ruble\x10\x07\x12\t\n\x05Rupee\x10\x08\
-    \x12\x07\n\x03Won\x10\t\x12\x08\n\x04Yuan\x10\n\x12\x08\n\x04Real\x10\
-    \x0b\x12\x08\n\x04Lira\x10\x0c\x12\n\n\x06Rupiah\x10\r\x12\t\n\x05Franc\
-    \x10\x0e\x12\x12\n\x0eHongKongDollar\x10\x0f\x12\x14\n\x10NewZealandDoll\
-    ar\x10\x10\x12\t\n\x05Krona\x10\x11\x12\x12\n\x0eNorwegianKrone\x10\x12\
-    \x12\x0f\n\x0bMexicanPeso\x10\x13\x12\x08\n\x04Rand\x10\x14\x12\x13\n\
-    \x0fNewTaiwanDollar\x10\x15\x12\x0f\n\x0bDanishKrone\x10\x16\x12\x08\n\
-    \x04Baht\x10\x17\x12\n\n\x06Forint\x10\x18\x12\n\n\x06Koruna\x10\x19\x12\
-    \n\n\x06Shekel\x10\x1a\x12\x0f\n\x0bChileanPeso\x10\x1b\x12\x12\n\x0ePhi\
-    lippinePeso\x10\x1c\x12\n\n\x06Dirham\x10\x1d\x12\x11\n\rColombianPeso\
-    \x10\x1e\x12\t\n\x05Riyal\x10\x1f\x12\x0b\n\x07Ringgit\x10\x20\x12\x07\n\
-    \x03Leu\x10!\x12\x11\n\rArgentinePeso\x10\"\x12\x11\n\rUruguayanPeso\x10\
-    #\x12\x0b\n\x07Percent\x10$b\x06proto3\
+    \n\x18number_type_option.proto\x1a\x0cformat.proto\"\xa0\x01\n\x10Number\
+    TypeOption\x12%\n\x06format\x18\x01\x20\x01(\x0e2\r.NumberFormatR\x06for\
+    mat\x12\x14\n\x05scale\x18\x02\x20\x01(\rR\x05scale\x12\x16\n\x06symbol\
+    \x18\x03\x20\x01(\tR\x06symbol\x12#\n\rsign_positive\x18\x04\x20\x01(\
+    \x08R\x0csignPositive\x12\x12\n\x04name\x18\x05\x20\x01(\tR\x04nameb\x06\
+    proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

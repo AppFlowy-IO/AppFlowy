@@ -29,7 +29,7 @@ class _NumberCellState extends State<NumberCell> {
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)..add(const NumberCellEvent.initial());
-    _controller = TextEditingController(text: _cellBloc.state.content);
+    _controller = TextEditingController(text: contentFromState(_cellBloc.state));
     _focusNode = CellSingleFocusNode();
     _listenFocusNode();
     super.initState();
@@ -40,26 +40,25 @@ class _NumberCellState extends State<NumberCell> {
     _listenCellRequestFocus(context);
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocConsumer<NumberCellBloc, NumberCellState>(
-        listener: (context, state) {
-          if (_controller.text != state.content) {
-            _controller.text = state.content;
-          }
-        },
-        builder: (context, state) {
-          return TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            onEditingComplete: () => _focusNode.unfocus(),
-            maxLines: null,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-              isDense: true,
-            ),
-          );
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NumberCellBloc, NumberCellState>(
+            listenWhen: (p, c) => p.content != c.content,
+            listener: (context, state) => _controller.text = contentFromState(state),
+          ),
+        ],
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          onEditingComplete: () => _focusNode.unfocus(),
+          maxLines: null,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.zero,
+            border: InputBorder.none,
+            isDense: true,
+          ),
+        ),
       ),
     );
   }
@@ -86,13 +85,8 @@ class _NumberCellState extends State<NumberCell> {
     if (mounted) {
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 300), () {
-        if (_cellBloc.isClosed == false && _controller.text != _cellBloc.state.content) {
-          final number = num.tryParse(_controller.text);
-          if (number != null) {
-            _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
-          } else {
-            _controller.text = "";
-          }
+        if (_cellBloc.isClosed == false && _controller.text != contentFromState(_cellBloc.state)) {
+          _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
         }
       });
     }
@@ -112,5 +106,9 @@ class _NumberCellState extends State<NumberCell> {
         FocusScope.of(context).requestFocus(_focusNode);
       }
     });
+  }
+
+  String contentFromState(NumberCellState state) {
+    return state.content.fold((l) => l, (r) => "");
   }
 }
