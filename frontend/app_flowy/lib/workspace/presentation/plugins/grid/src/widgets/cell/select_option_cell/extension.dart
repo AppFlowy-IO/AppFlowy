@@ -1,6 +1,7 @@
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -64,9 +65,11 @@ class SelectOptionTag extends StatelessWidget {
   final String name;
   final Color color;
   final bool isSelected;
+  final VoidCallback? onSelected;
   const SelectOptionTag({
     required this.name,
     required this.color,
+    this.onSelected,
     this.isSelected = false,
     Key? key,
   }) : super(key: key);
@@ -74,12 +77,14 @@ class SelectOptionTag extends StatelessWidget {
   factory SelectOptionTag.fromSelectOption({
     required BuildContext context,
     required SelectOption option,
+    VoidCallback? onSelected,
     bool isSelected = false,
   }) {
     return SelectOptionTag(
       name: option.name,
       color: option.color.make(context),
       isSelected: isSelected,
+      onSelected: onSelected,
     );
   }
 
@@ -92,19 +97,12 @@ class SelectOptionTag extends StatelessWidget {
       backgroundColor: color,
       labelPadding: const EdgeInsets.symmetric(horizontal: 6),
       selected: true,
-      onSelected: (_) {},
+      onSelected: (_) {
+        if (onSelected != null) {
+          onSelected!();
+        }
+      },
     );
-
-    // return Container(
-    //   decoration: BoxDecoration(
-    //     color: option.color.make(context),
-    //     shape: BoxShape.rectangle,
-    //     borderRadius: BorderRadius.circular(8.0),
-    //   ),
-    //   child: Center(child: FlowyText.medium(option.name, fontSize: 12)),
-    //   margin: const EdgeInsets.symmetric(horizontal: 3.0),
-    //   padding: const EdgeInsets.symmetric(horizontal: 6.0),
-    // );
   }
 }
 
@@ -136,7 +134,11 @@ class SelectOptionTagCell extends StatelessWidget {
                   Flexible(
                     fit: FlexFit.loose,
                     flex: 2,
-                    child: SelectOptionTag.fromSelectOption(context: context, option: option),
+                    child: SelectOptionTag.fromSelectOption(
+                      context: context,
+                      option: option,
+                      onSelected: () => onSelected(option),
+                    ),
                   ),
                   const Spacer(),
                   ...children,
