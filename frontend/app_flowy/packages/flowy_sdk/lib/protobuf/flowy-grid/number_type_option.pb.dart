@@ -9,13 +9,11 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'number_type_option.pbenum.dart';
-
-export 'number_type_option.pbenum.dart';
+import 'format.pbenum.dart' as $0;
 
 class NumberTypeOption extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NumberTypeOption', createEmptyInstance: create)
-    ..e<NumberFormat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'format', $pb.PbFieldType.OE, defaultOrMaker: NumberFormat.Number, valueOf: NumberFormat.valueOf, enumValues: NumberFormat.values)
+    ..e<$0.NumberFormat>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'format', $pb.PbFieldType.OE, defaultOrMaker: $0.NumberFormat.Number, valueOf: $0.NumberFormat.valueOf, enumValues: $0.NumberFormat.values)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'scale', $pb.PbFieldType.OU3)
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'symbol')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'signPositive')
@@ -25,7 +23,7 @@ class NumberTypeOption extends $pb.GeneratedMessage {
 
   NumberTypeOption._() : super();
   factory NumberTypeOption({
-    NumberFormat? format,
+    $0.NumberFormat? format,
     $core.int? scale,
     $core.String? symbol,
     $core.bool? signPositive,
@@ -71,9 +69,9 @@ class NumberTypeOption extends $pb.GeneratedMessage {
   static NumberTypeOption? _defaultInstance;
 
   @$pb.TagNumber(1)
-  NumberFormat get format => $_getN(0);
+  $0.NumberFormat get format => $_getN(0);
   @$pb.TagNumber(1)
-  set format(NumberFormat v) { setField(1, v); }
+  set format($0.NumberFormat v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasFormat() => $_has(0);
   @$pb.TagNumber(1)

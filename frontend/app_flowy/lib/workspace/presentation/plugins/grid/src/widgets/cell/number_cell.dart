@@ -87,12 +87,7 @@ class _NumberCellState extends State<NumberCell> {
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 300), () {
         if (_cellBloc.isClosed == false && _controller.text != _cellBloc.state.content) {
-          final number = num.tryParse(_controller.text);
-          if (number != null) {
-            _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
-          } else {
-            _controller.text = "";
-          }
+          _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
         }
       });
     }

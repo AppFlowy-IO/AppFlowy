@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -14,23 +15,21 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   }) : super(NumberCellState.initial(cellContext)) {
     on<NumberCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) async {
+        await event.when(
+          initial: () async {
             _startListening();
           },
-          didReceiveCellUpdate: (_DidReceiveCellUpdate value) {
-            emit(state.copyWith(content: value.cellContent ?? ""));
+          didReceiveCellUpdate: (cellContent) {
+            emit(state.copyWith(content: cellContent ?? ""));
           },
-          updateCell: (_UpdateCell value) async {
-            await _updateCellValue(value, emit);
+          updateCell: (text) async {
+            cellContext.saveCellData(text, resultCallback: (result) {
+              result.fold(() => null, (err) => Log.error(err));
+            });
           },
         );
       },
     );
-  }
-
-  Future<void> _updateCellValue(_UpdateCell value, Emitter<NumberCellState> emit) async {
-    cellContext.saveCellData(value.text);
   }
 
   @override
