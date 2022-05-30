@@ -248,7 +248,7 @@ class _BubbleNotification extends State<BubbleNotification> {
               child: ListTile(
                 leading: SizedBox.fromSize(
                   size: const Size(40, 40),
-                  child: ClipOval(
+                  child: const ClipOval(
                     child: Icon(Icons.file_copy),
                   ),
                 ),
