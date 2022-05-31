@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:app_flowy/workspace/application/grid/cell/url_cell_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +51,7 @@ class _GridURLCellState extends State<GridURLCell> {
     final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
     _cellBloc = URLCellBloc(cellContext: cellContext);
     _cellBloc.add(const URLCellEvent.initial());
-    _listenRequestFocus(context);
+    _handleRequestFocus();
     super.initState();
   }
 
@@ -85,9 +83,15 @@ class _GridURLCellState extends State<GridURLCell> {
 
   @override
   Future<void> dispose() async {
-    widget.requestFocus.removeAllListener();
+    widget.beginFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant GridURLCell oldWidget) {
+    _handleRequestFocus();
+    super.didUpdateWidget(oldWidget);
   }
 
   TapGestureRecognizer _tapGesture(BuildContext context) {
@@ -109,8 +113,8 @@ class _GridURLCellState extends State<GridURLCell> {
     }
   }
 
-  void _listenRequestFocus(BuildContext context) {
-    widget.requestFocus.addListener(() {
+  void _handleRequestFocus() {
+    widget.beginFocus.setListener(() {
       _openUrlOrEdit(_cellBloc.state.url);
     });
   }

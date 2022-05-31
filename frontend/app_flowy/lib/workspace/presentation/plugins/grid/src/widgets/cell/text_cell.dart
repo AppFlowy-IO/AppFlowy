@@ -35,7 +35,7 @@ class GridTextCell extends StatefulWidget with GridCellWidget {
 class _GridTextCellState extends State<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
-  late CellSingleFocusNode _focusNode;
+  late SingleListenrFocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
@@ -44,9 +44,9 @@ class _GridTextCellState extends State<GridTextCell> {
     _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = CellSingleFocusNode();
+    _focusNode = SingleListenrFocusNode();
 
-    _listenFocusNode();
+    _listenOnFocusNodeChanged();
     _listenRequestFocus(context);
     super.initState();
   }
@@ -81,10 +81,10 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    widget.requestFocus.removeAllListener();
+    widget.beginFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
-    _focusNode.removeSingleListener();
+    _focusNode.removeAllListener();
     _focusNode.dispose();
 
     super.dispose();
@@ -93,21 +93,21 @@ class _GridTextCellState extends State<GridTextCell> {
   @override
   void didUpdateWidget(covariant GridTextCell oldWidget) {
     if (oldWidget != widget) {
-      _listenFocusNode();
+      _listenOnFocusNodeChanged();
     }
     super.didUpdateWidget(oldWidget);
   }
 
-  void _listenFocusNode() {
+  void _listenOnFocusNodeChanged() {
     widget.onFocus.value = _focusNode.hasFocus;
-    _focusNode.setSingleListener(() {
+    _focusNode.setListener(() {
       widget.onFocus.value = _focusNode.hasFocus;
       focusChanged();
     });
   }
 
   void _listenRequestFocus(BuildContext context) {
-    widget.requestFocus.addListener(() {
+    widget.beginFocus.setListener(() {
       if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
         FocusScope.of(context).requestFocus(_focusNode);
       }

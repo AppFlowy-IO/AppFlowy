@@ -56,24 +56,23 @@ abstract class GridCellWidget implements FlowyHoverWidget {
   @override
   final ValueNotifier<bool> onFocus = ValueNotifier<bool>(false);
 
-  final GridCellRequestFocusNotifier requestFocus = GridCellRequestFocusNotifier();
+  final GridCellBeginFocusFocus beginFocus = GridCellBeginFocusFocus();
 
   GridCellExpander? buildExpander() {
     return null;
   }
 }
 
-class GridCellRequestFocusNotifier extends ChangeNotifier {
+class GridCellBeginFocusFocus extends ChangeNotifier {
   VoidCallback? _listener;
 
-  @override
-  void addListener(VoidCallback listener) {
+  void setListener(VoidCallback listener) {
     if (_listener != null) {
       removeListener(_listener!);
     }
 
     _listener = listener;
-    super.addListener(listener);
+    addListener(listener);
   }
 
   void removeAllListener() {
@@ -89,10 +88,10 @@ class GridCellRequestFocusNotifier extends ChangeNotifier {
 
 abstract class GridCellStyle {}
 
-class CellSingleFocusNode extends FocusNode {
+class SingleListenrFocusNode extends FocusNode {
   VoidCallback? _listener;
 
-  void setSingleListener(VoidCallback listener) {
+  void setListener(VoidCallback listener) {
     if (_listener != null) {
       removeListener(_listener!);
     }
@@ -101,7 +100,7 @@ class CellSingleFocusNode extends FocusNode {
     super.addListener(listener);
   }
 
-  void removeSingleListener() {
+  void removeAllListener() {
     if (_listener != null) {
       removeListener(_listener!);
     }
@@ -163,7 +162,7 @@ class CellContainer extends StatelessWidget {
 
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => child.requestFocus.notify(),
+            onTap: () => child.beginFocus.notify(),
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),
