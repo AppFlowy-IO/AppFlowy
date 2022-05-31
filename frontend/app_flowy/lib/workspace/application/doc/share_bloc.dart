@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/startup/tasks/rust_sdk.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
@@ -8,7 +8,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:dartz/dartz.dart';
 part 'share_bloc.freezed.dart';
 
@@ -41,21 +40,14 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     return value;
   }
 
-  Future<Directory> appFlowyDocumentDirectory() async {
-    Directory documentsDir = await getApplicationDocumentsDirectory();
+  Future<Directory> get _ExportDir async {
+    Directory documentsDir = await appFlowyDocumentDirectory();
 
-    switch (integrationEnv()) {
-      case IntegrationMode.develop:
-        return Directory('${documentsDir.path}/flowy_dev').create();
-      case IntegrationMode.release:
-        return Directory('${documentsDir.path}/flowy').create();
-      case IntegrationMode.test:
-        return Directory("${Directory.current.path}/.sandbox");
-    }
+    return documentsDir;
   }
 
   Future<String> get _localPath async {
-    final dir = await appFlowyDocumentDirectory();
+    final dir = await _ExportDir;
     return dir.path;
   }
 

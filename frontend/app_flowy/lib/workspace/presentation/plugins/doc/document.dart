@@ -179,9 +179,9 @@ class DocumentShareButton extends StatelessWidget {
         switch (action) {
           case ShareAction.markdown:
             context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
-            const BubbleNotification(
-                    msgTitle: 'Exported Complete ^_^',
-                    msgBody: "Check in the flowy folder inside your documents directory")
+            BubbleNotification(
+                    msgTitle: LocaleKeys.notifications_export_markdown.tr(),
+                    msgBody: 'Path: ${LocaleKeys.notifications_export_path.tr()}')
                 .show(context);
             break;
           case ShareAction.copyLink:

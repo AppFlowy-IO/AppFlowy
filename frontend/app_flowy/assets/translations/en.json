@@ -96,6 +96,12 @@
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode"
   },
+  "notifications": {
+    "export": {
+      "markdown": "Exported Note To Markdown",
+      "path": "Documents/flowy"
+    }
+  },
   "contactsPage": {
     "title": "Contacts",
     "whatsHappening": "What's happening this week?",
