@@ -40,14 +40,14 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     return value;
   }
 
-  Future<Directory> get _ExportDir async {
+  Future<Directory> get _exportDir async {
     Directory documentsDir = await appFlowyDocumentDirectory();
 
     return documentsDir;
   }
 
   Future<String> get _localPath async {
-    final dir = await _ExportDir;
+    final dir = await _exportDir;
     return dir.path;
   }
 
