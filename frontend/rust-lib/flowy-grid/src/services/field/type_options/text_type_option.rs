@@ -27,7 +27,7 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct RichTextTypeOption {
     #[pb(index = 1)]
-    data: String, //It's not used.
+    data: String, //It's not used yet
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
