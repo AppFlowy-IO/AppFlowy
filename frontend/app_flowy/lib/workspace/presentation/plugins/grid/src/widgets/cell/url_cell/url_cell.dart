@@ -71,11 +71,18 @@ class _GridURLCellState extends State<GridURLCell> {
                 fontSize: 14,
                 decoration: TextDecoration.underline,
               ),
-              recognizer: _tapGesture(context),
             ),
           );
 
-          return Align(alignment: Alignment.centerLeft, child: richText);
+          return SizedBox.expand(
+              child: GestureDetector(
+            child: Align(alignment: Alignment.centerLeft, child: richText),
+            onTap: () async {
+              widget.onFocus.value = true;
+              final url = context.read<URLCellBloc>().state.url;
+              await _openUrlOrEdit(url);
+            },
+          ));
         },
       ),
     );
@@ -92,15 +99,6 @@ class _GridURLCellState extends State<GridURLCell> {
   void didUpdateWidget(covariant GridURLCell oldWidget) {
     _handleRequestFocus();
     super.didUpdateWidget(oldWidget);
-  }
-
-  TapGestureRecognizer _tapGesture(BuildContext context) {
-    final gesture = TapGestureRecognizer();
-    gesture.onTap = () async {
-      final url = context.read<URLCellBloc>().state.url;
-      await _openUrlOrEdit(url);
-    };
-    return gesture;
   }
 
   Future<void> _openUrlOrEdit(String url) async {
