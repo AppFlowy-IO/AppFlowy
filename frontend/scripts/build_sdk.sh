@@ -25,7 +25,7 @@ Linux-x86)
  ;;
 
 macOS)
- cargo make --profile development-mac flowy-sdk-dev
+ cargo make --profile "development-mac-$(uname -m)" flowy-sdk-dev
  ;;
 
 Windows) 
