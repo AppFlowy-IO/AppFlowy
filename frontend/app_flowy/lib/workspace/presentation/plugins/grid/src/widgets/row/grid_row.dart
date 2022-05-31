@@ -170,14 +170,15 @@ class _RowCells extends StatelessWidget {
   List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
       (gridCell) {
-        Widget? expander;
+        final GridCellWidget child = buildGridCellWidget(gridCell, cellCache);
+        GridCellExpander? expander = child.buildExpander();
         if (gridCell.field.isPrimary) {
-          expander = _CellExpander(onExpand: onExpand);
+          expander = _PrimaryCellExpander(onTap: onExpand);
         }
 
         return CellContainer(
           width: gridCell.field.width.toDouble(),
-          child: buildGridCellWidget(gridCell, cellCache),
+          child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
           expander: expander,
         );
@@ -199,23 +200,19 @@ class RegionStateNotifier extends ChangeNotifier {
   bool get onEnter => _onEnter;
 }
 
-class _CellExpander extends StatelessWidget {
-  final VoidCallback onExpand;
-  const _CellExpander({required this.onExpand, Key? key}) : super(key: key);
+class _PrimaryCellExpander extends StatelessWidget with GridCellExpander {
+  final VoidCallback onTap;
+  const _PrimaryCellExpander({required this.onTap, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return FittedBox(
-      fit: BoxFit.contain,
-      child: FlowyIconButton(
-        width: 26,
-        onPressed: onExpand,
-        iconPadding: const EdgeInsets.all(5),
-        radius: BorderRadius.circular(4),
-        icon: svgWidget("grid/expander", color: theme.main1),
-      ),
-    );
+    return svgWidget("grid/expander", color: theme.main1);
+  }
+
+  @override
+  void onExpand(BuildContext context) {
+    onTap();
   }
 }
 

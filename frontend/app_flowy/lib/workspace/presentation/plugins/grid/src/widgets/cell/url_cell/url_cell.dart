@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/workspace/application/grid/cell/url_cell_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,12 @@ class GridURLCell extends StatefulWidget with GridCellWidget {
 
   @override
   State<GridURLCell> createState() => _GridURLCellState();
+
+  @override
+  GridCellExpander? buildExpander() {
+    final cellContext = cellContextBuilder.build() as GridURLCellContext;
+    return _EditURLCellIndicator(cellContext: cellContext);
+  }
 }
 
 class _GridURLCellState extends State<GridURLCell> {
@@ -70,13 +77,7 @@ class _GridURLCellState extends State<GridURLCell> {
             ),
           );
 
-          return CellEnterRegion(
-            child: Align(alignment: Alignment.centerLeft, child: richText),
-            expander: _EditCellIndicator(onTap: () {
-              final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
-              URLCellEditor.show(context, cellContext);
-            }),
-          );
+          return Align(alignment: Alignment.centerLeft, child: richText);
         },
       ),
     );
@@ -115,20 +116,18 @@ class _GridURLCellState extends State<GridURLCell> {
   }
 }
 
-class _EditCellIndicator extends StatelessWidget {
-  final VoidCallback onTap;
-  const _EditCellIndicator({required this.onTap, Key? key}) : super(key: key);
+class _EditURLCellIndicator extends StatelessWidget with GridCellExpander {
+  final GridURLCellContext cellContext;
+  const _EditURLCellIndicator({required this.cellContext, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return FlowyIconButton(
-      width: 26,
-      onPressed: onTap,
-      hoverColor: theme.hover,
-      radius: BorderRadius.circular(4),
-      iconPadding: const EdgeInsets.all(5),
-      icon: svgWidget("editor/edit", color: theme.iconColor),
-    );
+    return svgWidget("editor/edit", color: theme.iconColor);
+  }
+
+  @override
+  void onExpand(BuildContext context) {
+    URLCellEditor.show(context, cellContext);
   }
 }

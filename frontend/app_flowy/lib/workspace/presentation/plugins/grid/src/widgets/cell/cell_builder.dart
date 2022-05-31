@@ -48,11 +48,19 @@ class BlankCell extends StatelessWidget {
   }
 }
 
+abstract class GridCellExpander implements Widget {
+  void onExpand(BuildContext context);
+}
+
 abstract class GridCellWidget implements FlowyHoverWidget {
   @override
   final ValueNotifier<bool> onFocus = ValueNotifier<bool>(false);
 
   final GridCellRequestFocusNotifier requestFocus = GridCellRequestFocusNotifier();
+
+  GridCellExpander? buildExpander() {
+    return null;
+  }
 }
 
 class GridCellRequestFocusNotifier extends ChangeNotifier {
@@ -125,7 +133,7 @@ class CellStateNotifier extends ChangeNotifier {
 
 class CellContainer extends StatelessWidget {
   final GridCellWidget child;
-  final Widget? expander;
+  final GridCellExpander? expander;
   final double width;
   final RegionStateNotifier rowStateNotifier;
   const CellContainer({
@@ -182,17 +190,33 @@ class CellContainer extends StatelessWidget {
 
 class CellEnterRegion extends StatelessWidget {
   final Widget child;
-  final Widget expander;
+  final GridCellExpander expander;
   const CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+
     return Selector<CellStateNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
         List<Widget> children = [child];
         if (onEnter) {
-          children.add(expander.positioned(right: 0));
+          final hover = FlowyHover(
+            style: HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
+            builder: (_, onHover) => Container(
+              width: 26,
+              height: 26,
+              padding: const EdgeInsets.all(3),
+              child: expander,
+            ),
+          );
+
+          children.add(GestureDetector(
+            child: hover,
+            behavior: HitTestBehavior.opaque,
+            onTap: () => expander.onExpand(context),
+          ).positioned(right: 0));
         }
 
         return MouseRegion(

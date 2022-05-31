@@ -52,7 +52,7 @@ class _FlowyHoverState extends State<FlowyHover> {
         child: child,
       );
     } else {
-      return child;
+      return Container(child: child, color: widget.style.backgroundColor);
     }
   }
 }
@@ -63,12 +63,14 @@ class HoverStyle {
   final Color hoverColor;
   final BorderRadius borderRadius;
   final EdgeInsets contentMargin;
+  final Color backgroundColor;
 
   const HoverStyle(
       {this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.borderRadius = const BorderRadius.all(Radius.circular(6)),
       this.contentMargin = EdgeInsets.zero,
+      this.backgroundColor = Colors.transparent,
       required this.hoverColor});
 }
 
