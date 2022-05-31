@@ -30,7 +30,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             _rowService.createRow();
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) async {
-            final fields = value.gridCellMap.values.map((e) => CellSnapshot(e.field)).toList();
+            final fields = value.gridCellMap.values.map((e) => GridCellEquatable(e.field)).toList();
             final snapshots = UnmodifiableListView(fields);
             emit(state.copyWith(
               gridCellMap: value.gridCellMap,
@@ -74,26 +74,27 @@ class RowState with _$RowState {
   const factory RowState({
     required GridRow rowData,
     required GridCellMap gridCellMap,
-    required UnmodifiableListView<CellSnapshot> snapshots,
+    required UnmodifiableListView<GridCellEquatable> snapshots,
     GridRowChangeReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial(GridRow rowData, GridCellMap cellDataMap) => RowState(
         rowData: rowData,
         gridCellMap: cellDataMap,
-        snapshots: UnmodifiableListView(cellDataMap.values.map((e) => CellSnapshot(e.field)).toList()),
+        snapshots: UnmodifiableListView(cellDataMap.values.map((e) => GridCellEquatable(e.field)).toList()),
       );
 }
 
-class CellSnapshot extends Equatable {
+class GridCellEquatable extends Equatable {
   final Field _field;
 
-  const CellSnapshot(Field field) : _field = field;
+  const GridCellEquatable(Field field) : _field = field;
 
   @override
   List<Object?> get props => [
         _field.id,
         _field.fieldType,
         _field.visibility,
+        _field.width,
       ];
 }
