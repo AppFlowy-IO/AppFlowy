@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/url_cell/url_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
@@ -149,12 +150,9 @@ class _RowDetailCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final style = _customCellStyle(theme, gridCell.field.fieldType);
+    final cell = buildGridCellWidget(gridCell, cellCache, style: style);
 
-    final cell = buildGridCellWidget(
-      gridCell,
-      cellCache,
-      style: _buildCellStyle(theme, gridCell.field.fieldType),
-    );
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 40),
       child: IntrinsicHeight(
@@ -168,7 +166,7 @@ class _RowDetailCell extends StatelessWidget {
             ),
             const HSpace(10),
             Expanded(
-              child: FlowyHover2(
+              child: AccessoryHover(
                 child: cell,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
               ),
@@ -191,7 +189,7 @@ class _RowDetailCell extends StatelessWidget {
   }
 }
 
-GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
+GridCellStyle? _customCellStyle(AppTheme theme, FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return null;
@@ -217,7 +215,11 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
     case FieldType.URL:
       return GridURLCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        accessoryTypes: [
+          GridURLCellAccessoryType.edit,
+          GridURLCellAccessoryType.copyURL,
+        ],
       );
   }
-  return null;
+  throw UnimplementedError;
 }

@@ -65,7 +65,7 @@ class _NumberCellState extends State<NumberCell> {
 
   @override
   Future<void> dispose() async {
-    widget.beginFocus.removeAllListener();
+    widget.requestBeginFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
     _focusNode.removeAllListener();
@@ -91,15 +91,15 @@ class _NumberCellState extends State<NumberCell> {
   }
 
   void _listenOnFocusNodeChanged() {
-    widget.onFocus.value = _focusNode.hasFocus;
+    widget.isFocus.value = _focusNode.hasFocus;
     _focusNode.setListener(() {
-      widget.onFocus.value = _focusNode.hasFocus;
+      widget.isFocus.value = _focusNode.hasFocus;
       focusChanged();
     });
   }
 
   void _handleCellRequestFocus(BuildContext context) {
-    widget.beginFocus.setListener(() {
+    widget.requestBeginFocus.setListener(() {
       if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
         FocusScope.of(context).requestFocus(_focusNode);
       }

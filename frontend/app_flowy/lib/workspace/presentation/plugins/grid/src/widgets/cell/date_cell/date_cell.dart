@@ -76,8 +76,8 @@ class _DateCellState extends State<DateCell> {
 
   void _showCalendar(BuildContext context) {
     final bloc = context.read<DateCellBloc>();
-    widget.onFocus.value = true;
-    final calendar = DateCellEditor(onDismissed: () => widget.onFocus.value = false);
+    widget.isFocus.value = true;
+    final calendar = DateCellEditor(onDismissed: () => widget.isFocus.value = false);
     calendar.show(
       context,
       cellContext: bloc.cellContext.clone(),

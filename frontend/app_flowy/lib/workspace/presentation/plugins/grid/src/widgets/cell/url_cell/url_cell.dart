@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:app_flowy/workspace/application/grid/cell/url_cell_bloc.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,9 +14,17 @@ import 'cell_editor.dart';
 class GridURLCellStyle extends GridCellStyle {
   String? placeholder;
 
+  List<GridURLCellAccessoryType> accessoryTypes;
+
   GridURLCellStyle({
     this.placeholder,
+    this.accessoryTypes = const [],
   });
+}
+
+enum GridURLCellAccessoryType {
+  edit,
+  copyURL,
 }
 
 class GridURLCell extends StatefulWidget with GridCellWidget {
@@ -37,9 +46,30 @@ class GridURLCell extends StatefulWidget with GridCellWidget {
   State<GridURLCell> createState() => _GridURLCellState();
 
   @override
-  GridCellExpander? buildExpander() {
-    final cellContext = cellContextBuilder.build() as GridURLCellContext;
-    return _EditURLCellIndicator(cellContext: cellContext);
+  List<GridCellAccessory> accessories() {
+    final List<GridCellAccessory> accessories = [];
+    if (cellStyle != null) {
+      accessories.addAll(cellStyle!.accessoryTypes.map(accessoryFromType));
+    }
+
+    // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
+    if (accessories.isEmpty) {
+      accessories.add(accessoryFromType(GridURLCellAccessoryType.edit));
+    }
+
+    return accessories;
+  }
+
+  GridCellAccessory accessoryFromType(GridURLCellAccessoryType ty) {
+    switch (ty) {
+      case GridURLCellAccessoryType.edit:
+        final cellContext = cellContextBuilder.build() as GridURLCellContext;
+        return _EditURLAccessory(cellContext: cellContext);
+
+      case GridURLCellAccessoryType.copyURL:
+        final cellContext = cellContextBuilder.build() as GridURLCellContext;
+        return _CopyURLAccessory(cellContext: cellContext);
+    }
   }
 }
 
@@ -78,7 +108,7 @@ class _GridURLCellState extends State<GridURLCell> {
               child: GestureDetector(
             child: Align(alignment: Alignment.centerLeft, child: richText),
             onTap: () async {
-              widget.onFocus.value = true;
+              widget.isFocus.value = true;
               final url = context.read<URLCellBloc>().state.url;
               await _openUrlOrEdit(url);
             },
@@ -90,7 +120,7 @@ class _GridURLCellState extends State<GridURLCell> {
 
   @override
   Future<void> dispose() async {
-    widget.beginFocus.removeAllListener();
+    widget.requestBeginFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
   }
@@ -112,15 +142,15 @@ class _GridURLCellState extends State<GridURLCell> {
   }
 
   void _handleRequestFocus() {
-    widget.beginFocus.setListener(() {
+    widget.requestBeginFocus.setListener(() {
       _openUrlOrEdit(_cellBloc.state.url);
     });
   }
 }
 
-class _EditURLCellIndicator extends StatelessWidget with GridCellExpander {
+class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
   final GridURLCellContext cellContext;
-  const _EditURLCellIndicator({required this.cellContext, Key? key}) : super(key: key);
+  const _EditURLAccessory({required this.cellContext, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +159,24 @@ class _EditURLCellIndicator extends StatelessWidget with GridCellExpander {
   }
 
   @override
-  void onExpand(BuildContext context) {
+  void onTap(BuildContext context) {
     URLCellEditor.show(context, cellContext);
+  }
+}
+
+class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
+  final GridURLCellContext cellContext;
+  const _CopyURLAccessory({required this.cellContext, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return svgWidget("editor/copy", color: theme.iconColor);
+  }
+
+  @override
+  void onTap(BuildContext context) {
+    final content = cellContext.getCellData()?.content ?? "";
+    Clipboard.setData(ClipboardData(text: content));
   }
 }

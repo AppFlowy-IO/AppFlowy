@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -171,16 +172,17 @@ class _RowCells extends StatelessWidget {
     return gridCellMap.values.map(
       (gridCell) {
         final GridCellWidget child = buildGridCellWidget(gridCell, cellCache);
-        GridCellExpander? expander = child.buildExpander();
+        List<GridCellAccessory> accessories = [];
         if (gridCell.field.isPrimary) {
-          expander = _PrimaryCellExpander(onTap: onExpand);
+          accessories.add(_PrimaryCellAccessory(onTapCallback: onExpand));
         }
+        accessories.addAll(child.accessories());
 
         return CellContainer(
           width: gridCell.field.width.toDouble(),
           child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
-          expander: expander,
+          accessories: accessories,
         );
       },
     ).toList();
@@ -200,9 +202,9 @@ class RegionStateNotifier extends ChangeNotifier {
   bool get onEnter => _onEnter;
 }
 
-class _PrimaryCellExpander extends StatelessWidget with GridCellExpander {
-  final VoidCallback onTap;
-  const _PrimaryCellExpander({required this.onTap, Key? key}) : super(key: key);
+class _PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
+  final VoidCallback onTapCallback;
+  const _PrimaryCellAccessory({required this.onTapCallback, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -211,8 +213,8 @@ class _PrimaryCellExpander extends StatelessWidget with GridCellExpander {
   }
 
   @override
-  void onExpand(BuildContext context) {
-    onTap();
+  void onTap(BuildContext context) {
+    onTapCallback();
   }
 }
 

@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:flutter/widgets.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/row/grid_row.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'cell_accessory.dart';
 import 'checkbox_cell.dart';
 import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
@@ -48,22 +48,20 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellExpander implements Widget {
-  void onExpand(BuildContext context);
-}
-
-abstract class GridCellWidget implements FlowyHoverWidget {
+abstract class GridCellWidget implements AccessoryHoverChild, CellContainerFocustable {
   @override
-  final ValueNotifier<bool> onFocus = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isFocus = ValueNotifier<bool>(false);
 
-  final GridCellBeginFocusFocus beginFocus = GridCellBeginFocusFocus();
-
-  GridCellExpander? buildExpander() {
-    return null;
+  @override
+  List<GridCellAccessory> accessories() {
+    return List.empty();
   }
+
+  @override
+  final GridCellRequestBeginFocus requestBeginFocus = GridCellRequestBeginFocus();
 }
 
-class GridCellBeginFocusFocus extends ChangeNotifier {
+class GridCellRequestBeginFocus extends ChangeNotifier {
   VoidCallback? _listener;
 
   void setListener(VoidCallback listener) {
@@ -130,9 +128,14 @@ class CellStateNotifier extends ChangeNotifier {
   bool get onEnter => _onEnter;
 }
 
+abstract class CellContainerFocustable {
+  // Listen on the requestBeginFocus if the
+  GridCellRequestBeginFocus get requestBeginFocus;
+}
+
 class CellContainer extends StatelessWidget {
   final GridCellWidget child;
-  final GridCellExpander? expander;
+  final List<GridCellAccessory> accessories;
   final double width;
   final RegionStateNotifier rowStateNotifier;
   const CellContainer({
@@ -140,7 +143,7 @@ class CellContainer extends StatelessWidget {
     required this.child,
     required this.width,
     required this.rowStateNotifier,
-    this.expander,
+    this.accessories = const [],
   }) : super(key: key);
 
   @override
@@ -152,17 +155,17 @@ class CellContainer extends StatelessWidget {
         selector: (context, notifier) => notifier.isFocus,
         builder: (context, isFocus, _) {
           Widget container = Center(child: child);
-          child.onFocus.addListener(() {
-            Provider.of<CellStateNotifier>(context, listen: false).isFocus = child.onFocus.value;
+          child.isFocus.addListener(() {
+            Provider.of<CellStateNotifier>(context, listen: false).isFocus = child.isFocus.value;
           });
 
-          if (expander != null) {
-            container = CellEnterRegion(child: container, expander: expander!);
+          if (accessories.isNotEmpty) {
+            container = CellEnterRegion(child: container, accessories: accessories);
           }
 
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => child.beginFocus.notify(),
+            onTap: () => child.requestBeginFocus.notify(),
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),
@@ -189,33 +192,17 @@ class CellContainer extends StatelessWidget {
 
 class CellEnterRegion extends StatelessWidget {
   final Widget child;
-  final GridCellExpander expander;
-  const CellEnterRegion({required this.child, required this.expander, Key? key}) : super(key: key);
+  final List<GridCellAccessory> accessories;
+  const CellEnterRegion({required this.child, required this.accessories, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return Selector<CellStateNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
         List<Widget> children = [child];
         if (onEnter) {
-          final hover = FlowyHover(
-            style: HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
-            builder: (_, onHover) => Container(
-              width: 26,
-              height: 26,
-              padding: const EdgeInsets.all(3),
-              child: expander,
-            ),
-          );
-
-          children.add(GestureDetector(
-            child: hover,
-            behavior: HitTestBehavior.opaque,
-            onTap: () => expander.onExpand(context),
-          ).positioned(right: 0));
+          children.add(AccessoryContainer(accessories: accessories).positioned(right: 0));
         }
 
         return MouseRegion(
@@ -225,7 +212,6 @@ class CellEnterRegion extends StatelessWidget {
           child: Stack(
             alignment: AlignmentDirectional.center,
             fit: StackFit.expand,
-            // alignment: AlignmentDirectional.centerEnd,
             children: children,
           ),
         );

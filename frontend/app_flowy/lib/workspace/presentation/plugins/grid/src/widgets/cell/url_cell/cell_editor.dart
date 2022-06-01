@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class URLCellEditor extends StatefulWidget {
+class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
   final GridURLCellContext cellContext;
   const URLCellEditor({required this.cellContext, Key? key}) : super(key: key);
 
@@ -34,11 +34,17 @@ class URLCellEditor extends StatefulWidget {
       identifier: URLCellEditor.identifier(),
       anchorContext: context,
       anchorDirection: AnchorDirection.bottomWithCenterAligned,
+      delegate: editor,
     );
   }
 
   static String identifier() {
     return (URLCellEditor).toString();
+  }
+
+  @override
+  bool asBarrier() {
+    return true;
   }
 }
 
