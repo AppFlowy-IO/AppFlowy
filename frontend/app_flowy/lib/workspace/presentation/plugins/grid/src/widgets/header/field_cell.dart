@@ -86,7 +86,6 @@ class _GridHeaderCellContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     final borderSide = BorderSide(color: theme.shader5, width: 1.0);
-
     final decoration = BoxDecoration(
         border: Border(
       top: borderSide,

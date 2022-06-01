@@ -72,7 +72,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   device_info_plus: ^3.2.1
-  fluttertoast: ^8.0.8
+  fluttertoast: ^8.0.9
   table_calendar: ^3.0.5
   reorderables: ^0.5.0
   linked_scroll_controller: ^0.2.0

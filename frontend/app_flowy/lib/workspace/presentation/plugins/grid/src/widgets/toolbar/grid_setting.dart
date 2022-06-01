@@ -85,7 +85,7 @@ class GridSettingList extends StatelessWidget {
   }
 
   Widget _renderList() {
-    final cells = GridSettingAction.values.map((action) {
+    final cells = GridSettingAction.values.where((value) => value.enable()).map((action) {
       return _SettingItem(action: action);
     }).toList();
 
