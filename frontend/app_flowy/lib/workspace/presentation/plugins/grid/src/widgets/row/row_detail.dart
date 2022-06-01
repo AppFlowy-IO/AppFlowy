@@ -152,6 +152,15 @@ class _RowDetailCell extends StatelessWidget {
     final style = _customCellStyle(theme, gridCell.field.fieldType);
     final cell = buildGridCellWidget(gridCell, cellCache, style: style);
 
+    final gesture = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => cell.requestBeginFocus.notify(),
+      child: AccessoryHover(
+        child: cell,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      ),
+    );
+
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 40),
       child: IntrinsicHeight(
@@ -164,12 +173,7 @@ class _RowDetailCell extends StatelessWidget {
               child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
             ),
             const HSpace(10),
-            Expanded(
-              child: AccessoryHover(
-                child: cell,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              ),
-            ),
+            Expanded(child: gesture),
           ],
         ),
       ),
