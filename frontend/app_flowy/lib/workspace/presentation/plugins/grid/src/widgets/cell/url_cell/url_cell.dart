@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/cell/url_cell_bloc.dart';
+import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
@@ -176,7 +179,9 @@ class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   void onTap(BuildContext context) {
-    final content = cellContext.getCellData()?.content ?? "";
+    final content = cellContext.getCellData(loadIfNoCache: false)?.content ?? "";
     Clipboard.setData(ClipboardData(text: content));
+
+    showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
   }
 }

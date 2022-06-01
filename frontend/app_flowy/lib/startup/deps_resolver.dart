@@ -16,6 +16,7 @@ import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
 class DependencyResolver {
@@ -46,6 +47,8 @@ void _resolveUserDeps(GetIt getIt) {
 }
 
 void _resolveHomeDeps(GetIt getIt) {
+  getIt.registerSingleton(FToast());
+
   getIt.registerSingleton(MenuSharedState());
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(

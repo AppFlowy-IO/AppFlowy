@@ -105,7 +105,7 @@ class _GridCellContext<T, D> extends Equatable {
   final FieldService _fieldService;
 
   late final CellListener _cellListener;
-  late final ValueNotifier<T?> _cellDataNotifier;
+  late final ValueNotifier<T?>? _cellDataNotifier;
   bool isListening = false;
   VoidCallback? _onFieldChangedFn;
   Timer? _loadDataOperation;
@@ -163,19 +163,19 @@ class _GridCellContext<T, D> extends Equatable {
     }
 
     onCellChangedFn() {
-      onCellChanged(_cellDataNotifier.value);
+      onCellChanged(_cellDataNotifier?.value);
 
       if (cellDataLoader.config.reloadOnCellChanged) {
         _loadData();
       }
     }
 
-    _cellDataNotifier.addListener(onCellChangedFn);
+    _cellDataNotifier?.addListener(onCellChangedFn);
     return onCellChangedFn;
   }
 
   void removeListener(VoidCallback fn) {
-    _cellDataNotifier.removeListener(fn);
+    _cellDataNotifier?.removeListener(fn);
   }
 
   T? getCellData({bool loadIfNoCache = true}) {
@@ -211,7 +211,7 @@ class _GridCellContext<T, D> extends Equatable {
     _loadDataOperation?.cancel();
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
-        _cellDataNotifier.value = data;
+        _cellDataNotifier?.value = data;
         cellCache.insert(GridCellCacheData(key: _cacheKey, object: data));
       });
     });

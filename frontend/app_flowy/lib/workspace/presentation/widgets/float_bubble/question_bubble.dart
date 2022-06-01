@@ -1,5 +1,5 @@
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/startup/tasks/rust_sdk.dart';
-import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -115,7 +115,7 @@ class _DebugToast extends StatelessWidget {
   }
 
   void show() {
-    fToast.showToast(
+    getIt<FToast>().showToast(
       child: this,
       gravity: ToastGravity.BOTTOM,
       toastDuration: const Duration(seconds: 3),
