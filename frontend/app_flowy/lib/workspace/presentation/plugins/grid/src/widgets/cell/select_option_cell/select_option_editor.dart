@@ -156,6 +156,7 @@ class _TextField extends StatelessWidget {
             selectedOptionMap: optionMap,
             distanceToText: _editorPannelWidth * 0.7,
             tagController: _tagController,
+            onClick: () => FlowyOverlay.of(context).remove(SelectOptionTypeOptionEditor.identifier),
             newText: (text) {
               context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.filterOption(text));
             },
