@@ -176,13 +176,25 @@ class _RowCells extends StatelessWidget {
         if (gridCell.field.isPrimary) {
           accessories.add(_PrimaryCellAccessory(onTapCallback: onExpand));
         }
-        accessories.addAll(child.accessories());
+
+        accessoryBuilder(buildContext) {
+          final builder = child.accessoryBuilder;
+          List<GridCellAccessory> accessories = [];
+          if (gridCell.field.isPrimary) {
+            accessories.add(_PrimaryCellAccessory(onTapCallback: onExpand));
+          }
+
+          if (builder != null) {
+            accessories.addAll(builder(buildContext));
+          }
+          return accessories;
+        }
 
         return CellContainer(
           width: gridCell.field.width.toDouble(),
           child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
-          accessories: accessories,
+          accessoryBuilder: accessoryBuilder,
         );
       },
     ).toList();
@@ -213,7 +225,7 @@ class _PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
   }
 
   @override
-  void onTap(BuildContext context) {
+  void onTap() {
     onTapCallback();
   }
 }

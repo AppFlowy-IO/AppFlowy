@@ -6,21 +6,29 @@ import 'package:provider/provider.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-abstract class GridCellAccessory implements Widget {
-  void onTap(BuildContext context);
+class GridCellAccessoryBuildContext {
+  final BuildContext anchorContext;
+
+  GridCellAccessoryBuildContext({required this.anchorContext});
 }
 
-abstract class AccessoryHoverChild extends Widget {
-  const AccessoryHoverChild({Key? key}) : super(key: key);
+abstract class GridCellAccessory implements Widget {
+  void onTap();
+}
+
+typedef AccessoryBuilder = List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext);
+
+abstract class AccessoryWidget extends Widget {
+  const AccessoryWidget({Key? key}) : super(key: key);
 
   // The hover will show if the onFocus's value is true
   ValueNotifier<bool>? get isFocus;
 
-  List<GridCellAccessory> accessories();
+  AccessoryBuilder? get accessoryBuilder;
 }
 
 class AccessoryHover extends StatefulWidget {
-  final AccessoryHoverChild child;
+  final AccessoryWidget child;
   final EdgeInsets contentPadding;
   const AccessoryHover({
     required this.child,
@@ -62,8 +70,10 @@ class _AccessoryHoverState extends State<AccessoryHover> {
       const _Background(),
       Padding(padding: widget.contentPadding, child: widget.child),
     ];
-    final accessories = widget.child.accessories();
-    if (accessories.isNotEmpty) {
+
+    final accessoryBuilder = widget.child.accessoryBuilder;
+    if (accessoryBuilder != null) {
+      final accessories = accessoryBuilder((GridCellAccessoryBuildContext(anchorContext: context)));
       children.add(
         Padding(
           padding: const EdgeInsets.only(right: 6),
@@ -152,7 +162,7 @@ class AccessoryContainer extends StatelessWidget {
       return GestureDetector(
         child: hover,
         behavior: HitTestBehavior.opaque,
-        onTap: () => accessory.onTap(context),
+        onTap: () => accessory.onTap(),
       );
     }).toList();
 

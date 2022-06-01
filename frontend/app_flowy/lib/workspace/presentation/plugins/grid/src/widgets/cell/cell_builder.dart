@@ -48,14 +48,12 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellWidget implements AccessoryHoverChild, CellContainerFocustable {
+abstract class GridCellWidget implements AccessoryWidget, CellContainerFocustable {
   @override
   final ValueNotifier<bool> isFocus = ValueNotifier<bool>(false);
 
   @override
-  List<GridCellAccessory> accessories() {
-    return List.empty();
-  }
+  List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext)? get accessoryBuilder => null;
 
   @override
   final GridCellRequestBeginFocus requestBeginFocus = GridCellRequestBeginFocus();
@@ -135,7 +133,7 @@ abstract class CellContainerFocustable {
 
 class CellContainer extends StatelessWidget {
   final GridCellWidget child;
-  final List<GridCellAccessory> accessories;
+  final AccessoryBuilder? accessoryBuilder;
   final double width;
   final RegionStateNotifier rowStateNotifier;
   const CellContainer({
@@ -143,7 +141,7 @@ class CellContainer extends StatelessWidget {
     required this.child,
     required this.width,
     required this.rowStateNotifier,
-    this.accessories = const [],
+    this.accessoryBuilder,
   }) : super(key: key);
 
   @override
@@ -159,8 +157,12 @@ class CellContainer extends StatelessWidget {
             Provider.of<CellStateNotifier>(context, listen: false).isFocus = child.isFocus.value;
           });
 
-          if (accessories.isNotEmpty) {
-            container = CellEnterRegion(child: container, accessories: accessories);
+          if (accessoryBuilder != null) {
+            final buildContext = GridCellAccessoryBuildContext(anchorContext: context);
+            final accessories = accessoryBuilder!(buildContext);
+            if (accessories.isNotEmpty) {
+              container = CellEnterRegion(child: container, accessories: accessories);
+            }
           }
 
           return GestureDetector(

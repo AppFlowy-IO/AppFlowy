@@ -48,32 +48,34 @@ class GridURLCell extends StatefulWidget with GridCellWidget {
   @override
   State<GridURLCell> createState() => _GridURLCellState();
 
-  @override
-  List<GridCellAccessory> accessories() {
-    final List<GridCellAccessory> accessories = [];
-    if (cellStyle != null) {
-      accessories.addAll(cellStyle!.accessoryTypes.map(accessoryFromType));
-    }
-
-    // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
-    if (accessories.isEmpty) {
-      accessories.add(accessoryFromType(GridURLCellAccessoryType.edit));
-    }
-
-    return accessories;
-  }
-
-  GridCellAccessory accessoryFromType(GridURLCellAccessoryType ty) {
+  GridCellAccessory accessoryFromType(GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
         final cellContext = cellContextBuilder.build() as GridURLCellContext;
-        return _EditURLAccessory(cellContext: cellContext);
+        return _EditURLAccessory(cellContext: cellContext, anchorContext: buildContext.anchorContext);
 
       case GridURLCellAccessoryType.copyURL:
         final cellContext = cellContextBuilder.build() as GridURLCellContext;
         return _CopyURLAccessory(cellContext: cellContext);
     }
   }
+
+  @override
+  List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext) get accessoryBuilder => (buildContext) {
+        final List<GridCellAccessory> accessories = [];
+        if (cellStyle != null) {
+          accessories.addAll(cellStyle!.accessoryTypes.map((ty) {
+            return accessoryFromType(ty, buildContext);
+          }));
+        }
+
+        // If the accessories is empty then the default accessory will be GridURLCellAccessoryType.edit
+        if (accessories.isEmpty) {
+          accessories.add(accessoryFromType(GridURLCellAccessoryType.edit, buildContext));
+        }
+
+        return accessories;
+      };
 }
 
 class _GridURLCellState extends State<GridURLCell> {
@@ -153,7 +155,12 @@ class _GridURLCellState extends State<GridURLCell> {
 
 class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
   final GridURLCellContext cellContext;
-  const _EditURLAccessory({required this.cellContext, Key? key}) : super(key: key);
+  final BuildContext anchorContext;
+  const _EditURLAccessory({
+    required this.cellContext,
+    required this.anchorContext,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +169,8 @@ class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
   }
 
   @override
-  void onTap(BuildContext context) {
-    URLCellEditor.show(context, cellContext);
+  void onTap() {
+    URLCellEditor.show(anchorContext, cellContext);
   }
 }
 
@@ -178,10 +185,9 @@ class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
   }
 
   @override
-  void onTap(BuildContext context) {
+  void onTap() {
     final content = cellContext.getCellData(loadIfNoCache: false)?.content ?? "";
     Clipboard.setData(ClipboardData(text: content));
-
     showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
   }
 }
