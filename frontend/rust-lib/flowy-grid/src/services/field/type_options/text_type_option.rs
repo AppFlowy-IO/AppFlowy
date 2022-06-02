@@ -31,7 +31,7 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation<String, String> for RichTextTypeOption {
+impl CellDataOperation<String> for RichTextTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -80,10 +80,10 @@ mod tests {
         // date
         let field_type = FieldType::DateTime;
         let date_time_field_meta = FieldBuilder::from_field_type(&field_type).build();
-        let json = serde_json::to_string(&DateCellDataSerde::from_timestamp(1647251762, None)).unwrap();
+
         assert_eq!(
             type_option
-                .decode_cell_data(json, &field_type, &date_time_field_meta)
+                .decode_cell_data(1647251762.to_string(), &field_type, &date_time_field_meta)
                 .unwrap()
                 .parse::<DateCellData>()
                 .unwrap()

@@ -198,6 +198,10 @@
       "colorPannelTitle": "Colors",
       "pannelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
+    },
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
     }
   }
 }

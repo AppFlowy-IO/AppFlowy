@@ -34,7 +34,7 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellDataOperation<EncodedCellData<URLCellData>, String> for URLTypeOption {
+impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,

@@ -2,7 +2,7 @@ part of 'cell_service.dart';
 
 typedef GridCellContext = _GridCellContext<String, String>;
 typedef GridSelectOptionCellContext = _GridCellContext<SelectOptionCellData, String>;
-typedef GridDateCellContext = _GridCellContext<DateCellData, DateCalData>;
+typedef GridDateCellContext = _GridCellContext<DateCellData, CalendarData>;
 typedef GridURLCellContext = _GridCellContext<URLCellData, String>;
 
 class GridCellContextBuilder {
@@ -31,6 +31,7 @@ class GridCellContextBuilder {
         final cellDataLoader = GridCellDataLoader(
           gridCell: _gridCell,
           parser: DateCellDataParser(),
+          config: const GridCellDataConfig(reloadOnFieldChanged: true),
         );
 
         return GridDateCellContext(
@@ -218,6 +219,7 @@ class _GridCellContext<T, D> extends Equatable {
   }
 
   void dispose() {
+    _cellListener.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
 

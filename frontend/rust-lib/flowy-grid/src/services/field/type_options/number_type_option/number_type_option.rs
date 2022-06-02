@@ -71,7 +71,7 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
-impl CellDataOperation<String, String> for NumberTypeOption {
+impl CellDataOperation<String> for NumberTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
