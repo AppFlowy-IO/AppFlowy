@@ -219,6 +219,7 @@ class _GridCellContext<T, D> extends Equatable {
   }
 
   void dispose() {
+    _cellListener.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
 

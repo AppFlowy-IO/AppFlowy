@@ -358,7 +358,7 @@ impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
 mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{DateCellContentChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::{CellDataOperation, EncodedCellData};
+    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry};
     use strum::IntoEnumIterator;
 
