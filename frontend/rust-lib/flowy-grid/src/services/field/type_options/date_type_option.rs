@@ -150,8 +150,7 @@ impl CellDataOperation<String> for DateTypeOption {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
                     let utc = self.utc_date_time_from_timestamp(date_timestamp);
-                    let timestamp = self.timestamp_from_utc_with_time(&utc, &time)?;
-                    timestamp
+                    self.timestamp_from_utc_with_time(&utc, &time)?
                 }
                 _ => date_timestamp,
             },
@@ -548,7 +547,7 @@ mod tests {
         assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
-                date: Some(date_timestamp.clone()),
+                date: Some(date_timestamp),
                 time: Some("1:00".to_owned()),
             },
             &type_option.field_type(),
@@ -568,7 +567,7 @@ mod tests {
         assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
-                date: Some(date_timestamp.clone()),
+                date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
             &type_option.field_type(),
@@ -622,7 +621,7 @@ mod tests {
         if type_option.include_time {
             format!("{}{}", decoded_data.date, decoded_data.time)
         } else {
-            format!("{}", decoded_data.date)
+            decoded_data.date
         }
     }
 }
