@@ -71,6 +71,76 @@ pub struct NumberTypeOption {
 }
 impl_type_option!(NumberTypeOption, FieldType::Number);
 
+impl NumberTypeOption {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    fn cell_content_from_number_str(&self, s: &str) -> FlowyResult<String> {
+        return match self.format {
+            NumberFormat::Number => {
+                if let Ok(v) = s.parse::<f64>() {
+                    return Ok(v.to_string());
+                }
+
+                if let Ok(v) = s.parse::<i64>() {
+                    return Ok(v.to_string());
+                }
+
+                Ok("".to_string())
+            }
+            NumberFormat::Percent => {
+                let content = s.parse::<f64>().map_or(String::new(), |v| v.to_string());
+                Ok(content)
+            }
+            _ => self.money_from_number_str(s),
+        };
+    }
+
+    pub fn set_format(&mut self, format: NumberFormat) {
+        self.format = format;
+        self.symbol = format.symbol();
+    }
+
+    fn money_from_number_str(&self, s: &str) -> FlowyResult<String> {
+        let mut number = self.strip_currency_symbol(s);
+
+        if s.is_empty() {
+            return Ok("".to_string());
+        }
+
+        match Decimal::from_str(&number) {
+            Ok(mut decimal) => {
+                decimal.set_sign_positive(self.sign_positive);
+                let money = rusty_money::Money::from_decimal(decimal, self.format.currency()).to_string();
+                Ok(money)
+            }
+            Err(_) => match rusty_money::Money::from_str(&number, self.format.currency()) {
+                Ok(money) => Ok(money.to_string()),
+                Err(_) => {
+                    number.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
+                    if number.chars().all(char::is_numeric) {
+                        self.money_from_number_str(&number)
+                    } else {
+                        Err(FlowyError::invalid_data().context("Should only contain numbers"))
+                    }
+                }
+            },
+        }
+    }
+
+    fn strip_currency_symbol<T: ToString>(&self, s: T) -> String {
+        let mut s = s.to_string();
+        for symbol in CURRENCY_SYMBOL.iter() {
+            if s.starts_with(symbol) {
+                s = s.strip_prefix(symbol).unwrap_or("").to_string();
+                break;
+            }
+        }
+        s
+    }
+}
+
 impl CellDataOperation<String> for NumberTypeOption {
     fn decode_cell_data<T>(
         &self,
@@ -103,7 +173,7 @@ impl CellDataOperation<String> for NumberTypeOption {
                 Ok(DecodedCellData::new(content))
             }
             _ => {
-                let content = self.number_from_str(&cell_data);
+                let content = self.money_from_number_str(&cell_data).unwrap_or("".to_string());
                 Ok(DecodedCellData::new(content))
             }
         }
@@ -114,15 +184,8 @@ impl CellDataOperation<String> for NumberTypeOption {
         C: Into<CellContentChangeset>,
     {
         let changeset = changeset.into();
-        let mut data = changeset.trim().to_string();
-
-        if self.format != NumberFormat::Number {
-            data = self.strip_symbol(data);
-            if !data.chars().all(char::is_numeric) {
-                return Err(FlowyError::invalid_data().context("Should only contain numbers"));
-            }
-        }
-
+        let data = changeset.trim().to_string();
+        let _ = self.cell_content_from_number_str(&data)?;
         Ok(data)
     }
 }
@@ -138,54 +201,6 @@ impl std::default::Default for NumberTypeOption {
             sign_positive: true,
             name: "Number".to_string(),
         }
-    }
-}
-
-impl NumberTypeOption {
-    pub fn set_format(&mut self, format: NumberFormat) {
-        self.format = format;
-        self.symbol = format.symbol();
-    }
-
-    fn number_from_str(&self, s: &str) -> String {
-        match Decimal::from_str(s) {
-            Ok(mut decimal) => {
-                match decimal.set_scale(self.scale) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        tracing::error!("Set decimal scale failed: {:?}", e);
-                    }
-                }
-
-                decimal.set_sign_positive(self.sign_positive);
-                let money = rusty_money::Money::from_decimal(decimal, self.format.currency());
-                money.to_string()
-            }
-            Err(_) => {
-                let s = self.strip_symbol(s);
-                if !s.is_empty() && s.chars().all(char::is_numeric) {
-                    self.number_from_str(&s)
-                } else {
-                    "".to_owned()
-                }
-            }
-        }
-    }
-
-    fn strip_symbol<T: ToString>(&self, s: T) -> String {
-        let mut s = s.to_string();
-
-        for symbol in CURRENCY_SYMBOL.iter() {
-            if s.starts_with(symbol) {
-                s = s.strip_prefix(symbol).unwrap_or("").to_string();
-                break;
-            }
-        }
-
-        if !s.chars().all(char::is_numeric) {
-            s.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
-        }
-        s
     }
 }
 
@@ -207,13 +222,20 @@ mod tests {
     }
 
     #[test]
+    fn number_type_option_strip_symbol_test() {
+        let mut type_option = NumberTypeOption::new();
+        type_option.format = NumberFormat::USD;
+        assert_eq!(type_option.strip_currency_symbol("$18,443"), "18,443".to_owned());
+
+        type_option.format = NumberFormat::Yuan;
+        assert_eq!(type_option.strip_currency_symbol("$0.2"), "0.2".to_owned());
+    }
+
+    #[test]
     fn number_type_option_format_number_test() {
         let mut type_option = NumberTypeOption::default();
         let field_type = FieldType::Number;
         let field_meta = FieldBuilder::from_field_type(&field_type).build();
-        assert_eq!(type_option.strip_symbol("¥18,443"), "18443".to_owned());
-        assert_eq!(type_option.strip_symbol("$18,443"), "18443".to_owned());
-        assert_eq!(type_option.strip_symbol("€18.443"), "18443".to_owned());
 
         for format in NumberFormat::iter() {
             type_option.format = format;
@@ -248,10 +270,12 @@ mod tests {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
-                    // assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                    assert_equal(&type_option, "0.2", "0.2", &field_type, &field_meta);
                 }
                 NumberFormat::USD => {
                     assert_equal(&type_option, "$18,44", "$1,844", &field_type, &field_meta);
+                    assert_equal(&type_option, "$0.2", "$0.2", &field_type, &field_meta);
                     assert_equal(&type_option, "", "", &field_type, &field_meta);
                     assert_equal(&type_option, "abc", "", &field_type, &field_meta);
                 }
@@ -264,37 +288,9 @@ mod tests {
                     assert_equal(&type_option, "CN¥1844", "CN¥1,844", &field_type, &field_meta);
                 }
                 NumberFormat::EUR => {
-                    assert_equal(&type_option, "€18.44", "€1.844", &field_type, &field_meta);
+                    assert_equal(&type_option, "€18.44", "€18,44", &field_type, &field_meta);
+                    assert_equal(&type_option, "€0.5", "€0,5", &field_type, &field_meta);
                     assert_equal(&type_option, "€1844", "€1.844", &field_type, &field_meta);
-                }
-                _ => {}
-            }
-        }
-    }
-
-    #[test]
-    fn number_type_option_scale_test() {
-        let mut type_option = NumberTypeOption {
-            scale: 1,
-            ..Default::default()
-        };
-        let field_type = FieldType::Number;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
-
-        for format in NumberFormat::iter() {
-            type_option.format = format;
-            match format {
-                NumberFormat::Number => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
-                }
-                NumberFormat::USD => {
-                    assert_equal(&type_option, "18443", "$1,844.3", &field_type, &field_meta);
-                }
-                NumberFormat::Yen => {
-                    assert_equal(&type_option, "18443", "¥1,844.3", &field_type, &field_meta);
-                }
-                NumberFormat::EUR => {
-                    assert_equal(&type_option, "18443", "€1.844,3", &field_type, &field_meta);
                 }
                 _ => {}
             }
