@@ -1,17 +1,16 @@
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, EncodedCellData};
+use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{
     CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
 };
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use strum_macros::EnumIter;
 
 // Date
@@ -117,7 +116,7 @@ impl DateTypeOption {
     }
 }
 
-impl CellDataOperation<EncodedCellData<DateCellDataSerde>> for DateTypeOption {
+impl CellDataOperation<String> for DateTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -125,7 +124,7 @@ impl CellDataOperation<EncodedCellData<DateCellDataSerde>> for DateTypeOption {
         _field_meta: &FieldMeta,
     ) -> FlowyResult<DecodedCellData>
     where
-        T: Into<EncodedCellData<DateCellDataSerde>>,
+        T: Into<String>,
     {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
@@ -135,8 +134,8 @@ impl CellDataOperation<EncodedCellData<DateCellDataSerde>> for DateTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = encoded_data.into().try_into_inner()?;
-        let date = self.today_desc_from_timestamp(encoded_data.timestamp);
+        let timestamp = encoded_data.into().parse::<i64>().unwrap_or(0);
+        let date = self.today_desc_from_timestamp(timestamp);
         DecodedCellData::try_from_bytes(date)
     }
 
@@ -146,15 +145,15 @@ impl CellDataOperation<EncodedCellData<DateCellDataSerde>> for DateTypeOption {
     {
         let content_changeset: DateCellContentChangeset = serde_json::from_str(&changeset.into())?;
         let cell_data = match content_changeset.date_timestamp() {
-            None => DateCellDataSerde::default(),
+            None => 0,
             Some(date_timestamp) => match (self.include_time, content_changeset.time) {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
                     let utc = self.utc_date_time_from_timestamp(date_timestamp);
                     let timestamp = self.timestamp_from_utc_with_time(&utc, &time)?;
-                    DateCellDataSerde::new(timestamp, time)
+                    timestamp
                 }
-                _ => DateCellDataSerde::new(date_timestamp, None),
+                _ => date_timestamp,
             },
         };
 
@@ -282,34 +281,6 @@ pub struct DateCellData {
     pub timestamp: i64,
 }
 
-#[derive(Default, Serialize, Deserialize)]
-pub(crate) struct DateCellDataSerde {
-    pub timestamp: i64,
-
-    // #[deprecated(since = "0.0.4", note = "No need to same the time that user input")]
-    pub time: Option<String>,
-}
-
-impl DateCellDataSerde {
-    pub(crate) fn new(timestamp: i64, _time: Option<String>) -> Self {
-        Self { timestamp, time: None }
-    }
-}
-
-impl FromStr for DateCellDataSerde {
-    type Err = FlowyError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str::<DateCellDataSerde>(s).map_err(internal_error)
-    }
-}
-
-impl ToString for DateCellDataSerde {
-    fn to_string(&self) -> String {
-        serde_json::to_string(&self).unwrap_or_else(|_| "".to_string())
-    }
-}
-
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPayload {
     #[pb(index = 1)]
@@ -386,9 +357,7 @@ impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
 #[cfg(test)]
 mod tests {
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{
-        DateCellContentChangeset, DateCellData, DateCellDataSerde, DateFormat, DateTypeOption, TimeFormat,
-    };
+    use crate::services::field::{DateCellContentChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
     use crate::services::row::{CellDataOperation, EncodedCellData};
     use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry};
     use strum::IntoEnumIterator;
@@ -639,7 +608,7 @@ mod tests {
         );
     }
 
-    fn decode_cell_data<T: Into<EncodedCellData<DateCellDataSerde>>>(
+    fn decode_cell_data<T: Into<String>>(
         encoded_data: T,
         type_option: &DateTypeOption,
         field_meta: &FieldMeta,

@@ -31,6 +31,7 @@ class GridCellContextBuilder {
         final cellDataLoader = GridCellDataLoader(
           gridCell: _gridCell,
           parser: DateCellDataParser(),
+          config: const GridCellDataConfig(reloadOnFieldChanged: true),
         );
 
         return GridDateCellContext(
