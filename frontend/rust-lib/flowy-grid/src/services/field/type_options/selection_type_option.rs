@@ -95,7 +95,7 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String, String> for SingleSelectTypeOption {
+impl CellDataOperation<String> for SingleSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -193,7 +193,7 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String, String> for MultiSelectTypeOption {
+impl CellDataOperation<String> for MultiSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,

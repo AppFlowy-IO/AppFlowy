@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-pub trait CellDataOperation<D, CO: ToString> {
+pub trait CellDataOperation<ED> {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -14,14 +14,14 @@ pub trait CellDataOperation<D, CO: ToString> {
         field_meta: &FieldMeta,
     ) -> FlowyResult<DecodedCellData>
     where
-        T: Into<D>;
+        T: Into<ED>;
 
     //
     fn apply_changeset<C: Into<CellContentChangeset>>(
         &self,
         changeset: C,
         cell_meta: Option<CellMeta>,
-    ) -> FlowyResult<CO>;
+    ) -> FlowyResult<String>;
 }
 
 #[derive(Debug)]
@@ -128,9 +128,7 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     let s = match field_meta.field_type {
         FieldType::RichText => RichTextTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Number => NumberTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
-        FieldType::DateTime => DateTypeOption::from(field_meta)
-            .apply_changeset(changeset, cell_meta)
-            .map(|data| data.to_string()),
+        FieldType::DateTime => DateTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::SingleSelect => SingleSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::MultiSelect => MultiSelectTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),
         FieldType::Checkbox => CheckboxTypeOption::from(field_meta).apply_changeset(changeset, cell_meta),

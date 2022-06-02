@@ -42,7 +42,7 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellDataOperation<String, String> for CheckboxTypeOption {
+impl CellDataOperation<String> for CheckboxTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
