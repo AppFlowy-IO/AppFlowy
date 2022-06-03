@@ -207,6 +207,7 @@ class _CreateOptionCell extends StatelessWidget {
         SelectOptionTag(
           name: name,
           color: theme.shader6,
+          onSelected: () => context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.newOption(name)),
         ),
       ],
     );
