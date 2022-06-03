@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
@@ -8,6 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'cell/cell_service/cell_service.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
+import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
 
@@ -33,19 +35,19 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
     on<GridEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (InitialGrid value) async {
+        await event.when(
+          initial: () async {
             _startListening();
             await _loadGrid(emit);
           },
-          createRow: (_CreateRow value) {
+          createRow: () {
             _gridService.createRow();
           },
-          didReceiveRowUpdate: (_DidReceiveRowUpdate value) {
-            emit(state.copyWith(rows: value.rows, listState: value.listState));
+          didReceiveRowUpdate: (rows, listState) {
+            emit(state.copyWith(rows: rows, listState: listState));
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(rows: rowCache.clonedRows, fields: value.fields));
+          didReceiveFieldUpdate: (fields) {
+            emit(state.copyWith(rows: rowCache.clonedRows, fields: GridFieldEquatable(fields)));
           },
         );
       },
@@ -93,7 +95,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
           emit(state.copyWith(
             grid: Some(grid),
-            fields: fieldCache.fields,
+            fields: GridFieldEquatable(fieldCache.fields),
             rows: rowCache.clonedRows,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
@@ -117,14 +119,14 @@ class GridState with _$GridState {
   const factory GridState({
     required String gridId,
     required Option<Grid> grid,
-    required List<Field> fields,
+    required GridFieldEquatable fields,
     required List<GridRow> rows,
     required GridLoadingState loadingState,
     required GridRowChangeReason listState,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
-        fields: [],
+        fields: const GridFieldEquatable([]),
         rows: [],
         grid: none(),
         gridId: gridId,
@@ -137,4 +139,20 @@ class GridState with _$GridState {
 class GridLoadingState with _$GridLoadingState {
   const factory GridLoadingState.loading() = _Loading;
   const factory GridLoadingState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
+}
+
+class GridFieldEquatable extends Equatable {
+  final List<Field> _fields;
+
+  const GridFieldEquatable(List<Field> fields) : _fields = fields;
+
+  @override
+  List<Object?> get props {
+    return [
+      _fields.length,
+      _fields.map((field) => field.width).reduce((value, element) => value + element),
+    ];
+  }
+
+  UnmodifiableListView<Field> get value => UnmodifiableListView(_fields);
 }

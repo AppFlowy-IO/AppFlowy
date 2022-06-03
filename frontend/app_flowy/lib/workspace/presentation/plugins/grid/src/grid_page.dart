@@ -91,9 +91,9 @@ class _FlowyGridState extends State<FlowyGrid> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields.length != current.fields.length,
+      buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final contentWidth = GridLayout.headerWidth(state.fields);
+        final contentWidth = GridLayout.headerWidth(state.fields.value);
         final child = _wrapScrollView(
           contentWidth,
           [
