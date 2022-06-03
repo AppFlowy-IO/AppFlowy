@@ -25,6 +25,8 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  static String get identifier => (SelectOptionTypeOptionEditor).toString();
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
