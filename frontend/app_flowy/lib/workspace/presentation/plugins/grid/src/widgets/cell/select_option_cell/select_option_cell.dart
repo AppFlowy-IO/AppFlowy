@@ -20,7 +20,7 @@ class SelectOptionCellStyle extends GridCellStyle {
   });
 }
 
-class SingleSelectCell extends StatefulWidget with GridCellWidget {
+class SingleSelectCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
@@ -74,7 +74,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends StatefulWidget with GridCellWidget {
+class MultiSelectCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
