@@ -52,6 +52,12 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
     );
   }
 
+  @override
+  void dispose() {
+    _entry.remove();
+    super.dispose();
+  }
+
   // @override
   // void didUpdateWidget(covariant FlowyEmojiStyleButton oldWidget) {
   //   super.didUpdateWidget(oldWidget);
