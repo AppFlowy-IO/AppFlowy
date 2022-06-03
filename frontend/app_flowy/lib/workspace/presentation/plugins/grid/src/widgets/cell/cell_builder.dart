@@ -48,7 +48,9 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellWidget implements AccessoryWidget, CellContainerFocustable {
+abstract class GridCellWidget extends StatefulWidget implements AccessoryWidget, CellContainerFocustable {
+  GridCellWidget({Key? key}) : super(key: key);
+
   @override
   final ValueNotifier<bool> isFocus = ValueNotifier<bool>(false);
 
@@ -57,6 +59,72 @@ abstract class GridCellWidget implements AccessoryWidget, CellContainerFocustabl
 
   @override
   final GridCellRequestBeginFocus requestBeginFocus = GridCellRequestBeginFocus();
+}
+
+abstract class GridCellState<T extends GridCellWidget> extends State<T> {
+  @override
+  void initState() {
+    widget.requestBeginFocus.setListener(() => requestBeginFocus());
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant T oldWidget) {
+    if (oldWidget != this) {
+      widget.requestBeginFocus.setListener(() => requestBeginFocus());
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.requestBeginFocus.removeAllListener();
+    super.dispose();
+  }
+
+  void requestBeginFocus();
+}
+
+abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCellState<T> {
+  SingleListenrFocusNode focusNode = SingleListenrFocusNode();
+
+  @override
+  void initState() {
+    _listenOnFocusNodeChanged();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant T oldWidget) {
+    if (oldWidget != this) {
+      _listenOnFocusNodeChanged();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeAllListener();
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void requestBeginFocus() {
+    if (focusNode.hasFocus == false && focusNode.canRequestFocus) {
+      FocusScope.of(context).requestFocus(focusNode);
+    }
+  }
+
+  void _listenOnFocusNodeChanged() {
+    widget.isFocus.value = focusNode.hasFocus;
+    focusNode.setListener(() {
+      widget.isFocus.value = focusNode.hasFocus;
+      focusChanged();
+    });
+  }
+
+  Future<void> focusChanged() async {}
 }
 
 class GridCellRequestBeginFocus extends ChangeNotifier {

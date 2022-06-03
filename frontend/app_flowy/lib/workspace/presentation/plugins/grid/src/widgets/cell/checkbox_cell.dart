@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 
-class CheckboxCell extends StatefulWidget with GridCellWidget {
+class CheckboxCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   CheckboxCell({
     required this.cellContextBuilder,
@@ -14,17 +14,17 @@ class CheckboxCell extends StatefulWidget with GridCellWidget {
   }) : super(key: key);
 
   @override
-  State<CheckboxCell> createState() => _CheckboxCellState();
+  GridCellState<CheckboxCell> createState() => _CheckboxCellState();
 }
 
-class _CheckboxCellState extends State<CheckboxCell> {
+class _CheckboxCellState extends GridCellState<CheckboxCell> {
   late CheckboxCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellContext)..add(const CheckboxCellEvent.initial());
-    _handleRequestFocus();
+
     super.initState();
   }
 
@@ -50,21 +50,13 @@ class _CheckboxCellState extends State<CheckboxCell> {
   }
 
   @override
-  void didUpdateWidget(covariant CheckboxCell oldWidget) {
-    _handleRequestFocus();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   Future<void> dispose() async {
-    widget.requestBeginFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
   }
 
-  void _handleRequestFocus() {
-    widget.requestBeginFocus.setListener(() {
-      _cellBloc.add(const CheckboxCellEvent.select());
-    });
+  @override
+  void requestBeginFocus() {
+    _cellBloc.add(const CheckboxCellEvent.select());
   }
 }

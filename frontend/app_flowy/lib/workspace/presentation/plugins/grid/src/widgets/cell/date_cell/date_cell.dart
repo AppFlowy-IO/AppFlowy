@@ -18,7 +18,7 @@ abstract class GridCellDelegate {
   GridCellDelegate get delegate;
 }
 
-class DateCell extends StatefulWidget with GridCellWidget {
+class DateCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final DateCellStyle? cellStyle;
 

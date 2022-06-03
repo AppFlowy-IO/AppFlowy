@@ -30,7 +30,7 @@ enum GridURLCellAccessoryType {
   copyURL,
 }
 
-class GridURLCell extends StatefulWidget with GridCellWidget {
+class GridURLCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final GridURLCellStyle? cellStyle;
   GridURLCell({
@@ -46,7 +46,7 @@ class GridURLCell extends StatefulWidget with GridCellWidget {
   }
 
   @override
-  State<GridURLCell> createState() => _GridURLCellState();
+  GridCellState<GridURLCell> createState() => _GridURLCellState();
 
   GridCellAccessory accessoryFromType(GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
@@ -78,7 +78,7 @@ class GridURLCell extends StatefulWidget with GridCellWidget {
       };
 }
 
-class _GridURLCellState extends State<GridURLCell> {
+class _GridURLCellState extends GridCellState<GridURLCell> {
   late URLCellBloc _cellBloc;
 
   @override
@@ -86,7 +86,6 @@ class _GridURLCellState extends State<GridURLCell> {
     final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
     _cellBloc = URLCellBloc(cellContext: cellContext);
     _cellBloc.add(const URLCellEvent.initial());
-    _handleRequestFocus();
     super.initState();
   }
 
@@ -125,15 +124,8 @@ class _GridURLCellState extends State<GridURLCell> {
 
   @override
   Future<void> dispose() async {
-    widget.requestBeginFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant GridURLCell oldWidget) {
-    _handleRequestFocus();
-    super.didUpdateWidget(oldWidget);
   }
 
   Future<void> _openUrlOrEdit(String url) async {
@@ -146,10 +138,9 @@ class _GridURLCellState extends State<GridURLCell> {
     }
   }
 
-  void _handleRequestFocus() {
-    widget.requestBeginFocus.setListener(() {
-      _openUrlOrEdit(_cellBloc.state.url);
-    });
+  @override
+  void requestBeginFocus() {
+    _openUrlOrEdit(_cellBloc.state.url);
   }
 }
 

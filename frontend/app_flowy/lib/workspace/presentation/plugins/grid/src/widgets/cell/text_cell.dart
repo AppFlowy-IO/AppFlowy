@@ -13,7 +13,7 @@ class GridTextCellStyle extends GridCellStyle {
   });
 }
 
-class GridTextCell extends StatefulWidget with GridCellWidget {
+class GridTextCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final GridTextCellStyle? cellStyle;
   GridTextCell({
@@ -29,13 +29,12 @@ class GridTextCell extends StatefulWidget with GridCellWidget {
   }
 
   @override
-  State<GridTextCell> createState() => _GridTextCellState();
+  GridFocusNodeCellState<GridTextCell> createState() => _GridTextCellState();
 }
 
-class _GridTextCellState extends State<GridTextCell> {
+class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   late TextCellBloc _cellBloc;
   late TextEditingController _controller;
-  late SingleListenrFocusNode _focusNode;
   Timer? _delayOperation;
 
   @override
@@ -44,10 +43,6 @@ class _GridTextCellState extends State<GridTextCell> {
     _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    _focusNode = SingleListenrFocusNode();
-
-    _listenOnFocusNodeChanged();
-    _listenRequestFocus(context);
     super.initState();
   }
 
@@ -63,9 +58,9 @@ class _GridTextCellState extends State<GridTextCell> {
         },
         child: TextField(
           controller: _controller,
-          focusNode: _focusNode,
+          focusNode: focusNode,
           onChanged: (value) => focusChanged(),
-          onEditingComplete: () => _focusNode.unfocus(),
+          onEditingComplete: () => focusNode.unfocus(),
           maxLines: null,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
@@ -81,39 +76,12 @@ class _GridTextCellState extends State<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    widget.requestBeginFocus.removeAllListener();
     _delayOperation?.cancel();
     _cellBloc.close();
-    _focusNode.removeAllListener();
-    _focusNode.dispose();
-
     super.dispose();
   }
 
   @override
-  void didUpdateWidget(covariant GridTextCell oldWidget) {
-    if (oldWidget != widget) {
-      _listenOnFocusNodeChanged();
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _listenOnFocusNodeChanged() {
-    widget.isFocus.value = _focusNode.hasFocus;
-    _focusNode.setListener(() {
-      widget.isFocus.value = _focusNode.hasFocus;
-      focusChanged();
-    });
-  }
-
-  void _listenRequestFocus(BuildContext context) {
-    widget.requestBeginFocus.setListener(() {
-      if (_focusNode.hasFocus == false && _focusNode.canRequestFocus) {
-        FocusScope.of(context).requestFocus(_focusNode);
-      }
-    });
-  }
-
   Future<void> focusChanged() async {
     if (mounted) {
       _delayOperation?.cancel();
