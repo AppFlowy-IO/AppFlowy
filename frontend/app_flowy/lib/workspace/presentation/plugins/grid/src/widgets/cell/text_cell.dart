@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'cell_builder.dart';
-import 'cell_shortcuts.dart';
 
 class GridTextCellStyle extends GridCellStyle {
   String? placeholder;
@@ -44,8 +43,6 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
     _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => _cellBloc.state.content;
     super.initState();
   }
 
@@ -94,5 +91,13 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
         }
       });
     }
+  }
+
+  @override
+  String? onCopy() => _cellBloc.state.content;
+
+  @override
+  void onInsert(String value) {
+    _cellBloc.add(TextCellEvent.updateText(value));
   }
 }

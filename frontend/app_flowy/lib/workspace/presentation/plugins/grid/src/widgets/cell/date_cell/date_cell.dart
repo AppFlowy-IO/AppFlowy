@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_shortcuts.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,17 +35,16 @@ class DateCell extends GridCellWidget {
   }
 
   @override
-  State<DateCell> createState() => _DateCellState();
+  GridCellState<DateCell> createState() => _DateCellState();
 }
 
-class _DateCellState extends State<DateCell> {
+class _DateCellState extends GridCellState<DateCell> {
   late DateCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<DateCellBloc>(param1: cellContext)..add(const DateCellEvent.initial());
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => _cellBloc.state.dateStr;
     super.initState();
   }
 
@@ -91,4 +89,10 @@ class _DateCellState extends State<DateCell> {
     _cellBloc.close();
     super.dispose();
   }
+
+  @override
+  void requestBeginFocus() {}
+
+  @override
+  String? onCopy() => _cellBloc.state.dateStr;
 }

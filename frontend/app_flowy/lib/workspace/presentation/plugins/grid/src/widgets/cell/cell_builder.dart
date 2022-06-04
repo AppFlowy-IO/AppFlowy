@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/row/grid_row.dart';
 import 'package:flowy_infra/theme.dart';
@@ -69,6 +70,15 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void initState() {
     widget.beginFocus.setListener(() => requestBeginFocus());
+    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
+    widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
+      Clipboard.getData("text/plain").then((data) {
+        final s = data?.text;
+        if (s is String) {
+          onInsert(s);
+        }
+      });
+    };
     super.initState();
   }
 
@@ -87,6 +97,10 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   }
 
   void requestBeginFocus();
+
+  String? onCopy() => null;
+
+  void onInsert(String value) {}
 }
 
 abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCellState<T> {

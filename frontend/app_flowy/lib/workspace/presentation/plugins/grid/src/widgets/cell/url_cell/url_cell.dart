@@ -3,7 +3,6 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/grid/cell/url_cell_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_shortcuts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -87,8 +86,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
     _cellBloc = URLCellBloc(cellContext: cellContext);
     _cellBloc.add(const URLCellEvent.initial());
-
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => _cellBloc.state.content;
     super.initState();
   }
 
@@ -134,16 +131,27 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   Future<void> _openUrlOrEdit(String url) async {
     final uri = Uri.parse(url);
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
+      widget.isFocus.value = false;
       await launchUrl(uri);
     } else {
       final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
-      URLCellEditor.show(context, cellContext);
+      URLCellEditor.show(context, cellContext, () {
+        widget.isFocus.value = false;
+      });
     }
   }
 
   @override
   void requestBeginFocus() {
     _openUrlOrEdit(_cellBloc.state.url);
+  }
+
+  @override
+  String? onCopy() => _cellBloc.state.content;
+
+  @override
+  void onInsert(String value) {
+    _cellBloc.add(URLCellEvent.updateURL(value));
   }
 }
 
@@ -164,7 +172,7 @@ class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   void onTap() {
-    URLCellEditor.show(anchorContext, cellContext);
+    URLCellEditor.show(anchorContext, cellContext, () {});
   }
 }
 

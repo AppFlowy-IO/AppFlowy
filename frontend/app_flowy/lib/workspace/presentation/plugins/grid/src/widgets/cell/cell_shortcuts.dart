@@ -88,7 +88,7 @@ class GridCellInsertAction extends Action<GridCellInsertIntent> {
 
   @override
   void invoke(covariant GridCellInsertIntent intent) {
-    final callback = child.shortcutHandlers[CellKeyboardKey.onEnter];
+    final callback = child.shortcutHandlers[CellKeyboardKey.onInsert];
     if (callback != null) {
       callback();
     }

@@ -5,7 +5,6 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
-import 'cell_shortcuts.dart';
 
 class CheckboxCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
@@ -25,13 +24,6 @@ class _CheckboxCellState extends GridCellState<CheckboxCell> {
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellContext)..add(const CheckboxCellEvent.initial());
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () {
-      if (_cellBloc.state.isSelected) {
-        return "Yes";
-      } else {
-        return "No";
-      }
-    };
     super.initState();
   }
 
@@ -65,5 +57,14 @@ class _CheckboxCellState extends GridCellState<CheckboxCell> {
   @override
   void requestBeginFocus() {
     _cellBloc.add(const CheckboxCellEvent.select());
+  }
+
+  @override
+  String? onCopy() {
+    if (_cellBloc.state.isSelected) {
+      return "Yes";
+    } else {
+      return "No";
+    }
   }
 }
