@@ -15,6 +15,7 @@ import 'layout/sizes.dart';
 import 'widgets/row/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
+import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _GridPageState extends State<GridPage> {
           return state.loadingState.map(
             loading: (_) => const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => const FlowyGrid(),
+              (_) => const GridShortcuts(child: FlowyGrid()),
               (err) => FlowyErrorPage(err.toString()),
             ),
           );

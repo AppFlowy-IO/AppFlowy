@@ -43,6 +43,7 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
     _cellBloc = getIt<TextCellBloc>(param1: cellContext);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
+
     super.initState();
   }
 
