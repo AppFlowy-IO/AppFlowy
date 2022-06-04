@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_builder.dart';
+import 'cell_shortcuts.dart';
 
 class NumberCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
@@ -29,6 +30,9 @@ class _NumberCellState extends GridFocusNodeCellState<NumberCell> {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: contentFromState(_cellBloc.state));
+    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () {
+      return _cellBloc.state.content.fold((content) => content, (r) => null);
+    };
     super.initState();
   }
 

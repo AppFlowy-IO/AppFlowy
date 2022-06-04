@@ -62,7 +62,7 @@ abstract class GridCellWidget extends StatefulWidget implements CellAccessory, C
   final GridCellFocusListener beginFocus = GridCellFocusListener();
 
   @override
-  final Map<CellKeyboardKey, CellKeyboardAction> keyboardActionHandlers = {};
+  final Map<CellKeyboardKey, CellKeyboardAction> shortcutHandlers = {};
 }
 
 abstract class GridCellState<T extends GridCellWidget> extends State<T> {
@@ -94,7 +94,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCell
 
   @override
   void initState() {
-    widget.keyboardActionHandlers[CellKeyboardKey.onEnter] = () => focusNode.unfocus();
+    widget.shortcutHandlers[CellKeyboardKey.onEnter] = () => focusNode.unfocus();
     _listenOnFocusNodeChanged();
     super.initState();
   }
@@ -109,7 +109,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCell
 
   @override
   void dispose() {
-    widget.keyboardActionHandlers.remove(CellKeyboardKey.onEnter);
+    widget.shortcutHandlers.clear();
     focusNode.removeAllListener();
     focusNode.dispose();
     super.dispose();
