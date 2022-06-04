@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/row/grid_row.dart';
 import 'package:flowy_infra/theme.dart';
@@ -8,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'cell_accessory.dart';
+import 'cell_shortcuts.dart';
 import 'checkbox_cell.dart';
 import 'date_cell/date_cell.dart';
 import 'number_cell.dart';
@@ -48,7 +50,7 @@ class BlankCell extends StatelessWidget {
   }
 }
 
-abstract class GridCellWidget extends StatefulWidget implements AccessoryWidget, CellContainerFocustable {
+abstract class GridCellWidget extends StatefulWidget implements CellAccessory, CellFocustable, CellShortcuts {
   GridCellWidget({Key? key}) : super(key: key);
 
   @override
@@ -58,31 +60,47 @@ abstract class GridCellWidget extends StatefulWidget implements AccessoryWidget,
   List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext)? get accessoryBuilder => null;
 
   @override
-  final GridCellRequestBeginFocus requestBeginFocus = GridCellRequestBeginFocus();
+  final GridCellFocusListener beginFocus = GridCellFocusListener();
+
+  @override
+  final Map<CellKeyboardKey, CellKeyboardAction> shortcutHandlers = {};
 }
 
 abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void initState() {
-    widget.requestBeginFocus.setListener(() => requestBeginFocus());
+    widget.beginFocus.setListener(() => requestBeginFocus());
+    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
+    widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
+      Clipboard.getData("text/plain").then((data) {
+        final s = data?.text;
+        if (s is String) {
+          onInsert(s);
+        }
+      });
+    };
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
     if (oldWidget != this) {
-      widget.requestBeginFocus.setListener(() => requestBeginFocus());
+      widget.beginFocus.setListener(() => requestBeginFocus());
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    widget.requestBeginFocus.removeAllListener();
+    widget.beginFocus.removeAllListener();
     super.dispose();
   }
 
   void requestBeginFocus();
+
+  String? onCopy() => null;
+
+  void onInsert(String value) {}
 }
 
 abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCellState<T> {
@@ -90,6 +108,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCell
 
   @override
   void initState() {
+    widget.shortcutHandlers[CellKeyboardKey.onEnter] = () => focusNode.unfocus();
     _listenOnFocusNodeChanged();
     super.initState();
   }
@@ -104,6 +123,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCell
 
   @override
   void dispose() {
+    widget.shortcutHandlers.clear();
     focusNode.removeAllListener();
     focusNode.dispose();
     super.dispose();
@@ -127,7 +147,7 @@ abstract class GridFocusNodeCellState<T extends GridCellWidget> extends GridCell
   Future<void> focusChanged() async {}
 }
 
-class GridCellRequestBeginFocus extends ChangeNotifier {
+class GridCellFocusListener extends ChangeNotifier {
   VoidCallback? _listener;
 
   void setListener(VoidCallback listener) {
@@ -194,9 +214,8 @@ class CellStateNotifier extends ChangeNotifier {
   bool get onEnter => _onEnter;
 }
 
-abstract class CellContainerFocustable {
-  // Listen on the requestBeginFocus if the
-  GridCellRequestBeginFocus get requestBeginFocus;
+abstract class CellFocustable {
+  GridCellFocusListener get beginFocus;
 }
 
 class CellContainer extends StatelessWidget {
@@ -220,7 +239,7 @@ class CellContainer extends StatelessWidget {
       child: Selector<CellStateNotifier, bool>(
         selector: (context, notifier) => notifier.isFocus,
         builder: (context, isFocus, _) {
-          Widget container = Center(child: child);
+          Widget container = Center(child: GridCellShortcuts(child: child));
           child.isFocus.addListener(() {
             Provider.of<CellStateNotifier>(context, listen: false).isFocus = child.isFocus.value;
           });
@@ -235,7 +254,7 @@ class CellContainer extends StatelessWidget {
 
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => child.requestBeginFocus.notify(),
+            onTap: () => child.beginFocus.notify(),
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),

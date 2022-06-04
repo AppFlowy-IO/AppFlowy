@@ -18,8 +18,8 @@ abstract class GridCellAccessory implements Widget {
 
 typedef AccessoryBuilder = List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext);
 
-abstract class AccessoryWidget extends Widget {
-  const AccessoryWidget({Key? key}) : super(key: key);
+abstract class CellAccessory extends Widget {
+  const CellAccessory({Key? key}) : super(key: key);
 
   // The hover will show if the onFocus's value is true
   ValueNotifier<bool>? get isFocus;
@@ -28,7 +28,7 @@ abstract class AccessoryWidget extends Widget {
 }
 
 class AccessoryHover extends StatefulWidget {
-  final AccessoryWidget child;
+  final CellAccessory child;
   final EdgeInsets contentPadding;
   const AccessoryHover({
     required this.child,

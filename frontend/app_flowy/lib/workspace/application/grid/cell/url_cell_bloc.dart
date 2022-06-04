@@ -24,6 +24,9 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
               url: cellData?.url ?? "",
             ));
           },
+          updateURL: (String url) {
+            cellContext.saveCellData(url, deduplicate: true);
+          },
         );
       },
     );
@@ -53,6 +56,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 @freezed
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
+  const factory URLCellEvent.updateURL(String url) = _UpdateURL;
   const factory URLCellEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
 }
 

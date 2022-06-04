@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:flutter/material.dart';
@@ -80,5 +79,15 @@ class _NumberCellState extends GridFocusNodeCellState<NumberCell> {
 
   String contentFromState(NumberCellState state) {
     return state.content.fold((l) => l, (r) => "");
+  }
+
+  @override
+  String? onCopy() {
+    return _cellBloc.state.content.fold((content) => content, (r) => null);
+  }
+
+  @override
+  void onInsert(String value) {
+    _cellBloc.add(NumberCellEvent.updateCell(value));
   }
 }

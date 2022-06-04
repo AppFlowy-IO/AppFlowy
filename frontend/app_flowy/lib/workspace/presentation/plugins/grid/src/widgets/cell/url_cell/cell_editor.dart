@@ -8,7 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
   final GridURLCellContext cellContext;
-  const URLCellEditor({required this.cellContext, Key? key}) : super(key: key);
+  final VoidCallback completed;
+  const URLCellEditor({required this.cellContext, required this.completed, Key? key}) : super(key: key);
 
   @override
   State<URLCellEditor> createState() => _URLCellEditorState();
@@ -16,10 +17,12 @@ class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
   static void show(
     BuildContext context,
     GridURLCellContext cellContext,
+    VoidCallback completed,
   ) {
     FlowyOverlay.of(context).remove(identifier());
     final editor = URLCellEditor(
       cellContext: cellContext,
+      completed: completed,
     );
 
     //
@@ -45,6 +48,11 @@ class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
   @override
   bool asBarrier() {
     return true;
+  }
+
+  @override
+  void didRemove() {
+    completed();
   }
 }
 

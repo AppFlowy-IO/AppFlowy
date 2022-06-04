@@ -154,7 +154,7 @@ class _RowDetailCell extends StatelessWidget {
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => cell.requestBeginFocus.notify(),
+      onTap: () => cell.beginFocus.notify(),
       child: AccessoryHover(
         child: cell,
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),

@@ -131,16 +131,27 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   Future<void> _openUrlOrEdit(String url) async {
     final uri = Uri.parse(url);
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
+      widget.isFocus.value = false;
       await launchUrl(uri);
     } else {
       final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
-      URLCellEditor.show(context, cellContext);
+      URLCellEditor.show(context, cellContext, () {
+        widget.isFocus.value = false;
+      });
     }
   }
 
   @override
   void requestBeginFocus() {
     _openUrlOrEdit(_cellBloc.state.url);
+  }
+
+  @override
+  String? onCopy() => _cellBloc.state.content;
+
+  @override
+  void onInsert(String value) {
+    _cellBloc.add(URLCellEvent.updateURL(value));
   }
 }
 
@@ -161,7 +172,7 @@ class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   void onTap() {
-    URLCellEditor.show(anchorContext, cellContext);
+    URLCellEditor.show(anchorContext, cellContext, () {});
   }
 }
 

@@ -35,10 +35,10 @@ class DateCell extends GridCellWidget {
   }
 
   @override
-  State<DateCell> createState() => _DateCellState();
+  GridCellState<DateCell> createState() => _DateCellState();
 }
 
-class _DateCellState extends State<DateCell> {
+class _DateCellState extends GridCellState<DateCell> {
   late DateCellBloc _cellBloc;
 
   @override
@@ -89,4 +89,10 @@ class _DateCellState extends State<DateCell> {
     _cellBloc.close();
     super.dispose();
   }
+
+  @override
+  void requestBeginFocus() {}
+
+  @override
+  String? onCopy() => _cellBloc.state.dateStr;
 }

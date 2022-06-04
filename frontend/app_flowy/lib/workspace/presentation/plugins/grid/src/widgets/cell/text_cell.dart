@@ -92,4 +92,12 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
       });
     }
   }
+
+  @override
+  String? onCopy() => _cellBloc.state.content;
+
+  @override
+  void onInsert(String value) {
+    _cellBloc.add(TextCellEvent.updateText(value));
+  }
 }

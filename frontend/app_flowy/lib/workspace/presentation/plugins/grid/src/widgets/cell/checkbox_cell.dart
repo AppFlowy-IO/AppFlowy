@@ -24,7 +24,6 @@ class _CheckboxCellState extends GridCellState<CheckboxCell> {
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellContext)..add(const CheckboxCellEvent.initial());
-
     super.initState();
   }
 
@@ -58,5 +57,14 @@ class _CheckboxCellState extends GridCellState<CheckboxCell> {
   @override
   void requestBeginFocus() {
     _cellBloc.add(const CheckboxCellEvent.select());
+  }
+
+  @override
+  String? onCopy() {
+    if (_cellBloc.state.isSelected) {
+      return "Yes";
+    } else {
+      return "No";
+    }
   }
 }
