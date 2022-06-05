@@ -59,7 +59,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.isFocus.value = value,
+              onFocus: (value) => widget.onCellEditing.value = value,
               cellContextBuilder: widget.cellContextBuilder);
         },
       ),
@@ -113,7 +113,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.isFocus.value = value,
+              onFocus: (value) => widget.onCellEditing.value = value,
               cellContextBuilder: widget.cellContextBuilder);
         },
       ),
