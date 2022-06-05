@@ -12,14 +12,14 @@ class DocumentService {
     await FolderEventSetLatestView(ViewId(value: docId)).send();
 
     final payload = TextBlockId(value: docId);
-    return BlockEventGetBlockData(payload).send();
+    return TextBlockEventGetBlockData(payload).send();
   }
 
   Future<Either<TextBlockDelta, FlowyError>> composeDelta({required String docId, required String data}) {
     final payload = TextBlockDelta.create()
       ..blockId = docId
       ..deltaStr = data;
-    return BlockEventApplyDelta(payload).send();
+    return TextBlockEventApplyDelta(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
