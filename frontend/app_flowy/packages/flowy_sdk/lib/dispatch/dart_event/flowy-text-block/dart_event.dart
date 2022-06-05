@@ -1,13 +1,13 @@
 
 /// Auto generate. Do not edit
 part of '../../dispatch.dart';
-class BlockEventGetBlockData {
+class TextBlockEventGetBlockData {
      TextBlockId request;
-     BlockEventGetBlockData(this.request);
+     TextBlockEventGetBlockData(this.request);
 
     Future<Either<TextBlockDelta, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = BlockEvent.GetBlockData.toString()
+          ..event = TextBlockEvent.GetBlockData.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -18,13 +18,13 @@ class BlockEventGetBlockData {
     }
 }
 
-class BlockEventApplyDelta {
+class TextBlockEventApplyDelta {
      TextBlockDelta request;
-     BlockEventApplyDelta(this.request);
+     TextBlockEventApplyDelta(this.request);
 
     Future<Either<TextBlockDelta, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = BlockEvent.ApplyDelta.toString()
+          ..event = TextBlockEvent.ApplyDelta.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
@@ -35,13 +35,13 @@ class BlockEventApplyDelta {
     }
 }
 
-class BlockEventExportDocument {
+class TextBlockEventExportDocument {
      ExportPayload request;
-     BlockEventExportDocument(this.request);
+     TextBlockEventExportDocument(this.request);
 
     Future<Either<ExportData, FlowyError>> send() {
     final request = FFIRequest.create()
-          ..event = BlockEvent.ExportDocument.toString()
+          ..event = TextBlockEvent.ExportDocument.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

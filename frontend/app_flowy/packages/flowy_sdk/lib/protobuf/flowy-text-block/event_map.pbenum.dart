@@ -9,20 +9,20 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class BlockEvent extends $pb.ProtobufEnum {
-  static const BlockEvent GetBlockData = BlockEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetBlockData');
-  static const BlockEvent ApplyDelta = BlockEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDelta');
-  static const BlockEvent ExportDocument = BlockEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
+class TextBlockEvent extends $pb.ProtobufEnum {
+  static const TextBlockEvent GetBlockData = TextBlockEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetBlockData');
+  static const TextBlockEvent ApplyDelta = TextBlockEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDelta');
+  static const TextBlockEvent ExportDocument = TextBlockEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
 
-  static const $core.List<BlockEvent> values = <BlockEvent> [
+  static const $core.List<TextBlockEvent> values = <TextBlockEvent> [
     GetBlockData,
     ApplyDelta,
     ExportDocument,
   ];
 
-  static final $core.Map<$core.int, BlockEvent> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static BlockEvent? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, TextBlockEvent> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static TextBlockEvent? valueOf($core.int value) => _byValue[value];
 
-  const BlockEvent._($core.int v, $core.String n) : super(v, n);
+  const TextBlockEvent._($core.int v, $core.String n) : super(v, n);
 }
 

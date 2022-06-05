@@ -24,31 +24,31 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_25_2;
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum BlockEvent {
+pub enum TextBlockEvent {
     GetBlockData = 0,
     ApplyDelta = 1,
     ExportDocument = 2,
 }
 
-impl ::protobuf::ProtobufEnum for BlockEvent {
+impl ::protobuf::ProtobufEnum for TextBlockEvent {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<BlockEvent> {
+    fn from_i32(value: i32) -> ::std::option::Option<TextBlockEvent> {
         match value {
-            0 => ::std::option::Option::Some(BlockEvent::GetBlockData),
-            1 => ::std::option::Option::Some(BlockEvent::ApplyDelta),
-            2 => ::std::option::Option::Some(BlockEvent::ExportDocument),
+            0 => ::std::option::Option::Some(TextBlockEvent::GetBlockData),
+            1 => ::std::option::Option::Some(TextBlockEvent::ApplyDelta),
+            2 => ::std::option::Option::Some(TextBlockEvent::ExportDocument),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [BlockEvent] = &[
-            BlockEvent::GetBlockData,
-            BlockEvent::ApplyDelta,
-            BlockEvent::ExportDocument,
+        static values: &'static [TextBlockEvent] = &[
+            TextBlockEvent::GetBlockData,
+            TextBlockEvent::ApplyDelta,
+            TextBlockEvent::ExportDocument,
         ];
         values
     }
@@ -56,30 +56,30 @@ impl ::protobuf::ProtobufEnum for BlockEvent {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<BlockEvent>("BlockEvent", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<TextBlockEvent>("TextBlockEvent", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for BlockEvent {
+impl ::std::marker::Copy for TextBlockEvent {
 }
 
-impl ::std::default::Default for BlockEvent {
+impl ::std::default::Default for TextBlockEvent {
     fn default() -> Self {
-        BlockEvent::GetBlockData
+        TextBlockEvent::GetBlockData
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for BlockEvent {
+impl ::protobuf::reflect::ProtobufValue for TextBlockEvent {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*B\n\nBlockEvent\x12\x10\n\x0cGetBlockData\x10\0\
-    \x12\x0e\n\nApplyDelta\x10\x01\x12\x12\n\x0eExportDocument\x10\x02b\x06p\
-    roto3\
+    \n\x0fevent_map.proto*F\n\x0eTextBlockEvent\x12\x10\n\x0cGetBlockData\
+    \x10\0\x12\x0e\n\nApplyDelta\x10\x01\x12\x12\n\x0eExportDocument\x10\x02\
+    b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
