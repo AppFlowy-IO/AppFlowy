@@ -27,7 +27,7 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
   bool _isToggled = false;
   // Style get _selectionStyle => widget.controller.getSelectionStyle();
   final GlobalKey emojiButtonKey = GlobalKey();
-  OverlayEntry _entry = OverlayEntry(builder: (context) => Container());
+  OverlayEntry? _entry;
   // final FocusNode _keyFocusNode = FocusNode();
 
   @override
@@ -54,7 +54,7 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
 
   @override
   void dispose() {
-    _entry.remove();
+    _entry?.remove();
     super.dispose();
   }
 
@@ -83,8 +83,9 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
   // }
 
   void _toggleAttribute() {
-    if (_entry.mounted) {
-      _entry.remove();
+    if (_entry?.mounted ?? false) {
+      _entry?.remove();
+      _entry = null;
       setState(() => _isToggled = false);
     } else {
       RenderBox box = emojiButtonKey.currentContext?.findRenderObject() as RenderBox;
@@ -99,7 +100,7 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
         ),
       );
 
-      Overlay.of(context)!.insert(_entry);
+      Overlay.of(context)!.insert(_entry!);
       setState(() => _isToggled = true);
     }
 
