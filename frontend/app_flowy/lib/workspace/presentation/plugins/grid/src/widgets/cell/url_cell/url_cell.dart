@@ -112,7 +112,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
               child: GestureDetector(
             child: Align(alignment: Alignment.centerLeft, child: richText),
             onTap: () async {
-              widget.isFocus.value = true;
               final url = context.read<URLCellBloc>().state.url;
               await _openUrlOrEdit(url);
             },
@@ -131,12 +130,12 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
   Future<void> _openUrlOrEdit(String url) async {
     final uri = Uri.parse(url);
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
-      widget.isFocus.value = false;
       await launchUrl(uri);
     } else {
       final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
+      widget.onCellEditing.value = true;
       URLCellEditor.show(context, cellContext, () {
-        widget.isFocus.value = false;
+        widget.onCellEditing.value = false;
       });
     }
   }

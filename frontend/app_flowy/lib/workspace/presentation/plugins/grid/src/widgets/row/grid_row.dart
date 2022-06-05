@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_cotainer.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -172,16 +173,15 @@ class _RowCells extends StatelessWidget {
     return gridCellMap.values.map(
       (gridCell) {
         final GridCellWidget child = buildGridCellWidget(gridCell, cellCache);
-        List<GridCellAccessory> accessories = [];
-        if (gridCell.field.isPrimary) {
-          accessories.add(_PrimaryCellAccessory(onTapCallback: onExpand));
-        }
 
-        accessoryBuilder(buildContext) {
+        accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
           final builder = child.accessoryBuilder;
           List<GridCellAccessory> accessories = [];
           if (gridCell.field.isPrimary) {
-            accessories.add(_PrimaryCellAccessory(onTapCallback: onExpand));
+            accessories.add(PrimaryCellAccessory(
+              onTapCallback: onExpand,
+              isCellEditing: buildContext.isCellEditing,
+            ));
           }
 
           if (builder != null) {
@@ -212,22 +212,6 @@ class RegionStateNotifier extends ChangeNotifier {
   }
 
   bool get onEnter => _onEnter;
-}
-
-class _PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
-  final VoidCallback onTapCallback;
-  const _PrimaryCellAccessory({required this.onTapCallback, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return svgWidget("grid/expander", color: theme.main1);
-  }
-
-  @override
-  void onTap() {
-    onTapCallback();
-  }
 }
 
 class _RowEnterRegion extends StatefulWidget {

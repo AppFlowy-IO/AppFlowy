@@ -1,3 +1,4 @@
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flowy_infra/theme.dart';
@@ -8,12 +9,45 @@ import 'package:styled_widget/styled_widget.dart';
 
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;
+  final bool isCellEditing;
 
-  GridCellAccessoryBuildContext({required this.anchorContext});
+  GridCellAccessoryBuildContext({
+    required this.anchorContext,
+    required this.isCellEditing,
+  });
 }
 
 abstract class GridCellAccessory implements Widget {
   void onTap();
+
+  // The accessory will be hidden if enable() return false;
+  bool enable() => true;
+}
+
+class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
+  final VoidCallback onTapCallback;
+  final bool isCellEditing;
+  const PrimaryCellAccessory({
+    required this.onTapCallback,
+    required this.isCellEditing,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (isCellEditing) {
+      return const SizedBox();
+    } else {
+      final theme = context.watch<AppTheme>();
+      return svgWidget("grid/expander", color: theme.main1);
+    }
+  }
+
+  @override
+  void onTap() => onTapCallback();
+
+  @override
+  bool enable() => !isCellEditing;
 }
 
 typedef AccessoryBuilder = List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext);
@@ -21,8 +55,8 @@ typedef AccessoryBuilder = List<GridCellAccessory> Function(GridCellAccessoryBui
 abstract class CellAccessory extends Widget {
   const CellAccessory({Key? key}) : super(key: key);
 
-  // The hover will show if the onFocus's value is true
-  ValueNotifier<bool>? get isFocus;
+  // The hover will show if the isHover's value is true
+  ValueNotifier<bool>? get onAccessoryHover;
 
   AccessoryBuilder? get accessoryBuilder;
 }
@@ -47,8 +81,8 @@ class _AccessoryHoverState extends State<AccessoryHover> {
   @override
   void initState() {
     _hoverState = AccessoryHoverState();
-    _listenerFn = () => _hoverState.isFocus = widget.child.isFocus?.value ?? false;
-    widget.child.isFocus?.addListener(_listenerFn!);
+    _listenerFn = () => _hoverState.onHover = widget.child.onAccessoryHover?.value ?? false;
+    widget.child.onAccessoryHover?.addListener(_listenerFn!);
 
     super.initState();
   }
@@ -58,7 +92,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
     _hoverState.dispose();
 
     if (_listenerFn != null) {
-      widget.child.isFocus?.removeListener(_listenerFn!);
+      widget.child.onAccessoryHover?.removeListener(_listenerFn!);
       _listenerFn = null;
     }
     super.dispose();
@@ -73,11 +107,14 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
     final accessoryBuilder = widget.child.accessoryBuilder;
     if (accessoryBuilder != null) {
-      final accessories = accessoryBuilder((GridCellAccessoryBuildContext(anchorContext: context)));
+      final accessories = accessoryBuilder((GridCellAccessoryBuildContext(
+        anchorContext: context,
+        isCellEditing: false,
+      )));
       children.add(
         Padding(
           padding: const EdgeInsets.only(right: 6),
-          child: AccessoryContainer(accessories: accessories),
+          child: CellAccessoryContainer(accessories: accessories),
         ).positioned(right: 0),
       );
     }
@@ -101,7 +138,6 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 
 class AccessoryHoverState extends ChangeNotifier {
   bool _onHover = false;
-  bool _isFocus = false;
 
   set onHover(bool value) {
     if (_onHover != value) {
@@ -111,15 +147,6 @@ class AccessoryHoverState extends ChangeNotifier {
   }
 
   bool get onHover => _onHover;
-
-  set isFocus(bool value) {
-    if (_isFocus != value) {
-      _isFocus = value;
-      notifyListeners();
-    }
-  }
-
-  bool get isFocus => _isFocus;
 }
 
 class _Background extends StatelessWidget {
@@ -130,7 +157,7 @@ class _Background extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return Consumer<AccessoryHoverState>(
       builder: (context, state, child) {
-        if (state.onHover || state.isFocus) {
+        if (state.onHover) {
           return FlowyHoverContainer(
             style: HoverStyle(borderRadius: Corners.s6Border, hoverColor: theme.shader6),
           );
@@ -142,14 +169,14 @@ class _Background extends StatelessWidget {
   }
 }
 
-class AccessoryContainer extends StatelessWidget {
+class CellAccessoryContainer extends StatelessWidget {
   final List<GridCellAccessory> accessories;
-  const AccessoryContainer({required this.accessories, Key? key}) : super(key: key);
+  const CellAccessoryContainer({required this.accessories, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final children = accessories.map((accessory) {
+    final children = accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
         style: HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
         builder: (_, onHover) => Container(
