@@ -21,8 +21,6 @@ import 'package:flowy_infra/notifier.dart';
 typedef NavigationCallback = void Function(String id);
 
 class HomeStack extends StatelessWidget {
-  static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-  // final Size size;
   const HomeStack({Key? key}) : super(key: key);
 
   @override

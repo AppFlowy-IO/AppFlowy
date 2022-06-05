@@ -23,7 +23,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
     this.handleColor,
     this.controller,
     this.scrollbarPadding,
-    this.barSize = 6,
+    this.barSize = 12,
   }) : super(key: key);
 
   @override

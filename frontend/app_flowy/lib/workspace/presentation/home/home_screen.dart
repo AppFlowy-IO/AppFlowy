@@ -18,7 +18,6 @@ import 'home_stack.dart';
 import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
-  static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
   const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
@@ -52,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
       child: Scaffold(
-        key: HomeScreen.scaffoldKey,
         body: BlocListener<HomeBloc, HomeState>(
           listenWhen: (p, c) => p.unauthorized != c.unauthorized,
           listener: (context, state) {
