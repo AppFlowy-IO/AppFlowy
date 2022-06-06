@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellMeta, RowMeta, RowMetaChangeset, RowOrder};
+use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset, RowOrder};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
 use flowy_sync::entities::revision::Revision;
@@ -39,6 +39,10 @@ impl GridBlockMetaEditor {
             pad,
             rev_manager,
         })
+    }
+
+    pub async fn duplicate_block_meta_data(&self, duplicated_block_id: &str) -> GridBlockMetaData {
+        self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
 
     /// return current number of rows and the inserted index. The inserted index will be None if the start_row_id is None

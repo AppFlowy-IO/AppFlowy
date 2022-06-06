@@ -77,7 +77,7 @@ impl NumberTypeOption {
     }
 
     fn cell_content_from_number_str(&self, s: &str) -> FlowyResult<String> {
-        return match self.format {
+        match self.format {
             NumberFormat::Number => {
                 if let Ok(v) = s.parse::<f64>() {
                     return Ok(v.to_string());
@@ -94,7 +94,7 @@ impl NumberTypeOption {
                 Ok(content)
             }
             _ => self.money_from_number_str(s),
-        };
+        }
     }
 
     pub fn set_format(&mut self, format: NumberFormat) {
@@ -173,7 +173,9 @@ impl CellDataOperation<String> for NumberTypeOption {
                 Ok(DecodedCellData::new(content))
             }
             _ => {
-                let content = self.money_from_number_str(&cell_data).unwrap_or("".to_string());
+                let content = self
+                    .money_from_number_str(&cell_data)
+                    .unwrap_or_else(|_| "".to_string());
                 Ok(DecodedCellData::new(content))
             }
         }

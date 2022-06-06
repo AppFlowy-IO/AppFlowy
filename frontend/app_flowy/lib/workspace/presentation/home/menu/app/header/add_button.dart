@@ -46,8 +46,8 @@ class ActionList {
         return CreateItem(
           pluginBuilder: pluginBuilder,
           onSelected: (builder) {
-            FlowyOverlay.of(buildContext).remove(_identifier);
             onSelected(builder);
+            FlowyOverlay.of(buildContext).remove(_identifier);
           },
         );
       },

@@ -173,7 +173,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
@@ -197,7 +197,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn process_create_view_data(
+    fn process_view_delta_data(
         &self,
         _user_id: &str,
         _view_id: &str,
@@ -245,13 +245,13 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
             let editor = grid_manager.open_grid(view_id).await?;
-            let delta_bytes = editor.delta_bytes().await;
-            Ok(delta_bytes)
+            let delta_bytes = editor.duplicate_grid().await?;
+            Ok(delta_bytes.into())
         })
     }
 
@@ -264,7 +264,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         FutureResult::new(async move { make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await })
     }
 
-    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError> {
+    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();

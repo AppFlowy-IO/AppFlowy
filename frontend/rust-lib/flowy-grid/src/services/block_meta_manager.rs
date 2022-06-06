@@ -47,7 +47,7 @@ impl GridBlockManager {
         debug_assert!(!block_id.is_empty());
         match self.block_editor_map.get(block_id) {
             None => {
-                tracing::error!("The is a fatal error, block is not exist");
+                tracing::error!("This is a fatal error, block with id:{} is not exist", block_id);
                 let editor = Arc::new(make_block_meta_editor(&self.user, block_id).await?);
                 self.block_editor_map.insert(block_id.to_owned(), editor.clone());
                 Ok(editor)
@@ -267,6 +267,7 @@ async fn make_block_meta_editor_map(
 }
 
 async fn make_block_meta_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockMetaEditor> {
+    tracing::trace!("Open block:{} meta editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
