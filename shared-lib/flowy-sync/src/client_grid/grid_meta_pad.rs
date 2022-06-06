@@ -3,8 +3,8 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta, GridBlockMetaChangeset,
-    GridMeta,
+    gen_block_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
+    GridBlockMetaChangeset, GridMeta,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -24,6 +24,28 @@ pub trait JsonDeserializer {
 }
 
 impl GridMetaPad {
+    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldMeta>, Vec<GridBlockMeta>) {
+        let fields = self
+            .grid_meta
+            .fields
+            .iter()
+            .map(|field| field.clone())
+            .collect::<Vec<FieldMeta>>();
+
+        let blocks = self
+            .grid_meta
+            .blocks
+            .iter()
+            .map(|block| {
+                let mut duplicated_block = block.clone();
+                duplicated_block.block_id = gen_block_id();
+                duplicated_block
+            })
+            .collect::<Vec<GridBlockMeta>>();
+
+        (fields, blocks)
+    }
+
     pub fn from_delta(delta: GridMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
         let grid: GridMeta = serde_json::from_str(&s)

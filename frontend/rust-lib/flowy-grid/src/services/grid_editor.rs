@@ -487,6 +487,35 @@ impl GridMetaEditor {
         self.grid_pad.read().await.delta_bytes()
     }
 
+    pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
+        let grid_pad = self.grid_pad.read().await;
+        let original_blocks = grid_pad.get_block_metas();
+        let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_meta().await;
+
+        let mut blocks_meta_data = vec![];
+        if original_blocks.len() == duplicated_blocks.len() {
+            for (index, original_block_meta) in original_blocks.iter().enumerate() {
+                let grid_block_meta_editor = self.block_manager.get_editor(&original_block_meta.block_id).await?;
+                let duplicated_block_id = &duplicated_blocks[index].block_id;
+
+                tracing::trace!("Duplicate block:{} meta data", duplicated_block_id);
+                let duplicated_block_meta_data = grid_block_meta_editor
+                    .duplicate_block_meta_data(duplicated_block_id)
+                    .await;
+                blocks_meta_data.push(duplicated_block_meta_data);
+            }
+        } else {
+            debug_assert_eq!(original_blocks.len(), duplicated_blocks.len());
+        }
+        drop(grid_pad);
+
+        Ok(BuildGridContext {
+            field_metas: duplicated_fields,
+            blocks: duplicated_blocks,
+            blocks_meta_data,
+        })
+    }
+
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridMetaPad) -> FlowyResult<Option<GridChangeset>>,

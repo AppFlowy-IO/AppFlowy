@@ -203,11 +203,17 @@ impl CellMeta {
     }
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
     pub field_metas: Vec<FieldMeta>,
-    pub block_meta: GridBlockMeta,
-    pub block_meta_data: GridBlockMetaData,
+    pub blocks: Vec<GridBlockMeta>,
+    pub blocks_meta_data: Vec<GridBlockMetaData>,
+}
+
+impl BuildGridContext {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl std::convert::From<BuildGridContext> for Bytes {
@@ -223,21 +229,5 @@ impl std::convert::TryFrom<Bytes> for BuildGridContext {
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
         let ctx: BuildGridContext = serde_json::from_slice(&bytes)?;
         Ok(ctx)
-    }
-}
-
-impl std::default::Default for BuildGridContext {
-    fn default() -> Self {
-        let block_meta = GridBlockMeta::new();
-        let block_meta_data = GridBlockMetaData {
-            block_id: block_meta.block_id.clone(),
-            rows: vec![],
-        };
-
-        Self {
-            field_metas: vec![],
-            block_meta,
-            block_meta_data,
-        }
     }
 }
