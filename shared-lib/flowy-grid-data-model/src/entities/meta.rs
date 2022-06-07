@@ -28,17 +28,17 @@ pub fn gen_field_id() -> String {
 pub struct GridMeta {
     pub grid_id: String,
     pub fields: Vec<FieldMeta>,
-    pub blocks: Vec<GridBlockMeta>,
+    pub blocks: Vec<GridBlockMetaSnapshot>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GridBlockMeta {
+pub struct GridBlockMetaSnapshot {
     pub block_id: String,
     pub start_row_index: i32,
     pub row_count: i32,
 }
 
-impl GridBlockMeta {
+impl GridBlockMetaSnapshot {
     pub fn len(&self) -> i32 {
         self.row_count
     }
@@ -48,22 +48,22 @@ impl GridBlockMeta {
     }
 }
 
-impl GridBlockMeta {
+impl GridBlockMetaSnapshot {
     pub fn new() -> Self {
-        GridBlockMeta {
+        GridBlockMetaSnapshot {
             block_id: gen_block_id(),
             ..Default::default()
         }
     }
 }
 
-pub struct GridBlockMetaChangeset {
+pub struct GridBlockInfoChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
     pub row_count: Option<i32>,
 }
 
-impl GridBlockMetaChangeset {
+impl GridBlockInfoChangeset {
     pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
         Self {
             block_id: block_id.to_string(),
@@ -74,7 +74,7 @@ impl GridBlockMetaChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridBlockMetaData {
+pub struct GridBlockMeta {
     pub block_id: String,
     pub rows: Vec<RowMeta>,
 }
@@ -206,8 +206,8 @@ impl CellMeta {
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
     pub field_metas: Vec<FieldMeta>,
-    pub blocks: Vec<GridBlockMeta>,
-    pub blocks_meta_data: Vec<GridBlockMetaData>,
+    pub blocks: Vec<GridBlockMetaSnapshot>,
+    pub blocks_meta_data: Vec<GridBlockMeta>,
 }
 
 impl BuildGridContext {

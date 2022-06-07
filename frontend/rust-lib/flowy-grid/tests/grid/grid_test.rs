@@ -7,7 +7,7 @@ use flowy_grid::services::field::{
 };
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
-    CellChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
+    CellChangeset, FieldChangesetParams, FieldType, GridBlockInfoChangeset, GridBlockMetaSnapshot, RowMetaChangeset,
     TypeOptionDataEntry,
 };
 
@@ -123,7 +123,7 @@ async fn grid_delete_field() {
 
 #[tokio::test]
 async fn grid_create_block() {
-    let grid_block = GridBlockMeta::new();
+    let grid_block = GridBlockMetaSnapshot::new();
     let scripts = vec![
         AssertBlockCount(1),
         CreateBlock { block: grid_block },
@@ -134,9 +134,9 @@ async fn grid_create_block() {
 
 #[tokio::test]
 async fn grid_update_block() {
-    let grid_block = GridBlockMeta::new();
+    let grid_block = GridBlockMetaSnapshot::new();
     let mut cloned_grid_block = grid_block.clone();
-    let changeset = GridBlockMetaChangeset {
+    let changeset = GridBlockInfoChangeset {
         block_id: grid_block.block_id.clone(),
         start_row_index: Some(2),
         row_count: Some(10),

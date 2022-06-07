@@ -1,5 +1,5 @@
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, GridBlockMeta, GridBlockMetaData, RowMeta};
+use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, GridBlockMeta, GridBlockMetaSnapshot, RowMeta};
 
 pub struct GridBuilder {
     build_context: BuildGridContext,
@@ -9,8 +9,8 @@ impl std::default::Default for GridBuilder {
     fn default() -> Self {
         let mut build_context = BuildGridContext::new();
 
-        let block_meta = GridBlockMeta::new();
-        let block_meta_data = GridBlockMetaData {
+        let block_meta = GridBlockMetaSnapshot::new();
+        let block_meta_data = GridBlockMeta {
             block_id: block_meta.block_id.clone(),
             rows: vec![],
         };
@@ -59,7 +59,7 @@ fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
 mod tests {
 
     use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMetaData, GridMeta};
+    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMeta, GridMeta};
 
     #[test]
     fn create_default_grid_test() {
@@ -82,6 +82,6 @@ mod tests {
         let _: GridMeta = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
 
         let grid_block_meta_delta = make_block_meta_delta(build_context.blocks_meta_data.first().unwrap());
-        let _: GridBlockMetaData = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
+        let _: GridBlockMeta = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
     }
 }

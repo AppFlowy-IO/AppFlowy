@@ -1,9 +1,7 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{
-    gen_block_id, gen_row_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset,
-};
+use flowy_grid_data_model::entities::{gen_block_id, gen_row_id, CellMeta, GridBlockMeta, RowMeta, RowMetaChangeset};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -24,7 +22,7 @@ pub struct GridBlockMetaPad {
 }
 
 impl GridBlockMetaPad {
-    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockMetaData {
+    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockMeta {
         let duplicated_rows = self
             .rows
             .iter()
@@ -35,7 +33,7 @@ impl GridBlockMetaPad {
                 duplicated_row
             })
             .collect::<Vec<RowMeta>>();
-        GridBlockMetaData {
+        GridBlockMeta {
             block_id: duplicated_block_id.to_string(),
             rows: duplicated_rows,
         }
@@ -43,7 +41,7 @@ impl GridBlockMetaPad {
 
     pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
+        let meta_data: GridBlockMeta = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             tracing::error!("{}", s);
             CollaborateError::internal().context(msg)
@@ -241,12 +239,12 @@ pub struct GridBlockMetaChange {
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaData) -> GridBlockMetaDelta {
+pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMeta) -> GridBlockMetaDelta {
     let json = serde_json::to_string(&grid_block_meta_data).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaData) -> RepeatedRevision {
+pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMeta) -> RepeatedRevision {
     let delta = make_block_meta_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
@@ -255,7 +253,7 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 
 impl std::default::Default for GridBlockMetaPad {
     fn default() -> Self {
-        let block_meta_data = GridBlockMetaData {
+        let block_meta_data = GridBlockMeta {
             block_id: gen_block_id(),
             rows: vec![],
         };

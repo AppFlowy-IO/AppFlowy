@@ -3,8 +3,8 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::entities::{
-    gen_block_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
-    GridBlockMetaChangeset, GridMeta,
+    gen_block_id, gen_grid_id, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockInfoChangeset,
+    GridBlockMetaSnapshot, GridMeta,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -24,7 +24,7 @@ pub trait JsonDeserializer {
 }
 
 impl GridMetaPad {
-    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldMeta>, Vec<GridBlockMeta>) {
+    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldMeta>, Vec<GridBlockMetaSnapshot>) {
         let fields = self
             .grid_meta
             .fields
@@ -41,7 +41,7 @@ impl GridMetaPad {
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })
-            .collect::<Vec<GridBlockMeta>>();
+            .collect::<Vec<GridBlockMetaSnapshot>>();
 
         (fields, blocks)
     }
@@ -283,7 +283,7 @@ impl GridMetaPad {
         }
     }
 
-    pub fn create_block_meta(&mut self, block: GridBlockMeta) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta(&mut self, block: GridBlockMetaSnapshot) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -306,11 +306,11 @@ impl GridMetaPad {
         })
     }
 
-    pub fn get_block_metas(&self) -> Vec<GridBlockMeta> {
+    pub fn get_block_metas(&self) -> Vec<GridBlockMetaSnapshot> {
         self.grid_meta.blocks.clone()
     }
 
-    pub fn update_block_meta(&mut self, changeset: GridBlockMetaChangeset) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn update_block_meta(&mut self, changeset: GridBlockInfoChangeset) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
@@ -368,7 +368,7 @@ impl GridMetaPad {
 
     pub fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
-        F: FnOnce(&mut GridBlockMeta) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut GridBlockMetaSnapshot) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
             |grid_meta| match grid_meta.blocks.iter().position(|block| block.block_id == block_id) {

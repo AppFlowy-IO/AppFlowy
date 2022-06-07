@@ -1,4 +1,5 @@
-use crate::services::grid_editor::GridMetaEditor;
+use crate::services::block::make_grid_block_meta_rev_manager;
+use crate::services::grid_meta_editor::GridMetaEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::GridDatabase;
@@ -7,7 +8,7 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
-use flowy_revision::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
+use flowy_revision::disk::SQLiteGridRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
@@ -35,12 +36,12 @@ impl GridManager {
     ) -> Self {
         let grid_editors = Arc::new(DashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
-        let block_index_persistence = Arc::new(BlockIndexCache::new(database));
+        let block_index_cache = Arc::new(BlockIndexCache::new(database));
         Self {
             editor_map: grid_editors,
             grid_user,
+            block_index_cache,
             kv_persistence,
-            block_index_cache: block_index_persistence,
         }
     }
 
@@ -59,9 +60,7 @@ impl GridManager {
         block_id: T,
         revisions: RepeatedRevision,
     ) -> FlowyResult<()> {
-        let block_id = block_id.as_ref();
-        let db_pool = self.grid_user.db_pool()?;
-        let rev_manager = self.make_grid_block_meta_rev_manager(block_id, db_pool)?;
+        let rev_manager = make_grid_block_meta_rev_manager(&self.grid_user, block_id.as_ref())?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -134,18 +133,6 @@ impl GridManager {
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence);
         Ok(rev_manager)
     }
-
-    fn make_grid_block_meta_rev_manager(
-        &self,
-        block_d: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> FlowyResult<RevisionManager> {
-        let user_id = self.grid_user.user_id()?;
-        let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_d, disk_cache));
-        let rev_manager = RevisionManager::new(&user_id, block_d, rev_persistence);
-        Ok(rev_manager)
-    }
 }
 
 pub async fn make_grid_view_data(
@@ -166,7 +153,6 @@ pub async fn make_grid_view_data(
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
-
     for block_meta_data in build_context.blocks_meta_data {
         let block_id = block_meta_data.block_id.clone();
 
