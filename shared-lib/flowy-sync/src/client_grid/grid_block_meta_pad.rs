@@ -61,7 +61,7 @@ impl GridBlockMetaPad {
         &mut self,
         row: RowMeta,
         start_row_id: Option<String>,
-    ) -> CollaborateResult<Option<GridBlockMetaChange>> {
+    ) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>> {
         self.modify(|rows| {
             if let Some(start_row_id) = start_row_id {
                 if !start_row_id.is_empty() {
@@ -77,7 +77,10 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn delete_rows(&mut self, row_ids: Vec<Cow<'_, String>>) -> CollaborateResult<Option<GridBlockMetaChange>> {
+    pub fn delete_rows(
+        &mut self,
+        row_ids: Vec<Cow<'_, String>>,
+    ) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>> {
         self.modify(|rows| {
             rows.retain(|row| !row_ids.contains(&Cow::Borrowed(&row.id)));
             Ok(Some(()))
@@ -141,7 +144,10 @@ impl GridBlockMetaPad {
             .map(|index| index as i32)
     }
 
-    pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockMetaChange>> {
+    pub fn update_row(
+        &mut self,
+        changeset: RowMetaChangeset,
+    ) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>> {
         let row_id = changeset.row_id.clone();
         self.modify_row(&row_id, |row| {
             let mut is_changed = None;
@@ -166,7 +172,12 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn move_row(&mut self, row_id: &str, from: usize, to: usize) -> CollaborateResult<Option<GridBlockMetaChange>> {
+    pub fn move_row(
+        &mut self,
+        row_id: &str,
+        from: usize,
+        to: usize,
+    ) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>> {
         self.modify(|row_metas| {
             if let Some(position) = row_metas.iter().position(|row_meta| row_meta.id == row_id) {
                 debug_assert_eq!(from, position);
@@ -179,7 +190,7 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
+    pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>>
     where
         F: for<'a> FnOnce(&'a mut Vec<Arc<RowMeta>>) -> CollaborateResult<Option<()>>,
     {
@@ -198,14 +209,14 @@ impl GridBlockMetaPad {
                         //     self.delta.to_str().unwrap_or_else(|_| "".to_string())
                         // );
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(GridBlockMetaChange { delta, md5: self.md5() }))
+                        Ok(Some(GridBlockMetaDeltaChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn modify_row<F>(&mut self, row_id: &str, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
+    fn modify_row<F>(&mut self, row_id: &str, f: F) -> CollaborateResult<Option<GridBlockMetaDeltaChangeset>>
     where
         F: FnOnce(&mut RowMeta) -> CollaborateResult<Option<()>>,
     {
@@ -233,7 +244,7 @@ impl GridBlockMetaPad {
     }
 }
 
-pub struct GridBlockMetaChange {
+pub struct GridBlockMetaDeltaChangeset {
     pub delta: GridBlockMetaDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,

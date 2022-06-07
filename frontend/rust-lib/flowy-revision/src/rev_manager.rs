@@ -1,4 +1,5 @@
 use crate::disk::RevisionState;
+use crate::history::{RevisionHistory, RevisionHistoryConfig};
 use crate::{RevisionPersistence, WSDataProviderDataSource};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -45,7 +46,7 @@ pub struct RevisionManager {
     user_id: String,
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence>,
-
+    rev_history: Arc<RevisionHistory>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
@@ -53,6 +54,8 @@ pub struct RevisionManager {
 impl RevisionManager {
     pub fn new(user_id: &str, object_id: &str, rev_persistence: Arc<RevisionPersistence>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
+        let rev_history_config = RevisionHistoryConfig::default();
+        let rev_history = Arc::new(RevisionHistory::new(rev_history_config));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -61,6 +64,7 @@ impl RevisionManager {
             user_id: user_id.to_owned(),
             rev_id_counter,
             rev_persistence,
+            rev_history,
 
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,

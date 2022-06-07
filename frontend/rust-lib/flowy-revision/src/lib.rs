@@ -1,5 +1,6 @@
 mod cache;
 mod conflict_resolve;
+mod history;
 mod rev_manager;
 mod rev_persistence;
 mod ws_manager;
