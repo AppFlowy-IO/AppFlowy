@@ -141,6 +141,68 @@
         "lightLabel": "Светлая тема",
         "darkLabel": "Тёмная тема"
       }
+    },
+    "grid": {
+      "settings": {
+        "filter": "Фильтр",
+        "sortBy": "Сортировать",
+        "Properties": "Свойства"
+      },
+      "field": {
+        "hide": "Скрыть",
+        "insertLeft": "Вставить слева",
+        "insertRight": "Вставить справа",
+        "duplicate": "Дублировать",
+        "delete": "Удалить",
+        "textFieldName": "Текст",
+        "checkboxFieldName": "Checkbox",
+        "dateFieldName": "Дата",
+        "numberFieldName": "Число",
+        "singleSelectFieldName": "Выбор",
+        "multiSelectFieldName": "Выбор многих",
+        "urlFieldName": "URL",
+        "numberFormat": " Формат числа",
+        "dateFormat": " Формат даты",
+        "includeTime": " Время",
+        "dateFormatFriendly": "День Месяц, Год",
+        "dateFormatISO": "Год-Месяц-День",
+        "dateFormatLocal": "Год/Месяц/День",
+        "dateFormatUS": "Год/Месяц/День",
+        "timeFormat": " Форматировать время",
+        "invalidTimeFormat": "Неверный формат",
+        "timeFormatTwelveHour": "12 часов",
+        "timeFormatTwentyFourHour": "24 часа",
+        "addSelectOption": "Добавить вариант",
+        "optionTitle": "Варианты",
+        "addOption": "Добавить",
+        "editProperty": "Редактировать свойство"
+      },
+      "row": {
+        "duplicate": "Дублировать",
+        "delete": "Удалить",
+        "textPlaceholder": "Пусто",
+        "copyProperty": "Свойство скопировано"
+      },
+      "selectOption": {
+        "create": "Создать",
+        "purpleColor": "Фиолетовый",
+        "pinkColor": "Розовый",
+        "lightPinkColor": "Светло-розовый",
+        "orangeColor": "Оранжевый",
+        "yellowColor": "Желтый",
+        "limeColor": "Ярко-зелёный",
+        "greenColor": "Зелёный",
+        "aquaColor": "Морской волны",
+        "blueColor": "Синий",
+        "deleteTag": "Удалить вариант",
+        "colorPannelTitle": "Цвета",
+        "pannelTitle": "Выберите или создайте вариант",
+        "searchOption": "Поиск"
+      },
+      "date": {
+        "timeHintTextInTwelveHour": "12:00 AM",
+        "timeHintTextInTwentyFourHour": "12:00"
+      }
     }
   }
   
