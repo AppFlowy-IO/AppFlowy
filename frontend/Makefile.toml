@@ -68,6 +68,7 @@ RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "arm64"
 
 [env.production-mac-x86_64]
 BUILD_FLAG = "release"
@@ -76,6 +77,7 @@ RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "x86_64"
 
 [env.development-windows-x86]
 TARGET_OS = "windows"
@@ -146,6 +148,7 @@ script = [
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
+    echo ${BUILD_ARCHS}
     '''
 ]
 script_runner = "@shell"
