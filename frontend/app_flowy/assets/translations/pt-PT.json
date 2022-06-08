@@ -1,0 +1,146 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "Me",
+    "welcomeText": "Bem vindo ao @:appName",
+    "githubStarText": "Star on GitHub",
+    "subscribeNewsletterText": "Inscreve-te ao Newsletter",
+    "letsGoButtonText": "Bora",
+    "title": "Título",
+    "signUp": {
+      "buttonText": "Inscreve-te",
+      "title": "Inscreve-te ao @:appName",
+      "getStartedText": "Começar",
+      "emptyPasswordError": "A palavra-passe não pode estar em branco.",
+      "repeatPasswordEmptyError": "Confirmar a palavra-passe não pode estar em branco.",
+      "unmatchedPasswordError": "As palavras-passes não coincidem.",
+      "alreadyHaveAnAccount": "Já possuis uma conta?",
+      "emailHint": "Email",
+      "passwordHint": "Password",
+      "repeatPasswordHint": "Confirma a tua password"
+    },
+    "signIn": {
+      "loginTitle": "Entre no @:appName",
+      "loginButtonText": "Login",
+      "buttonText": "Entre",
+      "forgotPassword": "Esqueceste-te da tua palavra-passe?",
+      "emailHint": "Email",
+      "passwordHint": "Palavra-passe",
+      "dontHaveAnAccount": "Não possuis uma conta?",
+      "repeatPasswordEmptyError": "Confirmar a palavra-passe não pode estar em branco.",
+      "unmatchedPasswordError": "As palavras-passes não conferem."
+    },
+    "workspace": {
+      "create": "Cria um ambiente de trabalho",
+      "hint": "ambiente de trabalho",
+      "notFoundError": "Ambiente de trabalho não encontrada"
+    },
+    "shareAction": {
+      "buttonText": "Partilhar",
+      "workInProgress": "Em breve",
+      "markdown": "Markdown",
+      "copyLink": "Copiar o link"
+    },
+    "disclosureAction": {
+      "rename": "Renomear",
+      "delete": "Apagar",
+      "duplicate": "Duplicar"
+    },
+    "blankPageTitle": "Página em branco",
+    "newPageText": "Nova página",
+    "trash": {
+      "text": "Lixo",
+      "restoreAll": "Restaurar todos",
+      "deleteAll": "Apagar todos",
+      "pageHeader": {
+        "fileName": "Nome do ficheiro",
+        "lastModified": "Última modificação",
+        "created": "Criado"
+      }
+    },
+    "deletePagePrompt": {
+      "text": "Esta página está no lixo",
+      "restore": "Restaurar a página",
+      "deletePermanent": "Apagar permanentemente"
+    },
+    "dialogCreatePageNameHint": "Nome da página",
+    "questionBubble": {
+      "whatsNew": "O que há de novo?",
+      "help": "Ajuda & Suporte",
+      "debug": {
+        "name": "Informação de depuração",
+        "success": "Copiar informação de depuração para o clipboard!",
+        "fail": "Falha em copiar a informação de depuração para o clipboard"
+      }
+    },
+    "menuAppHeader": {
+      "addPageTooltip": "Adiciona uma nova página.",
+      "defaultNewPageName": "Sem título",
+      "renameDialog": "Renomear"
+    },
+    "toolbar": {
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strike": "Riscado",
+      "numList": "Lista numerada",
+      "bulletList": "Lista com marcadores",
+      "checkList": "Lista de verificação",
+      "inlineCode": "Embutir código",
+      "quote": "Citação em bloco",
+      "header": "Cabeçalho",
+      "highlight": "Realçar"
+    },
+    "tooltip": {
+      "lightMode": "Mudar para o modo Claro.",
+      "darkMode": "Mudar para o modo Escuro."
+    },
+    "contactsPage": {
+      "title": "Conctatos",
+      "whatsHappening": "O que está a acontecer nesta semana?",
+      "addContact": "Adicionar um conctato",
+      "editContact": "Editar um conctato"
+    },
+    "button": {
+      "OK": "OK",
+      "Cancel": "Cancelar",
+      "signIn": "Entrar",
+      "signOut": "Sair",
+      "complete": "Completar",
+      "save": "Guardar"
+    },
+    "label": {
+      "welcome": "Bem vindo!",
+      "firstName": "Nome",
+      "middleName": "Nome do Meio",
+      "lastName": "Apelido",
+      "stepX": "Passo {X}"
+    },
+    "oAuth": {
+      "err": {
+        "failedTitle": "Erro ao conectar à sua conta.",
+        "failedMsg": "Verifica se concluiste o processo de login no teu navegador."
+      },
+      "google": {
+        "title": "GOOGLE SIGN-IN",
+        "instruction1": "Para importar os teus Conctatos do Google, tens de autorizar esta aplicação usando o teu navegador web.",
+        "instruction2": "Copia este código para a tua área de transferências clicando no ícone ou selecionando o texto:",
+        "instruction3": "Navega até o link a seguir no seu navegador e digite o código acima:",
+        "instruction4": "Clica no botão abaixo ao concluir a inscrição:"
+      }
+    },
+    "settings": {
+      "title": "Definições",
+      "menu": {
+        "appearance": "Aparência",
+        "language": "Idioma",
+        "open": "Abrir as Definições"
+      },
+      "appearance": {
+        "lightLabel": "Modo Claro",
+        "darkLabel": "Modo Escuro"
+      }
+    }
+  }
+
