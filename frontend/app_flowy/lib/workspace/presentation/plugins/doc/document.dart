@@ -11,6 +11,7 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -179,10 +180,7 @@ class DocumentShareButton extends StatelessWidget {
         switch (action) {
           case ShareAction.markdown:
             context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
-            BubbleNotification(
-                    msgTitle: LocaleKeys.notifications_export_markdown.tr(),
-                    msgBody: 'Path: ${LocaleKeys.notifications_export_path.tr()}')
-                .show(context);
+            showMessageToast('Exported to: ${LocaleKeys.notifications_export_path.tr()}');
             break;
           case ShareAction.copyLink:
             FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
