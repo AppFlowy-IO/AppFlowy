@@ -7,6 +7,7 @@ mod ws_manager;
 
 pub use cache::*;
 pub use conflict_resolve::*;
+pub use history::*;
 pub use rev_manager::*;
 pub use rev_persistence::*;
 pub use ws_manager::*;

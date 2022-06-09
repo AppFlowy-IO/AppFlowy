@@ -1,5 +1,5 @@
 use crate::disk::RevisionState;
-use crate::history::{RevisionHistory, RevisionHistoryConfig};
+use crate::history::{RevisionHistory, RevisionHistoryConfig, RevisionHistoryDiskCache};
 use crate::{RevisionPersistence, WSDataProviderDataSource};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -47,15 +47,36 @@ pub struct RevisionManager {
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence>,
     rev_history: Arc<RevisionHistory>,
+    rev_compactor: Arc<dyn RevisionCompactor>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
-    pub fn new(user_id: &str, object_id: &str, rev_persistence: Arc<RevisionPersistence>) -> Self {
+    pub fn new<P, C>(
+        user_id: &str,
+        object_id: &str,
+        rev_persistence: RevisionPersistence,
+        rev_compactor: C,
+        history_persistence: P,
+    ) -> Self
+    where
+        P: 'static + RevisionHistoryDiskCache,
+        C: 'static + RevisionCompactor,
+    {
         let rev_id_counter = RevIdCounter::new(0);
+        let rev_compactor = Arc::new(rev_compactor);
+        let history_persistence = Arc::new(history_persistence);
         let rev_history_config = RevisionHistoryConfig::default();
-        let rev_history = Arc::new(RevisionHistory::new(rev_history_config));
+        let rev_persistence = Arc::new(rev_persistence);
+
+        let rev_history = Arc::new(RevisionHistory::new(
+            user_id,
+            object_id,
+            rev_history_config,
+            history_persistence,
+            rev_compactor.clone(),
+        ));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -65,7 +86,7 @@ impl RevisionManager {
             rev_id_counter,
             rev_persistence,
             rev_history,
-
+            rev_compactor,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,
         }
@@ -93,6 +114,7 @@ impl RevisionManager {
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
         let _ = self.rev_persistence.reset(revisions.into_inner()).await?;
+        self.rev_history.reset_history().await;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -104,20 +126,21 @@ impl RevisionManager {
         }
 
         let _ = self.rev_persistence.add_ack_revision(revision).await?;
+        self.rev_history.add_revision(revision).await;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn add_local_revision<'a>(
-        &'a self,
-        revision: &Revision,
-        compactor: Box<dyn RevisionCompactor + 'a>,
-    ) -> Result<(), FlowyError> {
+    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        let rev_id = self.rev_persistence.add_sync_revision(revision, compactor).await?;
+        let rev_id = self
+            .rev_persistence
+            .add_sync_revision(revision, &self.rev_compactor)
+            .await?;
+        self.rev_history.add_revision(revision).await;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }

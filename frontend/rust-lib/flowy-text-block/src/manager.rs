@@ -1,10 +1,13 @@
+use crate::queue::TextBlockRevisionCompactor;
 use crate::{editor::TextBlockEditor, errors::FlowyError, BlockCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_revision::{RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_revision::{
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
+};
 use flowy_sync::entities::{
     revision::{md5, RepeatedRevision, Revision},
     text_block_info::{TextBlockDelta, TextBlockId},
@@ -139,9 +142,18 @@ impl TextBlockManager {
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(&user_id, pool));
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, doc_id, disk_cache));
-        Ok(RevisionManager::new(&user_id, doc_id, rev_persistence))
+        let disk_cache = SQLiteTextBlockRevisionPersistence::new(&user_id, pool.clone());
+        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
+        let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+        let rev_compactor = TextBlockRevisionCompactor();
+
+        Ok(RevisionManager::new(
+            &user_id,
+            doc_id,
+            rev_persistence,
+            rev_compactor,
+            history_persistence,
+        ))
     }
 }
 

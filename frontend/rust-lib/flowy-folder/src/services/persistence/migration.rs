@@ -88,7 +88,7 @@ impl FolderMigration {
             return Ok(None);
         }
         let pool = self.database.db_pool()?;
-        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
+        let disk_cache = SQLiteTextBlockRevisionPersistence::new(user_id, pool);
         let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
         let (revisions, _) = RevisionLoader {
             object_id: folder_id.as_ref().to_owned(),

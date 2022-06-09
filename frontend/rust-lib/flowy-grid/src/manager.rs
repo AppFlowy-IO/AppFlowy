@@ -1,5 +1,5 @@
 use crate::services::block::make_grid_block_meta_rev_manager;
-use crate::services::grid_meta_editor::GridMetaEditor;
+use crate::services::grid_meta_editor::{GridMetaEditor, GridMetaRevisionCompactor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::GridDatabase;
@@ -9,7 +9,7 @@ use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
 use flowy_revision::disk::SQLiteGridRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
@@ -128,9 +128,11 @@ impl GridManager {
     pub fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
         let user_id = self.grid_user.user_id()?;
 
-        let disk_cache = Arc::new(SQLiteGridRevisionPersistence::new(&user_id, pool));
-        let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, grid_id, disk_cache));
-        let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence);
+        let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
+        let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
+        let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+        let rev_compactor = GridMetaRevisionCompactor();
+        let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, history_persistence);
         Ok(rev_manager)
     }
 }

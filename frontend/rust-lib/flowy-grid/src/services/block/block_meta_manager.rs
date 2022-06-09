@@ -1,6 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
-use crate::services::block::GridBlockMetaEditor;
+use crate::services::block::{GridBlockMetaEditor, GridBlockMetaRevisionCompactor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{group_row_orders, GridBlockSnapshot};
 use dashmap::DashMap;
@@ -10,7 +10,7 @@ use flowy_grid_data_model::entities::{
     RowMeta, RowMetaChangeset, RowOrder, UpdatedRowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence};
+use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionHistoryPersistence};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -278,7 +278,16 @@ pub fn make_grid_block_meta_rev_manager(user: &Arc<dyn GridUser>, block_id: &str
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
 
-    let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
-    let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_id, disk_cache));
-    Ok(RevisionManager::new(&user_id, block_id, rev_persistence))
+    let disk_cache = SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool.clone());
+    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+    let rev_compactor = GridBlockMetaRevisionCompactor();
+    let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+
+    Ok(RevisionManager::new(
+        &user_id,
+        block_id,
+        rev_persistence,
+        rev_compactor,
+        history_persistence,
+    ))
 }
