@@ -24,6 +24,7 @@ class GridRowActionSheet extends StatelessWidget {
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values
+              .where((value) => value.enable())
               .map(
                 (action) => _RowActionCell(
                   action: action,

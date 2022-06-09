@@ -30,11 +30,11 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
 pub struct URLTypeOption {
     #[pb(index = 1)]
-    data: String, //It's not used.
+    data: String, //It's not used yet.
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellDataOperation<EncodedCellData<URLCellData>, String> for URLTypeOption {
+impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -56,28 +56,31 @@ impl CellDataOperation<EncodedCellData<URLCellData>, String> for URLTypeOption {
         C: Into<CellContentChangeset>,
     {
         let changeset = changeset.into();
-        let mut cell_data = URLCellData {
-            url: "".to_string(),
-            content: changeset.to_string(),
-        };
-
+        let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
-            // Only support https scheme by now
-            match url::Url::parse(m.as_str()) {
-                Ok(url) => {
-                    if url.scheme() == "https" {
-                        cell_data.url = url.into();
-                    } else {
-                        cell_data.url = format!("https://{}", m.as_str());
-                    }
-                }
-                Err(_) => {
-                    cell_data.url = format!("https://{}", m.as_str());
-                }
+            url = auto_append_scheme(m.as_str());
+        }
+        URLCellData {
+            url,
+            content: changeset.to_string(),
+        }
+        .to_json()
+    }
+}
+
+fn auto_append_scheme(s: &str) -> String {
+    // Only support https scheme by now
+    match url::Url::parse(s) {
+        Ok(url) => {
+            if url.scheme() == "https" {
+                url.into()
+            } else {
+                format!("https://{}", s)
             }
         }
-
-        cell_data.to_json()
+        Err(_) => {
+            format!("https://{}", s)
+        }
     }
 }
 

@@ -6,7 +6,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +23,7 @@ class GridFieldCell extends StatelessWidget {
     return BlocProvider(
       create: (context) => FieldCellBloc(cellContext: cellContext)..add(const FieldCellEvent.initial()),
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
+        // buildWhen: (p, c) => p.field != c.field,
         builder: (context, state) {
           final button = FieldCellButton(
             field: state.field,
@@ -38,7 +38,7 @@ class GridFieldCell extends StatelessWidget {
           );
 
           return _GridHeaderCellContainer(
-            width: state.field.width.toDouble(),
+            width: state.width,
             child: Stack(
               alignment: Alignment.centerRight,
               fit: StackFit.expand,
@@ -60,13 +60,14 @@ class GridFieldCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     final state = context.read<FieldCellBloc>().state;
+    final field = state.field;
 
     FieldEditor(
       gridId: state.gridId,
-      fieldName: state.field.name,
+      fieldName: field.name,
       contextLoader: FieldContextLoader(
         gridId: state.gridId,
-        field: state.field,
+        field: field,
       ),
     ).show(context);
   }
@@ -84,7 +85,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final borderSide = BorderSide(color: theme.shader4, width: 0.4);
+    final borderSide = BorderSide(color: theme.shader5, width: 1.0);
     final decoration = BoxDecoration(
         border: Border(
       top: borderSide,
@@ -113,21 +114,19 @@ class _DragToExpandLine extends StatelessWidget {
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onHorizontalDragCancel: () {},
         onHorizontalDragUpdate: (value) {
-          // context.read<FieldCellBloc>().add(FieldCellEvent.updateWidth(value.delta.dx));
-          Log.info(value);
+          context.read<FieldCellBloc>().add(FieldCellEvent.startUpdateWidth(value.delta.dx));
         },
         onHorizontalDragEnd: (end) {
-          Log.info(end);
+          context.read<FieldCellBloc>().add(const FieldCellEvent.endUpdateWidth());
         },
         child: FlowyHover(
           style: HoverStyle(
             hoverColor: theme.main1,
             borderRadius: BorderRadius.zero,
-            contentMargin: const EdgeInsets.only(left: 5),
+            contentMargin: const EdgeInsets.only(left: 6),
           ),
-          child: const SizedBox(width: 2),
+          child: const SizedBox(width: 4),
         ),
       ),
     );

@@ -156,6 +156,7 @@ class _TextField extends StatelessWidget {
             selectedOptionMap: optionMap,
             distanceToText: _editorPannelWidth * 0.7,
             tagController: _tagController,
+            onClick: () => FlowyOverlay.of(context).remove(SelectOptionTypeOptionEditor.identifier),
             newText: (text) {
               context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.filterOption(text));
             },
@@ -207,6 +208,7 @@ class _CreateOptionCell extends StatelessWidget {
         SelectOptionTag(
           name: name,
           color: theme.shader6,
+          onSelected: () => context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.newOption(name)),
         ),
       ],
     );
@@ -233,7 +235,11 @@ class _SelectOptionCell extends StatelessWidget {
                 context.read<SelectOptionCellEditorBloc>().add(SelectOptionEditorEvent.selectOption(option.id));
               },
               children: [
-                if (isSelected) svgWidget("grid/checkmark"),
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: svgWidget("grid/checkmark"),
+                  ),
               ],
             ),
           ),

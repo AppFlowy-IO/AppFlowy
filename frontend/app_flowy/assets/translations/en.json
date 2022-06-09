@@ -186,7 +186,8 @@
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
-      "textPlaceholder": "Empty"
+      "textPlaceholder": "Empty",
+      "copyProperty": "Copied property to clipboard"
     },
     "selectOption": {
       "create": "Create",
@@ -203,6 +204,10 @@
       "colorPannelTitle": "Colors",
       "pannelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
+    },
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
     }
   }
 }

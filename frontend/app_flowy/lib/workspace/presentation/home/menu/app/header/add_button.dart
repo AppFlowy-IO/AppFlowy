@@ -28,7 +28,7 @@ class AddButton extends StatelessWidget {
           onSelected: onSelected,
         ).show(context);
       },
-      icon: svgWidget("home/add").padding(horizontal: 3, vertical: 3),
+      icon: svgWidget("home/add", color: theme.iconColor).padding(horizontal: 3, vertical: 3),
     );
   }
 }
@@ -46,8 +46,8 @@ class ActionList {
         return CreateItem(
           pluginBuilder: pluginBuilder,
           onSelected: (builder) {
-            FlowyOverlay.of(buildContext).remove(_identifier);
             onSelected(builder);
+            FlowyOverlay.of(buildContext).remove(_identifier);
           },
         );
       },

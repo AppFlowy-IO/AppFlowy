@@ -1,5 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_cotainer.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -170,16 +172,29 @@ class _RowCells extends StatelessWidget {
   List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
       (gridCell) {
-        Widget? expander;
-        if (gridCell.field.isPrimary) {
-          expander = _CellExpander(onExpand: onExpand);
+        final GridCellWidget child = buildGridCellWidget(gridCell, cellCache);
+
+        accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
+          final builder = child.accessoryBuilder;
+          List<GridCellAccessory> accessories = [];
+          if (gridCell.field.isPrimary) {
+            accessories.add(PrimaryCellAccessory(
+              onTapCallback: onExpand,
+              isCellEditing: buildContext.isCellEditing,
+            ));
+          }
+
+          if (builder != null) {
+            accessories.addAll(builder(buildContext));
+          }
+          return accessories;
         }
 
         return CellContainer(
           width: gridCell.field.width.toDouble(),
-          child: buildGridCellWidget(gridCell, cellCache),
+          child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
-          expander: expander,
+          accessoryBuilder: accessoryBuilder,
         );
       },
     ).toList();
@@ -197,26 +212,6 @@ class RegionStateNotifier extends ChangeNotifier {
   }
 
   bool get onEnter => _onEnter;
-}
-
-class _CellExpander extends StatelessWidget {
-  final VoidCallback onExpand;
-  const _CellExpander({required this.onExpand, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return FittedBox(
-      fit: BoxFit.contain,
-      child: FlowyIconButton(
-        width: 26,
-        onPressed: onExpand,
-        iconPadding: const EdgeInsets.all(5),
-        radius: BorderRadius.circular(4),
-        icon: svgWidget("grid/expander", color: theme.main1),
-      ),
-    );
-  }
 }
 
 class _RowEnterRegion extends StatefulWidget {

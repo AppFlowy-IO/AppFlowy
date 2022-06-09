@@ -1,7 +1,9 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{gen_block_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset};
+use flowy_grid_data_model::entities::{
+    gen_block_id, gen_row_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset,
+};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -22,6 +24,23 @@ pub struct GridBlockMetaPad {
 }
 
 impl GridBlockMetaPad {
+    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockMetaData {
+        let duplicated_rows = self
+            .rows
+            .iter()
+            .map(|row| {
+                let mut duplicated_row = row.as_ref().clone();
+                duplicated_row.id = gen_row_id();
+                duplicated_row.block_id = duplicated_block_id.to_string();
+                duplicated_row
+            })
+            .collect::<Vec<RowMeta>>();
+        GridBlockMetaData {
+            block_id: duplicated_block_id.to_string(),
+            rows: duplicated_rows,
+        }
+    }
+
     pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
         let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {

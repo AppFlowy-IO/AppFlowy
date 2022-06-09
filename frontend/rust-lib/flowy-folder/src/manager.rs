@@ -241,11 +241,11 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
+    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

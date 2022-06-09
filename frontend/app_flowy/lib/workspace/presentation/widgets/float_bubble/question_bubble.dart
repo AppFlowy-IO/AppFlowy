@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/tasks/rust_sdk.dart';
-import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -16,7 +16,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({Key? key}) : super(key: key);
@@ -46,7 +45,7 @@ class QuestionBubble extends StatelessWidget {
                   _launchURL("https://discord.gg/9Q2xaN37tV");
                   break;
                 case BubbleAction.debug:
-                  const _DebugToast().show();
+                  _DebugToast().show();
                   break;
               }
             });
@@ -71,55 +70,14 @@ class QuestionBubble extends StatelessWidget {
   }
 }
 
-class _DebugToast extends StatelessWidget {
-  const _DebugToast({Key? key}) : super(key: key);
+class _DebugToast {
+  void show() async {
+    var debugInfo = "";
+    debugInfo += await _getDeviceInfo();
+    debugInfo += await _getDocumentPath();
+    Clipboard.setData(ClipboardData(text: debugInfo));
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Future(() async {
-        var debugInfo = "";
-        debugInfo += await _getDeviceInfo();
-        debugInfo += await _getDocumentPath();
-
-        Clipboard.setData(ClipboardData(text: debugInfo));
-      }),
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return _done(context, Text("Error: ${snapshot.error}"));
-          } else {
-            return _done(context, null);
-          }
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    );
-  }
-
-  Widget _done(BuildContext context, Widget? error) {
-    final theme = context.watch<AppTheme>();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(25.0), color: theme.main1),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.check),
-          const SizedBox(width: 12.0),
-          (error == null) ? Text(LocaleKeys.questionBubble_debug_success.tr()) : error
-        ],
-      ),
-    );
-  }
-
-  void show() {
-    fToast.showToast(
-      child: this,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 3),
-    );
+    showMessageToast(LocaleKeys.questionBubble_debug_success.tr());
   }
 
   Future<String> _getDeviceInfo() async {

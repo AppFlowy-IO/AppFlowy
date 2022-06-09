@@ -937,6 +937,7 @@ dependencies = [
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "futures",
  "indexmap",
  "lazy_static",
  "lib-dispatch",

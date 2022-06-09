@@ -160,18 +160,21 @@ class _CellCalendarWidget extends StatelessWidget {
             ),
           ),
           selectedDayPredicate: (day) {
-            return state.dateData.fold(
+            return state.calData.fold(
               () => false,
               (dateData) => isSameDay(dateData.date, day),
             );
           },
           onDaySelected: (selectedDay, focusedDay) {
+            _CalDateTimeSetting.hide(context);
             context.read<DateCalBloc>().add(DateCalEvent.selectDay(selectedDay));
           },
           onFormatChanged: (format) {
+            _CalDateTimeSetting.hide(context);
             context.read<DateCalBloc>().add(DateCalEvent.setCalFormat(format));
           },
           onPageChanged: (focusedDay) {
+            _CalDateTimeSetting.hide(context);
             context.read<DateCalBloc>().add(DateCalEvent.setFocusedDay(focusedDay));
           },
         );
@@ -234,6 +237,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     if (widget.bloc.state.dateTypeOption.includeTime) {
       _focusNode.addListener(() {
         if (mounted) {
+          _CalDateTimeSetting.hide(context);
           widget.bloc.add(DateCalEvent.setTime(_controller.text));
         }
       });
@@ -257,6 +261,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
             child: RoundedInputField(
               height: 40,
               focusNode: _focusNode,
+              hintText: state.timeHintText,
               controller: _controller,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               normalBorderColor: theme.shader4,
@@ -326,6 +331,7 @@ class _CalDateTimeSetting extends StatefulWidget {
   }
 
   void show(BuildContext context) {
+    hide(context);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
         child: this,
@@ -336,6 +342,10 @@ class _CalDateTimeSetting extends StatefulWidget {
       anchorDirection: AnchorDirection.rightWithCenterAligned,
       anchorOffset: const Offset(20, 0),
     );
+  }
+
+  static void hide(BuildContext context) {
+    FlowyOverlay.of(context).remove(identifier());
   }
 }
 

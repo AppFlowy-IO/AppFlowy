@@ -71,7 +71,7 @@ class TextStyles {
   static TextStyle get CalloutFocus => Callout.bold;
 
   // ignore: non_constant_identifier_names
-  static TextStyle get Btn => quicksand.bold.size(FontSizes.s14).letterSpace(1.75);
+  static TextStyle get Btn => quicksand.bold.size(FontSizes.s16).letterSpace(1.75);
 
   // ignore: non_constant_identifier_names
   static TextStyle get BtnSelected => quicksand.size(FontSizes.s14).letterSpace(1.75);

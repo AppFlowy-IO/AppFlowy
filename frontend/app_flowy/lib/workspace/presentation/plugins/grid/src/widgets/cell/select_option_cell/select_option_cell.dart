@@ -20,7 +20,7 @@ class SelectOptionCellStyle extends GridCellStyle {
   });
 }
 
-class SingleSelectCell extends StatefulWidget with GridCellWidget {
+class SingleSelectCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
@@ -59,7 +59,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.onFocus.value = value,
+              onFocus: (value) => widget.onCellEditing.value = value,
               cellContextBuilder: widget.cellContextBuilder);
         },
       ),
@@ -74,7 +74,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends StatefulWidget with GridCellWidget {
+class MultiSelectCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
@@ -113,7 +113,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
           return _SelectOptionCell(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.onFocus.value = value,
+              onFocus: (value) => widget.onCellEditing.value = value,
               cellContextBuilder: widget.cellContextBuilder);
         },
       ),

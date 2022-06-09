@@ -22,6 +22,7 @@ class SelectOptionTextField extends StatelessWidget {
 
   final Function(String) onNewTag;
   final Function(String) newText;
+  final VoidCallback? onClick;
 
   SelectOptionTextField({
     required this.options,
@@ -30,6 +31,7 @@ class SelectOptionTextField extends StatelessWidget {
     required this.tagController,
     required this.onNewTag,
     required this.newText,
+    this.onClick,
     TextEditingController? controller,
     FocusNode? focusNode,
     Key? key,
@@ -53,6 +55,7 @@ class SelectOptionTextField extends StatelessWidget {
             autofocus: true,
             controller: editController,
             focusNode: focusNode,
+            onTap: onClick,
             onChanged: (text) {
               if (onChanged != null) {
                 onChanged(text);

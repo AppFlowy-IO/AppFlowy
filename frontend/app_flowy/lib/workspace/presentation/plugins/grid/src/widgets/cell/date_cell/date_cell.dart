@@ -18,7 +18,7 @@ abstract class GridCellDelegate {
   GridCellDelegate get delegate;
 }
 
-class DateCell extends StatefulWidget with GridCellWidget {
+class DateCell extends GridCellWidget {
   final GridCellContextBuilder cellContextBuilder;
   late final DateCellStyle? cellStyle;
 
@@ -35,10 +35,10 @@ class DateCell extends StatefulWidget with GridCellWidget {
   }
 
   @override
-  State<DateCell> createState() => _DateCellState();
+  GridCellState<DateCell> createState() => _DateCellState();
 }
 
-class _DateCellState extends State<DateCell> {
+class _DateCellState extends GridCellState<DateCell> {
   late DateCellBloc _cellBloc;
 
   @override
@@ -64,7 +64,7 @@ class _DateCellState extends State<DateCell> {
                 cursor: SystemMouseCursors.click,
                 child: Align(
                   alignment: alignment,
-                  child: FlowyText.medium(state.data.foldRight("", (data, _) => data.date), fontSize: 12),
+                  child: FlowyText.medium(state.dateStr, fontSize: 12),
                 ),
               ),
             ),
@@ -76,8 +76,8 @@ class _DateCellState extends State<DateCell> {
 
   void _showCalendar(BuildContext context) {
     final bloc = context.read<DateCellBloc>();
-    widget.onFocus.value = true;
-    final calendar = DateCellEditor(onDismissed: () => widget.onFocus.value = false);
+    widget.onCellEditing.value = true;
+    final calendar = DateCellEditor(onDismissed: () => widget.onCellEditing.value = false);
     calendar.show(
       context,
       cellContext: bloc.cellContext.clone(),
@@ -89,4 +89,10 @@ class _DateCellState extends State<DateCell> {
     _cellBloc.close();
     super.dispose();
   }
+
+  @override
+  void requestBeginFocus() {}
+
+  @override
+  String? onCopy() => _cellBloc.state.dateStr;
 }

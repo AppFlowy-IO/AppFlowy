@@ -24,13 +24,15 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             _startListening();
           },
           didReceiveFieldUpdate: (field) {
-            emit(state.copyWith(field: field));
+            emit(state.copyWith(field: cellContext.field));
           },
-          updateWidth: (offset) {
-            final defaultWidth = state.field.width.toDouble();
-            final width = defaultWidth + offset;
-            if (width > defaultWidth && width < 300) {
-              _fieldService.updateField(width: width);
+          startUpdateWidth: (offset) {
+            final width = state.width + offset;
+            emit(state.copyWith(width: width));
+          },
+          endUpdateWidth: () {
+            if (state.width != state.field.width.toDouble()) {
+              _fieldService.updateField(width: state.width);
             }
           },
         );
@@ -61,7 +63,8 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
   const factory FieldCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
-  const factory FieldCellEvent.updateWidth(double offset) = _UpdateWidth;
+  const factory FieldCellEvent.startUpdateWidth(double offset) = _StartUpdateWidth;
+  const factory FieldCellEvent.endUpdateWidth() = _EndUpdateWidth;
 }
 
 @freezed
@@ -69,10 +72,12 @@ class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
     required String gridId,
     required Field field,
+    required double width,
   }) = _FieldCellState;
 
   factory FieldCellState.initial(GridFieldCellContext cellContext) => FieldCellState(
         gridId: cellContext.gridId,
         field: cellContext.field,
+        width: cellContext.field.width.toDouble(),
       );
 }
