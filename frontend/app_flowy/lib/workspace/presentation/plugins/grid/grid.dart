@@ -1,7 +1,9 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:app_flowy/plugin/plugin.dart';
 import 'package:flutter/material.dart';
 
 import 'src/grid_page.dart';
@@ -17,7 +19,7 @@ class GridPluginBuilder implements PluginBuilder {
   }
 
   @override
-  String get menuName => "Grid";
+  String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
   PluginType get pluginType => DefaultPlugin.grid.type();

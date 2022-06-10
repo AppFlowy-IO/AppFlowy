@@ -1,10 +1,6 @@
 library docuemnt_plugin;
 
-export './src/document_page.dart';
-export './src/widget/toolbar/history_button.dart';
-export './src/widget/toolbar/toolbar_icon_button.dart';
-export './src/widget/toolbar/tool_bar.dart';
-
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
@@ -15,23 +11,27 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:clipboard/clipboard.dart';
+import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:clipboard/clipboard.dart';
-import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
 import 'src/document_page.dart';
+
+export './src/document_page.dart';
+export './src/widget/toolbar/history_button.dart';
+export './src/widget/toolbar/tool_bar.dart';
+export './src/widget/toolbar/toolbar_icon_button.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
   @override
@@ -44,7 +44,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   }
 
   @override
-  String get menuName => "Doc";
+  String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
   PluginType get pluginType => DefaultPlugin.quill.type();
