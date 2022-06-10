@@ -15,7 +15,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   GridHeaderBloc({
     required this.gridId,
     required this.fieldCache,
-  }) : super(GridHeaderState.initial(fieldCache.clonedFields)) {
+  }) : super(GridHeaderState.initial(fieldCache.fields)) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(

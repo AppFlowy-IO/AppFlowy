@@ -96,6 +96,12 @@
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode"
   },
+  "notifications": {
+    "export": {
+      "markdown": "Exported Note To Markdown",
+      "path": "Documents/flowy"
+    }
+  },
   "contactsPage": {
     "title": "Contacts",
     "whatsHappening": "What's happening this week?",
@@ -160,6 +166,7 @@
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
+      "urlFieldName": "URL",
       "numberFormat": " Number format",
       "dateFormat": " Date format",
       "includeTime": " Include time",
@@ -168,6 +175,7 @@
       "dateFormatLocal": "Month/Month/Day",
       "dateFormatUS": "Month/Month/Day",
       "timeFormat": " Time format",
+      "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",
       "addSelectOption": "Add an option",
@@ -178,7 +186,8 @@
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
-      "textPlaceholder": "Empty"
+      "textPlaceholder": "Empty",
+      "copyProperty": "Copied property to clipboard"
     },
     "selectOption": {
       "create": "Create",
@@ -200,5 +209,9 @@
   },
   "document":{
     "menuName":"Doc"
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
+    }
   }
 }

@@ -31,18 +31,18 @@ class CellDataPersistence implements _GridCellDataPersistence<String> {
 }
 
 @freezed
-class DateCalData with _$DateCalData {
-  const factory DateCalData({required DateTime date, String? time}) = _DateCellPersistenceData;
+class CalendarData with _$CalendarData {
+  const factory CalendarData({required DateTime date, String? time}) = _CalendarData;
 }
 
-class DateCellDataPersistence implements _GridCellDataPersistence<DateCalData> {
+class DateCellDataPersistence implements _GridCellDataPersistence<CalendarData> {
   final GridCell gridCell;
   DateCellDataPersistence({
     required this.gridCell,
   });
 
   @override
-  Future<Option<FlowyError>> save(DateCalData data) {
+  Future<Option<FlowyError>> save(CalendarData data) {
     var payload = DateChangesetPayload.create()..cellIdentifier = _cellIdentifier(gridCell);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();

@@ -1,94 +1,78 @@
 part of 'cell_service.dart';
 
-abstract class GridCellDataConfig {
+abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
   bool get reloadOnFieldChanged;
 
-  // The cell data will reload if it receives the cell's change notification.
-  // For example, the number cell should be reloaded after user input the number.
+  // When the reloadOnCellChanged is true, it will load the cell data after user input.
+  // For example: The number cell reload the cell data that carries the format
   // user input: 12
   // cell display: $12
   bool get reloadOnCellChanged;
 }
 
-class DefaultCellDataConfig implements GridCellDataConfig {
+class GridCellDataConfig implements IGridCellDataConfig {
   @override
   final bool reloadOnCellChanged;
 
   @override
   final bool reloadOnFieldChanged;
 
-  DefaultCellDataConfig({
+  const GridCellDataConfig({
     this.reloadOnCellChanged = false,
     this.reloadOnFieldChanged = false,
   });
 }
 
-abstract class _GridCellDataLoader<T> {
+abstract class IGridCellDataLoader<T> {
   Future<T?> loadData();
 
-  GridCellDataConfig get config;
+  IGridCellDataConfig get config;
 }
 
-class CellDataLoader extends _GridCellDataLoader<Cell> {
+abstract class ICellDataParser<T> {
+  T? parserData(List<int> data);
+}
+
+class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
   final CellService service = CellService();
   final GridCell gridCell;
-  final GridCellDataConfig _config;
-
-  CellDataLoader({
-    required this.gridCell,
-    bool reloadOnCellChanged = false,
-  }) : _config = DefaultCellDataConfig(reloadOnCellChanged: reloadOnCellChanged);
+  final ICellDataParser<T> parser;
 
   @override
-  Future<Cell?> loadData() {
+  final IGridCellDataConfig config;
+
+  GridCellDataLoader({
+    required this.gridCell,
+    required this.parser,
+    this.config = const GridCellDataConfig(),
+  });
+
+  @override
+  Future<T?> loadData() {
     final fut = service.getCell(
       gridId: gridCell.gridId,
       fieldId: gridCell.field.id,
       rowId: gridCell.rowId,
     );
-    return fut.then((result) {
-      return result.fold((data) => data, (err) {
+    return fut.then(
+      (result) => result.fold((Cell cell) {
+        try {
+          return parser.parserData(cell.data);
+        } catch (e, s) {
+          Log.error('$parser parser cellData failed, $e');
+          Log.error('Stack trace \n $s');
+          return null;
+        }
+      }, (err) {
         Log.error(err);
         return null;
-      });
-    });
-  }
-
-  @override
-  GridCellDataConfig get config => _config;
-}
-
-class DateCellDataLoader extends _GridCellDataLoader<DateCellData> {
-  final GridCell gridCell;
-  final GridCellDataConfig _config;
-  DateCellDataLoader({
-    required this.gridCell,
-  }) : _config = DefaultCellDataConfig(reloadOnFieldChanged: true);
-
-  @override
-  GridCellDataConfig get config => _config;
-
-  @override
-  Future<DateCellData?> loadData() {
-    final payload = CellIdentifierPayload.create()
-      ..gridId = gridCell.gridId
-      ..fieldId = gridCell.field.id
-      ..rowId = gridCell.rowId;
-
-    return GridEventGetDateCellData(payload).send().then((result) {
-      return result.fold(
-        (data) => data,
-        (err) {
-          Log.error(err);
-          return null;
-        },
-      );
-    });
+      }),
+    );
   }
 }
 
-class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionCellData> {
+class SelectOptionCellDataLoader extends IGridCellDataLoader<SelectOptionCellData> {
   final SelectOptionService service;
   final GridCell gridCell;
   SelectOptionCellDataLoader({
@@ -108,5 +92,43 @@ class SelectOptionCellDataLoader extends _GridCellDataLoader<SelectOptionCellDat
   }
 
   @override
-  GridCellDataConfig get config => DefaultCellDataConfig();
+  IGridCellDataConfig get config => const GridCellDataConfig(reloadOnFieldChanged: true);
+}
+
+class StringCellDataParser implements ICellDataParser<String> {
+  @override
+  String? parserData(List<int> data) {
+    final s = utf8.decode(data);
+    return s;
+  }
+}
+
+class DateCellDataParser implements ICellDataParser<DateCellData> {
+  @override
+  DateCellData? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return DateCellData.fromBuffer(data);
+  }
+}
+
+class SelectOptionCellDataParser implements ICellDataParser<SelectOptionCellData> {
+  @override
+  SelectOptionCellData? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return SelectOptionCellData.fromBuffer(data);
+  }
+}
+
+class URLCellDataParser implements ICellDataParser<URLCellData> {
+  @override
+  URLCellData? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return URLCellData.fromBuffer(data);
+  }
 }

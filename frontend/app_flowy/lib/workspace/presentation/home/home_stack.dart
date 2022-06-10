@@ -1,27 +1,26 @@
+import 'dart:io' show Platform;
+
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
+import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
+import 'package:app_flowy/core/frameless_window.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra/notifier.dart';
 
 typedef NavigationCallback = void Function(String id);
 
-late FToast fToast;
-
 class HomeStack extends StatelessWidget {
-  static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-  // final Size size;
   const HomeStack({Key? key}) : super(key: key);
 
   @override
@@ -69,8 +68,7 @@ class _FadingIndexedStackState extends State<FadingIndexedStack> {
   @override
   void initState() {
     super.initState();
-    fToast = FToast();
-    fToast.init(HomeScreen.scaffoldKey.currentState!.context);
+    initToastWithContext(context);
   }
 
   @override
@@ -152,7 +150,7 @@ class HomeStackManager {
       child: Selector<HomeStackNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
-          return const HomeTopBar();
+          return const MoveWindowDetector(child: HomeTopBar());
         },
       ),
     );
@@ -191,6 +189,14 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          BlocBuilder<HomeBloc, HomeState>(
+              buildWhen: ((previous, current) => previous.isMenuCollapsed != current.isMenuCollapsed),
+              builder: (context, state) {
+                if (state.isMenuCollapsed && Platform.isMacOS) {
+                  return const HSpace(80);
+                }
+                return const HSpace(0);
+              }),
           const FlowyNavigation(),
           const HSpace(16),
           ChangeNotifierProvider.value(

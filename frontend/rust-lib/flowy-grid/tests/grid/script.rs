@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_grid::services::field::*;
-use flowy_grid::services::grid_editor::{ClientGridEditor, GridPadBuilder};
+use flowy_grid::services::grid_editor::{GridMetaEditor, GridPadBuilder};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
     BuildGridContext, CellChangeset, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType, GridBlockMeta,
@@ -72,7 +72,7 @@ pub enum EditorScript {
 pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
-    pub editor: Arc<ClientGridEditor>,
+    pub editor: Arc<GridMetaEditor>,
     pub field_metas: Vec<FieldMeta>,
     pub grid_blocks: Vec<GridBlockMeta>,
     pub row_metas: Vec<Arc<RowMeta>>,
@@ -239,7 +239,7 @@ impl GridEditorTest {
     }
 }
 
-async fn get_row_metas(editor: &Arc<ClientGridEditor>) -> Vec<Arc<RowMeta>> {
+async fn get_row_metas(editor: &Arc<GridMetaEditor>) -> Vec<Arc<RowMeta>> {
     editor
         .grid_block_snapshots(None)
         .await
@@ -354,6 +354,10 @@ fn make_template_1_grid() -> BuildGridContext {
     let checkbox = CheckboxTypeOptionBuilder::default();
     let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
 
+    // URL
+    let url = URLTypeOptionBuilder::default();
+    let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
+
     GridBuilder::default()
         .add_field(text_field)
         .add_field(single_select_field)
@@ -361,6 +365,7 @@ fn make_template_1_grid() -> BuildGridContext {
         .add_field(number_field)
         .add_field(date_field)
         .add_field(checkbox_field)
+        .add_field(url_field)
         .add_empty_row()
         .add_empty_row()
         .add_empty_row()

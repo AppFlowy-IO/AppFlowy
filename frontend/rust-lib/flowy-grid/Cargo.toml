@@ -35,6 +35,9 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
 indexmap = {version = "1.8.1", features = ["serde"]}
+fancy-regex = "0.10.0"
+url = { version = "2"}
+futures = "0.3.15"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

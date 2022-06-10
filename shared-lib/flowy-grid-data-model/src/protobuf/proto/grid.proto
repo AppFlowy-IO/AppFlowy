@@ -35,17 +35,19 @@ message GetEditFieldContextPayload {
 }
 message EditFieldPayload {
     string grid_id = 1;
-    oneof one_of_field_id { string field_id = 2; };
+    string field_id = 2;
     FieldType field_type = 3;
+    bool create_if_not_exist = 4;
 }
-message EditFieldContext {
+message FieldTypeOptionContext {
     string grid_id = 1;
     Field grid_field = 2;
     bytes type_option_data = 3;
 }
 message FieldTypeOptionData {
-    string field_id = 1;
-    bytes type_option_data = 2;
+    string grid_id = 1;
+    Field field = 2;
+    bytes type_option_data = 3;
 }
 message RepeatedField {
     repeated Field items = 1;
@@ -93,8 +95,7 @@ message GridBlock {
 }
 message Cell {
     string field_id = 1;
-    string content = 2;
-    string data = 3;
+    bytes data = 2;
 }
 message RepeatedCell {
     repeated Cell items = 1;
@@ -166,4 +167,5 @@ enum FieldType {
     SingleSelect = 3;
     MultiSelect = 4;
     Checkbox = 5;
+    URL = 6;
 }

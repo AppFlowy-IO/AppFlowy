@@ -50,6 +50,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.0.0'
 
       - name: Pre build
         working-directory: frontend
@@ -98,6 +99,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.0.0'
 
       - name: Pre build
         working-directory: frontend
@@ -111,7 +113,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86 appflowy
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}

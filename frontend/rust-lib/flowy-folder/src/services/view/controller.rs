@@ -60,7 +60,7 @@ impl ViewController {
             params.data = view_data.to_vec();
         } else {
             let delta_data = processor
-                .process_create_view_data(&user_id, &params.view_id, params.data.clone())
+                .process_view_delta_data(&user_id, &params.view_id, params.data.clone())
                 .await?;
             let _ = self
                 .create_view(&params.view_id, params.data_type.clone(), delta_data)
@@ -129,7 +129,7 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) fn set_latest_view(&self, view_id: &str) -> Result<(), FlowyError> {
         KV::set_str(LATEST_VIEW_ID, view_id.to_owned());
         Ok(())
@@ -176,7 +176,7 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(&view.data_type)?;
-        let delta_bytes = processor.delta_bytes(view_id).await?;
+        let delta_bytes = processor.view_delta_data(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
@@ -193,7 +193,7 @@ impl ViewController {
     }
 
     // belong_to_id will be the app_id or view_id.
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
@@ -238,7 +238,7 @@ impl ViewController {
 }
 
 impl ViewController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
     async fn create_view_on_server(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let token = self.user.token()?;
         let view = self.cloud_service.create_view(&token, params).await?;

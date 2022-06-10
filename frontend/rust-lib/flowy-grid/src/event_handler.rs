@@ -1,14 +1,13 @@
+use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::entities::*;
 use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
-use crate::services::grid_editor::ClientGridEditor;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_grid_data_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
@@ -35,7 +34,7 @@ pub(crate) async fn get_grid_blocks_handler(
     data_result(repeated_grid_block)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_fields_handler(
     data: Data<QueryFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -48,7 +47,7 @@ pub(crate) async fn get_fields_handler(
     data_result(repeated_field)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_handler(
     data: Data<FieldChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -59,7 +58,7 @@ pub(crate) async fn update_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn insert_field_handler(
     data: Data<InsertFieldPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -70,7 +69,7 @@ pub(crate) async fn insert_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_type_option_handler(
     data: Data<UpdateFieldTypeOptionPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -83,7 +82,7 @@ pub(crate) async fn update_field_type_option_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -94,25 +93,34 @@ pub(crate) async fn delete_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<EditFieldContext, FlowyError> {
+) -> DataResult<FieldTypeOptionData, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
-    if params.field_id.is_none() {
-        return Err(ErrorCode::FieldIdIsEmpty.into());
-    }
-    let field_id = params.field_id.unwrap();
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    editor.switch_to_field_type(&field_id, &params.field_type).await?;
-    let field_meta = editor.get_field_meta(&field_id).await;
-    let edit_context =
-        make_edit_field_context(&params.grid_id, Some(field_id), params.field_type, editor, field_meta).await?;
-    data_result(edit_context)
+    editor
+        .switch_to_field_type(&params.field_id, &params.field_type)
+        .await?;
+
+    // Get the FieldMeta with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
+    let field_meta = editor
+        .get_field_meta(&params.field_id)
+        .await
+        .unwrap_or(editor.next_field_meta(&params.field_type).await?);
+
+    let type_option_data = get_type_option_data(&field_meta, &params.field_type).await?;
+    let data = FieldTypeOptionData {
+        grid_id: params.grid_id,
+        field: field_meta.into(),
+        type_option_data,
+    };
+
+    data_result(data)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn duplicate_field_handler(
     data: Data<FieldIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -123,36 +131,47 @@ pub(crate) async fn duplicate_field_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_field_context_handler(
-    data: Data<EditFieldPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<EditFieldContext, FlowyError> {
-    let params: EditFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    let edit_context =
-        make_edit_field_context(&params.grid_id, params.field_id, params.field_type, editor, None).await?;
-
-    data_result(edit_context)
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+/// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
     data: Data<EditFieldPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionData, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_meta = get_or_create_field_meta(params.field_id, &params.field_type, editor).await?;
+    match editor.get_field_meta(&params.field_id).await {
+        None => Err(FlowyError::record_not_found()),
+        Some(field_meta) => {
+            let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
+            let data = FieldTypeOptionData {
+                grid_id: params.grid_id,
+                field: field_meta.into(),
+                type_option_data,
+            };
+            data_result(data)
+        }
+    }
+}
+
+/// Create FieldMeta and save it. Return the FieldTypeOptionData.
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn create_field_type_option_data_handler(
+    data: Data<EditFieldPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<FieldTypeOptionData, FlowyError> {
+    let params: CreateFieldParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let field_meta = editor.create_next_field_meta(&params.field_type).await?;
     let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
 
     data_result(FieldTypeOptionData {
-        field_id: field_meta.id.clone(),
+        grid_id: params.grid_id,
+        field: field_meta.into(),
         type_option_data,
     })
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn move_item_handler(
     data: Data<MoveItemPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -163,23 +182,7 @@ pub(crate) async fn move_item_handler(
     Ok(())
 }
 
-async fn make_edit_field_context(
-    grid_id: &str,
-    field_id: Option<String>,
-    field_type: FieldType,
-    editor: Arc<ClientGridEditor>,
-    field_meta: Option<FieldMeta>,
-) -> FlowyResult<EditFieldContext> {
-    let field_meta = field_meta.unwrap_or(get_or_create_field_meta(field_id, &field_type, editor).await?);
-    let type_option_data = get_type_option_data(&field_meta, &field_type).await?;
-    let field: Field = field_meta.into();
-    Ok(EditFieldContext {
-        grid_id: grid_id.to_string(),
-        grid_field: field,
-        type_option_data,
-    })
-}
-
+/// The FieldMeta contains multiple data, each of them belongs to a specific FieldType.
 async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_meta
         .get_type_option_str(field_type)
@@ -188,20 +191,6 @@ async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) ->
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
-}
-
-async fn get_or_create_field_meta(
-    field_id: Option<String>,
-    field_type: &FieldType,
-    editor: Arc<ClientGridEditor>,
-) -> FlowyResult<FieldMeta> {
-    match field_id {
-        None => editor.create_next_field_meta(field_type).await,
-        Some(field_id) => match editor.get_field_meta(&field_id).await {
-            None => editor.create_next_field_meta(field_type).await,
-            Some(field_meta) => Ok(field_meta),
-        },
-    }
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -263,7 +252,7 @@ pub(crate) async fn get_cell_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_cell_handler(
     data: Data<CellChangeset>,
     manager: AppData<Arc<GridManager>>,
@@ -274,28 +263,7 @@ pub(crate) async fn update_cell_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn get_date_cell_data_handler(
-    data: Data<CellIdentifierPayload>,
-    manager: AppData<Arc<GridManager>>,
-) -> DataResult<DateCellData, FlowyError> {
-    let params: CellIdentifier = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
-        None => {
-            tracing::error!("Can't find the corresponding field with id: {}", params.field_id);
-            data_result(DateCellData::default())
-        }
-        Some(field_meta) => {
-            let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
-            let type_option = DateTypeOption::from(&field_meta);
-            let date_cell_data = type_option.make_date_cell_data(&cell_meta)?;
-            data_result(date_cell_data)
-        }
-    }
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn new_select_option_handler(
     data: Data<CreateSelectOptionPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -312,7 +280,7 @@ pub(crate) async fn new_select_option_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_handler(
     data: Data<SelectOptionChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -352,7 +320,7 @@ pub(crate) async fn update_select_option_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
     data: Data<CellIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -361,7 +329,7 @@ pub(crate) async fn get_select_option_handler(
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_meta(&params.field_id).await {
         None => {
-            tracing::error!("Can't find the corresponding field with id: {}", params.field_id);
+            tracing::error!("Can't find the select option field with id: {}", params.field_id);
             data_result(SelectOptionCellData::default())
         }
         Some(field_meta) => {
@@ -373,7 +341,7 @@ pub(crate) async fn get_select_option_handler(
     }
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_select_option_cell_handler(
     data: Data<SelectOptionCellChangesetPayload>,
     manager: AppData<Arc<GridManager>>,
@@ -384,7 +352,7 @@ pub(crate) async fn update_select_option_cell_handler(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
     data: Data<DateChangesetPayload>,
     manager: AppData<Arc<GridManager>>,

@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/field/type_option/date_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
@@ -18,12 +17,10 @@ class DateTypeOptionBuilder extends TypeOptionBuilder {
   final DateTypeOptionWidget _widget;
 
   DateTypeOptionBuilder(
-    TypeOptionData typeOptionData,
+    DateTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
-    TypeOptionDataDelegate dataDelegate,
   ) : _widget = DateTypeOptionWidget(
-          typeOption: DateTypeOption.fromBuffer(typeOptionData),
-          dataDelegate: dataDelegate,
+          typeOptionContext: typeOptionContext,
           overlayDelegate: overlayDelegate,
         );
 
@@ -32,12 +29,11 @@ class DateTypeOptionBuilder extends TypeOptionBuilder {
 }
 
 class DateTypeOptionWidget extends TypeOptionWidget {
-  final DateTypeOption typeOption;
+  final DateTypeOptionContext typeOptionContext;
   final TypeOptionOverlayDelegate overlayDelegate;
-  final TypeOptionDataDelegate dataDelegate;
+
   const DateTypeOptionWidget({
-    required this.typeOption,
-    required this.dataDelegate,
+    required this.typeOptionContext,
     required this.overlayDelegate,
     Key? key,
   }) : super(key: key);
@@ -45,9 +41,9 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DateTypeOptionBloc>(param1: typeOption),
+      create: (context) => DateTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
-        listener: (context, state) => dataDelegate.didUpdateTypeOptionData(state.typeOption.writeToBuffer()),
+        listener: (context, state) => typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           return Column(children: [
             _renderDateFormatButton(context, state.typeOption.dateFormat),

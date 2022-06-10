@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -6,8 +8,6 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'cell/cell_service/cell_service.dart';
 import 'row/row_service.dart';
 
@@ -59,7 +59,7 @@ typedef ChangesetListener = void Function(GridFieldChangeset);
 class GridFieldCache {
   final String gridId;
   late final GridFieldsListener _fieldListener;
-  final FieldsNotifier _fieldNotifier = FieldsNotifier();
+  FieldsNotifier? _fieldNotifier = FieldsNotifier();
   final List<ChangesetListener> _changesetListener = [];
 
   GridFieldCache({required this.gridId}) {
@@ -81,15 +81,16 @@ class GridFieldCache {
 
   Future<void> dispose() async {
     await _fieldListener.stop();
-    _fieldNotifier.dispose();
+    _fieldNotifier?.dispose();
+    _fieldNotifier = null;
   }
 
-  UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier.fields);
+  UnmodifiableListView<Field> get unmodifiableFields => UnmodifiableListView(_fieldNotifier?.fields ?? []);
 
-  List<Field> get clonedFields => [..._fieldNotifier.fields];
+  List<Field> get fields => [..._fieldNotifier?.fields ?? []];
 
   set fields(List<Field> fields) {
-    _fieldNotifier.fields = [...fields];
+    _fieldNotifier?.fields = [...fields];
   }
 
   VoidCallback addListener(
@@ -100,7 +101,7 @@ class GridFieldCache {
       }
 
       if (onChanged != null) {
-        onChanged(clonedFields);
+        onChanged(fields);
       }
 
       if (listener != null) {
@@ -108,12 +109,12 @@ class GridFieldCache {
       }
     }
 
-    _fieldNotifier.addListener(f);
+    _fieldNotifier?.addListener(f);
     return f;
   }
 
   void removeListener(VoidCallback f) {
-    _fieldNotifier.removeListener(f);
+    _fieldNotifier?.removeListener(f);
   }
 
   void addChangesetListener(ChangesetListener listener) {
@@ -131,43 +132,43 @@ class GridFieldCache {
     if (deletedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = _fieldNotifier.fields;
+    final List<Field> newFields = fields;
     final Map<String, FieldOrder> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
 
-    fields.retainWhere((field) => (deletedFieldMap[field.id] == null));
-    _fieldNotifier.fields = fields;
+    newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
+    _fieldNotifier?.fields = newFields;
   }
 
   void _insertFields(List<IndexField> insertedFields) {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = _fieldNotifier.fields;
+    final List<Field> newFields = fields;
     for (final indexField in insertedFields) {
-      if (fields.length > indexField.index) {
-        fields.insert(indexField.index, indexField.field_1);
+      if (newFields.length > indexField.index) {
+        newFields.insert(indexField.index, indexField.field_1);
       } else {
-        fields.add(indexField.field_1);
+        newFields.add(indexField.field_1);
       }
     }
-    _fieldNotifier.fields = fields;
+    _fieldNotifier?.fields = newFields;
   }
 
   void _updateFields(List<Field> updatedFields) {
     if (updatedFields.isEmpty) {
       return;
     }
-    final List<Field> fields = _fieldNotifier.fields;
+    final List<Field> newFields = fields;
     for (final updatedField in updatedFields) {
-      final index = fields.indexWhere((field) => field.id == updatedField.id);
+      final index = newFields.indexWhere((field) => field.id == updatedField.id);
       if (index != -1) {
-        fields.removeAt(index);
-        fields.insert(index, updatedField);
+        newFields.removeAt(index);
+        newFields.insert(index, updatedField);
       }
     }
-    _fieldNotifier.fields = fields;
+    _fieldNotifier?.fields = newFields;
   }
 }
 

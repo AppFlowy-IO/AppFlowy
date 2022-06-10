@@ -67,40 +67,42 @@ class ApplicationWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider.value(
-        value: settingModel,
-        builder: (context, _) {
-          const ratio = 1.73;
-          const minWidth = 600.0;
-          setWindowMinSize(const Size(minWidth, minWidth / ratio));
-          settingModel.readLocaleWhenAppLaunch(context);
-          AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
-            (value) => value.theme,
-          );
-          Locale locale = context.select<AppearanceSettingModel, Locale>(
-            (value) => value.locale,
-          );
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: settingModel,
+      builder: (context, _) {
+        const ratio = 1.73;
+        const minWidth = 600.0;
+        setWindowMinSize(const Size(minWidth, minWidth / ratio));
+        settingModel.readLocaleWhenAppLaunch(context);
+        AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
+          (value) => value.theme,
+        );
+        Locale locale = context.select<AppearanceSettingModel, Locale>(
+          (value) => value.locale,
+        );
 
-          return MultiProvider(
-            providers: [
-              Provider.value(value: theme),
-              Provider.value(value: locale),
-            ],
-            builder: (context, _) {
-              return MaterialApp(
-                builder: overlayManagerBuilder(),
-                debugShowCheckedModeBanner: false,
-                theme: theme.themeData,
-                localizationsDelegates: context.localizationDelegates,
-                supportedLocales: context.supportedLocales,
-                locale: locale,
-                navigatorKey: AppGlobals.rootNavKey,
-                home: child,
-              );
-            },
-          );
-        },
-      );
+        return MultiProvider(
+          providers: [
+            Provider.value(value: theme),
+            Provider.value(value: locale),
+          ],
+          builder: (context, _) {
+            return MaterialApp(
+              builder: overlayManagerBuilder(),
+              debugShowCheckedModeBanner: false,
+              theme: theme.themeData,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: locale,
+              navigatorKey: AppGlobals.rootNavKey,
+              home: child,
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
 class AppGlobals {

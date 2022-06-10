@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'cell_service/cell_service.dart';
-import 'package:dartz/dartz.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
@@ -16,7 +15,9 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       (event, emit) async {
         event.when(
           initial: () => _startListening(),
-          didReceiveCellUpdate: (DateCellData value) => emit(state.copyWith(data: Some(value))),
+          didReceiveCellUpdate: (DateCellData? cellData) {
+            emit(state.copyWith(data: cellData, dateStr: _dateStrFromCellData(cellData)));
+          },
           didReceiveFieldUpdate: (Field value) => emit(state.copyWith(field: value)),
         );
       },
@@ -47,28 +48,33 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.didReceiveCellUpdate(DateCellData data) = _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveCellUpdate(DateCellData? data) = _DidReceiveCellUpdate;
   const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required Option<DateCellData> data,
+    required DateCellData? data,
+    required String dateStr,
     required Field field,
   }) = _DateCellState;
 
   factory DateCellState.initial(GridDateCellContext context) {
     final cellData = context.getCellData();
-    Option<DateCellData> data = none();
-
-    if (cellData != null) {
-      data = Some(cellData);
-    }
 
     return DateCellState(
       field: context.field,
-      data: data,
+      data: cellData,
+      dateStr: _dateStrFromCellData(cellData),
     );
   }
+}
+
+String _dateStrFromCellData(DateCellData? cellData) {
+  String dateStr = "";
+  if (cellData != null) {
+    dateStr = cellData.date + " " + cellData.time;
+  }
+  return dateStr;
 }

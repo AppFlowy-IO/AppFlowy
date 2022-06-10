@@ -15,7 +15,7 @@ class PrimaryTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle txtStyle = TextStyles.Footnote.textColor(Colors.white);
+    TextStyle txtStyle = TextStyles.Btn.textColor(Colors.white);
     return PrimaryButton(bigMode: bigMode, onPressed: onPressed, child: Text(label, style: txtStyle));
   }
 }

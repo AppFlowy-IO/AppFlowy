@@ -19,18 +19,20 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
         super(FieldCellState.initial(cellContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        event.when(
+          initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(field: value.field));
+          didReceiveFieldUpdate: (field) {
+            emit(state.copyWith(field: cellContext.field));
           },
-          updateWidth: (_UpdateWidth value) {
-            final defaultWidth = state.field.width.toDouble();
-            final width = defaultWidth + value.offset;
-            if (width > defaultWidth && width < 300) {
-              _fieldService.updateField(width: width);
+          startUpdateWidth: (offset) {
+            final width = state.width + offset;
+            emit(state.copyWith(width: width));
+          },
+          endUpdateWidth: () {
+            if (state.width != state.field.width.toDouble()) {
+              _fieldService.updateField(width: state.width);
             }
           },
         );
@@ -61,7 +63,8 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
   const factory FieldCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
-  const factory FieldCellEvent.updateWidth(double offset) = _UpdateWidth;
+  const factory FieldCellEvent.startUpdateWidth(double offset) = _StartUpdateWidth;
+  const factory FieldCellEvent.endUpdateWidth() = _EndUpdateWidth;
 }
 
 @freezed
@@ -69,10 +72,12 @@ class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
     required String gridId,
     required Field field,
+    required double width,
   }) = _FieldCellState;
 
   factory FieldCellState.initial(GridFieldCellContext cellContext) => FieldCellState(
         gridId: cellContext.gridId,
         field: cellContext.field,
+        width: cellContext.field.width.toDouble(),
       );
 }

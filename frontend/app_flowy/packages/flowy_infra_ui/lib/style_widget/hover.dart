@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:flowy_infra/time/duration.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:provider/provider.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
@@ -52,7 +49,7 @@ class _FlowyHoverState extends State<FlowyHover> {
         child: child,
       );
     } else {
-      return child;
+      return Container(child: child, color: widget.style.backgroundColor);
     }
   }
 }
@@ -63,12 +60,14 @@ class HoverStyle {
   final Color hoverColor;
   final BorderRadius borderRadius;
   final EdgeInsets contentMargin;
+  final Color backgroundColor;
 
   const HoverStyle(
       {this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.borderRadius = const BorderRadius.all(Radius.circular(6)),
       this.contentMargin = EdgeInsets.zero,
+      this.backgroundColor = Colors.transparent,
       required this.hoverColor});
 }
 
@@ -99,113 +98,4 @@ class FlowyHoverContainer extends StatelessWidget {
       child: child,
     );
   }
-}
-
-//
-abstract class HoverWidget extends StatefulWidget {
-  const HoverWidget({Key? key}) : super(key: key);
-
-  ValueNotifier<bool> get onFocus;
-}
-
-class FlowyHover2 extends StatefulWidget {
-  final HoverWidget child;
-  final EdgeInsets contentPadding;
-  const FlowyHover2({
-    required this.child,
-    this.contentPadding = EdgeInsets.zero,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<FlowyHover2> createState() => _FlowyHover2State();
-}
-
-class _FlowyHover2State extends State<FlowyHover2> {
-  late FlowyHoverState _hoverState;
-
-  @override
-  void initState() {
-    _hoverState = FlowyHoverState();
-    widget.child.onFocus.addListener(() {
-      _hoverState.onFocus = widget.child.onFocus.value;
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _hoverState.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _hoverState,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        opaque: false,
-        onEnter: (p) => setState(() => _hoverState.onHover = true),
-        onExit: (p) => setState(() => _hoverState.onHover = false),
-        child: Stack(
-          fit: StackFit.loose,
-          alignment: AlignmentDirectional.center,
-          children: [
-            const _HoverBackground(),
-            Padding(
-              padding: widget.contentPadding,
-              child: widget.child,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HoverBackground extends StatelessWidget {
-  const _HoverBackground({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return Consumer<FlowyHoverState>(
-      builder: (context, state, child) {
-        if (state.onHover || state.onFocus) {
-          return FlowyHoverContainer(
-            style: HoverStyle(
-              borderRadius: Corners.s6Border,
-              hoverColor: theme.shader6,
-            ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
-  }
-}
-
-class FlowyHoverState extends ChangeNotifier {
-  bool _onHover = false;
-  bool _onFocus = false;
-
-  set onHover(bool value) {
-    if (_onHover != value) {
-      _onHover = value;
-      notifyListeners();
-    }
-  }
-
-  bool get onHover => _onHover;
-
-  set onFocus(bool value) {
-    if (_onFocus != value) {
-      _onFocus = value;
-      notifyListeners();
-    }
-  }
-
-  bool get onFocus => _onFocus;
 }

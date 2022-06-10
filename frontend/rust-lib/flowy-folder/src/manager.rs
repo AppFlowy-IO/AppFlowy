@@ -4,7 +4,7 @@ use crate::{
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
-        folder_editor::ClientFolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
+        folder_editor::FolderEditor, persistence::FolderPersistence, set_current_workspace, AppController,
         TrashController, ViewController, WorkspaceController,
     },
 };
@@ -61,7 +61,7 @@ pub struct FolderManager {
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) trash_controller: Arc<TrashController>,
     web_socket: Arc<dyn RevisionWebSocket>,
-    folder_editor: Arc<TokioRwLock<Option<Arc<ClientFolderEditor>>>>,
+    folder_editor: Arc<TokioRwLock<Option<Arc<FolderEditor>>>>,
     data_processors: ViewDataProcessorMap,
 }
 
@@ -166,8 +166,7 @@ impl FolderManager {
         let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
         let rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
 
-        let folder_editor =
-            ClientFolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
+        let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
 
         let _ = self.app_controller.initialize()?;
@@ -228,7 +227,7 @@ impl DefaultFolderBuilder {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderManager {
-    pub async fn folder_editor(&self) -> Arc<ClientFolderEditor> {
+    pub async fn folder_editor(&self) -> Arc<FolderEditor> {
         self.folder_editor.read().await.clone().unwrap()
     }
 }
@@ -242,11 +241,11 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn delta_bytes(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn process_create_view_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
+    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

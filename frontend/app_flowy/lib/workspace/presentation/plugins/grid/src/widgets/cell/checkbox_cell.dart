@@ -14,17 +14,16 @@ class CheckboxCell extends GridCellWidget {
   }) : super(key: key);
 
   @override
-  State<CheckboxCell> createState() => _CheckboxCellState();
+  GridCellState<CheckboxCell> createState() => _CheckboxCellState();
 }
 
-class _CheckboxCellState extends State<CheckboxCell> {
+class _CheckboxCellState extends GridCellState<CheckboxCell> {
   late CheckboxCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellContext = widget.cellContextBuilder.build();
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellContext)..add(const CheckboxCellEvent.initial());
-    _listenCellRequestFocus();
     super.initState();
   }
 
@@ -41,7 +40,7 @@ class _CheckboxCellState extends State<CheckboxCell> {
               onPressed: () => context.read<CheckboxCellBloc>().add(const CheckboxCellEvent.select()),
               iconPadding: EdgeInsets.zero,
               icon: icon,
-              width: 23,
+              width: 20,
             ),
           );
         },
@@ -50,21 +49,22 @@ class _CheckboxCellState extends State<CheckboxCell> {
   }
 
   @override
-  void didUpdateWidget(covariant CheckboxCell oldWidget) {
-    _listenCellRequestFocus();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   Future<void> dispose() async {
-    widget.requestFocus.removeAllListener();
     _cellBloc.close();
     super.dispose();
   }
 
-  void _listenCellRequestFocus() {
-    widget.requestFocus.addListener(() {
-      _cellBloc.add(const CheckboxCellEvent.select());
-    });
+  @override
+  void requestBeginFocus() {
+    _cellBloc.add(const CheckboxCellEvent.select());
+  }
+
+  @override
+  String? onCopy() {
+    if (_cellBloc.state.isSelected) {
+      return "Yes";
+    } else {
+      return "No";
+    }
   }
 }

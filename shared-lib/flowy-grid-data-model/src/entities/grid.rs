@@ -167,16 +167,19 @@ pub struct EditFieldPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2, one_of)]
-    pub field_id: Option<String>,
+    #[pb(index = 2)]
+    pub field_id: String,
 
     #[pb(index = 3)]
     pub field_type: FieldType,
+
+    #[pb(index = 4)]
+    pub create_if_not_exist: bool,
 }
 
 pub struct EditFieldParams {
     pub grid_id: String,
-    pub field_id: Option<String>,
+    pub field_id: String,
     pub field_type: FieldType,
 }
 
@@ -185,17 +188,35 @@ impl TryInto<EditFieldParams> for EditFieldPayload {
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        // let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(EditFieldParams {
             grid_id: grid_id.0,
-            field_id: self.field_id,
+            field_id: field_id.0,
+            field_type: self.field_type,
+        })
+    }
+}
+
+pub struct CreateFieldParams {
+    pub grid_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<CreateFieldParams> for EditFieldPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+
+        Ok(CreateFieldParams {
+            grid_id: grid_id.0,
             field_type: self.field_type,
         })
     }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct EditFieldContext {
+pub struct FieldTypeOptionContext {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -209,9 +230,12 @@ pub struct EditFieldContext {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct FieldTypeOptionData {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub grid_id: String,
 
     #[pb(index = 2)]
+    pub field: Field,
+
+    #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
 
@@ -460,17 +484,13 @@ pub struct Cell {
     pub field_id: String,
 
     #[pb(index = 2)]
-    pub content: String,
-
-    #[pb(index = 3)]
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
 impl Cell {
-    pub fn new(field_id: &str, content: String, data: String) -> Self {
+    pub fn new(field_id: &str, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
-            content,
             data,
         }
     }
@@ -478,8 +498,7 @@ impl Cell {
     pub fn empty(field_id: &str) -> Self {
         Self {
             field_id: field_id.to_owned(),
-            content: "".to_string(),
-            data: "".to_string(),
+            data: vec![],
         }
     }
 }
@@ -856,6 +875,7 @@ pub enum FieldType {
     SingleSelect = 3,
     MultiSelect = 4,
     Checkbox = 5,
+    URL = 6,
 }
 
 impl std::default::Default for FieldType {
@@ -887,6 +907,38 @@ impl FieldType {
             FieldType::DateTime => 180,
             _ => 150,
         }
+    }
+
+    pub fn is_number(&self) -> bool {
+        self == &FieldType::Number
+    }
+
+    pub fn is_text(&self) -> bool {
+        self == &FieldType::RichText
+    }
+
+    pub fn is_checkbox(&self) -> bool {
+        self == &FieldType::Checkbox
+    }
+
+    pub fn is_date(&self) -> bool {
+        self == &FieldType::DateTime
+    }
+
+    pub fn is_single_select(&self) -> bool {
+        self == &FieldType::SingleSelect
+    }
+
+    pub fn is_multi_select(&self) -> bool {
+        self == &FieldType::MultiSelect
+    }
+
+    pub fn is_url(&self) -> bool {
+        self == &FieldType::URL
+    }
+
+    pub fn is_select_option(&self) -> bool {
+        self == &FieldType::MultiSelect || self == &FieldType::SingleSelect
     }
 }
 

@@ -1,9 +1,25 @@
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, RowMeta};
+use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, GridBlockMeta, GridBlockMetaData, RowMeta};
 
-#[derive(Default)]
 pub struct GridBuilder {
     build_context: BuildGridContext,
+}
+
+impl std::default::Default for GridBuilder {
+    fn default() -> Self {
+        let mut build_context = BuildGridContext::new();
+
+        let block_meta = GridBlockMeta::new();
+        let block_meta_data = GridBlockMetaData {
+            block_id: block_meta.block_id.clone(),
+            rows: vec![],
+        };
+
+        build_context.blocks.push(block_meta);
+        build_context.blocks_meta_data.push(block_meta_data);
+
+        GridBuilder { build_context }
+    }
 }
 
 impl GridBuilder {
@@ -13,9 +29,11 @@ impl GridBuilder {
     }
 
     pub fn add_empty_row(mut self) -> Self {
-        let row = RowMeta::new(&self.build_context.block_meta.block_id);
-        self.build_context.block_meta_data.rows.push(row);
-        self.build_context.block_meta.row_count += 1;
+        let row = RowMeta::new(&self.build_context.blocks.first().unwrap().block_id);
+        let block_meta = self.build_context.blocks.first_mut().unwrap();
+        let block_meta_data = self.build_context.blocks_meta_data.first_mut().unwrap();
+        block_meta_data.rows.push(row);
+        block_meta.row_count += 1;
         self
     }
 
@@ -57,13 +75,13 @@ mod tests {
         let grid_meta = GridMeta {
             grid_id,
             fields: build_context.field_metas,
-            blocks: vec![build_context.block_meta],
+            blocks: build_context.blocks,
         };
 
         let grid_meta_delta = make_grid_delta(&grid_meta);
         let _: GridMeta = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
 
-        let grid_block_meta_delta = make_block_meta_delta(&build_context.block_meta_data);
+        let grid_block_meta_delta = make_block_meta_delta(build_context.blocks_meta_data.first().unwrap());
         let _: GridBlockMetaData = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
     }
 }

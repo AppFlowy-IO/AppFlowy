@@ -26,6 +26,23 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_macos_podfile_setup
 
+def build_specify_archs_only
+  if ENV.has_key?('BUILD_ARCHS')
+    xcodeproj_path = File.dirname(__FILE__) + '/Runner.xcodeproj'
+    project = Xcodeproj::Project.open(xcodeproj_path)
+    project.targets.each do |target|
+      if target.name == 'Runner'
+        target.build_configurations.each do |config|
+          config.build_settings['ARCHS'] = ENV['BUILD_ARCHS']
+        end
+      end
+    end
+    project.save()
+  end
+end
+
+build_specify_archs_only()
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!

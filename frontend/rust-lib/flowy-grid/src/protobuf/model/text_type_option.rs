@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct RichTextTypeOption {
     // message fields
-    pub format: ::std::string::String,
+    pub data: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -43,30 +43,30 @@ impl RichTextTypeOption {
         ::std::default::Default::default()
     }
 
-    // string format = 1;
+    // string data = 1;
 
 
-    pub fn get_format(&self) -> &str {
-        &self.format
+    pub fn get_data(&self) -> &str {
+        &self.data
     }
-    pub fn clear_format(&mut self) {
-        self.format.clear();
+    pub fn clear_data(&mut self) {
+        self.data.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_format(&mut self, v: ::std::string::String) {
-        self.format = v;
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.data = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_format(&mut self) -> &mut ::std::string::String {
-        &mut self.format
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        &mut self.data
     }
 
     // Take field
-    pub fn take_format(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.format, ::std::string::String::new())
+    pub fn take_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.data, ::std::string::String::new())
     }
 }
 
@@ -80,7 +80,7 @@ impl ::protobuf::Message for RichTextTypeOption {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.format)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -94,8 +94,8 @@ impl ::protobuf::Message for RichTextTypeOption {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.format.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.format);
+        if !self.data.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.data);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -103,8 +103,8 @@ impl ::protobuf::Message for RichTextTypeOption {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.format.is_empty() {
-            os.write_string(1, &self.format)?;
+        if !self.data.is_empty() {
+            os.write_string(1, &self.data)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -145,9 +145,9 @@ impl ::protobuf::Message for RichTextTypeOption {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "format",
-                |m: &RichTextTypeOption| { &m.format },
-                |m: &mut RichTextTypeOption| { &mut m.format },
+                "data",
+                |m: &RichTextTypeOption| { &m.data },
+                |m: &mut RichTextTypeOption| { &mut m.data },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RichTextTypeOption>(
                 "RichTextTypeOption",
@@ -165,7 +165,7 @@ impl ::protobuf::Message for RichTextTypeOption {
 
 impl ::protobuf::Clear for RichTextTypeOption {
     fn clear(&mut self) {
-        self.format.clear();
+        self.data.clear();
         self.unknown_fields.clear();
     }
 }
@@ -183,8 +183,8 @@ impl ::protobuf::reflect::ProtobufValue for RichTextTypeOption {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16text_type_option.proto\",\n\x12RichTextTypeOption\x12\x16\n\x06for\
-    mat\x18\x01\x20\x01(\tR\x06formatb\x06proto3\
+    \n\x16text_type_option.proto\"(\n\x12RichTextTypeOption\x12\x12\n\x04dat\
+    a\x18\x01\x20\x01(\tR\x04datab\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

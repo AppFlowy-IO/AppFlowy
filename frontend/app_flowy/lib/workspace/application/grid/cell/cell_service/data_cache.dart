@@ -104,6 +104,8 @@ class GridCellCache {
   }
 
   Future<void> dispose() async {
+    _fieldListenerByFieldId.clear();
+    _cellDataByFieldId.clear();
     fieldDelegate.dispose();
   }
 }

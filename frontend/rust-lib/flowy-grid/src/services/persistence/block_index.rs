@@ -7,11 +7,11 @@ use flowy_database::{
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
-pub struct BlockIndexPersistence {
+pub struct BlockIndexCache {
     database: Arc<dyn GridDatabase>,
 }
 
-impl BlockIndexPersistence {
+impl BlockIndexCache {
     pub fn new(database: Arc<dyn GridDatabase>) -> Self {
         Self { database }
     }
@@ -26,7 +26,7 @@ impl BlockIndexPersistence {
         Ok(block_id)
     }
 
-    pub fn insert_or_update(&self, block_id: &str, row_id: &str) -> FlowyResult<()> {
+    pub fn insert(&self, block_id: &str, row_id: &str) -> FlowyResult<()> {
         let conn = self.database.db_connection()?;
         let item = IndexItem {
             row_id: row_id.to_string(),

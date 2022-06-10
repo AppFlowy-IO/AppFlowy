@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:app_flowy/startup/tasks/rust_sdk.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
@@ -33,7 +36,29 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   ExportData _convertDeltaToMarkdown(ExportData value) {
     final result = deltaToMarkdown(value.data);
     value.data = result;
+    writeFile(result);
     return value;
+  }
+
+  Future<Directory> get _exportDir async {
+    Directory documentsDir = await appFlowyDocumentDirectory();
+
+    return documentsDir;
+  }
+
+  Future<String> get _localPath async {
+    final dir = await _exportDir;
+    return dir.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/${view.name}.md');
+  }
+
+  Future<File> writeFile(String md) async {
+    final file = await _localFile;
+    return file.writeAsString(md);
   }
 }
 

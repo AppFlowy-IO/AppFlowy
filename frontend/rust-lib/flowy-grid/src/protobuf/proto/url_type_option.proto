@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message URLTypeOption {
+    string data = 1;
+}
+message URLCellData {
+    string url = 1;
+    string content = 2;
+}

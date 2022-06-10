@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
-use crate::services::block_meta_editor::ClientGridBlockMetaEditor;
-use crate::services::persistence::block_index::BlockIndexPersistence;
+use crate::services::block_meta_editor::GridBlockMetaEditor;
+use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{group_row_orders, GridBlockSnapshot};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
@@ -15,20 +15,20 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub(crate) struct GridBlockMetaEditorManager {
+type BlockId = String;
+pub(crate) struct GridBlockManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    // Key: block_id
-    editor_map: DashMap<String, Arc<ClientGridBlockMetaEditor>>,
-    persistence: Arc<BlockIndexPersistence>,
+    persistence: Arc<BlockIndexCache>,
+    block_editor_map: DashMap<BlockId, Arc<GridBlockMetaEditor>>,
 }
 
-impl GridBlockMetaEditorManager {
+impl GridBlockManager {
     pub(crate) async fn new(
         grid_id: &str,
         user: &Arc<dyn GridUser>,
         blocks: Vec<GridBlockMeta>,
-        persistence: Arc<BlockIndexPersistence>,
+        persistence: Arc<BlockIndexCache>,
     ) -> FlowyResult<Self> {
         let editor_map = make_block_meta_editor_map(user, blocks).await?;
         let user = user.clone();
@@ -36,27 +36,27 @@ impl GridBlockMetaEditorManager {
         let manager = Self {
             grid_id,
             user,
-            editor_map,
+            block_editor_map: editor_map,
             persistence,
         };
         Ok(manager)
     }
 
     // #[tracing::instrument(level = "trace", skip(self))]
-    pub(crate) async fn get_editor(&self, block_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
+    pub(crate) async fn get_editor(&self, block_id: &str) -> FlowyResult<Arc<GridBlockMetaEditor>> {
         debug_assert!(!block_id.is_empty());
-        match self.editor_map.get(block_id) {
+        match self.block_editor_map.get(block_id) {
             None => {
-                tracing::error!("The is a fatal error, block is not exist");
+                tracing::error!("This is a fatal error, block with id:{} is not exist", block_id);
                 let editor = Arc::new(make_block_meta_editor(&self.user, block_id).await?);
-                self.editor_map.insert(block_id.to_owned(), editor.clone());
+                self.block_editor_map.insert(block_id.to_owned(), editor.clone());
                 Ok(editor)
             }
             Some(editor) => Ok(editor.clone()),
         }
     }
 
-    async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<ClientGridBlockMetaEditor>> {
+    async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockMetaEditor>> {
         let block_id = self.persistence.get_block_id(row_id)?;
         Ok(self.get_editor(&block_id).await?)
     }
@@ -67,7 +67,7 @@ impl GridBlockMetaEditorManager {
         row_meta: RowMeta,
         start_row_id: Option<String>,
     ) -> FlowyResult<i32> {
-        let _ = self.persistence.insert_or_update(&row_meta.block_id, &row_meta.id)?;
+        let _ = self.persistence.insert(&row_meta.block_id, &row_meta.id)?;
         let editor = self.get_editor(&row_meta.block_id).await?;
 
         let mut index_row_order = IndexRowOrder::from(&row_meta);
@@ -90,7 +90,7 @@ impl GridBlockMetaEditorManager {
             let editor = self.get_editor(&block_id).await?;
             let mut row_count = 0;
             for row in row_metas {
-                let _ = self.persistence.insert_or_update(&row.block_id, &row.id)?;
+                let _ = self.persistence.insert(&row.block_id, &row.id)?;
                 let mut row_order = IndexRowOrder::from(&row);
                 let (count, index) = editor.create_row(row, None).await?;
                 row_count = count;
@@ -256,7 +256,7 @@ impl GridBlockMetaEditorManager {
 async fn make_block_meta_editor_map(
     user: &Arc<dyn GridUser>,
     blocks: Vec<GridBlockMeta>,
-) -> FlowyResult<DashMap<String, Arc<ClientGridBlockMetaEditor>>> {
+) -> FlowyResult<DashMap<String, Arc<GridBlockMetaEditor>>> {
     let editor_map = DashMap::new();
     for block in blocks {
         let editor = make_block_meta_editor(user, &block.block_id).await?;
@@ -266,7 +266,8 @@ async fn make_block_meta_editor_map(
     Ok(editor_map)
 }
 
-async fn make_block_meta_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<ClientGridBlockMetaEditor> {
+async fn make_block_meta_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyResult<GridBlockMetaEditor> {
+    tracing::trace!("Open block:{} meta editor", block_id);
     let token = user.token()?;
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
@@ -274,5 +275,5 @@ async fn make_block_meta_editor(user: &Arc<dyn GridUser>, block_id: &str) -> Flo
     let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
     let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_id, disk_cache));
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence);
-    ClientGridBlockMetaEditor::new(&user_id, &token, block_id, rev_manager).await
+    GridBlockMetaEditor::new(&user_id, &token, block_id, rev_manager).await
 }

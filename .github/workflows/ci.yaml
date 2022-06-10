@@ -18,7 +18,7 @@ jobs:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86
           - os: macos-latest
-            flutter_profile: development-mac
+            flutter_profile: development-mac-x86_64
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -34,6 +34,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+          flutter-version: '3.0.0'
 
       - name: Cache Cargo
         uses: actions/cache@v2

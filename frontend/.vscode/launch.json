@@ -5,40 +5,60 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "app_flowy",
+            // This task builds the Rust and Dart code of AppFlowy.
+            "name": "AF: Build All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "build_flowy_sdk",
+            "preLaunchTask": "AF: build_flowy_sdk",
             "env":{
                 "RUST_LOG":"info"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
-            "name": "app_flowy(trace)",
+            //  This task only builds the Dart code of AppFlowy.
+            "name": "AF: Build Dart Only",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "debug"
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            // This task builds will:
+            // - call the clean task,
+            // - rebuild all the generated Files (including freeze and language files)
+            // - rebuild the the Rust and Dart code of AppFlowy.
+            "name": "AF: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "build_flowy_sdk",
+            "preLaunchTask": "AF: Clean + Rebuild All",
+            "env":{
+                "RUST_LOG":"info"
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
+
+        {
+            "name": "AF: Build All (rustlog: trace)",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: build_flowy_sdk",
             "env":{
                 "RUST_LOG":"trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
-            "name": "app_flowy (profile mode)",
+            "name": "AF: app_flowy (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
-        },
-        {
-            "name": "Generate Language Files",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "Generate Language Files",
-            "cwd": "${workspaceRoot}/app_flowy/"
         },
     ]
 }

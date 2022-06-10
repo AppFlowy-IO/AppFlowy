@@ -2,7 +2,7 @@
 proto_crates = [
     "src/event_map.rs",
     "src/services/field/type_options",
-    "src/services/entities",
+    "src/entities",
     "src/dart_notification.rs"
 ]
 event_files = ["src/event_map.rs"]

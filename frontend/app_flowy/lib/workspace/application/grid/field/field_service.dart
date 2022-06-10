@@ -1,9 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
 class FieldService {
@@ -11,24 +14,6 @@ class FieldService {
   final String fieldId;
 
   FieldService({required this.gridId, required this.fieldId});
-
-  Future<Either<EditFieldContext, FlowyError>> switchToField(FieldType fieldType) {
-    final payload = EditFieldPayload.create()
-      ..gridId = gridId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-
-    return GridEventSwitchToField(payload).send();
-  }
-
-  Future<Either<EditFieldContext, FlowyError>> getEditFieldContext(FieldType fieldType) {
-    final payload = EditFieldPayload.create()
-      ..gridId = gridId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-
-    return GridEventGetEditFieldContext(payload).send();
-  }
 
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
     final payload = MoveItemPayload.create()
@@ -128,7 +113,7 @@ class FieldService {
     return GridEventDuplicateField(payload).send();
   }
 
-  Future<Either<List<int>, FlowyError>> getTypeOptionData({
+  Future<Either<FieldTypeOptionData, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
     final payload = EditFieldPayload.create()
@@ -137,7 +122,7 @@ class FieldService {
       ..fieldType = fieldType;
     return GridEventGetFieldTypeOption(payload).send().then((result) {
       return result.fold(
-        (data) => left(data.typeOptionData),
+        (data) => left(data),
         (err) => right(err),
       );
     });
@@ -152,59 +137,162 @@ class GridFieldCellContext with _$GridFieldCellContext {
   }) = _GridFieldCellContext;
 }
 
-abstract class EditFieldContextLoader {
-  Future<Either<EditFieldContext, FlowyError>> load();
+abstract class IFieldContextLoader {
+  String get gridId;
+  Future<Either<FieldTypeOptionData, FlowyError>> load();
 
-  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType);
+  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+    final payload = EditFieldPayload.create()
+      ..gridId = gridId
+      ..fieldId = fieldId
+      ..fieldType = fieldType;
+
+    return GridEventSwitchToField(payload).send();
+  }
 }
 
-class NewFieldContextLoader extends EditFieldContextLoader {
+class NewFieldContextLoader extends IFieldContextLoader {
+  @override
   final String gridId;
   NewFieldContextLoader({
     required this.gridId,
   });
 
   @override
-  Future<Either<EditFieldContext, FlowyError>> load() {
+  Future<Either<FieldTypeOptionData, FlowyError>> load() {
     final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
-    return GridEventGetEditFieldContext(payload).send();
-  }
-
-  @override
-  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
-    final payload = EditFieldPayload.create()
-      ..gridId = gridId
-      ..fieldType = fieldType;
-
-    return GridEventGetEditFieldContext(payload).send();
+    return GridEventCreateFieldTypeOption(payload).send();
   }
 }
 
-class FieldContextLoaderAdaptor extends EditFieldContextLoader {
+class FieldContextLoader extends IFieldContextLoader {
+  @override
   final String gridId;
   final Field field;
 
-  FieldContextLoaderAdaptor({
+  FieldContextLoader({
     required this.gridId,
     required this.field,
   });
 
   @override
-  Future<Either<EditFieldContext, FlowyError>> load() {
+  Future<Either<FieldTypeOptionData, FlowyError>> load() {
     final payload = EditFieldPayload.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
 
-    return GridEventGetEditFieldContext(payload).send();
+    return GridEventGetFieldTypeOption(payload).send();
+  }
+}
+
+class GridFieldContext {
+  final String gridId;
+  final IFieldContextLoader _loader;
+
+  late FieldTypeOptionData _data;
+  ValueNotifier<Field>? _fieldNotifier;
+
+  GridFieldContext({
+    required this.gridId,
+    required IFieldContextLoader loader,
+  }) : _loader = loader;
+
+  Future<Either<Unit, FlowyError>> loadData() async {
+    final result = await _loader.load();
+    return result.fold(
+      (data) {
+        data.freeze();
+        _data = data;
+
+        if (_fieldNotifier == null) {
+          _fieldNotifier = ValueNotifier(data.field_2);
+        } else {
+          _fieldNotifier?.value = data.field_2;
+        }
+
+        return left(unit);
+      },
+      (err) {
+        Log.error(err);
+        return right(err);
+      },
+    );
   }
 
-  @override
-  Future<Either<EditFieldContext, FlowyError>> switchToField(String fieldId, FieldType fieldType) async {
-    final fieldService = FieldService(gridId: gridId, fieldId: fieldId);
-    return fieldService.switchToField(fieldType);
+  Field get field => _data.field_2;
+
+  set field(Field field) {
+    _updateData(newField: field);
+  }
+
+  List<int> get typeOptionData => _data.typeOptionData;
+
+  set fieldName(String name) {
+    _updateData(newName: name);
+  }
+
+  set typeOptionData(List<int> typeOptionData) {
+    _updateData(newTypeOptionData: typeOptionData);
+  }
+
+  void _updateData({String? newName, Field? newField, List<int>? newTypeOptionData}) {
+    _data = _data.rebuild((rebuildData) {
+      if (newName != null) {
+        rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
+          rebuildField.name = newName;
+        });
+      }
+
+      if (newField != null) {
+        rebuildData.field_2 = newField;
+      }
+
+      if (newTypeOptionData != null) {
+        rebuildData.typeOptionData = newTypeOptionData;
+      }
+    });
+
+    if (_data.field_2 != _fieldNotifier?.value) {
+      _fieldNotifier?.value = _data.field_2;
+    }
+
+    FieldService.insertField(
+      gridId: gridId,
+      field: field,
+      typeOptionData: typeOptionData,
+    );
+  }
+
+  Future<void> switchToField(FieldType newFieldType) {
+    return _loader.switchToField(field.id, newFieldType).then((result) {
+      return result.fold(
+        (fieldTypeOptionData) {
+          _updateData(
+            newField: fieldTypeOptionData.field_2,
+            newTypeOptionData: fieldTypeOptionData.typeOptionData,
+          );
+        },
+        (err) {
+          Log.error(err);
+        },
+      );
+    });
+  }
+
+  void Function() addFieldListener(void Function(Field) callback) {
+    listener() {
+      callback(field);
+    }
+
+    _fieldNotifier?.addListener(listener);
+    return listener;
+  }
+
+  void removeFieldListener(void Function() listener) {
+    _fieldNotifier?.removeListener(listener);
   }
 }

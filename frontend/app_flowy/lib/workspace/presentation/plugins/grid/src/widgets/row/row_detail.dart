@@ -3,13 +3,14 @@ import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_detail_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/cell_accessory.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/prelude.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/url_cell/url_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_cell.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -67,14 +68,15 @@ class _RowDetailPageState extends State<RowDetailPage> {
         return bloc;
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: Column(
           children: [
             SizedBox(
-                height: 40,
-                child: Row(
-                  children: const [Spacer(), _CloseButton()],
-                )),
+              height: 40,
+              child: Row(
+                children: const [Spacer(), _CloseButton()],
+              ),
+            ),
             Expanded(child: _PropertyList(cellCache: widget.cellCache)),
           ],
         ),
@@ -147,30 +149,33 @@ class _RowDetailCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final style = _customCellStyle(theme, gridCell.field.fieldType);
+    final cell = buildGridCellWidget(gridCell, cellCache, style: style);
 
-    final cell = buildGridCellWidget(
-      gridCell,
-      cellCache,
-      style: _buildCellStyle(theme, gridCell.field.fieldType),
+    final gesture = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => cell.beginFocus.notify(),
+      child: AccessoryHover(
+        child: cell,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      ),
     );
-    return SizedBox(
-      height: 36,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 150,
-            child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
-          ),
-          const HSpace(10),
-          Expanded(
-            child: FlowyHover2(
-              child: cell,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 40),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 150,
+              child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
             ),
-          ),
-        ],
+            const HSpace(10),
+            Expanded(child: gesture),
+          ],
+        ),
       ),
     );
   }
@@ -178,7 +183,8 @@ class _RowDetailCell extends StatelessWidget {
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
       gridId: gridCell.gridId,
-      fieldContextLoader: FieldContextLoaderAdaptor(
+      fieldName: gridCell.field.name,
+      contextLoader: FieldContextLoader(
         gridId: gridCell.gridId,
         field: gridCell.field,
       ),
@@ -186,7 +192,7 @@ class _RowDetailCell extends StatelessWidget {
   }
 }
 
-GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
+GridCellStyle? _customCellStyle(AppTheme theme, FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return null;
@@ -208,7 +214,15 @@ GridCellStyle? _buildCellStyle(AppTheme theme, FieldType fieldType) {
       return SelectOptionCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
-    default:
-      return null;
+
+    case FieldType.URL:
+      return GridURLCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        accessoryTypes: [
+          GridURLCellAccessoryType.edit,
+          GridURLCellAccessoryType.copyURL,
+        ],
+      );
   }
+  throw UnimplementedError;
 }

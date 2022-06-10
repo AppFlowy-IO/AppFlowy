@@ -7,6 +7,7 @@ extend = [
     { path = "scripts/makefile/docker.toml" },
     { path = "scripts/makefile/env.toml" },
     { path = "scripts/makefile/flutter.toml" },
+    { path = "scripts/makefile/tool.toml" },
 ]
 
 [config]
@@ -44,7 +45,15 @@ APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
 PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 
-[env.development-mac]
+[env.development-mac-arm64]
+RUST_LOG = "info"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "aarch64-apple-darwin"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "app"
+
+[env.development-mac-x86_64]
 RUST_LOG = "info"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
@@ -52,21 +61,23 @@ BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
 
-[env.production-mac-aarch64]
+[env.production-mac-arm64]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "arm64"
 
-[env.production-mac-x86]
+[env.production-mac-x86_64]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 APP_ENVIRONMENT = "production"
+BUILD_ARCHS = "x86_64"
 
 [env.development-windows-x86]
 TARGET_OS = "windows"
@@ -137,6 +148,7 @@ script = [
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
+    echo ${BUILD_ARCHS}
     '''
 ]
 script_runner = "@shell"
