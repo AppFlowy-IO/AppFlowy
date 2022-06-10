@@ -205,10 +205,10 @@
       "pannelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
     },
-    "menuName":"Grid"
+    "menuName": "Grid"
   },
-  "document":{
-    "menuName":"Doc"
+  "document": {
+    "menuName": "Doc",
     "date": {
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"

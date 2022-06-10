@@ -225,9 +225,9 @@ class DateCalState with _$DateCalState {
 String _timeHintText(DateTypeOption typeOption) {
   switch (typeOption.timeFormat) {
     case TimeFormat.TwelveHour:
-      return LocaleKeys.grid_date_timeHintTextInTwelveHour.tr();
+      return LocaleKeys.document_date_timeHintTextInTwelveHour.tr();
     case TimeFormat.TwentyFourHour:
-      return LocaleKeys.grid_date_timeHintTextInTwentyFourHour.tr();
+      return LocaleKeys.document_date_timeHintTextInTwentyFourHour.tr();
   }
   return "";
 }
