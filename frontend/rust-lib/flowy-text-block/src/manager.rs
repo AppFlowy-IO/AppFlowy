@@ -7,6 +7,7 @@ use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
+    SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::entities::{
     revision::{md5, RepeatedRevision, Revision},
@@ -144,7 +145,8 @@ impl TextBlockManager {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteTextBlockRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
-        let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+        let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
+        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         let rev_compactor = TextBlockRevisionCompactor();
 
         Ok(RevisionManager::new(
@@ -153,6 +155,7 @@ impl TextBlockManager {
             rev_persistence,
             rev_compactor,
             history_persistence,
+            snapshot_persistence,
         ))
     }
 }

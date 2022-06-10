@@ -16,7 +16,10 @@ use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
+    SQLiteRevisionSnapshotPersistence,
+};
 use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -163,16 +166,19 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
+        let object_id = folder_id.as_ref();
         let disk_cache = SQLiteTextBlockRevisionPersistence::new(user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache);
+        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
         let rev_compactor = FolderRevisionCompactor();
-        let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+        let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
+        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
             history_persistence,
+            snapshot_persistence,
         );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;

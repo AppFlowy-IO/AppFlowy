@@ -1,6 +1,6 @@
 use crate::disk::RevisionState;
-use crate::history::{RevisionHistory, RevisionHistoryConfig, RevisionHistoryDiskCache};
-use crate::{RevisionPersistence, WSDataProviderDataSource};
+use crate::history::{RevisionHistoryConfig, RevisionHistoryDiskCache, RevisionHistoryManager};
+use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotManager, WSDataProviderDataSource};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
@@ -46,37 +46,43 @@ pub struct RevisionManager {
     user_id: String,
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence>,
-    rev_history: Arc<RevisionHistory>,
+    rev_history: Arc<RevisionHistoryManager>,
+    rev_snapshot: Arc<RevisionSnapshotManager>,
     rev_compactor: Arc<dyn RevisionCompactor>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
-    pub fn new<P, C>(
+    pub fn new<HP, SP, C>(
         user_id: &str,
         object_id: &str,
         rev_persistence: RevisionPersistence,
         rev_compactor: C,
-        history_persistence: P,
+        history_persistence: HP,
+        snapshot_persistence: SP,
     ) -> Self
     where
-        P: 'static + RevisionHistoryDiskCache,
+        HP: 'static + RevisionHistoryDiskCache,
+        SP: 'static + RevisionSnapshotDiskCache,
         C: 'static + RevisionCompactor,
     {
         let rev_id_counter = RevIdCounter::new(0);
         let rev_compactor = Arc::new(rev_compactor);
         let history_persistence = Arc::new(history_persistence);
+
         let rev_history_config = RevisionHistoryConfig::default();
         let rev_persistence = Arc::new(rev_persistence);
 
-        let rev_history = Arc::new(RevisionHistory::new(
+        let rev_history = Arc::new(RevisionHistoryManager::new(
             user_id,
             object_id,
             rev_history_config,
             history_persistence,
             rev_compactor.clone(),
         ));
+
+        let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -86,6 +92,7 @@ impl RevisionManager {
             rev_id_counter,
             rev_persistence,
             rev_history,
+            rev_snapshot,
             rev_compactor,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,
@@ -114,7 +121,6 @@ impl RevisionManager {
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
         let _ = self.rev_persistence.reset(revisions.into_inner()).await?;
-        self.rev_history.reset_history().await;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }

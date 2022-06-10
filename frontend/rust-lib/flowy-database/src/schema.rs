@@ -68,6 +68,15 @@ table! {
 }
 
 table! {
+    rev_snapshot (id) {
+        id -> Integer,
+        object_id -> Text,
+        rev_id -> BigInt,
+        data -> Binary,
+    }
+}
+
+table! {
     rev_table (id) {
         id -> Integer,
         doc_id -> Text,
@@ -135,6 +144,7 @@ allow_tables_to_appear_in_same_query!(
     grid_rev_table,
     kv_table,
     rev_history,
+    rev_snapshot,
     rev_table,
     trash_table,
     user_table,

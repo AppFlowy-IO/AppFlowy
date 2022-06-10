@@ -10,7 +10,9 @@ use flowy_grid_data_model::entities::{
     RowMeta, RowMetaChangeset, RowOrder, UpdatedRowOrder,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionHistoryPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, SQLiteRevisionHistoryPersistence, SQLiteRevisionSnapshotPersistence,
+};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -280,8 +282,10 @@ pub fn make_grid_block_meta_rev_manager(user: &Arc<dyn GridUser>, block_id: &str
 
     let disk_cache = SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool.clone());
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+
     let rev_compactor = GridBlockMetaRevisionCompactor();
-    let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+    let history_persistence = SQLiteRevisionHistoryPersistence::new(block_id, pool.clone());
+    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
 
     Ok(RevisionManager::new(
         &user_id,
@@ -289,5 +293,6 @@ pub fn make_grid_block_meta_rev_manager(user: &Arc<dyn GridUser>, block_id: &str
         rev_persistence,
         rev_compactor,
         history_persistence,
+        snapshot_persistence,
     ))
 }

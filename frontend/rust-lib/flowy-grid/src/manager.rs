@@ -9,7 +9,10 @@ use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
 use flowy_revision::disk::SQLiteGridRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
+    SQLiteRevisionSnapshotPersistence,
+};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
@@ -130,9 +133,17 @@ impl GridManager {
 
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
-        let history_persistence = SQLiteRevisionHistoryPersistence::new(pool);
+        let history_persistence = SQLiteRevisionHistoryPersistence::new(grid_id, pool.clone());
+        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridMetaRevisionCompactor();
-        let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, history_persistence);
+        let rev_manager = RevisionManager::new(
+            &user_id,
+            grid_id,
+            rev_persistence,
+            rev_compactor,
+            history_persistence,
+            snapshot_persistence,
+        );
         Ok(rev_manager)
     }
 }

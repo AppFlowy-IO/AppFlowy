@@ -1,36 +1,31 @@
-use crate::history::persistence::SQLiteRevisionHistoryPersistence;
-use crate::RevisionCompactor;
+use crate::{RevisionCompactor, RevisionHistory};
 use async_stream::stream;
-use flowy_database::ConnectionPool;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::Revision;
 use futures_util::future::BoxFuture;
 use futures_util::stream::StreamExt;
 use futures_util::FutureExt;
-use std::fmt::Debug;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::mpsc::error::SendError;
-use tokio::sync::mpsc::Sender;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use tokio::sync::{mpsc, RwLock};
 use tokio::time::interval;
 
 pub trait RevisionHistoryDiskCache: Send + Sync {
-    fn save_revision(&self, revision: Revision) -> FlowyResult<()>;
+    fn write_history(&self, revision: Revision) -> FlowyResult<()>;
 
-    fn read_revision(&self, rev_id: i64) -> FlowyResult<Revision>;
-
-    fn clear(&self) -> FlowyResult<()>;
+    fn read_histories(&self) -> FlowyResult<Vec<RevisionHistory>>;
 }
 
-pub struct RevisionHistory {
-    stop_timer: mpsc::Sender<()>,
+pub struct RevisionHistoryManager {
+    user_id: String,
+    stop_tx: mpsc::Sender<()>,
     config: RevisionHistoryConfig,
     revisions: Arc<RwLock<Vec<Revision>>>,
     disk_cache: Arc<dyn RevisionHistoryDiskCache>,
 }
 
-impl RevisionHistory {
+impl RevisionHistoryManager {
     pub fn new(
         user_id: &str,
         object_id: &str,
@@ -38,27 +33,13 @@ impl RevisionHistory {
         disk_cache: Arc<dyn RevisionHistoryDiskCache>,
         rev_compactor: Arc<dyn RevisionCompactor>,
     ) -> Self {
-        let user_id = user_id.to_string();
-        let object_id = object_id.to_string();
-        let cloned_disk_cache = disk_cache.clone();
-        let (stop_timer, stop_rx) = mpsc::channel(1);
-        let (checkpoint_tx, checkpoint_rx) = mpsc::channel(1);
         let revisions = Arc::new(RwLock::new(vec![]));
-        let fix_duration_checkpoint_tx = FixedDurationCheckpointSender {
-            user_id,
-            object_id,
-            checkpoint_tx,
-            disk_cache: cloned_disk_cache,
-            revisions: revisions.clone(),
-            rev_compactor,
-            duration: config.check_duration,
-        };
-
-        tokio::spawn(CheckpointRunner::new(stop_rx, checkpoint_rx).run());
-        tokio::spawn(fix_duration_checkpoint_tx.run());
-
+        let stop_tx =
+            spawn_history_checkpoint_runner(user_id, object_id, &disk_cache, &revisions, rev_compactor, &config);
+        let user_id = user_id.to_owned();
         Self {
-            stop_timer,
+            user_id,
+            stop_tx,
             config,
             revisions,
             disk_cache,
@@ -69,12 +50,8 @@ impl RevisionHistory {
         self.revisions.write().await.push(revision.clone());
     }
 
-    pub async fn reset_history(&self) {
-        self.revisions.write().await.clear();
-        match self.disk_cache.clear() {
-            Ok(_) => {}
-            Err(e) => tracing::error!("Clear history failed: {:?}", e),
-        }
+    pub async fn read_revision_histories(&self) -> FlowyResult<Vec<RevisionHistory>> {
+        self.disk_cache.read_histories()
     }
 }
 
@@ -90,12 +67,41 @@ impl std::default::Default for RevisionHistoryConfig {
     }
 }
 
-struct CheckpointRunner {
+fn spawn_history_checkpoint_runner(
+    user_id: &str,
+    object_id: &str,
+    disk_cache: &Arc<dyn RevisionHistoryDiskCache>,
+    revisions: &Arc<RwLock<Vec<Revision>>>,
+    rev_compactor: Arc<dyn RevisionCompactor>,
+    config: &RevisionHistoryConfig,
+) -> mpsc::Sender<()> {
+    let user_id = user_id.to_string();
+    let object_id = object_id.to_string();
+    let disk_cache = disk_cache.clone();
+    let revisions = revisions.clone();
+
+    let (checkpoint_tx, checkpoint_rx) = mpsc::channel(1);
+    let (stop_tx, stop_rx) = mpsc::channel(1);
+    let checkpoint_sender = FixedDurationCheckpointSender {
+        user_id,
+        object_id,
+        checkpoint_tx,
+        disk_cache,
+        revisions,
+        rev_compactor,
+        duration: config.check_duration,
+    };
+    tokio::spawn(HistoryCheckpointRunner::new(stop_rx, checkpoint_rx).run());
+    tokio::spawn(checkpoint_sender.run());
+    stop_tx
+}
+
+struct HistoryCheckpointRunner {
     stop_rx: Option<mpsc::Receiver<()>>,
     checkpoint_rx: Option<mpsc::Receiver<HistoryCheckpoint>>,
 }
 
-impl CheckpointRunner {
+impl HistoryCheckpointRunner {
     fn new(stop_rx: mpsc::Receiver<()>, checkpoint_rx: mpsc::Receiver<HistoryCheckpoint>) -> Self {
         Self {
             stop_rx: Some(stop_rx),
@@ -149,7 +155,7 @@ impl HistoryCheckpoint {
             let revision = self
                 .rev_compactor
                 .compact(&self.user_id, &self.object_id, self.revisions)?;
-            let _ = self.disk_cache.save_revision(revision)?;
+            let _ = self.disk_cache.write_history(revision)?;
             Ok::<(), FlowyError>(())
         };
 
@@ -174,7 +180,7 @@ impl FixedDurationCheckpointSender {
     fn run(self) -> BoxFuture<'static, ()> {
         async move {
             let mut interval = interval(self.duration);
-            let checkpoint_revisions: Vec<Revision> = revisions.write().await.drain(..).collect();
+            let checkpoint_revisions: Vec<Revision> = self.revisions.write().await.drain(..).collect();
             let checkpoint = HistoryCheckpoint {
                 user_id: self.user_id.clone(),
                 object_id: self.object_id.clone(),
@@ -182,7 +188,7 @@ impl FixedDurationCheckpointSender {
                 disk_cache: self.disk_cache.clone(),
                 rev_compactor: self.rev_compactor.clone(),
             };
-            match checkpoint_tx.send(checkpoint).await {
+            match self.checkpoint_tx.send(checkpoint).await {
                 Ok(_) => {
                     interval.tick().await;
                     self.run();
