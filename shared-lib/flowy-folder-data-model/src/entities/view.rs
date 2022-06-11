@@ -17,7 +17,7 @@ pub fn gen_view_id() -> String {
     nanoid!(10)
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -32,7 +32,6 @@ pub struct View {
     pub desc: String,
 
     #[pb(index = 5)]
-    #[serde(default)]
     pub data_type: ViewDataType,
 
     #[pb(index = 6)]
@@ -48,14 +47,42 @@ pub struct View {
     pub create_time: i64,
 
     #[pb(index = 10)]
-    #[serde(default)]
     pub ext_data: String,
 
     #[pb(index = 11)]
-    #[serde(default)]
     pub thumbnail: String,
 
     #[pb(index = 12)]
+    pub plugin_type: i32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ViewSerde {
+    pub id: String,
+
+    pub belong_to_id: String,
+
+    pub name: String,
+
+    pub desc: String,
+
+    #[serde(default)]
+    pub data_type: ViewDataType,
+
+    pub version: i64,
+
+    pub belongings: Vec<ViewSerde>,
+
+    pub modified_time: i64,
+
+    pub create_time: i64,
+
+    #[serde(default)]
+    pub ext_data: String,
+
+    #[serde(default)]
+    pub thumbnail: String,
+
     #[serde(default = "default_plugin_type")]
     pub plugin_type: i32,
 }
@@ -64,14 +91,40 @@ fn default_plugin_type() -> i32 {
     0
 }
 
-#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
+impl std::convert::From<ViewSerde> for View {
+    fn from(view_serde: ViewSerde) -> Self {
+        View {
+            id: view_serde.id,
+            belong_to_id: view_serde.belong_to_id,
+            name: view_serde.name,
+            desc: view_serde.desc,
+            data_type: view_serde.data_type,
+            version: view_serde.version,
+            belongings: view_serde.belongings.into(),
+            modified_time: view_serde.modified_time,
+            create_time: view_serde.create_time,
+            ext_data: view_serde.ext_data,
+            thumbnail: view_serde.thumbnail,
+            plugin_type: view_serde.plugin_type,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+// #[serde(transparent)]
 pub struct RepeatedView {
     #[pb(index = 1)]
     pub items: Vec<View>,
 }
 
 impl_def_and_def_mut!(RepeatedView, View);
+
+impl std::convert::From<Vec<ViewSerde>> for RepeatedView {
+    fn from(values: Vec<ViewSerde>) -> Self {
+        let items = values.into_iter().map(|value| value.into()).collect::<Vec<View>>();
+        RepeatedView { items }
+    }
+}
 
 impl std::convert::From<View> for Trash {
     fn from(view: View) -> Self {

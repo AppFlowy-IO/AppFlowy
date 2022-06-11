@@ -3,7 +3,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Trash {
     #[pb(index = 1)]
     pub id: String,
@@ -19,6 +19,31 @@ pub struct Trash {
 
     #[pb(index = 5)]
     pub ty: TrashType,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TrashSerde {
+    pub id: String,
+
+    pub name: String,
+
+    pub modified_time: i64,
+
+    pub create_time: i64,
+
+    pub ty: TrashType,
+}
+
+impl std::convert::From<TrashSerde> for Trash {
+    fn from(trash_serde: TrashSerde) -> Self {
+        Trash {
+            id: trash_serde.id,
+            name: trash_serde.name,
+            modified_time: trash_serde.modified_time,
+            create_time: trash_serde.create_time,
+            ty: trash_serde.ty,
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
