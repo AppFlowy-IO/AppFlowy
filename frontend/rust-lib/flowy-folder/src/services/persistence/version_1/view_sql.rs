@@ -79,6 +79,7 @@ pub(crate) struct ViewTable {
     pub view_type: SqlViewDataType,
     pub version: i64,
     pub is_trash: bool,
+    pub ext_data: String,
 }
 
 impl ViewTable {
@@ -120,7 +121,7 @@ impl std::convert::From<ViewTable> for View {
             modified_time: table.modified_time,
             version: table.version,
             create_time: table.create_time,
-            ext_data: "".to_string(),
+            ext_data: table.ext_data,
             thumbnail: table.thumbnail,
             // Store the view in ViewTable was deprecated since v0.0.2.
             // No need worry about plugin_type.
