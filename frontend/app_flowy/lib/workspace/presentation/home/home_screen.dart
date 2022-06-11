@@ -108,7 +108,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final workspaceSetting = state.workspaceSetting;
     if (initialView == null && workspaceSetting.hasLatestView()) {
       initialView = workspaceSetting.latestView;
-      final plugin = makePlugin(pluginType: initialView!.pluginType, data: initialView);
+      final plugin = makePlugin(
+        pluginType: initialView!.pluginType,
+        data: initialView,
+      );
       getIt<HomeStackManager>().setPlugin(plugin);
     }
 
