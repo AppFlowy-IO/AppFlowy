@@ -98,6 +98,7 @@ impl ViewTable {
             create_time: view.create_time,
             thumbnail: view.thumbnail,
             view_type: data_type,
+            ext_data: view.ext_data,
             version: 0,
             is_trash: false,
         }
