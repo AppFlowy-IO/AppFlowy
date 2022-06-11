@@ -11,8 +11,8 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "preLaunchTask": "AF: build_flowy_sdk",
-            "env":{
-                "RUST_LOG":"info"
+            "env": {
+                "RUST_LOG": "info"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
@@ -20,12 +20,12 @@
             //  This task only builds the Dart code of AppFlowy.
             "name": "AF: Build Dart Only",
             "request": "launch",
-            "program": "${workspaceRoot}/lib/main.dart",
+            "program": "./lib/main.dart",
             "type": "dart",
             "env": {
                 "RUST_LOG": "debug"
             },
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceRoot}/app_flowy"
         },
         {
             // This task builds will:
@@ -37,20 +37,19 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "preLaunchTask": "AF: Clean + Rebuild All",
-            "env":{
-                "RUST_LOG":"info"
+            "env": {
+                "RUST_LOG": "info"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
-
         {
             "name": "AF: Build All (rustlog: trace)",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
             "preLaunchTask": "AF: build_flowy_sdk",
-            "env":{
-                "RUST_LOG":"trace"
+            "env": {
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },

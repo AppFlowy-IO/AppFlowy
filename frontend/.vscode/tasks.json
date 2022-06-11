@@ -15,21 +15,16 @@
 			"dependsOrder": "sequence",
 			"dependsOn": [
 				"AF: Clean",
-				"AF: Flutter Pub",
+				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
 				"AF: Generate Freezed Files",
 				"AF: build_flowy_sdk"
 			],
-			"group": {
-				"kind": "build",
-				"isDefault": true,
-			},
 			"presentation": {
 				"reveal": "always",
 				"panel": "new"
 			}
-
 		},
 		{
 			"label": "AF: build_flowy_sdk",
@@ -74,14 +69,14 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Flutter Pub",
+				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
 				"AF: Generate Freezed Files"
 			],
 			"group": {
 				"kind": "build",
-				"isDefault": true,
+				"isDefault": true
 			},
 			"presentation": {
 				"reveal": "always",
@@ -89,7 +84,7 @@
 			}
 		},
 		{
-			"label": "AF: Flutter Pub",
+			"label": "AF: Flutter Pub Get",
 			"type": "shell",
 			"command": "flutter pub get",
 			"options": {
