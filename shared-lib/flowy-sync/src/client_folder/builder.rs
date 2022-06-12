@@ -5,15 +5,17 @@ use crate::{
     entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
 };
-use flowy_folder_data_model::entities::{trash::Trash, workspace::Workspace};
+
+use flowy_folder_data_model::entities::{Trash, Workspace};
+use flowy_folder_data_model::revision::{TrashRevision, WorkspaceRevision};
 use lib_ot::core::{PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct FolderPadBuilder {
-    workspaces: Vec<Arc<Workspace>>,
-    trash: Vec<Arc<Trash>>,
+    workspaces: Vec<Arc<WorkspaceRevision>>,
+    trash: Vec<Arc<TrashRevision>>,
 }
 
 impl FolderPadBuilder {
@@ -25,12 +27,15 @@ impl FolderPadBuilder {
     }
 
     pub(crate) fn with_workspace(mut self, workspaces: Vec<Workspace>) -> Self {
-        self.workspaces = workspaces.into_iter().map(Arc::new).collect::<Vec<_>>();
+        self.workspaces = workspaces
+            .into_iter()
+            .map(|workspace| Arc::new(workspace.into()))
+            .collect::<Vec<_>>();
         self
     }
 
     pub(crate) fn with_trash(mut self, trash: Vec<Trash>) -> Self {
-        self.trash = trash.into_iter().map(Arc::new).collect::<Vec<_>>();
+        self.trash = trash.into_iter().map(|t| Arc::new(t.into())).collect::<Vec<_>>();
         self
     }
 

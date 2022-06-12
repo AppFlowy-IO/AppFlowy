@@ -1,4 +1,3 @@
-use crate::entities::view::ViewSerde;
 use crate::{
     entities::view::RepeatedView,
     errors::ErrorCode,
@@ -10,7 +9,7 @@ use crate::{
 };
 use flowy_derive::ProtoBuf;
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
+
 use std::convert::TryInto;
 
 pub fn gen_app_id() -> String {
@@ -43,40 +42,6 @@ pub struct App {
     pub create_time: i64,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct AppSerde {
-    pub id: String,
-
-    pub workspace_id: String,
-
-    pub name: String,
-
-    pub desc: String,
-
-    pub belongings: Vec<ViewSerde>,
-
-    pub version: i64,
-
-    pub modified_time: i64,
-
-    pub create_time: i64,
-}
-
-impl std::convert::From<AppSerde> for App {
-    fn from(app_serde: AppSerde) -> Self {
-        App {
-            id: app_serde.id,
-            workspace_id: app_serde.workspace_id,
-            name: app_serde.name,
-            desc: app_serde.desc,
-            belongings: app_serde.belongings.into(),
-            version: app_serde.version,
-            modified_time: app_serde.modified_time,
-            create_time: app_serde.create_time,
-        }
-    }
-}
-
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
@@ -84,13 +49,6 @@ pub struct RepeatedApp {
 }
 
 impl_def_and_def_mut!(RepeatedApp, App);
-
-impl std::convert::From<Vec<AppSerde>> for RepeatedApp {
-    fn from(values: Vec<AppSerde>) -> Self {
-        let items = values.into_iter().map(|value| value.into()).collect::<Vec<App>>();
-        RepeatedApp { items }
-    }
-}
 
 #[derive(ProtoBuf, Default)]
 pub struct CreateAppPayload {

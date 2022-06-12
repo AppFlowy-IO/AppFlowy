@@ -1,7 +1,7 @@
-pub mod app;
-pub mod trash;
-pub mod view;
-pub mod workspace;
+mod app;
+mod trash;
+mod view;
+mod workspace;
 
 pub use app::*;
 pub use trash::*;

@@ -1,3 +1,4 @@
+use crate::errors::internal_error;
 use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
@@ -7,18 +8,17 @@ use crate::{
     },
     errors::{CollaborateError, CollaborateResult},
 };
-use flowy_folder_data_model::entities::{app::App, trash::Trash, view::View, workspace::Workspace};
-use lib_ot::core::*;
-
-use crate::errors::internal_error;
+use flowy_folder_data_model::entities::{App, Trash, View, Workspace};
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
+use lib_ot::core::*;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 #[derive(Debug, Deserialize, Serialize, Clone, Eq, PartialEq)]
 pub struct FolderPad {
-    pub(crate) workspaces: Vec<Arc<Workspace>>,
-    pub(crate) trash: Vec<Arc<Trash>>,
+    pub(crate) workspaces: Vec<Arc<WorkspaceRevision>>,
+    pub(crate) trash: Vec<Arc<TrashRevision>>,
     #[serde(skip)]
     pub(crate) delta: FolderDelta,
 }
@@ -63,7 +63,7 @@ impl FolderPad {
 
     #[tracing::instrument(level = "trace", skip(self, workspace), fields(workspace_name=%workspace.name), err)]
     pub fn create_workspace(&mut self, workspace: Workspace) -> CollaborateResult<Option<FolderChange>> {
-        let workspace = Arc::new(workspace);
+        let workspace = Arc::new(workspace.into());
         if self.workspaces.contains(&workspace) {
             tracing::warn!("[RootFolder]: Duplicate workspace");
             return Ok(None);
@@ -99,13 +99,13 @@ impl FolderPad {
                 let workspaces = self
                     .workspaces
                     .iter()
-                    .map(|workspace| workspace.as_ref().clone())
+                    .map(|workspace| workspace.as_ref().clone().into())
                     .collect::<Vec<Workspace>>();
                 Ok(workspaces)
             }
             Some(workspace_id) => {
                 if let Some(workspace) = self.workspaces.iter().find(|workspace| workspace.id == workspace_id) {
-                    Ok(vec![workspace.as_ref().clone()])
+                    Ok(vec![workspace.as_ref().clone().into()])
                 } else {
                     Err(CollaborateError::record_not_found()
                         .context(format!("Can't find workspace with id {}", workspace_id)))
@@ -125,12 +125,13 @@ impl FolderPad {
     #[tracing::instrument(level = "trace", skip(self), fields(app_name=%app.name), err)]
     pub fn create_app(&mut self, app: App) -> CollaborateResult<Option<FolderChange>> {
         let workspace_id = app.workspace_id.clone();
+        let app_serde: AppRevision = app.into();
         self.with_workspace(&workspace_id, move |workspace| {
-            if workspace.apps.contains(&app) {
+            if workspace.apps.contains(&app_serde) {
                 tracing::warn!("[RootFolder]: Duplicate app");
                 return Ok(None);
             }
-            workspace.apps.push(app);
+            workspace.apps.push(app_serde);
             Ok(Some(()))
         })
     }
@@ -138,7 +139,7 @@ impl FolderPad {
     pub fn read_app(&self, app_id: &str) -> CollaborateResult<App> {
         for workspace in &self.workspaces {
             if let Some(app) = workspace.apps.iter().find(|app| app.id == app_id) {
-                return Ok(app.clone());
+                return Ok(app.clone().into());
             }
         }
         Err(CollaborateError::record_not_found().context(format!("Can't find app with id {}", app_id)))
@@ -185,12 +186,13 @@ impl FolderPad {
     #[tracing::instrument(level = "trace", skip(self), fields(view_name=%view.name), err)]
     pub fn create_view(&mut self, view: View) -> CollaborateResult<Option<FolderChange>> {
         let app_id = view.belong_to_id.clone();
+        let view_serde: ViewRevision = view.into();
         self.with_app(&app_id, move |app| {
-            if app.belongings.contains(&view) {
+            if app.belongings.contains(&view_serde) {
                 tracing::warn!("[RootFolder]: Duplicate view");
                 return Ok(None);
             }
-            app.belongings.push(view);
+            app.belongings.push(view_serde);
             Ok(Some(()))
         })
     }
@@ -199,7 +201,7 @@ impl FolderPad {
         for workspace in &self.workspaces {
             for app in &(*workspace.apps) {
                 if let Some(view) = app.belongings.iter().find(|b| b.id == view_id) {
-                    return Ok(view.clone());
+                    return Ok(view.clone().into());
                 }
             }
         }
@@ -210,7 +212,7 @@ impl FolderPad {
         for workspace in &self.workspaces {
             for app in &(*workspace.apps) {
                 if app.id == belong_to_id {
-                    return Ok(app.belongings.clone().take_items());
+                    return Ok(app.belongings.iter().map(|view| view.clone().into()).collect());
                 }
             }
         }
@@ -261,7 +263,10 @@ impl FolderPad {
 
     pub fn create_trash(&mut self, trash: Vec<Trash>) -> CollaborateResult<Option<FolderChange>> {
         self.with_trash(|t| {
-            let mut new_trash = trash.into_iter().map(Arc::new).collect::<Vec<Arc<Trash>>>();
+            let mut new_trash = trash
+                .into_iter()
+                .map(|t| Arc::new(t.into()))
+                .collect::<Vec<Arc<TrashRevision>>>();
             t.append(&mut new_trash);
 
             Ok(Some(()))
@@ -270,9 +275,13 @@ impl FolderPad {
 
     pub fn read_trash(&self, trash_id: Option<String>) -> CollaborateResult<Vec<Trash>> {
         match trash_id {
-            None => Ok(self.trash.iter().map(|t| t.as_ref().clone()).collect::<Vec<Trash>>()),
+            None => Ok(self
+                .trash
+                .iter()
+                .map(|t| t.as_ref().clone().into())
+                .collect::<Vec<Trash>>()),
             Some(trash_id) => match self.trash.iter().find(|t| t.id == trash_id) {
-                Some(trash) => Ok(vec![trash.as_ref().clone()]),
+                Some(trash) => Ok(vec![trash.as_ref().clone().into()]),
                 None => Ok(vec![]),
             },
         }
@@ -304,7 +313,7 @@ impl FolderPad {
 impl FolderPad {
     fn modify_workspaces<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
     where
-        F: FnOnce(&mut Vec<Arc<Workspace>>) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut Vec<Arc<WorkspaceRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
         match f(&mut self.workspaces)? {
@@ -325,7 +334,7 @@ impl FolderPad {
 
     fn with_workspace<F>(&mut self, workspace_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
-        F: FnOnce(&mut Workspace) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut WorkspaceRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_workspaces(|workspaces| {
             if let Some(workspace) = workspaces.iter_mut().find(|workspace| workspace_id == workspace.id) {
@@ -339,7 +348,7 @@ impl FolderPad {
 
     fn with_trash<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
     where
-        F: FnOnce(&mut Vec<Arc<Trash>>) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut Vec<Arc<TrashRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
         match f(&mut self.trash)? {
@@ -360,7 +369,7 @@ impl FolderPad {
 
     fn with_app<F>(&mut self, app_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
-        F: FnOnce(&mut App) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut AppRevision) -> CollaborateResult<Option<()>>,
     {
         let workspace_id = match self
             .workspaces
@@ -382,7 +391,7 @@ impl FolderPad {
 
     fn with_view<F>(&mut self, belong_to_id: &str, view_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
     where
-        F: FnOnce(&mut View) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut ViewRevision) -> CollaborateResult<Option<()>>,
     {
         self.with_app(belong_to_id, |app| {
             match app.belongings.iter_mut().find(|view| view_id == view.id) {
