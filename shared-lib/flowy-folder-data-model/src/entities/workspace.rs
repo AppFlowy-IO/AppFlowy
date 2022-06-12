@@ -1,4 +1,3 @@
-use crate::entities::app::AppSerde;
 use crate::{
     entities::{app::RepeatedApp, view::View},
     errors::*,
@@ -7,7 +6,7 @@ use crate::{
 };
 use flowy_derive::ProtoBuf;
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
+
 use std::convert::TryInto;
 
 pub fn gen_workspace_id() -> String {
@@ -32,34 +31,6 @@ pub struct Workspace {
 
     #[pb(index = 6)]
     pub create_time: i64,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct WorkspaceSerde {
-    pub id: String,
-
-    pub name: String,
-
-    pub desc: String,
-
-    pub apps: Vec<AppSerde>,
-
-    pub modified_time: i64,
-
-    pub create_time: i64,
-}
-
-impl std::convert::From<WorkspaceSerde> for Workspace {
-    fn from(workspace_serde: WorkspaceSerde) -> Self {
-        Workspace {
-            id: workspace_serde.id,
-            name: workspace_serde.name,
-            desc: workspace_serde.desc,
-            apps: workspace_serde.apps.into(),
-            modified_time: workspace_serde.modified_time,
-            create_time: workspace_serde.create_time,
-        }
-    }
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

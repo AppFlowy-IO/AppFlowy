@@ -1,7 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
-
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
 use flowy_folder_data_model::entities::view::ViewDataType;
+use flowy_folder_data_model::revision::{AppRevision, WorkspaceRevision};
 use flowy_revision::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
@@ -38,11 +38,12 @@ async fn workspace_create() {
 async fn workspace_read() {
     let mut test = FolderTest::new().await;
     let workspace = test.workspace.clone();
-    let json = serde_json::to_string(&workspace).unwrap();
+    let workspace_revision: WorkspaceRevision = workspace.clone().into();
+    let json = serde_json::to_string(&workspace_revision).unwrap();
 
     test.run_scripts(vec![
         ReadWorkspace(Some(workspace.id.clone())),
-        AssertWorkspaceJson(json),
+        AssertWorkspaceRevisionJson(json),
         AssertWorkspace(workspace),
     ])
     .await;
@@ -58,8 +59,10 @@ async fn workspace_create_with_apps() {
     .await;
 
     let app = test.app.clone();
-    let json = serde_json::to_string(&app).unwrap();
-    test.run_scripts(vec![ReadApp(app.id), AssertAppJson(json)]).await;
+    let app_revision: AppRevision = app.clone().into();
+    let json = serde_json::to_string(&app_revision).unwrap();
+    test.run_scripts(vec![ReadApp(app.id), AssertAppRevisionJson(json)])
+        .await;
 }
 
 #[tokio::test]

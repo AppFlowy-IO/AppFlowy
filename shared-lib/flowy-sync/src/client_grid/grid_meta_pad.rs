@@ -25,12 +25,7 @@ pub trait JsonDeserializer {
 
 impl GridMetaPad {
     pub async fn duplicate_grid_meta(&self) -> (Vec<FieldMeta>, Vec<GridBlockMeta>) {
-        let fields = self
-            .grid_meta
-            .fields
-            .iter()
-            .map(|field| field.clone())
-            .collect::<Vec<FieldMeta>>();
+        let fields = self.grid_meta.fields.iter().cloned().collect::<Vec<FieldMeta>>();
 
         let blocks = self
             .grid_meta
