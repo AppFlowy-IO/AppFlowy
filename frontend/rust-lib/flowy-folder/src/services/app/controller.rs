@@ -12,6 +12,7 @@ use crate::{
     },
 };
 
+use flowy_folder_data_model::revision::AppRevision;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -48,7 +49,7 @@ impl AppController {
         self.create_app_on_local(app).await
     }
 
-    pub(crate) async fn create_app_on_local(&self, app: App) -> Result<App, FlowyError> {
+    pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<App, FlowyError> {
         let _ = self
             .persistence
             .begin_transaction(|transaction| {
@@ -57,10 +58,10 @@ impl AppController {
                 Ok(())
             })
             .await?;
-        Ok(app)
+        Ok(app.into())
     }
 
-    pub(crate) async fn read_app(&self, params: AppId) -> Result<App, FlowyError> {
+    pub(crate) async fn read_app(&self, params: AppId) -> Result<AppRevision, FlowyError> {
         let app = self
             .persistence
             .begin_transaction(|transaction| {
@@ -80,14 +81,15 @@ impl AppController {
         let changeset = AppChangeset::new(params.clone());
         let app_id = changeset.id.clone();
 
-        let app = self
+        let app: App = self
             .persistence
             .begin_transaction(|transaction| {
                 let _ = transaction.update_app(changeset)?;
                 let app = transaction.read_app(&app_id)?;
                 Ok(app)
             })
-            .await?;
+            .await?
+            .into();
         send_dart_notification(&app_id, FolderNotification::AppUpdated)
             .payload(app)
             .send();
@@ -108,8 +110,8 @@ impl AppController {
         Ok(())
     }
 
-    pub(crate) async fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<App>, FlowyError> {
-        let apps = self
+    pub(crate) async fn read_local_apps(&self, ids: Vec<String>) -> Result<Vec<AppRevision>, FlowyError> {
+        let app_revs = self
             .persistence
             .begin_transaction(|transaction| {
                 let mut apps = vec![];
@@ -119,13 +121,13 @@ impl AppController {
                 Ok(apps)
             })
             .await?;
-        Ok(apps)
+        Ok(app_revs)
     }
 }
 
 impl AppController {
     #[tracing::instrument(level = "trace", skip(self), err)]
-    async fn create_app_on_server(&self, params: CreateAppParams) -> Result<App, FlowyError> {
+    async fn create_app_on_server(&self, params: CreateAppParams) -> Result<AppRevision, FlowyError> {
         let token = self.user.token()?;
         let app = self.cloud_service.create_app(&token, params).await?;
         Ok(app)
@@ -154,12 +156,13 @@ impl AppController {
         let persistence = self.persistence.clone();
         tokio::spawn(async move {
             match server.read_app(&token, params).await {
-                Ok(Some(app)) => {
+                Ok(Some(app_rev)) => {
                     match persistence
-                        .begin_transaction(|transaction| transaction.create_app(app.clone()))
+                        .begin_transaction(|transaction| transaction.create_app(app_rev.clone()))
                         .await
                     {
                         Ok(_) => {
+                            let app: App = app_rev.into();
                             send_dart_notification(&app.id, FolderNotification::AppUpdated)
                                 .payload(app)
                                 .send();
@@ -240,7 +243,11 @@ fn notify_apps_changed<'a>(
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
-    let repeated_app = read_local_workspace_apps(workspace_id, trash_controller, transaction)?;
+    let items = read_local_workspace_apps(workspace_id, trash_controller, transaction)?
+        .into_iter()
+        .map(|app_rev| app_rev.into())
+        .collect();
+    let repeated_app = RepeatedApp { items };
     send_dart_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
         .send();
@@ -251,9 +258,9 @@ pub fn read_local_workspace_apps<'a>(
     workspace_id: &str,
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
-) -> Result<RepeatedApp, FlowyError> {
-    let mut apps = transaction.read_workspace_apps(workspace_id)?;
+) -> Result<Vec<AppRevision>, FlowyError> {
+    let mut app_revs = transaction.read_workspace_apps(workspace_id)?;
     let trash_ids = trash_controller.read_trash_ids(transaction)?;
-    apps.retain(|app| !trash_ids.contains(&app.id));
-    Ok(RepeatedApp { items: apps })
+    app_revs.retain(|app| !trash_ids.contains(&app.id));
+    Ok(app_revs)
 }

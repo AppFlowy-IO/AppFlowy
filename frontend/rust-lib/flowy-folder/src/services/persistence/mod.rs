@@ -9,12 +9,8 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::entities::{
-    app::App,
-    trash::{RepeatedTrash, Trash},
-    view::View,
-    workspace::Workspace,
-};
+
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::disk::{RevisionRecord, RevisionState};
 use flowy_revision::mk_revision_disk_cache;
 use flowy_sync::client_folder::initial_folder_delta;
@@ -24,27 +20,27 @@ use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
 
 pub trait FolderPersistenceTransaction {
-    fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()>;
-    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>>;
+    fn create_workspace(&self, user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()>;
+    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<WorkspaceRevision>>;
     fn update_workspace(&self, changeset: WorkspaceChangeset) -> FlowyResult<()>;
     fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()>;
 
-    fn create_app(&self, app: App) -> FlowyResult<()>;
+    fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()>;
     fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()>;
-    fn read_app(&self, app_id: &str) -> FlowyResult<App>;
-    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>>;
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App>;
+    fn read_app(&self, app_id: &str) -> FlowyResult<AppRevision>;
+    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<AppRevision>>;
+    fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision>;
     fn move_app(&self, app_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
-    fn create_view(&self, view: View) -> FlowyResult<()>;
-    fn read_view(&self, view_id: &str) -> FlowyResult<View>;
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>>;
+    fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()>;
+    fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision>;
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>>;
     fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()>;
     fn delete_view(&self, view_id: &str) -> FlowyResult<()>;
     fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()>;
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash>;
+    fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()>;
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<Vec<TrashRevision>>;
     fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()>;
 }
 

@@ -1,5 +1,4 @@
 use crate::{
-    entities::trash::{Trash, TrashType},
     errors::ErrorCode,
     impl_def_and_def_mut,
     parser::{
@@ -17,8 +16,32 @@ pub fn gen_view_id() -> String {
     nanoid!(10)
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct View {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub belong_to_id: String,
+
+    #[pb(index = 3)]
+    pub name: String,
+
+    #[pb(index = 4)]
+    pub data_type: ViewDataType,
+
+    #[pb(index = 5)]
+    pub modified_time: i64,
+
+    #[pb(index = 6)]
+    pub create_time: i64,
+
+    #[pb(index = 7)]
+    pub plugin_type: i32,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ViewInfo {
     #[pb(index = 1)]
     pub id: String,
 
@@ -35,25 +58,43 @@ pub struct View {
     pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub version: i64,
-
-    #[pb(index = 7)]
     pub belongings: RepeatedView,
 
-    #[pb(index = 8)]
-    pub modified_time: i64,
+    #[pb(index = 7)]
+    pub ext_data: ViewExtData,
+}
 
-    #[pb(index = 9)]
-    pub create_time: i64,
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ViewExtData {
+    #[pb(index = 1)]
+    pub filter: ViewFilter,
 
-    #[pb(index = 10)]
-    pub ext_data: String,
+    #[pb(index = 2)]
+    pub group: ViewGroup,
 
-    #[pb(index = 11)]
-    pub thumbnail: String,
+    #[pb(index = 3)]
+    pub sort: ViewSort,
+}
 
-    #[pb(index = 12)]
-    pub plugin_type: i32,
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ViewFilter {
+    #[pb(index = 1)]
+    pub field_id: String,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ViewGroup {
+    #[pb(index = 1)]
+    pub group_field_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub sub_group_field_id: Option<String>,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct ViewSort {
+    #[pb(index = 1)]
+    pub field_id: String,
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
@@ -64,18 +105,6 @@ pub struct RepeatedView {
 }
 
 impl_def_and_def_mut!(RepeatedView, View);
-
-impl std::convert::From<View> for Trash {
-    fn from(view: View) -> Self {
-        Trash {
-            id: view.id,
-            name: view.name,
-            modified_time: view.modified_time,
-            create_time: view.create_time,
-            ty: TrashType::TrashView,
-        }
-    }
-}
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]

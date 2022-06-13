@@ -126,7 +126,7 @@ pub fn root_dir() -> String {
 }
 
 pub fn random_email() -> String {
-    format!("{}@appflowy.io", nanoid!(10))
+    format!("{}@appflowy.io", nanoid!(20))
 }
 
 pub fn login_email() -> String {
@@ -163,8 +163,9 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 
 pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
+    let email = random_email();
     let payload = SignUpPayload {
-        email: random_email(),
+        email,
         name: "app flowy".to_string(),
         password: password.clone(),
     }

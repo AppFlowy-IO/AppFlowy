@@ -2,7 +2,7 @@ use crate::entities::workspace::Workspace;
 use crate::revision::AppRevision;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct WorkspaceRevision {
     pub id: String,
 
@@ -26,19 +26,6 @@ impl std::convert::From<WorkspaceRevision> for Workspace {
             apps: workspace_serde.apps.into(),
             modified_time: workspace_serde.modified_time,
             create_time: workspace_serde.create_time,
-        }
-    }
-}
-
-impl std::convert::From<Workspace> for WorkspaceRevision {
-    fn from(workspace: Workspace) -> Self {
-        WorkspaceRevision {
-            id: workspace.id,
-            name: workspace.name,
-            desc: workspace.desc,
-            apps: workspace.apps.into(),
-            modified_time: workspace.modified_time,
-            create_time: workspace.create_time,
         }
     }
 }

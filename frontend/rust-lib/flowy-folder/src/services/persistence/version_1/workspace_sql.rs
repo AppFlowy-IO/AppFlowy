@@ -1,23 +1,19 @@
-use crate::{
-    entities::{
-        app::RepeatedApp,
-        workspace::{UpdateWorkspaceParams, Workspace},
-    },
-    errors::FlowyError,
-};
+use crate::{entities::workspace::UpdateWorkspaceParams, errors::FlowyError};
 use diesel::SqliteConnection;
 use flowy_database::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
 };
+use flowy_folder_data_model::revision::WorkspaceRevision;
+
 pub(crate) struct WorkspaceTableSql();
 impl WorkspaceTableSql {
     pub(crate) fn create_workspace(
         user_id: &str,
-        workspace: Workspace,
+        workspace_rev: WorkspaceRevision,
         conn: &SqliteConnection,
     ) -> Result<(), FlowyError> {
-        let table = WorkspaceTable::new(workspace, user_id);
+        let table = WorkspaceTable::new(workspace_rev, user_id);
         match diesel_record_count!(workspace_table, &table.id, conn) {
             0 => diesel_insert_table!(workspace_table, &table, conn),
             _ => {
@@ -74,26 +70,26 @@ pub struct WorkspaceTable {
 
 impl WorkspaceTable {
     #[allow(dead_code)]
-    pub fn new(workspace: Workspace, user_id: &str) -> Self {
+    pub fn new(workspace_rev: WorkspaceRevision, user_id: &str) -> Self {
         WorkspaceTable {
-            id: workspace.id,
-            name: workspace.name,
-            desc: workspace.desc,
-            modified_time: workspace.modified_time,
-            create_time: workspace.create_time,
+            id: workspace_rev.id,
+            name: workspace_rev.name,
+            desc: workspace_rev.desc,
+            modified_time: workspace_rev.modified_time,
+            create_time: workspace_rev.create_time,
             user_id: user_id.to_owned(),
             version: 0,
         }
     }
 }
 
-impl std::convert::From<WorkspaceTable> for Workspace {
+impl std::convert::From<WorkspaceTable> for WorkspaceRevision {
     fn from(table: WorkspaceTable) -> Self {
-        Workspace {
+        WorkspaceRevision {
             id: table.id,
             name: table.name,
             desc: table.desc,
-            apps: RepeatedApp::default(),
+            apps: vec![],
             modified_time: table.modified_time,
             create_time: table.create_time,
         }

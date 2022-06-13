@@ -29,14 +29,9 @@ pub struct View {
     pub id: ::std::string::String,
     pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
-    pub desc: ::std::string::String,
     pub data_type: ViewDataType,
-    pub version: i64,
-    pub belongings: ::protobuf::SingularPtrField<RepeatedView>,
     pub modified_time: i64,
     pub create_time: i64,
-    pub ext_data: ::std::string::String,
-    pub thumbnail: ::std::string::String,
     pub plugin_type: i32,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -51,6 +46,385 @@ impl<'a> ::std::default::Default for &'a View {
 
 impl View {
     pub fn new() -> View {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // string belong_to_id = 2;
+
+
+    pub fn get_belong_to_id(&self) -> &str {
+        &self.belong_to_id
+    }
+    pub fn clear_belong_to_id(&mut self) {
+        self.belong_to_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_belong_to_id(&mut self, v: ::std::string::String) {
+        self.belong_to_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_belong_to_id(&mut self) -> &mut ::std::string::String {
+        &mut self.belong_to_id
+    }
+
+    // Take field
+    pub fn take_belong_to_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.belong_to_id, ::std::string::String::new())
+    }
+
+    // string name = 3;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // .ViewDataType data_type = 4;
+
+
+    pub fn get_data_type(&self) -> ViewDataType {
+        self.data_type
+    }
+    pub fn clear_data_type(&mut self) {
+        self.data_type = ViewDataType::TextBlock;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data_type(&mut self, v: ViewDataType) {
+        self.data_type = v;
+    }
+
+    // int64 modified_time = 5;
+
+
+    pub fn get_modified_time(&self) -> i64 {
+        self.modified_time
+    }
+    pub fn clear_modified_time(&mut self) {
+        self.modified_time = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_modified_time(&mut self, v: i64) {
+        self.modified_time = v;
+    }
+
+    // int64 create_time = 6;
+
+
+    pub fn get_create_time(&self) -> i64 {
+        self.create_time
+    }
+    pub fn clear_create_time(&mut self) {
+        self.create_time = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_create_time(&mut self, v: i64) {
+        self.create_time = v;
+    }
+
+    // int32 plugin_type = 7;
+
+
+    pub fn get_plugin_type(&self) -> i32 {
+        self.plugin_type
+    }
+    pub fn clear_plugin_type(&mut self) {
+        self.plugin_type = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_plugin_type(&mut self, v: i32) {
+        self.plugin_type = v;
+    }
+}
+
+impl ::protobuf::Message for View {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.belong_to_id)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.data_type, 4, &mut self.unknown_fields)?
+                },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int64()?;
+                    self.modified_time = tmp;
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int64()?;
+                    self.create_time = tmp;
+                },
+                7 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.plugin_type = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if !self.belong_to_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.belong_to_id);
+        }
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.name);
+        }
+        if self.data_type != ViewDataType::TextBlock {
+            my_size += ::protobuf::rt::enum_size(4, self.data_type);
+        }
+        if self.modified_time != 0 {
+            my_size += ::protobuf::rt::value_size(5, self.modified_time, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.create_time != 0 {
+            my_size += ::protobuf::rt::value_size(6, self.create_time, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.plugin_type != 0 {
+            my_size += ::protobuf::rt::value_size(7, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if !self.belong_to_id.is_empty() {
+            os.write_string(2, &self.belong_to_id)?;
+        }
+        if !self.name.is_empty() {
+            os.write_string(3, &self.name)?;
+        }
+        if self.data_type != ViewDataType::TextBlock {
+            os.write_enum(4, ::protobuf::ProtobufEnum::value(&self.data_type))?;
+        }
+        if self.modified_time != 0 {
+            os.write_int64(5, self.modified_time)?;
+        }
+        if self.create_time != 0 {
+            os.write_int64(6, self.create_time)?;
+        }
+        if self.plugin_type != 0 {
+            os.write_int32(7, self.plugin_type)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> View {
+        View::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &View| { &m.id },
+                |m: &mut View| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "belong_to_id",
+                |m: &View| { &m.belong_to_id },
+                |m: &mut View| { &mut m.belong_to_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &View| { &m.name },
+                |m: &mut View| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewDataType>>(
+                "data_type",
+                |m: &View| { &m.data_type },
+                |m: &mut View| { &mut m.data_type },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
+                "modified_time",
+                |m: &View| { &m.modified_time },
+                |m: &mut View| { &mut m.modified_time },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
+                "create_time",
+                |m: &View| { &m.create_time },
+                |m: &mut View| { &mut m.create_time },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
+                "plugin_type",
+                |m: &View| { &m.plugin_type },
+                |m: &mut View| { &mut m.plugin_type },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<View>(
+                "View",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static View {
+        static instance: ::protobuf::rt::LazyV2<View> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(View::new)
+    }
+}
+
+impl ::protobuf::Clear for View {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.belong_to_id.clear();
+        self.name.clear();
+        self.data_type = ViewDataType::TextBlock;
+        self.modified_time = 0;
+        self.create_time = 0;
+        self.plugin_type = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for View {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for View {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ViewInfo {
+    // message fields
+    pub id: ::std::string::String,
+    pub belong_to_id: ::std::string::String,
+    pub name: ::std::string::String,
+    pub desc: ::std::string::String,
+    pub data_type: ViewDataType,
+    pub belongings: ::protobuf::SingularPtrField<RepeatedView>,
+    pub ext_data: ::protobuf::SingularPtrField<ViewExtData>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ViewInfo {
+    fn default() -> &'a ViewInfo {
+        <ViewInfo as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ViewInfo {
+    pub fn new() -> ViewInfo {
         ::std::default::Default::default()
     }
 
@@ -173,22 +547,7 @@ impl View {
         self.data_type = v;
     }
 
-    // int64 version = 6;
-
-
-    pub fn get_version(&self) -> i64 {
-        self.version
-    }
-    pub fn clear_version(&mut self) {
-        self.version = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_version(&mut self, v: i64) {
-        self.version = v;
-    }
-
-    // .RepeatedView belongings = 7;
+    // .RepeatedView belongings = 6;
 
 
     pub fn get_belongings(&self) -> &RepeatedView {
@@ -221,107 +580,48 @@ impl View {
         self.belongings.take().unwrap_or_else(|| RepeatedView::new())
     }
 
-    // int64 modified_time = 8;
+    // .ViewExtData ext_data = 7;
 
 
-    pub fn get_modified_time(&self) -> i64 {
-        self.modified_time
-    }
-    pub fn clear_modified_time(&mut self) {
-        self.modified_time = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_modified_time(&mut self, v: i64) {
-        self.modified_time = v;
-    }
-
-    // int64 create_time = 9;
-
-
-    pub fn get_create_time(&self) -> i64 {
-        self.create_time
-    }
-    pub fn clear_create_time(&mut self) {
-        self.create_time = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_create_time(&mut self, v: i64) {
-        self.create_time = v;
-    }
-
-    // string ext_data = 10;
-
-
-    pub fn get_ext_data(&self) -> &str {
-        &self.ext_data
+    pub fn get_ext_data(&self) -> &ViewExtData {
+        self.ext_data.as_ref().unwrap_or_else(|| <ViewExtData as ::protobuf::Message>::default_instance())
     }
     pub fn clear_ext_data(&mut self) {
         self.ext_data.clear();
     }
 
+    pub fn has_ext_data(&self) -> bool {
+        self.ext_data.is_some()
+    }
+
     // Param is passed by value, moved
-    pub fn set_ext_data(&mut self, v: ::std::string::String) {
-        self.ext_data = v;
+    pub fn set_ext_data(&mut self, v: ViewExtData) {
+        self.ext_data = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_ext_data(&mut self) -> &mut ::std::string::String {
-        &mut self.ext_data
+    pub fn mut_ext_data(&mut self) -> &mut ViewExtData {
+        if self.ext_data.is_none() {
+            self.ext_data.set_default();
+        }
+        self.ext_data.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_ext_data(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.ext_data, ::std::string::String::new())
-    }
-
-    // string thumbnail = 11;
-
-
-    pub fn get_thumbnail(&self) -> &str {
-        &self.thumbnail
-    }
-    pub fn clear_thumbnail(&mut self) {
-        self.thumbnail.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_thumbnail(&mut self, v: ::std::string::String) {
-        self.thumbnail = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_thumbnail(&mut self) -> &mut ::std::string::String {
-        &mut self.thumbnail
-    }
-
-    // Take field
-    pub fn take_thumbnail(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.thumbnail, ::std::string::String::new())
-    }
-
-    // int32 plugin_type = 12;
-
-
-    pub fn get_plugin_type(&self) -> i32 {
-        self.plugin_type
-    }
-    pub fn clear_plugin_type(&mut self) {
-        self.plugin_type = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_plugin_type(&mut self, v: i32) {
-        self.plugin_type = v;
+    pub fn take_ext_data(&mut self) -> ViewExtData {
+        self.ext_data.take().unwrap_or_else(|| ViewExtData::new())
     }
 }
 
-impl ::protobuf::Message for View {
+impl ::protobuf::Message for ViewInfo {
     fn is_initialized(&self) -> bool {
         for v in &self.belongings {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.ext_data {
             if !v.is_initialized() {
                 return false;
             }
@@ -349,41 +649,10 @@ impl ::protobuf::Message for View {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.data_type, 5, &mut self.unknown_fields)?
                 },
                 6 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int64()?;
-                    self.version = tmp;
-                },
-                7 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.belongings)?;
                 },
-                8 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int64()?;
-                    self.modified_time = tmp;
-                },
-                9 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int64()?;
-                    self.create_time = tmp;
-                },
-                10 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.ext_data)?;
-                },
-                11 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.thumbnail)?;
-                },
-                12 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int32()?;
-                    self.plugin_type = tmp;
+                7 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.ext_data)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -412,27 +681,13 @@ impl ::protobuf::Message for View {
         if self.data_type != ViewDataType::TextBlock {
             my_size += ::protobuf::rt::enum_size(5, self.data_type);
         }
-        if self.version != 0 {
-            my_size += ::protobuf::rt::value_size(6, self.version, ::protobuf::wire_format::WireTypeVarint);
-        }
         if let Some(ref v) = self.belongings.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
-        if self.modified_time != 0 {
-            my_size += ::protobuf::rt::value_size(8, self.modified_time, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if self.create_time != 0 {
-            my_size += ::protobuf::rt::value_size(9, self.create_time, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if !self.ext_data.is_empty() {
-            my_size += ::protobuf::rt::string_size(10, &self.ext_data);
-        }
-        if !self.thumbnail.is_empty() {
-            my_size += ::protobuf::rt::string_size(11, &self.thumbnail);
-        }
-        if self.plugin_type != 0 {
-            my_size += ::protobuf::rt::value_size(12, self.plugin_type, ::protobuf::wire_format::WireTypeVarint);
+        if let Some(ref v) = self.ext_data.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -455,28 +710,15 @@ impl ::protobuf::Message for View {
         if self.data_type != ViewDataType::TextBlock {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.data_type))?;
         }
-        if self.version != 0 {
-            os.write_int64(6, self.version)?;
-        }
         if let Some(ref v) = self.belongings.as_ref() {
-            os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_tag(6, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
-        if self.modified_time != 0 {
-            os.write_int64(8, self.modified_time)?;
-        }
-        if self.create_time != 0 {
-            os.write_int64(9, self.create_time)?;
-        }
-        if !self.ext_data.is_empty() {
-            os.write_string(10, &self.ext_data)?;
-        }
-        if !self.thumbnail.is_empty() {
-            os.write_string(11, &self.thumbnail)?;
-        }
-        if self.plugin_type != 0 {
-            os.write_int32(12, self.plugin_type)?;
+        if let Some(ref v) = self.ext_data.as_ref() {
+            os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -508,8 +750,8 @@ impl ::protobuf::Message for View {
         Self::descriptor_static()
     }
 
-    fn new() -> View {
-        View::new()
+    fn new() -> ViewInfo {
+        ViewInfo::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -518,103 +760,920 @@ impl ::protobuf::Message for View {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &View| { &m.id },
-                |m: &mut View| { &mut m.id },
+                |m: &ViewInfo| { &m.id },
+                |m: &mut ViewInfo| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "belong_to_id",
-                |m: &View| { &m.belong_to_id },
-                |m: &mut View| { &mut m.belong_to_id },
+                |m: &ViewInfo| { &m.belong_to_id },
+                |m: &mut ViewInfo| { &mut m.belong_to_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &View| { &m.name },
-                |m: &mut View| { &mut m.name },
+                |m: &ViewInfo| { &m.name },
+                |m: &mut ViewInfo| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "desc",
-                |m: &View| { &m.desc },
-                |m: &mut View| { &mut m.desc },
+                |m: &ViewInfo| { &m.desc },
+                |m: &mut ViewInfo| { &mut m.desc },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewDataType>>(
                 "data_type",
-                |m: &View| { &m.data_type },
-                |m: &mut View| { &mut m.data_type },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "version",
-                |m: &View| { &m.version },
-                |m: &mut View| { &mut m.version },
+                |m: &ViewInfo| { &m.data_type },
+                |m: &mut ViewInfo| { &mut m.data_type },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RepeatedView>>(
                 "belongings",
-                |m: &View| { &m.belongings },
-                |m: &mut View| { &mut m.belongings },
+                |m: &ViewInfo| { &m.belongings },
+                |m: &mut ViewInfo| { &mut m.belongings },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "modified_time",
-                |m: &View| { &m.modified_time },
-                |m: &mut View| { &mut m.modified_time },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "create_time",
-                |m: &View| { &m.create_time },
-                |m: &mut View| { &mut m.create_time },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ViewExtData>>(
                 "ext_data",
-                |m: &View| { &m.ext_data },
-                |m: &mut View| { &mut m.ext_data },
+                |m: &ViewInfo| { &m.ext_data },
+                |m: &mut ViewInfo| { &mut m.ext_data },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "thumbnail",
-                |m: &View| { &m.thumbnail },
-                |m: &mut View| { &mut m.thumbnail },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
-                "plugin_type",
-                |m: &View| { &m.plugin_type },
-                |m: &mut View| { &mut m.plugin_type },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<View>(
-                "View",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewInfo>(
+                "ViewInfo",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static View {
-        static instance: ::protobuf::rt::LazyV2<View> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(View::new)
+    fn default_instance() -> &'static ViewInfo {
+        static instance: ::protobuf::rt::LazyV2<ViewInfo> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewInfo::new)
     }
 }
 
-impl ::protobuf::Clear for View {
+impl ::protobuf::Clear for ViewInfo {
     fn clear(&mut self) {
         self.id.clear();
         self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
         self.data_type = ViewDataType::TextBlock;
-        self.version = 0;
         self.belongings.clear();
-        self.modified_time = 0;
-        self.create_time = 0;
         self.ext_data.clear();
-        self.thumbnail.clear();
-        self.plugin_type = 0;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for View {
+impl ::std::fmt::Debug for ViewInfo {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for View {
+impl ::protobuf::reflect::ProtobufValue for ViewInfo {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ViewExtData {
+    // message fields
+    pub filter: ::protobuf::SingularPtrField<ViewFilter>,
+    pub group: ::protobuf::SingularPtrField<ViewGroup>,
+    pub sort: ::protobuf::SingularPtrField<ViewSort>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ViewExtData {
+    fn default() -> &'a ViewExtData {
+        <ViewExtData as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ViewExtData {
+    pub fn new() -> ViewExtData {
+        ::std::default::Default::default()
+    }
+
+    // .ViewFilter filter = 1;
+
+
+    pub fn get_filter(&self) -> &ViewFilter {
+        self.filter.as_ref().unwrap_or_else(|| <ViewFilter as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_filter(&mut self) {
+        self.filter.clear();
+    }
+
+    pub fn has_filter(&self) -> bool {
+        self.filter.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_filter(&mut self, v: ViewFilter) {
+        self.filter = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_filter(&mut self) -> &mut ViewFilter {
+        if self.filter.is_none() {
+            self.filter.set_default();
+        }
+        self.filter.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_filter(&mut self) -> ViewFilter {
+        self.filter.take().unwrap_or_else(|| ViewFilter::new())
+    }
+
+    // .ViewGroup group = 2;
+
+
+    pub fn get_group(&self) -> &ViewGroup {
+        self.group.as_ref().unwrap_or_else(|| <ViewGroup as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_group(&mut self) {
+        self.group.clear();
+    }
+
+    pub fn has_group(&self) -> bool {
+        self.group.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_group(&mut self, v: ViewGroup) {
+        self.group = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_group(&mut self) -> &mut ViewGroup {
+        if self.group.is_none() {
+            self.group.set_default();
+        }
+        self.group.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_group(&mut self) -> ViewGroup {
+        self.group.take().unwrap_or_else(|| ViewGroup::new())
+    }
+
+    // .ViewSort sort = 3;
+
+
+    pub fn get_sort(&self) -> &ViewSort {
+        self.sort.as_ref().unwrap_or_else(|| <ViewSort as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_sort(&mut self) {
+        self.sort.clear();
+    }
+
+    pub fn has_sort(&self) -> bool {
+        self.sort.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sort(&mut self, v: ViewSort) {
+        self.sort = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_sort(&mut self) -> &mut ViewSort {
+        if self.sort.is_none() {
+            self.sort.set_default();
+        }
+        self.sort.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_sort(&mut self) -> ViewSort {
+        self.sort.take().unwrap_or_else(|| ViewSort::new())
+    }
+}
+
+impl ::protobuf::Message for ViewExtData {
+    fn is_initialized(&self) -> bool {
+        for v in &self.filter {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.group {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.sort {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.filter)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.group)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.sort)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.filter.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.group.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.sort.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.filter.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.group.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.sort.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ViewExtData {
+        ViewExtData::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ViewFilter>>(
+                "filter",
+                |m: &ViewExtData| { &m.filter },
+                |m: &mut ViewExtData| { &mut m.filter },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ViewGroup>>(
+                "group",
+                |m: &ViewExtData| { &m.group },
+                |m: &mut ViewExtData| { &mut m.group },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ViewSort>>(
+                "sort",
+                |m: &ViewExtData| { &m.sort },
+                |m: &mut ViewExtData| { &mut m.sort },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewExtData>(
+                "ViewExtData",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ViewExtData {
+        static instance: ::protobuf::rt::LazyV2<ViewExtData> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewExtData::new)
+    }
+}
+
+impl ::protobuf::Clear for ViewExtData {
+    fn clear(&mut self) {
+        self.filter.clear();
+        self.group.clear();
+        self.sort.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ViewExtData {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ViewExtData {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ViewFilter {
+    // message fields
+    pub field_id: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ViewFilter {
+    fn default() -> &'a ViewFilter {
+        <ViewFilter as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ViewFilter {
+    pub fn new() -> ViewFilter {
+        ::std::default::Default::default()
+    }
+
+    // string field_id = 1;
+
+
+    pub fn get_field_id(&self) -> &str {
+        &self.field_id
+    }
+    pub fn clear_field_id(&mut self) {
+        self.field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_id(&mut self, v: ::std::string::String) {
+        self.field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.field_id
+    }
+
+    // Take field
+    pub fn take_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ViewFilter {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.field_id);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.field_id.is_empty() {
+            os.write_string(1, &self.field_id)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ViewFilter {
+        ViewFilter::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "field_id",
+                |m: &ViewFilter| { &m.field_id },
+                |m: &mut ViewFilter| { &mut m.field_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewFilter>(
+                "ViewFilter",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ViewFilter {
+        static instance: ::protobuf::rt::LazyV2<ViewFilter> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewFilter::new)
+    }
+}
+
+impl ::protobuf::Clear for ViewFilter {
+    fn clear(&mut self) {
+        self.field_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ViewFilter {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ViewFilter {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ViewGroup {
+    // message fields
+    pub group_field_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_sub_group_field_id: ::std::option::Option<ViewGroup_oneof_one_of_sub_group_field_id>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ViewGroup {
+    fn default() -> &'a ViewGroup {
+        <ViewGroup as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum ViewGroup_oneof_one_of_sub_group_field_id {
+    sub_group_field_id(::std::string::String),
+}
+
+impl ViewGroup {
+    pub fn new() -> ViewGroup {
+        ::std::default::Default::default()
+    }
+
+    // string group_field_id = 1;
+
+
+    pub fn get_group_field_id(&self) -> &str {
+        &self.group_field_id
+    }
+    pub fn clear_group_field_id(&mut self) {
+        self.group_field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_group_field_id(&mut self, v: ::std::string::String) {
+        self.group_field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_group_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.group_field_id
+    }
+
+    // Take field
+    pub fn take_group_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.group_field_id, ::std::string::String::new())
+    }
+
+    // string sub_group_field_id = 2;
+
+
+    pub fn get_sub_group_field_id(&self) -> &str {
+        match self.one_of_sub_group_field_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_sub_group_field_id(&mut self) {
+        self.one_of_sub_group_field_id = ::std::option::Option::None;
+    }
+
+    pub fn has_sub_group_field_id(&self) -> bool {
+        match self.one_of_sub_group_field_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sub_group_field_id(&mut self, v: ::std::string::String) {
+        self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_sub_group_field_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(_)) = self.one_of_sub_group_field_id {
+        } else {
+            self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(::std::string::String::new()));
+        }
+        match self.one_of_sub_group_field_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_sub_group_field_id(&mut self) -> ::std::string::String {
+        if self.has_sub_group_field_id() {
+            match self.one_of_sub_group_field_id.take() {
+                ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for ViewGroup {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.group_field_id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.group_field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.group_field_id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_field_id {
+            match v {
+                &ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(2, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.group_field_id.is_empty() {
+            os.write_string(1, &self.group_field_id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_field_id {
+            match v {
+                &ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v) => {
+                    os.write_string(2, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ViewGroup {
+        ViewGroup::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "group_field_id",
+                |m: &ViewGroup| { &m.group_field_id },
+                |m: &mut ViewGroup| { &mut m.group_field_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "sub_group_field_id",
+                ViewGroup::has_sub_group_field_id,
+                ViewGroup::get_sub_group_field_id,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewGroup>(
+                "ViewGroup",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ViewGroup {
+        static instance: ::protobuf::rt::LazyV2<ViewGroup> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewGroup::new)
+    }
+}
+
+impl ::protobuf::Clear for ViewGroup {
+    fn clear(&mut self) {
+        self.group_field_id.clear();
+        self.one_of_sub_group_field_id = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ViewGroup {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ViewGroup {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct ViewSort {
+    // message fields
+    pub field_id: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a ViewSort {
+    fn default() -> &'a ViewSort {
+        <ViewSort as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl ViewSort {
+    pub fn new() -> ViewSort {
+        ::std::default::Default::default()
+    }
+
+    // string field_id = 1;
+
+
+    pub fn get_field_id(&self) -> &str {
+        &self.field_id
+    }
+    pub fn clear_field_id(&mut self) {
+        self.field_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_field_id(&mut self, v: ::std::string::String) {
+        self.field_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
+        &mut self.field_id
+    }
+
+    // Take field
+    pub fn take_field_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for ViewSort {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.field_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.field_id);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.field_id.is_empty() {
+            os.write_string(1, &self.field_id)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> ViewSort {
+        ViewSort::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "field_id",
+                |m: &ViewSort| { &m.field_id },
+                |m: &mut ViewSort| { &mut m.field_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewSort>(
+                "ViewSort",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static ViewSort {
+        static instance: ::protobuf::rt::LazyV2<ViewSort> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewSort::new)
+    }
+}
+
+impl ::protobuf::Clear for ViewSort {
+    fn clear(&mut self) {
+        self.field_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for ViewSort {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for ViewSort {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -3138,46 +4197,56 @@ impl ::protobuf::reflect::ProtobufValue for MoveFolderItemType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nview.proto\"\xf5\x02\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \n\nview.proto\"\xdf\x01\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
     \x02id\x12\x20\n\x0cbelong_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\
-    \n\x04name\x18\x03\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01\
-    (\tR\x04desc\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08\
-    dataType\x12\x18\n\x07version\x18\x06\x20\x01(\x03R\x07version\x12-\n\nb\
-    elongings\x18\x07\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12#\n\rmodi\
-    fied_time\x18\x08\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\
-    \x18\t\x20\x01(\x03R\ncreateTime\x12\x19\n\x08ext_data\x18\n\x20\x01(\tR\
-    \x07extData\x12\x1c\n\tthumbnail\x18\x0b\x20\x01(\tR\tthumbnail\x12\x1f\
-    \n\x0bplugin_type\x18\x0c\x20\x01(\x05R\npluginType\"+\n\x0cRepeatedView\
-    \x12\x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items\"\xf2\x01\n\
-    \x11CreateViewPayload\x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbel\
-    ongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
-    \x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\
-    \tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08d\
-    ataType\x12\x1f\n\x0bplugin_type\x18\x06\x20\x01(\x05R\npluginType\x12\
-    \x12\n\x04data\x18\x07\x20\x01(\x0cR\x04dataB\x12\n\x10one_of_thumbnail\
-    \"\xf4\x01\n\x10CreateViewParams\x12\x20\n\x0cbelong_to_id\x18\x01\x20\
-    \x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
-    \x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\
-    \x20\x01(\tR\tthumbnail\x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDa\
-    taTypeR\x08dataType\x12\x17\n\x07view_id\x18\x06\x20\x01(\tR\x06viewId\
-    \x12\x12\n\x04data\x18\x07\x20\x01(\x0cR\x04data\x12\x1f\n\x0bplugin_typ\
-    e\x18\x08\x20\x01(\x05R\npluginType\"\x1e\n\x06ViewId\x12\x14\n\x05value\
-    \x18\x01\x20\x01(\tR\x05value\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\
-    \x18\x01\x20\x03(\tR\x05items\"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\
-    \x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\
-    \x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\
-    \x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of\
-    _nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10Upda\
-    teViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\
-    \n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\
-    \x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthu\
-    mbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnai\
-    l\"y\n\x15MoveFolderItemPayload\x12\x17\n\x07item_id\x18\x01\x20\x01(\tR\
-    \x06itemId\x12\x12\n\x04from\x18\x02\x20\x01(\x05R\x04from\x12\x0e\n\x02\
-    to\x18\x03\x20\x01(\x05R\x02to\x12#\n\x02ty\x18\x04\x20\x01(\x0e2\x13.Mo\
-    veFolderItemTypeR\x02ty*'\n\x0cViewDataType\x12\r\n\tTextBlock\x10\0\x12\
-    \x08\n\x04Grid\x10\x01*/\n\x12MoveFolderItemType\x12\x0b\n\x07MoveApp\
-    \x10\0\x12\x0c\n\x08MoveView\x10\x01b\x06proto3\
+    \n\x04name\x18\x03\x20\x01(\tR\x04name\x12*\n\tdata_type\x18\x04\x20\x01\
+    (\x0e2\r.ViewDataTypeR\x08dataType\x12#\n\rmodified_time\x18\x05\x20\x01\
+    (\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\x06\x20\x01(\x03R\nc\
+    reateTime\x12\x1f\n\x0bplugin_type\x18\x07\x20\x01(\x05R\npluginType\"\
+    \xe8\x01\n\x08ViewInfo\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x20\
+    \n\x0cbelong_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\
+    \x03\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\
+    \x12*\n\tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08dataType\x12\
+    -\n\nbelongings\x18\x06\x20\x01(\x0b2\r.RepeatedViewR\nbelongings\x12'\n\
+    \x08ext_data\x18\x07\x20\x01(\x0b2\x0c.ViewExtDataR\x07extData\"s\n\x0bV\
+    iewExtData\x12#\n\x06filter\x18\x01\x20\x01(\x0b2\x0b.ViewFilterR\x06fil\
+    ter\x12\x20\n\x05group\x18\x02\x20\x01(\x0b2\n.ViewGroupR\x05group\x12\
+    \x1d\n\x04sort\x18\x03\x20\x01(\x0b2\t.ViewSortR\x04sort\"'\n\nViewFilte\
+    r\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\"}\n\tViewGroup\
+    \x12$\n\x0egroup_field_id\x18\x01\x20\x01(\tR\x0cgroupFieldId\x12-\n\x12\
+    sub_group_field_id\x18\x02\x20\x01(\tH\0R\x0fsubGroupFieldIdB\x1b\n\x19o\
+    ne_of_sub_group_field_id\"%\n\x08ViewSort\x12\x19\n\x08field_id\x18\x01\
+    \x20\x01(\tR\x07fieldId\"+\n\x0cRepeatedView\x12\x1b\n\x05items\x18\x01\
+    \x20\x03(\x0b2\x05.ViewR\x05items\"\xf2\x01\n\x11CreateViewPayload\x12\
+    \x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\
+    \x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04de\
+    sc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12*\n\tdata_t\
+    ype\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08dataType\x12\x1f\n\x0bplugi\
+    n_type\x18\x06\x20\x01(\x05R\npluginType\x12\x12\n\x04data\x18\x07\x20\
+    \x01(\x0cR\x04dataB\x12\n\x10one_of_thumbnail\"\xf4\x01\n\x10CreateViewP\
+    arams\x12\x20\n\x0cbelong_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\
+    \n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01\
+    (\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\x20\x01(\tR\tthumbnail\x12*\n\
+    \tdata_type\x18\x05\x20\x01(\x0e2\r.ViewDataTypeR\x08dataType\x12\x17\n\
+    \x07view_id\x18\x06\x20\x01(\tR\x06viewId\x12\x12\n\x04data\x18\x07\x20\
+    \x01(\x0cR\x04data\x12\x1f\n\x0bplugin_type\x18\x08\x20\x01(\x05R\nplugi\
+    nType\"\x1e\n\x06ViewId\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\
+    \"&\n\x0eRepeatedViewId\x12\x14\n\x05items\x18\x01\x20\x03(\tR\x05items\
+    \"\xaa\x01\n\x11UpdateViewPayload\x12\x17\n\x07view_id\x18\x01\x20\x01(\
+    \tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04name\x12\x14\n\
+    \x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\
+    \x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
+    \x12\n\x10one_of_thumbnail\"\xa9\x01\n\x10UpdateViewParams\x12\x17\n\x07\
+    view_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\
+    \tH\0R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\
+    \x1e\n\tthumbnail\x18\x04\x20\x01(\tH\x02R\tthumbnailB\r\n\x0bone_of_nam\
+    eB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnail\"y\n\x15MoveFolderItemP\
+    ayload\x12\x17\n\x07item_id\x18\x01\x20\x01(\tR\x06itemId\x12\x12\n\x04f\
+    rom\x18\x02\x20\x01(\x05R\x04from\x12\x0e\n\x02to\x18\x03\x20\x01(\x05R\
+    \x02to\x12#\n\x02ty\x18\x04\x20\x01(\x0e2\x13.MoveFolderItemTypeR\x02ty*\
+    '\n\x0cViewDataType\x12\r\n\tTextBlock\x10\0\x12\x08\n\x04Grid\x10\x01*/\
+    \n\x12MoveFolderItemType\x12\x0b\n\x07MoveApp\x10\0\x12\x0c\n\x08MoveVie\
+    w\x10\x01b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

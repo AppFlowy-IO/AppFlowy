@@ -6,7 +6,6 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 
-use flowy_folder_data_model::entities::{Trash, Workspace};
 use flowy_folder_data_model::revision::{TrashRevision, WorkspaceRevision};
 use lib_ot::core::{PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
@@ -26,16 +25,13 @@ impl FolderPadBuilder {
         }
     }
 
-    pub(crate) fn with_workspace(mut self, workspaces: Vec<Workspace>) -> Self {
-        self.workspaces = workspaces
-            .into_iter()
-            .map(|workspace| Arc::new(workspace.into()))
-            .collect::<Vec<_>>();
+    pub(crate) fn with_workspace(mut self, workspaces: Vec<WorkspaceRevision>) -> Self {
+        self.workspaces = workspaces.into_iter().map(Arc::new).collect();
         self
     }
 
-    pub(crate) fn with_trash(mut self, trash: Vec<Trash>) -> Self {
-        self.trash = trash.into_iter().map(|t| Arc::new(t.into())).collect::<Vec<_>>();
+    pub(crate) fn with_trash(mut self, trash: Vec<TrashRevision>) -> Self {
+        self.trash = trash.into_iter().map(Arc::new).collect::<Vec<_>>();
         self
     }
 

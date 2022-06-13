@@ -1,5 +1,5 @@
 use crate::{
-    entities::trash::{RepeatedTrash, Trash, TrashType},
+    entities::trash::{Trash, TrashType},
     errors::FlowyError,
 };
 use diesel::sql_types::Integer;
@@ -8,12 +8,13 @@ use flowy_database::{
     schema::{trash_table, trash_table::dsl},
     SqliteConnection,
 };
+use flowy_folder_data_model::revision::TrashRevision;
 
 pub struct TrashTableSql();
 impl TrashTableSql {
-    pub(crate) fn create_trash(trashes: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        for trash in trashes {
-            let trash_table: TrashTable = trash.into();
+    pub(crate) fn create_trash(trashes: Vec<TrashRevision>, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        for trash_rev in trashes {
+            let trash_table: TrashTable = trash_rev.into();
             match diesel_record_count!(trash_table, &trash_table.id, conn) {
                 0 => diesel_insert_table!(trash_table, &trash_table, conn),
                 _ => {
@@ -26,10 +27,13 @@ impl TrashTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
+    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<Vec<TrashRevision>, FlowyError> {
         let trash_tables = dsl::trash_table.load::<TrashTable>(conn)?;
-        let items = trash_tables.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
-        Ok(RepeatedTrash { items })
+        let items = trash_tables
+            .into_iter()
+            .map(TrashRevision::from)
+            .collect::<Vec<TrashRevision>>();
+        Ok(items)
     }
 
     pub(crate) fn delete_all(conn: &SqliteConnection) -> Result<(), FlowyError> {
@@ -72,15 +76,27 @@ impl std::convert::From<TrashTable> for Trash {
     }
 }
 
-impl std::convert::From<Trash> for TrashTable {
-    fn from(trash: Trash) -> Self {
-        TrashTable {
+impl std::convert::From<TrashTable> for TrashRevision {
+    fn from(trash: TrashTable) -> Self {
+        TrashRevision {
             id: trash.id,
             name: trash.name,
-            desc: "".to_owned(),
             modified_time: trash.modified_time,
             create_time: trash.create_time,
             ty: trash.ty.into(),
+        }
+    }
+}
+
+impl std::convert::From<TrashRevision> for TrashTable {
+    fn from(trash_rev: TrashRevision) -> Self {
+        TrashTable {
+            id: trash_rev.id,
+            name: trash_rev.name,
+            desc: "".to_string(),
+            modified_time: trash_rev.modified_time,
+            create_time: trash_rev.create_time,
+            ty: trash_rev.ty.into(),
         }
     }
 }

@@ -1,8 +1,9 @@
 use crate::entities::view::{View, ViewDataType};
-use crate::entities::RepeatedView;
+use crate::entities::{RepeatedView, TrashType, ViewExtData, ViewFilter, ViewGroup, ViewSort};
+use crate::revision::TrashRevision;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ViewRevision {
     pub id: String,
 
@@ -43,35 +44,89 @@ impl std::convert::From<ViewRevision> for View {
             id: view_serde.id,
             belong_to_id: view_serde.belong_to_id,
             name: view_serde.name,
-            desc: view_serde.desc,
             data_type: view_serde.data_type,
-            version: view_serde.version,
-            belongings: view_serde.belongings.into(),
             modified_time: view_serde.modified_time,
             create_time: view_serde.create_time,
-            ext_data: view_serde.ext_data,
-            thumbnail: view_serde.thumbnail,
             plugin_type: view_serde.plugin_type,
         }
     }
 }
 
-impl std::convert::From<View> for ViewRevision {
-    fn from(view: View) -> Self {
-        ViewRevision {
-            id: view.id,
-            belong_to_id: view.belong_to_id,
-            name: view.name,
-            desc: view.desc,
-            data_type: view.data_type,
-            version: view.version,
-            belongings: view.belongings.into(),
-            modified_time: view.modified_time,
-            create_time: view.create_time,
-            ext_data: view.ext_data,
-            thumbnail: view.thumbnail,
-            plugin_type: view.plugin_type,
+impl std::convert::From<ViewRevision> for TrashRevision {
+    fn from(view_rev: ViewRevision) -> Self {
+        TrashRevision {
+            id: view_rev.id,
+            name: view_rev.name,
+            modified_time: view_rev.modified_time,
+            create_time: view_rev.create_time,
+            ty: TrashType::TrashView,
         }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ViewExtDataRevision {
+    pub filter: ViewFilterRevision,
+    pub group: ViewGroupRevision,
+    pub sort: ViewSortRevision,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ViewFilterRevision {
+    pub field_id: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ViewGroupRevision {
+    pub group_field_id: String,
+    pub sub_group_field_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ViewSortRevision {
+    field_id: String,
+}
+
+impl std::convert::From<String> for ViewExtData {
+    fn from(s: String) -> Self {
+        match serde_json::from_str::<ViewExtDataRevision>(&s) {
+            Ok(data) => data.into(),
+            Err(err) => {
+                log::error!("{:?}", err);
+                ViewExtData::default()
+            }
+        }
+    }
+}
+
+impl std::convert::From<ViewExtDataRevision> for ViewExtData {
+    fn from(rev: ViewExtDataRevision) -> Self {
+        ViewExtData {
+            filter: rev.filter.into(),
+            group: rev.group.into(),
+            sort: rev.sort.into(),
+        }
+    }
+}
+
+impl std::convert::From<ViewFilterRevision> for ViewFilter {
+    fn from(rev: ViewFilterRevision) -> Self {
+        ViewFilter { field_id: rev.field_id }
+    }
+}
+
+impl std::convert::From<ViewGroupRevision> for ViewGroup {
+    fn from(rev: ViewGroupRevision) -> Self {
+        ViewGroup {
+            group_field_id: rev.group_field_id,
+            sub_group_field_id: rev.sub_group_field_id,
+        }
+    }
+}
+
+impl std::convert::From<ViewSortRevision> for ViewSort {
+    fn from(rev: ViewSortRevision) -> Self {
+        ViewSort { field_id: rev.field_id }
     }
 }
 
@@ -79,15 +134,5 @@ impl std::convert::From<Vec<ViewRevision>> for RepeatedView {
     fn from(values: Vec<ViewRevision>) -> Self {
         let items = values.into_iter().map(|value| value.into()).collect::<Vec<View>>();
         RepeatedView { items }
-    }
-}
-
-impl std::convert::From<RepeatedView> for Vec<ViewRevision> {
-    fn from(repeated_view: RepeatedView) -> Self {
-        repeated_view
-            .items
-            .into_iter()
-            .map(|value| value.into())
-            .collect::<Vec<ViewRevision>>()
     }
 }

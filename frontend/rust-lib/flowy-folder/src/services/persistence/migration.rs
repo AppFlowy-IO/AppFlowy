@@ -5,11 +5,8 @@ use crate::{
 };
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::entities::{
-    app::{App, RepeatedApp},
-    view::{RepeatedView, View},
-    workspace::Workspace,
-};
+
+use flowy_folder_data_model::revision::{AppRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionLoader, RevisionPersistence};
 use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
@@ -42,25 +39,25 @@ impl FolderMigration {
         let workspaces = conn.immediate_transaction::<_, FlowyError, _>(|| {
             let mut workspaces = WorkspaceTableSql::read_workspaces(&self.user_id, None, conn)?
                 .into_iter()
-                .map(Workspace::from)
+                .map(WorkspaceRevision::from)
                 .collect::<Vec<_>>();
 
             for workspace in workspaces.iter_mut() {
                 let mut apps = AppTableSql::read_workspace_apps(&workspace.id, conn)?
                     .into_iter()
-                    .map(App::from)
+                    .map(AppRevision::from)
                     .collect::<Vec<_>>();
 
                 for app in apps.iter_mut() {
                     let views = ViewTableSql::read_views(&app.id, conn)?
                         .into_iter()
-                        .map(View::from)
+                        .map(ViewRevision::from)
                         .collect::<Vec<_>>();
 
-                    app.belongings = RepeatedView { items: views };
+                    app.belongings = views;
                 }
 
-                workspace.apps = RepeatedApp { items: apps };
+                workspace.apps = apps;
             }
             Ok(workspaces)
         })?;
@@ -72,7 +69,7 @@ impl FolderMigration {
         }
 
         let trash = conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let trash = TrashTableSql::read_all(conn)?.take_items();
+            let trash = TrashTableSql::read_all(conn)?;
             Ok(trash)
         })?;
 
