@@ -15,7 +15,7 @@ use std::convert::TryInto;
 pub fn gen_app_id() -> String {
     nanoid!(10)
 }
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct App {
     #[pb(index = 1)]
     pub id: String,

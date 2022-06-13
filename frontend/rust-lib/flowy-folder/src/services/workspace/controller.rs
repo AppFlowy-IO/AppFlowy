@@ -9,7 +9,8 @@ use crate::{
     },
 };
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::{app::RepeatedApp, workspace::*};
+use flowy_folder_data_model::entities::workspace::*;
+use flowy_folder_data_model::revision::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -37,7 +38,7 @@ impl WorkspaceController {
     pub(crate) async fn create_workspace_from_params(
         &self,
         params: CreateWorkspaceParams,
-    ) -> Result<Workspace, FlowyError> {
+    ) -> Result<WorkspaceRevision, FlowyError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
@@ -47,7 +48,10 @@ impl WorkspaceController {
                 let _ = transaction.create_workspace(&user_id, workspace.clone())?;
                 transaction.read_workspaces(&user_id, None)
             })
-            .await?;
+            .await?
+            .into_iter()
+            .map(|workspace_rev| workspace_rev.into())
+            .collect();
         let repeated_workspace = RepeatedWorkspace { items: workspaces };
         send_dart_notification(&token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
@@ -109,16 +113,16 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) async fn read_current_workspace_apps(&self) -> Result<RepeatedApp, FlowyError> {
+    pub(crate) async fn read_current_workspace_apps(&self) -> Result<Vec<AppRevision>, FlowyError> {
         let workspace_id = get_current_workspace()?;
-        let repeated_app = self
+        let app_revs = self
             .persistence
             .begin_transaction(|transaction| {
                 read_local_workspace_apps(&workspace_id, self.trash_controller.clone(), &transaction)
             })
             .await?;
         // TODO: read from server
-        Ok(repeated_app)
+        Ok(app_revs)
     }
 
     #[tracing::instrument(level = "debug", skip(self, transaction), err)]
@@ -129,7 +133,11 @@ impl WorkspaceController {
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<RepeatedWorkspace, FlowyError> {
         let workspace_id = workspace_id.to_owned();
-        let workspaces = transaction.read_workspaces(user_id, workspace_id)?;
+        let workspaces = transaction
+            .read_workspaces(user_id, workspace_id)?
+            .into_iter()
+            .map(|workspace_rev| workspace_rev.into())
+            .collect();
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
@@ -139,22 +147,26 @@ impl WorkspaceController {
         user_id: &str,
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
     ) -> Result<Workspace, FlowyError> {
-        let mut workspaces = transaction.read_workspaces(user_id, Some(workspace_id.clone()))?;
-        if workspaces.is_empty() {
+        let mut workspace_revs = transaction.read_workspaces(user_id, Some(workspace_id.clone()))?;
+        if workspace_revs.is_empty() {
             return Err(FlowyError::record_not_found().context(format!("{} workspace not found", workspace_id)));
         }
-        debug_assert_eq!(workspaces.len(), 1);
-        let workspace = workspaces.drain(..1).collect::<Vec<Workspace>>().pop().unwrap();
+        debug_assert_eq!(workspace_revs.len(), 1);
+        let workspace = workspace_revs
+            .drain(..1)
+            .map(|workspace_rev| workspace_rev.into())
+            .collect::<Vec<Workspace>>()
+            .pop()
+            .unwrap();
         Ok(workspace)
     }
 }
 
 impl WorkspaceController {
     #[tracing::instrument(level = "trace", skip(self), err)]
-    async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, FlowyError> {
+    async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<WorkspaceRevision, FlowyError> {
         let token = self.user.token()?;
-        let workspace = self.cloud_service.create_workspace(&token, params).await?;
-        Ok(workspace)
+        self.cloud_service.create_workspace(&token, params).await
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
@@ -211,7 +223,7 @@ pub async fn notify_workspace_setting_did_change(
             let setting = match transaction.read_view(view_id) {
                 Ok(latest_view) => CurrentWorkspaceSetting {
                     workspace,
-                    latest_view: Some(latest_view),
+                    latest_view: Some(latest_view.into()),
                 },
                 Err(_) => CurrentWorkspaceSetting {
                     workspace,

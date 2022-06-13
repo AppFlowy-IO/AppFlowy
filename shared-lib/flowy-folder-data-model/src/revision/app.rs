@@ -1,9 +1,9 @@
 use crate::entities::app::App;
-use crate::entities::RepeatedApp;
-use crate::revision::ViewRevision;
+use crate::entities::{RepeatedApp, TrashType};
+use crate::revision::{TrashRevision, ViewRevision};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct AppRevision {
     pub id: String,
 
@@ -37,17 +37,14 @@ impl std::convert::From<AppRevision> for App {
     }
 }
 
-impl std::convert::From<App> for AppRevision {
-    fn from(app: App) -> Self {
-        AppRevision {
-            id: app.id,
-            workspace_id: app.workspace_id,
-            name: app.name,
-            desc: app.desc,
-            belongings: app.belongings.into(),
-            version: app.version,
-            modified_time: app.modified_time,
-            create_time: app.create_time,
+impl std::convert::From<AppRevision> for TrashRevision {
+    fn from(app_rev: AppRevision) -> Self {
+        TrashRevision {
+            id: app_rev.id,
+            name: app_rev.name,
+            modified_time: app_rev.modified_time,
+            create_time: app_rev.create_time,
+            ty: TrashType::TrashApp,
         }
     }
 }
@@ -56,15 +53,5 @@ impl std::convert::From<Vec<AppRevision>> for RepeatedApp {
     fn from(values: Vec<AppRevision>) -> Self {
         let items = values.into_iter().map(|value| value.into()).collect::<Vec<App>>();
         RepeatedApp { items }
-    }
-}
-
-impl std::convert::From<RepeatedApp> for Vec<AppRevision> {
-    fn from(repeated_app: RepeatedApp) -> Self {
-        repeated_app
-            .items
-            .into_iter()
-            .map(|value| value.into())
-            .collect::<Vec<AppRevision>>()
     }
 }

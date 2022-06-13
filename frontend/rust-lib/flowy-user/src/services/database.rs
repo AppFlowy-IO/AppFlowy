@@ -3,8 +3,7 @@ use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_data_model::entities::{SignInResponse, SignUpResponse, UpdateUserParams, UserProfile};
 use lazy_static::lazy_static;
-use once_cell::sync::Lazy;
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 lazy_static! {
@@ -22,32 +21,38 @@ impl UserDB {
         }
     }
 
-    fn open_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
+    fn open_user_db_if_need(&self, user_id: &str) -> Result<Arc<ConnectionPool>, FlowyError> {
         if user_id.is_empty() {
             return Err(ErrorCode::UserIdIsEmpty.into());
+        }
+
+        if let Some(database) = DB_MAP.read().get(user_id) {
+            return Ok(database.get_pool());
+        }
+
+        let mut write_guard = DB_MAP.write();
+        // The Write guard acquire exclusive access that will guarantee the user db only initialize once.
+        match write_guard.get(user_id) {
+            None => {}
+            Some(database) => return Ok(database.get_pool()),
         }
 
         tracing::trace!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
-            log::error!("init user db failed, {:?}, user_id: {}", e, user_id);
+            log::error!("open user: {} db failed, {:?}", user_id, e);
             FlowyError::internal().context(e)
         })?;
-
-        match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(FlowyError::internal().context("Acquire write lock to save user db failed")),
-            Some(mut write_guard) => {
-                write_guard.insert(user_id.to_owned(), db);
-                Ok(())
-            }
-        }
+        let pool = db.get_pool();
+        write_guard.insert(user_id.to_owned(), db);
+        drop(write_guard);
+        Ok(pool)
     }
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
             None => Err(FlowyError::internal().context("Acquire write lock to close user db failed")),
             Some(mut write_guard) => {
-                set_user_db_init(false, user_id);
                 write_guard.remove(user_id);
                 Ok(())
             }
@@ -60,46 +65,13 @@ impl UserDB {
     }
 
     pub(crate) fn get_pool(&self, user_id: &str) -> Result<Arc<ConnectionPool>, FlowyError> {
-        // Opti: INIT_LOCK try to lock the INIT_RECORD accesses. Because the write guard
-        // can not nested in the read guard that will cause the deadlock.
-        match INIT_LOCK.try_lock_for(Duration::from_millis(300)) {
-            None => log::error!("get_pool fail"),
-            Some(_) => {
-                if !is_user_db_init(user_id) {
-                    let _ = self.open_user_db(user_id)?;
-                    set_user_db_init(true, user_id);
-                }
-            }
-        }
-
-        match DB_MAP.try_read_for(Duration::from_millis(300)) {
-            None => Err(FlowyError::internal().context("Acquire read lock to read user db failed")),
-            Some(read_guard) => match read_guard.get(user_id) {
-                None => {
-                    Err(FlowyError::internal().context("Get connection failed. The database is not initialization"))
-                }
-                Some(database) => Ok(database.get_pool()),
-            },
-        }
+        let pool = self.open_user_db_if_need(user_id)?;
+        Ok(pool)
     }
 }
 
 lazy_static! {
     static ref DB_MAP: RwLock<HashMap<String, Database>> = RwLock::new(HashMap::new());
-}
-
-static INIT_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
-static INIT_RECORD: Lazy<Mutex<HashMap<String, bool>>> = Lazy::new(|| Mutex::new(HashMap::new()));
-fn set_user_db_init(is_init: bool, user_id: &str) {
-    let mut record = INIT_RECORD.lock();
-    record.insert(user_id.to_owned(), is_init);
-}
-
-fn is_user_db_init(user_id: &str) -> bool {
-    match INIT_RECORD.lock().get(user_id) {
-        None => false,
-        Some(flag) => *flag,
-    }
 }
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]

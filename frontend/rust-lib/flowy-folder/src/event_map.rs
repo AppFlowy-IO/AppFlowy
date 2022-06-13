@@ -1,9 +1,9 @@
 use crate::{
     entities::{
-        app::{App, AppId, CreateAppParams, UpdateAppParams},
-        trash::{RepeatedTrash, RepeatedTrashId},
-        view::{CreateViewParams, RepeatedViewId, UpdateViewParams, View, ViewId},
-        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
+        app::{AppId, CreateAppParams, UpdateAppParams},
+        trash::RepeatedTrashId,
+        view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
+        workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
     },
     errors::FlowyError,
     manager::FolderManager,
@@ -11,6 +11,7 @@ use crate::{
 };
 use flowy_database::{ConnectionPool, DBConnection};
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -155,27 +156,31 @@ pub trait FolderCouldServiceV1: Send + Sync {
     fn init(&self);
 
     // Workspace
-    fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError>;
+    fn create_workspace(
+        &self,
+        token: &str,
+        params: CreateWorkspaceParams,
+    ) -> FutureResult<WorkspaceRevision, FlowyError>;
 
-    fn read_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<RepeatedWorkspace, FlowyError>;
+    fn read_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<Vec<WorkspaceRevision>, FlowyError>;
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> FutureResult<(), FlowyError>;
 
     fn delete_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<(), FlowyError>;
 
     // View
-    fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<View, FlowyError>;
+    fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<ViewRevision, FlowyError>;
 
-    fn read_view(&self, token: &str, params: ViewId) -> FutureResult<Option<View>, FlowyError>;
+    fn read_view(&self, token: &str, params: ViewId) -> FutureResult<Option<ViewRevision>, FlowyError>;
 
     fn delete_view(&self, token: &str, params: RepeatedViewId) -> FutureResult<(), FlowyError>;
 
     fn update_view(&self, token: &str, params: UpdateViewParams) -> FutureResult<(), FlowyError>;
 
     // App
-    fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError>;
+    fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<AppRevision, FlowyError>;
 
-    fn read_app(&self, token: &str, params: AppId) -> FutureResult<Option<App>, FlowyError>;
+    fn read_app(&self, token: &str, params: AppId) -> FutureResult<Option<AppRevision>, FlowyError>;
 
     fn update_app(&self, token: &str, params: UpdateAppParams) -> FutureResult<(), FlowyError>;
 
@@ -186,5 +191,5 @@ pub trait FolderCouldServiceV1: Send + Sync {
 
     fn delete_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError>;
 
-    fn read_trash(&self, token: &str) -> FutureResult<RepeatedTrash, FlowyError>;
+    fn read_trash(&self, token: &str) -> FutureResult<Vec<TrashRevision>, FlowyError>;
 }

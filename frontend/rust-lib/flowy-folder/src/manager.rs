@@ -13,6 +13,7 @@ use flowy_sync::client_document::default::{initial_quill_delta_string, initial_r
 
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
+
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
@@ -199,9 +200,9 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
     ) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
-        let workspace = user_default::create_default_workspace();
-        set_current_workspace(&workspace.id);
-        for app in workspace.apps.iter() {
+        let workspace_rev = user_default::create_default_workspace();
+        set_current_workspace(&workspace_rev.id);
+        for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
                     initial_read_me().to_delta_str()
@@ -214,10 +215,12 @@ impl DefaultFolderBuilder {
                     .await?;
             }
         }
-        let folder = FolderPad::new(vec![workspace.clone()], vec![])?;
+        let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
         let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
-        let repeated_workspace = RepeatedWorkspace { items: vec![workspace] };
+        let repeated_workspace = RepeatedWorkspace {
+            items: vec![workspace_rev.into()],
+        };
         send_dart_notification(token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
