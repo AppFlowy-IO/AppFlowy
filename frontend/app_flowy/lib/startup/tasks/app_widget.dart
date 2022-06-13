@@ -37,6 +37,7 @@ class InitAppWidgetTask extends LaunchTask {
               Locale('fr', 'CA'),
               Locale('hu', 'HU'),
               Locale('it', 'IT'),
+              Locale('ja', 'JP'),
               Locale('pt', 'BR'),
               Locale('ru', 'RU'),
               Locale('tr', 'TR'),

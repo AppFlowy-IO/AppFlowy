@@ -1,0 +1,199 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "ユーザー",
+  "welcomeText": "Welcome to @:appName",
+  "githubStarText": "Star on GitHub",
+  "subscribeNewsletterText": "新着情報を受け取る",
+  "letsGoButtonText": "Let's Go",
+  "title": "タイトル",
+  "signUp": {
+    "buttonText": "新規登録",
+    "title": "@:appNameに新規登録",
+    "getStartedText": "はじめる",
+    "emptyPasswordError": "パスワードを空にはできません",
+    "repeatPasswordEmptyError": "パスワード（確認用）を空にはできません",
+    "unmatchedPasswordError": "パスワード（確認用）が一致しません",
+    "alreadyHaveAnAccount": "すでにアカウントを登録済ですか？",
+    "emailHint": "メールアドレス",
+    "passwordHint": "パスワード",
+    "repeatPasswordHint": "パスワード（確認用）"
+  },
+  "signIn": {
+    "loginTitle": "@:appName にログイン",
+    "loginButtonText": "ログイン",
+    "buttonText": "サインイン",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "emailHint": "メールアドレス",
+    "passwordHint": "パスワード",
+    "dontHaveAnAccount": "まだアカウントをお持ちではないですか？",
+    "repeatPasswordEmptyError": "パスワード（確認用）を空にはできません",
+    "unmatchedPasswordError": "パスワード（確認用）が一致しません"
+  },
+  "workspace": {
+    "create": "ワークスペースを作成する",
+    "hint": "ワークスペース",
+    "notFoundError": "ワークスペースがみつかりません"
+  },
+  "shareAction": {
+    "buttonText": "共有する",
+    "workInProgress": "Coming soon",
+    "markdown": "Markdown",
+    "copyLink": "Copy Link"
+  },
+  "disclosureAction": {
+    "rename": "名前を変更",
+    "delete": "削除",
+    "duplicate": "コピーを作成"
+  },
+  "blankPageTitle": "空のページ",
+  "newPageText": "新しいページ",
+  "trash": {
+    "text": "ごみ箱",
+    "restoreAll": "全て復元",
+    "deleteAll": "全て削除",
+    "pageHeader": {
+      "fileName": "ファイル名",
+      "lastModified": "最終更新日時",
+      "created": "作成日時"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "このページはごみ箱にあります",
+    "restore": "ページを元に戻す",
+    "deletePermanent": "削除する"
+  },
+  "dialogCreatePageNameHint": "ページ名",
+  "questionBubble": {
+    "whatsNew": "What's new?",
+    "help": "ヘルプとサポート",
+    "debug": {
+      "name": "デバッグ情報",
+      "success": "デバッグ情報をクリップボードにコピーしました！",
+      "fail": "デバッグ情報をクリップボードにコピーできませんでした"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "内部ページを追加",
+    "defaultNewPageName": "Untitled",
+    "renameDialog": "名前を変更"
+  },
+  "toolbar": {
+    "undo": "元に戻す",
+    "redo": "やり直し",
+    "bold": "太字",
+    "italic": "斜体",
+    "underline": "下線",
+    "strike": "取り消し線",
+    "numList": "番号付きリスト",
+    "bulletList": "箇条書き",
+    "checkList": "チェックボックス",
+    "inlineCode": "インラインコード",
+    "quote": "引用文",
+    "header": "見出し",
+    "highlight": "文字の背景色"
+  },
+  "tooltip": {
+    "lightMode": "ライトモードに切り替える",
+    "darkMode": "ダークモードに切り替える"
+  },
+  "contactsPage": {
+    "title": "連絡先",
+    "whatsHappening": "今週はどんなことがありましたか？",
+    "addContact": "連絡先を追加する",
+    "editContact": "連絡先を編集する"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "キャンセル",
+    "signIn": "サインイン",
+    "signOut": "サインアウト",
+    "complete": "完了",
+    "save": "保存"
+  },
+  "label": {
+    "welcome": "ようこそ！",
+    "firstName": "名",
+    "middleName": "ミドルネーム",
+    "lastName": "姓",
+    "stepX": "Step {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "アカウントに接続できません",
+      "failedMsg": "サインインが完了したことをブラウザーで確認してください"
+    },
+    "google": {
+      "title": "GOOGLEでサインイン",
+      "instruction1": "GOOGLEでのサインインを有効にするためには、Webブラウザーを使ってこのアプリケーションを認証する必要があります。",
+      "instruction2": "アイコンをクリックするか、以下のテキストを選択して、このコードをクリップボードにコピーします。",
+      "instruction3": "以下のリンク先をブラウザーで開いて、次のコードを入力します。",
+      "instruction4": "登録が完了したら以下のボタンを押してください。"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "menu": {
+      "appearance": "外観",
+      "language": "言語",
+      "open": "設定"
+    },
+    "appearance": {
+      "lightLabel": "ライトモード",
+      "darkLabel": "ダークモード"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "絞り込み",
+      "sortBy": "並び替え",
+      "Properties": "プロパティ"
+    },
+    "field": {
+      "hide": "隠す",
+      "insertLeft": "左に挿入",
+      "insertRight": "右に挿入",
+      "duplicate": "コピーを作成",
+      "delete": "削除",
+      "textFieldName": "テキスト",
+      "checkboxFieldName": "チェックボックス",
+      "dateFieldName": "日付",
+      "numberFieldName": "数値",
+      "singleSelectFieldName": "単一選択",
+      "multiSelectFieldName": "複数選択",
+      "numberFormat": " 数値書式",
+      "dateFormat": " 日付書式",
+      "includeTime": " 時刻を含める",
+      "dateFormatFriendly": "月 日,年",
+      "dateFormatISO": "年-月-日",
+      "dateFormatLocal": "年/月/日",
+      "dateFormatUS": "年/月/日",
+      "timeFormat": " 時刻書式",
+      "timeFormatTwelveHour": "12 時間表記",
+      "timeFormatTwentyFourHour": "24 時間表記",
+      "addSelectOption": "選択候補追加",
+      "optionTitle": "選択候補",
+      "addOption": "選択候補追加",
+      "editProperty": "プロパティの編集"
+    },
+    "row": {
+      "duplicate": "コピーを作成",
+      "delete": "削除",
+      "textPlaceholder": "空白"
+    },
+    "selectOption": {
+      "purpleColor": "紫",
+      "pinkColor": "ピンク",
+      "lightPinkColor": "ライトピンク",
+      "orangeColor": "オレンジ",
+      "yellowColor": "黄色",
+      "limeColor": "ライム",
+      "greenColor": "緑",
+      "aquaColor": "水色",
+      "blueColor": "青",
+      "deleteTag": "選択候補を削除",
+      "colorPannelTitle": "色",
+      "pannelTitle": "選択候補を検索 または 作成する",
+      "searchOption": "選択候補を検索"
+    }
+  }
+}
