@@ -9,32 +9,11 @@ message View {
     int64 create_time = 6;
     int32 plugin_type = 7;
 }
-message ViewInfo {
-    string id = 1;
-    string belong_to_id = 2;
-    string name = 3;
-    string desc = 4;
-    ViewDataType data_type = 5;
-    RepeatedView belongings = 6;
-    ViewExtData ext_data = 7;
-}
-message ViewExtData {
-    ViewFilter filter = 1;
-    ViewGroup group = 2;
-    ViewSort sort = 3;
-}
-message ViewFilter {
-    string field_id = 1;
-}
-message ViewGroup {
-    string group_field_id = 1;
-    oneof one_of_sub_group_field_id { string sub_group_field_id = 2; };
-}
-message ViewSort {
-    string field_id = 1;
-}
 message RepeatedView {
     repeated View items = 1;
+}
+message RepeatedViewId {
+    repeated string items = 1;
 }
 message CreateViewPayload {
     string belong_to_id = 1;
@@ -57,9 +36,6 @@ message CreateViewParams {
 }
 message ViewId {
     string value = 1;
-}
-message RepeatedViewId {
-    repeated string items = 1;
 }
 message UpdateViewPayload {
     string view_id = 1;

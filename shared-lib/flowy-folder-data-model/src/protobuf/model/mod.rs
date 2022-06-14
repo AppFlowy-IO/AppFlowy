@@ -4,6 +4,9 @@
 mod app;
 pub use app::*;
 
+mod view_info;
+pub use view_info::*;
+
 mod view;
 pub use view::*;
 

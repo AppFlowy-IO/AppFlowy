@@ -8,7 +8,6 @@ use crate::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use nanoid::nanoid;
-
 use serde_repr::*;
 use std::convert::TryInto;
 
@@ -40,72 +39,6 @@ pub struct View {
     pub plugin_type: i32,
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewInfo {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub belong_to_id: String,
-
-    #[pb(index = 3)]
-    pub name: String,
-
-    #[pb(index = 4)]
-    pub desc: String,
-
-    #[pb(index = 5)]
-    pub data_type: ViewDataType,
-
-    #[pb(index = 6)]
-    pub belongings: RepeatedView,
-
-    #[pb(index = 7)]
-    pub ext_data: ViewExtData,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewExtData {
-    #[pb(index = 1)]
-    pub filter: ViewFilter,
-
-    #[pb(index = 2)]
-    pub group: ViewGroup,
-
-    #[pb(index = 3)]
-    pub sort: ViewSort,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewFilter {
-    #[pb(index = 1)]
-    pub field_id: String,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewGroup {
-    #[pb(index = 1)]
-    pub group_field_id: String,
-
-    #[pb(index = 2, one_of)]
-    pub sub_group_field_id: Option<String>,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewSort {
-    #[pb(index = 1)]
-    pub field_id: String,
-}
-
-#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
-// #[serde(transparent)]
-pub struct RepeatedView {
-    #[pb(index = 1)]
-    pub items: Vec<View>,
-}
-
-impl_def_and_def_mut!(RepeatedView, View);
-
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataType {
@@ -130,6 +63,20 @@ impl std::convert::From<i32> for ViewDataType {
             }
         }
     }
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedView {
+    #[pb(index = 1)]
+    pub items: Vec<View>,
+}
+
+impl_def_and_def_mut!(RepeatedView, View);
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedViewId {
+    #[pb(index = 1)]
+    pub items: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -231,12 +178,6 @@ impl std::ops::Deref for ViewId {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct RepeatedViewId {
-    #[pb(index = 1)]
-    pub items: Vec<String>,
-}
-
-#[derive(Default, ProtoBuf)]
 pub struct UpdateViewPayload {
     #[pb(index = 1)]
     pub view_id: String,
@@ -264,25 +205,6 @@ pub struct UpdateViewParams {
 
     #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
-}
-
-impl UpdateViewParams {
-    pub fn new(view_id: &str) -> Self {
-        Self {
-            view_id: view_id.to_owned(),
-            ..Default::default()
-        }
-    }
-
-    pub fn name(mut self, name: &str) -> Self {
-        self.name = Some(name.to_owned());
-        self
-    }
-
-    pub fn desc(mut self, desc: &str) -> Self {
-        self.desc = Some(desc.to_owned());
-        self
-    }
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayload {

@@ -54,6 +54,17 @@ pub(crate) async fn update_view_handler(
     Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(data, controller), err)]
+pub(crate) async fn update_view_info_handler(
+    data: Data<UpdateViewPayload>,
+    controller: AppData<Arc<ViewController>>,
+) -> Result<(), FlowyError> {
+    let params: UpdateViewParams = data.into_inner().try_into()?;
+    let _ = controller.update_view(params).await?;
+
+    Ok(())
+}
+
 pub(crate) async fn delete_view_handler(
     data: Data<RepeatedViewId>,
     view_controller: AppData<Arc<ViewController>>,
