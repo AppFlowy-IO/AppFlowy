@@ -36,6 +36,7 @@ serde_json = {version = "1.0"}
 serde_repr = "0.1"
 indexmap = {version = "1.8.1", features = ["serde"]}
 fancy-regex = "0.10.0"
+regex = "1.5.6"
 url = { version = "2"}
 futures = "0.3.15"
 
