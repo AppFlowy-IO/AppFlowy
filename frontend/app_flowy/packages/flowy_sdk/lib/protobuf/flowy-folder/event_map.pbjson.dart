@@ -27,10 +27,11 @@ const FolderEvent$json = const {
     const {'1': 'UpdateView', '2': 203},
     const {'1': 'DeleteView', '2': 204},
     const {'1': 'DuplicateView', '2': 205},
-    const {'1': 'CopyLink', '2': 206},
-    const {'1': 'SetLatestView', '2': 207},
-    const {'1': 'CloseView', '2': 208},
-    const {'1': 'MoveFolderItem', '2': 209},
+    const {'1': 'CloseView', '2': 206},
+    const {'1': 'ReadViewInfo', '2': 207},
+    const {'1': 'CopyLink', '2': 220},
+    const {'1': 'SetLatestView', '2': 221},
+    const {'1': 'MoveFolderItem', '2': 230},
     const {'1': 'ReadTrash', '2': 300},
     const {'1': 'PutbackTrash', '2': 301},
     const {'1': 'DeleteTrash', '2': 302},
@@ -40,4 +41,4 @@ const FolderEvent$json = const {
 };
 
 /// Descriptor for `FolderEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARISCg1TZXRMYXRlc3RWaWV3EM8BEg4KCUNsb3NlVmlldxDQARITCg5Nb3ZlRm9sZGVySXRlbRDRARIOCglSZWFkVHJhc2gQrAISEQoMUHV0YmFja1RyYXNoEK0CEhAKC0RlbGV0ZVRyYXNoEK4CEhQKD1Jlc3RvcmVBbGxUcmFzaBCvAhITCg5EZWxldGVBbGxUcmFzaBCwAg==');
+final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARIOCglDbG9zZVZpZXcQzgESEQoMUmVhZFZpZXdJbmZvEM8BEg0KCENvcHlMaW5rENwBEhIKDVNldExhdGVzdFZpZXcQ3QESEwoOTW92ZUZvbGRlckl0ZW0Q5gESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIUCg9SZXN0b3JlQWxsVHJhc2gQrwISEwoORGVsZXRlQWxsVHJhc2gQsAI=');

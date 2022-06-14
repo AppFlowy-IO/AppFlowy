@@ -15,6 +15,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
+use flowy_folder_data_model::entities::{ViewExtData, ViewInfo};
 use flowy_folder_data_model::revision::ViewRevision;
 use flowy_sync::entities::text_block_info::TextBlockId;
 use futures::{FutureExt, StreamExt};
@@ -119,6 +120,36 @@ impl ViewController {
             .await?;
         let _ = self.read_view_on_server(view_id);
         Ok(view_rev)
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
+    pub(crate) async fn read_view_info(&self, view_id: ViewId) -> Result<ViewInfo, FlowyError> {
+        let view_info = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let view_rev = transaction.read_view(&view_id.value)?;
+
+                let items: Vec<View> = view_rev
+                    .belongings
+                    .into_iter()
+                    .map(|view_rev| view_rev.into())
+                    .collect();
+
+                let ext_data = ViewExtData::from(view_rev.ext_data);
+                let view_info = ViewInfo {
+                    id: view_rev.id,
+                    belong_to_id: view_rev.belong_to_id,
+                    name: view_rev.name,
+                    desc: view_rev.desc,
+                    data_type: view_rev.data_type,
+                    belongings: RepeatedView { items },
+                    ext_data,
+                };
+                Ok(view_info)
+            })
+            .await?;
+
+        Ok(view_info)
     }
 
     pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<ViewRevision>, FlowyError> {

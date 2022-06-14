@@ -35,13 +35,12 @@ pub(crate) async fn read_view_handler(
 }
 
 pub(crate) async fn read_view_info_handler(
-    _data: Data<ViewId>,
-    _controller: AppData<Arc<ViewController>>,
+    data: Data<ViewId>,
+    controller: AppData<Arc<ViewController>>,
 ) -> DataResult<ViewInfo, FlowyError> {
-    // For the moment, app and view can contains lots of views. Reading the view
-    // belongings using the view_id.
-    // view.belongings = controller.read_views_belong_to(&view_id.value).await?;
-    todo!()
+    let view_id: ViewId = data.into_inner();
+    let view_info = controller.read_view_info(view_id.clone()).await?;
+    data_result(view_info)
 }
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
