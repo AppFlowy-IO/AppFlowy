@@ -25,10 +25,11 @@ class FolderEvent extends $pb.ProtobufEnum {
   static const FolderEvent UpdateView = FolderEvent._(203, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateView');
   static const FolderEvent DeleteView = FolderEvent._(204, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteView');
   static const FolderEvent DuplicateView = FolderEvent._(205, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateView');
-  static const FolderEvent CopyLink = FolderEvent._(206, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CopyLink');
-  static const FolderEvent SetLatestView = FolderEvent._(207, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SetLatestView');
-  static const FolderEvent CloseView = FolderEvent._(208, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CloseView');
-  static const FolderEvent MoveFolderItem = FolderEvent._(209, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveFolderItem');
+  static const FolderEvent CloseView = FolderEvent._(206, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CloseView');
+  static const FolderEvent ReadViewInfo = FolderEvent._(207, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadViewInfo');
+  static const FolderEvent CopyLink = FolderEvent._(220, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CopyLink');
+  static const FolderEvent SetLatestView = FolderEvent._(221, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SetLatestView');
+  static const FolderEvent MoveFolderItem = FolderEvent._(230, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveFolderItem');
   static const FolderEvent ReadTrash = FolderEvent._(300, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadTrash');
   static const FolderEvent PutbackTrash = FolderEvent._(301, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PutbackTrash');
   static const FolderEvent DeleteTrash = FolderEvent._(302, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteTrash');
@@ -51,9 +52,10 @@ class FolderEvent extends $pb.ProtobufEnum {
     UpdateView,
     DeleteView,
     DuplicateView,
+    CloseView,
+    ReadViewInfo,
     CopyLink,
     SetLatestView,
-    CloseView,
     MoveFolderItem,
     ReadTrash,
     PutbackTrash,

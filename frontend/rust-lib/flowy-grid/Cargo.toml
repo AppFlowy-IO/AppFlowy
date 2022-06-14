@@ -28,7 +28,7 @@ chrono = "0.4.19"
 nanoid = "0.4.0"
 bytes = { version = "1.0" }
 diesel = {version = "1.4.8", features = ["sqlite"]}
-dashmap = "4.0"
+dashmap = "5"
 tokio = {version = "1", features = ["sync"]}
 rayon = "1.5.2"
 serde = { version = "1.0", features = ["derive"] }

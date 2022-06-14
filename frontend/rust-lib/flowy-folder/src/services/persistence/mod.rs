@@ -9,7 +9,6 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-
 use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::disk::{RevisionRecord, RevisionState};
 use flowy_revision::mk_revision_disk_cache;
