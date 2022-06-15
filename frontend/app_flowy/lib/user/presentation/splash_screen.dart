@@ -4,7 +4,7 @@ import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/error-code/error_code.pbenum.dart';
+import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
