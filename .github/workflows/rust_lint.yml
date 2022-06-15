@@ -20,6 +20,13 @@ jobs:
       with:
         toolchain: 'stable-2022-01-20'
         override: true
+
+      - name: Rust Deps
+        working-directory: frontend
+        run: |
+          cargo install cargo-make
+          cargo make flowy_dev
+
       - name: Build FlowySDK
         working-directory: frontend
         run: |

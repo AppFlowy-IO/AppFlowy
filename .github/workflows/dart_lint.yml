@@ -25,6 +25,13 @@ jobs:
         with:
           flutter-version: '3.0.0'
           channel: "stable"
+
+      - name: Rust Deps
+        working-directory: frontend
+        run: |
+          cargo install cargo-make
+          cargo make flowy_dev
+
       - name: Build FlowySDK
         working-directory: frontend
         run: |

@@ -48,11 +48,10 @@ jobs:
         run: |
           flutter config --enable-linux-desktop
         
-      - name: Deps Rust
+      - name: Rust Deps
         working-directory: frontend
         run: |
           cargo install cargo-make
-          cargo install duckscript_cli
           cargo make flowy_dev
       
       - name: Code Generation
