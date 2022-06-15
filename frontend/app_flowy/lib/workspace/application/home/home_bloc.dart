@@ -1,9 +1,9 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart' show CurrentWorkspaceSetting;
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

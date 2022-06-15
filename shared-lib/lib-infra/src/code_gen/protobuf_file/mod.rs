@@ -17,44 +17,49 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
 
-pub fn gen(crate_name: &str, proto_file_dir: &str) {
+pub fn gen(crate_name: &str) {
+    let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
+
     // 1. generate the proto files to proto_file_dir
     #[cfg(feature = "proto_gen")]
-    let _ = gen_protos(crate_name);
+    let proto_crates = gen_proto_files(crate_name, &crate_path);
 
-    let mut proto_file_paths = vec![];
-    let mut file_names = vec![];
+    for proto_crate in proto_crates {
+        let mut proto_file_paths = vec![];
+        let mut file_names = vec![];
+        let proto_file_dir = &proto_crate.flowy_config.proto_output_dir;
 
-    for (path, file_name) in WalkDir::new(proto_file_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .map(|e| {
-            let path = e.path().to_str().unwrap().to_string();
-            let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-            (path, file_name)
-        })
-    {
-        if path.ends_with(".proto") {
-            // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
-            println!("cargo:rerun-if-changed={}", path);
-            proto_file_paths.push(path);
-            file_names.push(file_name);
+        for (path, file_name) in WalkDir::new(proto_file_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .map(|e| {
+                let path = e.path().to_str().unwrap().to_string();
+                let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
+                (path, file_name)
+            })
+        {
+            if path.ends_with(".proto") {
+                // https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
+                println!("cargo:rerun-if-changed={}", path);
+                proto_file_paths.push(path);
+                file_names.push(file_name);
+            }
         }
+        let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
+
+        // 2. generate the protobuf files(Dart)
+        #[cfg(feature = "dart")]
+        generate_dart_protobuf_files(
+            crate_name,
+            proto_file_dir,
+            &proto_file_paths,
+            &file_names,
+            &protoc_bin_path,
+        );
+
+        // 3. generate the protobuf files(Rust)
+        generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
     }
-    let protoc_bin_path = protoc_bin_vendored::protoc_bin_path().unwrap();
-
-    // 2. generate the protobuf files(Dart)
-    #[cfg(feature = "dart")]
-    generate_dart_protobuf_files(
-        crate_name,
-        proto_file_dir,
-        &proto_file_paths,
-        &file_names,
-        &protoc_bin_path,
-    );
-
-    // 3. generate the protobuf files(Rust)
-    generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
 }
 
 fn generate_rust_protobuf_files(protoc_bin_path: &Path, proto_file_paths: &[String], proto_file_dir: &str) {
@@ -70,7 +75,7 @@ fn generate_rust_protobuf_files(protoc_bin_path: &Path, proto_file_paths: &[Stri
 #[cfg(feature = "dart")]
 fn generate_dart_protobuf_files(
     name: &str,
-    root: &str,
+    proto_path: &str,
     paths: &Vec<String>,
     file_names: &Vec<String>,
     protoc_bin_path: &PathBuf,
@@ -99,7 +104,7 @@ fn generate_dart_protobuf_files(
     let protoc_bin_path = protoc_bin_path.to_str().unwrap().to_owned();
     paths.iter().for_each(|path| {
         if cmd_lib::run_cmd! {
-            ${protoc_bin_path} --dart_out=${output} --proto_path=${root} ${path}
+            ${protoc_bin_path} --dart_out=${output} --proto_path=${proto_path} ${path}
         }
         .is_err()
         {
@@ -175,9 +180,8 @@ pub fn check_pb_dart_plugin() {
 }
 
 #[cfg(feature = "proto_gen")]
-fn gen_protos(crate_name: &str) -> Vec<ProtobufCrate> {
-    let crate_path = std::fs::canonicalize(".").unwrap().as_path().display().to_string();
-    let crate_context = ProtoGenerator::gen(crate_name, &crate_path);
+fn gen_proto_files(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrate> {
+    let crate_context = ProtoGenerator::gen(crate_name, crate_path);
     let proto_crates = crate_context
         .iter()
         .map(|info| info.protobuf_crate.clone())

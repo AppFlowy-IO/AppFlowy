@@ -1,3 +1,5 @@
 
 proto_crates = ["src/event_map.rs", "src/dart_notification.rs"]
+proto_output_dir = "resources/proto"
+protobuf_crate_path = "src/protobuf"
 event_files = ["src/event_map.rs"]

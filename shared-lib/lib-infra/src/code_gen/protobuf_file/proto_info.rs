@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig};
+use crate::code_gen::flowy_toml::{parse_crate_config_from, CrateConfig, FlowyConfig};
 use crate::code_gen::util::*;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -62,27 +62,30 @@ pub struct ProtobufCrate {
     pub folder_name: String,
     pub proto_paths: Vec<PathBuf>,
     pub crate_path: PathBuf,
+    pub flowy_config: FlowyConfig,
 }
 
 impl ProtobufCrate {
     pub fn from_config(config: CrateConfig) -> Self {
         let proto_paths = config.proto_paths();
+
         ProtobufCrate {
             folder_name: config.folder_name,
             proto_paths,
             crate_path: config.crate_path,
+            flowy_config: config.flowy_config.clone(),
         }
     }
 
     fn protobuf_crate_name(&self) -> PathBuf {
-        path_buf_with_component(&self.crate_path, vec!["src", "protobuf"])
+        let crate_path = PathBuf::from(&self.flowy_config.protobuf_crate_path);
+        crate_path
     }
 
     pub fn proto_output_dir(&self) -> PathBuf {
-        let path = self.protobuf_crate_name();
-        let dir = path_buf_with_component(&path, vec!["proto"]);
-        create_dir_if_not_exist(&dir);
-        dir
+        let output_dir = PathBuf::from(&self.flowy_config.proto_output_dir);
+        create_dir_if_not_exist(&output_dir);
+        output_dir
     }
 
     pub fn create_output_dir(&self) -> PathBuf {

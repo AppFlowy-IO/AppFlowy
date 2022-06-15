@@ -1,2 +1,4 @@
 proto_crates = ["src/model"]
+proto_output_dir = "resources/proto"
+protobuf_crate_path = "src/protobuf"
 event_files = []

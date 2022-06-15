@@ -18,3 +18,5 @@ node_modules
 **/.proto_cache
 **/.cache
 **/.DS_Store
+
+**/src/protobuf
