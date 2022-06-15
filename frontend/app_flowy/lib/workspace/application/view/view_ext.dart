@@ -34,10 +34,7 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on View {
   Widget renderThumbnail({Color? iconColor}) {
-    String thumbnail = this.thumbnail;
-    if (thumbnail.isEmpty) {
-      thumbnail = "file_icon";
-    }
+    String thumbnail = "file_icon";
 
     final Widget widget = svgWidget(thumbnail, color: iconColor);
     return widget;

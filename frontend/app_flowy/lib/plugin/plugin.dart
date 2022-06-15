@@ -14,6 +14,7 @@ enum DefaultPlugin {
   blank,
   trash,
   grid,
+  board,
 }
 
 extension FlowyDefaultPluginExt on DefaultPlugin {
@@ -27,6 +28,8 @@ extension FlowyDefaultPluginExt on DefaultPlugin {
         return 2;
       case DefaultPlugin.grid:
         return 3;
+      case DefaultPlugin.board:
+        return 4;
     }
   }
 }

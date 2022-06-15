@@ -4,6 +4,7 @@ use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
+use flowy_grid_data_model::revision::FieldRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -42,8 +43,8 @@ pub(crate) async fn get_fields_handler(
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_orders = params.field_orders.items;
-    let field_metas = editor.get_field_metas(Some(field_orders)).await?;
-    let repeated_field: RepeatedField = field_metas.into_iter().map(Field::from).collect::<Vec<_>>().into();
+    let field_revs = editor.get_field_revs(Some(field_orders)).await?;
+    let repeated_field: RepeatedField = field_revs.into_iter().map(Field::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
 
@@ -105,15 +106,15 @@ pub(crate) async fn switch_to_field_handler(
         .await?;
 
     // Get the FieldMeta with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
-    let field_meta = editor
-        .get_field_meta(&params.field_id)
+    let field_rev = editor
+        .get_field_rev(&params.field_id)
         .await
-        .unwrap_or(editor.next_field_meta(&params.field_type).await?);
+        .unwrap_or(editor.next_field_rev(&params.field_type).await?);
 
-    let type_option_data = get_type_option_data(&field_meta, &params.field_type).await?;
+    let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
     let data = FieldTypeOptionData {
         grid_id: params.grid_id,
-        field: field_meta.into(),
+        field: field_rev.into(),
         type_option_data,
     };
 
@@ -139,13 +140,13 @@ pub(crate) async fn get_field_type_option_data_handler(
 ) -> DataResult<FieldTypeOptionData, FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
+    match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
-        Some(field_meta) => {
-            let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
+        Some(field_rev) => {
+            let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
             let data = FieldTypeOptionData {
                 grid_id: params.grid_id,
-                field: field_meta.into(),
+                field: field_rev.into(),
                 type_option_data,
             };
             data_result(data)
@@ -161,12 +162,12 @@ pub(crate) async fn create_field_type_option_data_handler(
 ) -> DataResult<FieldTypeOptionData, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_meta = editor.create_next_field_meta(&params.field_type).await?;
-    let type_option_data = get_type_option_data(&field_meta, &field_meta.field_type).await?;
+    let field_rev = editor.create_next_field_rev(&params.field_type).await?;
+    let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
 
     data_result(FieldTypeOptionData {
         grid_id: params.grid_id,
-        field: field_meta.into(),
+        field: field_rev.into(),
         type_option_data,
     })
 }
@@ -183,11 +184,11 @@ pub(crate) async fn move_item_handler(
 }
 
 /// The FieldMeta contains multiple data, each of them belongs to a specific FieldType.
-async fn get_type_option_data(field_meta: &FieldMeta, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
-    let s = field_meta
+async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
+    let s = field_rev
         .get_type_option_str(field_type)
         .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
-    let builder = type_option_builder_from_json_str(&s, &field_meta.field_type);
+    let builder = type_option_builder_from_json_str(&s, &field_rev.field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
@@ -270,10 +271,10 @@ pub(crate) async fn new_select_option_handler(
 ) -> DataResult<SelectOption, FlowyError> {
     let params: CreateSelectOptionParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
+    match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
-        Some(field_meta) => {
-            let type_option = select_option_operation(&field_meta)?;
+        Some(field_rev) => {
+            let type_option = select_option_operation(&field_rev)?;
             let select_option = type_option.create_option(&params.option_name);
             data_result(select_option)
         }
@@ -288,8 +289,8 @@ pub(crate) async fn update_select_option_handler(
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
 
-    if let Some(mut field_meta) = editor.get_field_meta(&changeset.cell_identifier.field_id).await {
-        let mut type_option = select_option_operation(&field_meta)?;
+    if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
+        let mut type_option = select_option_operation(&field_rev)?;
         let mut cell_content_changeset = None;
 
         if let Some(option) = changeset.insert_option {
@@ -306,8 +307,8 @@ pub(crate) async fn update_select_option_handler(
             type_option.delete_option(option);
         }
 
-        field_meta.insert_type_option_entry(&*type_option);
-        let _ = editor.replace_field(field_meta).await?;
+        field_rev.insert_type_option_entry(&*type_option);
+        let _ = editor.replace_field(field_rev).await?;
 
         let changeset = CellChangeset {
             grid_id: changeset.cell_identifier.grid_id,
@@ -327,15 +328,15 @@ pub(crate) async fn get_select_option_handler(
 ) -> DataResult<SelectOptionCellData, FlowyError> {
     let params: CellIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_field_meta(&params.field_id).await {
+    match editor.get_field_rev(&params.field_id).await {
         None => {
             tracing::error!("Can't find the select option field with id: {}", params.field_id);
             data_result(SelectOptionCellData::default())
         }
-        Some(field_meta) => {
-            let cell_meta = editor.get_cell_meta(&params.row_id, &params.field_id).await?;
-            let type_option = select_option_operation(&field_meta)?;
-            let option_context = type_option.select_option_cell_data(&cell_meta);
+        Some(field_rev) => {
+            let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
+            let type_option = select_option_operation(&field_rev)?;
+            let option_context = type_option.select_option_cell_data(&cell_rev);
             data_result(option_context)
         }
     }

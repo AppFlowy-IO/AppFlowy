@@ -1,9 +1,10 @@
-use crate::{entities::app::App, impl_def_and_def_mut};
+use crate::impl_def_and_def_mut;
+use crate::revision::TrashRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Trash {
     #[pb(index = 1)]
     pub id: String,
@@ -28,18 +29,6 @@ pub struct RepeatedTrash {
 }
 
 impl_def_and_def_mut!(RepeatedTrash, Trash);
-
-impl std::convert::From<App> for Trash {
-    fn from(app: App) -> Self {
-        Trash {
-            id: app.id,
-            name: app.name,
-            modified_time: app.modified_time,
-            create_time: app.create_time,
-            ty: TrashType::TrashApp,
-        }
-    }
-}
 
 #[derive(Eq, PartialEq, Debug, ProtoBuf_Enum, Clone, Serialize, Deserialize)]
 pub enum TrashType {
@@ -103,8 +92,8 @@ impl std::convert::From<Vec<TrashId>> for RepeatedTrashId {
     }
 }
 
-impl std::convert::From<Vec<Trash>> for RepeatedTrashId {
-    fn from(trash: Vec<Trash>) -> Self {
+impl std::convert::From<Vec<TrashRevision>> for RepeatedTrashId {
+    fn from(trash: Vec<TrashRevision>) -> Self {
         let items = trash
             .into_iter()
             .map(|t| TrashId { id: t.id, ty: t.ty })
@@ -124,15 +113,6 @@ pub struct TrashId {
 
     #[pb(index = 2)]
     pub ty: TrashType,
-}
-
-impl std::convert::From<&Trash> for TrashId {
-    fn from(trash: &Trash) -> Self {
-        TrashId {
-            id: trash.id.clone(),
-            ty: trash.ty.clone(),
-        }
-    }
 }
 
 impl std::fmt::Display for TrashId {

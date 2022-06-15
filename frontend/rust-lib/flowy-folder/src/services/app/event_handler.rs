@@ -1,11 +1,9 @@
 use crate::{
-    entities::{
-        app::{App, AppId, CreateAppParams, CreateAppPayload, UpdateAppParams, UpdateAppPayload},
-        trash::Trash,
-    },
+    entities::app::{App, AppId, CreateAppParams, CreateAppPayload, UpdateAppParams, UpdateAppPayload},
     errors::FlowyError,
     services::{AppController, TrashController, ViewController},
 };
+use flowy_folder_data_model::revision::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -29,8 +27,8 @@ pub(crate) async fn delete_app_handler(
         .read_local_apps(vec![params.value])
         .await?
         .into_iter()
-        .map(|app| app.into())
-        .collect::<Vec<Trash>>();
+        .map(|app_rev| app_rev.into())
+        .collect::<Vec<TrashRevision>>();
 
     let _ = trash_controller.add(trash).await?;
     Ok(())
@@ -53,8 +51,8 @@ pub(crate) async fn read_app_handler(
     view_controller: AppData<Arc<ViewController>>,
 ) -> DataResult<App, FlowyError> {
     let params: AppId = data.into_inner();
-    let mut app = app_controller.read_app(params.clone()).await?;
-    app.belongings = view_controller.read_views_belong_to(&params.value).await?;
+    let mut app_rev = app_controller.read_app(params.clone()).await?;
+    app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
 
-    data_result(app)
+    data_result(app_rev.into())
 }

@@ -1,9 +1,11 @@
-use crate::entities::FieldType;
+use crate::entities::{CellChangeset, Field, FieldOrder, FieldType, RowOrder};
+use crate::revision::GridInfoRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub const DEFAULT_ROW_HEIGHT: i32 = 42;
 
@@ -25,20 +27,34 @@ pub fn gen_field_id() -> String {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridMeta {
+pub struct GridRevision {
     pub grid_id: String,
-    pub fields: Vec<FieldMeta>,
-    pub blocks: Vec<GridBlockMeta>,
+    pub fields: Vec<FieldRevision>,
+    pub blocks: Vec<GridBlockRevision>,
+
+    #[serde(default, skip)]
+    pub info: GridInfoRevision,
+}
+
+impl GridRevision {
+    pub fn new(grid_id: &str) -> Self {
+        Self {
+            grid_id: grid_id.to_owned(),
+            fields: vec![],
+            blocks: vec![],
+            info: GridInfoRevision::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GridBlockMeta {
+pub struct GridBlockRevision {
     pub block_id: String,
     pub start_row_index: i32,
     pub row_count: i32,
 }
 
-impl GridBlockMeta {
+impl GridBlockRevision {
     pub fn len(&self) -> i32 {
         self.row_count
     }
@@ -48,22 +64,22 @@ impl GridBlockMeta {
     }
 }
 
-impl GridBlockMeta {
+impl GridBlockRevision {
     pub fn new() -> Self {
-        GridBlockMeta {
+        GridBlockRevision {
             block_id: gen_block_id(),
             ..Default::default()
         }
     }
 }
 
-pub struct GridBlockMetaChangeset {
+pub struct GridBlockRevisionChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
     pub row_count: Option<i32>,
 }
 
-impl GridBlockMetaChangeset {
+impl GridBlockRevisionChangeset {
     pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
         Self {
             block_id: block_id.to_string(),
@@ -74,13 +90,13 @@ impl GridBlockMetaChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridBlockMetaData {
+pub struct GridBlockRevisionData {
     pub block_id: String,
-    pub rows: Vec<RowMeta>,
+    pub rows: Vec<RowRevision>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Eq, PartialEq)]
-pub struct FieldMeta {
+pub struct FieldRevision {
     pub id: String,
 
     pub name: String,
@@ -110,7 +126,7 @@ fn default_is_primary() -> bool {
     false
 }
 
-impl FieldMeta {
+impl FieldRevision {
     pub fn new(name: &str, desc: &str, field_type: FieldType, is_primary: bool) -> Self {
         let width = field_type.default_cell_width();
         Self {
@@ -148,6 +164,29 @@ impl FieldMeta {
     }
 }
 
+impl std::convert::From<FieldRevision> for Field {
+    fn from(field_rev: FieldRevision) -> Self {
+        Self {
+            id: field_rev.id,
+            name: field_rev.name,
+            desc: field_rev.desc,
+            field_type: field_rev.field_type,
+            frozen: field_rev.frozen,
+            visibility: field_rev.visibility,
+            width: field_rev.width,
+            is_primary: field_rev.is_primary,
+        }
+    }
+}
+
+impl std::convert::From<&FieldRevision> for FieldOrder {
+    fn from(field_rev: &FieldRevision) -> Self {
+        Self {
+            field_id: field_rev.id.clone(),
+        }
+    }
+}
+
 pub trait TypeOptionDataEntry {
     fn field_type(&self) -> FieldType;
     fn json_str(&self) -> String;
@@ -160,19 +199,19 @@ pub trait TypeOptionDataDeserializer {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct RowMeta {
+pub struct RowRevision {
     pub id: String,
     pub block_id: String,
     /// cells contains key/value pairs.
     /// key: field id,
     /// value: CellMeta
     #[serde(with = "indexmap::serde_seq")]
-    pub cells: IndexMap<String, CellMeta>,
+    pub cells: IndexMap<String, CellRevision>,
     pub height: i32,
     pub visibility: bool,
 }
 
-impl RowMeta {
+impl RowRevision {
     pub fn new(block_id: &str) -> Self {
         Self {
             id: gen_row_id(),
@@ -184,20 +223,58 @@ impl RowMeta {
     }
 }
 
+impl std::convert::From<&RowRevision> for RowOrder {
+    fn from(row: &RowRevision) -> Self {
+        Self {
+            row_id: row.id.clone(),
+            block_id: row.block_id.clone(),
+            height: row.height,
+        }
+    }
+}
+
+impl std::convert::From<&Arc<RowRevision>> for RowOrder {
+    fn from(row: &Arc<RowRevision>) -> Self {
+        Self {
+            row_id: row.id.clone(),
+            block_id: row.block_id.clone(),
+            height: row.height,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct RowMetaChangeset {
     pub row_id: String,
     pub height: Option<i32>,
     pub visibility: Option<bool>,
-    pub cell_by_field_id: HashMap<String, CellMeta>,
+    pub cell_by_field_id: HashMap<String, CellRevision>,
+}
+
+impl std::convert::From<CellChangeset> for RowMetaChangeset {
+    fn from(changeset: CellChangeset) -> Self {
+        let mut cell_by_field_id = HashMap::with_capacity(1);
+        let field_id = changeset.field_id;
+        let cell_rev = CellRevision {
+            data: changeset.cell_content_changeset.unwrap_or_else(|| "".to_owned()),
+        };
+        cell_by_field_id.insert(field_id, cell_rev);
+
+        RowMetaChangeset {
+            row_id: changeset.row_id,
+            height: None,
+            visibility: None,
+            cell_by_field_id,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
-pub struct CellMeta {
+pub struct CellRevision {
     pub data: String,
 }
 
-impl CellMeta {
+impl CellRevision {
     pub fn new(data: String) -> Self {
         Self { data }
     }
@@ -205,9 +282,9 @@ impl CellMeta {
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
-    pub field_metas: Vec<FieldMeta>,
-    pub blocks: Vec<GridBlockMeta>,
-    pub blocks_meta_data: Vec<GridBlockMetaData>,
+    pub field_revs: Vec<FieldRevision>,
+    pub blocks: Vec<GridBlockRevision>,
+    pub blocks_meta_data: Vec<GridBlockRevisionData>,
 }
 
 impl BuildGridContext {

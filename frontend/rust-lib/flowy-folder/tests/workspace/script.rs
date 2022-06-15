@@ -14,6 +14,7 @@ use flowy_folder_data_model::entities::{
     view::{CreateViewPayload, UpdateViewPayload},
     workspace::{CreateWorkspacePayload, RepeatedWorkspace},
 };
+
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::entities::text_block_info::TextBlockInfo;
@@ -28,7 +29,7 @@ pub enum FolderScript {
         name: String,
         desc: String,
     },
-    AssertWorkspaceJson(String),
+    // AssertWorkspaceRevisionJson(String),
     AssertWorkspace(Workspace),
     ReadWorkspace(Option<String>),
 
@@ -37,7 +38,7 @@ pub enum FolderScript {
         name: String,
         desc: String,
     },
-    AssertAppJson(String),
+    // AssertAppRevisionJson(String),
     AssertApp(App),
     ReadApp(String),
     UpdateApp {
@@ -138,14 +139,15 @@ impl FolderTest {
                 let workspace = create_workspace(sdk, &name, &desc).await;
                 self.workspace = workspace;
             }
-            FolderScript::AssertWorkspaceJson(expected_json) => {
-                let workspace = read_workspace(sdk, Some(self.workspace.id.clone()))
-                    .await
-                    .pop()
-                    .unwrap();
-                let json = serde_json::to_string(&workspace).unwrap();
-                assert_eq!(json, expected_json);
-            }
+            // FolderScript::AssertWorkspaceRevisionJson(expected_json) => {
+            //     let workspace = read_workspace(sdk, Some(self.workspace.id.clone()))
+            //         .await
+            //         .pop()
+            //         .unwrap();
+            //     let workspace_revision: WorkspaceRevision = workspace.into();
+            //     let json = serde_json::to_string(&workspace_revision).unwrap();
+            //     assert_eq!(json, expected_json);
+            // }
             FolderScript::AssertWorkspace(workspace) => {
                 assert_eq!(self.workspace, workspace);
             }
@@ -157,10 +159,11 @@ impl FolderTest {
                 let app = create_app(sdk, &self.workspace.id, &name, &desc).await;
                 self.app = app;
             }
-            FolderScript::AssertAppJson(expected_json) => {
-                let json = serde_json::to_string(&self.app).unwrap();
-                assert_eq!(json, expected_json);
-            }
+            // FolderScript::AssertAppRevisionJson(expected_json) => {
+            //     let app_revision: AppRevision = self.app.clone().into();
+            //     let json = serde_json::to_string(&app_revision).unwrap();
+            //     assert_eq!(json, expected_json);
+            // }
             FolderScript::AssertApp(app) => {
                 assert_eq!(self.app, app);
             }

@@ -1,5 +1,4 @@
 use crate::{
-    entities::trash::{Trash, TrashType},
     errors::ErrorCode,
     impl_def_and_def_mut,
     parser::{
@@ -9,7 +8,6 @@ use crate::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::convert::TryInto;
 
@@ -17,7 +15,7 @@ pub fn gen_view_id() -> String {
     nanoid!(10)
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -29,60 +27,16 @@ pub struct View {
     pub name: String,
 
     #[pb(index = 4)]
-    pub desc: String,
-
-    #[pb(index = 5)]
-    #[serde(default)]
     pub data_type: ViewDataType,
 
-    #[pb(index = 6)]
-    pub version: i64,
-
-    #[pb(index = 7)]
-    pub belongings: RepeatedView,
-
-    #[pb(index = 8)]
+    #[pb(index = 5)]
     pub modified_time: i64,
 
-    #[pb(index = 9)]
+    #[pb(index = 6)]
     pub create_time: i64,
 
-    #[pb(index = 10)]
-    #[serde(default)]
-    pub ext_data: String,
-
-    #[pb(index = 11)]
-    #[serde(default)]
-    pub thumbnail: String,
-
-    #[pb(index = 12)]
-    #[serde(default = "default_plugin_type")]
+    #[pb(index = 7)]
     pub plugin_type: i32,
-}
-
-fn default_plugin_type() -> i32 {
-    0
-}
-
-#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct RepeatedView {
-    #[pb(index = 1)]
-    pub items: Vec<View>,
-}
-
-impl_def_and_def_mut!(RepeatedView, View);
-
-impl std::convert::From<View> for Trash {
-    fn from(view: View) -> Self {
-        Trash {
-            id: view.id,
-            name: view.name,
-            modified_time: view.modified_time,
-            create_time: view.create_time,
-            ty: TrashType::TrashView,
-        }
-    }
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
@@ -109,6 +63,20 @@ impl std::convert::From<i32> for ViewDataType {
             }
         }
     }
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedView {
+    #[pb(index = 1)]
+    pub items: Vec<View>,
+}
+
+impl_def_and_def_mut!(RepeatedView, View);
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedViewId {
+    #[pb(index = 1)]
+    pub items: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -210,12 +178,6 @@ impl std::ops::Deref for ViewId {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct RepeatedViewId {
-    #[pb(index = 1)]
-    pub items: Vec<String>,
-}
-
-#[derive(Default, ProtoBuf)]
 pub struct UpdateViewPayload {
     #[pb(index = 1)]
     pub view_id: String,
@@ -243,25 +205,6 @@ pub struct UpdateViewParams {
 
     #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
-}
-
-impl UpdateViewParams {
-    pub fn new(view_id: &str) -> Self {
-        Self {
-            view_id: view_id.to_owned(),
-            ..Default::default()
-        }
-    }
-
-    pub fn name(mut self, name: &str) -> Self {
-        self.name = Some(name.to_owned());
-        self
-    }
-
-    pub fn desc(mut self, desc: &str) -> Self {
-        self.desc = Some(desc.to_owned());
-        self
-    }
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayload {

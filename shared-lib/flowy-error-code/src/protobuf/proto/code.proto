@@ -44,5 +44,6 @@ enum ErrorCode {
     FieldInvalidOperation = 444;
     TypeOptionDataIsEmpty = 450;
     InvalidDateTimeFormat = 500;
+    UnexpectedEmptyString = 999;
     InvalidData = 1000;
 }

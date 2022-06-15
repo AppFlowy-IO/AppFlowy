@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "view.proto";
+
+message ViewInfo {
+    string id = 1;
+    string belong_to_id = 2;
+    string name = 3;
+    string desc = 4;
+    ViewDataType data_type = 5;
+    RepeatedView belongings = 6;
+    string ext_data = 7;
+}

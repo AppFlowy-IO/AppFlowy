@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         trash::{Trash, TrashType},
-        view::{RepeatedView, UpdateViewParams, View, ViewDataType},
+        view::{UpdateViewParams, ViewDataType},
     },
     errors::FlowyError,
     services::persistence::version_1::app_sql::AppTable,
@@ -12,12 +12,14 @@ use flowy_database::{
     schema::{view_table, view_table::dsl},
     SqliteConnection,
 };
+
+use flowy_folder_data_model::revision::ViewRevision;
 use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();
 impl ViewTableSql {
-    pub(crate) fn create_view(view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let view_table = ViewTable::new(view);
+    pub(crate) fn create_view(view_rev: ViewRevision, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        let view_table = ViewTable::new(view_rev);
         match diesel_record_count!(view_table, &view_table.id, conn) {
             0 => diesel_insert_table!(view_table, &view_table, conn),
             _ => {
@@ -79,51 +81,53 @@ pub(crate) struct ViewTable {
     pub view_type: SqlViewDataType,
     pub version: i64,
     pub is_trash: bool,
+    pub ext_data: String,
 }
 
 impl ViewTable {
-    pub fn new(view: View) -> Self {
-        let data_type = match view.data_type {
+    pub fn new(view_rev: ViewRevision) -> Self {
+        let data_type = match view_rev.data_type {
             ViewDataType::TextBlock => SqlViewDataType::Block,
             ViewDataType::Grid => SqlViewDataType::Grid,
         };
 
         ViewTable {
-            id: view.id,
-            belong_to_id: view.belong_to_id,
-            name: view.name,
-            desc: view.desc,
-            modified_time: view.modified_time,
-            create_time: view.create_time,
-            thumbnail: view.thumbnail,
+            id: view_rev.id,
+            belong_to_id: view_rev.belong_to_id,
+            name: view_rev.name,
+            desc: view_rev.desc,
+            modified_time: view_rev.modified_time,
+            create_time: view_rev.create_time,
+            thumbnail: view_rev.thumbnail,
             view_type: data_type,
-            version: 0,
+            ext_data: view_rev.ext_data,
+            version: view_rev.version,
             is_trash: false,
         }
     }
 }
 
-impl std::convert::From<ViewTable> for View {
+impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
             SqlViewDataType::Block => ViewDataType::TextBlock,
             SqlViewDataType::Grid => ViewDataType::Grid,
         };
 
-        View {
+        ViewRevision {
             id: table.id,
             belong_to_id: table.belong_to_id,
             name: table.name,
             desc: table.desc,
             data_type,
-            belongings: RepeatedView::default(),
+            belongings: vec![],
             modified_time: table.modified_time,
             version: table.version,
             create_time: table.create_time,
             ext_data: "".to_string(),
             thumbnail: table.thumbnail,
             // Store the view in ViewTable was deprecated since v0.0.2.
-            // No need worry about plugin_type.
+            // No need to worry about plugin_type.
             plugin_type: 0,
         }
     }

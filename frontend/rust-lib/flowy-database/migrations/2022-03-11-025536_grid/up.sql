@@ -1,4 +1,8 @@
 -- Your SQL goes here
+CREATE TABLE kv_table (
+    key TEXT NOT NULL PRIMARY KEY,
+    value BLOB NOT NULL DEFAULT (x'')
+);
 CREATE TABLE grid_rev_table (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     object_id TEXT NOT NULL DEFAULT '',

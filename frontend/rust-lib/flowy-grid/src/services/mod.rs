@@ -1,7 +1,7 @@
 mod util;
 
-pub mod block_meta_editor;
-mod block_meta_manager;
+mod block_manager;
+pub mod block_revision_editor;
 pub mod field;
 pub mod grid_editor;
 pub mod persistence;

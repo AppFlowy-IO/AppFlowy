@@ -5,9 +5,8 @@ use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
-};
+use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -39,7 +38,7 @@ impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
         &self,
         encoded_data: T,
         decoded_field_type: &FieldType,
-        _field_meta: &FieldMeta,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<EncodedCellData<URLCellData>>,
@@ -51,7 +50,7 @@ impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     where
         C: Into<CellContentChangeset>,
     {
@@ -126,26 +125,27 @@ mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOption};
     use crate::services::row::{CellDataOperation, EncodedCellData};
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+    use flowy_grid_data_model::entities::FieldType;
+    use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
     fn url_type_option_test_no_url() {
         let type_option = URLTypeOption::default();
         let field_type = FieldType::URL;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
-        assert_changeset(&type_option, "123", &field_type, &field_meta, "123", "");
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
+        assert_changeset(&type_option, "123", &field_type, &field_rev, "123", "");
     }
 
     #[test]
     fn url_type_option_test_contains_url() {
         let type_option = URLTypeOption::default();
         let field_type = FieldType::URL;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_changeset(
             &type_option,
             "AppFlowy website - https://www.appflowy.io",
             &field_type,
-            &field_meta,
+            &field_rev,
             "AppFlowy website - https://www.appflowy.io",
             "https://www.appflowy.io/",
         );
@@ -154,7 +154,7 @@ mod tests {
             &type_option,
             "AppFlowy website appflowy.io",
             &field_type,
-            &field_meta,
+            &field_rev,
             "AppFlowy website appflowy.io",
             "https://appflowy.io",
         );
@@ -164,12 +164,12 @@ mod tests {
         type_option: &URLTypeOption,
         cell_data: &str,
         field_type: &FieldType,
-        field_meta: &FieldMeta,
+        field_rev: &FieldRevision,
         expected: &str,
         expected_url: &str,
     ) {
         let encoded_data = type_option.apply_changeset(cell_data, None).unwrap();
-        let decode_cell_data = decode_cell_data(encoded_data, type_option, field_meta, field_type);
+        let decode_cell_data = decode_cell_data(encoded_data, type_option, field_rev, field_type);
         assert_eq!(expected.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
@@ -177,11 +177,11 @@ mod tests {
     fn decode_cell_data<T: Into<EncodedCellData<URLCellData>>>(
         encoded_data: T,
         type_option: &URLTypeOption,
-        field_meta: &FieldMeta,
+        field_rev: &FieldRevision,
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data, field_type, field_meta)
+            .decode_cell_data(encoded_data, field_type, field_rev)
             .unwrap()
             .parse::<URLCellData>()
             .unwrap()

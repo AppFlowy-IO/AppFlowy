@@ -4,18 +4,16 @@ message View {
     string id = 1;
     string belong_to_id = 2;
     string name = 3;
-    string desc = 4;
-    ViewDataType data_type = 5;
-    int64 version = 6;
-    RepeatedView belongings = 7;
-    int64 modified_time = 8;
-    int64 create_time = 9;
-    string ext_data = 10;
-    string thumbnail = 11;
-    int32 plugin_type = 12;
+    ViewDataType data_type = 4;
+    int64 modified_time = 5;
+    int64 create_time = 6;
+    int32 plugin_type = 7;
 }
 message RepeatedView {
     repeated View items = 1;
+}
+message RepeatedViewId {
+    repeated string items = 1;
 }
 message CreateViewPayload {
     string belong_to_id = 1;
@@ -38,9 +36,6 @@ message CreateViewParams {
 }
 message ViewId {
     string value = 1;
-}
-message RepeatedViewId {
-    repeated string items = 1;
 }
 message UpdateViewPayload {
     string view_id = 1;

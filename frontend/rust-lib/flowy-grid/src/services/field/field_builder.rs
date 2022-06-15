@@ -1,10 +1,11 @@
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{Field, FieldMeta, FieldType, TypeOptionDataEntry};
+use flowy_grid_data_model::entities::{Field, FieldType};
+use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use indexmap::IndexMap;
 
 pub struct FieldBuilder {
-    field_meta: FieldMeta,
+    field_rev: FieldRevision,
     type_option_builder: Box<dyn TypeOptionBuilder>,
 }
 
@@ -13,9 +14,9 @@ pub type BoxTypeOptionBuilder = Box<dyn TypeOptionBuilder + 'static>;
 impl FieldBuilder {
     pub fn new<T: Into<BoxTypeOptionBuilder>>(type_option_builder: T) -> Self {
         let type_option_builder = type_option_builder.into();
-        let field_meta = FieldMeta::new("", "", type_option_builder.field_type(), false);
+        let field_rev = FieldRevision::new("", "", type_option_builder.field_type(), false);
         Self {
-            field_meta,
+            field_rev,
             type_option_builder,
         }
     }
@@ -26,7 +27,7 @@ impl FieldBuilder {
     }
 
     pub fn from_field(field: Field, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
-        let field_meta = FieldMeta {
+        let field_rev = FieldRevision {
             id: field.id,
             name: field.name,
             desc: field.desc,
@@ -38,46 +39,46 @@ impl FieldBuilder {
             is_primary: field.is_primary,
         };
         Self {
-            field_meta,
+            field_rev,
             type_option_builder,
         }
     }
 
     pub fn name(mut self, name: &str) -> Self {
-        self.field_meta.name = name.to_owned();
+        self.field_rev.name = name.to_owned();
         self
     }
 
     pub fn desc(mut self, desc: &str) -> Self {
-        self.field_meta.desc = desc.to_owned();
+        self.field_rev.desc = desc.to_owned();
         self
     }
 
     pub fn primary(mut self, is_primary: bool) -> Self {
-        self.field_meta.is_primary = is_primary;
+        self.field_rev.is_primary = is_primary;
         self
     }
 
     pub fn visibility(mut self, visibility: bool) -> Self {
-        self.field_meta.visibility = visibility;
+        self.field_rev.visibility = visibility;
         self
     }
 
     pub fn width(mut self, width: i32) -> Self {
-        self.field_meta.width = width;
+        self.field_rev.width = width;
         self
     }
 
     pub fn frozen(mut self, frozen: bool) -> Self {
-        self.field_meta.frozen = frozen;
+        self.field_rev.frozen = frozen;
         self
     }
 
-    pub fn build(self) -> FieldMeta {
-        debug_assert_eq!(self.field_meta.field_type, self.type_option_builder.field_type());
-        let mut field_meta = self.field_meta;
-        field_meta.insert_type_option_entry(self.type_option_builder.entry());
-        field_meta
+    pub fn build(self) -> FieldRevision {
+        debug_assert_eq!(self.field_rev.field_type, self.type_option_builder.field_type());
+        let mut field_rev = self.field_rev;
+        field_rev.insert_type_option_entry(self.type_option_builder.entry());
+        field_rev
     }
 }
 

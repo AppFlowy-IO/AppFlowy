@@ -9,13 +9,13 @@ use crate::{
 };
 use flowy_derive::ProtoBuf;
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
+
 use std::convert::TryInto;
 
 pub fn gen_app_id() -> String {
     nanoid!(10)
 }
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct App {
     #[pb(index = 1)]
     pub id: String,
@@ -42,8 +42,7 @@ pub struct App {
     pub create_time: i64,
 }
 
-#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
     pub items: Vec<App>,

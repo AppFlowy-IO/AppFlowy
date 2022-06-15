@@ -4,10 +4,8 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
-};
-
+use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -47,7 +45,7 @@ impl CellDataOperation<String> for CheckboxTypeOption {
         &self,
         encoded_data: T,
         decoded_field_type: &FieldType,
-        _field_meta: &FieldMeta,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -64,7 +62,7 @@ impl CellDataOperation<String> for CheckboxTypeOption {
         Ok(DecodedCellData::default())
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     where
         C: Into<CellContentChangeset>,
     {
@@ -101,40 +99,40 @@ mod tests {
 
     #[test]
     fn checkout_box_description_test() {
-        let field_meta = FieldBuilder::from_field_type(&FieldType::Checkbox).build();
-        let data = apply_cell_data_changeset("true", None, &field_meta).unwrap();
+        let field_rev = FieldBuilder::from_field_type(&FieldType::Checkbox).build();
+        let data = apply_cell_data_changeset("true", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             YES
         );
 
-        let data = apply_cell_data_changeset("1", None, &field_meta).unwrap();
+        let data = apply_cell_data_changeset("1", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             YES
         );
 
-        let data = apply_cell_data_changeset("yes", None, &field_meta).unwrap();
+        let data = apply_cell_data_changeset("yes", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             YES
         );
 
-        let data = apply_cell_data_changeset("false", None, &field_meta).unwrap();
+        let data = apply_cell_data_changeset("false", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             NO
         );
 
-        let data = apply_cell_data_changeset("no", None, &field_meta).unwrap();
+        let data = apply_cell_data_changeset("no", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             NO
         );
 
-        let data = apply_cell_data_changeset("12", None, &field_meta).unwrap();
+        let data = apply_cell_data_changeset("12", None, &field_rev).unwrap();
         assert_eq!(
-            decode_cell_data_from_type_option_cell_data(data, &field_meta, &field_meta.field_type).to_string(),
+            decode_cell_data_from_type_option_cell_data(data, &field_rev, &field_rev.field_type).to_string(),
             NO
         );
     }

@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 

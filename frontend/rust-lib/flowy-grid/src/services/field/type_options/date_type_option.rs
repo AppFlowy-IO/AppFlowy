@@ -7,9 +7,8 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    CellChangeset, CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
-};
+use flowy_grid_data_model::entities::{CellChangeset, FieldType};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
@@ -121,7 +120,7 @@ impl CellDataOperation<String> for DateTypeOption {
         &self,
         encoded_data: T,
         decoded_field_type: &FieldType,
-        _field_meta: &FieldMeta,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -139,7 +138,7 @@ impl CellDataOperation<String> for DateTypeOption {
         DecodedCellData::try_from_bytes(date)
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     where
         C: Into<CellContentChangeset>,
     {
@@ -358,14 +357,15 @@ mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{DateCellContentChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType, TypeOptionDataEntry};
+    use flowy_grid_data_model::entities::FieldType;
+    use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
     use strum::IntoEnumIterator;
 
     #[test]
     fn date_type_option_invalid_input_test() {
         let type_option = DateTypeOption::default();
         let field_type = FieldType::DateTime;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_changeset_result(
             &type_option,
             DateCellContentChangeset {
@@ -373,7 +373,7 @@ mod tests {
                 time: Some("23:00".to_owned()),
             },
             &field_type,
-            &field_meta,
+            &field_rev,
             "",
         );
     }
@@ -381,21 +381,21 @@ mod tests {
     #[test]
     fn date_type_option_date_format_test() {
         let mut type_option = DateTypeOption::default();
-        let field_meta = FieldBuilder::from_field_type(&FieldType::DateTime).build();
+        let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         for date_format in DateFormat::iter() {
             type_option.date_format = date_format;
             match date_format {
                 DateFormat::Friendly => {
-                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "Mar 14,2022");
+                    assert_decode_timestamp(1647251762, &type_option, &field_rev, "Mar 14,2022");
                 }
                 DateFormat::US => {
-                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022/03/14");
+                    assert_decode_timestamp(1647251762, &type_option, &field_rev, "2022/03/14");
                 }
                 DateFormat::ISO => {
-                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022-03-14");
+                    assert_decode_timestamp(1647251762, &type_option, &field_rev, "2022-03-14");
                 }
                 DateFormat::Local => {
-                    assert_decode_timestamp(1647251762, &type_option, &field_meta, "2022/03/14");
+                    assert_decode_timestamp(1647251762, &type_option, &field_rev, "2022/03/14");
                 }
             }
         }
@@ -405,7 +405,7 @@ mod tests {
     fn date_type_option_time_format_test() {
         let mut type_option = DateTypeOption::default();
         let field_type = FieldType::DateTime;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
         for time_format in TimeFormat::iter() {
             type_option.time_format = time_format;
@@ -419,7 +419,7 @@ mod tests {
                             time: None,
                         },
                         &field_type,
-                        &field_meta,
+                        &field_rev,
                         "May 27,2022",
                     );
                     assert_changeset_result(
@@ -429,7 +429,7 @@ mod tests {
                             time: Some("23:00".to_owned()),
                         },
                         &field_type,
-                        &field_meta,
+                        &field_rev,
                         "May 27,2022 23:00",
                     );
                 }
@@ -441,7 +441,7 @@ mod tests {
                             time: None,
                         },
                         &field_type,
-                        &field_meta,
+                        &field_rev,
                         "May 27,2022",
                     );
                     //
@@ -452,7 +452,7 @@ mod tests {
                             time: Some("".to_owned()),
                         },
                         &field_type,
-                        &field_meta,
+                        &field_rev,
                         "May 27,2022",
                     );
 
@@ -463,7 +463,7 @@ mod tests {
                             time: Some("11:23 pm".to_owned()),
                         },
                         &field_type,
-                        &field_meta,
+                        &field_rev,
                         "May 27,2022 11:23 PM",
                     );
                 }
@@ -475,7 +475,7 @@ mod tests {
     fn date_type_option_apply_changeset_test() {
         let mut type_option = DateTypeOption::new();
         let field_type = FieldType::DateTime;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
         let date_timestamp = "1653609600".to_owned();
 
         assert_changeset_result(
@@ -485,7 +485,7 @@ mod tests {
                 time: None,
             },
             &field_type,
-            &field_meta,
+            &field_rev,
             "May 27,2022",
         );
 
@@ -497,7 +497,7 @@ mod tests {
                 time: None,
             },
             &field_type,
-            &field_meta,
+            &field_rev,
             "May 27,2022",
         );
 
@@ -508,7 +508,7 @@ mod tests {
                 time: Some("1:00".to_owned()),
             },
             &field_type,
-            &field_meta,
+            &field_rev,
             "May 27,2022 01:00",
         );
 
@@ -520,7 +520,7 @@ mod tests {
                 time: Some("1:00 am".to_owned()),
             },
             &field_type,
-            &field_meta,
+            &field_rev,
             "May 27,2022 01:00 AM",
         );
     }
@@ -530,7 +530,7 @@ mod tests {
     fn date_type_option_apply_changeset_error_test() {
         let mut type_option = DateTypeOption::new();
         type_option.include_time = true;
-        let field_meta = FieldBuilder::from_field_type(&type_option.field_type()).build();
+        let field_rev = FieldBuilder::from_field_type(&type_option.field_type()).build();
         let date_timestamp = "1653609600".to_owned();
 
         assert_changeset_result(
@@ -540,7 +540,7 @@ mod tests {
                 time: Some("1:".to_owned()),
             },
             &type_option.field_type(),
-            &field_meta,
+            &field_rev,
             "May 27,2022 01:00",
         );
 
@@ -551,7 +551,7 @@ mod tests {
                 time: Some("1:00".to_owned()),
             },
             &type_option.field_type(),
-            &field_meta,
+            &field_rev,
             "May 27,2022 01:00",
         );
     }
@@ -561,7 +561,7 @@ mod tests {
     fn date_type_option_twelve_hours_to_twenty_four_hours() {
         let mut type_option = DateTypeOption::new();
         type_option.include_time = true;
-        let field_meta = FieldBuilder::from_field_type(&type_option.field_type()).build();
+        let field_rev = FieldBuilder::from_field_type(&type_option.field_type()).build();
         let date_timestamp = "1653609600".to_owned();
 
         assert_changeset_result(
@@ -571,7 +571,7 @@ mod tests {
                 time: Some("1:00 am".to_owned()),
             },
             &type_option.field_type(),
-            &field_meta,
+            &field_rev,
             "May 27,2022 01:00",
         );
     }
@@ -580,17 +580,22 @@ mod tests {
         type_option: &DateTypeOption,
         changeset: DateCellContentChangeset,
         _field_type: &FieldType,
-        field_meta: &FieldMeta,
+        field_rev: &FieldRevision,
         expected: &str,
     ) {
         let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
         assert_eq!(
             expected.to_owned(),
-            decode_cell_data(encoded_data, type_option, field_meta)
+            decode_cell_data(encoded_data, type_option, field_rev)
         );
     }
 
-    fn assert_decode_timestamp(timestamp: i64, type_option: &DateTypeOption, field_meta: &FieldMeta, expected: &str) {
+    fn assert_decode_timestamp(
+        timestamp: i64,
+        type_option: &DateTypeOption,
+        field_rev: &FieldRevision,
+        expected: &str,
+    ) {
         let encoded_data = type_option
             .apply_changeset(
                 DateCellContentChangeset {
@@ -603,17 +608,17 @@ mod tests {
 
         assert_eq!(
             expected.to_owned(),
-            decode_cell_data(encoded_data, type_option, field_meta)
+            decode_cell_data(encoded_data, type_option, field_rev)
         );
     }
 
     fn decode_cell_data<T: Into<String>>(
         encoded_data: T,
         type_option: &DateTypeOption,
-        field_meta: &FieldMeta,
+        field_rev: &FieldRevision,
     ) -> String {
         let decoded_data = type_option
-            .decode_cell_data(encoded_data, &FieldType::DateTime, field_meta)
+            .decode_cell_data(encoded_data, &FieldType::DateTime, field_rev)
             .unwrap()
             .parse::<DateCellData>()
             .unwrap();

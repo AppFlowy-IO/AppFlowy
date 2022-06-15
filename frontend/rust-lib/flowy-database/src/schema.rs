@@ -14,14 +14,6 @@ table! {
 }
 
 table! {
-    doc_table (id) {
-        id -> Text,
-        data -> Text,
-        rev_id -> BigInt,
-    }
-}
-
-table! {
     grid_block_index_table (row_id) {
         row_id -> Text,
         block_id -> Text,
@@ -102,6 +94,7 @@ table! {
         view_type -> Integer,
         version -> BigInt,
         is_trash -> Bool,
+        ext_data -> Text,
     }
 }
 
@@ -119,7 +112,6 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     app_table,
-    doc_table,
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_table,

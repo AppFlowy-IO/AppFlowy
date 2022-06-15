@@ -1,7 +1,6 @@
 use crate::entities::{
-    app::{App, UpdateAppParams},
+    app::UpdateAppParams,
     trash::{Trash, TrashType},
-    view::RepeatedView,
 };
 use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
 use flowy_database::{
@@ -9,11 +8,12 @@ use flowy_database::{
     schema::{app_table, app_table::dsl},
     SqliteConnection,
 };
+use flowy_folder_data_model::revision::AppRevision;
 
 pub struct AppTableSql();
 impl AppTableSql {
-    pub(crate) fn create_app(app: App, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let app_table = AppTable::new(app);
+    pub(crate) fn create_app(app_rev: AppRevision, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        let app_table = AppTable::new(app_rev);
         match diesel_record_count!(app_table, &app_table.id, conn) {
             0 => diesel_insert_table!(app_table, &app_table, conn),
             _ => {
@@ -91,16 +91,16 @@ pub(crate) struct AppTable {
 }
 
 impl AppTable {
-    pub fn new(app: App) -> Self {
+    pub fn new(app_rev: AppRevision) -> Self {
         Self {
-            id: app.id,
-            workspace_id: app.workspace_id,
-            name: app.name,
-            desc: app.desc,
+            id: app_rev.id,
+            workspace_id: app_rev.workspace_id,
+            name: app_rev.name,
+            desc: app_rev.desc,
             color_style: Default::default(),
             last_view_id: None,
-            modified_time: app.modified_time,
-            create_time: app.create_time,
+            modified_time: app_rev.modified_time,
+            create_time: app_rev.create_time,
             version: 0,
             is_trash: false,
         }
@@ -147,14 +147,14 @@ impl AppChangeset {
         }
     }
 }
-impl std::convert::From<AppTable> for App {
+impl std::convert::From<AppTable> for AppRevision {
     fn from(table: AppTable) -> Self {
-        App {
+        AppRevision {
             id: table.id,
             workspace_id: table.workspace_id,
             name: table.name,
             desc: table.desc,
-            belongings: RepeatedView::default(),
+            belongings: vec![],
             version: table.version,
             modified_time: table.modified_time,
             create_time: table.create_time,

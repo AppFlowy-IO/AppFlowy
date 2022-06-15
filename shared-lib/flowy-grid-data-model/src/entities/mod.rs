@@ -1,5 +1,7 @@
+mod field;
 mod grid;
-mod meta;
+mod grid_info;
 
+pub use field::*;
 pub use grid::*;
-pub use meta::*;
+pub use grid_info::*;

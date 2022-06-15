@@ -1,21 +1,21 @@
 use crate::services::field::SelectOptionCellContentChangeset;
 use crate::services::row::apply_cell_data_changeset;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{gen_row_id, CellMeta, FieldMeta, RowMeta, DEFAULT_ROW_HEIGHT};
+use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
 pub struct CreateRowMetaBuilder<'a> {
-    field_meta_map: HashMap<&'a String, &'a FieldMeta>,
+    field_rev_map: HashMap<&'a String, &'a FieldRevision>,
     payload: CreateRowMetaPayload,
 }
 
 impl<'a> CreateRowMetaBuilder<'a> {
-    pub fn new(fields: &'a [FieldMeta]) -> Self {
-        let field_meta_map = fields
+    pub fn new(fields: &'a [FieldRevision]) -> Self {
+        let field_rev_map = fields
             .iter()
             .map(|field| (&field.id, field))
-            .collect::<HashMap<&String, &FieldMeta>>();
+            .collect::<HashMap<&String, &FieldRevision>>();
 
         let payload = CreateRowMetaPayload {
             row_id: gen_row_id(),
@@ -24,21 +24,18 @@ impl<'a> CreateRowMetaBuilder<'a> {
             visibility: true,
         };
 
-        Self {
-            field_meta_map,
-            payload,
-        }
+        Self { field_rev_map, payload }
     }
 
     pub fn add_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
-        match self.field_meta_map.get(&field_id.to_owned()) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
             None => {
                 let msg = format!("Invalid field_id: {}", field_id);
                 Err(FlowyError::internal().context(msg))
             }
-            Some(field_meta) => {
-                let data = apply_cell_data_changeset(&data, None, field_meta)?;
-                let cell = CellMeta::new(data);
+            Some(field_rev) => {
+                let data = apply_cell_data_changeset(&data, None, field_rev)?;
+                let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
             }
@@ -46,15 +43,15 @@ impl<'a> CreateRowMetaBuilder<'a> {
     }
 
     pub fn add_select_option_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
-        match self.field_meta_map.get(&field_id.to_owned()) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
             None => {
                 let msg = format!("Invalid field_id: {}", field_id);
                 Err(FlowyError::internal().context(msg))
             }
-            Some(field_meta) => {
+            Some(field_rev) => {
                 let cell_data = SelectOptionCellContentChangeset::from_insert(&data).to_str();
-                let data = apply_cell_data_changeset(&cell_data, None, field_meta)?;
-                let cell = CellMeta::new(data);
+                let data = apply_cell_data_changeset(&cell_data, None, field_rev)?;
+                let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
             }
@@ -78,8 +75,8 @@ impl<'a> CreateRowMetaBuilder<'a> {
     }
 }
 
-pub fn make_row_meta_from_context(block_id: &str, payload: CreateRowMetaPayload) -> RowMeta {
-    RowMeta {
+pub fn make_row_rev_from_context(block_id: &str, payload: CreateRowMetaPayload) -> RowRevision {
+    RowRevision {
         id: payload.row_id,
         block_id: block_id.to_owned(),
         cells: payload.cell_by_field_id,
@@ -90,7 +87,7 @@ pub fn make_row_meta_from_context(block_id: &str, payload: CreateRowMetaPayload)
 
 pub struct CreateRowMetaPayload {
     pub row_id: String,
-    pub cell_by_field_id: IndexMap<String, CellMeta>,
+    pub cell_by_field_id: IndexMap<String, CellRevision>,
     pub height: i32,
     pub visibility: bool,
 }

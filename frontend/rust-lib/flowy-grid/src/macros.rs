@@ -28,9 +28,9 @@ macro_rules! impl_builder_from_json_str_and_from_bytes {
 #[macro_export]
 macro_rules! impl_type_option {
     ($target: ident, $field_type:expr) => {
-        impl std::convert::From<&FieldMeta> for $target {
-            fn from(field_meta: &FieldMeta) -> $target {
-                match field_meta.get_type_option_entry::<$target>(&$field_type) {
+        impl std::convert::From<&FieldRevision> for $target {
+            fn from(field_rev: &FieldRevision) -> $target {
+                match field_rev.get_type_option_entry::<$target>(&$field_type) {
                     None => $target::default(),
                     Some(target) => target,
                 }

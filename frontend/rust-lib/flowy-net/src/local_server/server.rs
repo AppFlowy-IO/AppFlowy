@@ -255,11 +255,12 @@ impl RevisionUser for LocalRevisionUser {
 use flowy_folder_data_model::entities::app::gen_app_id;
 use flowy_folder_data_model::entities::workspace::gen_workspace_id;
 use flowy_folder_data_model::entities::{
-    app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
-    trash::{RepeatedTrash, RepeatedTrashId},
-    view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
-    workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
+    app::{AppId, CreateAppParams, UpdateAppParams},
+    trash::RepeatedTrashId,
+    view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
 };
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use flowy_text_block::BlockCloudService;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
@@ -270,13 +271,17 @@ use lib_infra::{future::FutureResult, util::timestamp};
 impl FolderCouldServiceV1 for LocalServer {
     fn init(&self) {}
 
-    fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
+    fn create_workspace(
+        &self,
+        _token: &str,
+        params: CreateWorkspaceParams,
+    ) -> FutureResult<WorkspaceRevision, FlowyError> {
         let time = timestamp();
-        let workspace = Workspace {
+        let workspace = WorkspaceRevision {
             id: gen_workspace_id(),
             name: params.name,
             desc: params.desc,
-            apps: RepeatedApp::default(),
+            apps: vec![],
             modified_time: time,
             create_time: time,
         };
@@ -284,11 +289,8 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(workspace) })
     }
 
-    fn read_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<RepeatedWorkspace, FlowyError> {
-        FutureResult::new(async {
-            let repeated_workspace = RepeatedWorkspace { items: vec![] };
-            Ok(repeated_workspace)
-        })
+    fn read_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<Vec<WorkspaceRevision>, FlowyError> {
+        FutureResult::new(async { Ok(vec![]) })
     }
 
     fn update_workspace(&self, _token: &str, _params: UpdateWorkspaceParams) -> FutureResult<(), FlowyError> {
@@ -299,16 +301,16 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_view(&self, _token: &str, params: CreateViewParams) -> FutureResult<View, FlowyError> {
+    fn create_view(&self, _token: &str, params: CreateViewParams) -> FutureResult<ViewRevision, FlowyError> {
         let time = timestamp();
-        let view = View {
+        let view = ViewRevision {
             id: params.view_id,
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
             data_type: params.data_type,
             version: 0,
-            belongings: RepeatedView::default(),
+            belongings: vec![],
             modified_time: time,
             create_time: time,
             ext_data: "".to_string(),
@@ -318,7 +320,7 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(view) })
     }
 
-    fn read_view(&self, _token: &str, _params: ViewId) -> FutureResult<Option<View>, FlowyError> {
+    fn read_view(&self, _token: &str, _params: ViewId) -> FutureResult<Option<ViewRevision>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
@@ -330,14 +332,14 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
+    fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<AppRevision, FlowyError> {
         let time = timestamp();
-        let app = App {
+        let app = AppRevision {
             id: gen_app_id(),
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
-            belongings: RepeatedView::default(),
+            belongings: vec![],
             version: 0,
             modified_time: time,
             create_time: time,
@@ -345,7 +347,7 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(app) })
     }
 
-    fn read_app(&self, _token: &str, _params: AppId) -> FutureResult<Option<App>, FlowyError> {
+    fn read_app(&self, _token: &str, _params: AppId) -> FutureResult<Option<AppRevision>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
@@ -365,17 +367,14 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_trash(&self, _token: &str) -> FutureResult<RepeatedTrash, FlowyError> {
-        FutureResult::new(async {
-            let repeated_trash = RepeatedTrash { items: vec![] };
-            Ok(repeated_trash)
-        })
+    fn read_trash(&self, _token: &str) -> FutureResult<Vec<TrashRevision>, FlowyError> {
+        FutureResult::new(async { Ok(vec![]) })
     }
 }
 
 impl UserCloudService for LocalServer {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-        let uid = nanoid!(10);
+        let uid = nanoid!(20);
         FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
@@ -387,7 +386,7 @@ impl UserCloudService for LocalServer {
     }
 
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-        let user_id = nanoid!(10);
+        let user_id = nanoid!(20);
         FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),

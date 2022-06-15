@@ -11,6 +11,8 @@ use crate::{
     services::{TrashController, ViewController},
 };
 use flowy_folder_data_model::entities::view::{MoveFolderItemParams, MoveFolderItemPayload, MoveFolderItemType};
+use flowy_folder_data_model::entities::ViewInfo;
+use flowy_folder_data_model::revision::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
@@ -19,8 +21,8 @@ pub(crate) async fn create_view_handler(
     controller: AppData<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
     let params: CreateViewParams = data.into_inner().try_into()?;
-    let view = controller.create_view_from_params(params).await?;
-    data_result(view)
+    let view_rev = controller.create_view_from_params(params).await?;
+    data_result(view_rev.into())
 }
 
 pub(crate) async fn read_view_handler(
@@ -28,12 +30,17 @@ pub(crate) async fn read_view_handler(
     controller: AppData<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
     let view_id: ViewId = data.into_inner();
-    let mut view = controller.read_view(view_id.clone()).await?;
-    // For the moment, app and view can contains lots of views. Reading the view
-    // belongings using the view_id.
-    view.belongings = controller.read_views_belong_to(&view_id.value).await?;
+    let view_rev = controller.read_view(view_id.clone()).await?;
+    data_result(view_rev.into())
+}
 
-    data_result(view)
+pub(crate) async fn read_view_info_handler(
+    data: Data<ViewId>,
+    controller: AppData<Arc<ViewController>>,
+) -> DataResult<ViewInfo, FlowyError> {
+    let view_id: ViewId = data.into_inner();
+    let view_info = controller.read_view_info(view_id.clone()).await?;
+    data_result(view_info)
 }
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
@@ -61,7 +68,10 @@ pub(crate) async fn delete_view_handler(
         .read_local_views(params.items)
         .await?
         .into_iter()
-        .map(|view| view.into())
+        .map(|view| {
+            let trash_rev: TrashRevision = view.into();
+            trash_rev.into()
+        })
         .collect::<Vec<Trash>>();
 
     let _ = trash_controller.add(trash).await?;

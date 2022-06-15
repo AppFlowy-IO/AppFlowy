@@ -6,11 +6,9 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{
-    CellMeta, FieldMeta, FieldType, TypeOptionDataDeserializer, TypeOptionDataEntry,
-};
+use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use rust_decimal::Decimal;
-
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -146,7 +144,7 @@ impl CellDataOperation<String> for NumberTypeOption {
         &self,
         encoded_data: T,
         decoded_field_type: &FieldType,
-        _field_meta: &FieldMeta,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -181,7 +179,7 @@ impl CellDataOperation<String> for NumberTypeOption {
         }
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_meta: Option<CellMeta>) -> Result<String, FlowyError>
+    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     where
         C: Into<CellContentChangeset>,
     {
@@ -211,16 +209,17 @@ mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::field::{NumberFormat, NumberTypeOption};
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType};
+    use flowy_grid_data_model::entities::FieldType;
+    use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
     #[test]
     fn number_type_option_invalid_input_test() {
         let type_option = NumberTypeOption::default();
         let field_type = FieldType::Number;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
-        assert_equal(&type_option, "", "", &field_type, &field_meta);
-        assert_equal(&type_option, "abc", "", &field_type, &field_meta);
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
+        assert_equal(&type_option, "", "", &field_type, &field_rev);
+        assert_equal(&type_option, "abc", "", &field_type, &field_rev);
     }
 
     #[test]
@@ -237,25 +236,25 @@ mod tests {
     fn number_type_option_format_number_test() {
         let mut type_option = NumberTypeOption::default();
         let field_type = FieldType::Number;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
                 }
                 NumberFormat::USD => {
-                    assert_equal(&type_option, "18443", "$18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "$18,443", &field_type, &field_rev);
                 }
                 NumberFormat::Yen => {
-                    assert_equal(&type_option, "18443", "¥18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "¥18,443", &field_type, &field_rev);
                 }
                 NumberFormat::Yuan => {
-                    assert_equal(&type_option, "18443", "CN¥18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "CN¥18,443", &field_type, &field_rev);
                 }
                 NumberFormat::EUR => {
-                    assert_equal(&type_option, "18443", "€18.443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "€18.443", &field_type, &field_rev);
                 }
                 _ => {}
             }
@@ -266,33 +265,33 @@ mod tests {
     fn number_type_option_format_str_test() {
         let mut type_option = NumberTypeOption::default();
         let field_type = FieldType::Number;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
-                    assert_equal(&type_option, "0.2", "0.2", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
+                    assert_equal(&type_option, "0.2", "0.2", &field_type, &field_rev);
                 }
                 NumberFormat::USD => {
-                    assert_equal(&type_option, "$18,44", "$1,844", &field_type, &field_meta);
-                    assert_equal(&type_option, "$0.2", "$0.2", &field_type, &field_meta);
-                    assert_equal(&type_option, "", "", &field_type, &field_meta);
-                    assert_equal(&type_option, "abc", "", &field_type, &field_meta);
+                    assert_equal(&type_option, "$18,44", "$1,844", &field_type, &field_rev);
+                    assert_equal(&type_option, "$0.2", "$0.2", &field_type, &field_rev);
+                    assert_equal(&type_option, "", "", &field_type, &field_rev);
+                    assert_equal(&type_option, "abc", "", &field_type, &field_rev);
                 }
                 NumberFormat::Yen => {
-                    assert_equal(&type_option, "¥18,44", "¥1,844", &field_type, &field_meta);
-                    assert_equal(&type_option, "¥1844", "¥1,844", &field_type, &field_meta);
+                    assert_equal(&type_option, "¥18,44", "¥1,844", &field_type, &field_rev);
+                    assert_equal(&type_option, "¥1844", "¥1,844", &field_type, &field_rev);
                 }
                 NumberFormat::Yuan => {
-                    assert_equal(&type_option, "CN¥18,44", "CN¥1,844", &field_type, &field_meta);
-                    assert_equal(&type_option, "CN¥1844", "CN¥1,844", &field_type, &field_meta);
+                    assert_equal(&type_option, "CN¥18,44", "CN¥1,844", &field_type, &field_rev);
+                    assert_equal(&type_option, "CN¥1844", "CN¥1,844", &field_type, &field_rev);
                 }
                 NumberFormat::EUR => {
-                    assert_equal(&type_option, "€18.44", "€18,44", &field_type, &field_meta);
-                    assert_equal(&type_option, "€0.5", "€0,5", &field_type, &field_meta);
-                    assert_equal(&type_option, "€1844", "€1.844", &field_type, &field_meta);
+                    assert_equal(&type_option, "€18.44", "€18,44", &field_type, &field_rev);
+                    assert_equal(&type_option, "€0.5", "€0,5", &field_type, &field_rev);
+                    assert_equal(&type_option, "€1844", "€1.844", &field_type, &field_rev);
                 }
                 _ => {}
             }
@@ -306,22 +305,22 @@ mod tests {
             ..Default::default()
         };
         let field_type = FieldType::Number;
-        let field_meta = FieldBuilder::from_field_type(&field_type).build();
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
                 NumberFormat::Number => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
                 }
                 NumberFormat::USD => {
-                    assert_equal(&type_option, "18443", "-$18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "-$18,443", &field_type, &field_rev);
                 }
                 NumberFormat::Yen => {
-                    assert_equal(&type_option, "18443", "-¥18,443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "-¥18,443", &field_type, &field_rev);
                 }
                 NumberFormat::EUR => {
-                    assert_equal(&type_option, "18443", "-€18.443", &field_type, &field_meta);
+                    assert_equal(&type_option, "18443", "-€18.443", &field_type, &field_rev);
                 }
                 _ => {}
             }
@@ -333,11 +332,11 @@ mod tests {
         cell_data: &str,
         expected_str: &str,
         field_type: &FieldType,
-        field_meta: &FieldMeta,
+        field_rev: &FieldRevision,
     ) {
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, field_type, field_meta)
+                .decode_cell_data(cell_data, field_type, field_rev)
                 .unwrap()
                 .to_string(),
             expected_str.to_owned()

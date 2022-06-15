@@ -6,15 +6,15 @@ use flowy_grid::services::field::{
     SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
-use flowy_grid_data_model::entities::{
-    CellChangeset, FieldChangesetParams, FieldType, GridBlockMeta, GridBlockMetaChangeset, RowMetaChangeset,
-    TypeOptionDataEntry,
+use flowy_grid_data_model::entities::{CellChangeset, FieldChangesetParams, FieldType};
+use flowy_grid_data_model::revision::{
+    GridBlockRevision, GridBlockRevisionChangeset, RowMetaChangeset, TypeOptionDataEntry,
 };
 
 #[tokio::test]
 async fn grid_create_field() {
     let mut test = GridEditorTest::new().await;
-    let (text_field_params, text_field_meta) = create_text_field(&test.grid_id);
+    let (text_field_params, text_field_rev) = create_text_field(&test.grid_id);
     let (single_select_params, single_select_field) = create_single_select_field(&test.grid_id);
     let scripts = vec![
         CreateField {
@@ -22,7 +22,7 @@ async fn grid_create_field() {
         },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: text_field_meta,
+            field_rev: text_field_rev,
         },
     ];
     test.run_scripts(scripts).await;
@@ -33,7 +33,7 @@ async fn grid_create_field() {
         },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: single_select_field,
+            field_rev: single_select_field,
         },
     ];
     test.run_scripts(scripts).await;
@@ -56,9 +56,9 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let mut test = GridEditorTest::new().await;
-    let (params, field_meta) = create_single_select_field(&test.grid_id);
+    let (params, field_rev) = create_single_select_field(&test.grid_id);
     let changeset = FieldChangesetParams {
-        field_id: field_meta.id.clone(),
+        field_id: field_rev.id.clone(),
         grid_id: test.grid_id.clone(),
         ..Default::default()
     };
@@ -68,7 +68,7 @@ async fn grid_update_field_with_empty_change() {
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta,
+            field_rev,
         },
     ];
     test.run_scripts(scripts).await;
@@ -102,7 +102,7 @@ async fn grid_update_field() {
         UpdateField { changeset },
         AssertFieldEqual {
             field_index: test.field_count,
-            field_meta: cloned_field,
+            field_rev: cloned_field,
         },
     ];
     test.run_scripts(scripts).await;
@@ -115,7 +115,7 @@ async fn grid_delete_field() {
     let (text_params, text_field) = create_text_field(&test.grid_id);
     let scripts = vec![
         CreateField { params: text_params },
-        DeleteField { field_meta: text_field },
+        DeleteField { field_rev: text_field },
         AssertFieldCount(expected_field_count),
     ];
     test.run_scripts(scripts).await;
@@ -123,7 +123,7 @@ async fn grid_delete_field() {
 
 #[tokio::test]
 async fn grid_create_block() {
-    let grid_block = GridBlockMeta::new();
+    let grid_block = GridBlockRevision::new();
     let scripts = vec![
         AssertBlockCount(1),
         CreateBlock { block: grid_block },
@@ -134,9 +134,9 @@ async fn grid_create_block() {
 
 #[tokio::test]
 async fn grid_update_block() {
-    let grid_block = GridBlockMeta::new();
+    let grid_block = GridBlockRevision::new();
     let mut cloned_grid_block = grid_block.clone();
-    let changeset = GridBlockMetaChangeset {
+    let changeset = GridBlockRevisionChangeset {
         block_id: grid_block.block_id.clone(),
         start_row_index: Some(2),
         row_count: Some(10),
@@ -167,7 +167,7 @@ async fn grid_create_row() {
 #[tokio::test]
 async fn grid_create_row2() {
     let mut test = GridEditorTest::new().await;
-    let create_row_context = CreateRowMetaBuilder::new(&test.field_metas).build();
+    let create_row_context = CreateRowMetaBuilder::new(&test.field_revs).build();
     let scripts = vec![
         AssertRowCount(3),
         CreateRow {
@@ -181,7 +181,7 @@ async fn grid_create_row2() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridEditorTest::new().await;
-    let context = CreateRowMetaBuilder::new(&test.field_metas).build();
+    let context = CreateRowMetaBuilder::new(&test.field_revs).build();
     let changeset = RowMetaChangeset {
         row_id: context.row_id.clone(),
         height: None,
@@ -204,8 +204,8 @@ async fn grid_update_row() {
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridEditorTest::new().await;
-    let context_1 = CreateRowMetaBuilder::new(&test.field_metas).build();
-    let context_2 = CreateRowMetaBuilder::new(&test.field_metas).build();
+    let context_1 = CreateRowMetaBuilder::new(&test.field_revs).build();
+    let context_2 = CreateRowMetaBuilder::new(&test.field_revs).build();
     let row_ids = vec![context_1.row_id.clone(), context_2.row_id.clone()];
     let scripts = vec![
         AssertRowCount(3),
@@ -230,8 +230,8 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_row_add_cells_test() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowMetaBuilder::new(&test.field_metas);
-    for field in &test.field_metas {
+    let mut builder = CreateRowMetaBuilder::new(&test.field_revs);
+    for field in &test.field_revs {
         match field.field_type {
             FieldType::RichText => {
                 builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
@@ -275,10 +275,10 @@ async fn grid_row_add_cells_test() {
 #[tokio::test]
 async fn grid_row_add_date_cell_test() {
     let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowMetaBuilder::new(&test.field_metas);
+    let mut builder = CreateRowMetaBuilder::new(&test.field_revs);
     let mut date_field = None;
     let timestamp = 1647390674;
-    for field in &test.field_metas {
+    for field in &test.field_revs {
         if field.field_type == FieldType::DateTime {
             date_field = Some(field.clone());
             NaiveDateTime::from_timestamp(123, 0);
@@ -307,27 +307,27 @@ async fn grid_row_add_date_cell_test() {
 #[tokio::test]
 async fn grid_cell_update() {
     let mut test = GridEditorTest::new().await;
-    let field_metas = &test.field_metas;
-    let row_metas = &test.row_metas;
-    let grid_blocks = &test.grid_blocks;
-    assert_eq!(row_metas.len(), 3);
+    let field_revs = &test.field_revs;
+    let row_revs = &test.row_revs;
+    let grid_blocks = &test.grid_block_revs;
+    assert_eq!(row_revs.len(), 3);
     assert_eq!(grid_blocks.len(), 1);
 
     let block_id = &grid_blocks.first().unwrap().block_id;
     let mut scripts = vec![];
-    for (index, row_meta) in row_metas.iter().enumerate() {
-        for field_meta in field_metas {
+    for (index, row_rev) in row_revs.iter().enumerate() {
+        for field_rev in field_revs {
             if index == 0 {
-                let data = match field_meta.field_type {
+                let data = match field_rev.field_type {
                     FieldType::RichText => "".to_string(),
                     FieldType::Number => "123".to_string(),
                     FieldType::DateTime => make_date_cell_string("123"),
                     FieldType::SingleSelect => {
-                        let type_option = SingleSelectTypeOption::from(field_meta);
+                        let type_option = SingleSelectTypeOption::from(field_rev);
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::MultiSelect => {
-                        let type_option = MultiSelectTypeOption::from(field_meta);
+                        let type_option = MultiSelectTypeOption::from(field_rev);
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::Checkbox => "1".to_string(),
@@ -337,8 +337,8 @@ async fn grid_cell_update() {
                 scripts.push(UpdateCell {
                     changeset: CellChangeset {
                         grid_id: block_id.to_string(),
-                        row_id: row_meta.id.clone(),
-                        field_id: field_meta.id.clone(),
+                        row_id: row_rev.id.clone(),
+                        field_id: field_rev.id.clone(),
                         cell_content_changeset: Some(data),
                     },
                     is_err: false,
@@ -346,7 +346,7 @@ async fn grid_cell_update() {
             }
 
             if index == 1 {
-                let (data, is_err) = match field_meta.field_type {
+                let (data, is_err) = match field_rev.field_type {
                     FieldType::RichText => ("1".to_string().repeat(10001), true),
                     FieldType::Number => ("abc".to_string(), true),
                     FieldType::DateTime => ("abc".to_string(), true),
@@ -359,8 +359,8 @@ async fn grid_cell_update() {
                 scripts.push(UpdateCell {
                     changeset: CellChangeset {
                         grid_id: block_id.to_string(),
-                        row_id: row_meta.id.clone(),
-                        field_id: field_meta.id.clone(),
+                        row_id: row_rev.id.clone(),
+                        field_id: field_rev.id.clone(),
                         cell_content_changeset: Some(data),
                     },
                     is_err,

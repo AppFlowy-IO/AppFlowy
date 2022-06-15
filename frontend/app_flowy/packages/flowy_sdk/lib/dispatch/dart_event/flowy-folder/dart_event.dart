@@ -253,6 +253,40 @@ class FolderEventDuplicateView {
     }
 }
 
+class FolderEventCloseView {
+     ViewId request;
+     FolderEventCloseView(this.request);
+
+    Future<Either<Unit, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = FolderEvent.CloseView.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class FolderEventReadViewInfo {
+     ViewId request;
+     FolderEventReadViewInfo(this.request);
+
+    Future<Either<ViewInfo, FlowyError>> send() {
+    final request = FFIRequest.create()
+          ..event = FolderEvent.ReadViewInfo.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(ViewInfo.fromBuffer(okBytes)),
+           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class FolderEventCopyLink {
     FolderEventCopyLink();
 
@@ -274,23 +308,6 @@ class FolderEventSetLatestView {
     Future<Either<Unit, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = FolderEvent.SetLatestView.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (bytes) => left(unit),
-           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
-        ));
-    }
-}
-
-class FolderEventCloseView {
-     ViewId request;
-     FolderEventCloseView(this.request);
-
-    Future<Either<Unit, FlowyError>> send() {
-    final request = FFIRequest.create()
-          ..event = FolderEvent.CloseView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

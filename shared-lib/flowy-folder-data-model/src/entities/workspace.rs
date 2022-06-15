@@ -6,13 +6,13 @@ use crate::{
 };
 use flowy_derive::ProtoBuf;
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
+
 use std::convert::TryInto;
 
 pub fn gen_workspace_id() -> String {
     nanoid!(10)
 }
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Workspace {
     #[pb(index = 1)]
     pub id: String,
