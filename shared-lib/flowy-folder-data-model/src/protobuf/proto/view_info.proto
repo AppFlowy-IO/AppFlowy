@@ -16,12 +16,18 @@ message ViewExtData {
     ViewSort sort = 3;
 }
 message ViewFilter {
-    string field_id = 1;
+    string object_id = 1;
 }
 message ViewGroup {
-    string group_field_id = 1;
-    oneof one_of_sub_group_field_id { string sub_group_field_id = 2; };
+    string group_object_id = 1;
+    oneof one_of_sub_group_object_id { string sub_group_object_id = 2; };
 }
 message ViewSort {
-    string field_id = 1;
+    string object_id = 1;
+}
+message UpdateViewInfoPayload {
+    string view_id = 1;
+    oneof one_of_filter { ViewFilter filter = 2; };
+    oneof one_of_group { ViewGroup group = 3; };
+    oneof one_of_sort { ViewSort sort = 4; };
 }

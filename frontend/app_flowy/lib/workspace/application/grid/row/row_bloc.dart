@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show Field;
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

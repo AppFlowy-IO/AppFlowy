@@ -27,6 +27,7 @@ class FolderEvent extends $pb.ProtobufEnum {
   static const FolderEvent DuplicateView = FolderEvent._(205, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateView');
   static const FolderEvent CloseView = FolderEvent._(206, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CloseView');
   static const FolderEvent ReadViewInfo = FolderEvent._(207, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadViewInfo');
+  static const FolderEvent UpdateViewInfo = FolderEvent._(208, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateViewInfo');
   static const FolderEvent CopyLink = FolderEvent._(220, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CopyLink');
   static const FolderEvent SetLatestView = FolderEvent._(221, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SetLatestView');
   static const FolderEvent MoveFolderItem = FolderEvent._(230, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'MoveFolderItem');
@@ -54,6 +55,7 @@ class FolderEvent extends $pb.ProtobufEnum {
     DuplicateView,
     CloseView,
     ReadViewInfo,
+    UpdateViewInfo,
     CopyLink,
     SetLatestView,
     MoveFolderItem,

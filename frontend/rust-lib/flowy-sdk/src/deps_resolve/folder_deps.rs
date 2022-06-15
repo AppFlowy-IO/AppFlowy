@@ -1,10 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_sync::client_document::default::initial_quill_delta_string;
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
-use flowy_sync::entities::ws_data::ClientRevisionWSData;
-use flowy_text_block::TextBlockManager;
-
+use flowy_folder::entities::UpdateViewInfoParams;
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
@@ -14,20 +10,21 @@ use flowy_folder::{
 };
 use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::util::make_default_grid;
-
+use flowy_grid_data_model::revision::BuildGridContext;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
+use flowy_sync::client_document::default::initial_quill_delta_string;
+use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::ws_data::ClientRevisionWSData;
+use flowy_text_block::TextBlockManager;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;
-
-use flowy_folder::entities::UpdateViewInfoParams;
-use flowy_grid_data_model::entities::BuildGridContext;
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
 

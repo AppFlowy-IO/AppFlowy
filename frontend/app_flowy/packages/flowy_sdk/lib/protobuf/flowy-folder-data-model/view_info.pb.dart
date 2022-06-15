@@ -231,17 +231,17 @@ class ViewExtData extends $pb.GeneratedMessage {
 
 class ViewFilter extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewFilter', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId')
     ..hasRequiredFields = false
   ;
 
   ViewFilter._() : super();
   factory ViewFilter({
-    $core.String? fieldId,
+    $core.String? objectId,
   }) {
     final _result = create();
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
+    if (objectId != null) {
+      _result.objectId = objectId;
     }
     return _result;
   }
@@ -267,43 +267,43 @@ class ViewFilter extends $pb.GeneratedMessage {
   static ViewFilter? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get fieldId => $_getSZ(0);
+  $core.String get objectId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set fieldId($core.String v) { $_setString(0, v); }
+  set objectId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasFieldId() => $_has(0);
+  $core.bool hasObjectId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearFieldId() => clearField(1);
+  void clearObjectId() => clearField(1);
 }
 
-enum ViewGroup_OneOfSubGroupFieldId {
-  subGroupFieldId, 
+enum ViewGroup_OneOfSubGroupObjectId {
+  subGroupObjectId, 
   notSet
 }
 
 class ViewGroup extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, ViewGroup_OneOfSubGroupFieldId> _ViewGroup_OneOfSubGroupFieldIdByTag = {
-    2 : ViewGroup_OneOfSubGroupFieldId.subGroupFieldId,
-    0 : ViewGroup_OneOfSubGroupFieldId.notSet
+  static const $core.Map<$core.int, ViewGroup_OneOfSubGroupObjectId> _ViewGroup_OneOfSubGroupObjectIdByTag = {
+    2 : ViewGroup_OneOfSubGroupObjectId.subGroupObjectId,
+    0 : ViewGroup_OneOfSubGroupObjectId.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewGroup', createEmptyInstance: create)
     ..oo(0, [2])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'groupFieldId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'subGroupFieldId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'groupObjectId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'subGroupObjectId')
     ..hasRequiredFields = false
   ;
 
   ViewGroup._() : super();
   factory ViewGroup({
-    $core.String? groupFieldId,
-    $core.String? subGroupFieldId,
+    $core.String? groupObjectId,
+    $core.String? subGroupObjectId,
   }) {
     final _result = create();
-    if (groupFieldId != null) {
-      _result.groupFieldId = groupFieldId;
+    if (groupObjectId != null) {
+      _result.groupObjectId = groupObjectId;
     }
-    if (subGroupFieldId != null) {
-      _result.subGroupFieldId = subGroupFieldId;
+    if (subGroupObjectId != null) {
+      _result.subGroupObjectId = subGroupObjectId;
     }
     return _result;
   }
@@ -328,41 +328,41 @@ class ViewGroup extends $pb.GeneratedMessage {
   static ViewGroup getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ViewGroup>(create);
   static ViewGroup? _defaultInstance;
 
-  ViewGroup_OneOfSubGroupFieldId whichOneOfSubGroupFieldId() => _ViewGroup_OneOfSubGroupFieldIdByTag[$_whichOneof(0)]!;
-  void clearOneOfSubGroupFieldId() => clearField($_whichOneof(0));
+  ViewGroup_OneOfSubGroupObjectId whichOneOfSubGroupObjectId() => _ViewGroup_OneOfSubGroupObjectIdByTag[$_whichOneof(0)]!;
+  void clearOneOfSubGroupObjectId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $core.String get groupFieldId => $_getSZ(0);
+  $core.String get groupObjectId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set groupFieldId($core.String v) { $_setString(0, v); }
+  set groupObjectId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGroupFieldId() => $_has(0);
+  $core.bool hasGroupObjectId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGroupFieldId() => clearField(1);
+  void clearGroupObjectId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get subGroupFieldId => $_getSZ(1);
+  $core.String get subGroupObjectId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set subGroupFieldId($core.String v) { $_setString(1, v); }
+  set subGroupObjectId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasSubGroupFieldId() => $_has(1);
+  $core.bool hasSubGroupObjectId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearSubGroupFieldId() => clearField(2);
+  void clearSubGroupObjectId() => clearField(2);
 }
 
 class ViewSort extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewSort', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fieldId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'objectId')
     ..hasRequiredFields = false
   ;
 
   ViewSort._() : super();
   factory ViewSort({
-    $core.String? fieldId,
+    $core.String? objectId,
   }) {
     final _result = create();
-    if (fieldId != null) {
-      _result.fieldId = fieldId;
+    if (objectId != null) {
+      _result.objectId = objectId;
     }
     return _result;
   }
@@ -388,12 +388,146 @@ class ViewSort extends $pb.GeneratedMessage {
   static ViewSort? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get fieldId => $_getSZ(0);
+  $core.String get objectId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set fieldId($core.String v) { $_setString(0, v); }
+  set objectId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasFieldId() => $_has(0);
+  $core.bool hasObjectId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearFieldId() => clearField(1);
+  void clearObjectId() => clearField(1);
+}
+
+enum UpdateViewInfoPayload_OneOfFilter {
+  filter, 
+  notSet
+}
+
+enum UpdateViewInfoPayload_OneOfGroup {
+  group, 
+  notSet
+}
+
+enum UpdateViewInfoPayload_OneOfSort {
+  sort, 
+  notSet
+}
+
+class UpdateViewInfoPayload extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateViewInfoPayload_OneOfFilter> _UpdateViewInfoPayload_OneOfFilterByTag = {
+    2 : UpdateViewInfoPayload_OneOfFilter.filter,
+    0 : UpdateViewInfoPayload_OneOfFilter.notSet
+  };
+  static const $core.Map<$core.int, UpdateViewInfoPayload_OneOfGroup> _UpdateViewInfoPayload_OneOfGroupByTag = {
+    3 : UpdateViewInfoPayload_OneOfGroup.group,
+    0 : UpdateViewInfoPayload_OneOfGroup.notSet
+  };
+  static const $core.Map<$core.int, UpdateViewInfoPayload_OneOfSort> _UpdateViewInfoPayload_OneOfSortByTag = {
+    4 : UpdateViewInfoPayload_OneOfSort.sort,
+    0 : UpdateViewInfoPayload_OneOfSort.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateViewInfoPayload', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..oo(1, [3])
+    ..oo(2, [4])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..aOM<ViewFilter>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'filter', subBuilder: ViewFilter.create)
+    ..aOM<ViewGroup>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'group', subBuilder: ViewGroup.create)
+    ..aOM<ViewSort>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sort', subBuilder: ViewSort.create)
+    ..hasRequiredFields = false
+  ;
+
+  UpdateViewInfoPayload._() : super();
+  factory UpdateViewInfoPayload({
+    $core.String? viewId,
+    ViewFilter? filter,
+    ViewGroup? group,
+    ViewSort? sort,
+  }) {
+    final _result = create();
+    if (viewId != null) {
+      _result.viewId = viewId;
+    }
+    if (filter != null) {
+      _result.filter = filter;
+    }
+    if (group != null) {
+      _result.group = group;
+    }
+    if (sort != null) {
+      _result.sort = sort;
+    }
+    return _result;
+  }
+  factory UpdateViewInfoPayload.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateViewInfoPayload.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UpdateViewInfoPayload clone() => UpdateViewInfoPayload()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UpdateViewInfoPayload copyWith(void Function(UpdateViewInfoPayload) updates) => super.copyWith((message) => updates(message as UpdateViewInfoPayload)) as UpdateViewInfoPayload; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static UpdateViewInfoPayload create() => UpdateViewInfoPayload._();
+  UpdateViewInfoPayload createEmptyInstance() => create();
+  static $pb.PbList<UpdateViewInfoPayload> createRepeated() => $pb.PbList<UpdateViewInfoPayload>();
+  @$core.pragma('dart2js:noInline')
+  static UpdateViewInfoPayload getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateViewInfoPayload>(create);
+  static UpdateViewInfoPayload? _defaultInstance;
+
+  UpdateViewInfoPayload_OneOfFilter whichOneOfFilter() => _UpdateViewInfoPayload_OneOfFilterByTag[$_whichOneof(0)]!;
+  void clearOneOfFilter() => clearField($_whichOneof(0));
+
+  UpdateViewInfoPayload_OneOfGroup whichOneOfGroup() => _UpdateViewInfoPayload_OneOfGroupByTag[$_whichOneof(1)]!;
+  void clearOneOfGroup() => clearField($_whichOneof(1));
+
+  UpdateViewInfoPayload_OneOfSort whichOneOfSort() => _UpdateViewInfoPayload_OneOfSortByTag[$_whichOneof(2)]!;
+  void clearOneOfSort() => clearField($_whichOneof(2));
+
+  @$pb.TagNumber(1)
+  $core.String get viewId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set viewId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasViewId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearViewId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  ViewFilter get filter => $_getN(1);
+  @$pb.TagNumber(2)
+  set filter(ViewFilter v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFilter() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFilter() => clearField(2);
+  @$pb.TagNumber(2)
+  ViewFilter ensureFilter() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  ViewGroup get group => $_getN(2);
+  @$pb.TagNumber(3)
+  set group(ViewGroup v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasGroup() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearGroup() => clearField(3);
+  @$pb.TagNumber(3)
+  ViewGroup ensureGroup() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  ViewSort get sort => $_getN(3);
+  @$pb.TagNumber(4)
+  set sort(ViewSort v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasSort() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSort() => clearField(4);
+  @$pb.TagNumber(4)
+  ViewSort ensureSort() => $_ensure(3);
 }
 

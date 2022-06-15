@@ -29,6 +29,7 @@ const FolderEvent$json = const {
     const {'1': 'DuplicateView', '2': 205},
     const {'1': 'CloseView', '2': 206},
     const {'1': 'ReadViewInfo', '2': 207},
+    const {'1': 'UpdateViewInfo', '2': 208},
     const {'1': 'CopyLink', '2': 220},
     const {'1': 'SetLatestView', '2': 221},
     const {'1': 'MoveFolderItem', '2': 230},
@@ -41,4 +42,4 @@ const FolderEvent$json = const {
 };
 
 /// Descriptor for `FolderEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARIOCglDbG9zZVZpZXcQzgESEQoMUmVhZFZpZXdJbmZvEM8BEg0KCENvcHlMaW5rENwBEhIKDVNldExhdGVzdFZpZXcQ3QESEwoOTW92ZUZvbGRlckl0ZW0Q5gESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIUCg9SZXN0b3JlQWxsVHJhc2gQrwISEwoORGVsZXRlQWxsVHJhc2gQsAI=');
+final $typed_data.Uint8List folderEventDescriptor = $convert.base64Decode('CgtGb2xkZXJFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARIOCglDbG9zZVZpZXcQzgESEQoMUmVhZFZpZXdJbmZvEM8BEhMKDlVwZGF0ZVZpZXdJbmZvENABEg0KCENvcHlMaW5rENwBEhIKDVNldExhdGVzdFZpZXcQ3QESEwoOTW92ZUZvbGRlckl0ZW0Q5gESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIUCg9SZXN0b3JlQWxsVHJhc2gQrwISEwoORGVsZXRlQWxsVHJhc2gQsAI=');

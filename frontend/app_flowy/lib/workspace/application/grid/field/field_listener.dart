@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';

@@ -6,7 +6,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{BuildGridContext, GridMeta};
+use flowy_grid_data_model::revision::{BuildGridContext, GridRevision};
 use flowy_revision::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
@@ -156,14 +156,14 @@ pub async fn make_grid_view_data(
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    let grid_meta = GridMeta {
+    let grid_rev = GridRevision {
         grid_id: view_id.to_string(),
-        fields: build_context.field_metas,
+        fields: build_context.field_revs,
         blocks: build_context.blocks,
     };
 
     // Create grid
-    let grid_meta_delta = make_grid_delta(&grid_meta);
+    let grid_meta_delta = make_grid_delta(&grid_rev);
     let grid_delta_data = grid_meta_delta.to_delta_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();

@@ -18,6 +18,7 @@ enum FolderEvent {
     DuplicateView = 205;
     CloseView = 206;
     ReadViewInfo = 207;
+    UpdateViewInfo = 208;
     CopyLink = 220;
     SetLatestView = 221;
     MoveFolderItem = 230;

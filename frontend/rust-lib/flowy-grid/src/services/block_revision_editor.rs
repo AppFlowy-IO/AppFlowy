@@ -1,8 +1,9 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset, RowOrder};
+use flowy_grid_data_model::entities::RowOrder;
+use flowy_grid_data_model::revision::{CellRevision, GridBlockRevisionData, RowMetaChangeset, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
-use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockMetaPad};
+use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
@@ -11,14 +12,14 @@ use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct GridBlockMetaEditor {
+pub struct GridBlockRevisionEditor {
     user_id: String,
     pub block_id: String,
-    pad: Arc<RwLock<GridBlockMetaPad>>,
+    pad: Arc<RwLock<GridBlockRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
 }
 
-impl GridBlockMetaEditor {
+impl GridBlockRevisionEditor {
     pub async fn new(
         user_id: &str,
         token: &str,
@@ -41,14 +42,14 @@ impl GridBlockMetaEditor {
         })
     }
 
-    pub async fn duplicate_block_meta_data(&self, duplicated_block_id: &str) -> GridBlockMetaData {
+    pub async fn duplicate_block_meta_data(&self, duplicated_block_id: &str) -> GridBlockRevisionData {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
 
     /// return current number of rows and the inserted index. The inserted index will be None if the start_row_id is None
     pub(crate) async fn create_row(
         &self,
-        row: RowMeta,
+        row: RowRevision,
         start_row_id: Option<String>,
     ) -> FlowyResult<(i32, Option<i32>)> {
         let mut row_count = 0;
@@ -62,7 +63,7 @@ impl GridBlockMetaEditor {
                     }
                 }
 
-                let change = block_pad.add_row_meta(row, start_row_id)?;
+                let change = block_pad.add_row_rev(row, start_row_id)?;
                 row_count = block_pad.number_of_rows();
 
                 if row_index.is_none() {
@@ -99,27 +100,27 @@ impl GridBlockMetaEditor {
         Ok(())
     }
 
-    pub async fn get_row_meta(&self, row_id: &str) -> FlowyResult<Option<Arc<RowMeta>>> {
+    pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
         let row_ids = vec![Cow::Borrowed(row_id)];
-        let row_meta = self.get_row_metas(Some(row_ids)).await?.pop();
-        Ok(row_meta)
+        let row_rev = self.get_row_revs(Some(row_ids)).await?.pop();
+        Ok(row_rev)
     }
 
-    pub async fn get_row_metas<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<Arc<RowMeta>>>
+    pub async fn get_row_revs<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<Arc<RowRevision>>>
     where
         T: AsRef<str> + ToOwned + ?Sized,
     {
-        let row_metas = self.pad.read().await.get_row_metas(row_ids)?;
-        Ok(row_metas)
+        let row_revs = self.pad.read().await.get_row_revs(row_ids)?;
+        Ok(row_revs)
     }
 
-    pub async fn get_cell_metas(
+    pub async fn get_cell_revs(
         &self,
         field_id: &str,
         row_ids: Option<Vec<Cow<'_, String>>>,
-    ) -> FlowyResult<Vec<CellMeta>> {
-        let cell_metas = self.pad.read().await.get_cell_metas(field_id, row_ids)?;
-        Ok(cell_metas)
+    ) -> FlowyResult<Vec<CellRevision>> {
+        let cell_revs = self.pad.read().await.get_cell_revs(field_id, row_ids)?;
+        Ok(cell_revs)
     }
 
     pub async fn get_row_order(&self, row_id: &str) -> FlowyResult<Option<RowOrder>> {
@@ -135,7 +136,7 @@ impl GridBlockMetaEditor {
             .pad
             .read()
             .await
-            .get_row_metas(row_ids)?
+            .get_row_revs(row_ids)?
             .iter()
             .map(RowOrder::from)
             .collect::<Vec<RowOrder>>();
@@ -144,7 +145,7 @@ impl GridBlockMetaEditor {
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: for<'a> FnOnce(&'a mut GridBlockMetaPad) -> FlowyResult<Option<GridBlockMetaChange>>,
+        F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockMetaChange>>,
     {
         let mut write_guard = self.pad.write().await;
         match f(&mut *write_guard)? {
@@ -191,10 +192,10 @@ impl RevisionCloudService for GridBlockMetaRevisionCloudService {
 
 struct GridBlockMetaPadBuilder();
 impl RevisionObjectBuilder for GridBlockMetaPadBuilder {
-    type Output = GridBlockMetaPad;
+    type Output = GridBlockRevisionPad;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridBlockMetaPad::from_revisions(object_id, revisions)?;
+        let pad = GridBlockRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
 }

@@ -1,8 +1,8 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
-use flowy_grid_data_model::entities::{
-    gen_block_id, gen_row_id, CellMeta, GridBlockMetaData, RowMeta, RowMetaChangeset,
+use flowy_grid_data_model::revision::{
+    gen_block_id, gen_row_id, CellRevision, GridBlockRevisionData, RowMetaChangeset, RowRevision,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use serde::{Deserialize, Serialize};
@@ -11,20 +11,20 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridBlockMetaDelta = PlainTextDelta;
-pub type GridBlockMetaDeltaBuilder = PlainTextDeltaBuilder;
+pub type GridBlockRevisionDelta = PlainTextDelta;
+pub type GridBlockRevisionDeltaBuilder = PlainTextDeltaBuilder;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct GridBlockMetaPad {
+pub struct GridBlockRevisionPad {
     block_id: String,
-    rows: Vec<Arc<RowMeta>>,
+    rows: Vec<Arc<RowRevision>>,
 
     #[serde(skip)]
-    pub(crate) delta: GridBlockMetaDelta,
+    pub(crate) delta: GridBlockRevisionDelta,
 }
 
-impl GridBlockMetaPad {
-    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockMetaData {
+impl GridBlockRevisionPad {
+    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockRevisionData {
         let duplicated_rows = self
             .rows
             .iter()
@@ -34,34 +34,38 @@ impl GridBlockMetaPad {
                 duplicated_row.block_id = duplicated_block_id.to_string();
                 duplicated_row
             })
-            .collect::<Vec<RowMeta>>();
-        GridBlockMetaData {
+            .collect::<Vec<RowRevision>>();
+        GridBlockRevisionData {
             block_id: duplicated_block_id.to_string(),
             rows: duplicated_rows,
         }
     }
 
-    pub fn from_delta(delta: GridBlockMetaDelta) -> CollaborateResult<Self> {
+    pub fn from_delta(delta: GridBlockRevisionDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        let meta_data: GridBlockMetaData = serde_json::from_str(&s).map_err(|e| {
+        let meta_data: GridBlockRevisionData = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             tracing::error!("{}", s);
             CollaborateError::internal().context(msg)
         })?;
         let block_id = meta_data.block_id;
-        let rows = meta_data.rows.into_iter().map(Arc::new).collect::<Vec<Arc<RowMeta>>>();
+        let rows = meta_data
+            .rows
+            .into_iter()
+            .map(Arc::new)
+            .collect::<Vec<Arc<RowRevision>>>();
         Ok(Self { block_id, rows, delta })
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let block_delta: GridBlockMetaDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
+        let block_delta: GridBlockRevisionDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(block_delta)
     }
 
     #[tracing::instrument(level = "trace", skip(self, row), err)]
-    pub fn add_row_meta(
+    pub fn add_row_rev(
         &mut self,
-        row: RowMeta,
+        row: RowRevision,
         start_row_id: Option<String>,
     ) -> CollaborateResult<Option<GridBlockMetaChange>> {
         self.modify(|rows| {
@@ -86,7 +90,7 @@ impl GridBlockMetaPad {
         })
     }
 
-    pub fn get_row_metas<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> CollaborateResult<Vec<Arc<RowMeta>>>
+    pub fn get_row_revs<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> CollaborateResult<Vec<Arc<RowRevision>>>
     where
         T: AsRef<str> + ToOwned + ?Sized,
     {
@@ -97,7 +101,7 @@ impl GridBlockMetaPad {
                     .rows
                     .iter()
                     .map(|row| (row.id.as_str(), row.clone()))
-                    .collect::<HashMap<&str, Arc<RowMeta>>>();
+                    .collect::<HashMap<&str, Arc<RowRevision>>>();
 
                 Ok(row_ids
                     .iter()
@@ -116,20 +120,20 @@ impl GridBlockMetaPad {
         }
     }
 
-    pub fn get_cell_metas(
+    pub fn get_cell_revs(
         &self,
         field_id: &str,
         row_ids: Option<Vec<Cow<'_, String>>>,
-    ) -> CollaborateResult<Vec<CellMeta>> {
-        let rows = self.get_row_metas(row_ids)?;
-        let cell_metas = rows
+    ) -> CollaborateResult<Vec<CellRevision>> {
+        let rows = self.get_row_revs(row_ids)?;
+        let cell_revs = rows
             .iter()
             .flat_map(|row| {
-                let cell_meta = row.cells.get(field_id)?;
-                Some(cell_meta.clone())
+                let cell_rev = row.cells.get(field_id)?;
+                Some(cell_rev.clone())
             })
-            .collect::<Vec<CellMeta>>();
-        Ok(cell_metas)
+            .collect::<Vec<CellRevision>>();
+        Ok(cell_revs)
     }
 
     pub fn number_of_rows(&self) -> i32 {
@@ -169,11 +173,11 @@ impl GridBlockMetaPad {
     }
 
     pub fn move_row(&mut self, row_id: &str, from: usize, to: usize) -> CollaborateResult<Option<GridBlockMetaChange>> {
-        self.modify(|row_metas| {
-            if let Some(position) = row_metas.iter().position(|row_meta| row_meta.id == row_id) {
+        self.modify(|row_revs| {
+            if let Some(position) = row_revs.iter().position(|row_rev| row_rev.id == row_id) {
                 debug_assert_eq!(from, position);
-                let row_meta = row_metas.remove(position);
-                row_metas.insert(to, row_meta);
+                let row_rev = row_revs.remove(position);
+                row_revs.insert(to, row_rev);
                 Ok(Some(()))
             } else {
                 Ok(None)
@@ -183,7 +187,7 @@ impl GridBlockMetaPad {
 
     pub fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
     where
-        F: for<'a> FnOnce(&'a mut Vec<Arc<RowMeta>>) -> CollaborateResult<Option<()>>,
+        F: for<'a> FnOnce(&'a mut Vec<Arc<RowRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
         match f(&mut self.rows)? {
@@ -209,11 +213,11 @@ impl GridBlockMetaPad {
 
     fn modify_row<F>(&mut self, row_id: &str, f: F) -> CollaborateResult<Option<GridBlockMetaChange>>
     where
-        F: FnOnce(&mut RowMeta) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut RowRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify(|rows| {
-            if let Some(row_meta) = rows.iter_mut().find(|row_meta| row_id == row_meta.id) {
-                f(Arc::make_mut(row_meta))
+            if let Some(row_rev) = rows.iter_mut().find(|row_rev| row_id == row_rev.id) {
+                f(Arc::make_mut(row_rev))
             } else {
                 tracing::warn!("[BlockMetaPad]: Can't find any row with id: {}", row_id);
                 Ok(None)
@@ -236,32 +240,32 @@ impl GridBlockMetaPad {
 }
 
 pub struct GridBlockMetaChange {
-    pub delta: GridBlockMetaDelta,
+    pub delta: GridBlockRevisionDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockMetaData) -> GridBlockMetaDelta {
+pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockRevisionData) -> GridBlockRevisionDelta {
     let json = serde_json::to_string(&grid_block_meta_data).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockMetaData) -> RepeatedRevision {
+pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevisionData) -> RepeatedRevision {
     let delta = make_block_meta_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
     revision.into()
 }
 
-impl std::default::Default for GridBlockMetaPad {
+impl std::default::Default for GridBlockRevisionPad {
     fn default() -> Self {
-        let block_meta_data = GridBlockMetaData {
+        let block_meta_data = GridBlockRevisionData {
             block_id: gen_block_id(),
             rows: vec![],
         };
 
         let delta = make_block_meta_delta(&block_meta_data);
-        GridBlockMetaPad {
+        GridBlockRevisionPad {
             block_id: block_meta_data.block_id,
             rows: block_meta_data.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
             delta,
@@ -271,14 +275,14 @@ impl std::default::Default for GridBlockMetaPad {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_grid::{GridBlockMetaDelta, GridBlockMetaPad};
-    use flowy_grid_data_model::entities::{RowMeta, RowMetaChangeset};
+    use crate::client_grid::{GridBlockRevisionDelta, GridBlockRevisionPad};
+    use flowy_grid_data_model::revision::{RowMetaChangeset, RowRevision};
     use std::borrow::Cow;
 
     #[test]
     fn block_meta_add_row() {
         let mut pad = test_pad();
-        let row = RowMeta {
+        let row = RowRevision {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
             cells: Default::default(),
@@ -286,7 +290,7 @@ mod tests {
             visibility: false,
         };
 
-        let change = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_rev(row.clone(), None).unwrap().unwrap();
         assert_eq!(pad.rows.first().unwrap().as_ref(), &row);
         assert_eq!(
             change.delta.to_delta_str(),
@@ -297,23 +301,23 @@ mod tests {
     #[test]
     fn block_meta_insert_row() {
         let mut pad = test_pad();
-        let row_1 = test_row_meta("1", &pad);
-        let row_2 = test_row_meta("2", &pad);
-        let row_3 = test_row_meta("3", &pad);
+        let row_1 = test_row_rev("1", &pad);
+        let row_2 = test_row_rev("2", &pad);
+        let row_3 = test_row_rev("3", &pad);
 
-        let change = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_rev(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
+        let change = pad.add_row_rev(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":90},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
-        let change = pad.add_row_meta(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
+        let change = pad.add_row_rev(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
             r#"[{"retain":157},{"insert":",{\"id\":\"3\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
@@ -324,8 +328,8 @@ mod tests {
         assert_eq!(*pad.rows[2], row_3);
     }
 
-    fn test_row_meta(id: &str, pad: &GridBlockMetaPad) -> RowMeta {
-        RowMeta {
+    fn test_row_rev(id: &str, pad: &GridBlockRevisionPad) -> RowRevision {
+        RowRevision {
             id: id.to_string(),
             block_id: pad.block_id.clone(),
             cells: Default::default(),
@@ -337,13 +341,13 @@ mod tests {
     #[test]
     fn block_meta_insert_row2() {
         let mut pad = test_pad();
-        let row_1 = test_row_meta("1", &pad);
-        let row_2 = test_row_meta("2", &pad);
-        let row_3 = test_row_meta("3", &pad);
+        let row_1 = test_row_rev("1", &pad);
+        let row_2 = test_row_rev("2", &pad);
+        let row_3 = test_row_rev("3", &pad);
 
-        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row_meta(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_3.clone(), Some("1".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.rows[0], row_1);
         assert_eq!(*pad.rows[1], row_3);
@@ -353,13 +357,13 @@ mod tests {
     #[test]
     fn block_meta_insert_row3() {
         let mut pad = test_pad();
-        let row_1 = test_row_meta("1", &pad);
-        let row_2 = test_row_meta("2", &pad);
-        let row_3 = test_row_meta("3", &pad);
+        let row_1 = test_row_rev("1", &pad);
+        let row_2 = test_row_rev("2", &pad);
+        let row_3 = test_row_rev("3", &pad);
 
-        let _ = pad.add_row_meta(row_1.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row_meta(row_2.clone(), None).unwrap().unwrap();
-        let _ = pad.add_row_meta(row_3.clone(), Some("".to_string())).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_1.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_2.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row_3.clone(), Some("".to_string())).unwrap().unwrap();
 
         assert_eq!(*pad.rows[0], row_1);
         assert_eq!(*pad.rows[1], row_2);
@@ -370,7 +374,7 @@ mod tests {
     fn block_meta_delete_row() {
         let mut pad = test_pad();
         let pre_delta_str = pad.delta_str();
-        let row = RowMeta {
+        let row = RowRevision {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
             cells: Default::default(),
@@ -378,7 +382,7 @@ mod tests {
             visibility: false,
         };
 
-        let _ = pad.add_row_meta(row.clone(), None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row.clone(), None).unwrap().unwrap();
         let change = pad.delete_rows(vec![Cow::Borrowed(&row.id)]).unwrap().unwrap();
         assert_eq!(
             change.delta.to_delta_str(),
@@ -391,7 +395,7 @@ mod tests {
     #[test]
     fn block_meta_update_row() {
         let mut pad = test_pad();
-        let row = RowMeta {
+        let row = RowRevision {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
             cells: Default::default(),
@@ -406,7 +410,7 @@ mod tests {
             cell_by_field_id: Default::default(),
         };
 
-        let _ = pad.add_row_meta(row, None).unwrap().unwrap();
+        let _ = pad.add_row_rev(row, None).unwrap().unwrap();
         let change = pad.update_row(changeset).unwrap().unwrap();
 
         assert_eq!(
@@ -420,8 +424,9 @@ mod tests {
         );
     }
 
-    fn test_pad() -> GridBlockMetaPad {
-        let delta = GridBlockMetaDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
-        GridBlockMetaPad::from_delta(delta).unwrap()
+    fn test_pad() -> GridBlockRevisionPad {
+        let delta =
+            GridBlockRevisionDelta::from_delta_str(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
+        GridBlockRevisionPad::from_delta(delta).unwrap()
     }
 }

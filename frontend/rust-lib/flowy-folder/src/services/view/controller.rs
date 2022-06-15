@@ -259,26 +259,9 @@ impl ViewController {
         Ok(view_rev)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn update_view_info(&self, params: UpdateViewInfoParams) -> Result<ViewRevision, FlowyError> {
-        let changeset = ViewChangeset::new(params.clone());
-        let view_id = changeset.id.clone();
-        let view_rev = self
-            .persistence
-            .begin_transaction(|transaction| {
-                let _ = transaction.update_view(changeset)?;
-                let view_rev = transaction.read_view(&view_id)?;
-                let view: View = view_rev.clone().into();
-                send_dart_notification(&view_id, FolderNotification::ViewUpdated)
-                    .payload(view)
-                    .send();
-                let _ = notify_views_changed(&view_rev.belong_to_id, self.trash_controller.clone(), &transaction)?;
-                Ok(view_rev)
-            })
-            .await?;
-
-        let _ = self.update_view_on_server(params);
-        Ok(view_rev)
+    #[tracing::instrument(level = "debug", skip(self, _params), err)]
+    pub(crate) async fn update_view_info(&self, _params: UpdateViewInfoParams) -> Result<(), FlowyError> {
+        todo!()
     }
 
     pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<ViewRevision>> {

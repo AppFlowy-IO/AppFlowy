@@ -68,6 +68,7 @@ pub enum ErrorCode {
     FieldInvalidOperation = 444,
     TypeOptionDataIsEmpty = 450,
     InvalidDateTimeFormat = 500,
+    UnexpectedEmptyString = 999,
     InvalidData = 1000,
 }
 
@@ -121,6 +122,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             444 => ::std::option::Option::Some(ErrorCode::FieldInvalidOperation),
             450 => ::std::option::Option::Some(ErrorCode::TypeOptionDataIsEmpty),
             500 => ::std::option::Option::Some(ErrorCode::InvalidDateTimeFormat),
+            999 => ::std::option::Option::Some(ErrorCode::UnexpectedEmptyString),
             1000 => ::std::option::Option::Some(ErrorCode::InvalidData),
             _ => ::std::option::Option::None
         }
@@ -171,6 +173,7 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             ErrorCode::FieldInvalidOperation,
             ErrorCode::TypeOptionDataIsEmpty,
             ErrorCode::InvalidDateTimeFormat,
+            ErrorCode::UnexpectedEmptyString,
             ErrorCode::InvalidData,
         ];
         values
@@ -200,7 +203,7 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\ncode.proto*\x81\x08\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
+    \n\ncode.proto*\x9d\x08\n\tErrorCode\x12\x0c\n\x08Internal\x10\0\x12\x14\
     \n\x10UserUnauthorized\x10\x02\x12\x12\n\x0eRecordNotFound\x10\x03\x12\
     \x11\n\rUserIdIsEmpty\x10\x04\x12\x18\n\x14WorkspaceNameInvalid\x10d\x12\
     \x16\n\x12WorkspaceIdInvalid\x10e\x12\x18\n\x14AppColorStyleInvalid\x10f\
@@ -224,8 +227,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x10\xb9\x03\x12\x1c\n\x17SelectOptionNameIsEmpty\x10\xba\x03\x12\x13\n\
     \x0eFieldNotExists\x10\xbb\x03\x12\x1a\n\x15FieldInvalidOperation\x10\
     \xbc\x03\x12\x1a\n\x15TypeOptionDataIsEmpty\x10\xc2\x03\x12\x1a\n\x15Inv\
-    alidDateTimeFormat\x10\xf4\x03\x12\x10\n\x0bInvalidData\x10\xe8\x07b\x06\
-    proto3\
+    alidDateTimeFormat\x10\xf4\x03\x12\x1a\n\x15UnexpectedEmptyString\x10\
+    \xe7\x07\x12\x10\n\x0bInvalidData\x10\xe8\x07b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -744,7 +744,7 @@ impl ::protobuf::reflect::ProtobufValue for ViewExtData {
 #[derive(PartialEq,Clone,Default)]
 pub struct ViewFilter {
     // message fields
-    pub field_id: ::std::string::String,
+    pub object_id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -761,30 +761,30 @@ impl ViewFilter {
         ::std::default::Default::default()
     }
 
-    // string field_id = 1;
+    // string object_id = 1;
 
 
-    pub fn get_field_id(&self) -> &str {
-        &self.field_id
+    pub fn get_object_id(&self) -> &str {
+        &self.object_id
     }
-    pub fn clear_field_id(&mut self) {
-        self.field_id.clear();
+    pub fn clear_object_id(&mut self) {
+        self.object_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_field_id(&mut self, v: ::std::string::String) {
-        self.field_id = v;
+    pub fn set_object_id(&mut self, v: ::std::string::String) {
+        self.object_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.field_id
+    pub fn mut_object_id(&mut self) -> &mut ::std::string::String {
+        &mut self.object_id
     }
 
     // Take field
-    pub fn take_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    pub fn take_object_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.object_id, ::std::string::String::new())
     }
 }
 
@@ -798,7 +798,7 @@ impl ::protobuf::Message for ViewFilter {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.object_id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -812,8 +812,8 @@ impl ::protobuf::Message for ViewFilter {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.field_id);
+        if !self.object_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.object_id);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -821,8 +821,8 @@ impl ::protobuf::Message for ViewFilter {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.field_id.is_empty() {
-            os.write_string(1, &self.field_id)?;
+        if !self.object_id.is_empty() {
+            os.write_string(1, &self.object_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -863,9 +863,9 @@ impl ::protobuf::Message for ViewFilter {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "field_id",
-                |m: &ViewFilter| { &m.field_id },
-                |m: &mut ViewFilter| { &mut m.field_id },
+                "object_id",
+                |m: &ViewFilter| { &m.object_id },
+                |m: &mut ViewFilter| { &mut m.object_id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewFilter>(
                 "ViewFilter",
@@ -883,7 +883,7 @@ impl ::protobuf::Message for ViewFilter {
 
 impl ::protobuf::Clear for ViewFilter {
     fn clear(&mut self) {
-        self.field_id.clear();
+        self.object_id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -903,9 +903,9 @@ impl ::protobuf::reflect::ProtobufValue for ViewFilter {
 #[derive(PartialEq,Clone,Default)]
 pub struct ViewGroup {
     // message fields
-    pub group_field_id: ::std::string::String,
+    pub group_object_id: ::std::string::String,
     // message oneof groups
-    pub one_of_sub_group_field_id: ::std::option::Option<ViewGroup_oneof_one_of_sub_group_field_id>,
+    pub one_of_sub_group_object_id: ::std::option::Option<ViewGroup_oneof_one_of_sub_group_object_id>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -918,8 +918,8 @@ impl<'a> ::std::default::Default for &'a ViewGroup {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum ViewGroup_oneof_one_of_sub_group_field_id {
-    sub_group_field_id(::std::string::String),
+pub enum ViewGroup_oneof_one_of_sub_group_object_id {
+    sub_group_object_id(::std::string::String),
 }
 
 impl ViewGroup {
@@ -927,74 +927,74 @@ impl ViewGroup {
         ::std::default::Default::default()
     }
 
-    // string group_field_id = 1;
+    // string group_object_id = 1;
 
 
-    pub fn get_group_field_id(&self) -> &str {
-        &self.group_field_id
+    pub fn get_group_object_id(&self) -> &str {
+        &self.group_object_id
     }
-    pub fn clear_group_field_id(&mut self) {
-        self.group_field_id.clear();
+    pub fn clear_group_object_id(&mut self) {
+        self.group_object_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_group_field_id(&mut self, v: ::std::string::String) {
-        self.group_field_id = v;
+    pub fn set_group_object_id(&mut self, v: ::std::string::String) {
+        self.group_object_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_group_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.group_field_id
+    pub fn mut_group_object_id(&mut self) -> &mut ::std::string::String {
+        &mut self.group_object_id
     }
 
     // Take field
-    pub fn take_group_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.group_field_id, ::std::string::String::new())
+    pub fn take_group_object_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.group_object_id, ::std::string::String::new())
     }
 
-    // string sub_group_field_id = 2;
+    // string sub_group_object_id = 2;
 
 
-    pub fn get_sub_group_field_id(&self) -> &str {
-        match self.one_of_sub_group_field_id {
-            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v)) => v,
+    pub fn get_sub_group_object_id(&self) -> &str {
+        match self.one_of_sub_group_object_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_sub_group_field_id(&mut self) {
-        self.one_of_sub_group_field_id = ::std::option::Option::None;
+    pub fn clear_sub_group_object_id(&mut self) {
+        self.one_of_sub_group_object_id = ::std::option::Option::None;
     }
 
-    pub fn has_sub_group_field_id(&self) -> bool {
-        match self.one_of_sub_group_field_id {
-            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(..)) => true,
+    pub fn has_sub_group_object_id(&self) -> bool {
+        match self.one_of_sub_group_object_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_sub_group_field_id(&mut self, v: ::std::string::String) {
-        self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(v))
+    pub fn set_sub_group_object_id(&mut self, v: ::std::string::String) {
+        self.one_of_sub_group_object_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_sub_group_field_id(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(_)) = self.one_of_sub_group_field_id {
+    pub fn mut_sub_group_object_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(_)) = self.one_of_sub_group_object_id {
         } else {
-            self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(::std::string::String::new()));
+            self.one_of_sub_group_object_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(::std::string::String::new()));
         }
-        match self.one_of_sub_group_field_id {
-            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref mut v)) => v,
+        match self.one_of_sub_group_object_id {
+            ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_sub_group_field_id(&mut self) -> ::std::string::String {
-        if self.has_sub_group_field_id() {
-            match self.one_of_sub_group_field_id.take() {
-                ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(v)) => v,
+    pub fn take_sub_group_object_id(&mut self) -> ::std::string::String {
+        if self.has_sub_group_object_id() {
+            match self.one_of_sub_group_object_id.take() {
+                ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -1013,13 +1013,13 @@ impl ::protobuf::Message for ViewGroup {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.group_field_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.group_object_id)?;
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_sub_group_field_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(is.read_string()?));
+                    self.one_of_sub_group_object_id = ::std::option::Option::Some(ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1033,12 +1033,12 @@ impl ::protobuf::Message for ViewGroup {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.group_field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.group_field_id);
+        if !self.group_object_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.group_object_id);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_field_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_object_id {
             match v {
-                &ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v) => {
+                &ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
                 },
             };
@@ -1049,12 +1049,12 @@ impl ::protobuf::Message for ViewGroup {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.group_field_id.is_empty() {
-            os.write_string(1, &self.group_field_id)?;
+        if !self.group_object_id.is_empty() {
+            os.write_string(1, &self.group_object_id)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_field_id {
+        if let ::std::option::Option::Some(ref v) = self.one_of_sub_group_object_id {
             match v {
-                &ViewGroup_oneof_one_of_sub_group_field_id::sub_group_field_id(ref v) => {
+                &ViewGroup_oneof_one_of_sub_group_object_id::sub_group_object_id(ref v) => {
                     os.write_string(2, v)?;
                 },
             };
@@ -1098,14 +1098,14 @@ impl ::protobuf::Message for ViewGroup {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "group_field_id",
-                |m: &ViewGroup| { &m.group_field_id },
-                |m: &mut ViewGroup| { &mut m.group_field_id },
+                "group_object_id",
+                |m: &ViewGroup| { &m.group_object_id },
+                |m: &mut ViewGroup| { &mut m.group_object_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "sub_group_field_id",
-                ViewGroup::has_sub_group_field_id,
-                ViewGroup::get_sub_group_field_id,
+                "sub_group_object_id",
+                ViewGroup::has_sub_group_object_id,
+                ViewGroup::get_sub_group_object_id,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewGroup>(
                 "ViewGroup",
@@ -1123,8 +1123,8 @@ impl ::protobuf::Message for ViewGroup {
 
 impl ::protobuf::Clear for ViewGroup {
     fn clear(&mut self) {
-        self.group_field_id.clear();
-        self.one_of_sub_group_field_id = ::std::option::Option::None;
+        self.group_object_id.clear();
+        self.one_of_sub_group_object_id = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -1144,7 +1144,7 @@ impl ::protobuf::reflect::ProtobufValue for ViewGroup {
 #[derive(PartialEq,Clone,Default)]
 pub struct ViewSort {
     // message fields
-    pub field_id: ::std::string::String,
+    pub object_id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -1161,30 +1161,30 @@ impl ViewSort {
         ::std::default::Default::default()
     }
 
-    // string field_id = 1;
+    // string object_id = 1;
 
 
-    pub fn get_field_id(&self) -> &str {
-        &self.field_id
+    pub fn get_object_id(&self) -> &str {
+        &self.object_id
     }
-    pub fn clear_field_id(&mut self) {
-        self.field_id.clear();
+    pub fn clear_object_id(&mut self) {
+        self.object_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_field_id(&mut self, v: ::std::string::String) {
-        self.field_id = v;
+    pub fn set_object_id(&mut self, v: ::std::string::String) {
+        self.object_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_field_id(&mut self) -> &mut ::std::string::String {
-        &mut self.field_id
+    pub fn mut_object_id(&mut self) -> &mut ::std::string::String {
+        &mut self.object_id
     }
 
     // Take field
-    pub fn take_field_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.field_id, ::std::string::String::new())
+    pub fn take_object_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.object_id, ::std::string::String::new())
     }
 }
 
@@ -1198,7 +1198,7 @@ impl ::protobuf::Message for ViewSort {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.field_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.object_id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1212,8 +1212,8 @@ impl ::protobuf::Message for ViewSort {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.field_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.field_id);
+        if !self.object_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.object_id);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1221,8 +1221,8 @@ impl ::protobuf::Message for ViewSort {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.field_id.is_empty() {
-            os.write_string(1, &self.field_id)?;
+        if !self.object_id.is_empty() {
+            os.write_string(1, &self.object_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1263,9 +1263,9 @@ impl ::protobuf::Message for ViewSort {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "field_id",
-                |m: &ViewSort| { &m.field_id },
-                |m: &mut ViewSort| { &mut m.field_id },
+                "object_id",
+                |m: &ViewSort| { &m.object_id },
+                |m: &mut ViewSort| { &mut m.object_id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewSort>(
                 "ViewSort",
@@ -1283,7 +1283,7 @@ impl ::protobuf::Message for ViewSort {
 
 impl ::protobuf::Clear for ViewSort {
     fn clear(&mut self) {
-        self.field_id.clear();
+        self.object_id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1300,6 +1300,433 @@ impl ::protobuf::reflect::ProtobufValue for ViewSort {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct UpdateViewInfoPayload {
+    // message fields
+    pub view_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_filter: ::std::option::Option<UpdateViewInfoPayload_oneof_one_of_filter>,
+    pub one_of_group: ::std::option::Option<UpdateViewInfoPayload_oneof_one_of_group>,
+    pub one_of_sort: ::std::option::Option<UpdateViewInfoPayload_oneof_one_of_sort>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UpdateViewInfoPayload {
+    fn default() -> &'a UpdateViewInfoPayload {
+        <UpdateViewInfoPayload as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateViewInfoPayload_oneof_one_of_filter {
+    filter(ViewFilter),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateViewInfoPayload_oneof_one_of_group {
+    group(ViewGroup),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateViewInfoPayload_oneof_one_of_sort {
+    sort(ViewSort),
+}
+
+impl UpdateViewInfoPayload {
+    pub fn new() -> UpdateViewInfoPayload {
+        ::std::default::Default::default()
+    }
+
+    // string view_id = 1;
+
+
+    pub fn get_view_id(&self) -> &str {
+        &self.view_id
+    }
+    pub fn clear_view_id(&mut self) {
+        self.view_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_view_id(&mut self, v: ::std::string::String) {
+        self.view_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
+        &mut self.view_id
+    }
+
+    // Take field
+    pub fn take_view_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    }
+
+    // .ViewFilter filter = 2;
+
+
+    pub fn get_filter(&self) -> &ViewFilter {
+        match self.one_of_filter {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(ref v)) => v,
+            _ => <ViewFilter as ::protobuf::Message>::default_instance(),
+        }
+    }
+    pub fn clear_filter(&mut self) {
+        self.one_of_filter = ::std::option::Option::None;
+    }
+
+    pub fn has_filter(&self) -> bool {
+        match self.one_of_filter {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_filter(&mut self, v: ViewFilter) {
+        self.one_of_filter = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_filter(&mut self) -> &mut ViewFilter {
+        if let ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(_)) = self.one_of_filter {
+        } else {
+            self.one_of_filter = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(ViewFilter::new()));
+        }
+        match self.one_of_filter {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_filter(&mut self) -> ViewFilter {
+        if self.has_filter() {
+            match self.one_of_filter.take() {
+                ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ViewFilter::new()
+        }
+    }
+
+    // .ViewGroup group = 3;
+
+
+    pub fn get_group(&self) -> &ViewGroup {
+        match self.one_of_group {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(ref v)) => v,
+            _ => <ViewGroup as ::protobuf::Message>::default_instance(),
+        }
+    }
+    pub fn clear_group(&mut self) {
+        self.one_of_group = ::std::option::Option::None;
+    }
+
+    pub fn has_group(&self) -> bool {
+        match self.one_of_group {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_group(&mut self, v: ViewGroup) {
+        self.one_of_group = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_group(&mut self) -> &mut ViewGroup {
+        if let ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(_)) = self.one_of_group {
+        } else {
+            self.one_of_group = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(ViewGroup::new()));
+        }
+        match self.one_of_group {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_group(&mut self) -> ViewGroup {
+        if self.has_group() {
+            match self.one_of_group.take() {
+                ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ViewGroup::new()
+        }
+    }
+
+    // .ViewSort sort = 4;
+
+
+    pub fn get_sort(&self) -> &ViewSort {
+        match self.one_of_sort {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(ref v)) => v,
+            _ => <ViewSort as ::protobuf::Message>::default_instance(),
+        }
+    }
+    pub fn clear_sort(&mut self) {
+        self.one_of_sort = ::std::option::Option::None;
+    }
+
+    pub fn has_sort(&self) -> bool {
+        match self.one_of_sort {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sort(&mut self, v: ViewSort) {
+        self.one_of_sort = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_sort(&mut self) -> &mut ViewSort {
+        if let ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(_)) = self.one_of_sort {
+        } else {
+            self.one_of_sort = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(ViewSort::new()));
+        }
+        match self.one_of_sort {
+            ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_sort(&mut self) -> ViewSort {
+        if self.has_sort() {
+            match self.one_of_sort.take() {
+                ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ViewSort::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for UpdateViewInfoPayload {
+    fn is_initialized(&self) -> bool {
+        if let Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(ref v)) = self.one_of_filter {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
+        if let Some(UpdateViewInfoPayload_oneof_one_of_group::group(ref v)) = self.one_of_group {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
+        if let Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(ref v)) = self.one_of_sort {
+            if !v.is_initialized() {
+                return false;
+            }
+        }
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_filter = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_filter::filter(is.read_message()?));
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_group = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_group::group(is.read_message()?));
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_sort = ::std::option::Option::Some(UpdateViewInfoPayload_oneof_one_of_sort::sort(is.read_message()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.view_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.view_id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_filter {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_filter::filter(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_group {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_group::group(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_sort {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_sort::sort(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.view_id.is_empty() {
+            os.write_string(1, &self.view_id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_filter {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_filter::filter(ref v) => {
+                    os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_group {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_group::group(ref v) => {
+                    os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_sort {
+            match v {
+                &UpdateViewInfoPayload_oneof_one_of_sort::sort(ref v) => {
+                    os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+                    os.write_raw_varint32(v.get_cached_size())?;
+                    v.write_to_with_cached_sizes(os)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UpdateViewInfoPayload {
+        UpdateViewInfoPayload::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "view_id",
+                |m: &UpdateViewInfoPayload| { &m.view_id },
+                |m: &mut UpdateViewInfoPayload| { &mut m.view_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, ViewFilter>(
+                "filter",
+                UpdateViewInfoPayload::has_filter,
+                UpdateViewInfoPayload::get_filter,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, ViewGroup>(
+                "group",
+                UpdateViewInfoPayload::has_group,
+                UpdateViewInfoPayload::get_group,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, ViewSort>(
+                "sort",
+                UpdateViewInfoPayload::has_sort,
+                UpdateViewInfoPayload::get_sort,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateViewInfoPayload>(
+                "UpdateViewInfoPayload",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UpdateViewInfoPayload {
+        static instance: ::protobuf::rt::LazyV2<UpdateViewInfoPayload> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateViewInfoPayload::new)
+    }
+}
+
+impl ::protobuf::Clear for UpdateViewInfoPayload {
+    fn clear(&mut self) {
+        self.view_id.clear();
+        self.one_of_filter = ::std::option::Option::None;
+        self.one_of_group = ::std::option::Option::None;
+        self.one_of_sort = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UpdateViewInfoPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UpdateViewInfoPayload {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0fview_info.proto\x1a\nview.proto\"\xe8\x01\n\x08ViewInfo\x12\x0e\n\
     \x02id\x18\x01\x20\x01(\tR\x02id\x12\x20\n\x0cbelong_to_id\x18\x02\x20\
@@ -1310,12 +1737,17 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01(\x0b2\x0c.ViewExtDataR\x07extData\"s\n\x0bViewExtData\x12#\n\x06fil\
     ter\x18\x01\x20\x01(\x0b2\x0b.ViewFilterR\x06filter\x12\x20\n\x05group\
     \x18\x02\x20\x01(\x0b2\n.ViewGroupR\x05group\x12\x1d\n\x04sort\x18\x03\
-    \x20\x01(\x0b2\t.ViewSortR\x04sort\"'\n\nViewFilter\x12\x19\n\x08field_i\
-    d\x18\x01\x20\x01(\tR\x07fieldId\"}\n\tViewGroup\x12$\n\x0egroup_field_i\
-    d\x18\x01\x20\x01(\tR\x0cgroupFieldId\x12-\n\x12sub_group_field_id\x18\
-    \x02\x20\x01(\tH\0R\x0fsubGroupFieldIdB\x1b\n\x19one_of_sub_group_field_\
-    id\"%\n\x08ViewSort\x12\x19\n\x08field_id\x18\x01\x20\x01(\tR\x07fieldId\
-    b\x06proto3\
+    \x20\x01(\x0b2\t.ViewSortR\x04sort\")\n\nViewFilter\x12\x1b\n\tobject_id\
+    \x18\x01\x20\x01(\tR\x08objectId\"\x82\x01\n\tViewGroup\x12&\n\x0fgroup_\
+    object_id\x18\x01\x20\x01(\tR\rgroupObjectId\x12/\n\x13sub_group_object_\
+    id\x18\x02\x20\x01(\tH\0R\x10subGroupObjectIdB\x1c\n\x1aone_of_sub_group\
+    _object_id\"'\n\x08ViewSort\x12\x1b\n\tobject_id\x18\x01\x20\x01(\tR\x08\
+    objectId\"\xcc\x01\n\x15UpdateViewInfoPayload\x12\x17\n\x07view_id\x18\
+    \x01\x20\x01(\tR\x06viewId\x12%\n\x06filter\x18\x02\x20\x01(\x0b2\x0b.Vi\
+    ewFilterH\0R\x06filter\x12\"\n\x05group\x18\x03\x20\x01(\x0b2\n.ViewGrou\
+    pH\x01R\x05group\x12\x1f\n\x04sort\x18\x04\x20\x01(\x0b2\t.ViewSortH\x02\
+    R\x04sortB\x0f\n\rone_of_filterB\x0e\n\x0cone_of_groupB\r\n\x0bone_of_so\
+    rtb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
