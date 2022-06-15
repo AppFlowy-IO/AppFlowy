@@ -43,7 +43,7 @@ jobs:
             shared-lib/target
           key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
 
-      - name: Deps Flutter
+      - name: Flutter Deps
         working-directory: frontend/app_flowy
         run: |
           flutter config --enable-linux-desktop
