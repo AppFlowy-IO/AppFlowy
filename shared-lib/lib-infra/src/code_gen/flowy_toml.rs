@@ -2,10 +2,12 @@ use crate::code_gen::util::path_buf_with_component;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct FlowyConfig {
     pub proto_crates: Vec<String>,
     pub event_files: Vec<String>,
+    pub proto_output_dir: String,
+    pub protobuf_crate_path: String,
 }
 
 impl FlowyConfig {
