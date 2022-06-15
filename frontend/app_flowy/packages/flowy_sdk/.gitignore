@@ -80,3 +80,4 @@ build/
 **/*.so
 
 lib/protobuf
+lib/dispatch/dart_event
