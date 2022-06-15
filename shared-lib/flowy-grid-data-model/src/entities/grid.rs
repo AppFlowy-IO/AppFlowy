@@ -1,6 +1,6 @@
 use crate::entities::FieldOrder;
 use crate::parser::NotEmptyStr;
-use crate::revision::{CellRevision, FieldRevision, RowMetaChangeset, RowRevision};
+use crate::revision::RowRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 

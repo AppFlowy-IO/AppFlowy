@@ -7,7 +7,6 @@ use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridRevision,
 };
-use futures::StreamExt;
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
@@ -423,11 +422,7 @@ pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRe
 
 impl std::default::Default for GridRevisionPad {
     fn default() -> Self {
-        let grid = GridRevision {
-            grid_id: gen_grid_id(),
-            fields: vec![],
-            blocks: vec![],
-        };
+        let grid = GridRevision::new(&gen_grid_id());
         let delta = make_grid_delta(&grid);
         GridRevisionPad {
             grid_rev: Arc::new(grid),

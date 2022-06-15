@@ -15,7 +15,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
-use flowy_folder_data_model::entities::{UpdateViewInfoParams, ViewExtData, ViewInfo};
+use flowy_folder_data_model::entities::ViewInfo;
 use flowy_folder_data_model::revision::ViewRevision;
 use flowy_sync::entities::text_block_info::TextBlockId;
 use futures::{FutureExt, StreamExt};
@@ -135,7 +135,6 @@ impl ViewController {
                     .map(|view_rev| view_rev.into())
                     .collect();
 
-                let ext_data = ViewExtData::from(view_rev.ext_data);
                 let view_info = ViewInfo {
                     id: view_rev.id,
                     belong_to_id: view_rev.belong_to_id,
@@ -143,7 +142,7 @@ impl ViewController {
                     desc: view_rev.desc,
                     data_type: view_rev.data_type,
                     belongings: RepeatedView { items },
-                    ext_data,
+                    ext_data: view_rev.ext_data,
                 };
                 Ok(view_info)
             })
@@ -257,11 +256,6 @@ impl ViewController {
 
         let _ = self.update_view_on_server(params);
         Ok(view_rev)
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, _params), err)]
-    pub(crate) async fn update_view_info(&self, _params: UpdateViewInfoParams) -> Result<(), FlowyError> {
-        todo!()
     }
 
     pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<ViewRevision>> {

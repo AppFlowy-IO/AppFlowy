@@ -1,15 +1,13 @@
-use flowy_sync::{
-    client_folder::{FolderChange, FolderPad},
-    entities::{revision::Revision, ws_data::ServerRevisionWSData},
-};
-
 use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::util::make_delta_from_revisions;
-
 use flowy_revision::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
+};
+use flowy_sync::util::make_delta_from_revisions;
+use flowy_sync::{
+    client_folder::{FolderChange, FolderPad},
+    entities::{revision::Revision, ws_data::ServerRevisionWSData},
 };
 use lib_infra::future::FutureResult;
 use lib_ot::core::PlainTextAttributes;

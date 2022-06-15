@@ -1,10 +1,8 @@
 use crate::parser::NotEmptyStr;
-use crate::revision::{CellRevision, FieldRevision, RowMetaChangeset, RowRevision};
+use crate::revision::FieldRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
-
 use serde_repr::*;
-
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

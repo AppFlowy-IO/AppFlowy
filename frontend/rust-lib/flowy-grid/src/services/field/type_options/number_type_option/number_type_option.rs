@@ -144,7 +144,7 @@ impl CellDataOperation<String> for NumberTypeOption {
         &self,
         encoded_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,

@@ -287,23 +287,6 @@ class FolderEventReadViewInfo {
     }
 }
 
-class FolderEventUpdateViewInfo {
-     UpdateViewInfoPayload request;
-     FolderEventUpdateViewInfo(this.request);
-
-    Future<Either<ViewInfo, FlowyError>> send() {
-    final request = FFIRequest.create()
-          ..event = FolderEvent.UpdateViewInfo.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(ViewInfo.fromBuffer(okBytes)),
-           (errBytes) => right(FlowyError.fromBuffer(errBytes)),
-        ));
-    }
-}
-
 class FolderEventCopyLink {
     FolderEventCopyLink();
 

@@ -9,15 +9,12 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
-
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
-
-use flowy_folder_data_model::entities::UpdateViewInfoParams;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
 use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -255,8 +252,6 @@ pub trait ViewDataProcessor {
         view_id: &str,
         data: Vec<u8>,
     ) -> FutureResult<Bytes, FlowyError>;
-
-    fn handle_view_info_updated(&self, params: UpdateViewInfoParams) -> FutureResult<(), FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

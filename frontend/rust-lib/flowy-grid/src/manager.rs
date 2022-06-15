@@ -6,7 +6,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{BuildGridContext, GridRevision};
+use flowy_grid_data_model::revision::{BuildGridContext, GridInfoRevision, GridRevision};
 use flowy_revision::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
@@ -160,6 +160,7 @@ pub async fn make_grid_view_data(
         grid_id: view_id.to_string(),
         fields: build_context.field_revs,
         blocks: build_context.blocks,
+        info: GridInfoRevision::default(),
     };
 
     // Create grid

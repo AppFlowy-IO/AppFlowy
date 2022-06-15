@@ -42,7 +42,6 @@ pub enum FolderEvent {
     DuplicateView = 205,
     CloseView = 206,
     ReadViewInfo = 207,
-    UpdateViewInfo = 208,
     CopyLink = 220,
     SetLatestView = 221,
     MoveFolderItem = 230,
@@ -77,7 +76,6 @@ impl ::protobuf::ProtobufEnum for FolderEvent {
             205 => ::std::option::Option::Some(FolderEvent::DuplicateView),
             206 => ::std::option::Option::Some(FolderEvent::CloseView),
             207 => ::std::option::Option::Some(FolderEvent::ReadViewInfo),
-            208 => ::std::option::Option::Some(FolderEvent::UpdateViewInfo),
             220 => ::std::option::Option::Some(FolderEvent::CopyLink),
             221 => ::std::option::Option::Some(FolderEvent::SetLatestView),
             230 => ::std::option::Option::Some(FolderEvent::MoveFolderItem),
@@ -109,7 +107,6 @@ impl ::protobuf::ProtobufEnum for FolderEvent {
             FolderEvent::DuplicateView,
             FolderEvent::CloseView,
             FolderEvent::ReadViewInfo,
-            FolderEvent::UpdateViewInfo,
             FolderEvent::CopyLink,
             FolderEvent::SetLatestView,
             FolderEvent::MoveFolderItem,
@@ -146,7 +143,7 @@ impl ::protobuf::reflect::ProtobufValue for FolderEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fevent_map.proto*\xeb\x03\n\x0bFolderEvent\x12\x13\n\x0fCreateWorks\
+    \n\x0fevent_map.proto*\xd6\x03\n\x0bFolderEvent\x12\x13\n\x0fCreateWorks\
     pace\x10\0\x12\x14\n\x10ReadCurWorkspace\x10\x01\x12\x12\n\x0eReadWorksp\
     aces\x10\x02\x12\x13\n\x0fDeleteWorkspace\x10\x03\x12\x11\n\rOpenWorkspa\
     ce\x10\x04\x12\x15\n\x11ReadWorkspaceApps\x10\x05\x12\r\n\tCreateApp\x10\
@@ -154,12 +151,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x10h\x12\x0f\n\nCreateView\x10\xc9\x01\x12\r\n\x08ReadView\x10\xca\x01\
     \x12\x0f\n\nUpdateView\x10\xcb\x01\x12\x0f\n\nDeleteView\x10\xcc\x01\x12\
     \x12\n\rDuplicateView\x10\xcd\x01\x12\x0e\n\tCloseView\x10\xce\x01\x12\
-    \x11\n\x0cReadViewInfo\x10\xcf\x01\x12\x13\n\x0eUpdateViewInfo\x10\xd0\
-    \x01\x12\r\n\x08CopyLink\x10\xdc\x01\x12\x12\n\rSetLatestView\x10\xdd\
-    \x01\x12\x13\n\x0eMoveFolderItem\x10\xe6\x01\x12\x0e\n\tReadTrash\x10\
-    \xac\x02\x12\x11\n\x0cPutbackTrash\x10\xad\x02\x12\x10\n\x0bDeleteTrash\
-    \x10\xae\x02\x12\x14\n\x0fRestoreAllTrash\x10\xaf\x02\x12\x13\n\x0eDelet\
-    eAllTrash\x10\xb0\x02b\x06proto3\
+    \x11\n\x0cReadViewInfo\x10\xcf\x01\x12\r\n\x08CopyLink\x10\xdc\x01\x12\
+    \x12\n\rSetLatestView\x10\xdd\x01\x12\x13\n\x0eMoveFolderItem\x10\xe6\
+    \x01\x12\x0e\n\tReadTrash\x10\xac\x02\x12\x11\n\x0cPutbackTrash\x10\xad\
+    \x02\x12\x10\n\x0bDeleteTrash\x10\xae\x02\x12\x14\n\x0fRestoreAllTrash\
+    \x10\xaf\x02\x12\x13\n\x0eDeleteAllTrash\x10\xb0\x02b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -1,6 +1,5 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_folder::entities::UpdateViewInfoParams;
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
@@ -204,11 +203,6 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
-    fn handle_view_info_updated(&self, _params: UpdateViewInfoParams) -> FutureResult<(), FlowyError> {
-        tracing::warn!("Unimplemented the handle_view_info_updated in TextBlock");
-        FutureResult::new(async { Ok(()) })
-    }
-
     fn data_type(&self) -> ViewDataType {
         ViewDataType::TextBlock
     }
@@ -282,10 +276,6 @@ impl ViewDataProcessor for GridViewDataProcessor {
             let build_context = BuildGridContext::try_from(bytes)?;
             make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await
         })
-    }
-
-    fn handle_view_info_updated(&self, params: UpdateViewInfoParams) -> FutureResult<(), FlowyError> {
-        todo!()
     }
 
     fn data_type(&self) -> ViewDataType {

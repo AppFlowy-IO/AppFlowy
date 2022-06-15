@@ -24,10 +24,7 @@ impl<'a> CreateRowMetaBuilder<'a> {
             visibility: true,
         };
 
-        Self {
-            field_rev_map: field_rev_map,
-            payload,
-        }
+        Self { field_rev_map, payload }
     }
 
     pub fn add_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
