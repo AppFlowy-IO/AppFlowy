@@ -111,22 +111,26 @@ impl std::convert::From<ViewExtDataRevision> for ViewExtData {
 
 impl std::convert::From<ViewFilterRevision> for ViewFilter {
     fn from(rev: ViewFilterRevision) -> Self {
-        ViewFilter { field_id: rev.field_id }
+        ViewFilter {
+            object_id: rev.field_id,
+        }
     }
 }
 
 impl std::convert::From<ViewGroupRevision> for ViewGroup {
     fn from(rev: ViewGroupRevision) -> Self {
         ViewGroup {
-            group_field_id: rev.group_field_id,
-            sub_group_field_id: rev.sub_group_field_id,
+            group_object_id: rev.group_field_id,
+            sub_group_object_id: rev.sub_group_field_id,
         }
     }
 }
 
 impl std::convert::From<ViewSortRevision> for ViewSort {
     fn from(rev: ViewSortRevision) -> Self {
-        ViewSort { field_id: rev.field_id }
+        ViewSort {
+            object_id: rev.field_id,
+        }
     }
 }
 

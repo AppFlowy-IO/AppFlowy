@@ -1,5 +1,6 @@
 use crate::entities::{RepeatedView, ViewDataType};
 use crate::parser::view::ViewIdentify;
+use crate::parser::view_info::{ViewFilterParser, ViewGroupParser, ViewSortParser};
 use flowy_derive::ProtoBuf;
 use flowy_error_code::ErrorCode;
 use std::convert::TryInto;
@@ -43,22 +44,22 @@ pub struct ViewExtData {
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewFilter {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub object_id: String,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewGroup {
     #[pb(index = 1)]
-    pub group_field_id: String,
+    pub group_object_id: String,
 
     #[pb(index = 2, one_of)]
-    pub sub_group_field_id: Option<String>,
+    pub sub_group_object_id: Option<String>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ViewSort {
     #[pb(index = 1)]
-    pub field_id: String,
+    pub object_id: String,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -81,4 +82,34 @@ pub struct UpdateViewInfoParams {
     pub filter: Option<ViewFilter>,
     pub group: Option<ViewGroup>,
     pub sort: Option<ViewSort>,
+}
+
+impl TryInto<UpdateViewInfoParams> for UpdateViewInfoPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<UpdateViewInfoParams, Self::Error> {
+        let view_id = ViewIdentify::parse(self.view_id)?.0;
+
+        let filter = match self.filter {
+            None => None,
+            Some(filter) => Some(ViewFilterParser::parse(filter)?),
+        };
+
+        let group = match self.group {
+            None => None,
+            Some(group) => Some(ViewGroupParser::parse(group)?),
+        };
+
+        let sort = match self.sort {
+            None => None,
+            Some(sort) => Some(ViewSortParser::parse(sort)?),
+        };
+
+        Ok(UpdateViewInfoParams {
+            view_id,
+            filter,
+            group,
+            sort,
+        })
+    }
 }

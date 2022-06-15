@@ -11,7 +11,7 @@ use crate::{
     services::{TrashController, ViewController},
 };
 use flowy_folder_data_model::entities::view::{MoveFolderItemParams, MoveFolderItemPayload, MoveFolderItemType};
-use flowy_folder_data_model::entities::ViewInfo;
+use flowy_folder_data_model::entities::{UpdateViewInfoParams, UpdateViewInfoPayload, ViewInfo};
 use flowy_folder_data_model::revision::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
@@ -56,11 +56,11 @@ pub(crate) async fn update_view_handler(
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn update_view_info_handler(
-    data: Data<UpdateViewPayload>,
+    data: Data<UpdateViewInfoPayload>,
     controller: AppData<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: UpdateViewParams = data.into_inner().try_into()?;
-    let _ = controller.update_view(params).await?;
+    let params: UpdateViewInfoParams = data.into_inner().try_into()?;
+    let _ = controller.update_view_info(params).await?;
 
     Ok(())
 }

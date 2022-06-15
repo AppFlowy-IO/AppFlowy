@@ -26,6 +26,7 @@ use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;
 
+use flowy_folder::entities::UpdateViewInfoParams;
 use flowy_grid_data_model::entities::BuildGridContext;
 use std::convert::TryFrom;
 use std::{convert::TryInto, sync::Arc};
@@ -173,7 +174,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
@@ -197,13 +198,18 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn process_view_delta_data(
+    fn create_view_from_delta_data(
         &self,
         _user_id: &str,
         _view_id: &str,
         data: Vec<u8>,
     ) -> FutureResult<Bytes, FlowyError> {
         FutureResult::new(async move { Ok(Bytes::from(data)) })
+    }
+
+    fn handle_view_info_updated(&self, _params: UpdateViewInfoParams) -> FutureResult<(), FlowyError> {
+        tracing::warn!("Unimplemented the handle_view_info_updated in TextBlock");
+        FutureResult::new(async { Ok(()) })
     }
 
     fn data_type(&self) -> ViewDataType {
@@ -245,7 +251,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
@@ -264,7 +270,12 @@ impl ViewDataProcessor for GridViewDataProcessor {
         FutureResult::new(async move { make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await })
     }
 
-    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError> {
+    fn create_view_from_delta_data(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        data: Vec<u8>,
+    ) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
@@ -274,6 +285,10 @@ impl ViewDataProcessor for GridViewDataProcessor {
             let build_context = BuildGridContext::try_from(bytes)?;
             make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await
         })
+    }
+
+    fn handle_view_info_updated(&self, params: UpdateViewInfoParams) -> FutureResult<(), FlowyError> {
+        todo!()
     }
 
     fn data_type(&self) -> ViewDataType {

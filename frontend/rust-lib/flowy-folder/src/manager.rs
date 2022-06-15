@@ -14,6 +14,7 @@ use flowy_sync::client_document::default::{initial_quill_delta_string, initial_r
 use flowy_error::FlowyError;
 use flowy_folder_data_model::entities::view::ViewDataType;
 
+use flowy_folder_data_model::entities::UpdateViewInfoParams;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
@@ -244,11 +245,18 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
+    fn create_view_from_delta_data(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        data: Vec<u8>,
+    ) -> FutureResult<Bytes, FlowyError>;
+
+    fn handle_view_info_updated(&self, params: UpdateViewInfoParams) -> FutureResult<(), FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

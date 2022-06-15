@@ -114,6 +114,9 @@ pub enum ErrorCode {
     #[display(fmt = "Invalid date time format")]
     InvalidDateTimeFormat = 500,
 
+    #[display(fmt = "The input string is empty or contains invalid characters")]
+    UnexpectedEmptyString = 999,
+
     #[display(fmt = "Invalid data")]
     InvalidData = 1000,
 }

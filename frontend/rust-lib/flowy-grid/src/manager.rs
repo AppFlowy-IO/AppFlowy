@@ -89,6 +89,8 @@ impl GridManager {
         Ok(())
     }
 
+    // pub fn update_grid_info()
+
     // #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridMetaEditor>> {
         match self.editor_map.get(grid_id) {

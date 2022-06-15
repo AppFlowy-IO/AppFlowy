@@ -15,7 +15,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
-use flowy_folder_data_model::entities::{ViewExtData, ViewInfo};
+use flowy_folder_data_model::entities::{UpdateViewInfoParams, ViewExtData, ViewInfo};
 use flowy_folder_data_model::revision::ViewRevision;
 use flowy_sync::entities::text_block_info::TextBlockId;
 use futures::{FutureExt, StreamExt};
@@ -65,7 +65,7 @@ impl ViewController {
             params.data = view_data.to_vec();
         } else {
             let delta_data = processor
-                .process_view_delta_data(&user_id, &params.view_id, params.data.clone())
+                .create_view_from_delta_data(&user_id, &params.view_id, params.data.clone())
                 .await?;
             let _ = self
                 .create_view(&params.view_id, params.data_type.clone(), delta_data)
@@ -211,7 +211,7 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(&view_rev.data_type)?;
-        let delta_bytes = processor.view_delta_data(view_id).await?;
+        let delta_bytes = processor.get_delta_data(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.belong_to_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
@@ -239,6 +239,28 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<ViewRevision, FlowyError> {
+        let changeset = ViewChangeset::new(params.clone());
+        let view_id = changeset.id.clone();
+        let view_rev = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let _ = transaction.update_view(changeset)?;
+                let view_rev = transaction.read_view(&view_id)?;
+                let view: View = view_rev.clone().into();
+                send_dart_notification(&view_id, FolderNotification::ViewUpdated)
+                    .payload(view)
+                    .send();
+                let _ = notify_views_changed(&view_rev.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                Ok(view_rev)
+            })
+            .await?;
+
+        let _ = self.update_view_on_server(params);
+        Ok(view_rev)
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    pub(crate) async fn update_view_info(&self, params: UpdateViewInfoParams) -> Result<ViewRevision, FlowyError> {
         let changeset = ViewChangeset::new(params.clone());
         let view_id = changeset.id.clone();
         let view_rev = self

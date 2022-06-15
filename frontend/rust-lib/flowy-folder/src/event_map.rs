@@ -43,6 +43,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .data(folder.trash_controller.clone())
         .data(folder.clone());
 
+    // Workspace
     module = module
         .event(FolderEvent::CreateWorkspace, create_workspace_handler)
         .event(FolderEvent::ReadCurWorkspace, read_cur_workspace_handler)
@@ -50,12 +51,14 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::OpenWorkspace, open_workspace_handler)
         .event(FolderEvent::ReadWorkspaceApps, read_workspace_apps_handler);
 
+    // App
     module = module
         .event(FolderEvent::CreateApp, create_app_handler)
         .event(FolderEvent::ReadApp, read_app_handler)
         .event(FolderEvent::UpdateApp, update_app_handler)
         .event(FolderEvent::DeleteApp, delete_app_handler);
 
+    // View
     module = module
         .event(FolderEvent::CreateView, create_view_handler)
         .event(FolderEvent::ReadView, read_view_handler)
@@ -68,6 +71,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
         .event(FolderEvent::CloseView, close_view_handler)
         .event(FolderEvent::MoveFolderItem, move_item_handler);
 
+    // Trash
     module = module
         .event(FolderEvent::ReadTrash, read_trash_handler)
         .event(FolderEvent::PutbackTrash, putback_trash_handler)
