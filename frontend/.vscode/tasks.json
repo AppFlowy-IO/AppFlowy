@@ -15,11 +15,11 @@
 			"dependsOrder": "sequence",
 			"dependsOn": [
 				"AF: Clean",
+				"AF: build_flowy_sdk",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
 				"AF: Generate Freezed Files",
-				"AF: build_flowy_sdk"
 			],
 			"presentation": {
 				"reveal": "always",
