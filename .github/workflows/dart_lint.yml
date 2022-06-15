@@ -25,6 +25,10 @@ jobs:
         with:
           flutter-version: '3.0.0'
           channel: "stable"
+      - name: Build FlowySDK
+        working-directory: frontend
+        run: |
+          cargo make --profile development-linux-x86 flowy-sdk-dev
       - name: Deps Flutter
         run: flutter packages pub get
         working-directory: frontend/app_flowy
