@@ -1,4 +1,4 @@
-proto_crates = ["src/errors.rs", "src/msg.rs"]
-proto_output_dir = "resources/proto"
-protobuf_crate_path = "src/protobuf"
+proto_rust_file_input_dir = ["src/errors.rs", "src/msg.rs"]
+proto_file_output_dir = "resources/proto"
+protobuf_crate_output_dir = "src/protobuf"
 event_files = []

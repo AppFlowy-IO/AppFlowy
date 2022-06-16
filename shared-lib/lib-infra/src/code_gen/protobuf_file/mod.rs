@@ -27,9 +27,10 @@ pub fn gen(crate_name: &str) {
     for proto_crate in proto_crates {
         let mut proto_file_paths = vec![];
         let mut file_names = vec![];
-        let proto_file_dir = &proto_crate.flowy_config.proto_output_dir;
+        let proto_file_output_dir = proto_crate.proto_file_output_dir().to_str().unwrap().to_string();
+        let protobuf_output_dir = proto_crate.protobuf_crate_path().to_str().unwrap().to_string();
 
-        for (path, file_name) in WalkDir::new(proto_file_dir)
+        for (path, file_name) in WalkDir::new(&proto_file_output_dir)
             .into_iter()
             .filter_map(|e| e.ok())
             .map(|e| {
@@ -51,31 +52,41 @@ pub fn gen(crate_name: &str) {
         #[cfg(feature = "dart")]
         generate_dart_protobuf_files(
             crate_name,
-            proto_file_dir,
+            &proto_file_output_dir,
             &proto_file_paths,
             &file_names,
             &protoc_bin_path,
         );
 
         // 3. generate the protobuf files(Rust)
-        generate_rust_protobuf_files(&protoc_bin_path, &proto_file_paths, proto_file_dir);
+        generate_rust_protobuf_files(
+            &protoc_bin_path,
+            &proto_file_paths,
+            &proto_file_output_dir,
+            &protobuf_output_dir,
+        );
     }
 }
 
-fn generate_rust_protobuf_files(protoc_bin_path: &Path, proto_file_paths: &[String], proto_file_dir: &str) {
+fn generate_rust_protobuf_files(
+    protoc_bin_path: &Path,
+    proto_file_paths: &[String],
+    proto_file_output_dir: &str,
+    protobuf_output_dir: &str,
+) {
     protoc_rust::Codegen::new()
-        .out_dir("./src/protobuf/model")
+        .out_dir(protobuf_output_dir)
         .protoc_path(protoc_bin_path)
         .inputs(proto_file_paths)
-        .include(proto_file_dir)
+        .include(proto_file_output_dir)
         .run()
-        .expect("Running protoc failed.");
+        .expect("Running rust protoc failed.");
 }
 
 #[cfg(feature = "dart")]
 fn generate_dart_protobuf_files(
     name: &str,
-    proto_path: &str,
+    proto_file_output_dir: &str,
     paths: &Vec<String>,
     file_names: &Vec<String>,
     protoc_bin_path: &PathBuf,
@@ -104,7 +115,7 @@ fn generate_dart_protobuf_files(
     let protoc_bin_path = protoc_bin_path.to_str().unwrap().to_owned();
     paths.iter().for_each(|path| {
         if cmd_lib::run_cmd! {
-            ${protoc_bin_path} --dart_out=${output} --proto_path=${proto_path} ${path}
+            ${protoc_bin_path} --dart_out=${output} --proto_path=${proto_file_output_dir} ${path}
         }
         .is_err()
         {
