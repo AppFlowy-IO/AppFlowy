@@ -7,7 +7,11 @@ script = [
     cd ../../shared-lib
     cargo clean
 
-    rm -rf lib-infra/.cache
+    CACHE_FILE=lib-infra/.cache
+    if [ -d "$CACHE_FILE" ]; then
+      echo "Remove $CACHE_FILE"
+      rm -rf $CACHE_FILE
+    fi
   """,
 ]
 script_runner = "@shell"
@@ -19,8 +23,6 @@ script = [
     cargo clean
 
     cd ../../shared-lib
-    cargo clean
-
     rmdir /s/q "lib-infra/.cache"
   """,
 ]

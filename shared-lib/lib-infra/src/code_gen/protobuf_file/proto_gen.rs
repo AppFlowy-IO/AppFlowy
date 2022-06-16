@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-use crate::code_gen::protobuf_file::ast::parse_crate_protobuf;
+use crate::code_gen::protobuf_file::ast::parse_protobuf_context_from;
 use crate::code_gen::protobuf_file::proto_info::ProtobufCrateContext;
 use crate::code_gen::protobuf_file::ProtoFile;
 use crate::code_gen::util::*;
@@ -14,14 +14,9 @@ use std::{fs::OpenOptions, io::Write};
 pub struct ProtoGenerator();
 impl ProtoGenerator {
     pub fn gen(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrateContext> {
-        let crate_contexts = parse_crate_protobuf(vec![crate_path.to_owned()]);
+        let crate_contexts = parse_protobuf_context_from(vec![crate_path.to_owned()]);
         write_proto_files(&crate_contexts);
         write_rust_crate_mod_file(&crate_contexts);
-        for crate_info in &crate_contexts {
-            let _ = crate_info.protobuf_crate.create_output_dir();
-            let _ = crate_info.protobuf_crate.proto_output_dir();
-            crate_info.create_crate_mod_file();
-        }
 
         let proto_cache = ProtoCache::from_crate_contexts(&crate_contexts);
         let proto_cache_str = serde_json::to_string(&proto_cache).unwrap();
@@ -55,7 +50,7 @@ impl ProtoGenerator {
 
 fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
     for context in crate_contexts {
-        let dir = context.protobuf_crate.proto_output_dir();
+        let dir = context.protobuf_crate.proto_file_output_dir();
         context.files.iter().for_each(|info| {
             let proto_file = format!("{}.proto", &info.file_name);
             let proto_file_path = path_string_with_component(&dir, vec![&proto_file]);
@@ -80,7 +75,7 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
                 mod_file_content.push_str("#![cfg_attr(rustfmt, rustfmt::skip)]\n");
                 mod_file_content.push_str("// Auto-generated, do not edit\n");
                 walk_dir(
-                    context.protobuf_crate.proto_output_dir(),
+                    context.protobuf_crate.proto_file_output_dir(),
                     |e| !e.file_type().is_dir(),
                     |_, name| {
                         let c = format!("\nmod {};\npub use {}::*;\n", &name, &name);

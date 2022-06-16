@@ -13,14 +13,14 @@ use std::{fs::File, io::Read, path::Path};
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn parse_crate_protobuf(crate_paths: Vec<String>) -> Vec<ProtobufCrateContext> {
+pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrateContext> {
     let crate_infos = parse_crate_info_from_path(crate_paths);
-    crate_infos
+    let contexts = crate_infos
         .into_iter()
         .map(|crate_info| {
-            let proto_output_dir = crate_info.proto_output_dir();
+            let proto_output_dir = crate_info.proto_file_output_dir();
             let files = crate_info
-                .proto_paths
+                .proto_rust_file_paths()
                 .iter()
                 .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_dir))
                 .flatten()
@@ -28,7 +28,9 @@ pub fn parse_crate_protobuf(crate_paths: Vec<String>) -> Vec<ProtobufCrateContex
 
             ProtobufCrateContext::from_crate_info(crate_info, files)
         })
-        .collect::<Vec<ProtobufCrateContext>>()
+        .collect::<Vec<ProtobufCrateContext>>();
+
+    contexts
 }
 
 fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec<ProtoFile> {
@@ -55,7 +57,7 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec
         let structs = get_ast_structs(&ast);
         let proto_file = format!("{}.proto", &file_name);
         let proto_file_path = path_string_with_component(proto_output_dir, vec![&proto_file]);
-        let mut proto_file_content = parse_or_init_proto_file(proto_file_path.as_ref());
+        let mut proto_file_content = find_proto_syntax(proto_file_path.as_ref());
 
         structs.iter().for_each(|s| {
             let mut struct_template = StructTemplate::new();
@@ -92,14 +94,6 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec
     }
 
     gen_proto_vec
-}
-
-pub fn parse_or_init_proto_file(path: &str) -> String {
-    let mut proto_file_content = String::new();
-    let imported_content = find_proto_file_import(path);
-    proto_file_content.push_str(imported_content.as_ref());
-    proto_file_content.push('\n');
-    proto_file_content
 }
 
 pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
@@ -157,14 +151,12 @@ lazy_static! {
     static ref IMPORT_REGEX: Regex = Regex::new("(import\\s).*;").unwrap();
 }
 
-fn find_proto_file_import(path: &str) -> String {
-    let mut result = String::new();
+fn find_proto_syntax(path: &str) -> String {
     if !Path::new(path).exists() {
-        // log::error!("{} not exist", path);
-        result = String::from("syntax = \"proto3\";");
-        return result;
+        return String::from("syntax = \"proto3\";\\n");
     }
 
+    let mut result = String::new();
     let mut file = File::open(path).unwrap();
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
@@ -182,5 +174,6 @@ fn find_proto_file_import(path: &str) -> String {
         }
     });
 
+    result.push('\n');
     result
 }

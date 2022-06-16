@@ -1,13 +1,12 @@
-use crate::code_gen::util::path_buf_with_component;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct FlowyConfig {
-    pub proto_crates: Vec<String>,
     pub event_files: Vec<String>,
-    pub proto_output_dir: String,
-    pub protobuf_crate_path: String,
+    pub proto_rust_file_input_dir: Vec<String>,
+    pub proto_file_output_dir: String,
+    pub protobuf_crate_output_dir: String,
 }
 
 impl FlowyConfig {
@@ -20,20 +19,8 @@ impl FlowyConfig {
 
 pub struct CrateConfig {
     pub crate_path: PathBuf,
-    pub folder_name: String,
+    pub crate_folder: String,
     pub flowy_config: FlowyConfig,
-}
-
-impl CrateConfig {
-    pub fn proto_paths(&self) -> Vec<PathBuf> {
-        let proto_paths = self
-            .flowy_config
-            .proto_crates
-            .iter()
-            .map(|name| path_buf_with_component(&self.crate_path, vec![name]))
-            .collect::<Vec<PathBuf>>();
-        proto_paths
-    }
 }
 
 pub fn parse_crate_config_from(entry: &walkdir::DirEntry) -> Option<CrateConfig> {
@@ -44,11 +31,11 @@ pub fn parse_crate_config_from(entry: &walkdir::DirEntry) -> Option<CrateConfig>
     }
     let crate_path = entry.path().parent().unwrap().to_path_buf();
     let flowy_config = FlowyConfig::from_toml_file(config_path.as_path());
-    let folder_name = crate_path.file_stem().unwrap().to_str().unwrap().to_string();
+    let crate_folder = crate_path.file_stem().unwrap().to_str().unwrap().to_string();
 
     Some(CrateConfig {
         crate_path,
-        folder_name,
+        crate_folder,
         flowy_config,
     })
 }

@@ -104,6 +104,7 @@ pub fn path_string_with_component(path: &Path, components: Vec<&str>) -> String 
     path_buf_with_component(path, components).to_str().unwrap().to_string()
 }
 
+#[allow(dead_code)]
 pub fn path_buf_with_component(path: &Path, components: Vec<&str>) -> PathBuf {
     let mut path_buf = path.to_path_buf();
     for component in components {

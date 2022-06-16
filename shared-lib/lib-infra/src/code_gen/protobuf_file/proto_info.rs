@@ -24,7 +24,7 @@ impl ProtobufCrateContext {
     pub fn create_crate_mod_file(&self) {
         // mod model;
         // pub use model::*;
-        let mod_file_path = path_string_with_component(&self.protobuf_crate.protobuf_crate_name(), vec!["mod.rs"]);
+        let mod_file_path = path_string_with_component(&self.protobuf_crate.protobuf_crate_path(), vec!["mod.rs"]);
         let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
         content.push_str("// Auto-generated, do not edit\n");
         content.push_str("mod model;\npub use model::*;");
@@ -46,57 +46,55 @@ impl ProtobufCrateContext {
 
     #[allow(dead_code)]
     pub fn flutter_mod_dir(&self, root: &str) -> String {
-        let crate_module_dir = format!("{}/{}", root, self.protobuf_crate.folder_name);
+        let crate_module_dir = format!("{}/{}", root, self.protobuf_crate.crate_folder);
         crate_module_dir
     }
 
     #[allow(dead_code)]
     pub fn flutter_mod_file(&self, root: &str) -> String {
-        let crate_module_dir = format!("{}/{}/protobuf.dart", root, self.protobuf_crate.folder_name);
+        let crate_module_dir = format!("{}/{}/protobuf.dart", root, self.protobuf_crate.crate_folder);
         crate_module_dir
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct ProtobufCrate {
-    pub folder_name: String,
-    pub proto_paths: Vec<PathBuf>,
+    pub crate_folder: String,
     pub crate_path: PathBuf,
-    pub flowy_config: FlowyConfig,
+    flowy_config: FlowyConfig,
 }
 
 impl ProtobufCrate {
     pub fn from_config(config: CrateConfig) -> Self {
-        let proto_paths = config.proto_paths();
-
         ProtobufCrate {
-            folder_name: config.folder_name,
-            proto_paths,
             crate_path: config.crate_path,
+            crate_folder: config.crate_folder,
             flowy_config: config.flowy_config.clone(),
         }
     }
 
-    fn protobuf_crate_name(&self) -> PathBuf {
-        let crate_path = PathBuf::from(&self.flowy_config.protobuf_crate_path);
+    pub fn proto_rust_file_paths(&self) -> Vec<PathBuf> {
+        self.flowy_config
+            .proto_rust_file_input_dir
+            .iter()
+            .map(|name| path_buf_with_component(&self.crate_path, vec![name]))
+            .collect::<Vec<PathBuf>>()
+    }
+
+    pub fn protobuf_crate_path(&self) -> PathBuf {
+        let crate_path = PathBuf::from(&self.flowy_config.protobuf_crate_output_dir);
+        create_dir_if_not_exist(&crate_path);
         crate_path
     }
 
-    pub fn proto_output_dir(&self) -> PathBuf {
-        let output_dir = PathBuf::from(&self.flowy_config.proto_output_dir);
+    pub fn proto_file_output_dir(&self) -> PathBuf {
+        let output_dir = PathBuf::from(&self.flowy_config.proto_file_output_dir);
         create_dir_if_not_exist(&output_dir);
         output_dir
     }
 
-    pub fn create_output_dir(&self) -> PathBuf {
-        let path = self.protobuf_crate_name();
-        let dir = path_buf_with_component(&path, vec!["model"]);
-        create_dir_if_not_exist(&dir);
-        dir
-    }
-
     pub fn proto_model_mod_file(&self) -> String {
-        path_string_with_component(&self.create_output_dir(), vec!["mod.rs"])
+        path_string_with_component(&self.protobuf_crate_path(), vec!["mod.rs"])
     }
 }
 
