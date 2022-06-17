@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message RowIdentifierPayload {
-    string grid_id = 1;
-    string row_id = 3;
-}

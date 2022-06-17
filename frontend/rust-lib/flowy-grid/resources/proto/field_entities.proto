@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message FieldIdentifierPayload {
-    string field_id = 1;
-    string grid_id = 2;
-}
