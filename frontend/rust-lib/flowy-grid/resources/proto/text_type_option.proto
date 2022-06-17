@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message RichTextTypeOption {
-    string data = 1;
-}
