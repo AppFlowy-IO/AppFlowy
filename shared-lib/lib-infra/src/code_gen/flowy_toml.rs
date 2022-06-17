@@ -3,8 +3,11 @@ use std::path::{Path, PathBuf};
 
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct FlowyConfig {
+    #[serde(default)]
     pub event_files: Vec<String>,
+
     // Collect AST from the file or directory specified by proto_input to generate the proto files.
+    #[serde(default)]
     pub proto_input: Vec<String>,
 
     // Output path for the generated proto files. The default value is default_proto_output()
