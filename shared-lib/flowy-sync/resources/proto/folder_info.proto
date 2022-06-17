@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-message FolderInfo {
-    string folder_id = 1;
-    string text = 2;
-    int64 rev_id = 3;
-    int64 base_rev_id = 4;
-}

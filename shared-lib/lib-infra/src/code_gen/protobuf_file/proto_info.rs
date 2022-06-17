@@ -106,7 +106,7 @@ pub struct ProtoFile {
     pub file_path: String,
     pub file_name: String,
     pub structs: Vec<String>,
-
+    // store the type of current file using
     pub ref_types: Vec<String>,
 
     pub enums: Vec<String>,

@@ -20,3 +20,4 @@ node_modules
 **/.DS_Store
 
 **/src/protobuf
+**/resources/proto

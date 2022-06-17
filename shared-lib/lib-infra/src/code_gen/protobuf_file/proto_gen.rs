@@ -89,20 +89,26 @@ fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
 }
 
 fn gen_import_content(current_file: &ProtoFile, file_path_symbols_map: &HashMap<String, ProtoFileSymbol>) -> String {
-    let mut import_content = String::new();
+    let mut import_files: Vec<String> = vec![];
     file_path_symbols_map
         .iter()
         .for_each(|(file_path, proto_file_symbols)| {
             if file_path != &current_file.file_path {
                 current_file.ref_types.iter().for_each(|ref_type| {
                     if proto_file_symbols.symbols.contains(ref_type) {
-                        import_content.push_str(&format!("import \"{}.proto\";\n", proto_file_symbols.file_name));
+                        let import_file = format!("import \"{}.proto\";", proto_file_symbols.file_name);
+                        if !import_files.contains(&import_file) {
+                            import_files.push(import_file);
+                        }
                     }
                 });
             }
         });
-
-    import_content
+    if import_files.len() == 1 {
+        format!("{}\n", import_files.pop().unwrap())
+    } else {
+        import_files.join("\n")
+    }
 }
 
 struct ProtoFileSymbol {
