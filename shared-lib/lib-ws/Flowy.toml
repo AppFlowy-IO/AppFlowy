@@ -1,4 +1,2 @@
-proto_rust_file_input_dir = ["src/errors.rs", "src/msg.rs"]
-proto_file_output_dir = "resources/proto"
-protobuf_crate_output_dir = "src/protobuf"
-event_files = []
+# Check out the FlowyConfig (located in flowy_toml.rs) for more details.
+proto_input = ["src/errors.rs", "src/msg.rs"]

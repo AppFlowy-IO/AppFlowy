@@ -18,11 +18,11 @@ pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrat
     let contexts = crate_infos
         .into_iter()
         .map(|crate_info| {
-            let proto_output_dir = crate_info.proto_file_output_dir();
+            let proto_output_path = crate_info.proto_output_path();
             let files = crate_info
-                .proto_rust_file_paths()
+                .proto_input_paths()
                 .iter()
-                .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_dir))
+                .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_path))
                 .flatten()
                 .collect::<Vec<ProtoFile>>();
 
@@ -33,7 +33,7 @@ pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrat
     contexts
 }
 
-fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec<ProtoFile> {
+fn parse_files_protobuf(proto_crate_path: &Path, proto_output_path: &Path) -> Vec<ProtoFile> {
     let mut gen_proto_vec: Vec<ProtoFile> = vec![];
     // file_stem https://doc.rust-lang.org/std/path/struct.Path.html#method.file_stem
     for (path, file_name) in WalkDir::new(proto_crate_path)
@@ -56,7 +56,7 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_dir: &Path) -> Vec
             .unwrap_or_else(|_| panic!("Unable to parse file at {}", path));
         let structs = get_ast_structs(&ast);
         let proto_file = format!("{}.proto", &file_name);
-        let proto_file_path = path_string_with_component(proto_output_dir, vec![&proto_file]);
+        let proto_file_path = path_string_with_component(proto_output_path, vec![&proto_file]);
         let mut proto_file_content = find_proto_syntax(proto_file_path.as_ref());
 
         structs.iter().for_each(|s| {
@@ -153,7 +153,7 @@ lazy_static! {
 
 fn find_proto_syntax(path: &str) -> String {
     if !Path::new(path).exists() {
-        return String::from("syntax = \"proto3\";\\n");
+        return String::from("syntax = \"proto3\";\n\n");
     }
 
     let mut result = String::new();

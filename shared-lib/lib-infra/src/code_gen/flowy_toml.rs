@@ -3,10 +3,28 @@ use std::path::{Path, PathBuf};
 
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct FlowyConfig {
+    #[serde(default)]
     pub event_files: Vec<String>,
-    pub proto_rust_file_input_dir: Vec<String>,
-    pub proto_file_output_dir: String,
-    pub protobuf_crate_output_dir: String,
+
+    // Collect AST from the file or directory specified by proto_input to generate the proto files.
+    #[serde(default)]
+    pub proto_input: Vec<String>,
+
+    // Output path for the generated proto files. The default value is default_proto_output()
+    #[serde(default = "default_proto_output")]
+    pub proto_output: String,
+
+    // Create a crate that stores the generated protobuf Rust structures. The default value is default_protobuf_crate()
+    #[serde(default = "default_protobuf_crate")]
+    pub protobuf_crate_path: String,
+}
+
+fn default_proto_output() -> String {
+    "resources/proto".to_owned()
+}
+
+fn default_protobuf_crate() -> String {
+    "src/protobuf".to_owned()
 }
 
 impl FlowyConfig {
