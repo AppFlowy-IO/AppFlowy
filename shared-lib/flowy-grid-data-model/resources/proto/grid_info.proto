@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 message ViewExtData {
     ViewFilter filter = 1;
     ViewGroup group = 2;

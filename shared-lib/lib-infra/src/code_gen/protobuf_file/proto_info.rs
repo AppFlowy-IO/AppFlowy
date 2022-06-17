@@ -106,8 +106,24 @@ pub struct ProtoFile {
     pub file_path: String,
     pub file_name: String,
     pub structs: Vec<String>,
+
+    pub ref_types: Vec<String>,
+
     pub enums: Vec<String>,
-    pub generated_content: String,
+    // proto syntax. "proto3" or "proto2"
+    pub syntax: String,
+
+    // proto message content
+    pub content: String,
+}
+
+impl ProtoFile {
+    pub fn symbols(&self) -> Vec<String> {
+        let mut symbols = self.structs.clone();
+        let mut enum_symbols = self.enums.clone();
+        symbols.append(&mut enum_symbols);
+        symbols
+    }
 }
 
 pub fn parse_crate_info_from_path(roots: Vec<String>) -> Vec<ProtobufCrate> {

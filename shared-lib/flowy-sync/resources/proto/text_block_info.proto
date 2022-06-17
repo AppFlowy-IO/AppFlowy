@@ -1,6 +1,7 @@
 syntax = "proto3";
-import "revision.proto";
 
+import "revision.proto";
+import "revision.proto";
 message CreateTextBlockParams {
     string id = 1;
     RepeatedRevision revisions = 2;

@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "field_entities.proto";
 
+import "field_entities.proto";
 message CreateSelectOptionPayload {
     FieldIdentifierPayload field_identifier = 1;
     string option_name = 2;

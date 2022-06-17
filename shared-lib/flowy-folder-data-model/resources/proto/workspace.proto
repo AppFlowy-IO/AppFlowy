@@ -1,7 +1,7 @@
 syntax = "proto3";
+
 import "app.proto";
 import "view.proto";
-
 message Workspace {
     string id = 1;
     string name = 2;

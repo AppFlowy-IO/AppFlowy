@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "view.proto";
 
+import "view.proto";
 message App {
     string id = 1;
     string workspace_id = 2;

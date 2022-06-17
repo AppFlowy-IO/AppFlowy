@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "format.proto";
 
+import "format.proto";
 message NumberTypeOption {
     NumberFormat format = 1;
     uint32 scale = 2;

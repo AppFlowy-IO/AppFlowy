@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "cell_entities.proto";
 
+import "cell_entities.proto";
 message DateTypeOption {
     DateFormat date_format = 1;
     TimeFormat time_format = 2;

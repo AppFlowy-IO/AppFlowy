@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "revision.proto";
 
+import "revision.proto";
 message ClientRevisionWSData {
     string object_id = 1;
     ClientRevisionWSDataType ty = 2;

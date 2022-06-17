@@ -1,6 +1,5 @@
 syntax = "proto3";
 import "field.proto";
-
 message Grid {
     string id = 1;
     repeated FieldOrder field_orders = 2;

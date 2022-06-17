@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 enum ErrorCode {
     Internal = 0;
     UserUnauthorized = 2;

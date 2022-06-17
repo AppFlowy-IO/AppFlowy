@@ -1,6 +1,7 @@
 syntax = "proto3";
-import "cell_entities.proto";
 
+import "cell_entities.proto";
+import "cell_entities.proto";
 message SingleSelectTypeOption {
     repeated SelectOption options = 1;
     bool disable_color = 2;

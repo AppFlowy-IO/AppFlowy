@@ -1,6 +1,7 @@
 syntax = "proto3";
-import "view.proto";
 
+import "view.proto";
+import "view.proto";
 message ViewInfo {
     string id = 1;
     string belong_to_id = 2;
