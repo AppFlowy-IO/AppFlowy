@@ -16,6 +16,7 @@
 			"dependsOn": [
 				"AF: Clean",
 				"AF: build_flowy_sdk",
+				"AF: Flutter Clean",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
@@ -69,6 +70,7 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
+				"AF: Flutter Clean",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
@@ -81,6 +83,14 @@
 			"presentation": {
 				"reveal": "always",
 				"panel": "new"
+			}
+		},
+		{
+			"label": "AF: Flutter Clean",
+			"type": "shell",
+			"command": "flutter clean",
+			"options": {
+				"cwd": "${workspaceFolder}/app_flowy"
 			}
 		},
 		{
