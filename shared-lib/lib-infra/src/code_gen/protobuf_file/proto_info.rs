@@ -73,22 +73,25 @@ impl ProtobufCrate {
         }
     }
 
-    pub fn proto_rust_file_paths(&self) -> Vec<PathBuf> {
+    // Return the file paths for each rust file that used to generate the proto file.
+    pub fn proto_input_paths(&self) -> Vec<PathBuf> {
         self.flowy_config
-            .proto_rust_file_input_dir
+            .proto_input
             .iter()
             .map(|name| path_buf_with_component(&self.crate_path, vec![name]))
             .collect::<Vec<PathBuf>>()
     }
 
+    // The protobuf_crate_path is used to store the generated protobuf Rust structures.
     pub fn protobuf_crate_path(&self) -> PathBuf {
-        let crate_path = PathBuf::from(&self.flowy_config.protobuf_crate_output_dir);
+        let crate_path = PathBuf::from(&self.flowy_config.protobuf_crate_path);
         create_dir_if_not_exist(&crate_path);
         crate_path
     }
 
-    pub fn proto_file_output_dir(&self) -> PathBuf {
-        let output_dir = PathBuf::from(&self.flowy_config.proto_file_output_dir);
+    // The proto_output_path is used to store the proto files
+    pub fn proto_output_path(&self) -> PathBuf {
+        let output_dir = PathBuf::from(&self.flowy_config.proto_output);
         create_dir_if_not_exist(&output_dir);
         output_dir
     }

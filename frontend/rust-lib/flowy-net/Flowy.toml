@@ -1,4 +1,4 @@
-proto_rust_file_input_dir = ["src/event_map.rs", "src/entities"]
-proto_file_output_dir = "resources/proto"
-protobuf_crate_output_dir = "src/protobuf"
+proto_input = ["src/event_map.rs", "src/entities"]
+proto_output = "resources/proto"
+protobuf_crate_path = "src/protobuf"
 event_files = ["src/event_map.rs"]

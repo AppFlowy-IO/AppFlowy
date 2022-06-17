@@ -50,7 +50,7 @@ impl ProtoGenerator {
 
 fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
     for context in crate_contexts {
-        let dir = context.protobuf_crate.proto_file_output_dir();
+        let dir = context.protobuf_crate.proto_output_path();
         context.files.iter().for_each(|info| {
             let proto_file = format!("{}.proto", &info.file_name);
             let proto_file_path = path_string_with_component(&dir, vec![&proto_file]);
@@ -75,7 +75,7 @@ fn write_rust_crate_mod_file(crate_contexts: &[ProtobufCrateContext]) {
                 mod_file_content.push_str("#![cfg_attr(rustfmt, rustfmt::skip)]\n");
                 mod_file_content.push_str("// Auto-generated, do not edit\n");
                 walk_dir(
-                    context.protobuf_crate.proto_file_output_dir(),
+                    context.protobuf_crate.proto_output_path(),
                     |e| !e.file_type().is_dir(),
                     |_, name| {
                         let c = format!("\nmod {};\npub use {}::*;\n", &name, &name);
