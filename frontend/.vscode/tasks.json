@@ -10,7 +10,7 @@
 	// ${cwd}: the current working directory of the spawned process
 	"tasks": [
 		{
-			"label": "AF: Rust Clean + Rebuild All",
+			"label": "AF: Clean + Rebuild All",
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
@@ -141,7 +141,7 @@
 		{
 			"label": "AF: Rust Clean",
 			"type": "shell",
-			"command": "cargo make rust_clean",
+			"command": "cargo make flowy_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
