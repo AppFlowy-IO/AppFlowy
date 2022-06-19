@@ -14,9 +14,9 @@
 			"type": "shell",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"AF: Clean",
-				"AF: build_flowy_sdk",
+				"AF: Rust Clean",
 				"AF: Flutter Clean",
+				"AF: build_flowy_sdk",
 				"AF: Flutter Pub Get",
 				"AF: Flutter Package Get",
 				"AF: Generate Language Files",
@@ -139,21 +139,9 @@
 			}
 		},
 		{
-			"label": "AF: Clean",
+			"label": "AF: Rust Clean",
 			"type": "shell",
-			"command": "sh ./scripts/clean.sh",
-			"windows": {
-				"options": {
-					"shell": {
-						"executable": "cmd.exe",
-						"args": [
-							"/d",
-							"/c",
-							".\\scripts\\clean.cmd"
-						]
-					}
-				}
-			},
+			"command": "cargo make flowy_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"

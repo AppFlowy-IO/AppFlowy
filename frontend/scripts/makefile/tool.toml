@@ -1,29 +1,92 @@
-[tasks.rust_clean]
+[tasks.flowy_clean]
+run_task = { name = ["cargo_clean","rm_macro_build_cache", "rm_rust_generated_files", "rm_dart_generated_files"] }
+
+[tasks.cargo_clean]
 script = [
   """
     cd rust-lib
-    cargo clean
+    cargo clean -q
 
     cd ../../shared-lib
-    cargo clean
-
-    CACHE_FILE=lib-infra/.cache
-    if [ -d "$CACHE_FILE" ]; then
-      echo "Remove $CACHE_FILE"
-      rm -rf $CACHE_FILE
-    fi
+    cargo clean -q
   """,
 ]
 script_runner = "@shell"
 
-[tasks.rust_clean.windows]
+
+[tasks.rm_macro_build_cache]
 script = [
   """
-    cd rust-lib
-    cargo clean
+    path = canonicalize ../shared-lib/lib-infra/.cache
+    if is_path_exists ${path}
+      rm -rf ${path}
+    end
+  """,
+]
+script_runner = "@duckscript"
 
-    cd ../../shared-lib
-    rmdir /s/q "lib-infra/.cache"
+#Rust Clean
+[tasks.rm_rust_generated_files]
+run_task = { name = ["rm_rust_lib_generated_protobuf_files", "rm_shared_lib_generated_protobuf_files"] }
+
+[tasks.rm_rust_lib_generated_protobuf_files]
+private = true
+env = { "rm_proto_path" = "./rust-lib/**/resources/proto", "rm_protobuf_path" = "./rust-lib/**/protobuf" }
+run_task = { name = "remove_files_with_pattern" }
+
+[tasks.rm_shared_lib_generated_protobuf_files]
+private = true
+env = { "rm_proto_path" = "./shared-lib/**/resources/proto", "rm_protobuf_path" = "./shared-lib/**/protobuf" }
+run_task = { name = "remove_files_with_pattern" }
+
+
+#Dart Clean
+[tasks.rm_dart_generated_files]
+env = { "dart_flowy_sdk_path" = "./app_flowy/packages/flowy_sdk/" }
+run_task = { name = ["rm_dart_generated_protobuf_files"] }
+
+[tasks.rm_dart_generated_protobuf_files]
+private = true
+script = [
+  """
+  protobuf_file_paths = glob_array ${dart_flowy_sdk_path}/lib/protobuf
+
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """,
+]
+script_runner = "@duckscript"
+
+
+[tasks.remove_files_with_pattern]
+private = true
+script = [
+  """
+  proto_file_paths = glob_array ${rm_proto_path}
+  is_proto_file_paths_empty = array_is_empty ${proto_file_paths}
+  if not ${is_proto_file_paths_empty}
+    echo Remove generated proto files:
+    for path in ${proto_file_paths}
+      echo remove ${path}
+      rm -rf ${path}
+    end
+  end
+
+  protobuf_file_paths = glob_array ${rm_protobuf_path}
+  is_protobuf_file_paths_empty = array_is_empty ${protobuf_file_paths}
+  if not ${is_protobuf_file_paths_empty}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+      echo remove ${path}
+      rm -rf ${path}
+    end
+  end
+
   """,
 ]
 script_runner = "@duckscript"
