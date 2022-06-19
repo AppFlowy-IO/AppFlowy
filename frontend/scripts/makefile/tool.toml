@@ -1,29 +1,35 @@
 [tasks.rust_clean]
+run_task = { name = ["cargo_clean","rm_macro_build_cache", "rm_generated_protobuf_files"] }
+
+[tasks.cargo_clean]
 script = [
   """
     cd rust-lib
-    cargo clean
+    cargo clean -q
 
     cd ../../shared-lib
-    cargo clean
-
-    CACHE_FILE=lib-infra/.cache
-    if [ -d "$CACHE_FILE" ]; then
-      echo "Remove $CACHE_FILE"
-      rm -rf $CACHE_FILE
-    fi
+    cargo clean -q
   """,
 ]
 script_runner = "@shell"
 
-[tasks.rust_clean.windows]
+
+[tasks.rm_macro_build_cache]
 script = [
   """
-    cd rust-lib
-    cargo clean
+    path = canonicalize ../shared-lib/lib-infra/.cache
+    if is_path_exists ${path}
+      rm -rf ${path}
+    end
+  """,
+]
+script_runner = "@duckscript"
 
-    cd ../../shared-lib
-    rmdir /s/q "lib-infra/.cache"
+
+[tasks.rm_generated_protobuf_files]
+script = [
+  """
+
   """,
 ]
 script_runner = "@duckscript"
