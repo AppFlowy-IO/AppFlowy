@@ -412,7 +412,7 @@ impl GridMetaEditor {
         Ok(())
     }
 
-    pub async fn grid_data(&self) -> FlowyResult<Grid> {
+    pub async fn get_grid_data(&self) -> FlowyResult<Grid> {
         let pad_read_guard = self.grid_pad.read().await;
         let field_orders = pad_read_guard.get_field_orders();
         let mut block_orders = vec![];
@@ -430,6 +430,10 @@ impl GridMetaEditor {
             field_orders,
             block_orders,
         })
+    }
+
+    pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
+        todo!()
     }
 
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {

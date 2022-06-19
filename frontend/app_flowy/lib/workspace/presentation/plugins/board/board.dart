@@ -28,7 +28,7 @@ class BoardPluginBuilder implements PluginBuilder {
 
 class BoardPluginConfig implements PluginConfig {
   @override
-  bool get creatable => false;
+  bool get creatable => true;
 }
 
 class BoardPlugin extends Plugin {
