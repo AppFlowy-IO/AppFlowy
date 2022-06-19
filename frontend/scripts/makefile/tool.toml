@@ -42,7 +42,6 @@ run_task = { name = "remove_files_with_pattern" }
 
 #Dart Clean
 [tasks.rm_dart_generated_files]
-private = true
 env = { "dart_flowy_sdk_path" = "./app_flowy/packages/flowy_sdk/" }
 run_task = { name = ["rm_dart_generated_protobuf_files"] }
 
@@ -51,14 +50,13 @@ private = true
 script = [
   """
   protobuf_file_paths = glob_array ${dart_flowy_sdk_path}/lib/protobuf
-  if array_is_empty ${protobuf_file_paths}
-    return
-  end
 
-  echo Remove generated protobuf files:
-  for path in ${protobuf_file_paths}
-      echo remove ${path}
-      rm -rf ${path}
+  if not array_is_empty ${protobuf_file_paths}
+    echo Remove generated protobuf files:
+    for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
   end
   """,
 ]
@@ -71,7 +69,7 @@ script = [
   """
   proto_file_paths = glob_array ${rm_proto_path}
   is_proto_file_paths_empty = array_is_empty ${proto_file_paths}
-  if !is_proto_file_paths_empty
+  if not ${is_proto_file_paths_empty}
     echo Remove generated proto files:
     for path in ${proto_file_paths}
       echo remove ${path}
@@ -81,7 +79,7 @@ script = [
 
   protobuf_file_paths = glob_array ${rm_protobuf_path}
   is_protobuf_file_paths_empty = array_is_empty ${protobuf_file_paths}
-  if !is_protobuf_file_paths_empty
+  if not ${is_protobuf_file_paths_empty}
     echo Remove generated protobuf files:
     for path in ${protobuf_file_paths}
       echo remove ${path}
