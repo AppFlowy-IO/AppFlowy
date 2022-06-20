@@ -5,7 +5,7 @@ use serde_repr::*;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct GridInfoRevision {
+pub struct GridSettingRevision {
     #[serde(with = "indexmap::serde_seq")]
     pub filter: IndexMap<GridLayoutRevision, GridFilterRevision>,
 
@@ -36,6 +36,24 @@ impl std::default::Default for GridLayoutRevision {
     }
 }
 
+impl std::convert::From<GridLayoutRevision> for GridLayoutType {
+    fn from(rev: GridLayoutRevision) -> Self {
+        match rev {
+            GridLayoutRevision::Table => GridLayoutType::Table,
+            GridLayoutRevision::Board => GridLayoutType::Board,
+        }
+    }
+}
+
+impl std::convert::From<GridLayoutType> for GridLayoutRevision {
+    fn from(layout: GridLayoutType) -> Self {
+        match layout {
+            GridLayoutType::Table => GridLayoutRevision::Table,
+            GridLayoutType::Board => GridLayoutRevision::Board,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct GridFilterRevision {
     pub field_id: Option<String>,
@@ -49,7 +67,7 @@ pub struct GridGroupRevision {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct GridSortRevision {
-    field_id: Option<String>,
+    pub field_id: Option<String>,
 }
 
 impl std::convert::From<GridFilterRevision> for GridFilter {
@@ -73,17 +91,8 @@ impl std::convert::From<GridSortRevision> for GridSort {
     }
 }
 
-impl std::convert::From<GridLayoutRevision> for GridLayoutType {
-    fn from(rev: GridLayoutRevision) -> Self {
-        match rev {
-            GridLayoutRevision::Table => GridLayoutType::Table,
-            GridLayoutRevision::Board => GridLayoutType::Board,
-        }
-    }
-}
-
-impl std::convert::From<GridInfoRevision> for GridSetting {
-    fn from(rev: GridInfoRevision) -> Self {
+impl std::convert::From<GridSettingRevision> for GridSetting {
+    fn from(rev: GridSettingRevision) -> Self {
         let filter: HashMap<String, GridFilter> = rev
             .filter
             .into_iter()

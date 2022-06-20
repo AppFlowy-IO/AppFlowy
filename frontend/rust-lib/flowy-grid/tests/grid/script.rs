@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_grid::services::field::*;
-use flowy_grid::services::grid_editor::{GridMetaEditor, GridPadBuilder};
+use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
     CellChangeset, Field, FieldChangesetParams, FieldOrder, FieldType, InsertFieldParams, RowOrder,
@@ -75,7 +75,7 @@ pub enum EditorScript {
 pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
-    pub editor: Arc<GridMetaEditor>,
+    pub editor: Arc<GridRevisionEditor>,
     pub field_revs: Vec<FieldRevision>,
     pub grid_block_revs: Vec<GridBlockRevision>,
     pub row_revs: Vec<Arc<RowRevision>>,
@@ -101,9 +101,9 @@ impl GridEditorTest {
             sdk,
             grid_id,
             editor,
-            field_revs: field_revs,
+            field_revs,
             grid_block_revs: grid_blocks,
-            row_revs: row_revs,
+            row_revs,
             field_count: FieldType::COUNT,
             row_order_by_row_id: HashMap::default(),
         }
@@ -239,7 +239,7 @@ impl GridEditorTest {
     }
 }
 
-async fn get_row_revs(editor: &Arc<GridMetaEditor>) -> Vec<Arc<RowRevision>> {
+async fn get_row_revs(editor: &Arc<GridRevisionEditor>) -> Vec<Arc<RowRevision>> {
     editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs
 }
 

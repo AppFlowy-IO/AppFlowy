@@ -1,4 +1,4 @@
-use crate::services::grid_editor::GridMetaEditor;
+use crate::services::grid_editor::GridRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::GridDatabase;
@@ -6,7 +6,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{BuildGridContext, GridInfoRevision, GridRevision};
+use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridSettingRevision};
 use flowy_revision::disk::{SQLiteGridBlockMetaRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::client_grid::{make_block_meta_delta, make_grid_delta};
@@ -20,7 +20,7 @@ pub trait GridUser: Send + Sync {
 }
 
 pub struct GridManager {
-    editor_map: Arc<DashMap<String, Arc<GridMetaEditor>>>,
+    editor_map: Arc<DashMap<String, Arc<GridRevisionEditor>>>,
     grid_user: Arc<dyn GridUser>,
     block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
@@ -67,7 +67,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
-    pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridMetaEditor>> {
+    pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
         self.get_or_create_grid_editor(grid_id).await
@@ -92,14 +92,14 @@ impl GridManager {
     // pub fn update_grid_info()
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
-    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridMetaEditor>> {
+    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.editor_map.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
             Some(editor) => Ok(editor.clone()),
         }
     }
 
-    async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridMetaEditor>> {
+    async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.editor_map.get(grid_id) {
             None => {
                 tracing::trace!("Create grid editor with id: {}", grid_id);
@@ -121,10 +121,10 @@ impl GridManager {
         &self,
         grid_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<GridMetaEditor>, FlowyError> {
+    ) -> Result<Arc<GridRevisionEditor>, FlowyError> {
         let user = self.grid_user.clone();
         let rev_manager = self.make_grid_rev_manager(grid_id, pool.clone())?;
-        let grid_editor = GridMetaEditor::new(grid_id, user, rev_manager, self.block_index_cache.clone()).await?;
+        let grid_editor = GridRevisionEditor::new(grid_id, user, rev_manager, self.block_index_cache.clone()).await?;
         Ok(grid_editor)
     }
 
@@ -160,7 +160,7 @@ pub async fn make_grid_view_data(
         grid_id: view_id.to_string(),
         fields: build_context.field_revs,
         blocks: build_context.blocks,
-        info: GridInfoRevision::default(),
+        setting: GridSettingRevision::default(),
     };
 
     // Create grid

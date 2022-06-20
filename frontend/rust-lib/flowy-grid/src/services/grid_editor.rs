@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub struct GridMetaEditor {
+pub struct GridRevisionEditor {
     grid_id: String,
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
@@ -28,13 +28,13 @@ pub struct GridMetaEditor {
     block_manager: Arc<GridBlockManager>,
 }
 
-impl Drop for GridMetaEditor {
+impl Drop for GridRevisionEditor {
     fn drop(&mut self) {
         tracing::trace!("Drop GridMetaEditor");
     }
 }
 
-impl GridMetaEditor {
+impl GridRevisionEditor {
     pub async fn new(
         grid_id: &str,
         user: Arc<dyn GridUser>,
@@ -46,7 +46,7 @@ impl GridMetaEditor {
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let blocks = grid_pad.read().await.get_block_metas();
+        let blocks = grid_pad.read().await.get_block_revs();
 
         let block_meta_manager = Arc::new(GridBlockManager::new(grid_id, &user, blocks, persistence).await?);
         Ok(Arc::new(Self {
@@ -165,13 +165,15 @@ impl GridMetaEditor {
 
     pub async fn replace_field(&self, field_rev: FieldRevision) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
-        let _ = self.modify(|pad| Ok(pad.replace_field_rev(field_rev)?)).await?;
+        let _ = self
+            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev)?))
+            .await?;
         let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.delete_field_rev(field_id)?)).await?;
+        let _ = self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
         let field_order = FieldOrder::from(field_id);
         let notified_changeset = GridFieldChangeset::delete(&self.grid_id, vec![field_order]);
         let _ = self.notify_did_update_grid(notified_changeset).await?;
@@ -242,12 +244,16 @@ impl GridMetaEditor {
     }
 
     pub async fn create_block(&self, grid_block: GridBlockRevision) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.create_block_meta(grid_block)?)).await?;
+        let _ = self
+            .modify(|grid_pad| Ok(grid_pad.create_block_rev(grid_block)?))
+            .await?;
         Ok(())
     }
 
     pub async fn update_block(&self, changeset: GridBlockRevisionChangeset) -> FlowyResult<()> {
-        let _ = self.modify(|grid| Ok(grid.update_block_meta(changeset)?)).await?;
+        let _ = self
+            .modify(|grid_pad| Ok(grid_pad.update_block_rev(changeset)?))
+            .await?;
         Ok(())
     }
 
@@ -400,7 +406,7 @@ impl GridMetaEditor {
     }
 
     pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockRevision>> {
-        let grid_blocks = self.grid_pad.read().await.get_block_metas();
+        let grid_blocks = self.grid_pad.read().await.get_block_revs();
         Ok(grid_blocks)
     }
 
@@ -416,7 +422,7 @@ impl GridMetaEditor {
         let pad_read_guard = self.grid_pad.read().await;
         let field_orders = pad_read_guard.get_field_orders();
         let mut block_orders = vec![];
-        for block_order in pad_read_guard.get_block_metas() {
+        for block_order in pad_read_guard.get_block_revs() {
             let row_orders = self.block_manager.get_row_orders(&block_order.block_id).await?;
             let block_order = GridBlockOrder {
                 block_id: block_order.block_id,
@@ -433,7 +439,16 @@ impl GridMetaEditor {
     }
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
-        todo!()
+        let pad_read_guard = self.grid_pad.read().await;
+        let grid_setting_rev = pad_read_guard.get_grid_setting_rev();
+        Ok(grid_setting_rev.into())
+    }
+
+    pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
+        let _ = self
+            .modify(|grid_pad| Ok(grid_pad.update_grid_setting_rev(params)?))
+            .await?;
+        Ok(())
     }
 
     pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
@@ -442,7 +457,7 @@ impl GridMetaEditor {
                 .grid_pad
                 .read()
                 .await
-                .get_block_metas()
+                .get_block_revs()
                 .into_iter()
                 .map(|block_meta| block_meta.block_id)
                 .collect::<Vec<String>>(),
@@ -492,7 +507,7 @@ impl GridMetaEditor {
 
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
         let grid_pad = self.grid_pad.read().await;
-        let original_blocks = grid_pad.get_block_metas();
+        let original_blocks = grid_pad.get_block_revs();
         let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_meta().await;
 
         let mut blocks_meta_data = vec![];
@@ -551,7 +566,7 @@ impl GridMetaEditor {
     }
 
     async fn block_id(&self) -> FlowyResult<String> {
-        match self.grid_pad.read().await.get_block_metas().last() {
+        match self.grid_pad.read().await.get_block_revs().last() {
             None => Err(FlowyError::internal().context("There is no grid block in this grid")),
             Some(grid_block) => Ok(grid_block.block_id.clone()),
         }
@@ -597,7 +612,7 @@ impl GridMetaEditor {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl GridMetaEditor {
+impl GridRevisionEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
     }

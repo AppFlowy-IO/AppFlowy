@@ -69,7 +69,7 @@ pub struct GridSettingChangesetPayload {
 }
 
 pub struct GridSettingChangesetParams {
-    pub view_id: String,
+    pub grid_id: String,
     pub layout_type: GridLayoutType,
     pub filter: Option<GridFilter>,
     pub group: Option<GridGroup>,
@@ -100,7 +100,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
         };
 
         Ok(GridSettingChangesetParams {
-            view_id,
+            grid_id: view_id,
             layout_type: self.layout_type,
             filter,
             group,

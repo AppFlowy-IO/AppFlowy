@@ -1,5 +1,5 @@
 use crate::entities::{CellChangeset, Field, FieldOrder, FieldType, RowOrder};
-use crate::revision::GridInfoRevision;
+use crate::revision::GridSettingRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
@@ -31,9 +31,7 @@ pub struct GridRevision {
     pub grid_id: String,
     pub fields: Vec<FieldRevision>,
     pub blocks: Vec<GridBlockRevision>,
-
-    #[serde(default, skip)]
-    pub info: GridInfoRevision,
+    pub setting: GridSettingRevision,
 }
 
 impl GridRevision {
@@ -42,7 +40,7 @@ impl GridRevision {
             grid_id: grid_id.to_owned(),
             fields: vec![],
             blocks: vec![],
-            info: GridInfoRevision::default(),
+            setting: GridSettingRevision::default(),
         }
     }
 }
