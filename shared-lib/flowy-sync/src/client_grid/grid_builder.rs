@@ -79,7 +79,7 @@ mod tests {
             grid_id,
             fields: build_context.field_revs,
             blocks: build_context.blocks,
-            info: Default::default(),
+            setting: Default::default(),
         };
 
         let grid_meta_delta = make_grid_delta(&grid_rev);

@@ -2,10 +2,11 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
+use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridRevision,
+    gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision,
+    GridGroupRevision, GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -279,7 +280,7 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn create_block_meta(&mut self, block: GridBlockRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_rev(&mut self, block: GridBlockRevision) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -302,11 +303,11 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_block_metas(&self) -> Vec<GridBlockRevision> {
+    pub fn get_block_revs(&self) -> Vec<GridBlockRevision> {
         self.grid_rev.blocks.clone()
     }
 
-    pub fn update_block_meta(
+    pub fn update_block_rev(
         &mut self,
         changeset: GridBlockRevisionChangeset,
     ) -> CollaborateResult<Option<GridChangeset>> {
@@ -322,6 +323,53 @@ impl GridRevisionPad {
             if let Some(start_row_index) = changeset.start_row_index {
                 block.start_row_index = start_row_index;
                 is_changed = Some(());
+            }
+
+            Ok(is_changed)
+        })
+    }
+
+    pub fn get_grid_setting_rev(&self) -> GridSettingRevision {
+        self.grid_rev.setting.clone()
+    }
+
+    pub fn update_grid_setting_rev(
+        &mut self,
+        changeset: GridSettingChangesetParams,
+    ) -> CollaborateResult<Option<GridChangeset>> {
+        self.modify_grid(|grid_rev| {
+            let mut is_changed = None;
+            let layout_rev: GridLayoutRevision = changeset.layout_type.into();
+
+            if let Some(filter) = changeset.filter {
+                grid_rev.setting.filter.insert(
+                    layout_rev.clone(),
+                    GridFilterRevision {
+                        field_id: filter.field_id,
+                    },
+                );
+                is_changed = Some(())
+            }
+
+            if let Some(group) = changeset.group {
+                grid_rev.setting.group.insert(
+                    layout_rev.clone(),
+                    GridGroupRevision {
+                        group_field_id: group.group_field_id,
+                        sub_group_field_id: group.sub_group_field_id,
+                    },
+                );
+                is_changed = Some(())
+            }
+
+            if let Some(sort) = changeset.sort {
+                grid_rev.setting.sort.insert(
+                    layout_rev,
+                    GridSortRevision {
+                        field_id: sort.field_id,
+                    },
+                );
+                is_changed = Some(())
             }
 
             Ok(is_changed)
@@ -365,32 +413,32 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut GridBlockRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
-            |grid_meta| match grid_meta.blocks.iter().position(|block| block.block_id == block_id) {
+            |grid_rev| match grid_rev.blocks.iter().position(|block| block.block_id == block_id) {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_meta.blocks[index]),
+                Some(index) => f(&mut grid_rev.blocks[index]),
             },
         )
     }
 
-    pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
         F: FnOnce(&mut FieldRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
-            |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
+            |grid_rev| match grid_rev.fields.iter().position(|field| field.id == field_id) {
                 None => {
                     tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_meta.fields[index]),
+                Some(index) => f(&mut grid_rev.fields[index]),
             },
         )
     }

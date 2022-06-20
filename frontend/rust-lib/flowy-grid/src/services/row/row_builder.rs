@@ -5,19 +5,19 @@ use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, R
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
-pub struct CreateRowMetaBuilder<'a> {
+pub struct CreateRowRevisionBuilder<'a> {
     field_rev_map: HashMap<&'a String, &'a FieldRevision>,
-    payload: CreateRowMetaPayload,
+    payload: CreateRowRevisionPayload,
 }
 
-impl<'a> CreateRowMetaBuilder<'a> {
+impl<'a> CreateRowRevisionBuilder<'a> {
     pub fn new(fields: &'a [FieldRevision]) -> Self {
         let field_rev_map = fields
             .iter()
             .map(|field| (&field.id, field))
             .collect::<HashMap<&String, &FieldRevision>>();
 
-        let payload = CreateRowMetaPayload {
+        let payload = CreateRowRevisionPayload {
             row_id: gen_row_id(),
             cell_by_field_id: Default::default(),
             height: DEFAULT_ROW_HEIGHT,
@@ -70,12 +70,12 @@ impl<'a> CreateRowMetaBuilder<'a> {
         self
     }
 
-    pub fn build(self) -> CreateRowMetaPayload {
+    pub fn build(self) -> CreateRowRevisionPayload {
         self.payload
     }
 }
 
-pub fn make_row_rev_from_context(block_id: &str, payload: CreateRowMetaPayload) -> RowRevision {
+pub fn make_row_rev_from_context(block_id: &str, payload: CreateRowRevisionPayload) -> RowRevision {
     RowRevision {
         id: payload.row_id,
         block_id: block_id.to_owned(),
@@ -85,7 +85,7 @@ pub fn make_row_rev_from_context(block_id: &str, payload: CreateRowMetaPayload) 
     }
 }
 
-pub struct CreateRowMetaPayload {
+pub struct CreateRowRevisionPayload {
     pub row_id: String,
     pub cell_by_field_id: IndexMap<String, CellRevision>,
     pub height: i32,

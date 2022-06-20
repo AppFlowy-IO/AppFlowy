@@ -15,8 +15,30 @@ pub(crate) async fn get_grid_data_handler(
 ) -> DataResult<Grid, FlowyError> {
     let grid_id: GridId = data.into_inner();
     let editor = manager.open_grid(grid_id).await?;
-    let grid = editor.grid_data().await?;
+    let grid = editor.get_grid_data().await?;
     data_result(grid)
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn get_grid_setting_handler(
+    data: Data<GridId>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<GridSetting, FlowyError> {
+    let grid_id: GridId = data.into_inner();
+    let editor = manager.open_grid(grid_id).await?;
+    let grid_setting = editor.get_grid_setting().await?;
+    data_result(grid_setting.into())
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn update_grid_setting_handler(
+    data: Data<GridSettingChangesetPayload>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: GridSettingChangesetParams = data.into_inner().try_into()?;
+    let editor = manager.open_grid(&params.grid_id).await?;
+    let _ = editor.update_grid_setting(params).await?;
+    Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

@@ -10,6 +10,8 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
     module = module
         .event(GridEvent::GetGridData, get_grid_data_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
+        .event(GridEvent::GetGridSetting, get_grid_setting_handler)
+        .event(GridEvent::UpdateGridSetting, get_grid_setting_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -48,6 +50,12 @@ pub enum GridEvent {
 
     #[event(input = "QueryGridBlocksPayload", output = "RepeatedGridBlock")]
     GetGridBlocks = 1,
+
+    #[event(input = "GridId", output = "GridSetting")]
+    GetGridSetting = 2,
+
+    #[event(input = "GridId", input = "GridSettingChangesetPayload")]
+    UpdateGridSetting = 3,
 
     #[event(input = "QueryFieldPayload", output = "RepeatedField")]
     GetFields = 10,

@@ -1,28 +1,42 @@
 use crate::parser::{NotEmptyStr, ViewFilterParser, ViewGroupParser, ViewSortParser};
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
+use std::collections::HashMap;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewExtData {
+pub struct GridSetting {
     #[pb(index = 1)]
-    pub filter: ViewFilter,
+    pub filter: HashMap<String, GridFilter>,
 
     #[pb(index = 2)]
-    pub group: ViewGroup,
+    pub group: HashMap<String, GridGroup>,
 
     #[pb(index = 3)]
-    pub sort: ViewSort,
+    pub sort: HashMap<String, GridSort>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[repr(u8)]
+pub enum GridLayoutType {
+    Table = 0,
+    Board = 1,
+}
+
+impl std::default::Default for GridLayoutType {
+    fn default() -> Self {
+        GridLayoutType::Table
+    }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewFilter {
+pub struct GridFilter {
     #[pb(index = 1, one_of)]
     pub field_id: Option<String>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewGroup {
+pub struct GridGroup {
     #[pb(index = 1, one_of)]
     pub group_field_id: Option<String>,
 
@@ -31,37 +45,41 @@ pub struct ViewGroup {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewSort {
+pub struct GridSort {
     #[pb(index = 1, one_of)]
     pub field_id: Option<String>,
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridInfoChangesetPayload {
+pub struct GridSettingChangesetPayload {
     #[pb(index = 1)]
     pub grid_id: String,
 
-    #[pb(index = 2, one_of)]
-    pub filter: Option<ViewFilter>,
+    #[pb(index = 2)]
+    pub layout_type: GridLayoutType,
 
     #[pb(index = 3, one_of)]
-    pub group: Option<ViewGroup>,
+    pub filter: Option<GridFilter>,
 
     #[pb(index = 4, one_of)]
-    pub sort: Option<ViewSort>,
+    pub group: Option<GridGroup>,
+
+    #[pb(index = 5, one_of)]
+    pub sort: Option<GridSort>,
 }
 
-pub struct GridInfoChangesetParams {
-    pub view_id: String,
-    pub filter: Option<ViewFilter>,
-    pub group: Option<ViewGroup>,
-    pub sort: Option<ViewSort>,
+pub struct GridSettingChangesetParams {
+    pub grid_id: String,
+    pub layout_type: GridLayoutType,
+    pub filter: Option<GridFilter>,
+    pub group: Option<GridGroup>,
+    pub sort: Option<GridSort>,
 }
 
-impl TryInto<GridInfoChangesetParams> for GridInfoChangesetPayload {
+impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridInfoChangesetParams, Self::Error> {
+    fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.grid_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -81,8 +99,9 @@ impl TryInto<GridInfoChangesetParams> for GridInfoChangesetPayload {
             Some(sort) => Some(ViewSortParser::parse(sort)?),
         };
 
-        Ok(GridInfoChangesetParams {
-            view_id,
+        Ok(GridSettingChangesetParams {
+            grid_id: view_id,
+            layout_type: self.layout_type,
             filter,
             group,
             sort,

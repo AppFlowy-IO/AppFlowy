@@ -76,7 +76,7 @@ fn write_proto_files(crate_contexts: &[ProtobufCrateContext]) {
             let mut file_content = file.syntax.clone();
 
             // import
-            file_content.push_str(&gen_import_content(&file, &file_path_content_map));
+            file_content.push_str(&gen_import_content(file, &file_path_content_map));
 
             // content
             file_content.push_str(&file.content);
