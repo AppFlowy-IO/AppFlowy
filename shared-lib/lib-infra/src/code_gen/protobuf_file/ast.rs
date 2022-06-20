@@ -15,7 +15,7 @@ use walkdir::WalkDir;
 
 pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrateContext> {
     let crate_infos = parse_crate_info_from_path(crate_paths);
-    let contexts = crate_infos
+    crate_infos
         .into_iter()
         .map(|crate_info| {
             let proto_output_path = crate_info.proto_output_path();
@@ -28,9 +28,7 @@ pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrat
 
             ProtobufCrateContext::from_crate_info(crate_info, files)
         })
-        .collect::<Vec<ProtobufCrateContext>>();
-
-    contexts
+        .collect::<Vec<ProtobufCrateContext>>()
 }
 
 fn parse_files_protobuf(proto_crate_path: &Path, proto_output_path: &Path) -> Vec<ProtoFile> {
@@ -71,7 +69,7 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_path: &Path) -> Ve
                 .iter()
                 .filter(|field| field.attrs.pb_index().is_some())
                 .for_each(|field| {
-                    ref_types.push(field.ty_as_str().to_string());
+                    ref_types.push(field.ty_as_str());
                     struct_template.set_field(field);
                 });
 
@@ -95,8 +93,8 @@ fn parse_files_protobuf(proto_crate_path: &Path, proto_output_path: &Path) -> Ve
         if !enums.is_empty() || !structs.is_empty() {
             let structs: Vec<String> = structs.iter().map(|s| s.name.clone()).collect();
             let enums: Vec<String> = enums.iter().map(|e| e.name.clone()).collect();
-            ref_types.retain(|s| !structs.contains(&s));
-            ref_types.retain(|s| !enums.contains(&s));
+            ref_types.retain(|s| !structs.contains(s));
+            ref_types.retain(|s| !enums.contains(s));
 
             let info = ProtoFile {
                 file_path: path.clone(),

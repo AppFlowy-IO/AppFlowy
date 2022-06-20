@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 pub struct GridSettingRevision {
     #[serde(with = "indexmap::serde_seq")]
     pub filter: IndexMap<GridLayoutRevision, GridFilterRevision>,
@@ -54,18 +54,18 @@ impl std::convert::From<GridLayoutType> for GridLayoutRevision {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct GridFilterRevision {
     pub field_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct GridGroupRevision {
     pub group_field_id: Option<String>,
     pub sub_group_field_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct GridSortRevision {
     pub field_id: Option<String>,
 }

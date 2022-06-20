@@ -262,7 +262,7 @@ impl GridRevisionEditor {
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
-        let row_rev_ctx = CreateRowMetaBuilder::new(&field_revs).build();
+        let row_rev_ctx = CreateRowRevisionBuilder::new(&field_revs).build();
         let row_rev = make_row_rev_from_context(&block_id, row_rev_ctx);
         let row_order = RowOrder::from(&row_rev);
 
@@ -275,7 +275,7 @@ impl GridRevisionEditor {
         Ok(row_order)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<CreateRowMetaPayload>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<RowOrder>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowRevision>> = HashMap::new();
         let mut row_orders = vec![];
@@ -438,10 +438,10 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
+    pub async fn get_grid_setting(&self) -> FlowyResult<GridSettingRevision> {
         let pad_read_guard = self.grid_pad.read().await;
         let grid_setting_rev = pad_read_guard.get_grid_setting_rev();
-        Ok(grid_setting_rev.into())
+        Ok(grid_setting_rev)
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {

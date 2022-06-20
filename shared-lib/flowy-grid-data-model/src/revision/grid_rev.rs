@@ -31,6 +31,8 @@ pub struct GridRevision {
     pub grid_id: String,
     pub fields: Vec<FieldRevision>,
     pub blocks: Vec<GridBlockRevision>,
+
+    #[serde(skip)]
     pub setting: GridSettingRevision,
 }
 

@@ -69,7 +69,7 @@ impl ProtobufCrate {
         ProtobufCrate {
             crate_path: config.crate_path,
             crate_folder: config.crate_folder,
-            flowy_config: config.flowy_config.clone(),
+            flowy_config: config.flowy_config,
         }
     }
 

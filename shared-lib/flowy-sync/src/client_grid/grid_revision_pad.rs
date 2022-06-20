@@ -364,7 +364,7 @@ impl GridRevisionPad {
 
             if let Some(sort) = changeset.sort {
                 grid_rev.setting.sort.insert(
-                    layout_rev.clone(),
+                    layout_rev,
                     GridSortRevision {
                         field_id: sort.field_id,
                     },
