@@ -5,8 +5,9 @@ use bytes::Bytes;
 use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
 use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision,
-    GridGroupRevision, GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
+    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
+    GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision, GridGroupRevision, GridLayoutRevision,
+    GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -341,34 +342,51 @@ impl GridRevisionPad {
             let mut is_changed = None;
             let layout_rev: GridLayoutRevision = changeset.layout_type.into();
 
-            if let Some(filter) = changeset.filter {
-                grid_rev.setting.filter.insert(
-                    layout_rev.clone(),
-                    GridFilterRevision {
-                        field_id: filter.field_id,
-                    },
-                );
+            if let Some(params) = changeset.insert_filter {
+                let rev = GridFilterRevision {
+                    id: gen_grid_filter_id(),
+                    field_id: params.field_id,
+                    info: Default::default(),
+                };
+                grid_rev
+                    .setting
+                    .filter
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
+
                 is_changed = Some(())
             }
 
-            if let Some(group) = changeset.group {
-                grid_rev.setting.group.insert(
-                    layout_rev.clone(),
-                    GridGroupRevision {
-                        group_field_id: group.group_field_id,
-                        sub_group_field_id: group.sub_group_field_id,
-                    },
-                );
+            if let Some(params) = changeset.insert_group {
+                let rev = GridGroupRevision {
+                    id: gen_grid_group_id(),
+                    field_id: params.field_id,
+                    sub_field_id: params.sub_field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .group
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
+
                 is_changed = Some(())
             }
 
-            if let Some(sort) = changeset.sort {
-                grid_rev.setting.sort.insert(
-                    layout_rev,
-                    GridSortRevision {
-                        field_id: sort.field_id,
-                    },
-                );
+            if let Some(sort) = changeset.insert_sort {
+                let rev = GridSortRevision {
+                    id: gen_grid_sort_id(),
+                    field_id: sort.field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .sort
+                    .entry(layout_rev)
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
                 is_changed = Some(())
             }
 

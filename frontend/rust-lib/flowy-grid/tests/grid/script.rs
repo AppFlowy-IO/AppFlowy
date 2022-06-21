@@ -261,6 +261,10 @@ impl GridEditorTest {
             .unwrap()
             .row_revs
     }
+
+    pub(crate) async fn get_grid_setting(&self) -> GridSettingRevision {
+        self.editor.get_grid_setting().await.unwrap()
+    }
 }
 
 pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
