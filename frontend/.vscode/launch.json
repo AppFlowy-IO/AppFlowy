@@ -20,15 +20,7 @@
             "name": "AF: Debug Rust",
             "request": "attach",
             "type": "lldb",
-            "windows": {
-                "program": "" // FIXME: windows executable path
-            },
-            "osx": {
-                "program": "${workspaceRoot}/app_flowy/build/macos/Build/Products/Debug/AppFlowy.app",
-            },
-            "linux": {
-                "program": "" // FIXME: linux executable path
-            },
+            "pid": "${command:pickMyProcess}"
         },
         {
             //  This task only builds the Dart code of AppFlowy.
