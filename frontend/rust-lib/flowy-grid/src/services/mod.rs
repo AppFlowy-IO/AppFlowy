@@ -6,3 +6,4 @@ pub mod field;
 pub mod grid_editor;
 pub mod persistence;
 pub mod row;
+pub mod setting;

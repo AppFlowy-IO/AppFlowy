@@ -14,11 +14,12 @@ pub struct GridSort {
     pub field_id: Option<String>,
 }
 
-impl std::convert::From<GridSortRevision> for GridSort {
-    fn from(rev: GridSortRevision) -> Self {
+impl std::convert::From<&GridSortRevision> for GridSort {
+    fn from(rev: &GridSortRevision) -> Self {
         GridSort {
-            id: rev.id,
-            field_id: rev.field_id,
+            id: rev.id.clone(),
+
+            field_id: rev.field_id.clone(),
         }
     }
 }
@@ -29,10 +30,10 @@ pub struct RepeatedGridSort {
     pub items: Vec<GridSort>,
 }
 
-impl std::convert::From<Vec<GridSortRevision>> for RepeatedGridSort {
-    fn from(revs: Vec<GridSortRevision>) -> Self {
+impl std::convert::From<&Vec<GridSortRevision>> for RepeatedGridSort {
+    fn from(revs: &Vec<GridSortRevision>) -> Self {
         RepeatedGridSort {
-            items: revs.into_iter().map(|rev| rev.into()).collect(),
+            items: revs.iter().map(|rev| rev.into()).collect(),
         }
     }
 }

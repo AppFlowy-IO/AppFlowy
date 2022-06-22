@@ -2,6 +2,7 @@ use bytes::Bytes;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowRevisionPayload;
+use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -66,8 +67,17 @@ pub enum EditorScript {
     UpdateGridSetting {
         params: GridSettingChangesetParams,
     },
+    InsertGridTableFilter {
+        payload: CreateGridFilterPayload,
+    },
+    AssertTableFilterCount {
+        count: i32,
+    },
+    DeleteGridTableFilter {
+        filter_id: String,
+    },
     AssertGridSetting {
-        expected_setting: GridSettingRevision,
+        expected_setting: GridSetting,
     },
     AssertGridRevisionPad,
 }
@@ -239,6 +249,26 @@ impl GridEditorTest {
             EditorScript::UpdateGridSetting { params } => {
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }
+            EditorScript::InsertGridTableFilter { payload } => {
+                let params: CreateGridFilterParams = payload.try_into().unwrap();
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .insert_filter(params)
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
+            EditorScript::AssertTableFilterCount { count } => {
+                let layout_type = GridLayoutType::Table;
+                let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
+                assert_eq!(count as usize, filters.len());
+            }
+            EditorScript::DeleteGridTableFilter { filter_id } => {
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .delete_filter(&filter_id)
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
             EditorScript::AssertGridSetting { expected_setting } => {
                 let setting = self.editor.get_grid_setting().await.unwrap();
                 assert_eq!(expected_setting, setting);
@@ -262,8 +292,18 @@ impl GridEditorTest {
             .row_revs
     }
 
-    pub(crate) async fn get_grid_setting(&self) -> GridSettingRevision {
-        self.editor.get_grid_setting().await.unwrap()
+    pub async fn grid_filters(&self) -> Vec<GridFilter> {
+        let layout_type = GridLayoutType::Table;
+        self.editor.get_grid_filter(&layout_type).await.unwrap()
+    }
+
+    pub fn text_field(&self) -> &FieldRevision {
+        self.field_revs
+            .iter()
+            .filter(|field_rev| field_rev.field_type == FieldType::RichText)
+            .collect::<Vec<_>>()
+            .pop()
+            .unwrap()
     }
 }
 

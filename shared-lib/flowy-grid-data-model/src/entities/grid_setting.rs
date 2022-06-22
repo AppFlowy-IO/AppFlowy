@@ -21,23 +21,23 @@ pub struct GridSetting {
     pub sorts_by_layout_ty: HashMap<String, RepeatedGridSort>,
 }
 
-impl std::convert::From<GridSettingRevision> for GridSetting {
-    fn from(rev: GridSettingRevision) -> Self {
+impl std::convert::From<&GridSettingRevision> for GridSetting {
+    fn from(rev: &GridSettingRevision) -> Self {
         let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
             .filter
-            .into_iter()
+            .iter()
             .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
             .collect();
 
         let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
             .group
-            .into_iter()
+            .iter()
             .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
             .collect();
 
         let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
             .sort
-            .into_iter()
+            .iter()
             .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
             .collect();
 
@@ -116,34 +116,6 @@ pub struct GridSettingChangesetParams {
     pub delete_group: Option<String>,
     pub insert_sort: Option<CreateGridSortParams>,
     pub delete_sort: Option<String>,
-}
-
-impl GridSettingChangesetParams {
-    pub fn from_insert_filter(grid_id: &str, layout_type: GridLayoutType, params: CreateGridFilterParams) -> Self {
-        Self {
-            grid_id: grid_id.to_owned(),
-            layout_type,
-            insert_filter: Some(params),
-            delete_filter: None,
-            insert_group: None,
-            delete_group: None,
-            insert_sort: None,
-            delete_sort: None,
-        }
-    }
-
-    pub fn from_delete_filter(grid_id: &str, layout_type: GridLayoutType, filter_id: &str) -> Self {
-        Self {
-            grid_id: grid_id.to_owned(),
-            layout_type,
-            insert_filter: None,
-            delete_filter: Some(filter_id.to_string()),
-            insert_group: None,
-            delete_group: None,
-            insert_sort: None,
-            delete_sort: None,
-        }
-    }
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {

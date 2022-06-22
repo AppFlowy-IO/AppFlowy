@@ -17,12 +17,12 @@ pub struct GridGroup {
     pub sub_group_field_id: Option<String>,
 }
 
-impl std::convert::From<GridGroupRevision> for GridGroup {
-    fn from(rev: GridGroupRevision) -> Self {
+impl std::convert::From<&GridGroupRevision> for GridGroup {
+    fn from(rev: &GridGroupRevision) -> Self {
         GridGroup {
-            id: rev.id,
-            group_field_id: rev.field_id,
-            sub_group_field_id: rev.sub_field_id,
+            id: rev.id.clone(),
+            group_field_id: rev.field_id.clone(),
+            sub_group_field_id: rev.sub_field_id.clone(),
         }
     }
 }
@@ -39,10 +39,10 @@ impl std::convert::From<Vec<GridGroup>> for RepeatedGridGroup {
     }
 }
 
-impl std::convert::From<Vec<GridGroupRevision>> for RepeatedGridGroup {
-    fn from(revs: Vec<GridGroupRevision>) -> Self {
+impl std::convert::From<&Vec<GridGroupRevision>> for RepeatedGridGroup {
+    fn from(revs: &Vec<GridGroupRevision>) -> Self {
         RepeatedGridGroup {
-            items: revs.into_iter().map(|rev| rev.into()).collect(),
+            items: revs.iter().map(|rev| rev.into()).collect(),
         }
     }
 }
