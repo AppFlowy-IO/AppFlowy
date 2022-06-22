@@ -27,7 +27,7 @@ pub(crate) async fn get_grid_setting_handler(
     let grid_id: GridId = data.into_inner();
     let editor = manager.open_grid(grid_id).await?;
     let grid_setting = editor.get_grid_setting().await?;
-    data_result(grid_setting.into())
+    data_result(grid_setting)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]

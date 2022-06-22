@@ -330,8 +330,8 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_grid_setting_rev(&self) -> GridSettingRevision {
-        self.grid_rev.setting.clone()
+    pub fn get_grid_setting_rev(&self) -> &GridSettingRevision {
+        &self.grid_rev.setting
     }
 
     pub fn update_grid_setting_rev(
@@ -346,8 +346,10 @@ impl GridRevisionPad {
                 let rev = GridFilterRevision {
                     id: gen_grid_filter_id(),
                     field_id: params.field_id,
-                    info: Default::default(),
+                    condition: params.condition,
+                    content: params.content,
                 };
+
                 grid_rev
                     .setting
                     .filter

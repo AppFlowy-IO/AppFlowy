@@ -438,10 +438,19 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn get_grid_setting(&self) -> FlowyResult<GridSettingRevision> {
-        let pad_read_guard = self.grid_pad.read().await;
-        let grid_setting_rev = pad_read_guard.get_grid_setting_rev();
-        Ok(grid_setting_rev)
+    pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
+        let read_guard = self.grid_pad.read().await;
+        let grid_setting_rev = read_guard.get_grid_setting_rev();
+        Ok(grid_setting_rev.into())
+    }
+
+    pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
+        let layout_type: GridLayoutRevision = layout_type.clone().into();
+        let read_guard = self.grid_pad.read().await;
+        match read_guard.get_grid_setting_rev().filter.get(&layout_type) {
+            Some(filter_revs) => Ok(filter_revs.iter().map(GridFilter::from).collect::<Vec<GridFilter>>()),
+            None => Ok(vec![]),
+        }
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {

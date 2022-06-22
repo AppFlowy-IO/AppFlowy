@@ -3,49 +3,13 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 
 use crate::entities::FieldType;
-use crate::revision::{
-    FilterInfoRevision, GridFilterRevision, NumberFilterConditionRevision, TextFilterConditionRevision,
-};
+use crate::revision::GridFilterRevision;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridFilter {
     #[pb(index = 1)]
     pub id: String,
-
-    #[pb(index = 2)]
-    pub field_id: String,
-
-    #[pb(index = 3)]
-    pub info: FilterInfo,
-}
-
-impl std::convert::From<GridFilterRevision> for GridFilter {
-    fn from(rev: GridFilterRevision) -> Self {
-        GridFilter {
-            id: rev.id,
-            field_id: rev.field_id,
-            info: rev.info.into(),
-        }
-    }
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct FilterInfo {
-    #[pb(index = 1, one_of)]
-    pub condition: Option<String>,
-
-    #[pb(index = 2, one_of)]
-    pub content: Option<String>,
-}
-
-impl std::convert::From<FilterInfoRevision> for FilterInfo {
-    fn from(rev: FilterInfoRevision) -> Self {
-        FilterInfo {
-            condition: rev.condition,
-            content: rev.content,
-        }
-    }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -54,10 +18,16 @@ pub struct RepeatedGridFilter {
     pub items: Vec<GridFilter>,
 }
 
-impl std::convert::From<Vec<GridFilterRevision>> for RepeatedGridFilter {
-    fn from(revs: Vec<GridFilterRevision>) -> Self {
+impl std::convert::From<&GridFilterRevision> for GridFilter {
+    fn from(rev: &GridFilterRevision) -> Self {
+        Self { id: rev.id.clone() }
+    }
+}
+
+impl std::convert::From<&Vec<GridFilterRevision>> for RepeatedGridFilter {
+    fn from(revs: &Vec<GridFilterRevision>) -> Self {
         RepeatedGridFilter {
-            items: revs.into_iter().map(|rev| rev.into()).collect(),
+            items: revs.iter().map(|rev| rev.into()).collect(),
         }
     }
 }
@@ -75,11 +45,19 @@ pub struct CreateGridFilterPayload {
 
     #[pb(index = 2)]
     pub field_type: FieldType,
+
+    #[pb(index = 3)]
+    pub condition: i32,
+
+    #[pb(index = 4, one_of)]
+    pub content: Option<String>,
 }
 
 pub struct CreateGridFilterParams {
     pub field_id: String,
     pub field_type: FieldType,
+    pub condition: u8,
+    pub content: Option<String>,
 }
 
 impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
@@ -89,12 +67,38 @@ impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
+        let condition = self.condition as u8;
+        match self.field_type {
+            FieldType::RichText | FieldType::Checkbox | FieldType::URL => {
+                let _ = TextFilterCondition::try_from(condition)?;
+            }
+            FieldType::Number => {
+                let _ = NumberFilterCondition::try_from(condition)?;
+            }
+            FieldType::DateTime => {
+                let _ = DateFilterCondition::try_from(condition)?;
+            }
+            FieldType::SingleSelect | FieldType::MultiSelect => {
+                let _ = SelectOptionCondition::try_from(condition)?;
+            }
+        }
 
         Ok(CreateGridFilterParams {
             field_id,
             field_type: self.field_type,
+            condition,
+            content: self.content,
         })
     }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridTextFilter {
+    #[pb(index = 1)]
+    pub condition: TextFilterCondition,
+
+    #[pb(index = 2, one_of)]
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -110,19 +114,45 @@ pub enum TextFilterCondition {
     TextIsNotEmpty = 7,
 }
 
-impl std::convert::From<TextFilterConditionRevision> for TextFilterCondition {
-    fn from(rev: TextFilterConditionRevision) -> Self {
-        match rev {
-            TextFilterConditionRevision::Is => TextFilterCondition::Is,
-            TextFilterConditionRevision::IsNot => TextFilterCondition::IsNot,
-            TextFilterConditionRevision::Contains => TextFilterCondition::Contains,
-            TextFilterConditionRevision::DoesNotContain => TextFilterCondition::DoesNotContain,
-            TextFilterConditionRevision::StartsWith => TextFilterCondition::StartsWith,
-            TextFilterConditionRevision::EndsWith => TextFilterCondition::EndsWith,
-            TextFilterConditionRevision::IsEmpty => TextFilterCondition::TextIsEmpty,
-            TextFilterConditionRevision::IsNotEmpty => TextFilterCondition::TextIsNotEmpty,
+impl std::default::Default for TextFilterCondition {
+    fn default() -> Self {
+        TextFilterCondition::Is
+    }
+}
+impl std::convert::TryFrom<u8> for TextFilterCondition {
+    type Error = ErrorCode;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(TextFilterCondition::Is),
+            1 => Ok(TextFilterCondition::IsNot),
+            2 => Ok(TextFilterCondition::Contains),
+            3 => Ok(TextFilterCondition::DoesNotContain),
+            4 => Ok(TextFilterCondition::StartsWith),
+            5 => Ok(TextFilterCondition::EndsWith),
+            6 => Ok(TextFilterCondition::TextIsEmpty),
+            7 => Ok(TextFilterCondition::TextIsNotEmpty),
+            _ => Err(ErrorCode::InvalidData),
         }
     }
+}
+
+impl std::convert::From<GridFilterRevision> for GridTextFilter {
+    fn from(rev: GridFilterRevision) -> Self {
+        GridTextFilter {
+            condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
+            content: rev.content,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridNumberFilter {
+    #[pb(index = 1)]
+    pub condition: NumberFilterCondition,
+
+    #[pb(index = 2, one_of)]
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -137,18 +167,134 @@ pub enum NumberFilterCondition {
     NumberIsEmpty = 6,
     NumberIsNotEmpty = 7,
 }
+impl std::default::Default for NumberFilterCondition {
+    fn default() -> Self {
+        NumberFilterCondition::Equal
+    }
+}
 
-impl std::convert::From<NumberFilterConditionRevision> for NumberFilterCondition {
-    fn from(rev: NumberFilterConditionRevision) -> Self {
-        match rev {
-            NumberFilterConditionRevision::Equal => NumberFilterCondition::Equal,
-            NumberFilterConditionRevision::NotEqual => NumberFilterCondition::NotEqual,
-            NumberFilterConditionRevision::GreaterThan => NumberFilterCondition::GreaterThan,
-            NumberFilterConditionRevision::LessThan => NumberFilterCondition::LessThan,
-            NumberFilterConditionRevision::GreaterThanOrEqualTo => NumberFilterCondition::GreaterThan,
-            NumberFilterConditionRevision::LessThanOrEqualTo => NumberFilterCondition::LessThanOrEqualTo,
-            NumberFilterConditionRevision::IsEmpty => NumberFilterCondition::NumberIsEmpty,
-            NumberFilterConditionRevision::IsNotEmpty => NumberFilterCondition::NumberIsNotEmpty,
+impl std::convert::TryFrom<u8> for NumberFilterCondition {
+    type Error = ErrorCode;
+
+    fn try_from(n: u8) -> Result<Self, Self::Error> {
+        match n {
+            0 => Ok(NumberFilterCondition::Equal),
+            1 => Ok(NumberFilterCondition::NotEqual),
+            2 => Ok(NumberFilterCondition::GreaterThan),
+            3 => Ok(NumberFilterCondition::LessThan),
+            4 => Ok(NumberFilterCondition::GreaterThanOrEqualTo),
+            5 => Ok(NumberFilterCondition::LessThanOrEqualTo),
+            6 => Ok(NumberFilterCondition::NumberIsEmpty),
+            7 => Ok(NumberFilterCondition::NumberIsNotEmpty),
+            _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+
+impl std::convert::From<GridFilterRevision> for GridNumberFilter {
+    fn from(rev: GridFilterRevision) -> Self {
+        GridNumberFilter {
+            condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
+            content: rev.content,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridSelectOptionFilter {
+    #[pb(index = 1)]
+    pub condition: SelectOptionCondition,
+
+    #[pb(index = 2, one_of)]
+    pub content: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[repr(u8)]
+pub enum SelectOptionCondition {
+    OptionIs = 0,
+    OptionIsNot = 1,
+    OptionIsEmpty = 2,
+    OptionIsNotEmpty = 3,
+}
+
+impl std::default::Default for SelectOptionCondition {
+    fn default() -> Self {
+        SelectOptionCondition::OptionIs
+    }
+}
+
+impl std::convert::TryFrom<u8> for SelectOptionCondition {
+    type Error = ErrorCode;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(SelectOptionCondition::OptionIs),
+            1 => Ok(SelectOptionCondition::OptionIsNot),
+            2 => Ok(SelectOptionCondition::OptionIsEmpty),
+            3 => Ok(SelectOptionCondition::OptionIsNotEmpty),
+            _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+
+impl std::convert::From<GridFilterRevision> for GridSelectOptionFilter {
+    fn from(rev: GridFilterRevision) -> Self {
+        GridSelectOptionFilter {
+            condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),
+            content: rev.content,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridDateFilter {
+    #[pb(index = 1)]
+    pub condition: DateFilterCondition,
+
+    #[pb(index = 2, one_of)]
+    pub content: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[repr(u8)]
+pub enum DateFilterCondition {
+    DateIs = 0,
+    DateBefore = 1,
+    DateAfter = 2,
+    DateOnOrBefore = 3,
+    DateOnOrAfter = 4,
+    DateWithIn = 5,
+    DateIsEmpty = 6,
+}
+
+impl std::default::Default for DateFilterCondition {
+    fn default() -> Self {
+        DateFilterCondition::DateIs
+    }
+}
+
+impl std::convert::TryFrom<u8> for DateFilterCondition {
+    type Error = ErrorCode;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(DateFilterCondition::DateIs),
+            1 => Ok(DateFilterCondition::DateBefore),
+            2 => Ok(DateFilterCondition::DateAfter),
+            3 => Ok(DateFilterCondition::DateOnOrBefore),
+            4 => Ok(DateFilterCondition::DateOnOrAfter),
+            5 => Ok(DateFilterCondition::DateWithIn),
+            6 => Ok(DateFilterCondition::DateIsEmpty),
+            _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+impl std::convert::From<GridFilterRevision> for GridDateFilter {
+    fn from(rev: GridFilterRevision) -> Self {
+        GridDateFilter {
+            condition: DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs),
+            content: rev.content,
         }
     }
 }
