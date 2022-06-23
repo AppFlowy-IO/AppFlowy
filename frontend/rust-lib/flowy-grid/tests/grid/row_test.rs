@@ -1,23 +1,26 @@
+use crate::grid::field_util::*;
+use crate::grid::row_util::GridRowTestBuilder;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
     DateCellData, MultiSelectTypeOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowRevisionBuilder};
+use flowy_grid::services::row::{
+    decode_cell_data_from_type_option_cell_data, CreateRowRevisionBuilder, CreateRowRevisionPayload,
+};
 use flowy_grid_data_model::entities::FieldType;
-use flowy_grid_data_model::revision::RowMetaChangeset;
+use flowy_grid_data_model::revision::{FieldRevision, RowMetaChangeset};
 
 #[tokio::test]
 async fn grid_create_row_count_test() {
     let test = GridEditorTest::new().await;
-    let create_row_context = CreateRowRevisionBuilder::new(&test.field_revs).build();
     let scripts = vec![
         AssertRowCount(3),
         CreateEmptyRow,
         CreateEmptyRow,
         CreateRow {
-            context: create_row_context,
+            payload: GridRowTestBuilder::new(&test).build(),
         },
         AssertRowCount(6),
     ];
@@ -27,15 +30,15 @@ async fn grid_create_row_count_test() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridEditorTest::new().await;
-    let context = CreateRowRevisionBuilder::new(&test.field_revs).build();
+    let payload = GridRowTestBuilder::new(&test).build();
     let changeset = RowMetaChangeset {
-        row_id: context.row_id.clone(),
+        row_id: payload.row_id.clone(),
         height: None,
         visibility: None,
         cell_by_field_id: Default::default(),
     };
 
-    let scripts = vec![AssertRowCount(3), CreateRow { context }, UpdateRow { changeset }];
+    let scripts = vec![AssertRowCount(3), CreateRow { payload }, UpdateRow { changeset }];
     test.run_scripts(scripts).await;
 
     let expected_row = (&*test.row_revs.last().cloned().unwrap()).clone();
@@ -46,13 +49,13 @@ async fn grid_update_row() {
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridEditorTest::new().await;
-    let context_1 = CreateRowRevisionBuilder::new(&test.field_revs).build();
-    let context_2 = CreateRowRevisionBuilder::new(&test.field_revs).build();
-    let row_ids = vec![context_1.row_id.clone(), context_2.row_id.clone()];
+    let payload1 = GridRowTestBuilder::new(&test).build();
+    let payload2 = GridRowTestBuilder::new(&test).build();
+    let row_ids = vec![payload1.row_id.clone(), payload2.row_id.clone()];
     let scripts = vec![
         AssertRowCount(3),
-        CreateRow { context: context_1 },
-        CreateRow { context: context_2 },
+        CreateRow { payload: payload1 },
+        CreateRow { payload: payload2 },
         AssertBlockCount(1),
         AssertBlock {
             block_index: 0,
@@ -110,7 +113,7 @@ async fn grid_row_add_cells_test() {
         }
     }
     let context = builder.build();
-    let scripts = vec![CreateRow { context }, AssertGridRevisionPad];
+    let scripts = vec![CreateRow { payload: context }, AssertGridRevisionPad];
     test.run_scripts(scripts).await;
 }
 
@@ -142,6 +145,6 @@ async fn grid_row_add_date_cell_test() {
             .date,
         "2022/03/16",
     );
-    let scripts = vec![CreateRow { context }];
+    let scripts = vec![CreateRow { payload: context }];
     test.run_scripts(scripts).await;
 }

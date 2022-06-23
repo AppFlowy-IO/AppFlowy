@@ -359,7 +359,12 @@ impl GridRevisionPad {
 
                 is_changed = Some(())
             }
-
+            if let Some(delete_filter_id) = changeset.delete_filter {
+                match grid_rev.setting.filter.get_mut(&layout_rev) {
+                    Some(filters) => filters.retain(|filter| filter.id != delete_filter_id),
+                    None => {}
+                }
+            }
             if let Some(params) = changeset.insert_group {
                 let rev = GridGroupRevision {
                     id: gen_grid_group_id(),
@@ -376,7 +381,12 @@ impl GridRevisionPad {
 
                 is_changed = Some(())
             }
-
+            if let Some(delete_group_id) = changeset.delete_group {
+                match grid_rev.setting.group.get_mut(&layout_rev) {
+                    Some(groups) => groups.retain(|group| group.id != delete_group_id),
+                    None => {}
+                }
+            }
             if let Some(sort) = changeset.insert_sort {
                 let rev = GridSortRevision {
                     id: gen_grid_sort_id(),
@@ -386,12 +396,18 @@ impl GridRevisionPad {
                 grid_rev
                     .setting
                     .sort
-                    .entry(layout_rev)
+                    .entry(layout_rev.clone())
                     .or_insert_with(std::vec::Vec::new)
                     .push(rev);
                 is_changed = Some(())
             }
 
+            if let Some(delete_sort_id) = changeset.delete_sort {
+                match grid_rev.setting.sort.get_mut(&layout_rev) {
+                    Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
+                    None => {}
+                }
+            }
             Ok(is_changed)
         })
     }
