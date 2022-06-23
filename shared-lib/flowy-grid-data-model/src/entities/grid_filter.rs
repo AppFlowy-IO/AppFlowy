@@ -3,7 +3,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 
 use crate::entities::FieldType;
-use crate::revision::GridFilterRevision;
+use crate::revision::{FieldRevision, GridFilterRevision};
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -51,6 +51,18 @@ pub struct CreateGridFilterPayload {
 
     #[pb(index = 4, one_of)]
     pub content: Option<String>,
+}
+
+impl CreateGridFilterPayload {
+    #[allow(dead_code)]
+    pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
+        Self {
+            field_id: field_rev.id.clone(),
+            field_type: field_rev.field_type.clone(),
+            condition: condition.into(),
+            content,
+        }
+    }
 }
 
 pub struct CreateGridFilterParams {
@@ -113,6 +125,11 @@ pub enum TextFilterCondition {
     TextIsEmpty = 6,
     TextIsNotEmpty = 7,
 }
+impl std::convert::Into<i32> for TextFilterCondition {
+    fn into(self) -> i32 {
+        self as i32
+    }
+}
 
 impl std::default::Default for TextFilterCondition {
     fn default() -> Self {
@@ -173,6 +190,11 @@ impl std::default::Default for NumberFilterCondition {
     }
 }
 
+impl std::convert::Into<i32> for NumberFilterCondition {
+    fn into(self) -> i32 {
+        self as i32
+    }
+}
 impl std::convert::TryFrom<u8> for NumberFilterCondition {
     type Error = ErrorCode;
 
@@ -216,6 +238,12 @@ pub enum SelectOptionCondition {
     OptionIsNot = 1,
     OptionIsEmpty = 2,
     OptionIsNotEmpty = 3,
+}
+
+impl std::convert::Into<i32> for SelectOptionCondition {
+    fn into(self) -> i32 {
+        self as i32
+    }
 }
 
 impl std::default::Default for SelectOptionCondition {

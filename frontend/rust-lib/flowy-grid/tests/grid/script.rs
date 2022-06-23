@@ -48,7 +48,7 @@ pub enum EditorScript {
     },
     CreateEmptyRow,
     CreateRow {
-        context: CreateRowRevisionPayload,
+        payload: CreateRowRevisionPayload,
     },
     UpdateRow {
         changeset: RowMetaChangeset,
@@ -98,7 +98,7 @@ impl GridEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let build_context = make_test_grid();
+        let build_context = make_all_field_test_grid();
         let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
@@ -199,7 +199,7 @@ impl GridEditorTest {
                 self.row_revs = self.get_row_revs().await;
                 self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
             }
-            EditorScript::CreateRow { context } => {
+            EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
                 for row_order in row_orders {
                     self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
@@ -307,74 +307,7 @@ impl GridEditorTest {
     }
 }
 
-pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
-    let field_rev = FieldBuilder::new(RichTextTypeOptionBuilder::default())
-        .name("Name")
-        .visibility(true)
-        .build();
-
-    let cloned_field_rev = field_rev.clone();
-
-    let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOption>(&field_rev.field_type)
-        .unwrap()
-        .protobuf_bytes()
-        .to_vec();
-
-    let field = Field {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.field_type,
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
-
-    let params = InsertFieldParams {
-        grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
-    };
-    (params, cloned_field_rev)
-}
-
-pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
-    let single_select = SingleSelectTypeOptionBuilder::default()
-        .option(SelectOption::new("Done"))
-        .option(SelectOption::new("Progress"));
-
-    let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
-    let cloned_field_rev = field_rev.clone();
-    let type_option_data = field_rev
-        .get_type_option_entry::<SingleSelectTypeOption>(&field_rev.field_type)
-        .unwrap()
-        .protobuf_bytes()
-        .to_vec();
-
-    let field = Field {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.field_type,
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
-
-    let params = InsertFieldParams {
-        grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
-    };
-    (params, cloned_field_rev)
-}
-
-fn make_test_grid() -> BuildGridContext {
+fn make_all_field_test_grid() -> BuildGridContext {
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
@@ -428,12 +361,4 @@ fn make_test_grid() -> BuildGridContext {
         .add_empty_row()
         .add_empty_row()
         .build()
-}
-
-pub fn make_date_cell_string(s: &str) -> String {
-    serde_json::to_string(&DateCellContentChangeset {
-        date: Some(s.to_string()),
-        time: None,
-    })
-    .unwrap()
 }
