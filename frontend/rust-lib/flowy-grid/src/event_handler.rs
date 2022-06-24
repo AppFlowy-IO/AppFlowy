@@ -48,12 +48,7 @@ pub(crate) async fn get_grid_blocks_handler(
 ) -> DataResult<RepeatedGridBlock, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let block_ids = params
-        .block_orders
-        .into_iter()
-        .map(|block| block.block_id)
-        .collect::<Vec<String>>();
-    let repeated_grid_block = editor.get_blocks(Some(block_ids)).await?;
+    let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
     data_result(repeated_grid_block)
 }
 
@@ -220,13 +215,13 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 pub(crate) async fn get_row_handler(
     data: Data<RowIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<Row, FlowyError> {
+) -> DataResult<OptionalRow, FlowyError> {
     let params: RowIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_row(&params.row_id).await? {
-        None => Err(FlowyError::record_not_found().context("Can not find the row")),
-        Some(row) => data_result(row),
-    }
+    let row = OptionalRow {
+        row: editor.get_row(&params.row_id).await?,
+    };
+    data_result(row)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

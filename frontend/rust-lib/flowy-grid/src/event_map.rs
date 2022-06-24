@@ -99,7 +99,7 @@ pub enum GridEvent {
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 50,
 
-    #[event(input = "RowIdentifierPayload", output = "Row")]
+    #[event(input = "RowIdentifierPayload", output = "OptionalRow")]
     GetRow = 51,
 
     #[event(input = "RowIdentifierPayload")]

@@ -32,7 +32,7 @@ pub struct GridRevision {
     pub fields: Vec<FieldRevision>,
     pub blocks: Vec<GridBlockRevision>,
 
-    #[serde(default)]
+    #[serde(default, skip)]
     pub setting: GridSettingRevision,
 }
 

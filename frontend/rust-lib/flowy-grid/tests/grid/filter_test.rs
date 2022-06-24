@@ -6,7 +6,7 @@ use flowy_grid_data_model::entities::{
 };
 
 #[tokio::test]
-async fn grid_setting_create_text_filter_test() {
+async fn grid_filter_create_test() {
     let test = GridEditorTest::new().await;
     let field_rev = test.text_field();
     let payload = CreateGridFilterPayload::new(field_rev, TextFilterCondition::TextIsEmpty, Some("abc".to_owned()));
@@ -16,7 +16,7 @@ async fn grid_setting_create_text_filter_test() {
 
 #[tokio::test]
 #[should_panic]
-async fn grid_setting_create_text_filter_panic_test() {
+async fn grid_filter_invalid_condition_panic_test() {
     let test = GridEditorTest::new().await;
     let field_rev = test.text_field();
 
@@ -27,7 +27,7 @@ async fn grid_setting_create_text_filter_panic_test() {
 }
 
 #[tokio::test]
-async fn grid_setting_delete_text_filter_test() {
+async fn grid_filter_delete_test() {
     let mut test = GridEditorTest::new().await;
     let field_rev = test.text_field();
     let payload = CreateGridFilterPayload::new(field_rev, 100, Some("abc".to_owned()));
@@ -43,4 +43,4 @@ async fn grid_setting_delete_text_filter_test() {
 }
 
 #[tokio::test]
-async fn grid_setting_sort_test() {}
+async fn grid_filter_get_rows_test() {}
