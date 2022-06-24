@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'block/block_listener.dart';
 import 'cell/cell_service/cell_service.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
@@ -19,9 +21,12 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   late final GridRowCache rowCache;
   late final GridCellCache cellCache;
 
+  final GridBlockCache blockCache;
+
   GridBloc({required View view})
       : _gridService = GridService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id),
+        blockCache = GridBlockCache(gridId: view.id),
         super(GridState.initial(view.id)) {
     rowCache = GridRowCache(
       gridId: view.id,
@@ -32,6 +37,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       gridId: view.id,
       fieldDelegate: GridCellCacheDelegateImpl(fieldCache),
     );
+
+    blockCache.start((result) {
+      result.fold(
+        (changesets) => rowCache.applyChangesets(changesets),
+        (err) => Log.error(err),
+      );
+    });
 
     on<GridEvent>(
       (event, emit) async {
@@ -60,6 +72,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     await cellCache.dispose();
     await rowCache.dispose();
     await fieldCache.dispose();
+    await blockCache.dispose();
     return super.close();
   }
 
@@ -79,7 +92,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     final result = await _gridService.loadGrid();
     return Future(
       () => result.fold(
-        (grid) async => await _loadFields(grid, emit),
+        (grid) async {
+          for (final block in grid.blocks) {
+            blockCache.addBlockListener(block.id);
+          }
+          final rowOrders = grid.blocks.expand((block) => block.rowOrders).toList();
+          rowCache.initialRows(rowOrders);
+
+          await _loadFields(grid, emit);
+        },
         (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
       ),
     );
@@ -91,7 +112,6 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       () => result.fold(
         (fields) {
           fieldCache.fields = fields.items;
-          rowCache.resetRows(grid.blockOrders);
 
           emit(state.copyWith(
             grid: Some(grid),
@@ -143,7 +163,6 @@ class GridLoadingState with _$GridLoadingState {
 
 class GridFieldEquatable extends Equatable {
   final List<Field> _fields;
-
   const GridFieldEquatable(List<Field> fields) : _fields = fields;
 
   @override

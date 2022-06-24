@@ -424,8 +424,8 @@ impl GridRevisionEditor {
         let mut block_orders = vec![];
         for block_order in pad_read_guard.get_block_revs() {
             let row_orders = self.block_manager.get_row_orders(&block_order.block_id).await?;
-            let block_order = GridBlockOrder {
-                block_id: block_order.block_id,
+            let block_order = GridBlock {
+                id: block_order.block_id,
                 row_orders,
             };
             block_orders.push(block_order);
@@ -434,7 +434,7 @@ impl GridRevisionEditor {
         Ok(Grid {
             id: self.grid_id.clone(),
             field_orders,
-            block_orders,
+            blocks: block_orders,
         })
     }
 

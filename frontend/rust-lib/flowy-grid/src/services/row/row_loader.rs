@@ -1,6 +1,6 @@
 use crate::services::row::decode_cell_data_from_type_option_cell_data;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{Cell, GridBlock, GridBlockOrder, RepeatedGridBlock, Row, RowOrder};
+use flowy_grid_data_model::entities::{Cell, GridBlock, RepeatedGridBlock, Row, RowOrder};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -10,13 +10,13 @@ pub struct GridBlockSnapshot {
     pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub(crate) fn group_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlockOrder> {
-    let mut map: HashMap<String, GridBlockOrder> = HashMap::new();
+pub(crate) fn block_from_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlock> {
+    let mut map: HashMap<String, GridBlock> = HashMap::new();
     row_orders.into_iter().for_each(|row_order| {
         // Memory Optimization: escape clone block_id
         let block_id = row_order.block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| GridBlockOrder::new(&row_order.block_id))
+            .or_insert_with(|| GridBlock::new(&row_order.block_id, vec![]))
             .row_orders
             .push(row_order);
     });

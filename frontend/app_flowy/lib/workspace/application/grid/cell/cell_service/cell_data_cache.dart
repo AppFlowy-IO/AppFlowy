@@ -2,21 +2,21 @@ part of 'cell_service.dart';
 
 typedef GridCellMap = LinkedHashMap<String, GridCell>;
 
-class GridCellCacheData {
-  GridCellCacheKey key;
+class _GridCellCacheObject {
+  _GridCellCacheKey key;
   dynamic object;
-  GridCellCacheData({
+  _GridCellCacheObject({
     required this.key,
     required this.object,
   });
 }
 
-class GridCellCacheKey {
+class _GridCellCacheKey {
   final String fieldId;
-  final String objectId;
-  GridCellCacheKey({
+  final String rowId;
+  _GridCellCacheKey({
     required this.fieldId,
-    required this.objectId,
+    required this.rowId,
   });
 }
 
@@ -51,46 +51,46 @@ class GridCellCache {
     });
   }
 
-  void addFieldListener(GridCellCacheKey cacheKey, VoidCallback onFieldChanged) {
+  void addFieldListener(_GridCellCacheKey cacheKey, VoidCallback onFieldChanged) {
     var map = _fieldListenerByFieldId[cacheKey.fieldId];
     if (map == null) {
       _fieldListenerByFieldId[cacheKey.fieldId] = {};
       map = _fieldListenerByFieldId[cacheKey.fieldId];
-      map![cacheKey.objectId] = [onFieldChanged];
+      map![cacheKey.rowId] = [onFieldChanged];
     } else {
-      var objects = map[cacheKey.objectId];
+      var objects = map[cacheKey.rowId];
       if (objects == null) {
-        map[cacheKey.objectId] = [onFieldChanged];
+        map[cacheKey.rowId] = [onFieldChanged];
       } else {
         objects.add(onFieldChanged);
       }
     }
   }
 
-  void removeFieldListener(GridCellCacheKey cacheKey, VoidCallback fn) {
-    var callbacks = _fieldListenerByFieldId[cacheKey.fieldId]?[cacheKey.objectId];
+  void removeFieldListener(_GridCellCacheKey cacheKey, VoidCallback fn) {
+    var callbacks = _fieldListenerByFieldId[cacheKey.fieldId]?[cacheKey.rowId];
     final index = callbacks?.indexWhere((callback) => callback == fn);
     if (index != null && index != -1) {
       callbacks?.removeAt(index);
     }
   }
 
-  void insert<T extends GridCellCacheData>(T item) {
+  void insert<T extends _GridCellCacheObject>(T item) {
     var map = _cellDataByFieldId[item.key.fieldId];
     if (map == null) {
       _cellDataByFieldId[item.key.fieldId] = {};
       map = _cellDataByFieldId[item.key.fieldId];
     }
 
-    map![item.key.objectId] = item.object;
+    map![item.key.rowId] = item.object;
   }
 
-  T? get<T>(GridCellCacheKey key) {
+  T? get<T>(_GridCellCacheKey key) {
     final map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       return null;
     } else {
-      final object = map[key.objectId];
+      final object = map[key.rowId];
       if (object is T) {
         return object;
       } else {

@@ -15,7 +15,7 @@ pub struct Grid {
     pub field_orders: Vec<FieldOrder>,
 
     #[pb(index = 3)]
-    pub block_orders: Vec<GridBlockOrder>,
+    pub blocks: Vec<GridBlock>,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -43,6 +43,12 @@ pub struct Row {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
+pub struct OptionalRow {
+    #[pb(index = 1, one_of)]
+    pub row: Option<Row>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedRow {
     #[pb(index = 1)]
     pub items: Vec<Row>,
@@ -63,24 +69,6 @@ pub struct RepeatedGridBlock {
 impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
     fn from(items: Vec<GridBlock>) -> Self {
         Self { items }
-    }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridBlockOrder {
-    #[pb(index = 1)]
-    pub block_id: String,
-
-    #[pb(index = 2)]
-    pub row_orders: Vec<RowOrder>,
-}
-
-impl GridBlockOrder {
-    pub fn new(block_id: &str) -> Self {
-        GridBlockOrder {
-            block_id: block_id.to_owned(),
-            row_orders: vec![],
-        }
     }
 }
 
@@ -168,7 +156,7 @@ impl GridRowsChangeset {
     }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridBlock {
     #[pb(index = 1)]
     pub id: String,
@@ -305,12 +293,12 @@ pub struct QueryGridBlocksPayload {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub block_orders: Vec<GridBlockOrder>,
+    pub block_ids: Vec<String>,
 }
 
 pub struct QueryGridBlocksParams {
     pub grid_id: String,
-    pub block_orders: Vec<GridBlockOrder>,
+    pub block_ids: Vec<String>,
 }
 
 impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
@@ -320,7 +308,7 @@ impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryGridBlocksParams {
             grid_id: grid_id.0,
-            block_orders: self.block_orders,
+            block_ids: self.block_ids,
         })
     }
 }
