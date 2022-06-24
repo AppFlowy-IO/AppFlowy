@@ -70,7 +70,7 @@ class _GridBlockListener {
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case GridNotification.DidUpdateGridRow:
+      case GridNotification.DidUpdateGridBlock:
         result.fold(
           (payload) => _rowsUpdateNotifier?.value = left([GridRowsChangeset.fromBuffer(payload)]),
           (error) => _rowsUpdateNotifier?.value = right(error),

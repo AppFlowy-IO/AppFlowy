@@ -17,6 +17,8 @@ pub fn gen_grid_sort_id() -> String {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 pub struct GridSettingRevision {
+    pub layout: GridLayoutRevision,
+
     #[serde(with = "indexmap::serde_seq")]
     pub filter: IndexMap<GridLayoutRevision, Vec<GridFilterRevision>>,
 

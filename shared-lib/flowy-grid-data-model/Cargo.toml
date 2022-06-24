@@ -11,7 +11,7 @@ protobuf = {version = "2.18.0"}
 bytes = "1.0"
 strum = "0.21"
 strum_macros = "0.21"
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
 nanoid = "0.4.0"

@@ -9,7 +9,7 @@ use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_grid_data_handler(
+pub(crate) async fn get_grid_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<Grid, FlowyError> {

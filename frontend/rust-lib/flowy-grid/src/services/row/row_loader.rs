@@ -1,4 +1,4 @@
-use crate::services::row::decode_cell_data_from_type_option_cell_data;
+use crate::services::row::decode_cell_data;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{Cell, GridBlock, RepeatedGridBlock, Row, RowOrder};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, RowRevision};
@@ -24,21 +24,15 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlock>
 }
 
 #[inline(always)]
-pub fn make_cell_by_field_id(
+fn make_cell_by_field_id(
     field_map: &HashMap<&String, &FieldRevision>,
     field_id: String,
     cell_rev: CellRevision,
 ) -> Option<(String, Cell)> {
     let field_rev = field_map.get(&field_id)?;
-    let data = decode_cell_data_from_type_option_cell_data(cell_rev.data, field_rev, &field_rev.field_type).data;
+    let data = decode_cell_data(cell_rev.data, field_rev).data;
     let cell = Cell::new(&field_id, data);
     Some((field_id, cell))
-}
-
-pub fn make_cell(field_id: &str, field_rev: &FieldRevision, row_rev: &RowRevision) -> Option<Cell> {
-    let cell_rev = row_rev.cells.get(field_id)?.clone();
-    let data = decode_cell_data_from_type_option_cell_data(cell_rev.data, field_rev, &field_rev.field_type).data;
-    Some(Cell::new(field_id, data))
 }
 
 pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowOrder> {

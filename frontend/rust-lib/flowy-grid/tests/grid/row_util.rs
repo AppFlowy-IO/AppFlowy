@@ -53,12 +53,13 @@ impl<'a> GridRowTestBuilder<'a> {
         self
     }
 
-    pub fn field_rev_with_type(&self, field_type: &FieldType) -> &FieldRevision {
+    pub fn field_rev_with_type(&self, field_type: &FieldType) -> FieldRevision {
         self.test
             .field_revs
             .iter()
-            .find(|field_rev| field_rev.field_type == &field_type)
+            .find(|field_rev| &field_rev.field_type == field_type)
             .unwrap()
+            .clone()
     }
 
     pub fn build(self) -> CreateRowRevisionPayload {

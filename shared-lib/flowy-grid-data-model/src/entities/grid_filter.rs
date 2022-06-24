@@ -125,9 +125,9 @@ pub enum TextFilterCondition {
     TextIsEmpty = 6,
     TextIsNotEmpty = 7,
 }
-impl std::convert::Into<i32> for TextFilterCondition {
-    fn into(self) -> i32 {
-        self as i32
+impl std::convert::From<TextFilterCondition> for i32 {
+    fn from(value: TextFilterCondition) -> Self {
+        value as i32
     }
 }
 
@@ -190,9 +190,9 @@ impl std::default::Default for NumberFilterCondition {
     }
 }
 
-impl std::convert::Into<i32> for NumberFilterCondition {
-    fn into(self) -> i32 {
-        self as i32
+impl std::convert::From<NumberFilterCondition> for i32 {
+    fn from(value: NumberFilterCondition) -> Self {
+        value as i32
     }
 }
 impl std::convert::TryFrom<u8> for NumberFilterCondition {
@@ -240,9 +240,9 @@ pub enum SelectOptionCondition {
     OptionIsNotEmpty = 3,
 }
 
-impl std::convert::Into<i32> for SelectOptionCondition {
-    fn into(self) -> i32 {
-        self as i32
+impl std::convert::From<SelectOptionCondition> for i32 {
+    fn from(value: SelectOptionCondition) -> Self {
+        value as i32
     }
 }
 

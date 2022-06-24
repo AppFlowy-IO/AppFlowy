@@ -1,9 +1,6 @@
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
-
-use flowy_grid_data_model::entities::{
-    CreateGridFilterParams, CreateGridFilterPayload, GridLayoutType, GridSettingChangesetParams, TextFilterCondition,
-};
+use flowy_grid_data_model::entities::{CreateGridFilterPayload, TextFilterCondition};
 
 #[tokio::test]
 async fn grid_filter_create_test() {

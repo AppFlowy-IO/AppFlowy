@@ -35,7 +35,7 @@ impl GridRevisionPad {
             .blocks
             .iter()
             .map(|block| {
-                let mut duplicated_block = block.clone();
+                let mut duplicated_block = (&*block.clone()).clone();
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })
@@ -288,7 +288,7 @@ impl GridRevisionPad {
                 Ok(None)
             } else {
                 match grid_meta.blocks.last() {
-                    None => grid_meta.blocks.push(block),
+                    None => grid_meta.blocks.push(Arc::new(block)),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -296,7 +296,7 @@ impl GridRevisionPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid_meta.blocks.push(block);
+                        grid_meta.blocks.push(Arc::new(block));
                     }
                 }
                 Ok(Some(()))
@@ -304,7 +304,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_block_revs(&self) -> Vec<GridBlockRevision> {
+    pub fn get_block_revs(&self) -> Vec<Arc<GridBlockRevision>> {
         self.grid_rev.blocks.clone()
     }
 
@@ -362,7 +362,9 @@ impl GridRevisionPad {
             if let Some(delete_filter_id) = changeset.delete_filter {
                 match grid_rev.setting.filter.get_mut(&layout_rev) {
                     Some(filters) => filters.retain(|filter| filter.id != delete_filter_id),
-                    None => {}
+                    None => {
+                        tracing::warn!("Can't find the filter with {:?}", layout_rev);
+                    }
                 }
             }
             if let Some(params) = changeset.insert_group {
@@ -384,7 +386,9 @@ impl GridRevisionPad {
             if let Some(delete_group_id) = changeset.delete_group {
                 match grid_rev.setting.group.get_mut(&layout_rev) {
                     Some(groups) => groups.retain(|group| group.id != delete_group_id),
-                    None => {}
+                    None => {
+                        tracing::warn!("Can't find the group with {:?}", layout_rev);
+                    }
                 }
             }
             if let Some(sort) = changeset.insert_sort {
@@ -405,7 +409,9 @@ impl GridRevisionPad {
             if let Some(delete_sort_id) = changeset.delete_sort {
                 match grid_rev.setting.sort.get_mut(&layout_rev) {
                     Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
-                    None => {}
+                    None => {
+                        tracing::warn!("Can't find the sort with {:?}", layout_rev);
+                    }
                 }
             }
             Ok(is_changed)
@@ -459,7 +465,10 @@ impl GridRevisionPad {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_rev.blocks[index]),
+                Some(index) => {
+                    let block_rev = Arc::make_mut(&mut grid_rev.blocks[index]);
+                    f(block_rev)
+                }
             },
         )
     }

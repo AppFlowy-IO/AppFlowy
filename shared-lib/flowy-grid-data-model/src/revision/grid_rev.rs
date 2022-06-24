@@ -30,9 +30,9 @@ pub fn gen_field_id() -> String {
 pub struct GridRevision {
     pub grid_id: String,
     pub fields: Vec<FieldRevision>,
-    pub blocks: Vec<GridBlockRevision>,
+    pub blocks: Vec<Arc<GridBlockRevision>>,
 
-    #[serde(default, skip)]
+    #[serde(default)]
     pub setting: GridSettingRevision,
 }
 
@@ -43,6 +43,15 @@ impl GridRevision {
             fields: vec![],
             blocks: vec![],
             setting: GridSettingRevision::default(),
+        }
+    }
+
+    pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
+        Self {
+            grid_id: grid_id.to_owned(),
+            fields: context.field_revs,
+            blocks: context.blocks.into_iter().map(Arc::new).collect(),
+            setting: Default::default(),
         }
     }
 }

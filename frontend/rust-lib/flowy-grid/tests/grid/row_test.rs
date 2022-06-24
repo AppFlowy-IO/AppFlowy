@@ -6,11 +6,9 @@ use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
     DateCellData, MultiSelectTypeOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{
-    decode_cell_data_from_type_option_cell_data, CreateRowRevisionBuilder, CreateRowRevisionPayload,
-};
+use flowy_grid::services::row::{decode_cell_data, CreateRowRevisionBuilder};
 use flowy_grid_data_model::entities::FieldType;
-use flowy_grid_data_model::revision::{FieldRevision, RowMetaChangeset};
+use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {
@@ -139,7 +137,7 @@ async fn grid_row_add_date_cell_test() {
     let date_field = date_field.unwrap();
     let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
     assert_eq!(
-        decode_cell_data_from_type_option_cell_data(cell_data.data.clone(), &date_field, &date_field.field_type)
+        decode_cell_data(cell_data.data.clone(), &date_field)
             .parse::<DateCellData>()
             .unwrap()
             .date,

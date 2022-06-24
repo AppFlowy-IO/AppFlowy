@@ -46,9 +46,9 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let blocks = grid_pad.read().await.get_block_revs();
+        let block_revs = grid_pad.read().await.get_block_revs();
 
-        let block_meta_manager = Arc::new(GridBlockManager::new(grid_id, &user, blocks, persistence).await?);
+        let block_meta_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_revs, persistence).await?);
         Ok(Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -342,7 +342,10 @@ impl GridRevisionEditor {
     pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
-        make_cell(&params.field_id, &field_rev, &row_rev)
+
+        let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
+        let data = decode_cell_data(cell_rev.data, &field_rev).data;
+        Some(Cell::new(&params.field_id, data))
     }
 
     pub async fn get_cell_rev(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellRevision>> {
@@ -405,7 +408,7 @@ impl GridRevisionEditor {
         make_grid_blocks(block_ids, block_snapshots)
     }
 
-    pub async fn get_block_metas(&self) -> FlowyResult<Vec<GridBlockRevision>> {
+    pub async fn get_block_metas(&self) -> FlowyResult<Vec<Arc<GridBlockRevision>>> {
         let grid_blocks = self.grid_pad.read().await.get_block_revs();
         Ok(grid_blocks)
     }
@@ -422,10 +425,10 @@ impl GridRevisionEditor {
         let pad_read_guard = self.grid_pad.read().await;
         let field_orders = pad_read_guard.get_field_orders();
         let mut block_orders = vec![];
-        for block_order in pad_read_guard.get_block_revs() {
-            let row_orders = self.block_manager.get_row_orders(&block_order.block_id).await?;
+        for block_rev in pad_read_guard.get_block_revs() {
+            let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
             let block_order = GridBlock {
-                id: block_order.block_id,
+                id: block_rev.block_id.clone(),
                 row_orders,
             };
             block_orders.push(block_order);
@@ -467,8 +470,8 @@ impl GridRevisionEditor {
                 .read()
                 .await
                 .get_block_revs()
-                .into_iter()
-                .map(|block_meta| block_meta.block_id)
+                .iter()
+                .map(|block_rev| block_rev.block_id.clone())
                 .collect::<Vec<String>>(),
             Some(block_ids) => block_ids,
         };
@@ -526,9 +529,7 @@ impl GridRevisionEditor {
                 let duplicated_block_id = &duplicated_blocks[index].block_id;
 
                 tracing::trace!("Duplicate block:{} meta data", duplicated_block_id);
-                let duplicated_block_meta_data = grid_block_meta_editor
-                    .duplicate_block_meta_data(duplicated_block_id)
-                    .await;
+                let duplicated_block_meta_data = grid_block_meta_editor.duplicate_block(duplicated_block_id).await;
                 blocks_meta_data.push(duplicated_block_meta_data);
             }
         } else {
