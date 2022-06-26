@@ -46,7 +46,7 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let block_revs = grid_pad.read().await.get_block_revs();
+        let block_revs = grid_pad.read().await.get_block_meta_revs();
 
         let block_meta_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_revs, persistence).await?);
         Ok(Arc::new(Self {
@@ -243,14 +243,14 @@ impl GridRevisionEditor {
         Ok(field_revs)
     }
 
-    pub async fn create_block(&self, grid_block: GridBlockRevision) -> FlowyResult<()> {
+    pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.create_block_rev(grid_block)?))
+            .modify(|grid_pad| Ok(grid_pad.create_block_meta_rev(block_meta_rev)?))
             .await?;
         Ok(())
     }
 
-    pub async fn update_block(&self, changeset: GridBlockRevisionChangeset) -> FlowyResult<()> {
+    pub async fn update_block(&self, changeset: GridBlockMetaRevisionChangeset) -> FlowyResult<()> {
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.update_block_rev(changeset)?))
             .await?;
@@ -270,7 +270,7 @@ impl GridRevisionEditor {
         let row_count = self.block_manager.create_row(&block_id, row_rev, start_row_id).await?;
 
         // update block row count
-        let changeset = GridBlockRevisionChangeset::from_row_count(&block_id, row_count);
+        let changeset = GridBlockMetaRevisionChangeset::from_row_count(&block_id, row_count);
         let _ = self.update_block(changeset).await?;
         Ok(row_order)
     }
@@ -408,9 +408,9 @@ impl GridRevisionEditor {
         make_grid_blocks(block_ids, block_snapshots)
     }
 
-    pub async fn get_block_metas(&self) -> FlowyResult<Vec<Arc<GridBlockRevision>>> {
-        let grid_blocks = self.grid_pad.read().await.get_block_revs();
-        Ok(grid_blocks)
+    pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {
+        let block_meta_revs = self.grid_pad.read().await.get_block_meta_revs();
+        Ok(block_meta_revs)
     }
 
     pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
@@ -425,7 +425,7 @@ impl GridRevisionEditor {
         let pad_read_guard = self.grid_pad.read().await;
         let field_orders = pad_read_guard.get_field_orders();
         let mut block_orders = vec![];
-        for block_rev in pad_read_guard.get_block_revs() {
+        for block_rev in pad_read_guard.get_block_meta_revs() {
             let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
             let block_order = GridBlock {
                 id: block_rev.block_id.clone(),
@@ -469,7 +469,7 @@ impl GridRevisionEditor {
                 .grid_pad
                 .read()
                 .await
-                .get_block_revs()
+                .get_block_meta_revs()
                 .iter()
                 .map(|block_rev| block_rev.block_id.clone())
                 .collect::<Vec<String>>(),
@@ -519,8 +519,8 @@ impl GridRevisionEditor {
 
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
         let grid_pad = self.grid_pad.read().await;
-        let original_blocks = grid_pad.get_block_revs();
-        let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_meta().await;
+        let original_blocks = grid_pad.get_block_meta_revs();
+        let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_block_meta().await;
 
         let mut blocks_meta_data = vec![];
         if original_blocks.len() == duplicated_blocks.len() {
@@ -576,7 +576,7 @@ impl GridRevisionEditor {
     }
 
     async fn block_id(&self) -> FlowyResult<String> {
-        match self.grid_pad.read().await.get_block_revs().last() {
+        match self.grid_pad.read().await.get_block_meta_revs().last() {
             None => Err(FlowyError::internal().context("There is no grid block in this grid")),
             Some(grid_block) => Ok(grid_block.block_id.clone()),
         }

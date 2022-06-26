@@ -6,7 +6,7 @@ use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
 use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
-    GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision, GridGroupRevision, GridLayoutRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision, GridLayoutRevision,
     GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
@@ -27,7 +27,7 @@ pub trait JsonDeserializer {
 }
 
 impl GridRevisionPad {
-    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockRevision>) {
+    pub async fn duplicate_grid_block_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
         let fields = self.grid_rev.fields.to_vec();
 
         let blocks = self
@@ -39,7 +39,7 @@ impl GridRevisionPad {
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })
-            .collect::<Vec<GridBlockRevision>>();
+            .collect::<Vec<GridBlockMetaRevision>>();
 
         (fields, blocks)
     }
@@ -281,7 +281,7 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn create_block_rev(&mut self, block: GridBlockRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta_rev(&mut self, block: GridBlockMetaRevision) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -304,13 +304,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_block_revs(&self) -> Vec<Arc<GridBlockRevision>> {
+    pub fn get_block_meta_revs(&self) -> Vec<Arc<GridBlockMetaRevision>> {
         self.grid_rev.blocks.clone()
     }
 
     pub fn update_block_rev(
         &mut self,
-        changeset: GridBlockRevisionChangeset,
+        changeset: GridBlockMetaRevisionChangeset,
     ) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
@@ -457,7 +457,7 @@ impl GridRevisionPad {
 
     fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
-        F: FnOnce(&mut GridBlockRevision) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut GridBlockMetaRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
             |grid_rev| match grid_rev.blocks.iter().position(|block| block.block_id == block_id) {

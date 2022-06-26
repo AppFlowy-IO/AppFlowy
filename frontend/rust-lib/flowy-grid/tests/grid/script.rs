@@ -31,10 +31,10 @@ pub enum EditorScript {
         field_rev: FieldRevision,
     },
     CreateBlock {
-        block: GridBlockRevision,
+        block: GridBlockMetaRevision,
     },
     UpdateBlock {
-        changeset: GridBlockRevisionChangeset,
+        changeset: GridBlockMetaRevisionChangeset,
     },
     AssertBlockCount(usize),
     AssertBlock {
@@ -44,7 +44,7 @@ pub enum EditorScript {
     },
     AssertBlockEqual {
         block_index: usize,
-        block: GridBlockRevision,
+        block: GridBlockMetaRevision,
     },
     CreateEmptyRow,
     CreateRow {
@@ -87,7 +87,7 @@ pub struct GridEditorTest {
     pub grid_id: String,
     pub editor: Arc<GridRevisionEditor>,
     pub field_revs: Vec<FieldRevision>,
-    pub grid_block_revs: Vec<GridBlockRevision>,
+    pub grid_block_revs: Vec<GridBlockMetaRevision>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
 
@@ -103,7 +103,7 @@ impl GridEditorTest {
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs::<FieldOrder>(None).await.unwrap();
-        let grid_blocks = editor.get_block_metas().await.unwrap();
+        let grid_blocks = editor.get_block_meta_revs().await.unwrap();
         let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(row_revs.len(), 3);
         assert_eq!(grid_blocks.len(), 1);
@@ -172,13 +172,13 @@ impl GridEditorTest {
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.grid_block_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::UpdateBlock { changeset: change } => {
                 self.editor.update_block(change).await.unwrap();
             }
             EditorScript::AssertBlockCount(count) => {
-                assert_eq!(self.editor.get_block_metas().await.unwrap().len(), count);
+                assert_eq!(self.editor.get_block_meta_revs().await.unwrap().len(), count);
             }
             EditorScript::AssertBlock {
                 block_index,
@@ -189,7 +189,7 @@ impl GridEditorTest {
                 assert_eq!(self.grid_block_revs[block_index].start_row_index, start_row_index);
             }
             EditorScript::AssertBlockEqual { block_index, block } => {
-                let blocks = self.editor.get_block_metas().await.unwrap();
+                let blocks = self.editor.get_block_meta_revs().await.unwrap();
                 let compared_block = blocks[block_index].clone();
                 assert_eq!(compared_block, block);
             }
@@ -197,7 +197,7 @@ impl GridEditorTest {
                 let row_order = self.editor.create_row(None).await.unwrap();
                 self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.grid_block_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
@@ -205,7 +205,7 @@ impl GridEditorTest {
                     self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.grid_block_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             EditorScript::DeleteRows { row_ids } => {
@@ -216,7 +216,7 @@ impl GridEditorTest {
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.grid_block_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::AssertRow { expected_row } => {
                 let row = &*self

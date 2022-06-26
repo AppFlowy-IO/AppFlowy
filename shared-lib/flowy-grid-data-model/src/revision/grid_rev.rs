@@ -30,7 +30,7 @@ pub fn gen_field_id() -> String {
 pub struct GridRevision {
     pub grid_id: String,
     pub fields: Vec<FieldRevision>,
-    pub blocks: Vec<Arc<GridBlockRevision>>,
+    pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
     #[serde(default)]
     pub setting: GridSettingRevision,
@@ -57,13 +57,13 @@ impl GridRevision {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GridBlockRevision {
+pub struct GridBlockMetaRevision {
     pub block_id: String,
     pub start_row_index: i32,
     pub row_count: i32,
 }
 
-impl GridBlockRevision {
+impl GridBlockMetaRevision {
     pub fn len(&self) -> i32 {
         self.row_count
     }
@@ -73,22 +73,22 @@ impl GridBlockRevision {
     }
 }
 
-impl GridBlockRevision {
+impl GridBlockMetaRevision {
     pub fn new() -> Self {
-        GridBlockRevision {
+        GridBlockMetaRevision {
             block_id: gen_block_id(),
             ..Default::default()
         }
     }
 }
 
-pub struct GridBlockRevisionChangeset {
+pub struct GridBlockMetaRevisionChangeset {
     pub block_id: String,
     pub start_row_index: Option<i32>,
     pub row_count: Option<i32>,
 }
 
-impl GridBlockRevisionChangeset {
+impl GridBlockMetaRevisionChangeset {
     pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
         Self {
             block_id: block_id.to_string(),
@@ -99,9 +99,9 @@ impl GridBlockRevisionChangeset {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridBlockRevisionData {
+pub struct GridBlockRevision {
     pub block_id: String,
-    pub rows: Vec<RowRevision>,
+    pub rows: Vec<Arc<RowRevision>>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Eq, PartialEq)]
@@ -292,8 +292,8 @@ impl CellRevision {
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
     pub field_revs: Vec<FieldRevision>,
-    pub blocks: Vec<GridBlockRevision>,
-    pub blocks_meta_data: Vec<GridBlockRevisionData>,
+    pub blocks: Vec<GridBlockMetaRevision>,
+    pub blocks_meta_data: Vec<GridBlockRevision>,
 }
 
 impl BuildGridContext {

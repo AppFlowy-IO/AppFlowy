@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::RowOrder;
-use flowy_grid_data_model::revision::{CellRevision, GridBlockRevisionData, RowMetaChangeset, RowRevision};
+use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -42,7 +42,7 @@ impl GridBlockRevisionEditor {
         })
     }
 
-    pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevisionData {
+    pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
 

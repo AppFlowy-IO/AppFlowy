@@ -9,7 +9,7 @@ use flowy_grid_data_model::entities::{
     CellChangeset, GridRowsChangeset, IndexRowOrder, Row, RowOrder, UpdatedRowOrder,
 };
 use flowy_grid_data_model::revision::{
-    CellRevision, GridBlockRevision, GridBlockRevisionChangeset, RowMetaChangeset, RowRevision,
+    CellRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
@@ -30,7 +30,7 @@ impl GridBlockManager {
     pub(crate) async fn new(
         grid_id: &str,
         user: &Arc<dyn GridUser>,
-        block_revs: Vec<Arc<GridBlockRevision>>,
+        block_revs: Vec<Arc<GridBlockMetaRevision>>,
         persistence: Arc<BlockIndexCache>,
     ) -> FlowyResult<Self> {
         let editor_map = make_block_meta_editor_map(user, block_revs).await?;
@@ -86,7 +86,7 @@ impl GridBlockManager {
     pub(crate) async fn insert_row(
         &self,
         rows_by_block_id: HashMap<String, Vec<RowRevision>>,
-    ) -> FlowyResult<Vec<GridBlockRevisionChangeset>> {
+    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for (block_id, row_revs) in rows_by_block_id {
             let mut inserted_row_orders = vec![];
@@ -100,7 +100,7 @@ impl GridBlockManager {
                 row_order.index = index;
                 inserted_row_orders.push(row_order);
             }
-            changesets.push(GridBlockRevisionChangeset::from_row_count(&block_id, row_count));
+            changesets.push(GridBlockMetaRevisionChangeset::from_row_count(&block_id, row_count));
 
             let _ = self
                 .notify_did_update_block(&block_id, GridRowsChangeset::insert(&block_id, inserted_row_orders))
@@ -148,7 +148,10 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub(crate) async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<Vec<GridBlockRevisionChangeset>> {
+    pub(crate) async fn delete_rows(
+        &self,
+        row_orders: Vec<RowOrder>,
+    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for block_order in block_from_row_orders(row_orders) {
             let editor = self.get_editor(&block_order.id).await?;
@@ -158,7 +161,7 @@ impl GridBlockManager {
                 .map(|row_order| Cow::Owned(row_order.row_id))
                 .collect::<Vec<Cow<String>>>();
             let row_count = editor.delete_rows(row_ids).await?;
-            let changeset = GridBlockRevisionChangeset::from_row_count(&block_order.id, row_count);
+            let changeset = GridBlockMetaRevisionChangeset::from_row_count(&block_order.id, row_count);
             changesets.push(changeset);
         }
 
@@ -262,7 +265,7 @@ impl GridBlockManager {
 
 async fn make_block_meta_editor_map(
     user: &Arc<dyn GridUser>,
-    block_revs: Vec<Arc<GridBlockRevision>>,
+    block_revs: Vec<Arc<GridBlockMetaRevision>>,
 ) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
     for block_rev in block_revs {

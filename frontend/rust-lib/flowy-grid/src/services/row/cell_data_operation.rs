@@ -220,6 +220,14 @@ where
     }
 }
 
+/// The data is encoded by protobuf or utf8. You should choose the corresponding decode struct to parse it.
+///
+/// For example:
+///
+/// * Use DateCellData to parse the data when the FieldType is Date.
+/// * Use URLCellData to parse the data when the FieldType is URL.
+/// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
+/// * Check out the implementation of CellDataOperation trait for more information.
 #[derive(Default)]
 pub struct DecodedCellData {
     pub data: Vec<u8>,
