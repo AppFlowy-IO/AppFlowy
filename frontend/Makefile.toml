@@ -163,10 +163,10 @@ PRODUCT_EXT = "ipa"
 RUST_LOG = "info"
 BUILD_FLAG = "debug"
 TARGET_OS = "android"
-RUST_COMPILE_TARGET = "armv7-linux-androideabi"
+RUST_COMPILE_TARGET = "aarch64-linux-android"
 FLUTTER_OUTPUT_DIR = "debug"
-PRODUCT_EXT = "apk"
-SDK_EXT = "so"
+PRODUCT_EXT = "so"
+# SDK_EXT = "so"
 
 
 
