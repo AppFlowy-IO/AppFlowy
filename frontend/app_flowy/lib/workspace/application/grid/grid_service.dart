@@ -22,7 +22,7 @@ class GridService {
     await FolderEventSetLatestView(ViewId(value: gridId)).send();
 
     final payload = GridId(value: gridId);
-    return GridEventGetGridData(payload).send();
+    return GridEventGetGrid(payload).send();
   }
 
   Future<Either<Row, FlowyError>> createRow({Option<String>? startRowId}) {

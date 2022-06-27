@@ -127,13 +127,11 @@ pub struct FieldRevision {
     #[serde(with = "indexmap::serde_seq")]
     pub type_options: IndexMap<String, String>,
 
-    #[serde(default = "default_is_primary")]
+    #[serde(default = "DEFAULT_IS_PRIMARY")]
     pub is_primary: bool,
 }
 
-fn default_is_primary() -> bool {
-    false
-}
+const DEFAULT_IS_PRIMARY: fn() -> bool = || false;
 
 impl FieldRevision {
     pub fn new(name: &str, desc: &str, field_type: FieldType, is_primary: bool) -> Self {
