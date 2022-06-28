@@ -1,4 +1,5 @@
-use lib_dispatch::{prelude::*, util::tokio_default_runtime};
+use lib_dispatch::prelude::*;
+use lib_dispatch::runtime::tokio_default_runtime;
 use std::sync::Arc;
 
 pub async fn hello() -> String {
