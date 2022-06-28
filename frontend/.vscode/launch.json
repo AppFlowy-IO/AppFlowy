@@ -17,6 +17,12 @@
             "cwd": "${workspaceRoot}/app_flowy"
         },
         {
+            "name": "AF: Debug Rust",
+            "request": "attach",
+            "type": "lldb",
+            "pid": "${command:pickMyProcess}"
+        },
+        {
             //  This task only builds the Dart code of AppFlowy.
             "name": "AF: Build Dart Only",
             "request": "launch",
