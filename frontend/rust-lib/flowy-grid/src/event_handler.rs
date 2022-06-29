@@ -9,7 +9,7 @@ use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_grid_data_handler(
+pub(crate) async fn get_grid_handler(
     data: Data<GridId>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<Grid, FlowyError> {
@@ -27,7 +27,7 @@ pub(crate) async fn get_grid_setting_handler(
     let grid_id: GridId = data.into_inner();
     let editor = manager.open_grid(grid_id).await?;
     let grid_setting = editor.get_grid_setting().await?;
-    data_result(grid_setting.into())
+    data_result(grid_setting)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -48,12 +48,7 @@ pub(crate) async fn get_grid_blocks_handler(
 ) -> DataResult<RepeatedGridBlock, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let block_ids = params
-        .block_orders
-        .into_iter()
-        .map(|block| block.block_id)
-        .collect::<Vec<String>>();
-    let repeated_grid_block = editor.get_blocks(Some(block_ids)).await?;
+    let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
     data_result(repeated_grid_block)
 }
 
@@ -220,13 +215,13 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 pub(crate) async fn get_row_handler(
     data: Data<RowIdentifierPayload>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<Row, FlowyError> {
+) -> DataResult<OptionalRow, FlowyError> {
     let params: RowIdentifier = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    match editor.get_row(&params.row_id).await? {
-        None => Err(FlowyError::record_not_found().context("Can not find the row")),
-        Some(row) => data_result(row),
-    }
+    let row = OptionalRow {
+        row: editor.get_row(&params.row_id).await?,
+    };
+    data_result(row)
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

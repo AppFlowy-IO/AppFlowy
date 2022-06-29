@@ -5,8 +5,9 @@ use bytes::Bytes;
 use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
 use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision,
-    GridGroupRevision, GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
+    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision, GridLayoutRevision,
+    GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -26,7 +27,7 @@ pub trait JsonDeserializer {
 }
 
 impl GridRevisionPad {
-    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockRevision>) {
+    pub async fn duplicate_grid_block_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
         let fields = self.grid_rev.fields.to_vec();
 
         let blocks = self
@@ -34,11 +35,11 @@ impl GridRevisionPad {
             .blocks
             .iter()
             .map(|block| {
-                let mut duplicated_block = block.clone();
+                let mut duplicated_block = (&*block.clone()).clone();
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })
-            .collect::<Vec<GridBlockRevision>>();
+            .collect::<Vec<GridBlockMetaRevision>>();
 
         (fields, blocks)
     }
@@ -280,14 +281,14 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn create_block_rev(&mut self, block: GridBlockRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta_rev(&mut self, block: GridBlockMetaRevision) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
                 match grid_meta.blocks.last() {
-                    None => grid_meta.blocks.push(block),
+                    None => grid_meta.blocks.push(Arc::new(block)),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -295,7 +296,7 @@ impl GridRevisionPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid_meta.blocks.push(block);
+                        grid_meta.blocks.push(Arc::new(block));
                     }
                 }
                 Ok(Some(()))
@@ -303,13 +304,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_block_revs(&self) -> Vec<GridBlockRevision> {
+    pub fn get_block_meta_revs(&self) -> Vec<Arc<GridBlockMetaRevision>> {
         self.grid_rev.blocks.clone()
     }
 
     pub fn update_block_rev(
         &mut self,
-        changeset: GridBlockRevisionChangeset,
+        changeset: GridBlockMetaRevisionChangeset,
     ) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
@@ -329,8 +330,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_grid_setting_rev(&self) -> GridSettingRevision {
-        self.grid_rev.setting.clone()
+    pub fn get_grid_setting_rev(&self) -> &GridSettingRevision {
+        &self.grid_rev.setting
+    }
+
+    pub fn get_filters(&self, layout: Option<&GridLayoutRevision>) -> Option<&Vec<GridFilterRevision>> {
+        let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
+        self.grid_rev.setting.filters.get(layout_ty)
     }
 
     pub fn update_grid_setting_rev(
@@ -341,37 +347,78 @@ impl GridRevisionPad {
             let mut is_changed = None;
             let layout_rev: GridLayoutRevision = changeset.layout_type.into();
 
-            if let Some(filter) = changeset.filter {
-                grid_rev.setting.filter.insert(
-                    layout_rev.clone(),
-                    GridFilterRevision {
-                        field_id: filter.field_id,
-                    },
-                );
+            if let Some(params) = changeset.insert_filter {
+                let rev = GridFilterRevision {
+                    id: gen_grid_filter_id(),
+                    field_id: params.field_id,
+                    condition: params.condition,
+                    content: params.content,
+                };
+
+                grid_rev
+                    .setting
+                    .filters
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
+
+                is_changed = Some(())
+            }
+            if let Some(delete_filter_id) = changeset.delete_filter {
+                match grid_rev.setting.filters.get_mut(&layout_rev) {
+                    Some(filters) => filters.retain(|filter| filter.id != delete_filter_id),
+                    None => {
+                        tracing::warn!("Can't find the filter with {:?}", layout_rev);
+                    }
+                }
+            }
+            if let Some(params) = changeset.insert_group {
+                let rev = GridGroupRevision {
+                    id: gen_grid_group_id(),
+                    field_id: params.field_id,
+                    sub_field_id: params.sub_field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .groups
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
+
+                is_changed = Some(())
+            }
+            if let Some(delete_group_id) = changeset.delete_group {
+                match grid_rev.setting.groups.get_mut(&layout_rev) {
+                    Some(groups) => groups.retain(|group| group.id != delete_group_id),
+                    None => {
+                        tracing::warn!("Can't find the group with {:?}", layout_rev);
+                    }
+                }
+            }
+            if let Some(sort) = changeset.insert_sort {
+                let rev = GridSortRevision {
+                    id: gen_grid_sort_id(),
+                    field_id: sort.field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .sorts
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
                 is_changed = Some(())
             }
 
-            if let Some(group) = changeset.group {
-                grid_rev.setting.group.insert(
-                    layout_rev.clone(),
-                    GridGroupRevision {
-                        group_field_id: group.group_field_id,
-                        sub_group_field_id: group.sub_group_field_id,
-                    },
-                );
-                is_changed = Some(())
+            if let Some(delete_sort_id) = changeset.delete_sort {
+                match grid_rev.setting.sorts.get_mut(&layout_rev) {
+                    Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
+                    None => {
+                        tracing::warn!("Can't find the sort with {:?}", layout_rev);
+                    }
+                }
             }
-
-            if let Some(sort) = changeset.sort {
-                grid_rev.setting.sort.insert(
-                    layout_rev,
-                    GridSortRevision {
-                        field_id: sort.field_id,
-                    },
-                );
-                is_changed = Some(())
-            }
-
             Ok(is_changed)
         })
     }
@@ -415,7 +462,7 @@ impl GridRevisionPad {
 
     fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
-        F: FnOnce(&mut GridBlockRevision) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut GridBlockMetaRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
             |grid_rev| match grid_rev.blocks.iter().position(|block| block.block_id == block_id) {
@@ -423,7 +470,10 @@ impl GridRevisionPad {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_rev.blocks[index]),
+                Some(index) => {
+                    let block_rev = Arc::make_mut(&mut grid_rev.blocks[index]);
+                    f(block_rev)
+                }
             },
         )
     }

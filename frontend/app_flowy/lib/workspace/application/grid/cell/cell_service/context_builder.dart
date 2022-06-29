@@ -100,7 +100,7 @@ class GridCellContextBuilder {
 class _GridCellContext<T, D> extends Equatable {
   final GridCell gridCell;
   final GridCellCache cellCache;
-  final GridCellCacheKey _cacheKey;
+  final _GridCellCacheKey _cacheKey;
   final IGridCellDataLoader<T> cellDataLoader;
   final _GridCellDataPersistence<D> cellDataPersistence;
   final FieldService _fieldService;
@@ -118,7 +118,7 @@ class _GridCellContext<T, D> extends Equatable {
     required this.cellDataLoader,
     required this.cellDataPersistence,
   })  : _fieldService = FieldService(gridId: gridCell.gridId, fieldId: gridCell.field.id),
-        _cacheKey = GridCellCacheKey(objectId: gridCell.rowId, fieldId: gridCell.field.id);
+        _cacheKey = _GridCellCacheKey(rowId: gridCell.rowId, fieldId: gridCell.field.id);
 
   _GridCellContext<T, D> clone() {
     return _GridCellContext(
@@ -213,7 +213,7 @@ class _GridCellContext<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       cellDataLoader.loadData().then((data) {
         _cellDataNotifier?.value = data;
-        cellCache.insert(GridCellCacheData(key: _cacheKey, object: data));
+        cellCache.insert(_GridCellCacheObject(key: _cacheKey, object: data));
       });
     });
   }

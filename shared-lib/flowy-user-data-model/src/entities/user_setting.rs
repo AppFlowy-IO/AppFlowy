@@ -20,9 +20,11 @@ pub struct AppearanceSettings {
     pub locale: LocaleSettings,
 
     #[pb(index = 3)]
-    #[serde(default = "reset_default_value")]
+    #[serde(default = "DEFAULT_RESET_VALUE")]
     pub reset_as_default: bool,
 }
+
+const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
 pub struct LocaleSettings {
@@ -42,12 +44,8 @@ impl std::default::Default for LocaleSettings {
     }
 }
 
-fn reset_default_value() -> bool {
-    APPEARANCE_RESET_AS_DEFAULT
-}
-
 pub const APPEARANCE_DEFAULT_THEME: &str = "light";
-pub const APPEARANCE_RESET_AS_DEFAULT: bool = true;
+const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 
 impl std::default::Default for AppearanceSettings {
     fn default() -> Self {

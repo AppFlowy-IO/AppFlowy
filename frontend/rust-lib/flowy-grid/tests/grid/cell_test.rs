@@ -1,3 +1,4 @@
+use crate::grid::field_util::make_date_cell_string;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use flowy_grid::services::field::{MultiSelectTypeOption, SelectOptionCellContentChangeset, SingleSelectTypeOption};
@@ -8,7 +9,7 @@ async fn grid_cell_update() {
     let mut test = GridEditorTest::new().await;
     let field_revs = &test.field_revs;
     let row_revs = &test.row_revs;
-    let grid_blocks = &test.grid_block_revs;
+    let grid_blocks = &test.block_meta_revs;
 
     // For the moment, We only have one block to store rows
     let block_id = &grid_blocks.first().unwrap().block_id;

@@ -30,13 +30,10 @@ pub struct ViewRevision {
     #[serde(default)]
     pub thumbnail: String,
 
-    #[serde(default = "default_plugin_type")]
+    #[serde(default = "DEFAULT_PLUGIN_TYPE")]
     pub plugin_type: i32,
 }
-
-fn default_plugin_type() -> i32 {
-    0
-}
+const DEFAULT_PLUGIN_TYPE: fn() -> i32 = || 0;
 
 impl std::convert::From<ViewRevision> for View {
     fn from(view_serde: ViewRevision) -> Self {

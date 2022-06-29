@@ -2,14 +2,14 @@ use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{group_row_orders, GridBlockSnapshot};
+use crate::services::row::{block_from_row_orders, GridBlockSnapshot};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::entities::{
     CellChangeset, GridRowsChangeset, IndexRowOrder, Row, RowOrder, UpdatedRowOrder,
 };
 use flowy_grid_data_model::revision::{
-    CellRevision, GridBlockRevision, GridBlockRevisionChangeset, RowMetaChangeset, RowRevision,
+    CellRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
 use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence};
@@ -19,6 +19,7 @@ use std::sync::Arc;
 
 type BlockId = String;
 pub(crate) struct GridBlockManager {
+    #[allow(dead_code)]
     grid_id: String,
     user: Arc<dyn GridUser>,
     persistence: Arc<BlockIndexCache>,
@@ -29,10 +30,10 @@ impl GridBlockManager {
     pub(crate) async fn new(
         grid_id: &str,
         user: &Arc<dyn GridUser>,
-        blocks: Vec<GridBlockRevision>,
+        block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
         persistence: Arc<BlockIndexCache>,
     ) -> FlowyResult<Self> {
-        let editor_map = make_block_meta_editor_map(user, blocks).await?;
+        let editor_map = make_block_meta_editor_map(user, block_meta_revs).await?;
         let user = user.clone();
         let grid_id = grid_id.to_owned();
         let manager = Self {
@@ -77,7 +78,7 @@ impl GridBlockManager {
         index_row_order.index = row_index;
 
         let _ = self
-            .notify_did_update_block(GridRowsChangeset::insert(block_id, vec![index_row_order]))
+            .notify_did_update_block(block_id, GridRowsChangeset::insert(block_id, vec![index_row_order]))
             .await?;
         Ok(row_count)
     }
@@ -85,7 +86,7 @@ impl GridBlockManager {
     pub(crate) async fn insert_row(
         &self,
         rows_by_block_id: HashMap<String, Vec<RowRevision>>,
-    ) -> FlowyResult<Vec<GridBlockRevisionChangeset>> {
+    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for (block_id, row_revs) in rows_by_block_id {
             let mut inserted_row_orders = vec![];
@@ -99,10 +100,10 @@ impl GridBlockManager {
                 row_order.index = index;
                 inserted_row_orders.push(row_order);
             }
-            changesets.push(GridBlockRevisionChangeset::from_row_count(&block_id, row_count));
+            changesets.push(GridBlockMetaRevisionChangeset::from_row_count(&block_id, row_count));
 
             let _ = self
-                .notify_did_update_block(GridRowsChangeset::insert(&block_id, inserted_row_orders))
+                .notify_did_update_block(&block_id, GridRowsChangeset::insert(&block_id, inserted_row_orders))
                 .await?;
         }
 
@@ -121,7 +122,9 @@ impl GridBlockManager {
                 if let Some(row) = row_builder(row_rev.clone()) {
                     let row_order = UpdatedRowOrder::new(&row_rev, row);
                     let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
-                    let _ = self.notify_did_update_block(block_order_changeset).await?;
+                    let _ = self
+                        .notify_did_update_block(&editor.block_id, block_order_changeset)
+                        .await?;
                 }
             }
         }
@@ -137,7 +140,7 @@ impl GridBlockManager {
             Some(row_order) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
                 let _ = self
-                    .notify_did_update_block(GridRowsChangeset::delete(&block_id, vec![row_order]))
+                    .notify_did_update_block(&block_id, GridRowsChangeset::delete(&block_id, vec![row_order]))
                     .await?;
             }
         }
@@ -145,17 +148,20 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub(crate) async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<Vec<GridBlockRevisionChangeset>> {
+    pub(crate) async fn delete_rows(
+        &self,
+        row_orders: Vec<RowOrder>,
+    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
-        for block_order in group_row_orders(row_orders) {
-            let editor = self.get_editor(&block_order.block_id).await?;
+        for block_order in block_from_row_orders(row_orders) {
+            let editor = self.get_editor(&block_order.id).await?;
             let row_ids = block_order
                 .row_orders
                 .into_iter()
                 .map(|row_order| Cow::Owned(row_order.row_id))
                 .collect::<Vec<Cow<String>>>();
             let row_count = editor.delete_rows(row_ids).await?;
-            let changeset = GridBlockRevisionChangeset::from_row_count(&block_order.block_id, row_count);
+            let changeset = GridBlockMetaRevisionChangeset::from_row_count(&block_order.id, row_count);
             changesets.push(changeset);
         }
 
@@ -181,7 +187,9 @@ impl GridBlockManager {
                     updated_rows: vec![],
                 };
 
-                let _ = self.notify_did_update_block(notified_changeset).await?;
+                let _ = self
+                    .notify_did_update_block(&editor.block_id, notified_changeset)
+                    .await?;
             }
         }
 
@@ -241,8 +249,8 @@ impl GridBlockManager {
         Ok(block_cell_revs)
     }
 
-    async fn notify_did_update_block(&self, changeset: GridRowsChangeset) -> FlowyResult<()> {
-        send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridRow)
+    async fn notify_did_update_block(&self, block_id: &str, changeset: GridRowsChangeset) -> FlowyResult<()> {
+        send_dart_notification(block_id, GridNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();
         Ok(())
@@ -257,12 +265,12 @@ impl GridBlockManager {
 
 async fn make_block_meta_editor_map(
     user: &Arc<dyn GridUser>,
-    blocks: Vec<GridBlockRevision>,
+    block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
 ) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
-    for block in blocks {
-        let editor = make_block_meta_editor(user, &block.block_id).await?;
-        editor_map.insert(block.block_id, Arc::new(editor));
+    for block_meta_rev in block_meta_revs {
+        let editor = make_block_meta_editor(user, &block_meta_rev.block_id).await?;
+        editor_map.insert(block_meta_rev.block_id.clone(), Arc::new(editor));
     }
 
     Ok(editor_map)

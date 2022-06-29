@@ -1,7 +1,8 @@
 use crate::errors::{CollaborateError, CollaborateResult};
 use flowy_grid_data_model::revision::{
-    BuildGridContext, FieldRevision, GridBlockRevision, GridBlockRevisionData, RowRevision,
+    BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision,
 };
+use std::sync::Arc;
 
 pub struct GridBuilder {
     build_context: BuildGridContext,
@@ -11,8 +12,8 @@ impl std::default::Default for GridBuilder {
     fn default() -> Self {
         let mut build_context = BuildGridContext::new();
 
-        let block_meta = GridBlockRevision::new();
-        let block_meta_data = GridBlockRevisionData {
+        let block_meta = GridBlockMetaRevision::new();
+        let block_meta_data = GridBlockRevision {
             block_id: block_meta.block_id.clone(),
             rows: vec![],
         };
@@ -32,10 +33,10 @@ impl GridBuilder {
 
     pub fn add_empty_row(mut self) -> Self {
         let row = RowRevision::new(&self.build_context.blocks.first().unwrap().block_id);
-        let block_meta = self.build_context.blocks.first_mut().unwrap();
-        let block_meta_data = self.build_context.blocks_meta_data.first_mut().unwrap();
-        block_meta_data.rows.push(row);
-        block_meta.row_count += 1;
+        let block_meta_rev = self.build_context.blocks.first_mut().unwrap();
+        let block_rev = self.build_context.blocks_meta_data.first_mut().unwrap();
+        block_rev.rows.push(Arc::new(row));
+        block_meta_rev.row_count += 1;
         self
     }
 
@@ -59,10 +60,10 @@ fn check_rows(fields: &[FieldRevision], rows: &[RowRevision]) -> CollaborateResu
 
 #[cfg(test)]
 mod tests {
-
     use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
     use flowy_grid_data_model::entities::FieldType;
-    use flowy_grid_data_model::revision::{FieldRevision, GridBlockRevisionData, GridRevision};
+    use flowy_grid_data_model::revision::{FieldRevision, GridBlockRevision, GridRevision};
+    use std::sync::Arc;
 
     #[test]
     fn create_default_grid_test() {
@@ -78,7 +79,7 @@ mod tests {
         let grid_rev = GridRevision {
             grid_id,
             fields: build_context.field_revs,
-            blocks: build_context.blocks,
+            blocks: build_context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         };
 
@@ -86,6 +87,6 @@ mod tests {
         let _: GridRevision = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
 
         let grid_block_meta_delta = make_block_meta_delta(build_context.blocks_meta_data.first().unwrap());
-        let _: GridBlockRevisionData = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
+        let _: GridBlockRevision = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
     }
 }

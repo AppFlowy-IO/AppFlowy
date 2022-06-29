@@ -55,12 +55,6 @@ pub struct TypeOptionCellData {
     pub field_type: FieldType,
 }
 
-impl TypeOptionCellData {
-    pub fn split(self) -> (String, FieldType) {
-        (self.data, self.field_type)
-    }
-}
-
 impl std::str::FromStr for TypeOptionCellData {
     type Err = FlowyError;
 
@@ -139,14 +133,11 @@ pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
     Ok(TypeOptionCellData::new(s, field_rev.field_type.clone()).json())
 }
 
-pub fn decode_cell_data_from_type_option_cell_data<T: TryInto<TypeOptionCellData>>(
-    data: T,
-    field_rev: &FieldRevision,
-    field_type: &FieldType,
-) -> DecodedCellData {
+pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(data: T, field_rev: &FieldRevision) -> DecodedCellData {
     if let Ok(type_option_cell_data) = data.try_into() {
-        let (encoded_data, s_field_type) = type_option_cell_data.split();
-        match decode_cell_data(encoded_data, &s_field_type, field_type, field_rev) {
+        let TypeOptionCellData { data, field_type } = type_option_cell_data;
+        let to_field_type = &field_rev.field_type;
+        match try_decode_cell_data(data, field_rev, &field_type, to_field_type) {
             Ok(cell_data) => cell_data,
             Err(e) => {
                 tracing::error!("Decode cell data failed, {:?}", e);
@@ -159,11 +150,11 @@ pub fn decode_cell_data_from_type_option_cell_data<T: TryInto<TypeOptionCellData
     }
 }
 
-pub fn decode_cell_data<T: Into<String>>(
+pub fn try_decode_cell_data<T: Into<String>>(
     encoded_data: T,
+    field_rev: &FieldRevision,
     s_field_type: &FieldType,
     t_field_type: &FieldType,
-    field_rev: &FieldRevision,
 ) -> FlowyResult<DecodedCellData> {
     let encoded_data = encoded_data.into();
     let get_cell_data = || {
@@ -229,6 +220,14 @@ where
     }
 }
 
+/// The data is encoded by protobuf or utf8. You should choose the corresponding decode struct to parse it.
+///
+/// For example:
+///
+/// * Use DateCellData to parse the data when the FieldType is Date.
+/// * Use URLCellData to parse the data when the FieldType is URL.
+/// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
+/// * Check out the implementation of CellDataOperation trait for more information.
 #[derive(Default)]
 pub struct DecodedCellData {
     pub data: Vec<u8>,

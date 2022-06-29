@@ -1,7 +1,9 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use bytes::Bytes;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowRevisionPayload;
+use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -30,10 +32,10 @@ pub enum EditorScript {
         field_rev: FieldRevision,
     },
     CreateBlock {
-        block: GridBlockRevision,
+        block: GridBlockMetaRevision,
     },
     UpdateBlock {
-        changeset: GridBlockRevisionChangeset,
+        changeset: GridBlockMetaRevisionChangeset,
     },
     AssertBlockCount(usize),
     AssertBlock {
@@ -43,11 +45,11 @@ pub enum EditorScript {
     },
     AssertBlockEqual {
         block_index: usize,
-        block: GridBlockRevision,
+        block: GridBlockMetaRevision,
     },
     CreateEmptyRow,
     CreateRow {
-        context: CreateRowRevisionPayload,
+        payload: CreateRowRevisionPayload,
     },
     UpdateRow {
         changeset: RowMetaChangeset,
@@ -63,11 +65,22 @@ pub enum EditorScript {
         is_err: bool,
     },
     AssertRowCount(usize),
+    #[allow(dead_code)]
     UpdateGridSetting {
         params: GridSettingChangesetParams,
     },
+    InsertGridTableFilter {
+        payload: CreateGridFilterPayload,
+    },
+    AssertTableFilterCount {
+        count: i32,
+    },
+    DeleteGridTableFilter {
+        filter_id: String,
+    },
+    #[allow(dead_code)]
     AssertGridSetting {
-        expected_setting: GridSettingRevision,
+        expected_setting: GridSetting,
     },
     AssertGridRevisionPad,
 }
@@ -77,7 +90,7 @@ pub struct GridEditorTest {
     pub grid_id: String,
     pub editor: Arc<GridRevisionEditor>,
     pub field_revs: Vec<FieldRevision>,
-    pub grid_block_revs: Vec<GridBlockRevision>,
+    pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
 
@@ -88,15 +101,15 @@ impl GridEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let build_context = make_test_grid();
+        let build_context = make_all_field_test_grid();
         let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs::<FieldOrder>(None).await.unwrap();
-        let grid_blocks = editor.get_block_metas().await.unwrap();
+        let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
         let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(row_revs.len(), 3);
-        assert_eq!(grid_blocks.len(), 1);
+        assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
         // Because we assert the initialize count of the fields is equal to FieldType::COUNT.
@@ -108,7 +121,7 @@ impl GridEditorTest {
             grid_id,
             editor,
             field_revs,
-            grid_block_revs: grid_blocks,
+            block_meta_revs,
             row_revs,
             field_count: FieldType::COUNT,
             row_order_by_row_id: HashMap::default(),
@@ -162,40 +175,40 @@ impl GridEditorTest {
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::UpdateBlock { changeset: change } => {
                 self.editor.update_block(change).await.unwrap();
             }
             EditorScript::AssertBlockCount(count) => {
-                assert_eq!(self.editor.get_block_metas().await.unwrap().len(), count);
+                assert_eq!(self.editor.get_block_meta_revs().await.unwrap().len(), count);
             }
             EditorScript::AssertBlock {
                 block_index,
                 row_count,
                 start_row_index,
             } => {
-                assert_eq!(self.grid_block_revs[block_index].row_count, row_count);
-                assert_eq!(self.grid_block_revs[block_index].start_row_index, start_row_index);
+                assert_eq!(self.block_meta_revs[block_index].row_count, row_count);
+                assert_eq!(self.block_meta_revs[block_index].start_row_index, start_row_index);
             }
             EditorScript::AssertBlockEqual { block_index, block } => {
-                let blocks = self.editor.get_block_metas().await.unwrap();
+                let blocks = self.editor.get_block_meta_revs().await.unwrap();
                 let compared_block = blocks[block_index].clone();
-                assert_eq!(compared_block, block);
+                assert_eq!(compared_block, Arc::new(block));
             }
             EditorScript::CreateEmptyRow => {
                 let row_order = self.editor.create_row(None).await.unwrap();
                 self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
-            EditorScript::CreateRow { context } => {
+            EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
                 for row_order in row_orders {
                     self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::UpdateRow { changeset: change } => self.editor.update_row(change).await.unwrap(),
             EditorScript::DeleteRows { row_ids } => {
@@ -206,7 +219,7 @@ impl GridEditorTest {
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
-                self.grid_block_revs = self.editor.get_block_metas().await.unwrap();
+                self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::AssertRow { expected_row } => {
                 let row = &*self
@@ -239,6 +252,26 @@ impl GridEditorTest {
             EditorScript::UpdateGridSetting { params } => {
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }
+            EditorScript::InsertGridTableFilter { payload } => {
+                let params: CreateGridFilterParams = payload.try_into().unwrap();
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .insert_filter(params)
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
+            EditorScript::AssertTableFilterCount { count } => {
+                let layout_type = GridLayoutType::Table;
+                let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
+                assert_eq!(count as usize, filters.len());
+            }
+            EditorScript::DeleteGridTableFilter { filter_id } => {
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .delete_filter(&filter_id)
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
             EditorScript::AssertGridSetting { expected_setting } => {
                 let setting = self.editor.get_grid_setting().await.unwrap();
                 assert_eq!(expected_setting, setting);
@@ -261,76 +294,23 @@ impl GridEditorTest {
             .unwrap()
             .row_revs
     }
+
+    pub async fn grid_filters(&self) -> Vec<GridFilter> {
+        let layout_type = GridLayoutType::Table;
+        self.editor.get_grid_filter(&layout_type).await.unwrap()
+    }
+
+    pub fn text_field(&self) -> &FieldRevision {
+        self.field_revs
+            .iter()
+            .filter(|field_rev| field_rev.field_type == FieldType::RichText)
+            .collect::<Vec<_>>()
+            .pop()
+            .unwrap()
+    }
 }
 
-pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
-    let field_rev = FieldBuilder::new(RichTextTypeOptionBuilder::default())
-        .name("Name")
-        .visibility(true)
-        .build();
-
-    let cloned_field_rev = field_rev.clone();
-
-    let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOption>(&field_rev.field_type)
-        .unwrap()
-        .protobuf_bytes()
-        .to_vec();
-
-    let field = Field {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.field_type,
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
-
-    let params = InsertFieldParams {
-        grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
-    };
-    (params, cloned_field_rev)
-}
-
-pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
-    let single_select = SingleSelectTypeOptionBuilder::default()
-        .option(SelectOption::new("Done"))
-        .option(SelectOption::new("Progress"));
-
-    let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
-    let cloned_field_rev = field_rev.clone();
-    let type_option_data = field_rev
-        .get_type_option_entry::<SingleSelectTypeOption>(&field_rev.field_type)
-        .unwrap()
-        .protobuf_bytes()
-        .to_vec();
-
-    let field = Field {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.field_type,
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
-
-    let params = InsertFieldParams {
-        grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
-    };
-    (params, cloned_field_rev)
-}
-
-fn make_test_grid() -> BuildGridContext {
+fn make_all_field_test_grid() -> BuildGridContext {
     let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
@@ -384,12 +364,4 @@ fn make_test_grid() -> BuildGridContext {
         .add_empty_row()
         .add_empty_row()
         .build()
-}
-
-pub fn make_date_cell_string(s: &str) -> String {
-    serde_json::to_string(&DateCellContentChangeset {
-        date: Some(s.to_string()),
-        time: None,
-    })
-    .unwrap()
 }

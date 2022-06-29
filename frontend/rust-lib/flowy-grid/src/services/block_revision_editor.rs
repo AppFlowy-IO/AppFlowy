@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::RowOrder;
-use flowy_grid_data_model::revision::{CellRevision, GridBlockRevisionData, RowMetaChangeset, RowRevision};
+use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -42,28 +42,28 @@ impl GridBlockRevisionEditor {
         })
     }
 
-    pub async fn duplicate_block_meta_data(&self, duplicated_block_id: &str) -> GridBlockRevisionData {
+    pub async fn duplicate_block(&self, duplicated_block_id: &str) -> GridBlockRevision {
         self.pad.read().await.duplicate_data(duplicated_block_id).await
     }
 
-    /// return current number of rows and the inserted index. The inserted index will be None if the start_row_id is None
+    /// Create a row after the the with prev_row_id. If prev_row_id is None, the row will be appended to the list
     pub(crate) async fn create_row(
         &self,
         row: RowRevision,
-        start_row_id: Option<String>,
+        prev_row_id: Option<String>,
     ) -> FlowyResult<(i32, Option<i32>)> {
         let mut row_count = 0;
         let mut row_index = None;
         let _ = self
             .modify(|block_pad| {
-                if let Some(start_row_id) = start_row_id.as_ref() {
+                if let Some(start_row_id) = prev_row_id.as_ref() {
                     match block_pad.index_of_row(start_row_id) {
                         None => {}
                         Some(index) => row_index = Some(index + 1),
                     }
                 }
 
-                let change = block_pad.add_row_rev(row, start_row_id)?;
+                let change = block_pad.add_row_rev(row, prev_row_id)?;
                 row_count = block_pad.number_of_rows();
 
                 if row_index.is_none() {

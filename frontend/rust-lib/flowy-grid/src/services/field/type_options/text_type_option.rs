@@ -1,6 +1,6 @@
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
+use crate::services::row::{try_decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -45,7 +45,7 @@ impl CellDataOperation<String> for RichTextTypeOption {
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            decode_cell_data(encoded_data, decoded_field_type, decoded_field_type, field_rev)
+            try_decode_cell_data(encoded_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
             let cell_data = encoded_data.into();
             Ok(DecodedCellData::new(cell_data))

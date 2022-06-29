@@ -228,7 +228,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = grid_manager.delete_grid(view_id)?;
+            let _ = grid_manager.delete_grid(view_id).await?;
             Ok(())
         })
     }
@@ -237,7 +237,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = grid_manager.close_grid(view_id)?;
+            let _ = grid_manager.close_grid(view_id).await?;
             Ok(())
         })
     }
