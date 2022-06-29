@@ -3,8 +3,10 @@ use crate::entities::CellIdentifier;
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
+use crate::services::filter::GridFilterService;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::*;
+use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
@@ -21,16 +23,18 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct GridRevisionEditor {
-    grid_id: String,
+    pub(crate) grid_id: String,
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
     block_manager: Arc<GridBlockManager>,
+    task_scheduler: Arc<RwLock<GridTaskScheduler>>,
+    pub(crate) filter_service: Arc<GridFilterService>,
 }
 
 impl Drop for GridRevisionEditor {
     fn drop(&mut self) {
-        tracing::trace!("Drop GridMetaEditor");
+        tracing::trace!("Drop GridRevisionEditor");
     }
 }
 
@@ -40,22 +44,29 @@ impl GridRevisionEditor {
         user: Arc<dyn GridUser>,
         mut rev_manager: RevisionManager,
         persistence: Arc<BlockIndexCache>,
+        task_scheduler: Arc<RwLock<GridTaskScheduler>>,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
-        let block_revs = grid_pad.read().await.get_block_meta_revs();
-
-        let block_meta_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_revs, persistence).await?);
-        Ok(Arc::new(Self {
+        let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
+        let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
+        let filter_service = Arc::new(GridFilterService::new());
+        let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
             grid_pad,
             rev_manager,
-            block_manager: block_meta_manager,
-        }))
+            block_manager,
+            filter_service,
+            task_scheduler: task_scheduler.clone(),
+        });
+
+        task_scheduler.write().await.register_handler(editor.clone());
+
+        Ok(editor)
     }
 
     pub async fn insert_field(&self, params: InsertFieldParams) -> FlowyResult<()> {

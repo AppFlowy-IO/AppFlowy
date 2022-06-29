@@ -94,6 +94,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic_refcell"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73b5e5f48b927f04e952dedc932f31995a65a0bf65ec971c74436e51bf6e970d"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -925,6 +931,7 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
+ "atomic_refcell",
  "bytes",
  "chrono",
  "dart-notify",

@@ -30,10 +30,10 @@ impl GridBlockManager {
     pub(crate) async fn new(
         grid_id: &str,
         user: &Arc<dyn GridUser>,
-        block_revs: Vec<Arc<GridBlockMetaRevision>>,
+        block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
         persistence: Arc<BlockIndexCache>,
     ) -> FlowyResult<Self> {
-        let editor_map = make_block_meta_editor_map(user, block_revs).await?;
+        let editor_map = make_block_meta_editor_map(user, block_meta_revs).await?;
         let user = user.clone();
         let grid_id = grid_id.to_owned();
         let manager = Self {
@@ -265,12 +265,12 @@ impl GridBlockManager {
 
 async fn make_block_meta_editor_map(
     user: &Arc<dyn GridUser>,
-    block_revs: Vec<Arc<GridBlockMetaRevision>>,
+    block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
 ) -> FlowyResult<DashMap<String, Arc<GridBlockRevisionEditor>>> {
     let editor_map = DashMap::new();
-    for block_rev in block_revs {
-        let editor = make_block_meta_editor(user, &block_rev.block_id).await?;
-        editor_map.insert(block_rev.block_id.clone(), Arc::new(editor));
+    for block_meta_rev in block_meta_revs {
+        let editor = make_block_meta_editor(user, &block_meta_rev.block_id).await?;
+        editor_map.insert(block_meta_rev.block_id.clone(), Arc::new(editor));
     }
 
     Ok(editor_map)

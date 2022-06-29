@@ -137,7 +137,7 @@ pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(data: T, field_rev: &Fie
     if let Ok(type_option_cell_data) = data.try_into() {
         let TypeOptionCellData { data, field_type } = type_option_cell_data;
         let to_field_type = &field_rev.field_type;
-        match try_decode_cell_data(data, &field_rev, &field_type, to_field_type) {
+        match try_decode_cell_data(data, field_rev, &field_type, to_field_type) {
             Ok(cell_data) => cell_data,
             Err(e) => {
                 tracing::error!("Decode cell data failed, {:?}", e);

@@ -5,7 +5,6 @@ use flowy_grid_data_model::revision::{
     gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
-use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -17,6 +16,14 @@ pub type GridBlockRevisionDeltaBuilder = PlainTextDeltaBuilder;
 pub struct GridBlockRevisionPad {
     block_revision: GridBlockRevision,
     pub(crate) delta: GridBlockRevisionDelta,
+}
+
+impl std::ops::Deref for GridBlockRevisionPad {
+    type Target = GridBlockRevision;
+
+    fn deref(&self) -> &Self::Target {
+        &self.block_revision
+    }
 }
 
 impl GridBlockRevisionPad {

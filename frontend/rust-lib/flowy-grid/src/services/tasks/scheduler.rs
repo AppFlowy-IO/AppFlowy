@@ -1,76 +1,63 @@
-use std::cmp::Ordering;
-use std::collections::BinaryHeap;
-use std::ops::{Deref, DerefMut};
+use crate::services::tasks::queue::GridTaskQueue;
+use crate::services::tasks::runner::GridTaskRunner;
+use crate::services::tasks::store::GridTaskStore;
+use crate::services::tasks::task::Task;
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::future::BoxResultFuture;
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::{watch, RwLock};
 
-enum TaskType {
-    /// Remove the row if it doesn't satisfy the filter.
-    Filter,
-    /// Generate snapshot for grid, unused by now.
-    Snapshot,
+pub trait GridTaskHandler: Send + Sync + 'static {
+    fn handler_id(&self) -> &str;
+
+    fn process_task(&self, task: Task) -> BoxResultFuture<(), FlowyError>;
 }
 
-/// Two tasks are equal if they have the same type.
-impl PartialEq for TaskType {
-    fn eq(&self, other: &Self) -> bool {
-        matches!((self, other),)
+pub struct GridTaskScheduler {
+    queue: GridTaskQueue,
+    store: GridTaskStore,
+    notifier: watch::Sender<()>,
+    handlers: Vec<Arc<dyn GridTaskHandler>>,
+}
+
+impl GridTaskScheduler {
+    pub fn new() -> Arc<RwLock<Self>> {
+        let (notifier, rx) = watch::channel(());
+
+        let scheduler = Self {
+            queue: GridTaskQueue::new(),
+            store: GridTaskStore::new(),
+            notifier,
+            handlers: vec![],
+        };
+        // The runner will receive the newest value after start running.
+        scheduler.notify();
+
+        let scheduler = Arc::new(RwLock::new(scheduler));
+        let debounce_duration = Duration::from_millis(300);
+        let runner = GridTaskRunner::new(scheduler.clone(), rx, debounce_duration);
+        tokio::spawn(runner.run());
+
+        scheduler
     }
-}
 
-pub type TaskId = u32;
-
-#[derive(Eq, Debug, Clone, Copy)]
-struct PendingTask {
-    kind: TaskType,
-    id: TaskId,
-}
-
-impl PartialEq for PendingTask {
-    fn eq(&self, other: &Self) -> bool {
-        self.id.eq(&other.id)
+    pub fn register_handler<T>(&mut self, handler: T)
+    where
+        T: GridTaskHandler,
+    {
+        // todo!()
     }
-}
 
-impl PartialOrd for PendingTask {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
+    pub fn process_next_task(&mut self) -> FlowyResult<()> {
+        Ok(())
     }
-}
 
-impl Ord for PendingTask {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.id.cmp(&other.id).reverse()
+    pub fn register_task(&self, task: Task) {
+        assert!(!task.is_finished());
     }
-}
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone)]
-enum TaskListIdentifier {
-    Filter(String),
-    Snapshot(String),
-}
-
-#[derive(Debug)]
-struct TaskList {
-    tasks: BinaryHeap<PendingTask>,
-}
-
-impl Deref for TaskList {
-    type Target = BinaryHeap<PendingTask>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.tasks
-    }
-}
-
-impl DerefMut for TaskList {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.tasks
-    }
-}
-
-impl TaskList {
-    fn new() -> Self {
-        Self {
-            tasks: Default::default(),
-        }
+    pub fn notify(&self) {
+        let _ = self.notifier.send(());
     }
 }

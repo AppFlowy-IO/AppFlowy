@@ -199,6 +199,15 @@ fn spawn_edit_queue(
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
     let edit_queue = EditBlockQueue::new(user, rev_manager, delta, receiver);
+    // We can use tokio::task::spawn_local here by using tokio::spawn_blocking.
+    // https://github.com/tokio-rs/tokio/issues/2095
+    // tokio::task::spawn_blocking(move || {
+    //     let rt = tokio::runtime::Handle::current();
+    //     rt.block_on(async {
+    //         let local = tokio::task::LocalSet::new();
+    //         local.run_until(edit_queue.run()).await;
+    //     });
+    // });
     tokio::spawn(edit_queue.run());
     sender
 }
