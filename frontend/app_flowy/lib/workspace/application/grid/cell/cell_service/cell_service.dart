@@ -62,7 +62,6 @@ class GridCell with _$GridCell {
     required String gridId,
     required String rowId,
     required Field field,
-    Cell? cell,
   }) = _GridCell;
 
   // ignore: unused_element

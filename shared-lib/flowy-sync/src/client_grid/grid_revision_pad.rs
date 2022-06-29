@@ -334,6 +334,11 @@ impl GridRevisionPad {
         &self.grid_rev.setting
     }
 
+    pub fn get_filters(&self, layout: Option<&GridLayoutRevision>) -> Option<&Vec<GridFilterRevision>> {
+        let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
+        self.grid_rev.setting.filters.get(layout_ty)
+    }
+
     pub fn update_grid_setting_rev(
         &mut self,
         changeset: GridSettingChangesetParams,
@@ -352,7 +357,7 @@ impl GridRevisionPad {
 
                 grid_rev
                     .setting
-                    .filter
+                    .filters
                     .entry(layout_rev.clone())
                     .or_insert_with(std::vec::Vec::new)
                     .push(rev);
@@ -360,7 +365,7 @@ impl GridRevisionPad {
                 is_changed = Some(())
             }
             if let Some(delete_filter_id) = changeset.delete_filter {
-                match grid_rev.setting.filter.get_mut(&layout_rev) {
+                match grid_rev.setting.filters.get_mut(&layout_rev) {
                     Some(filters) => filters.retain(|filter| filter.id != delete_filter_id),
                     None => {
                         tracing::warn!("Can't find the filter with {:?}", layout_rev);
@@ -376,7 +381,7 @@ impl GridRevisionPad {
 
                 grid_rev
                     .setting
-                    .group
+                    .groups
                     .entry(layout_rev.clone())
                     .or_insert_with(std::vec::Vec::new)
                     .push(rev);
@@ -384,7 +389,7 @@ impl GridRevisionPad {
                 is_changed = Some(())
             }
             if let Some(delete_group_id) = changeset.delete_group {
-                match grid_rev.setting.group.get_mut(&layout_rev) {
+                match grid_rev.setting.groups.get_mut(&layout_rev) {
                     Some(groups) => groups.retain(|group| group.id != delete_group_id),
                     None => {
                         tracing::warn!("Can't find the group with {:?}", layout_rev);
@@ -399,7 +404,7 @@ impl GridRevisionPad {
 
                 grid_rev
                     .setting
-                    .sort
+                    .sorts
                     .entry(layout_rev.clone())
                     .or_insert_with(std::vec::Vec::new)
                     .push(rev);
@@ -407,7 +412,7 @@ impl GridRevisionPad {
             }
 
             if let Some(delete_sort_id) = changeset.delete_sort {
-                match grid_rev.setting.sort.get_mut(&layout_rev) {
+                match grid_rev.setting.sorts.get_mut(&layout_rev) {
                     Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
                     None => {
                         tracing::warn!("Can't find the sort with {:?}", layout_rev);

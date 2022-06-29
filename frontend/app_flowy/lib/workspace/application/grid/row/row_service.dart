@@ -146,7 +146,6 @@ class GridRowCache {
         cellDataMap[field.id] = GridCell(
           rowId: rowId,
           gridId: gridId,
-          cell: row?.cellByFieldId[field.id],
           field: field,
         );
       }

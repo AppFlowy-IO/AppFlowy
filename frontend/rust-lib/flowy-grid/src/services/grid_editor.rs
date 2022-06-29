@@ -1,12 +1,12 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::CellIdentifier;
-use crate::manager::GridUser;
+use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::GridFilterService;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::*;
-use crate::services::tasks::GridTaskScheduler;
+
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::*;
@@ -28,7 +28,7 @@ pub struct GridRevisionEditor {
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
     block_manager: Arc<GridBlockManager>,
-    task_scheduler: Arc<RwLock<GridTaskScheduler>>,
+    #[allow(dead_code)]
     pub(crate) filter_service: Arc<GridFilterService>,
 }
 
@@ -44,7 +44,7 @@ impl GridRevisionEditor {
         user: Arc<dyn GridUser>,
         mut rev_manager: RevisionManager,
         persistence: Arc<BlockIndexCache>,
-        task_scheduler: Arc<RwLock<GridTaskScheduler>>,
+        task_scheduler: GridTaskSchedulerRwLock,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
@@ -53,7 +53,11 @@ impl GridRevisionEditor {
         let grid_pad = Arc::new(RwLock::new(grid_pad));
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
-        let filter_service = Arc::new(GridFilterService::new());
+        let filter_service = Arc::new(GridFilterService::new(
+            grid_pad.clone(),
+            block_manager.clone(),
+            task_scheduler.clone(),
+        ));
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -61,10 +65,7 @@ impl GridRevisionEditor {
             rev_manager,
             block_manager,
             filter_service,
-            task_scheduler: task_scheduler.clone(),
         });
-
-        task_scheduler.write().await.register_handler(editor.clone());
 
         Ok(editor)
     }
@@ -459,18 +460,23 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
-        let layout_type: GridLayoutRevision = layout_type.clone().into();
         let read_guard = self.grid_pad.read().await;
-        match read_guard.get_grid_setting_rev().filter.get(&layout_type) {
+        let layout_rev = layout_type.clone().into();
+        match read_guard.get_filters(Some(&layout_rev)) {
             Some(filter_revs) => Ok(filter_revs.iter().map(GridFilter::from).collect::<Vec<GridFilter>>()),
             None => Ok(vec![]),
         }
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
+        let is_filter_changed = params.is_filter_changed();
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.update_grid_setting_rev(params)?))
             .await?;
+
+        if is_filter_changed {
+            self.filter_service.notify_changed().await;
+        }
         Ok(())
     }
 

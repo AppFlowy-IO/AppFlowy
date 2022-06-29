@@ -20,13 +20,13 @@ pub struct GridSettingRevision {
     pub layout: GridLayoutRevision,
 
     #[serde(with = "indexmap::serde_seq")]
-    pub filter: IndexMap<GridLayoutRevision, Vec<GridFilterRevision>>,
+    pub filters: IndexMap<GridLayoutRevision, Vec<GridFilterRevision>>,
 
     #[serde(skip, with = "indexmap::serde_seq")]
-    pub group: IndexMap<GridLayoutRevision, Vec<GridGroupRevision>>,
+    pub groups: IndexMap<GridLayoutRevision, Vec<GridGroupRevision>>,
 
     #[serde(skip, with = "indexmap::serde_seq")]
-    pub sort: IndexMap<GridLayoutRevision, Vec<GridSortRevision>>,
+    pub sorts: IndexMap<GridLayoutRevision, Vec<GridSortRevision>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize_repr, Deserialize_repr)]

@@ -10,7 +10,7 @@ use std::sync::Arc;
 #[derive(Default)]
 pub(crate) struct GridTaskQueue {
     // index_tasks for quick access
-    index_tasks: HashMap<String, Arc<AtomicRefCell<TaskList>>>,
+    index_tasks: HashMap<TaskHandlerId, Arc<AtomicRefCell<TaskList>>>,
     queue: BinaryHeap<Arc<AtomicRefCell<TaskList>>>,
 }
 
@@ -26,7 +26,7 @@ impl GridTaskQueue {
         };
         let pending_task = PendingTask {
             ty: task_type,
-            id: task.id.clone(),
+            id: task.id,
         };
         match self.index_tasks.entry("1".to_owned()) {
             Entry::Occupied(entry) => {
@@ -46,7 +46,7 @@ impl GridTaskQueue {
 
     pub(crate) fn mut_head<T, F>(&mut self, mut f: F) -> Option<T>
     where
-        F: FnMut(&mut TaskList) -> T,
+        F: FnMut(&mut TaskList) -> Option<T>,
     {
         let head = self.queue.pop()?;
         let result = {
@@ -58,14 +58,15 @@ impl GridTaskQueue {
         } else {
             self.index_tasks.remove(&head.borrow().id);
         }
-
-        Some(result)
+        result
     }
 }
 
+pub type TaskHandlerId = String;
+
 #[derive(Debug)]
 pub(crate) struct TaskList {
-    id: String,
+    pub(crate) id: TaskHandlerId,
     tasks: BinaryHeap<PendingTask>,
 }
 

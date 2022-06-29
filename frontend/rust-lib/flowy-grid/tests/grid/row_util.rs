@@ -17,19 +17,21 @@ impl<'a> GridRowTestBuilder<'a> {
         let inner_builder = CreateRowRevisionBuilder::new(&test.field_revs);
         Self { test, inner_builder }
     }
-
+    #[allow(dead_code)]
     pub fn update_text_cell(mut self, data: String) -> Self {
         let text_field = self.field_rev_with_type(&FieldType::DateTime);
         self.inner_builder.add_cell(&text_field.id, data).unwrap();
         self
     }
 
+    #[allow(dead_code)]
     pub fn update_number_cell(mut self, data: String) -> Self {
         let number_field = self.field_rev_with_type(&FieldType::DateTime);
         self.inner_builder.add_cell(&number_field.id, data).unwrap();
         self
     }
 
+    #[allow(dead_code)]
     pub fn update_date_cell(mut self, value: i64) -> Self {
         let value = serde_json::to_string(&DateCellContentChangeset {
             date: Some(value.to_string()),
@@ -41,12 +43,14 @@ impl<'a> GridRowTestBuilder<'a> {
         self
     }
 
+    #[allow(dead_code)]
     pub fn update_checkbox_cell(mut self, data: bool) -> Self {
         let number_field = self.field_rev_with_type(&FieldType::Checkbox);
         self.inner_builder.add_cell(&number_field.id, data.to_string()).unwrap();
         self
     }
 
+    #[allow(dead_code)]
     pub fn update_url_cell(mut self, data: String) -> Self {
         let number_field = self.field_rev_with_type(&FieldType::Checkbox);
         self.inner_builder.add_cell(&number_field.id, data).unwrap();

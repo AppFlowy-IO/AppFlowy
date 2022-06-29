@@ -4,8 +4,6 @@ use crate::revision::RowRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 
-use std::collections::HashMap;
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct Grid {
     #[pb(index = 1)]
@@ -36,9 +34,6 @@ pub struct Row {
     pub id: String,
 
     #[pb(index = 2)]
-    pub cell_by_field_id: HashMap<String, Cell>,
-
-    #[pb(index = 3)]
     pub height: i32,
 }
 

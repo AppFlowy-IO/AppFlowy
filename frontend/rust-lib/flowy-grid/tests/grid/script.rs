@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use bytes::Bytes;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
@@ -64,6 +65,7 @@ pub enum EditorScript {
         is_err: bool,
     },
     AssertRowCount(usize),
+    #[allow(dead_code)]
     UpdateGridSetting {
         params: GridSettingChangesetParams,
     },
@@ -76,6 +78,7 @@ pub enum EditorScript {
     DeleteGridTableFilter {
         filter_id: String,
     },
+    #[allow(dead_code)]
     AssertGridSetting {
         expected_setting: GridSetting,
     },

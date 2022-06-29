@@ -1,3 +1,4 @@
+use crate::services::tasks::queue::TaskHandlerId;
 use std::cmp::Ordering;
 
 #[derive(Eq, Debug, Clone, Copy)]
@@ -56,6 +57,7 @@ pub enum TaskContent {
 }
 
 pub struct Task {
+    pub hid: TaskHandlerId,
     pub id: TaskId,
     pub content: TaskContent,
 }

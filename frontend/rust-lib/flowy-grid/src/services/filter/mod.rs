@@ -1,3 +1,3 @@
 mod filter_service;
 
-pub use filter_service::*;
+pub(crate) use filter_service::*;

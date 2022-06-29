@@ -21,13 +21,15 @@ pub trait GridUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
+pub type GridTaskSchedulerRwLock = Arc<RwLock<GridTaskScheduler>>;
+
 pub struct GridManager {
     grid_editors: Arc<DashMap<String, Arc<GridRevisionEditor>>>,
     grid_user: Arc<dyn GridUser>,
     block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
     kv_persistence: Arc<GridKVPersistence>,
-    task_scheduler: Arc<RwLock<GridTaskScheduler>>,
+    task_scheduler: GridTaskSchedulerRwLock,
 }
 
 impl GridManager {
@@ -79,18 +81,20 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
-    pub fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
+    pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
         self.grid_editors.remove(grid_id);
+        self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, grid_id), fields(doc_id), err)]
-    pub fn delete_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
+    pub async fn delete_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
         self.grid_editors.remove(grid_id);
+        self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
@@ -115,6 +119,7 @@ impl GridManager {
                     tracing::warn!("Grid:{} already exists in cache", grid_id);
                 }
                 self.grid_editors.insert(grid_id.to_string(), editor.clone());
+                self.task_scheduler.write().await.register_handler(editor.clone());
                 Ok(editor)
             }
             Some(editor) => Ok(editor.clone()),

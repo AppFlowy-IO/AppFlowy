@@ -1,7 +1,6 @@
-use crate::services::row::decode_cell_data;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{Cell, GridBlock, RepeatedGridBlock, Row, RowOrder};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, RowRevision};
+use flowy_grid_data_model::entities::{GridBlock, RepeatedGridBlock, Row, RowOrder};
+use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -22,18 +21,18 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlock>
     });
     map.into_values().collect::<Vec<_>>()
 }
-
-#[inline(always)]
-fn make_cell_by_field_id(
-    field_map: &HashMap<&String, &FieldRevision>,
-    field_id: String,
-    cell_rev: CellRevision,
-) -> Option<(String, Cell)> {
-    let field_rev = field_map.get(&field_id)?;
-    let data = decode_cell_data(cell_rev.data, field_rev).data;
-    let cell = Cell::new(&field_id, data);
-    Some((field_id, cell))
-}
+//
+// #[inline(always)]
+// fn make_cell_by_field_id(
+//     field_map: &HashMap<&String, &FieldRevision>,
+//     field_id: String,
+//     cell_rev: CellRevision,
+// ) -> Option<(String, Cell)> {
+//     let field_rev = field_map.get(&field_id)?;
+//     let data = decode_cell_data(cell_rev.data, field_rev).data;
+//     let cell = Cell::new(&field_id, data);
+//     Some((field_id, cell))
+// }
 
 pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowOrder> {
     row_revs.iter().map(RowOrder::from).collect::<Vec<_>>()
@@ -43,23 +42,22 @@ pub(crate) fn make_row_from_row_rev(fields: &[FieldRevision], row_rev: Arc<RowRe
     make_rows_from_row_revs(fields, &[row_rev]).pop()
 }
 
-pub(crate) fn make_rows_from_row_revs(fields: &[FieldRevision], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
-    let field_rev_map = fields
-        .iter()
-        .map(|field_rev| (&field_rev.id, field_rev))
-        .collect::<HashMap<&String, &FieldRevision>>();
+pub(crate) fn make_rows_from_row_revs(_fields: &[FieldRevision], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
+    // let field_rev_map = fields
+    //     .iter()
+    //     .map(|field_rev| (&field_rev.id, field_rev))
+    //     .collect::<HashMap<&String, &FieldRevision>>();
 
     let make_row = |row_rev: &Arc<RowRevision>| {
-        let cell_by_field_id = row_rev
-            .cells
-            .clone()
-            .into_iter()
-            .flat_map(|(field_id, cell_rev)| make_cell_by_field_id(&field_rev_map, field_id, cell_rev))
-            .collect::<HashMap<String, Cell>>();
+        // let cell_by_field_id = row_rev
+        //     .cells
+        //     .clone()
+        //     .into_iter()
+        //     .flat_map(|(field_id, cell_rev)| make_cell_by_field_id(&field_rev_map, field_id, cell_rev))
+        //     .collect::<HashMap<String, Cell>>();
 
         Row {
             id: row_rev.id.clone(),
-            cell_by_field_id,
             height: row_rev.height,
         }
     };

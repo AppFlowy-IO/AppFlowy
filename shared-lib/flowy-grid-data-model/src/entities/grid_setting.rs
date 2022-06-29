@@ -24,19 +24,19 @@ pub struct GridSetting {
 impl std::convert::From<&GridSettingRevision> for GridSetting {
     fn from(rev: &GridSettingRevision) -> Self {
         let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
-            .filter
+            .filters
             .iter()
             .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
             .collect();
 
         let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
-            .group
+            .groups
             .iter()
             .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
             .collect();
 
         let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
-            .sort
+            .sorts
             .iter()
             .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
             .collect();
@@ -116,6 +116,12 @@ pub struct GridSettingChangesetParams {
     pub delete_group: Option<String>,
     pub insert_sort: Option<CreateGridSortParams>,
     pub delete_sort: Option<String>,
+}
+
+impl GridSettingChangesetParams {
+    pub fn is_filter_changed(&self) -> bool {
+        self.insert_filter.is_some() || self.delete_filter.is_some()
+    }
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {

@@ -37,7 +37,7 @@ impl GridTaskRunner {
             let mut interval = interval(self.debounce_duration);
             interval.tick().await;
 
-            if let Err(e) = self.scheduler.write().await.process_next_task() {
+            if let Err(e) = self.scheduler.write().await.process_next_task().await {
                 tracing::error!("{:?}", e);
             }
         }
