@@ -24,7 +24,7 @@ impl GridTaskStore {
     pub fn remove_task(&mut self, task_id: &TaskId) -> Option<Task> {
         self.tasks.remove(task_id)
     }
-    #[allow(dead_code)]
+
     pub fn next_task_id(&self) -> TaskId {
         let _ = self.task_id_counter.fetch_add(1, SeqCst);
         self.task_id_counter.load(SeqCst)

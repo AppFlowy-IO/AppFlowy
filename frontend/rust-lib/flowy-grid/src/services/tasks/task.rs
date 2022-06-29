@@ -44,16 +44,18 @@ impl Ord for PendingTask {
             (TaskType::Snapshot, TaskType::Snapshot) => Ordering::Equal,
             (TaskType::Snapshot, _) => Ordering::Greater,
             (_, TaskType::Snapshot) => Ordering::Less,
-            (TaskType::Filter, TaskType::Filter) => self.id.cmp(&other.id),
+            (TaskType::Filter, TaskType::Filter) => self.id.cmp(&other.id).reverse(),
         }
     }
 }
 
-pub type ContentId = String;
+pub struct SnapshotTaskContext {}
+
+pub struct FilterTaskContext {}
 
 pub enum TaskContent {
-    Snapshot { content_id: ContentId },
-    Filter,
+    Snapshot { context: SnapshotTaskContext },
+    Filter { context: FilterTaskContext },
 }
 
 pub struct Task {

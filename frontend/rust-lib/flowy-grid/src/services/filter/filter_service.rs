@@ -3,28 +3,26 @@ use crate::services::block_manager::GridBlockManager;
 use crate::services::tasks::Task;
 use flowy_error::FlowyResult;
 
+use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use flowy_sync::client_grid::GridRevisionPad;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
-    #[allow(dead_code)]
-    scheduler: GridTaskSchedulerRwLock,
-    #[allow(dead_code)]
+    scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
-    #[allow(dead_code)]
     block_manager: Arc<GridBlockManager>,
 }
 impl GridFilterService {
-    pub fn new(
+    pub fn new<S: GridServiceTaskScheduler>(
         grid_pad: Arc<RwLock<GridRevisionPad>>,
         block_manager: Arc<GridBlockManager>,
-        scheduler: GridTaskSchedulerRwLock,
+        scheduler: S,
     ) -> Self {
         Self {
             grid_pad,
             block_manager,
-            scheduler,
+            scheduler: Arc::new(scheduler),
         }
     }
 
@@ -33,6 +31,8 @@ impl GridFilterService {
     }
 
     pub async fn notify_changed(&self) {
+        let task_id = self.scheduler.gen_task_id().await;
+
         //
         // let grid_pad = self.grid_pad.read().await;
         // match grid_pad.get_filters(None) {

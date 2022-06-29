@@ -3,6 +3,7 @@ use crate::services::tasks::runner::GridTaskRunner;
 use crate::services::tasks::store::GridTaskStore;
 use crate::services::tasks::task::Task;
 
+use crate::services::tasks::TaskId;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::BoxResultFuture;
 use std::collections::HashMap;
@@ -79,6 +80,10 @@ impl GridTaskScheduler {
         self.queue.push(&task);
         self.store.insert_task(task);
         self.notify();
+    }
+
+    pub fn next_task_id(&self) -> TaskId {
+        self.store.next_task_id()
     }
 
     pub fn notify(&self) {

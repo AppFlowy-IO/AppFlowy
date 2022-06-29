@@ -475,7 +475,10 @@ impl GridRevisionEditor {
             .await?;
 
         if is_filter_changed {
-            self.filter_service.notify_changed().await;
+            let filter_service = self.filter_service.clone();
+            tokio::spawn(async move {
+                filter_service.notify_changed().await;
+            });
         }
         Ok(())
     }
