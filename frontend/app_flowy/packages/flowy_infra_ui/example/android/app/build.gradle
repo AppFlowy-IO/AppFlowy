@@ -56,7 +56,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    compileSdkVersion 30
+    compileSdkVersion 31
 }
 
 flutter {
