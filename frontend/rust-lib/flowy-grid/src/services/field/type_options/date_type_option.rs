@@ -7,7 +7,7 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellChangeset, FieldType};
+use flowy_grid_data_model::entities::{CellChangeset, FieldType, GridDateFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
@@ -115,7 +115,7 @@ impl DateTypeOption {
     }
 }
 
-impl CellDataOperation<String> for DateTypeOption {
+impl CellDataOperation<String, GridDateFilter> for DateTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -136,6 +136,10 @@ impl CellDataOperation<String> for DateTypeOption {
         let timestamp = encoded_data.into().parse::<i64>().unwrap_or(0);
         let date = self.today_desc_from_timestamp(timestamp);
         DecodedCellData::try_from_bytes(date)
+    }
+
+    fn apply_filter(&self, _filter: GridDateFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

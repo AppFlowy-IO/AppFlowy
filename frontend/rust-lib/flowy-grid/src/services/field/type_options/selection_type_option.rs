@@ -6,7 +6,7 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellChangeset, FieldType};
+use flowy_grid_data_model::entities::{CellChangeset, FieldType, GridSelectOptionFilter};
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use nanoid::nanoid;
@@ -94,7 +94,7 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String> for SingleSelectTypeOption {
+impl CellDataOperation<String, GridSelectOptionFilter> for SingleSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -120,6 +120,10 @@ impl CellDataOperation<String> for SingleSelectTypeOption {
         }
 
         DecodedCellData::try_from_bytes(cell_data)
+    }
+
+    fn apply_filter(&self, _filter: GridSelectOptionFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -192,7 +196,7 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String> for MultiSelectTypeOption {
+impl CellDataOperation<String, GridSelectOptionFilter> for MultiSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -218,6 +222,10 @@ impl CellDataOperation<String> for MultiSelectTypeOption {
         };
 
         DecodedCellData::try_from_bytes(cell_data)
+    }
+
+    fn apply_filter(&self, _filter: GridSelectOptionFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<T>(&self, changeset: T, cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

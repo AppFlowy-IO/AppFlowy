@@ -6,7 +6,7 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::entities::{FieldType, GridNumberFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -139,7 +139,7 @@ impl NumberTypeOption {
     }
 }
 
-impl CellDataOperation<String> for NumberTypeOption {
+impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -177,6 +177,10 @@ impl CellDataOperation<String> for NumberTypeOption {
                 Ok(DecodedCellData::new(content))
             }
         }
+    }
+
+    fn apply_filter(&self, _filter: GridNumberFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

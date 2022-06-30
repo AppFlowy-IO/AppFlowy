@@ -438,6 +438,7 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
     Debug,
     Clone,
     PartialEq,
+    Hash,
     Eq,
     ProtoBuf_Enum,
     EnumCountMacro,
@@ -478,8 +479,7 @@ impl From<&FieldType> for FieldType {
 
 impl FieldType {
     pub fn type_id(&self) -> String {
-        let ty = self.clone() as u8;
-        ty.to_string()
+        (self.clone() as u8).to_string()
     }
 
     pub fn default_cell_width(&self) -> i32 {

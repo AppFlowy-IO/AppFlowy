@@ -5,7 +5,7 @@ use flowy_error::FlowyError;
 use futures::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;
 
-pub trait GridServiceTaskScheduler: Send + Sync + 'static {
+pub(crate) trait GridServiceTaskScheduler: Send + Sync + 'static {
     fn gen_task_id(&self) -> BoxFuture<TaskId>;
     fn register_task(&self, task: Task) -> BoxFuture<()>;
 }
@@ -17,9 +17,9 @@ impl GridTaskHandler for GridRevisionEditor {
 
     fn process_task(&self, task: Task) -> BoxResultFuture<(), FlowyError> {
         Box::pin(async move {
-            match &task.content {
-                TaskContent::Snapshot { .. } => {}
-                TaskContent::Filter { .. } => self.filter_service.process_task(task).await?,
+            match task.content {
+                TaskContent::Snapshot => {}
+                TaskContent::Filter(context) => self.filter_service.process(context).await?,
             }
             Ok(())
         })

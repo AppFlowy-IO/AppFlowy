@@ -1,4 +1,6 @@
-use flowy_grid_data_model::entities::{CreateGridFilterParams, GridLayoutType, GridSettingChangesetParams};
+use flowy_grid_data_model::entities::{
+    CreateGridFilterParams, DeleteFilterParams, GridLayoutType, GridSettingChangesetParams,
+};
 
 pub struct GridSettingChangesetBuilder {
     params: GridSettingChangesetParams,
@@ -24,8 +26,8 @@ impl GridSettingChangesetBuilder {
         self
     }
 
-    pub fn delete_filter(mut self, filter_id: &str) -> Self {
-        self.params.delete_filter = Some(filter_id.to_string());
+    pub fn delete_filter(mut self, params: DeleteFilterParams) -> Self {
+        self.params.delete_filter = Some(params);
         self
     }
 

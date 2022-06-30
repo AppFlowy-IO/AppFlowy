@@ -4,7 +4,7 @@ use crate::services::row::{try_decode_cell_data, CellContentChangeset, CellDataO
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::entities::{FieldType, GridTextFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -30,7 +30,7 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation<String> for RichTextTypeOption {
+impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -45,11 +45,15 @@ impl CellDataOperation<String> for RichTextTypeOption {
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            try_decode_cell_data(encoded_data, field_rev, decoded_field_type, decoded_field_type)
+            try_decode_cell_data(encoded_data.into(), field_rev, decoded_field_type, decoded_field_type)
         } else {
             let cell_data = encoded_data.into();
             Ok(DecodedCellData::new(cell_data))
         }
+    }
+
+    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

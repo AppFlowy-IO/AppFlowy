@@ -1,10 +1,10 @@
+use crate::entities::FieldType;
 use crate::parser::NotEmptyStr;
+use crate::revision::{FieldRevision, GridFilterRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
-
-use crate::entities::FieldType;
-use crate::revision::{FieldRevision, GridFilterRevision};
 use std::convert::TryInto;
+use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridFilter {
@@ -18,14 +18,14 @@ pub struct RepeatedGridFilter {
     pub items: Vec<GridFilter>,
 }
 
-impl std::convert::From<&GridFilterRevision> for GridFilter {
-    fn from(rev: &GridFilterRevision) -> Self {
+impl std::convert::From<&Arc<GridFilterRevision>> for GridFilter {
+    fn from(rev: &Arc<GridFilterRevision>) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<&Vec<GridFilterRevision>> for RepeatedGridFilter {
-    fn from(revs: &Vec<GridFilterRevision>) -> Self {
+impl std::convert::From<&Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
+    fn from(revs: &Vec<Arc<GridFilterRevision>>) -> Self {
         RepeatedGridFilter {
             items: revs.iter().map(|rev| rev.into()).collect(),
         }
@@ -35,6 +35,34 @@ impl std::convert::From<&Vec<GridFilterRevision>> for RepeatedGridFilter {
 impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilter {
     fn from(items: Vec<GridFilter>) -> Self {
         Self { items }
+    }
+}
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct DeleteFilterPayload {
+    #[pb(index = 1)]
+    pub filter_id: String,
+
+    #[pb(index = 2)]
+    pub field_type: FieldType,
+}
+
+pub struct DeleteFilterParams {
+    pub filter_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
+        let filter_id = NotEmptyStr::parse(self.filter_id)
+            .map_err(|_| ErrorCode::UnexpectedEmptyString)?
+            .0;
+        Ok(DeleteFilterParams {
+            filter_id,
+            field_type: self.field_type,
+        })
     }
 }
 
@@ -81,8 +109,11 @@ impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
             .0;
         let condition = self.condition as u8;
         match self.field_type {
-            FieldType::RichText | FieldType::Checkbox | FieldType::URL => {
+            FieldType::RichText | FieldType::URL => {
                 let _ = TextFilterCondition::try_from(condition)?;
+            }
+            FieldType::Checkbox => {
+                let _ = CheckboxCondition::try_from(condition)?;
             }
             FieldType::Number => {
                 let _ = NumberFilterCondition::try_from(condition)?;
@@ -154,11 +185,11 @@ impl std::convert::TryFrom<u8> for TextFilterCondition {
     }
 }
 
-impl std::convert::From<GridFilterRevision> for GridTextFilter {
-    fn from(rev: GridFilterRevision) -> Self {
+impl std::convert::From<Arc<GridFilterRevision>> for GridTextFilter {
+    fn from(rev: Arc<GridFilterRevision>) -> Self {
         GridTextFilter {
             condition: TextFilterCondition::try_from(rev.condition).unwrap_or(TextFilterCondition::Is),
-            content: rev.content,
+            content: rev.content.clone(),
         }
     }
 }
@@ -213,11 +244,11 @@ impl std::convert::TryFrom<u8> for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<GridFilterRevision> for GridNumberFilter {
-    fn from(rev: GridFilterRevision) -> Self {
+impl std::convert::From<Arc<GridFilterRevision>> for GridNumberFilter {
+    fn from(rev: Arc<GridFilterRevision>) -> Self {
         GridNumberFilter {
             condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
-            content: rev.content,
+            content: rev.content.clone(),
         }
     }
 }
@@ -266,11 +297,11 @@ impl std::convert::TryFrom<u8> for SelectOptionCondition {
     }
 }
 
-impl std::convert::From<GridFilterRevision> for GridSelectOptionFilter {
-    fn from(rev: GridFilterRevision) -> Self {
+impl std::convert::From<Arc<GridFilterRevision>> for GridSelectOptionFilter {
+    fn from(rev: Arc<GridFilterRevision>) -> Self {
         GridSelectOptionFilter {
             condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),
-            content: rev.content,
+            content: rev.content.clone(),
         }
     }
 }
@@ -318,11 +349,56 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
         }
     }
 }
-impl std::convert::From<GridFilterRevision> for GridDateFilter {
-    fn from(rev: GridFilterRevision) -> Self {
+impl std::convert::From<Arc<GridFilterRevision>> for GridDateFilter {
+    fn from(rev: Arc<GridFilterRevision>) -> Self {
         GridDateFilter {
             condition: DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs),
-            content: rev.content,
+            content: rev.content.clone(),
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridCheckboxFilter {
+    #[pb(index = 1)]
+    pub condition: CheckboxCondition,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[repr(u8)]
+pub enum CheckboxCondition {
+    IsChecked = 0,
+    IsUnChecked = 1,
+}
+
+impl std::convert::From<CheckboxCondition> for i32 {
+    fn from(value: CheckboxCondition) -> Self {
+        value as i32
+    }
+}
+
+impl std::default::Default for CheckboxCondition {
+    fn default() -> Self {
+        CheckboxCondition::IsChecked
+    }
+}
+
+impl std::convert::TryFrom<u8> for CheckboxCondition {
+    type Error = ErrorCode;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(CheckboxCondition::IsChecked),
+            1 => Ok(CheckboxCondition::IsUnChecked),
+            _ => Err(ErrorCode::InvalidData),
+        }
+    }
+}
+
+impl std::convert::From<Arc<GridFilterRevision>> for GridCheckboxFilter {
+    fn from(rev: Arc<GridFilterRevision>) -> Self {
+        GridCheckboxFilter {
+            condition: CheckboxCondition::try_from(rev.condition).unwrap_or(CheckboxCondition::IsChecked),
         }
     }
 }

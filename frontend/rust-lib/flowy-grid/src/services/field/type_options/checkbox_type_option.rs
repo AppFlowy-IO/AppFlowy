@@ -4,7 +4,7 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
+use flowy_grid_data_model::entities::{FieldType, GridCheckboxFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -40,7 +40,7 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellDataOperation<String> for CheckboxTypeOption {
+impl CellDataOperation<String, GridCheckboxFilter> for CheckboxTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -60,6 +60,10 @@ impl CellDataOperation<String> for CheckboxTypeOption {
         }
 
         Ok(DecodedCellData::default())
+    }
+
+    fn apply_filter(&self, _filter: GridCheckboxFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

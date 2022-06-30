@@ -27,6 +27,9 @@ pub trait JsonDeserializer {
 }
 
 impl GridRevisionPad {
+    pub fn grid_id(&self) -> String {
+        self.grid_rev.grid_id.clone()
+    }
     pub async fn duplicate_grid_block_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
         let fields = self.grid_rev.fields.to_vec();
 
@@ -334,9 +337,35 @@ impl GridRevisionPad {
         &self.grid_rev.setting
     }
 
-    pub fn get_filters(&self, layout: Option<&GridLayoutRevision>) -> Option<&Vec<GridFilterRevision>> {
+    /// If layout is None, then the default layout will be the read from GridSettingRevision
+    pub fn get_filters(
+        &self,
+        layout: Option<&GridLayoutRevision>,
+        field_ids: Option<Vec<String>>,
+    ) -> Option<Vec<Arc<GridFilterRevision>>> {
+        let mut filter_revs = vec![];
         let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
-        self.grid_rev.setting.filters.get(layout_ty)
+        let field_revs = self.get_field_revs(None).ok()?;
+
+        field_revs.iter().for_each(|field_rev| {
+            let mut is_contain = true;
+            if let Some(field_ids) = &field_ids {
+                is_contain = field_ids.contains(&field_rev.id);
+            }
+
+            if is_contain {
+                // Only return the filters for the current fields' type.
+                if let Some(mut t_filter_revs) =
+                    self.grid_rev
+                        .setting
+                        .get_filters(layout_ty, &field_rev.id, &field_rev.field_type)
+                {
+                    filter_revs.append(&mut t_filter_revs);
+                }
+            }
+        });
+
+        Some(filter_revs)
     }
 
     pub fn update_grid_setting_rev(
@@ -348,25 +377,27 @@ impl GridRevisionPad {
             let layout_rev: GridLayoutRevision = changeset.layout_type.into();
 
             if let Some(params) = changeset.insert_filter {
-                let rev = GridFilterRevision {
+                let filter_rev = GridFilterRevision {
                     id: gen_grid_filter_id(),
-                    field_id: params.field_id,
+                    field_id: params.field_id.clone(),
                     condition: params.condition,
                     content: params.content,
                 };
 
                 grid_rev
                     .setting
-                    .filters
-                    .entry(layout_rev.clone())
-                    .or_insert_with(std::vec::Vec::new)
-                    .push(rev);
+                    .insert_filter(&layout_rev, &params.field_id, &params.field_type, filter_rev);
 
                 is_changed = Some(())
             }
-            if let Some(delete_filter_id) = changeset.delete_filter {
-                match grid_rev.setting.filters.get_mut(&layout_rev) {
-                    Some(filters) => filters.retain(|filter| filter.id != delete_filter_id),
+            if let Some(params) = changeset.delete_filter {
+                match grid_rev
+                    .setting
+                    .get_mut_filters(&layout_rev, &params.filter_id, &params.field_type)
+                {
+                    Some(filters) => {
+                        filters.retain(|filter| filter.id != params.filter_id);
+                    }
                     None => {
                         tracing::warn!("Can't find the filter with {:?}", layout_rev);
                     }

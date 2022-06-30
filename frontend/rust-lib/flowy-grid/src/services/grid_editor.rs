@@ -3,7 +3,7 @@ use crate::entities::CellIdentifier;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
-use crate::services::filter::GridFilterService;
+use crate::services::filter::{GridFilterChangeset, GridFilterService};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::*;
 
@@ -53,11 +53,8 @@ impl GridRevisionEditor {
         let grid_pad = Arc::new(RwLock::new(grid_pad));
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
-        let filter_service = Arc::new(GridFilterService::new(
-            grid_pad.clone(),
-            block_manager.clone(),
-            task_scheduler.clone(),
-        ));
+        let filter_service =
+            Arc::new(GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await);
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -454,32 +451,31 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
-        let read_guard = self.grid_pad.read().await;
-        let grid_setting_rev = read_guard.get_grid_setting_rev();
-        Ok(grid_setting_rev.into())
+        // let read_guard = self.grid_pad.read().await;
+        // let grid_setting_rev = read_guard.get_grid_setting_rev();
+        // Ok(grid_setting_rev.into())
+        todo!()
     }
 
     pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
         let read_guard = self.grid_pad.read().await;
         let layout_rev = layout_type.clone().into();
-        match read_guard.get_filters(Some(&layout_rev)) {
+        match read_guard.get_filters(Some(&layout_rev), None) {
             Some(filter_revs) => Ok(filter_revs.iter().map(GridFilter::from).collect::<Vec<GridFilter>>()),
             None => Ok(vec![]),
         }
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let is_filter_changed = params.is_filter_changed();
+        let filter_changeset = GridFilterChangeset::from(&params);
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.update_grid_setting_rev(params)?))
             .await?;
 
-        if is_filter_changed {
-            let filter_service = self.filter_service.clone();
-            tokio::spawn(async move {
-                filter_service.notify_changed().await;
-            });
-        }
+        let filter_service = self.filter_service.clone();
+        tokio::spawn(async move {
+            filter_service.apply_changeset(filter_changeset).await;
+        });
         Ok(())
     }
 
@@ -495,7 +491,7 @@ impl GridRevisionEditor {
                 .collect::<Vec<String>>(),
             Some(block_ids) => block_ids,
         };
-        let snapshots = self.block_manager.make_block_snapshots(block_ids).await?;
+        let snapshots = self.block_manager.get_block_snapshots(Some(block_ids)).await?;
         Ok(snapshots)
     }
 

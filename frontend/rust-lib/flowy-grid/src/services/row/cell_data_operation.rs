@@ -2,12 +2,13 @@ use crate::services::field::*;
 use bytes::Bytes;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::entities::FieldType;
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, GridFilterRevision};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
+use std::sync::Arc;
 
-pub trait CellDataOperation<ED> {
+pub trait CellDataOperation<D, F> {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -15,9 +16,10 @@ pub trait CellDataOperation<ED> {
         field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
-        T: Into<ED>;
+        T: Into<D>;
 
-    //
+    fn apply_filter(&self, filter: F) -> bool;
+
     fn apply_changeset<C: Into<CellContentChangeset>>(
         &self,
         changeset: C,
@@ -113,6 +115,14 @@ impl TypeOptionCellData {
     }
 }
 
+pub fn apply_cell_filter(
+    _filter_rev: Arc<GridFilterRevision>,
+    _field_rev: &FieldRevision,
+    _cell_rev: Option<CellRevision>,
+) -> bool {
+    todo!()
+}
+
 /// The changeset will be deserialized into specific data base on the FieldType.
 /// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
 pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
@@ -150,13 +160,12 @@ pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(data: T, field_rev: &Fie
     }
 }
 
-pub fn try_decode_cell_data<T: Into<String>>(
-    encoded_data: T,
+pub fn try_decode_cell_data(
+    encoded_data: String,
     field_rev: &FieldRevision,
     s_field_type: &FieldType,
     t_field_type: &FieldType,
 ) -> FlowyResult<DecodedCellData> {
-    let encoded_data = encoded_data.into();
     let get_cell_data = || {
         let data = match t_field_type {
             FieldType::RichText => field_rev
