@@ -30,6 +30,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         super(GridState.initial(view.id)) {
     rowCache = GridRowCache(
       gridId: view.id,
+      blockId: "",
       fieldDelegate: GridRowCacheDelegateImpl(fieldCache),
     );
 
@@ -96,8 +97,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           for (final block in grid.blocks) {
             blockCache.addBlockListener(block.id);
           }
-          final rowOrders = grid.blocks.expand((block) => block.rowOrders).toList();
-          rowCache.initialRows(rowOrders);
+          final rowInfos = grid.blocks.expand((block) => block.rowInfos).toList();
+          rowCache.initialRows(rowInfos);
 
           await _loadFields(grid, emit);
         },

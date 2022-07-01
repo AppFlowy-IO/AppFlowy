@@ -1,3 +1,4 @@
+use crate::entities::BlockRowInfo;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
@@ -10,7 +11,6 @@ use lib_ot::core::PlainTextAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use crate::entities::RowOrder;
 
 pub struct GridBlockRevisionEditor {
     user_id: String,
@@ -123,24 +123,24 @@ impl GridBlockRevisionEditor {
         Ok(cell_revs)
     }
 
-    pub async fn get_row_order(&self, row_id: &str) -> FlowyResult<Option<RowOrder>> {
+    pub async fn get_row_info(&self, row_id: &str) -> FlowyResult<Option<BlockRowInfo>> {
         let row_ids = Some(vec![Cow::Borrowed(row_id)]);
-        Ok(self.get_row_orders(row_ids).await?.pop())
+        Ok(self.get_row_infos(row_ids).await?.pop())
     }
 
-    pub async fn get_row_orders<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowOrder>>
+    pub async fn get_row_infos<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<BlockRowInfo>>
     where
         T: AsRef<str> + ToOwned + ?Sized,
     {
-        let row_orders = self
+        let row_infos = self
             .pad
             .read()
             .await
             .get_row_revs(row_ids)?
             .iter()
-            .map(RowOrder::from)
-            .collect::<Vec<RowOrder>>();
-        Ok(row_orders)
+            .map(BlockRowInfo::from)
+            .collect::<Vec<BlockRowInfo>>();
+        Ok(row_infos)
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

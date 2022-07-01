@@ -265,14 +265,14 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowOrder> {
+    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<BlockRowInfo> {
         let field_revs = self.grid_pad.read().await.get_field_revs(None)?;
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
         let row_rev_ctx = CreateRowRevisionBuilder::new(&field_revs).build();
         let row_rev = make_row_rev_from_context(&block_id, row_rev_ctx);
-        let row_order = RowOrder::from(&row_rev);
+        let row_order = BlockRowInfo::from(&row_rev);
 
         // insert the row
         let row_count = self.block_manager.create_row(&block_id, row_rev, start_row_id).await?;
@@ -283,13 +283,13 @@ impl GridRevisionEditor {
         Ok(row_order)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<BlockRowInfo>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowRevision>> = HashMap::new();
         let mut row_orders = vec![];
         for ctx in contexts {
             let row_rev = make_row_rev_from_context(&block_id, ctx);
-            row_orders.push(RowOrder::from(&row_rev));
+            row_orders.push(BlockRowInfo::from(&row_rev));
             rows_by_block_id
                 .entry(block_id.clone())
                 .or_insert_with(Vec::new)
@@ -421,7 +421,7 @@ impl GridRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
+    pub async fn delete_rows(&self, row_orders: Vec<BlockRowInfo>) -> FlowyResult<()> {
         let changesets = self.block_manager.delete_rows(row_orders).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
@@ -441,7 +441,7 @@ impl GridRevisionEditor {
             let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
             let block_order = GridBlock {
                 id: block_rev.block_id.clone(),
-                row_orders,
+                row_infos: row_orders,
             };
             block_orders.push(block_order);
         }

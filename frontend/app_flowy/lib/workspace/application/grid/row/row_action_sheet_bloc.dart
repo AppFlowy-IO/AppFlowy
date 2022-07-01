@@ -12,7 +12,11 @@ class RowActionSheetBloc extends Bloc<RowActionSheetEvent, RowActionSheetState> 
   final RowService _rowService;
 
   RowActionSheetBloc({required GridRow rowData})
-      : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
+      : _rowService = RowService(
+          gridId: rowData.gridId,
+          blockId: rowData.blockId,
+          rowId: rowData.rowId,
+        ),
         super(RowActionSheetState.initial(rowData)) {
     on<RowActionSheetEvent>(
       (event, emit) async {

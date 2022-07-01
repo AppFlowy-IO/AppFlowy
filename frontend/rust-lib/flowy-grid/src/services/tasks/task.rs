@@ -55,6 +55,7 @@ pub(crate) struct FilterTaskContext {
 }
 
 pub(crate) enum TaskContent {
+    #[allow(dead_code)]
     Snapshot,
     Filter(FilterTaskContext),
 }

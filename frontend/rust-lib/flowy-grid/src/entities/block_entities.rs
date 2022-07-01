@@ -1,3 +1,4 @@
+use crate::entities::GridRowId;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -10,46 +11,56 @@ pub struct GridBlock {
     pub id: String,
 
     #[pb(index = 2)]
-    pub row_orders: Vec<RowOrder>,
+    pub row_infos: Vec<BlockRowInfo>,
 }
 
 impl GridBlock {
-    pub fn new(block_id: &str, row_orders: Vec<RowOrder>) -> Self {
+    pub fn new(block_id: &str, row_orders: Vec<BlockRowInfo>) -> Self {
         Self {
             id: block_id.to_owned(),
-            row_orders,
+            row_infos: row_orders,
         }
     }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowOrder {
+pub struct BlockRowInfo {
     #[pb(index = 1)]
-    pub row_id: String,
+    pub block_id: String,
 
     #[pb(index = 2)]
-    pub block_id: String,
+    pub row_id: String,
 
     #[pb(index = 3)]
     pub height: i32,
 }
 
-impl std::convert::From<&RowRevision> for RowOrder {
-    fn from(row: &RowRevision) -> Self {
+impl BlockRowInfo {
+    pub fn row_id(&self) -> &str {
+        &self.row_id
+    }
+
+    pub fn block_id(&self) -> &str {
+        &self.block_id
+    }
+}
+
+impl std::convert::From<&RowRevision> for BlockRowInfo {
+    fn from(rev: &RowRevision) -> Self {
         Self {
-            row_id: row.id.clone(),
-            block_id: row.block_id.clone(),
-            height: row.height,
+            block_id: rev.block_id.clone(),
+            row_id: rev.id.clone(),
+            height: rev.height,
         }
     }
 }
 
-impl std::convert::From<&Arc<RowRevision>> for RowOrder {
-    fn from(row: &Arc<RowRevision>) -> Self {
+impl std::convert::From<&Arc<RowRevision>> for BlockRowInfo {
+    fn from(rev: &Arc<RowRevision>) -> Self {
         Self {
-            row_id: row.id.clone(),
-            block_id: row.block_id.clone(),
-            height: row.height,
+            block_id: rev.block_id.clone(),
+            row_id: rev.id.clone(),
+            height: rev.height,
         }
     }
 }
@@ -95,7 +106,7 @@ impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct IndexRowOrder {
     #[pb(index = 1)]
-    pub row_order: RowOrder,
+    pub row_info: BlockRowInfo,
 
     #[pb(index = 2, one_of)]
     pub index: Option<i32>,
@@ -104,7 +115,7 @@ pub struct IndexRowOrder {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct UpdatedRowOrder {
     #[pb(index = 1)]
-    pub row_order: RowOrder,
+    pub row_info: BlockRowInfo,
 
     #[pb(index = 2)]
     pub row: Row,
@@ -113,29 +124,23 @@ pub struct UpdatedRowOrder {
 impl UpdatedRowOrder {
     pub fn new(row_rev: &RowRevision, row: Row) -> Self {
         Self {
-            row_order: RowOrder::from(row_rev),
+            row_info: BlockRowInfo::from(row_rev),
             row,
         }
     }
 }
 
-impl std::convert::From<RowOrder> for IndexRowOrder {
-    fn from(row_order: RowOrder) -> Self {
-        Self { row_order, index: None }
+impl std::convert::From<BlockRowInfo> for IndexRowOrder {
+    fn from(row_info: BlockRowInfo) -> Self {
+        Self { row_info, index: None }
     }
 }
 
 impl std::convert::From<&RowRevision> for IndexRowOrder {
     fn from(row: &RowRevision) -> Self {
-        let row_order = RowOrder::from(row);
+        let row_order = BlockRowInfo::from(row);
         Self::from(row_order)
     }
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct GridBlockNotification {
-    #[pb(index = 1)]
-    hide_rows: Vec<String>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -147,7 +152,7 @@ pub struct GridRowsChangeset {
     pub inserted_rows: Vec<IndexRowOrder>,
 
     #[pb(index = 3)]
-    pub deleted_rows: Vec<RowOrder>,
+    pub deleted_rows: Vec<GridRowId>,
 
     #[pb(index = 4)]
     pub updated_rows: Vec<UpdatedRowOrder>,
@@ -162,7 +167,7 @@ impl GridRowsChangeset {
         }
     }
 
-    pub fn delete(block_id: &str, deleted_rows: Vec<RowOrder>) -> Self {
+    pub fn delete(block_id: &str, deleted_rows: Vec<GridRowId>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows: vec![],

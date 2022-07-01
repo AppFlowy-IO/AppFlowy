@@ -14,6 +14,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
+    #[allow(dead_code)]
     grid_id: String,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
@@ -50,15 +51,20 @@ impl GridFilterService {
             .map(|field_rev| (field_rev.id.clone(), field_rev))
             .collect::<HashMap<String, Arc<FieldRevision>>>();
 
-        let mut changes = vec![];
+        let mut show_rows = vec![];
+        let mut hide_rows = vec![];
         for block in task_context.blocks {
             block.row_revs.iter().for_each(|row_rev| {
-                if let Some(change) = filter_row(row_rev, &self.filter_cache, &self.filter_result_cache, &field_revs) {
-                    changes.push(change);
+                let result = filter_row(row_rev, &self.filter_cache, &self.filter_result_cache, &field_revs);
+
+                if result.is_row_hidden() {
+                    hide_rows.push(result.row_id);
+                } else {
+                    show_rows.push(result.row_id);
                 }
             });
         }
-        self.notify(changes).await;
+        self.notify(hide_rows, show_rows).await;
         Ok(())
     }
 
@@ -77,12 +83,9 @@ impl GridFilterService {
             self.filter_cache.write().await.remove(filter_id);
         }
 
-        match self.block_manager.get_block_snapshots(None).await {
-            Ok(blocks) => {
-                let task = self.gen_task(blocks).await;
-                let _ = self.scheduler.register_task(task).await;
-            }
-            Err(_) => {}
+        if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
+            let task = self.gen_task(blocks).await;
+            let _ = self.scheduler.register_task(task).await;
         }
     }
 
@@ -91,19 +94,17 @@ impl GridFilterService {
         let handler_id = self.grid_pad.read().await.grid_id();
 
         let context = FilterTaskContext { blocks };
-        let task = Task {
+        Task {
             handler_id,
             id: task_id,
             content: TaskContent::Filter(context),
-        };
-
-        task
+        }
     }
 
-    async fn notify(&self, _changes: Vec<FilterResult>) {
+    async fn notify(&self, _hide_rows: Vec<String>, _show_rows: Vec<String>) {
         // let notification = GridNotification {};
-        // send_dart_notification(grid_id, GridNotification::DidUpdateGrid)
-        //     .payload(updated_field)
+        // send_dart_notification(grid_id, GridNotification::DidUpdateGridBlock)
+        //     .payload(notification)
         //     .send();
     }
 }
@@ -113,12 +114,12 @@ fn filter_row(
     _filter_cache: &Arc<RwLock<FilterCache>>,
     _filter_result_cache: &Arc<RwLock<FilterResultCache>>,
     _field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
-) -> Option<FilterResult> {
-    let _filter_result = FilterResult::new(row_rev);
+) -> FilterResult {
+    let filter_result = FilterResult::new(row_rev);
     row_rev.cells.iter().for_each(|(_k, cell_rev)| {
         let _cell_rev: &CellRevision = cell_rev;
     });
-    todo!()
+    filter_result
 }
 
 pub struct GridFilterChangeset {
@@ -152,10 +153,12 @@ impl std::convert::From<&GridSettingChangesetParams> for GridFilterChangeset {
 
 #[derive(Default)]
 struct FilterResultCache {
+    #[allow(dead_code)]
     rows: HashMap<String, FilterResult>,
 }
 
 impl FilterResultCache {
+    #[allow(dead_code)]
     fn insert(&mut self, row_id: &str, result: FilterResult) {
         self.rows.insert(row_id.to_owned(), result);
     }
@@ -164,6 +167,7 @@ impl FilterResultCache {
 #[derive(Default)]
 struct FilterResult {
     row_id: String,
+    #[allow(dead_code)]
     cell_by_field_id: HashMap<String, bool>,
 }
 
@@ -175,8 +179,13 @@ impl FilterResult {
         }
     }
 
+    #[allow(dead_code)]
     fn update_cell(&mut self, cell_id: &str, exist: bool) {
         self.cell_by_field_id.insert(cell_id.to_owned(), exist);
+    }
+
+    fn is_row_hidden(&self) -> bool {
+        todo!()
     }
 }
 

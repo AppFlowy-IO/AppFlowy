@@ -1,4 +1,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
 use bytes::Bytes;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
@@ -96,7 +99,7 @@ pub struct GridEditorTest {
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
 
-    pub row_order_by_row_id: HashMap<String, RowOrder>,
+    pub row_order_by_row_id: HashMap<String, BlockRowInfo>,
 }
 
 impl GridEditorTest {
@@ -200,14 +203,14 @@ impl GridEditorTest {
             }
             EditorScript::CreateEmptyRow => {
                 let row_order = self.editor.create_row(None).await.unwrap();
-                self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
+                self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
                 for row_order in row_orders {
-                    self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
+                    self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
@@ -217,7 +220,7 @@ impl GridEditorTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<RowOrder>>();
+                    .collect::<Vec<BlockRowInfo>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;

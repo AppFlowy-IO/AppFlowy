@@ -17,7 +17,11 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   RowBloc({
     required GridRow rowData,
     required GridRowCache rowCache,
-  })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
+  })  : _rowService = RowService(
+          gridId: rowData.gridId,
+          blockId: rowData.blockId,
+          rowId: rowData.rowId,
+        ),
         _rowCache = rowCache,
         super(RowState.initial(rowData, rowCache.loadGridCells(rowData.rowId))) {
     on<RowEvent>(
