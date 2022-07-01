@@ -1,24 +1,25 @@
+use crate::entities::{
+    FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter, GridTextFilter,
+};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::row::GridBlockSnapshot;
 use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{
-    FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter,
-    GridSettingChangesetParams, GridTextFilter,
-};
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::{CellRevision, FieldId, FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
+use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
+    grid_id: String,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     block_manager: Arc<GridBlockManager>,
     filter_cache: Arc<RwLock<FilterCache>>,
-    filter_result: Arc<RwLock<GridFilterResult>>,
+    filter_result_cache: Arc<RwLock<FilterResultCache>>,
 }
 impl GridFilterService {
     pub async fn new<S: GridServiceTaskScheduler>(
@@ -26,26 +27,38 @@ impl GridFilterService {
         block_manager: Arc<GridBlockManager>,
         scheduler: S,
     ) -> Self {
+        let grid_id = grid_pad.read().await.grid_id();
         let filter_cache = Arc::new(RwLock::new(FilterCache::from_grid_pad(&grid_pad).await));
-        let filter_result = Arc::new(RwLock::new(GridFilterResult::default()));
+        let filter_result_cache = Arc::new(RwLock::new(FilterResultCache::default()));
         Self {
+            grid_id,
             grid_pad,
             block_manager,
             scheduler: Arc::new(scheduler),
             filter_cache,
-            filter_result,
+            filter_result_cache,
         }
     }
 
     pub async fn process(&self, task_context: FilterTaskContext) -> FlowyResult<()> {
-        let mut filter_result = self.filter_result.write().await;
-        for block in task_context.blocks {
-            for row_rev in block.row_revs {
-                let row_filter_result = RowFilterResult::new(&row_rev);
+        let field_revs = self
+            .grid_pad
+            .read()
+            .await
+            .get_field_revs(None)?
+            .into_iter()
+            .map(|field_rev| (field_rev.id.clone(), field_rev))
+            .collect::<HashMap<String, Arc<FieldRevision>>>();
 
-                filter_result.insert(&row_rev.id, row_filter_result);
-            }
+        let mut changes = vec![];
+        for block in task_context.blocks {
+            block.row_revs.iter().for_each(|row_rev| {
+                if let Some(change) = filter_row(row_rev, &self.filter_cache, &self.filter_result_cache, &field_revs) {
+                    changes.push(change);
+                }
+            });
         }
+        self.notify(changes).await;
         Ok(())
     }
 
@@ -86,7 +99,28 @@ impl GridFilterService {
 
         task
     }
+
+    async fn notify(&self, _changes: Vec<FilterResult>) {
+        // let notification = GridNotification {};
+        // send_dart_notification(grid_id, GridNotification::DidUpdateGrid)
+        //     .payload(updated_field)
+        //     .send();
+    }
 }
+
+fn filter_row(
+    row_rev: &Arc<RowRevision>,
+    _filter_cache: &Arc<RwLock<FilterCache>>,
+    _filter_result_cache: &Arc<RwLock<FilterResultCache>>,
+    _field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
+) -> Option<FilterResult> {
+    let _filter_result = FilterResult::new(row_rev);
+    row_rev.cells.iter().for_each(|(_k, cell_rev)| {
+        let _cell_rev: &CellRevision = cell_rev;
+    });
+    todo!()
+}
+
 pub struct GridFilterChangeset {
     insert_filter: Option<FilterId>,
     delete_filter: Option<FilterId>,
@@ -102,12 +136,12 @@ impl std::convert::From<&GridSettingChangesetParams> for GridFilterChangeset {
     fn from(params: &GridSettingChangesetParams) -> Self {
         let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterId {
             field_id: insert_filter_params.field_id.clone(),
-            field_type: insert_filter_params.field_type.clone(),
+            field_type: insert_filter_params.field_type_rev.into(),
         });
 
         let delete_filter = params.delete_filter.as_ref().map(|delete_filter_params| FilterId {
             field_id: delete_filter_params.filter_id.clone(),
-            field_type: delete_filter_params.field_type.clone(),
+            field_type: delete_filter_params.field_type_rev.into(),
         });
         GridFilterChangeset {
             insert_filter,
@@ -117,24 +151,26 @@ impl std::convert::From<&GridSettingChangesetParams> for GridFilterChangeset {
 }
 
 #[derive(Default)]
-struct GridFilterResult {
-    rows: HashMap<String, RowFilterResult>,
+struct FilterResultCache {
+    rows: HashMap<String, FilterResult>,
 }
 
-impl GridFilterResult {
-    fn insert(&mut self, row_id: &str, result: RowFilterResult) {
+impl FilterResultCache {
+    fn insert(&mut self, row_id: &str, result: FilterResult) {
         self.rows.insert(row_id.to_owned(), result);
     }
 }
 
 #[derive(Default)]
-struct RowFilterResult {
+struct FilterResult {
+    row_id: String,
     cell_by_field_id: HashMap<String, bool>,
 }
 
-impl RowFilterResult {
+impl FilterResult {
     fn new(row_rev: &RowRevision) -> Self {
         Self {
+            row_id: row_rev.id.clone(),
             cell_by_field_id: row_rev.cells.iter().map(|(k, _)| (k.clone(), true)).collect(),
         }
     }
@@ -201,7 +237,8 @@ async fn reload_filter_cache(
             None => {}
             Some((_, field_rev)) => {
                 let filter_id = FilterId::from(field_rev);
-                match &field_rev.field_type {
+                let field_type: FieldType = field_rev.field_type_rev.into();
+                match &field_type {
                     FieldType::RichText => {
                         let _ = cache.text_filter.insert(filter_id, GridTextFilter::from(filter_rev));
                     }
@@ -241,7 +278,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterId {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
-            field_type: rev.field_type.clone(),
+            field_type: rev.field_type_rev.into(),
         }
     }
 }

@@ -1,13 +1,12 @@
+use crate::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
-use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision, GridLayoutRevision,
-    GridRevision, GridSettingRevision, GridSortRevision,
+    FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision,
+    GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -129,15 +128,17 @@ impl GridRevisionPad {
         )
     }
 
-    pub fn switch_to_field<B>(
+    pub fn switch_to_field<B, T>(
         &mut self,
         field_id: &str,
-        field_type: FieldType,
+        field_type: T,
         type_option_json_builder: B,
     ) -> CollaborateResult<Option<GridChangeset>>
     where
-        B: FnOnce(&FieldType) -> String,
+        B: FnOnce(&FieldTypeRevision) -> String,
+        T: Into<FieldTypeRevision>,
     {
+        let field_type = field_type.into();
         self.modify_grid(|grid_meta| {
             //
             match grid_meta.fields.iter_mut().find(|field_rev| field_rev.id == field_id) {
@@ -147,12 +148,12 @@ impl GridRevisionPad {
                 }
                 Some(field_rev) => {
                     let mut_field_rev = Arc::make_mut(field_rev);
-                    if mut_field_rev.get_type_option_str(&field_type).is_none() {
+                    if mut_field_rev.get_type_option_str(field_type).is_none() {
                         let type_option_json = type_option_json_builder(&field_type);
                         mut_field_rev.insert_type_option_str(&field_type, type_option_json);
                     }
 
-                    mut_field_rev.field_type = field_type;
+                    mut_field_rev.field_type_rev = field_type;
                     Ok(Some(()))
                 }
             }
@@ -178,7 +179,7 @@ impl GridRevisionPad {
             }
 
             if let Some(field_type) = changeset.field_type {
-                field.field_type = field_type;
+                field.field_type_rev = field_type;
                 is_changed = Some(())
             }
 
@@ -200,7 +201,7 @@ impl GridRevisionPad {
             if let Some(type_option_data) = changeset.type_option_data {
                 match deserializer.deserialize(type_option_data) {
                     Ok(json_str) => {
-                        let field_type = field.field_type.clone();
+                        let field_type = field.field_type_rev;
                         field.insert_type_option_str(&field_type, json_str);
                         is_changed = Some(())
                     }
@@ -260,14 +261,10 @@ impl GridRevisionPad {
         self.grid_rev.fields.iter().any(|field| field.id == field_id)
     }
 
-    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
-        self.grid_rev.fields.iter().map(FieldOrder::from).collect()
-    }
-
-    pub fn get_field_revs(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {
-        match field_orders {
+    pub fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {
+        match field_ids {
             None => Ok(self.grid_rev.fields.clone()),
-            Some(field_orders) => {
+            Some(field_ids) => {
                 let field_by_field_id = self
                     .grid_rev
                     .fields
@@ -275,11 +272,11 @@ impl GridRevisionPad {
                     .map(|field| (&field.id, field))
                     .collect::<HashMap<&String, &Arc<FieldRevision>>>();
 
-                let fields = field_orders
+                let fields = field_ids
                     .iter()
-                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                    .flat_map(|field_id| match field_by_field_id.get(&field_id) {
                         None => {
-                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
+                            tracing::error!("Can't find the field with id: {}", field_id);
                             None
                         }
                         Some(field) => Some((*field).clone()),
@@ -364,7 +361,7 @@ impl GridRevisionPad {
                 if let Some(mut t_filter_revs) =
                     self.grid_rev
                         .setting
-                        .get_filters(layout_ty, &field_rev.id, &field_rev.field_type)
+                        .get_filters(layout_ty, &field_rev.id, &field_rev.field_type_rev)
                 {
                     filter_revs.append(&mut t_filter_revs);
                 }
@@ -380,7 +377,7 @@ impl GridRevisionPad {
     ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
-            let layout_rev: GridLayoutRevision = changeset.layout_type.into();
+            let layout_rev = changeset.layout_type;
 
             if let Some(params) = changeset.insert_filter {
                 let filter_rev = GridFilterRevision {
@@ -392,14 +389,14 @@ impl GridRevisionPad {
 
                 grid_rev
                     .setting
-                    .insert_filter(&layout_rev, &params.field_id, &params.field_type, filter_rev);
+                    .insert_filter(&layout_rev, &params.field_id, &params.field_type_rev, filter_rev);
 
                 is_changed = Some(())
             }
             if let Some(params) = changeset.delete_filter {
                 match grid_rev
                     .setting
-                    .get_mut_filters(&layout_rev, &params.filter_id, &params.field_type)
+                    .get_mut_filters(&layout_rev, &params.filter_id, &params.field_type_rev)
                 {
                     Some(filters) => {
                         filters.retain(|filter| filter.id != params.filter_id);

@@ -1,8 +1,9 @@
 use crate::entities::FieldType;
-use crate::parser::NotEmptyStr;
-use crate::revision::{FieldRevision, GridFilterRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error_code::ErrorCode;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use flowy_grid_data_model::revision::{FieldRevision, GridFilterRevision};
+use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams};
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -47,11 +48,6 @@ pub struct DeleteFilterPayload {
     pub field_type: FieldType,
 }
 
-pub struct DeleteFilterParams {
-    pub filter_id: String,
-    pub field_type: FieldType,
-}
-
 impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
     type Error = ErrorCode;
 
@@ -61,7 +57,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
             .0;
         Ok(DeleteFilterParams {
             filter_id,
-            field_type: self.field_type,
+            field_type_rev: self.field_type.into(),
         })
     }
 }
@@ -86,18 +82,11 @@ impl CreateGridFilterPayload {
     pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
-            field_type: field_rev.field_type.clone(),
+            field_type: field_rev.field_type_rev.into(),
             condition: condition.into(),
             content,
         }
     }
-}
-
-pub struct CreateGridFilterParams {
-    pub field_id: String,
-    pub field_type: FieldType,
-    pub condition: u8,
-    pub content: Option<String>,
 }
 
 impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
@@ -128,7 +117,7 @@ impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
 
         Ok(CreateGridFilterParams {
             field_id,
-            field_type: self.field_type,
+            field_type_rev: self.field_type.into(),
             condition,
             content: self.content,
         })

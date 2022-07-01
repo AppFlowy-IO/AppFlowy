@@ -7,7 +7,7 @@ use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::entities::{
     revision::{md5, RepeatedRevision, Revision},
-    text_block_info::{TextBlockDelta, TextBlockId},
+    text_block::{TextBlockDelta, TextBlockId},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;

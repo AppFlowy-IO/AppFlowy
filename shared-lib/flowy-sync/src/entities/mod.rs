@@ -1,5 +1,6 @@
-pub mod folder_info;
+pub mod folder;
+pub mod grid;
 pub mod parser;
 pub mod revision;
-pub mod text_block_info;
+pub mod text_block;
 pub mod ws_data;

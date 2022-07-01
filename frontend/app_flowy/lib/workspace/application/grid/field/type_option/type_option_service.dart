@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';

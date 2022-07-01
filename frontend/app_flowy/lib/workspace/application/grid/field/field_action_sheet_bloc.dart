@@ -1,5 +1,5 @@
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';

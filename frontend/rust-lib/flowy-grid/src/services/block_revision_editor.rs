@@ -1,6 +1,5 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::RowOrder;
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
@@ -11,6 +10,7 @@ use lib_ot::core::PlainTextAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use crate::entities::RowOrder;
 
 pub struct GridBlockRevisionEditor {
     user_id: String,

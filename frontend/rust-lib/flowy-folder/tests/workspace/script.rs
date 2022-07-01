@@ -17,7 +17,7 @@ use flowy_folder_data_model::entities::{
 
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_sync::entities::text_block_info::TextBlockInfo;
+use flowy_sync::entities::text_block::TextBlockInfo;
 use flowy_test::{event_builder::*, FlowySDKTest};
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;

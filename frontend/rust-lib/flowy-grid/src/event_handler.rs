@@ -3,8 +3,8 @@ use crate::manager::GridManager;
 use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::*;
 use flowy_grid_data_model::revision::FieldRevision;
+use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -59,7 +59,12 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedField, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_orders = params.field_orders.items;
+    let field_orders = params
+        .field_orders
+        .items
+        .into_iter()
+        .map(|field_order| field_order.field_id)
+        .collect();
     let field_revs = editor.get_field_revs(Some(field_orders)).await?;
     let repeated_field: RepeatedField = field_revs.into_iter().map(Field::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
@@ -160,7 +165,8 @@ pub(crate) async fn get_field_type_option_data_handler(
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
-            let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
+            let field_type = field_rev.field_type_rev.into();
+            let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
             let data = FieldTypeOptionData {
                 grid_id: params.grid_id,
                 field: field_rev.into(),
@@ -180,7 +186,8 @@ pub(crate) async fn create_field_type_option_data_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_rev = editor.create_next_field_rev(&params.field_type).await?;
-    let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
+    let field_type: FieldType = field_rev.field_type_rev.into();
+    let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
     data_result(FieldTypeOptionData {
         grid_id: params.grid_id,
@@ -205,7 +212,8 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
     let s = field_rev
         .get_type_option_str(field_type)
         .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
-    let builder = type_option_builder_from_json_str(&s, &field_rev.field_type);
+    let field_type: FieldType = field_rev.field_type_rev.into();
+    let builder = type_option_builder_from_json_str(&s, &field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
     Ok(type_option_data)

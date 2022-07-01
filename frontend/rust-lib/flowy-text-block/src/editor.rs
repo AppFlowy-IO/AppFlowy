@@ -9,7 +9,7 @@ use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
-    entities::{revision::Revision, text_block_info::TextBlockInfo},
+    entities::{revision::Revision, text_block::TextBlockInfo},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };

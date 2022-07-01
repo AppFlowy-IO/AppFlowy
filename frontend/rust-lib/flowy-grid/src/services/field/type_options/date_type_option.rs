@@ -1,3 +1,4 @@
+use crate::entities::{CellChangeset, FieldType, GridDateFilter};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -7,7 +8,6 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellChangeset, FieldType, GridDateFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
@@ -181,7 +181,7 @@ impl DateTypeOptionBuilder {
 }
 impl TypeOptionBuilder for DateTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::DateTime
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -358,11 +358,11 @@ impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{DateCellContentChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::FieldType;
-    use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
+    use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
     #[test]
@@ -534,7 +534,7 @@ mod tests {
     fn date_type_option_apply_changeset_error_test() {
         let mut type_option = DateTypeOption::new();
         type_option.include_time = true;
-        let field_rev = FieldBuilder::from_field_type(&type_option.field_type()).build();
+        let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         let date_timestamp = "1653609600".to_owned();
 
         assert_changeset_result(
@@ -543,7 +543,7 @@ mod tests {
                 date: Some(date_timestamp.clone()),
                 time: Some("1:".to_owned()),
             },
-            &type_option.field_type(),
+            &FieldType::DateTime,
             &field_rev,
             "May 27,2022 01:00",
         );
@@ -554,7 +554,7 @@ mod tests {
                 date: Some(date_timestamp),
                 time: Some("1:00".to_owned()),
             },
-            &type_option.field_type(),
+            &FieldType::DateTime,
             &field_rev,
             "May 27,2022 01:00",
         );
@@ -565,7 +565,7 @@ mod tests {
     fn date_type_option_twelve_hours_to_twenty_four_hours() {
         let mut type_option = DateTypeOption::new();
         type_option.include_time = true;
-        let field_rev = FieldBuilder::from_field_type(&type_option.field_type()).build();
+        let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         let date_timestamp = "1653609600".to_owned();
 
         assert_changeset_result(
@@ -574,7 +574,7 @@ mod tests {
                 date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
-            &type_option.field_type(),
+            &FieldType::DateTime,
             &field_rev,
             "May 27,2022 01:00",
         );

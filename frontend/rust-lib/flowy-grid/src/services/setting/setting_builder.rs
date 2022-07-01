@@ -1,6 +1,5 @@
-use flowy_grid_data_model::entities::{
-    CreateGridFilterParams, DeleteFilterParams, GridLayoutType, GridSettingChangesetParams,
-};
+use crate::entities::GridLayoutType;
+use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 
 pub struct GridSettingChangesetBuilder {
     params: GridSettingChangesetParams,
@@ -10,7 +9,7 @@ impl GridSettingChangesetBuilder {
     pub fn new(grid_id: &str, layout_type: &GridLayoutType) -> Self {
         let params = GridSettingChangesetParams {
             grid_id: grid_id.to_string(),
-            layout_type: layout_type.clone(),
+            layout_type: layout_type.clone().into(),
             insert_filter: None,
             delete_filter: None,
             insert_group: None,

@@ -1,4 +1,4 @@
-use crate::entities::folder_info::FolderDelta;
+use crate::entities::folder::FolderDelta;
 use crate::util::make_delta_from_revisions;
 use crate::{
     client_folder::{default_folder_delta, FolderPad},

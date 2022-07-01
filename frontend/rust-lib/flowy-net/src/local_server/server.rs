@@ -6,7 +6,7 @@ use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
     client_document::default::initial_quill_delta_string,
     entities::{
-        text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
+        text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,

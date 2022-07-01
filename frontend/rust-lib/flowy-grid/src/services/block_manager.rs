@@ -1,13 +1,11 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
+use crate::entities::{CellChangeset, GridRowsChangeset, IndexRowOrder, Row, RowOrder, UpdatedRowOrder};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{block_from_row_orders, GridBlockSnapshot};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{
-    CellChangeset, GridRowsChangeset, IndexRowOrder, Row, RowOrder, UpdatedRowOrder,
-};
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };

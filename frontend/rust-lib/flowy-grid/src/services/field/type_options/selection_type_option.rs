@@ -1,3 +1,4 @@
+use crate::entities::{CellChangeset, FieldType, GridSelectOptionFilter};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::type_options::util::get_cell_data;
@@ -6,7 +7,6 @@ use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellD
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{CellChangeset, FieldType, GridSelectOptionFilter};
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use nanoid::nanoid;
@@ -49,7 +49,8 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
-    match &field_rev.field_type {
+    let field_type: FieldType = field_rev.field_type_rev.into();
+    match &field_type {
         FieldType::SingleSelect => {
             let type_option = SingleSelectTypeOption::from(field_rev);
             Ok(Box::new(type_option))
@@ -159,7 +160,7 @@ impl SingleSelectTypeOptionBuilder {
 
 impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::SingleSelect
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -277,7 +278,7 @@ impl MultiSelectTypeOptionBuilder {
 
 impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::MultiSelect
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -510,6 +511,7 @@ fn make_select_context_from(cell_rev: &Option<CellRevision>, options: &[SelectOp
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{
         MultiSelectTypeOption, MultiSelectTypeOptionBuilder, SelectOption, SelectOptionCellContentChangeset,
@@ -614,10 +616,11 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOption>,
     ) {
+        let field_type: FieldType = field_rev.field_type_rev.into();
         assert_eq!(
             expected,
             type_option
-                .decode_cell_data(cell_data, &field_rev.field_type, field_rev)
+                .decode_cell_data(cell_data, &field_type, field_rev)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -631,10 +634,11 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOption>,
     ) {
+        let field_type: FieldType = field_rev.field_type_rev.into();
         assert_eq!(
             expected,
             type_option
-                .decode_cell_data(cell_data, &field_rev.field_type, field_rev)
+                .decode_cell_data(cell_data, &field_type, field_rev)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()

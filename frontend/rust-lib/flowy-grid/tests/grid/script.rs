@@ -4,7 +4,7 @@ use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowRevisionPayload;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use flowy_grid_data_model::entities::*;
+use flowy_grid::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
@@ -15,6 +15,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
 use tokio::time::sleep;
+use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams};
 
 pub enum EditorScript {
     CreateField {
@@ -106,7 +107,7 @@ impl GridEditorTest {
         let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
-        let field_revs = editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+        let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
         let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(row_revs.len(), 3);
@@ -148,12 +149,12 @@ impl GridEditorTest {
                 }
 
                 self.editor.insert_field(params).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
             }
             EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
             }
             EditorScript::DeleteField { field_rev } => {
                 if self.editor.contain_field(&field_rev.id).await {
@@ -161,17 +162,17 @@ impl GridEditorTest {
                 }
 
                 self.editor.delete_field(&field_rev.id).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
             }
             EditorScript::AssertFieldCount(count) => {
                 assert_eq!(
-                    self.editor.get_field_revs::<FieldOrder>(None).await.unwrap().len(),
+                    self.editor.get_field_revs(None).await.unwrap().len(),
                     count
                 );
             }
             EditorScript::AssertFieldEqual { field_index, field_rev } => {
-                let field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                let field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(field_revs[field_index].as_ref(), &field_rev);
             }
             EditorScript::CreateBlock { block } => {
@@ -269,7 +270,7 @@ impl GridEditorTest {
             EditorScript::DeleteGridTableFilter { filter_id ,field_type} => {
                 let layout_type = GridLayoutType::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(DeleteFilterParams { filter_id, field_type })
+                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev: field_type.into() })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }
@@ -304,7 +305,10 @@ impl GridEditorTest {
     pub fn text_field(&self) -> &FieldRevision {
         self.field_revs
             .iter()
-            .filter(|field_rev| field_rev.field_type == FieldType::RichText)
+            .filter(|field_rev| {
+                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                t_field_type == FieldType::RichText
+            })
             .collect::<Vec<_>>()
             .pop()
             .unwrap()

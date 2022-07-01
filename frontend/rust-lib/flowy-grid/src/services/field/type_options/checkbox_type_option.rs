@@ -1,10 +1,10 @@
+use crate::entities::{FieldType, GridCheckboxFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{FieldType, GridCheckboxFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -22,7 +22,7 @@ impl CheckboxTypeOptionBuilder {
 
 impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::Checkbox
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -99,7 +99,7 @@ mod tests {
     use crate::services::field::FieldBuilder;
     use crate::services::row::{apply_cell_data_changeset, decode_cell_data};
 
-    use flowy_grid_data_model::entities::FieldType;
+    use crate::entities::FieldType;
 
     #[test]
     fn checkout_box_description_test() {

@@ -57,36 +57,3 @@ fn check_rows(fields: &[FieldRevision], rows: &[RowRevision]) -> CollaborateResu
     }
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
-    use flowy_grid_data_model::entities::FieldType;
-    use flowy_grid_data_model::revision::{FieldRevision, GridBlockRevision, GridRevision};
-    use std::sync::Arc;
-
-    #[test]
-    fn create_default_grid_test() {
-        let grid_id = "1".to_owned();
-        let build_context = GridBuilder::default()
-            .add_field(FieldRevision::new("Name", "", FieldType::RichText, true))
-            .add_field(FieldRevision::new("Tags", "", FieldType::SingleSelect, false))
-            .add_empty_row()
-            .add_empty_row()
-            .add_empty_row()
-            .build();
-
-        let grid_rev = GridRevision {
-            grid_id,
-            fields: build_context.field_revs.into_iter().map(Arc::new).collect(),
-            blocks: build_context.blocks.into_iter().map(Arc::new).collect(),
-            setting: Default::default(),
-        };
-
-        let grid_meta_delta = make_grid_delta(&grid_rev);
-        let _: GridRevision = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
-
-        let grid_block_meta_delta = make_block_meta_delta(build_context.blocks_meta_data.first().unwrap());
-        let _: GridBlockRevision = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
-    }
-}

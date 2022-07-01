@@ -1,10 +1,10 @@
+use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{try_decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::{FieldType, GridTextFilter};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTy
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::RichText
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -71,10 +71,10 @@ impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::FieldType;
 
     #[test]
     fn text_description_test() {

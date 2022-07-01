@@ -1,4 +1,4 @@
-use crate::entities::FieldType;
+use crate::revision::FieldTypeRevision;
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
@@ -44,7 +44,7 @@ impl GridSettingRevision {
         &mut self,
         layout: &GridLayoutRevision,
         field_id: &str,
-        field_type: &FieldType,
+        field_type: &FieldTypeRevision,
     ) -> Option<&mut Vec<Arc<GridFilterRevision>>> {
         self.filters
             .get_mut(layout)
@@ -56,7 +56,7 @@ impl GridSettingRevision {
         &self,
         layout: &GridLayoutRevision,
         field_id: &str,
-        field_type: &FieldType,
+        field_type: &FieldTypeRevision,
     ) -> Option<Vec<Arc<GridFilterRevision>>> {
         self.filters
             .get(layout)
@@ -69,7 +69,7 @@ impl GridSettingRevision {
         &mut self,
         layout: &GridLayoutRevision,
         field_id: &str,
-        field_type: &FieldType,
+        field_type: &FieldTypeRevision,
         filter_rev: GridFilterRevision,
     ) {
         let filter_rev_map_by_field_id = self.filters.entry(layout.clone()).or_insert_with(IndexMap::new);
@@ -78,7 +78,7 @@ impl GridSettingRevision {
             .or_insert_with(GridFilterRevisionMap::new);
 
         filter_rev_map
-            .entry(field_type.clone())
+            .entry(field_type.to_owned())
             .or_insert_with(Vec::new)
             .push(Arc::new(filter_rev))
     }
@@ -88,7 +88,7 @@ impl GridSettingRevision {
 #[serde(transparent)]
 pub struct GridFilterRevisionMap {
     #[serde(with = "indexmap::serde_seq")]
-    pub filter_by_field_type: IndexMap<FieldType, Vec<Arc<GridFilterRevision>>>,
+    pub filter_by_field_type: IndexMap<FieldTypeRevision, Vec<Arc<GridFilterRevision>>>,
 }
 
 impl GridFilterRevisionMap {
@@ -98,7 +98,7 @@ impl GridFilterRevisionMap {
 }
 
 impl std::ops::Deref for GridFilterRevisionMap {
-    type Target = IndexMap<FieldType, Vec<Arc<GridFilterRevision>>>;
+    type Target = IndexMap<FieldTypeRevision, Vec<Arc<GridFilterRevision>>>;
 
     fn deref(&self) -> &Self::Target {
         &self.filter_by_field_type

@@ -1,4 +1,4 @@
-use crate::{entities::folder_info::FolderDelta, errors::CollaborateError, synchronizer::RevisionSyncObject};
+use crate::{entities::folder::FolderDelta, errors::CollaborateError, synchronizer::RevisionSyncObject};
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
 
 pub struct ServerFolder {

@@ -29,3 +29,30 @@ impl TryInto<RowIdentifier> for RowIdentifierPayload {
         })
     }
 }
+
+#[derive(ProtoBuf, Default)]
+pub struct CreateRowPayload {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub start_row_id: Option<String>,
+}
+
+#[derive(Default)]
+pub struct CreateRowParams {
+    pub grid_id: String,
+    pub start_row_id: Option<String>,
+}
+
+impl TryInto<CreateRowParams> for CreateRowPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateRowParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        Ok(CreateRowParams {
+            grid_id: grid_id.0,
+            start_row_id: self.start_row_id,
+        })
+    }
+}

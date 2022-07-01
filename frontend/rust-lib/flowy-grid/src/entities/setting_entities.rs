@@ -1,12 +1,12 @@
 use crate::entities::{
-    CreateGridFilterParams, CreateGridFilterPayload, CreateGridGroupParams, CreateGridGroupPayload,
-    CreateGridSortParams, CreateGridSortPayload, DeleteFilterParams, DeleteFilterPayload, RepeatedGridFilter,
+    CreateGridFilterPayload, CreateGridGroupPayload, CreateGridSortPayload, DeleteFilterPayload, RepeatedGridFilter,
     RepeatedGridGroup, RepeatedGridSort,
 };
-use crate::parser::NotEmptyStr;
-use crate::revision::GridLayoutRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error_code::ErrorCode;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use flowy_grid_data_model::revision::GridLayoutRevision;
+use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
 
@@ -109,23 +109,6 @@ pub struct GridSettingChangesetPayload {
     pub delete_sort: Option<String>,
 }
 
-pub struct GridSettingChangesetParams {
-    pub grid_id: String,
-    pub layout_type: GridLayoutType,
-    pub insert_filter: Option<CreateGridFilterParams>,
-    pub delete_filter: Option<DeleteFilterParams>,
-    pub insert_group: Option<CreateGridGroupParams>,
-    pub delete_group: Option<String>,
-    pub insert_sort: Option<CreateGridSortParams>,
-    pub delete_sort: Option<String>,
-}
-
-impl GridSettingChangesetParams {
-    pub fn is_filter_changed(&self) -> bool {
-        self.insert_filter.is_some() || self.delete_filter.is_some()
-    }
-}
-
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
     type Error = ErrorCode;
 
@@ -166,7 +149,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
 
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
-            layout_type: self.layout_type,
+            layout_type: self.layout_type.into(),
             insert_filter,
             delete_filter,
             insert_group,
