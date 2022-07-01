@@ -126,7 +126,7 @@ pub(crate) async fn switch_to_field_handler(
     let field_rev = editor
         .get_field_rev(&params.field_id)
         .await
-        .unwrap_or(editor.next_field_rev(&params.field_type).await?);
+        .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
     let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
     let data = FieldTypeOptionData {
@@ -307,7 +307,8 @@ pub(crate) async fn update_select_option_handler(
     let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
 
     if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
-        let mut type_option = select_option_operation(&field_rev)?;
+        let mut_field_rev = Arc::make_mut(&mut field_rev);
+        let mut type_option = select_option_operation(mut_field_rev)?;
         let mut cell_content_changeset = None;
 
         if let Some(option) = changeset.insert_option {
@@ -324,7 +325,7 @@ pub(crate) async fn update_select_option_handler(
             type_option.delete_option(option);
         }
 
-        field_rev.insert_type_option_entry(&*type_option);
+        mut_field_rev.insert_type_option_entry(&*type_option);
         let _ = editor.replace_field(field_rev).await?;
 
         let changeset = CellChangeset {

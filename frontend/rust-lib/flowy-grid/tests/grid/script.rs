@@ -90,7 +90,7 @@ pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
     pub editor: Arc<GridRevisionEditor>,
-    pub field_revs: Vec<FieldRevision>,
+    pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
@@ -172,7 +172,7 @@ impl GridEditorTest {
             }
             EditorScript::AssertFieldEqual { field_index, field_rev } => {
                 let field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
-                assert_eq!(field_revs[field_index].clone(), field_rev);
+                assert_eq!(field_revs[field_index].as_ref(), &field_rev);
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();

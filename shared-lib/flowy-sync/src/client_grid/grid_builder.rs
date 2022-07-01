@@ -78,7 +78,7 @@ mod tests {
 
         let grid_rev = GridRevision {
             grid_id,
-            fields: build_context.field_revs,
+            fields: build_context.field_revs.into_iter().map(Arc::new).collect(),
             blocks: build_context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         };

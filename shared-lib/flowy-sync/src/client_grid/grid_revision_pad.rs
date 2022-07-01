@@ -31,7 +31,12 @@ impl GridRevisionPad {
         self.grid_rev.grid_id.clone()
     }
     pub async fn duplicate_grid_block_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
-        let fields = self.grid_rev.fields.to_vec();
+        let fields = self
+            .grid_rev
+            .fields
+            .iter()
+            .map(|field_rev| field_rev.as_ref().clone())
+            .collect();
 
         let blocks = self
             .grid_rev
@@ -84,7 +89,7 @@ impl GridRevisionPad {
                 None => None,
                 Some(start_field_id) => grid_meta.fields.iter().position(|field| field.id == start_field_id),
             };
-
+            let new_field_rev = Arc::new(new_field_rev);
             match insert_index {
                 None => grid_meta.fields.push(new_field_rev),
                 Some(index) => grid_meta.fields.insert(index, new_field_rev),
@@ -114,10 +119,10 @@ impl GridRevisionPad {
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
-                    let mut duplicate_field_rev = grid_meta.fields[index].clone();
+                    let mut duplicate_field_rev = grid_meta.fields[index].as_ref().clone();
                     duplicate_field_rev.id = duplicated_field_id.to_string();
                     duplicate_field_rev.name = format!("{} (copy)", duplicate_field_rev.name);
-                    grid_meta.fields.insert(index + 1, duplicate_field_rev);
+                    grid_meta.fields.insert(index + 1, Arc::new(duplicate_field_rev));
                     Ok(Some(()))
                 }
             },
@@ -141,12 +146,13 @@ impl GridRevisionPad {
                     Ok(None)
                 }
                 Some(field_rev) => {
-                    if field_rev.get_type_option_str(&field_type).is_none() {
+                    let mut_field_rev = Arc::make_mut(field_rev);
+                    if mut_field_rev.get_type_option_str(&field_type).is_none() {
                         let type_option_json = type_option_json_builder(&field_type);
-                        field_rev.insert_type_option_str(&field_type, type_option_json);
+                        mut_field_rev.insert_type_option_str(&field_type, type_option_json);
                     }
 
-                    field_rev.field_type = field_type;
+                    mut_field_rev.field_type = field_type;
                     Ok(Some(()))
                 }
             }
@@ -208,7 +214,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &FieldRevision)> {
+    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
         self.grid_rev
             .fields
             .iter()
@@ -216,7 +222,7 @@ impl GridRevisionPad {
             .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field_rev(&mut self, field_rev: FieldRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_rev(&mut self, field_rev: Arc<FieldRevision>) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_rev.id) {
                 None => Ok(None),
@@ -258,7 +264,7 @@ impl GridRevisionPad {
         self.grid_rev.fields.iter().map(FieldOrder::from).collect()
     }
 
-    pub fn get_field_revs(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<FieldRevision>> {
+    pub fn get_field_revs(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {
         match field_orders {
             None => Ok(self.grid_rev.fields.clone()),
             Some(field_orders) => {
@@ -267,7 +273,7 @@ impl GridRevisionPad {
                     .fields
                     .iter()
                     .map(|field| (&field.id, field))
-                    .collect::<HashMap<&String, &FieldRevision>>();
+                    .collect::<HashMap<&String, &Arc<FieldRevision>>>();
 
                 let fields = field_orders
                     .iter()
@@ -278,7 +284,7 @@ impl GridRevisionPad {
                         }
                         Some(field) => Some((*field).clone()),
                     })
-                    .collect::<Vec<FieldRevision>>();
+                    .collect::<Vec<Arc<FieldRevision>>>();
                 Ok(fields)
             }
         }
@@ -466,7 +472,7 @@ impl GridRevisionPad {
         self.delta.to_delta_bytes()
     }
 
-    pub fn fields(&self) -> &[FieldRevision] {
+    pub fn fields(&self) -> &[Arc<FieldRevision>] {
         &self.grid_rev.fields
     }
 
@@ -519,7 +525,10 @@ impl GridRevisionPad {
                     tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_rev.fields[index]),
+                Some(index) => {
+                    let mut_field_rev = Arc::make_mut(&mut grid_rev.fields[index]);
+                    f(mut_field_rev)
+                }
             },
         )
     }

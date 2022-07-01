@@ -63,6 +63,7 @@ impl<'a> GridRowTestBuilder<'a> {
             .iter()
             .find(|field_rev| &field_rev.field_type == field_type)
             .unwrap()
+            .as_ref()
             .clone()
     }
 

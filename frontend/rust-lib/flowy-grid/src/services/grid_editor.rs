@@ -172,7 +172,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn replace_field(&self, field_rev: FieldRevision) -> FlowyResult<()> {
+    pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev)?))
@@ -224,12 +224,12 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_field_rev(&self, field_id: &str) -> Option<FieldRevision> {
+    pub async fn get_field_rev(&self, field_id: &str) -> Option<Arc<FieldRevision>> {
         let field_rev = self.grid_pad.read().await.get_field_rev(field_id)?.1.clone();
         Some(field_rev)
     }
 
-    pub async fn get_field_revs<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldRevision>>
+    pub async fn get_field_revs<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<Arc<FieldRevision>>>
     where
         T: Into<FieldOrder>,
     {

@@ -157,7 +157,7 @@ struct FilterCache {
 impl FilterCache {
     async fn from_grid_pad(grid_pad: &Arc<RwLock<GridRevisionPad>>) -> Self {
         let mut this = Self::default();
-        reload_filter_cache(&mut this, None, grid_pad);
+        let _ = reload_filter_cache(&mut this, None, grid_pad).await;
         this
     }
 
@@ -237,8 +237,8 @@ struct FilterId {
     field_type: FieldType,
 }
 
-impl std::convert::From<&FieldRevision> for FilterId {
-    fn from(rev: &FieldRevision) -> Self {
+impl std::convert::From<&Arc<FieldRevision>> for FilterId {
+    fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
             field_type: rev.field_type.clone(),

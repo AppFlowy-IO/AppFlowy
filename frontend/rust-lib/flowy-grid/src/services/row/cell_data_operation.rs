@@ -125,11 +125,12 @@ pub fn apply_cell_filter(
 
 /// The changeset will be deserialized into specific data base on the FieldType.
 /// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
-pub fn apply_cell_data_changeset<T: Into<CellContentChangeset>>(
-    changeset: T,
+pub fn apply_cell_data_changeset<C: Into<CellContentChangeset>, T: AsRef<FieldRevision>>(
+    changeset: C,
     cell_rev: Option<CellRevision>,
-    field_rev: &FieldRevision,
+    field_rev: T,
 ) -> Result<String, FlowyError> {
+    let field_rev = field_rev.as_ref();
     let s = match field_rev.field_type {
         FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
         FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),

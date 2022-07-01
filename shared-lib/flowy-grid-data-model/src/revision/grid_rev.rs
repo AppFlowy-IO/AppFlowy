@@ -1,4 +1,4 @@
-use crate::entities::{CellChangeset, Field, FieldOrder, FieldType, RowOrder};
+use crate::entities::{CellChangeset, FieldType, RowOrder};
 use crate::revision::GridSettingRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
@@ -29,7 +29,7 @@ pub fn gen_field_id() -> String {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GridRevision {
     pub grid_id: String,
-    pub fields: Vec<FieldRevision>,
+    pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
     #[serde(default, skip)]
@@ -49,7 +49,7 @@ impl GridRevision {
     pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
-            fields: context.field_revs,
+            fields: context.field_revs.into_iter().map(Arc::new).collect(),
             blocks: context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         }
@@ -131,6 +131,12 @@ pub struct FieldRevision {
     pub is_primary: bool,
 }
 
+impl AsRef<FieldRevision> for FieldRevision {
+    fn as_ref(&self) -> &FieldRevision {
+        self
+    }
+}
+
 const DEFAULT_IS_PRIMARY: fn() -> bool = || false;
 
 impl FieldRevision {
@@ -168,29 +174,6 @@ impl FieldRevision {
 
     pub fn get_type_option_str(&self, field_type: &FieldType) -> Option<String> {
         self.type_options.get(&field_type.type_id()).map(|s| s.to_owned())
-    }
-}
-
-impl std::convert::From<FieldRevision> for Field {
-    fn from(field_rev: FieldRevision) -> Self {
-        Self {
-            id: field_rev.id,
-            name: field_rev.name,
-            desc: field_rev.desc,
-            field_type: field_rev.field_type,
-            frozen: field_rev.frozen,
-            visibility: field_rev.visibility,
-            width: field_rev.width,
-            is_primary: field_rev.is_primary,
-        }
-    }
-}
-
-impl std::convert::From<&FieldRevision> for FieldOrder {
-    fn from(field_rev: &FieldRevision) -> Self {
-        Self {
-            field_id: field_rev.id.clone(),
-        }
     }
 }
 

@@ -38,11 +38,11 @@ pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Ve
     row_revs.iter().map(RowOrder::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_row_from_row_rev(fields: &[FieldRevision], row_rev: Arc<RowRevision>) -> Option<Row> {
+pub(crate) fn make_row_from_row_rev(fields: &[Arc<FieldRevision>], row_rev: Arc<RowRevision>) -> Option<Row> {
     make_rows_from_row_revs(fields, &[row_rev]).pop()
 }
 
-pub(crate) fn make_rows_from_row_revs(_fields: &[FieldRevision], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
+pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
     // let field_rev_map = fields
     //     .iter()
     //     .map(|field_rev| (&field_rev.id, field_rev))

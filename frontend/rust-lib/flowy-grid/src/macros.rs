@@ -37,6 +37,15 @@ macro_rules! impl_type_option {
             }
         }
 
+        impl std::convert::From<&std::sync::Arc<FieldRevision>> for $target {
+            fn from(field_rev: &std::sync::Arc<FieldRevision>) -> $target {
+                match field_rev.get_type_option_entry::<$target>(&$field_type) {
+                    None => $target::default(),
+                    Some(target) => target,
+                }
+            }
+        }
+
         impl std::convert::From<$target> for String {
             fn from(type_option: $target) -> String {
                 type_option.json_str()

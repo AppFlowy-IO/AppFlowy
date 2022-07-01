@@ -3,6 +3,7 @@ use crate::revision::FieldRevision;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error_code::ErrorCode;
 use serde_repr::*;
+use std::sync::Arc;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -32,6 +33,27 @@ pub struct Field {
     pub is_primary: bool,
 }
 
+impl std::convert::From<FieldRevision> for Field {
+    fn from(field_rev: FieldRevision) -> Self {
+        Self {
+            id: field_rev.id,
+            name: field_rev.name,
+            desc: field_rev.desc,
+            field_type: field_rev.field_type,
+            frozen: field_rev.frozen,
+            visibility: field_rev.visibility,
+            width: field_rev.width,
+            is_primary: field_rev.is_primary,
+        }
+    }
+}
+
+impl std::convert::From<Arc<FieldRevision>> for Field {
+    fn from(field_rev: Arc<FieldRevision>) -> Self {
+        let field_rev = field_rev.as_ref().clone();
+        Field::from(field_rev)
+    }
+}
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldOrder {
     #[pb(index = 1)]
@@ -50,6 +72,13 @@ impl std::convert::From<String> for FieldOrder {
     }
 }
 
+impl std::convert::From<&Arc<FieldRevision>> for FieldOrder {
+    fn from(field_rev: &Arc<FieldRevision>) -> Self {
+        Self {
+            field_id: field_rev.id.clone(),
+        }
+    }
+}
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldChangeset {
     #[pb(index = 1)]
@@ -104,9 +133,9 @@ pub struct IndexField {
 }
 
 impl IndexField {
-    pub fn from_field_rev(field_rev: &FieldRevision, index: usize) -> Self {
+    pub fn from_field_rev(field_rev: &Arc<FieldRevision>, index: usize) -> Self {
         Self {
-            field: Field::from(field_rev.clone()),
+            field: Field::from(field_rev.as_ref().clone()),
             index: index as i32,
         }
     }
