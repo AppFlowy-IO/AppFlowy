@@ -1,6 +1,6 @@
 use flowy_grid::services::field::*;
 
-use flowy_grid_data_model::entities::*;
+use flowy_grid::entities::*;
 use flowy_grid_data_model::revision::*;
 
 pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
@@ -12,7 +12,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
     let cloned_field_rev = field_rev.clone();
 
     let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOption>(&field_rev.field_type)
+        .get_type_option_entry::<RichTextTypeOption, _>(field_rev.field_type_rev)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -21,7 +21,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,
-        field_type: field_rev.field_type,
+        field_type: field_rev.field_type_rev.into(),
         frozen: field_rev.frozen,
         visibility: field_rev.visibility,
         width: field_rev.width,
@@ -44,8 +44,9 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
 
     let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_rev = field_rev.clone();
+    let field_type: FieldType = field_rev.field_type_rev.into();
     let type_option_data = field_rev
-        .get_type_option_entry::<SingleSelectTypeOption>(&field_rev.field_type)
+        .get_type_option_entry::<SingleSelectTypeOption, _>(&field_type)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -54,7 +55,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,
-        field_type: field_rev.field_type,
+        field_type,
         frozen: field_rev.frozen,
         visibility: field_rev.visibility,
         width: field_rev.width,

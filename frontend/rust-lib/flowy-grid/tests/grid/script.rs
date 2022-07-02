@@ -1,10 +1,13 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
 use bytes::Bytes;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowRevisionPayload;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use flowy_grid_data_model::entities::*;
+use flowy_grid::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
@@ -15,6 +18,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
 use tokio::time::sleep;
+use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams};
 
 pub enum EditorScript {
     CreateField {
@@ -77,6 +81,7 @@ pub enum EditorScript {
     },
     DeleteGridTableFilter {
         filter_id: String,
+        field_type: FieldType,
     },
     #[allow(dead_code)]
     AssertGridSetting {
@@ -89,12 +94,12 @@ pub struct GridEditorTest {
     pub sdk: FlowySDKTest,
     pub grid_id: String,
     pub editor: Arc<GridRevisionEditor>,
-    pub field_revs: Vec<FieldRevision>,
+    pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
 
-    pub row_order_by_row_id: HashMap<String, RowOrder>,
+    pub row_order_by_row_id: HashMap<String, BlockRowInfo>,
 }
 
 impl GridEditorTest {
@@ -105,7 +110,7 @@ impl GridEditorTest {
         let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
-        let field_revs = editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+        let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
         let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(row_revs.len(), 3);
@@ -147,12 +152,12 @@ impl GridEditorTest {
                 }
 
                 self.editor.insert_field(params).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
             }
             EditorScript::UpdateField { changeset: change } => {
                 self.editor.update_field(change).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
             }
             EditorScript::DeleteField { field_rev } => {
                 if self.editor.contain_field(&field_rev.id).await {
@@ -160,18 +165,18 @@ impl GridEditorTest {
                 }
 
                 self.editor.delete_field(&field_rev.id).await.unwrap();
-                self.field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
+                self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
             }
             EditorScript::AssertFieldCount(count) => {
                 assert_eq!(
-                    self.editor.get_field_revs::<FieldOrder>(None).await.unwrap().len(),
+                    self.editor.get_field_revs(None).await.unwrap().len(),
                     count
                 );
             }
             EditorScript::AssertFieldEqual { field_index, field_rev } => {
-                let field_revs = self.editor.get_field_revs::<FieldOrder>(None).await.unwrap();
-                assert_eq!(field_revs[field_index].clone(), field_rev);
+                let field_revs = self.editor.get_field_revs(None).await.unwrap();
+                assert_eq!(field_revs[field_index].as_ref(), &field_rev);
             }
             EditorScript::CreateBlock { block } => {
                 self.editor.create_block(block).await.unwrap();
@@ -198,14 +203,14 @@ impl GridEditorTest {
             }
             EditorScript::CreateEmptyRow => {
                 let row_order = self.editor.create_row(None).await.unwrap();
-                self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
+                self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
                 for row_order in row_orders {
-                    self.row_order_by_row_id.insert(row_order.row_id.clone(), row_order);
+                    self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
@@ -215,7 +220,7 @@ impl GridEditorTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<RowOrder>>();
+                    .collect::<Vec<BlockRowInfo>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
@@ -265,10 +270,10 @@ impl GridEditorTest {
                 let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
-            EditorScript::DeleteGridTableFilter { filter_id } => {
+            EditorScript::DeleteGridTableFilter { filter_id ,field_type} => {
                 let layout_type = GridLayoutType::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(&filter_id)
+                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev: field_type.into() })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }
@@ -303,7 +308,10 @@ impl GridEditorTest {
     pub fn text_field(&self) -> &FieldRevision {
         self.field_revs
             .iter()
-            .filter(|field_rev| field_rev.field_type == FieldType::RichText)
+            .filter(|field_rev| {
+                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                t_field_type == FieldType::RichText
+            })
             .collect::<Vec<_>>()
             .pop()
             .unwrap()

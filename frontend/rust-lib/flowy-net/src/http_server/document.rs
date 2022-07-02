@@ -3,7 +3,7 @@ use crate::{
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
 use flowy_error::FlowyError;
-use flowy_sync::entities::text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo};
+use flowy_sync::entities::text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo};
 use flowy_text_block::BlockCloudService;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;

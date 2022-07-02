@@ -1,5 +1,5 @@
+use crate::entities::{BlockRowInfo, GridBlock, RepeatedGridBlock, Row};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{GridBlock, RepeatedGridBlock, Row, RowOrder};
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -9,15 +9,16 @@ pub struct GridBlockSnapshot {
     pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub(crate) fn block_from_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlock> {
+pub(crate) fn block_from_row_orders(row_orders: Vec<BlockRowInfo>) -> Vec<GridBlock> {
     let mut map: HashMap<String, GridBlock> = HashMap::new();
-    row_orders.into_iter().for_each(|row_order| {
+    row_orders.into_iter().for_each(|row_info| {
         // Memory Optimization: escape clone block_id
-        let block_id = row_order.block_id.clone();
+        let block_id = row_info.block_id().to_owned();
+        let cloned_block_id = block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| GridBlock::new(&row_order.block_id, vec![]))
-            .row_orders
-            .push(row_order);
+            .or_insert_with(|| GridBlock::new(&cloned_block_id, vec![]))
+            .row_infos
+            .push(row_info);
     });
     map.into_values().collect::<Vec<_>>()
 }
@@ -34,15 +35,15 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlock>
 //     Some((field_id, cell))
 // }
 
-pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowOrder> {
-    row_revs.iter().map(RowOrder::from).collect::<Vec<_>>()
+pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<BlockRowInfo> {
+    row_revs.iter().map(BlockRowInfo::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_row_from_row_rev(fields: &[FieldRevision], row_rev: Arc<RowRevision>) -> Option<Row> {
+pub(crate) fn make_row_from_row_rev(fields: &[Arc<FieldRevision>], row_rev: Arc<RowRevision>) -> Option<Row> {
     make_rows_from_row_revs(fields, &[row_rev]).pop()
 }
 
-pub(crate) fn make_rows_from_row_revs(_fields: &[FieldRevision], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
+pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
     // let field_rev_map = fields
     //     .iter()
     //     .map(|field_rev| (&field_rev.id, field_rev))

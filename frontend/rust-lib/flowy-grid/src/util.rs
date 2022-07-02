@@ -1,5 +1,5 @@
+use crate::entities::FieldType;
 use crate::services::field::*;
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::BuildGridContext;
 use flowy_sync::client_grid::GridBuilder;
 

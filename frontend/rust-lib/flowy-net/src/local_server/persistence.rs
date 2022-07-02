@@ -1,5 +1,5 @@
 use flowy_sync::{
-    entities::{folder_info::FolderInfo, text_block_info::TextBlockInfo},
+    entities::{folder::FolderInfo, text_block::TextBlockInfo},
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::*,

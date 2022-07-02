@@ -30,7 +30,16 @@ macro_rules! impl_type_option {
     ($target: ident, $field_type:expr) => {
         impl std::convert::From<&FieldRevision> for $target {
             fn from(field_rev: &FieldRevision) -> $target {
-                match field_rev.get_type_option_entry::<$target>(&$field_type) {
+                match field_rev.get_type_option_entry::<$target, _>(&$field_type) {
+                    None => $target::default(),
+                    Some(target) => target,
+                }
+            }
+        }
+
+        impl std::convert::From<&std::sync::Arc<FieldRevision>> for $target {
+            fn from(field_rev: &std::sync::Arc<FieldRevision>) -> $target {
+                match field_rev.get_type_option_entry::<$target, _>(&$field_type) {
                     None => $target::default(),
                     Some(target) => target,
                 }
@@ -44,10 +53,6 @@ macro_rules! impl_type_option {
         }
 
         impl TypeOptionDataEntry for $target {
-            fn field_type(&self) -> FieldType {
-                $field_type
-            }
-
             fn json_str(&self) -> String {
                 match serde_json::to_string(&self) {
                     Ok(s) => s,

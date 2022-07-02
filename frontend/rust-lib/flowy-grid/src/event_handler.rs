@@ -3,8 +3,8 @@ use crate::manager::GridManager;
 use crate::services::field::type_options::*;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::*;
 use flowy_grid_data_model::revision::FieldRevision;
+use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -59,7 +59,12 @@ pub(crate) async fn get_fields_handler(
 ) -> DataResult<RepeatedField, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_orders = params.field_orders.items;
+    let field_orders = params
+        .field_orders
+        .items
+        .into_iter()
+        .map(|field_order| field_order.field_id)
+        .collect();
     let field_revs = editor.get_field_revs(Some(field_orders)).await?;
     let repeated_field: RepeatedField = field_revs.into_iter().map(Field::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
@@ -126,7 +131,7 @@ pub(crate) async fn switch_to_field_handler(
     let field_rev = editor
         .get_field_rev(&params.field_id)
         .await
-        .unwrap_or(editor.next_field_rev(&params.field_type).await?);
+        .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
     let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
     let data = FieldTypeOptionData {
@@ -160,7 +165,8 @@ pub(crate) async fn get_field_type_option_data_handler(
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
-            let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
+            let field_type = field_rev.field_type_rev.into();
+            let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
             let data = FieldTypeOptionData {
                 grid_id: params.grid_id,
                 field: field_rev.into(),
@@ -180,7 +186,8 @@ pub(crate) async fn create_field_type_option_data_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_rev = editor.create_next_field_rev(&params.field_type).await?;
-    let type_option_data = get_type_option_data(&field_rev, &field_rev.field_type).await?;
+    let field_type: FieldType = field_rev.field_type_rev.into();
+    let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
     data_result(FieldTypeOptionData {
         grid_id: params.grid_id,
@@ -205,7 +212,8 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
     let s = field_rev
         .get_type_option_str(field_type)
         .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
-    let builder = type_option_builder_from_json_str(&s, &field_rev.field_type);
+    let field_type: FieldType = field_rev.field_type_rev.into();
+    let builder = type_option_builder_from_json_str(&s, &field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
@@ -213,10 +221,10 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-    data: Data<RowIdentifierPayload>,
+    data: Data<GridRowIdPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<OptionalRow, FlowyError> {
-    let params: RowIdentifier = data.into_inner().try_into()?;
+    let params: GridRowId = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let row = OptionalRow {
         row: editor.get_row(&params.row_id).await?,
@@ -226,10 +234,10 @@ pub(crate) async fn get_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
-    data: Data<RowIdentifierPayload>,
+    data: Data<GridRowIdPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: RowIdentifier = data.into_inner().try_into()?;
+    let params: GridRowId = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
@@ -237,10 +245,10 @@ pub(crate) async fn delete_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-    data: Data<RowIdentifierPayload>,
+    data: Data<GridRowIdPayload>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: RowIdentifier = data.into_inner().try_into()?;
+    let params: GridRowId = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
@@ -307,7 +315,8 @@ pub(crate) async fn update_select_option_handler(
     let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
 
     if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
-        let mut type_option = select_option_operation(&field_rev)?;
+        let mut_field_rev = Arc::make_mut(&mut field_rev);
+        let mut type_option = select_option_operation(mut_field_rev)?;
         let mut cell_content_changeset = None;
 
         if let Some(option) = changeset.insert_option {
@@ -324,7 +333,7 @@ pub(crate) async fn update_select_option_handler(
             type_option.delete_option(option);
         }
 
-        field_rev.insert_type_option_entry(&*type_option);
+        mut_field_rev.insert_type_option_entry(&*type_option);
         let _ = editor.replace_field(field_rev).await?;
 
         let changeset = CellChangeset {

@@ -7,13 +7,12 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 
 class GridBlockCache {
   final String gridId;
   void Function(GridBlockUpdateNotifierValue)? _onBlockChanged;
-
   final LinkedHashMap<String, _GridBlockListener> _listeners = LinkedHashMap();
   GridBlockCache({required this.gridId});
 

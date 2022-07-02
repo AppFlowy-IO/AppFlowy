@@ -447,17 +447,13 @@ name = "flowy-grid-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-derive",
  "flowy-error-code",
  "indexmap",
  "lib-infra",
  "nanoid",
- "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
 ]
 
 [[package]]

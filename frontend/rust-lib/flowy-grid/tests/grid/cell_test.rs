@@ -1,8 +1,8 @@
 use crate::grid::field_util::make_date_cell_string;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
+use flowy_grid::entities::{CellChangeset, FieldType};
 use flowy_grid::services::field::{MultiSelectTypeOption, SelectOptionCellContentChangeset, SingleSelectTypeOption};
-use flowy_grid_data_model::entities::{CellChangeset, FieldType};
 
 #[tokio::test]
 async fn grid_cell_update() {
@@ -17,7 +17,8 @@ async fn grid_cell_update() {
     let mut scripts = vec![];
     for (_, row_rev) in row_revs.iter().enumerate() {
         for field_rev in field_revs {
-            let data = match field_rev.field_type {
+            let field_type: FieldType = field_rev.field_type_rev.into();
+            let data = match field_type {
                 FieldType::RichText => "".to_string(),
                 FieldType::Number => "123".to_string(),
                 FieldType::DateTime => make_date_cell_string("123"),

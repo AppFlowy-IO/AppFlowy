@@ -1,10 +1,10 @@
+use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{try_decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTy
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::RichText
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -30,7 +30,7 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation<String> for RichTextTypeOption {
+impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -45,11 +45,15 @@ impl CellDataOperation<String> for RichTextTypeOption {
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            try_decode_cell_data(encoded_data, field_rev, decoded_field_type, decoded_field_type)
+            try_decode_cell_data(encoded_data.into(), field_rev, decoded_field_type, decoded_field_type)
         } else {
             let cell_data = encoded_data.into();
             Ok(DecodedCellData::new(cell_data))
         }
+    }
+
+    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -67,10 +71,10 @@ impl CellDataOperation<String> for RichTextTypeOption {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::FieldType;
 
     #[test]
     fn text_description_test() {

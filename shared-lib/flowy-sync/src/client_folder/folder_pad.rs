@@ -3,7 +3,7 @@ use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
     entities::{
-        folder_info::FolderDelta,
+        folder::FolderDelta,
         revision::{md5, Revision},
     },
     errors::{CollaborateError, CollaborateResult},
@@ -431,7 +431,7 @@ pub struct FolderChange {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::{client_folder::folder_pad::FolderPad, entities::folder_info::FolderDelta};
+    use crate::{client_folder::folder_pad::FolderPad, entities::folder::FolderDelta};
     use chrono::Utc;
 
     use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};

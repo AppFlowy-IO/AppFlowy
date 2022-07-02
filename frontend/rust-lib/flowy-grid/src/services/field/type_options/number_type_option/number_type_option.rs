@@ -1,12 +1,12 @@
 use crate::impl_type_option;
 
+use crate::entities::{FieldType, GridNumberFilter};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -41,7 +41,7 @@ impl NumberTypeOptionBuilder {
 
 impl TypeOptionBuilder for NumberTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::Number
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -76,7 +76,7 @@ impl NumberTypeOption {
 
     fn cell_content_from_number_str(&self, s: &str) -> FlowyResult<String> {
         match self.format {
-            NumberFormat::Number => {
+            NumberFormat::Num => {
                 if let Ok(v) = s.parse::<f64>() {
                     return Ok(v.to_string());
                 }
@@ -139,7 +139,7 @@ impl NumberTypeOption {
     }
 }
 
-impl CellDataOperation<String> for NumberTypeOption {
+impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -155,7 +155,7 @@ impl CellDataOperation<String> for NumberTypeOption {
 
         let cell_data = encoded_data.into();
         match self.format {
-            NumberFormat::Number => {
+            NumberFormat::Num => {
                 if let Ok(v) = cell_data.parse::<f64>() {
                     return Ok(DecodedCellData::new(v.to_string()));
                 }
@@ -177,6 +177,10 @@ impl CellDataOperation<String> for NumberTypeOption {
                 Ok(DecodedCellData::new(content))
             }
         }
+    }
+
+    fn apply_filter(&self, _filter: GridNumberFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -206,10 +210,10 @@ impl std::default::Default for NumberTypeOption {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{NumberFormat, NumberTypeOption};
     use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::FieldType;
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
@@ -241,7 +245,7 @@ mod tests {
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
-                NumberFormat::Number => {
+                NumberFormat::Num => {
                     assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
                 }
                 NumberFormat::USD => {
@@ -270,7 +274,7 @@ mod tests {
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
-                NumberFormat::Number => {
+                NumberFormat::Num => {
                     assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
                     assert_equal(&type_option, "0.2", "0.2", &field_type, &field_rev);
                 }
@@ -310,7 +314,7 @@ mod tests {
         for format in NumberFormat::iter() {
             type_option.format = format;
             match format {
-                NumberFormat::Number => {
+                NumberFormat::Num => {
                     assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
                 }
                 NumberFormat::USD => {

@@ -1,11 +1,12 @@
 use crate::entities::{
-    CreateGridFilterParams, CreateGridFilterPayload, CreateGridGroupParams, CreateGridGroupPayload,
-    CreateGridSortParams, CreateGridSortPayload, RepeatedGridFilter, RepeatedGridGroup, RepeatedGridSort,
+    CreateGridFilterPayload, CreateGridGroupPayload, CreateGridSortPayload, DeleteFilterPayload, RepeatedGridFilter,
+    RepeatedGridGroup, RepeatedGridSort,
 };
-use crate::parser::NotEmptyStr;
-use crate::revision::{GridLayoutRevision, GridSettingRevision};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error_code::ErrorCode;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use flowy_grid_data_model::revision::GridLayoutRevision;
+use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
 
@@ -21,34 +22,35 @@ pub struct GridSetting {
     pub sorts_by_layout_ty: HashMap<String, RepeatedGridSort>,
 }
 
-impl std::convert::From<&GridSettingRevision> for GridSetting {
-    fn from(rev: &GridSettingRevision) -> Self {
-        let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
-            .filters
-            .iter()
-            .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
-            .collect();
-
-        let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
-            .groups
-            .iter()
-            .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
-            .collect();
-
-        let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
-            .sorts
-            .iter()
-            .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
-            .collect();
-
-        GridSetting {
-            filters_by_layout_ty,
-            groups_by_layout_ty,
-            sorts_by_layout_ty,
-        }
-    }
-}
-
+//
+// impl std::convert::From<&GridSettingRevision> for GridSetting {
+//     fn from(rev: &GridSettingRevision) -> Self {
+//         let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
+//             .filters
+//             .iter()
+//             .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
+//             .collect();
+//
+//         let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
+//             .groups
+//             .iter()
+//             .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
+//             .collect();
+//
+//         let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
+//             .sorts
+//             .iter()
+//             .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
+//             .collect();
+//
+//         GridSetting {
+//             filters_by_layout_ty,
+//             groups_by_layout_ty,
+//             sorts_by_layout_ty,
+//         }
+//     }
+// }
+//
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum GridLayoutType {
@@ -92,7 +94,7 @@ pub struct GridSettingChangesetPayload {
     pub insert_filter: Option<CreateGridFilterPayload>,
 
     #[pb(index = 4, one_of)]
-    pub delete_filter: Option<String>,
+    pub delete_filter: Option<DeleteFilterPayload>,
 
     #[pb(index = 5, one_of)]
     pub insert_group: Option<CreateGridGroupPayload>,
@@ -105,23 +107,6 @@ pub struct GridSettingChangesetPayload {
 
     #[pb(index = 8, one_of)]
     pub delete_sort: Option<String>,
-}
-
-pub struct GridSettingChangesetParams {
-    pub grid_id: String,
-    pub layout_type: GridLayoutType,
-    pub insert_filter: Option<CreateGridFilterParams>,
-    pub delete_filter: Option<String>,
-    pub insert_group: Option<CreateGridGroupParams>,
-    pub delete_group: Option<String>,
-    pub insert_sort: Option<CreateGridSortParams>,
-    pub delete_sort: Option<String>,
-}
-
-impl GridSettingChangesetParams {
-    pub fn is_filter_changed(&self) -> bool {
-        self.insert_filter.is_some() || self.delete_filter.is_some()
-    }
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
@@ -139,7 +124,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
 
         let delete_filter = match self.delete_filter {
             None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
+            Some(payload) => Some(payload.try_into()?),
         };
 
         let insert_group = match self.insert_group {
@@ -164,7 +149,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
 
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
-            layout_type: self.layout_type,
+            layout_type: self.layout_type.into(),
             insert_filter,
             delete_filter,
             insert_group,

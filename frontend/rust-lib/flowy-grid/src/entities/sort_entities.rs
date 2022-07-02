@@ -1,8 +1,8 @@
-use crate::parser::NotEmptyStr;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::ErrorCode;
-
-use crate::revision::GridSortRevision;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use flowy_grid_data_model::revision::GridSortRevision;
+use flowy_sync::entities::grid::CreateGridSortParams;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -47,10 +47,6 @@ impl std::convert::From<Vec<GridSort>> for RepeatedGridSort {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct CreateGridSortPayload {
     #[pb(index = 1, one_of)]
-    pub field_id: Option<String>,
-}
-
-pub struct CreateGridSortParams {
     pub field_id: Option<String>,
 }
 

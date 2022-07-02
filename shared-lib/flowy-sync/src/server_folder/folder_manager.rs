@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        folder_info::{FolderDelta, FolderInfo},
+        folder::{FolderDelta, FolderInfo},
         ws_data::ServerRevisionWSDataBuilder,
     },
     errors::{internal_error, CollaborateError, CollaborateResult},

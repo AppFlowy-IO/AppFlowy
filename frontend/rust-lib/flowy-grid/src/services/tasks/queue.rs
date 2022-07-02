@@ -21,8 +21,8 @@ impl GridTaskQueue {
 
     pub(crate) fn push(&mut self, task: &Task) {
         let task_type = match task.content {
-            TaskContent::Snapshot { .. } => TaskType::Snapshot,
-            TaskContent::Filter => TaskType::Filter,
+            TaskContent::Snapshot => TaskType::Snapshot,
+            TaskContent::Filter { .. } => TaskType::Filter,
         };
         let pending_task = PendingTask {
             ty: task_type,

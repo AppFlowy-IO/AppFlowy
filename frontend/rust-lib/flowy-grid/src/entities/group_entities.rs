@@ -1,8 +1,8 @@
-use crate::parser::NotEmptyStr;
 use flowy_derive::ProtoBuf;
-use flowy_error_code::ErrorCode;
-
-use crate::revision::GridGroupRevision;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
+use flowy_grid_data_model::revision::GridGroupRevision;
+use flowy_sync::entities::grid::CreateGridGroupParams;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -53,11 +53,6 @@ pub struct CreateGridGroupPayload {
     pub field_id: Option<String>,
 
     #[pb(index = 2, one_of)]
-    pub sub_field_id: Option<String>,
-}
-
-pub struct CreateGridGroupParams {
-    pub field_id: Option<String>,
     pub sub_field_id: Option<String>,
 }
 

@@ -17,7 +17,7 @@ use flowy_database::kv::KV;
 use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
 use flowy_folder_data_model::entities::ViewInfo;
 use flowy_folder_data_model::revision::ViewRevision;
-use flowy_sync::entities::text_block_info::TextBlockId;
+use flowy_sync::entities::text_block::TextBlockId;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 

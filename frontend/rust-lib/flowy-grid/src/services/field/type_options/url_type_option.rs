@@ -1,3 +1,4 @@
+use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, EncodedCellData};
@@ -5,7 +6,6 @@ use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ impl_builder_from_json_str_and_from_bytes!(URLTypeOptionBuilder, URLTypeOption);
 
 impl TypeOptionBuilder for URLTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::URL
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -33,7 +33,7 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
+impl CellDataOperation<EncodedCellData<URLCellData>, GridTextFilter> for URLTypeOption {
     fn decode_cell_data<T>(
         &self,
         encoded_data: T,
@@ -48,6 +48,10 @@ impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
         }
         let cell_data = encoded_data.into().try_into_inner()?;
         DecodedCellData::try_from_bytes(cell_data)
+    }
+
+    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
+        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -122,10 +126,10 @@ lazy_static! {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOption};
     use crate::services::row::{CellDataOperation, EncodedCellData};
-    use flowy_grid_data_model::entities::FieldType;
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]

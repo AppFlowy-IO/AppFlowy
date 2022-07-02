@@ -1,7 +1,7 @@
 use crate::grid::script::GridEditorTest;
+use flowy_grid::entities::FieldType;
 use flowy_grid::services::field::DateCellContentChangeset;
 use flowy_grid::services::row::{CreateRowRevisionBuilder, CreateRowRevisionPayload};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::FieldRevision;
 use strum::EnumCount;
 
@@ -61,8 +61,12 @@ impl<'a> GridRowTestBuilder<'a> {
         self.test
             .field_revs
             .iter()
-            .find(|field_rev| &field_rev.field_type == field_type)
+            .find(|field_rev| {
+                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                &t_field_type == field_type
+            })
             .unwrap()
+            .as_ref()
             .clone()
     }
 

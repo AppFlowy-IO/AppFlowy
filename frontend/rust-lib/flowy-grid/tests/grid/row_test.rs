@@ -3,11 +3,11 @@ use crate::grid::row_util::GridRowTestBuilder;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
+use flowy_grid::entities::FieldType;
 use flowy_grid::services::field::{
     DateCellData, MultiSelectTypeOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data, CreateRowRevisionBuilder};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -75,7 +75,8 @@ async fn grid_row_add_cells_test() {
     let mut test = GridEditorTest::new().await;
     let mut builder = CreateRowRevisionBuilder::new(&test.field_revs);
     for field in &test.field_revs {
-        match field.field_type {
+        let field_type: FieldType = field.field_type_rev.into();
+        match field_type {
             FieldType::RichText => {
                 builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
             }
@@ -122,7 +123,8 @@ async fn grid_row_add_date_cell_test() {
     let mut date_field = None;
     let timestamp = 1647390674;
     for field in &test.field_revs {
-        if field.field_type == FieldType::DateTime {
+        let field_type: FieldType = field.field_type_rev.into();
+        if field_type == FieldType::DateTime {
             date_field = Some(field.clone());
             NaiveDateTime::from_timestamp(123, 0);
             // The data should not be empty

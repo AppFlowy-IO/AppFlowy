@@ -1,8 +1,8 @@
 use crate::{
     entities::{
-        folder_info::{FolderDelta, FolderInfo},
+        folder::{FolderDelta, FolderInfo},
         revision::{RepeatedRevision, Revision},
-        text_block_info::TextBlockInfo,
+        text_block::TextBlockInfo,
     },
     errors::{CollaborateError, CollaborateResult},
     protobuf::{

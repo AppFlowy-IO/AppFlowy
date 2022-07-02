@@ -3,16 +3,17 @@ use crate::entities::CellIdentifier;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
-use crate::services::filter::GridFilterService;
+use crate::services::filter::{GridFilterChangeset, GridFilterService};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::*;
 
+use crate::entities::*;
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridChangeset, GridRevisionPad, JsonDeserializer};
+use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_delta_from_revisions;
@@ -53,11 +54,8 @@ impl GridRevisionEditor {
         let grid_pad = Arc::new(RwLock::new(grid_pad));
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
-        let filter_service = Arc::new(GridFilterService::new(
-            grid_pad.clone(),
-            block_manager.clone(),
-            task_scheduler.clone(),
-        ));
+        let filter_service =
+            Arc::new(GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await);
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -87,7 +85,7 @@ impl GridRevisionEditor {
                         grid_id,
                         name: Some(field.name),
                         desc: Some(field.desc),
-                        field_type: Some(field.field_type),
+                        field_type: Some(field.field_type.into()),
                         frozen: Some(field.frozen),
                         visibility: Some(field.visibility),
                         width: Some(field.width),
@@ -126,7 +124,8 @@ impl GridRevisionEditor {
         let field_rev = result.unwrap();
         let _ = self
             .modify(|grid| {
-                let deserializer = TypeOptionJsonDeserializer(field_rev.field_type.clone());
+                let field_type = field_rev.field_type_rev.into();
+                let deserializer = TypeOptionJsonDeserializer(field_type);
                 let changeset = FieldChangesetParams {
                     field_id: field_id.to_owned(),
                     grid_id: grid_id.to_owned(),
@@ -164,7 +163,7 @@ impl GridRevisionEditor {
         let field_id = params.field_id.clone();
         let json_deserializer = match self.grid_pad.read().await.get_field_rev(params.field_id.as_str()) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
-            Some((_, field_rev)) => TypeOptionJsonDeserializer(field_rev.field_type.clone()),
+            Some((_, field_rev)) => TypeOptionJsonDeserializer(field_rev.field_type_rev.into()),
         };
 
         let _ = self
@@ -175,7 +174,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn replace_field(&self, field_rev: FieldRevision) -> FlowyResult<()> {
+    pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev)?))
@@ -204,8 +203,9 @@ impl GridRevisionEditor {
         //     .get_cell_revs(block_ids, field_id, None)
         //     .await?;
 
-        let type_option_json_builder = |field_type: &FieldType| -> String {
-            return default_type_option_builder_from_type(field_type).entry().json_str();
+        let type_option_json_builder = |field_type: &FieldTypeRevision| -> String {
+            let field_type: FieldType = field_type.into();
+            return default_type_option_builder_from_type(&field_type).entry().json_str();
         };
 
         let _ = self
@@ -227,24 +227,20 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_field_rev(&self, field_id: &str) -> Option<FieldRevision> {
+    pub async fn get_field_rev(&self, field_id: &str) -> Option<Arc<FieldRevision>> {
         let field_rev = self.grid_pad.read().await.get_field_rev(field_id)?.1.clone();
         Some(field_rev)
     }
 
-    pub async fn get_field_revs<T>(&self, field_ids: Option<Vec<T>>) -> FlowyResult<Vec<FieldRevision>>
-    where
-        T: Into<FieldOrder>,
-    {
+    pub async fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> FlowyResult<Vec<Arc<FieldRevision>>> {
         if field_ids.is_none() {
             let field_revs = self.grid_pad.read().await.get_field_revs(None)?;
             return Ok(field_revs);
         }
 
-        let to_field_orders = |item: Vec<T>| item.into_iter().map(|data| data.into()).collect();
-        let field_orders = field_ids.map_or(vec![], to_field_orders);
-        let expected_len = field_orders.len();
-        let field_revs = self.grid_pad.read().await.get_field_revs(Some(field_orders))?;
+        let field_ids = field_ids.unwrap_or_default();
+        let expected_len = field_ids.len();
+        let field_revs = self.grid_pad.read().await.get_field_revs(Some(field_ids))?;
         if expected_len != 0 && field_revs.len() != expected_len {
             tracing::error!(
                 "This is a bug. The len of the field_revs should equal to {}",
@@ -269,14 +265,14 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowOrder> {
+    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<BlockRowInfo> {
         let field_revs = self.grid_pad.read().await.get_field_revs(None)?;
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
         let row_rev_ctx = CreateRowRevisionBuilder::new(&field_revs).build();
         let row_rev = make_row_rev_from_context(&block_id, row_rev_ctx);
-        let row_order = RowOrder::from(&row_rev);
+        let row_order = BlockRowInfo::from(&row_rev);
 
         // insert the row
         let row_count = self.block_manager.create_row(&block_id, row_rev, start_row_id).await?;
@@ -287,13 +283,13 @@ impl GridRevisionEditor {
         Ok(row_order)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<RowOrder>> {
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<BlockRowInfo>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowRevision>> = HashMap::new();
         let mut row_orders = vec![];
         for ctx in contexts {
             let row_rev = make_row_rev_from_context(&block_id, ctx);
-            row_orders.push(RowOrder::from(&row_rev));
+            row_orders.push(BlockRowInfo::from(&row_rev));
             rows_by_block_id
                 .entry(block_id.clone())
                 .or_insert_with(Vec::new)
@@ -307,7 +303,7 @@ impl GridRevisionEditor {
     }
 
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
-        let field_revs = self.get_field_revs::<FieldOrder>(None).await?;
+        let field_revs = self.get_field_revs(None).await?;
         self.block_manager
             .update_row(changeset, |row_rev| make_row_from_row_rev(&field_revs, row_rev))
             .await
@@ -322,7 +318,7 @@ impl GridRevisionEditor {
         debug_assert_eq!(grid_block_snapshot.len(), 1);
         if grid_block_snapshot.len() == 1 {
             let snapshot = grid_block_snapshot.pop().unwrap();
-            let field_revs = self.get_field_revs::<FieldOrder>(None).await?;
+            let field_revs = self.get_field_revs(None).await?;
             let rows = make_rows_from_row_revs(&field_revs, &snapshot.row_revs);
             Ok(rows.into())
         } else {
@@ -334,7 +330,7 @@ impl GridRevisionEditor {
         match self.block_manager.get_row_rev(row_id).await? {
             None => Ok(None),
             Some(row_rev) => {
-                let field_revs = self.get_field_revs::<FieldOrder>(None).await?;
+                let field_revs = self.get_field_revs(None).await?;
                 let row_revs = vec![row_rev];
                 let mut rows = make_rows_from_row_revs(&field_revs, &row_revs);
                 debug_assert!(rows.len() == 1);
@@ -399,7 +395,7 @@ impl GridRevisionEditor {
                     cell_rev,
                     field_rev,
                 )?);
-                let field_revs = self.get_field_revs::<FieldOrder>(None).await?;
+                let field_revs = self.get_field_revs(None).await?;
                 let cell_changeset = CellChangeset {
                     grid_id,
                     row_id,
@@ -425,7 +421,7 @@ impl GridRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn delete_rows(&self, row_orders: Vec<RowOrder>) -> FlowyResult<()> {
+    pub async fn delete_rows(&self, row_orders: Vec<BlockRowInfo>) -> FlowyResult<()> {
         let changesets = self.block_manager.delete_rows(row_orders).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
@@ -435,13 +431,17 @@ impl GridRevisionEditor {
 
     pub async fn get_grid_data(&self) -> FlowyResult<Grid> {
         let pad_read_guard = self.grid_pad.read().await;
-        let field_orders = pad_read_guard.get_field_orders();
+        let field_orders = pad_read_guard
+            .get_field_revs(None)?
+            .iter()
+            .map(FieldOrder::from)
+            .collect();
         let mut block_orders = vec![];
         for block_rev in pad_read_guard.get_block_meta_revs() {
             let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
             let block_order = GridBlock {
                 id: block_rev.block_id.clone(),
-                row_orders,
+                row_infos: row_orders,
             };
             block_orders.push(block_order);
         }
@@ -454,29 +454,31 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
-        let read_guard = self.grid_pad.read().await;
-        let grid_setting_rev = read_guard.get_grid_setting_rev();
-        Ok(grid_setting_rev.into())
+        // let read_guard = self.grid_pad.read().await;
+        // let grid_setting_rev = read_guard.get_grid_setting_rev();
+        // Ok(grid_setting_rev.into())
+        todo!()
     }
 
     pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
         let read_guard = self.grid_pad.read().await;
         let layout_rev = layout_type.clone().into();
-        match read_guard.get_filters(Some(&layout_rev)) {
+        match read_guard.get_filters(Some(&layout_rev), None) {
             Some(filter_revs) => Ok(filter_revs.iter().map(GridFilter::from).collect::<Vec<GridFilter>>()),
             None => Ok(vec![]),
         }
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let is_filter_changed = params.is_filter_changed();
+        let filter_changeset = GridFilterChangeset::from(&params);
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.update_grid_setting_rev(params)?))
             .await?;
 
-        if is_filter_changed {
-            self.filter_service.notify_changed().await;
-        }
+        let filter_service = self.filter_service.clone();
+        tokio::spawn(async move {
+            filter_service.apply_changeset(filter_changeset).await;
+        });
         Ok(())
     }
 
@@ -492,7 +494,7 @@ impl GridRevisionEditor {
                 .collect::<Vec<String>>(),
             Some(block_ids) => block_ids,
         };
-        let snapshots = self.block_manager.make_block_snapshots(block_ids).await?;
+        let snapshots = self.block_manager.get_block_snapshots(Some(block_ids)).await?;
         Ok(snapshots)
     }
 

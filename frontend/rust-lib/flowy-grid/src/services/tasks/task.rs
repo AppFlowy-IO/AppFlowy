@@ -1,3 +1,4 @@
+use crate::services::row::GridBlockSnapshot;
 use crate::services::tasks::queue::TaskHandlerId;
 use std::cmp::Ordering;
 
@@ -44,20 +45,23 @@ impl Ord for PendingTask {
             (TaskType::Snapshot, TaskType::Snapshot) => Ordering::Equal,
             (TaskType::Snapshot, _) => Ordering::Greater,
             (_, TaskType::Snapshot) => Ordering::Less,
-            (TaskType::Filter, TaskType::Filter) => self.id.cmp(&other.id),
+            (TaskType::Filter, TaskType::Filter) => self.id.cmp(&other.id).reverse(),
         }
     }
 }
 
-pub type ContentId = String;
-
-pub enum TaskContent {
-    Snapshot { content_id: ContentId },
-    Filter,
+pub(crate) struct FilterTaskContext {
+    pub blocks: Vec<GridBlockSnapshot>,
 }
 
-pub struct Task {
-    pub hid: TaskHandlerId,
+pub(crate) enum TaskContent {
+    #[allow(dead_code)]
+    Snapshot,
+    Filter(FilterTaskContext),
+}
+
+pub(crate) struct Task {
+    pub handler_id: TaskHandlerId,
     pub id: TaskId,
     pub content: TaskContent,
 }
