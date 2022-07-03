@@ -83,6 +83,7 @@ class CreateItem extends StatelessWidget {
     return FlowyHover(
       style: config,
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => onSelected(pluginBuilder),
         child: FlowyText.medium(
           pluginBuilder.menuName,
