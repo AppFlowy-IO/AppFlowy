@@ -20,27 +20,26 @@ class _GridCellCacheKey {
   });
 }
 
-abstract class GridCellFieldDelegate {
-  void onFieldChanged(void Function(String) callback);
-  void dispose();
+abstract class GridCellCacheDelegate {
+  void onFieldUpdated(void Function(Field) callback);
 }
 
-class GridCellCache {
+class GridCellCacheService {
   final String gridId;
-  final GridCellFieldDelegate fieldDelegate;
+  final GridCellCacheDelegate delegate;
 
   /// fieldId: {objectId: callback}
   final Map<String, Map<String, List<VoidCallback>>> _fieldListenerByFieldId = {};
 
   /// fieldId: {cacheKey: cacheData}
   final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
-  GridCellCache({
+  GridCellCacheService({
     required this.gridId,
-    required this.fieldDelegate,
+    required this.delegate,
   }) {
-    fieldDelegate.onFieldChanged((fieldId) {
-      _cellDataByFieldId.remove(fieldId);
-      final map = _fieldListenerByFieldId[fieldId];
+    delegate.onFieldUpdated((field) {
+      _cellDataByFieldId.remove(field.id);
+      final map = _fieldListenerByFieldId[field.id];
       if (map != null) {
         for (final callbacks in map.values) {
           for (final callback in callbacks) {
@@ -106,6 +105,5 @@ class GridCellCache {
   Future<void> dispose() async {
     _fieldListenerByFieldId.clear();
     _cellDataByFieldId.clear();
-    fieldDelegate.dispose();
   }
 }

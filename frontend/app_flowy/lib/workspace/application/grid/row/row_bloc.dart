@@ -11,12 +11,12 @@ part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridRowCache _rowCache;
+  final GridRowCacheService _rowCache;
   void Function()? _rowListenFn;
 
   RowBloc({
     required GridRow rowData,
-    required GridRowCache rowCache,
+    required GridRowCacheService rowCache,
   })  : _rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,
@@ -57,9 +57,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _startListening() async {
-    _rowListenFn = _rowCache.addRowListener(
+    _rowListenFn = _rowCache.addListener(
       rowId: state.rowData.rowId,
-      onUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
+      onCellUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
       listenWhen: () => !isClosed,
     );
   }

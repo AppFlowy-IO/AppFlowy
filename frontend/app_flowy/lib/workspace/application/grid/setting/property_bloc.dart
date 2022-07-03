@@ -10,7 +10,7 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final GridFieldCache _fieldCache;
-  Function()? _listenFieldCallback;
+  Function(List<Field>)? _onFieldsFn;
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
@@ -42,15 +42,17 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
 
   @override
   Future<void> close() async {
-    if (_listenFieldCallback != null) {
-      _fieldCache.removeListener(_listenFieldCallback!);
+    if (_onFieldsFn != null) {
+      _fieldCache.removeListener(onFieldsListener: _onFieldsFn!);
+      _onFieldsFn = null;
     }
     return super.close();
   }
 
   void _startListening() {
-    _listenFieldCallback = _fieldCache.addListener(
-      onChanged: (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields)),
+    _onFieldsFn = (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields));
+    _fieldCache.addListener(
+      onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
   }

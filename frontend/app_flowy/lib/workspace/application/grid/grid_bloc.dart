@@ -7,8 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'block/block_listener.dart';
-import 'cell/cell_service/cell_service.dart';
+import 'block/block_service.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
 import 'dart:collection';
@@ -16,36 +15,27 @@ import 'dart:collection';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
+  final String gridId;
   final GridService _gridService;
   final GridFieldCache fieldCache;
-  late final GridRowCache rowCache;
-  late final GridCellCache cellCache;
 
-  final GridBlockCache blockCache;
+  // key: the block id
+  final LinkedHashMap<String, GridBlockCacheService> _blocks;
+
+  List<GridRow> get rows {
+    final List<GridRow> rows = [];
+    for (var block in _blocks.values) {
+      rows.addAll(block.rows);
+    }
+    return rows;
+  }
 
   GridBloc({required View view})
-      : _gridService = GridService(gridId: view.id),
+      : gridId = view.id,
+        _blocks = LinkedHashMap.identity(),
+        _gridService = GridService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id),
-        blockCache = GridBlockCache(gridId: view.id),
         super(GridState.initial(view.id)) {
-    rowCache = GridRowCache(
-      gridId: view.id,
-      blockId: "",
-      fieldDelegate: GridRowCacheDelegateImpl(fieldCache),
-    );
-
-    cellCache = GridCellCache(
-      gridId: view.id,
-      fieldDelegate: GridCellCacheDelegateImpl(fieldCache),
-    );
-
-    blockCache.start((result) {
-      result.fold(
-        (changesets) => rowCache.applyChangesets(changesets),
-        (err) => Log.error(err),
-      );
-    });
-
     on<GridEvent>(
       (event, emit) async {
         await event.when(
@@ -56,11 +46,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             _gridService.createRow();
           },
-          didReceiveRowUpdate: (rows, listState) {
-            emit(state.copyWith(rows: rows, listState: listState));
+          didReceiveRowUpdate: (rows, reason) {
+            emit(state.copyWith(rows: rows, reason: reason));
           },
           didReceiveFieldUpdate: (fields) {
-            emit(state.copyWith(rows: rowCache.clonedRows, fields: GridFieldEquatable(fields)));
+            emit(state.copyWith(rows: rows, fields: GridFieldEquatable(fields)));
           },
         );
       },
@@ -70,22 +60,23 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   @override
   Future<void> close() async {
     await _gridService.closeGrid();
-    await cellCache.dispose();
-    await rowCache.dispose();
     await fieldCache.dispose();
-    await blockCache.dispose();
+
+    for (final blockCache in _blocks.values) {
+      blockCache.dispose();
+    }
     return super.close();
+  }
+
+  GridRowCacheService? getRowCache(String blockId, String rowId) {
+    final GridBlockCacheService? blockCache = _blocks[blockId];
+    return blockCache?.rowCache;
   }
 
   void _startListening() {
     fieldCache.addListener(
       listenWhen: () => !isClosed,
-      onChanged: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
-    );
-
-    rowCache.addListener(
-      listenWhen: () => !isClosed,
-      onChanged: (rows, listState) => add(GridEvent.didReceiveRowUpdate(rowCache.clonedRows, listState)),
+      onFields: (fields) => add(GridEvent.didReceiveFieldUpdate(fields)),
     );
   }
 
@@ -94,12 +85,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return Future(
       () => result.fold(
         (grid) async {
-          for (final block in grid.blocks) {
-            blockCache.addBlockListener(block.id);
-          }
-          final rowInfos = grid.blocks.expand((block) => block.rowInfos).toList();
-          rowCache.initialRows(rowInfos);
-
+          _initialBlocks(grid.blocks);
           await _loadFields(grid, emit);
         },
         (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
@@ -117,13 +103,35 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           emit(state.copyWith(
             grid: Some(grid),
             fields: GridFieldEquatable(fieldCache.fields),
-            rows: rowCache.clonedRows,
+            rows: rows,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
         (err) => emit(state.copyWith(loadingState: GridLoadingState.finish(right(err)))),
       ),
     );
+  }
+
+  void _initialBlocks(List<GridBlock> blocks) {
+    for (final block in blocks) {
+      if (_blocks[block.id] != null) {
+        Log.warn("Intial duplicate block's cache: ${block.id}");
+        return;
+      }
+
+      final cache = GridBlockCacheService(
+        gridId: gridId,
+        block: block,
+        fieldCache: fieldCache,
+      );
+
+      cache.addListener(
+        listenWhen: () => !isClosed,
+        onChangeReason: (reason) => add(GridEvent.didReceiveRowUpdate(rows, reason)),
+      );
+
+      _blocks[block.id] = cache;
+    }
   }
 }
 
@@ -143,7 +151,7 @@ class GridState with _$GridState {
     required GridFieldEquatable fields,
     required List<GridRow> rows,
     required GridLoadingState loadingState,
-    required GridRowChangeReason listState,
+    required GridRowChangeReason reason,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
@@ -152,7 +160,7 @@ class GridState with _$GridState {
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),
-        listState: const InitialListState(),
+        reason: const InitialListState(),
       );
 }
 

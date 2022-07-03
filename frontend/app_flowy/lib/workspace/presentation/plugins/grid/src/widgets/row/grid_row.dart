@@ -16,13 +16,11 @@ import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRow rowData;
-  final GridRowCache rowCache;
-  final GridCellCache cellCache;
+  final GridRowCacheService rowCache;
 
   const GridRowWidget({
     required this.rowData,
     required this.rowCache,
-    required this.cellCache,
     Key? key,
   }) : super(key: key);
 
@@ -54,7 +52,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
             return Row(
               children: [
                 const _RowLeading(),
-                Expanded(child: _RowCells(cellCache: widget.cellCache, onExpand: () => _expandRow(context))),
+                Expanded(child: _RowCells(cellCache: widget.rowCache.cellCache, onExpand: () => _expandRow(context))),
                 const _RowTrailing(),
               ],
             );
@@ -74,7 +72,6 @@ class _GridRowWidgetState extends State<GridRowWidget> {
     final page = RowDetailPage(
       rowData: widget.rowData,
       rowCache: widget.rowCache,
-      cellCache: widget.cellCache,
     );
     page.show(context);
   }
@@ -149,7 +146,7 @@ class _DeleteRowButton extends StatelessWidget {
 }
 
 class _RowCells extends StatelessWidget {
-  final GridCellCache cellCache;
+  final GridCellCacheService cellCache;
   final VoidCallback onExpand;
   const _RowCells({required this.cellCache, required this.onExpand, Key? key}) : super(key: key);
 

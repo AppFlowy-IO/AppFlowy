@@ -20,7 +20,7 @@ import 'dart:convert' show utf8;
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
 part 'context_builder.dart';
-part 'cell_data_cache.dart';
+part 'cache.dart';
 part 'cell_data_persistence.dart';
 
 // key: rowId

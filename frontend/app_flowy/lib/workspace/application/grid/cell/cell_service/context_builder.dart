@@ -6,10 +6,10 @@ typedef GridDateCellContext = _GridCellContext<DateCellData, CalendarData>;
 typedef GridURLCellContext = _GridCellContext<URLCellData, String>;
 
 class GridCellContextBuilder {
-  final GridCellCache _cellCache;
+  final GridCellCacheService _cellCache;
   final GridCell _gridCell;
   GridCellContextBuilder({
-    required GridCellCache cellCache,
+    required GridCellCacheService cellCache,
     required GridCell gridCell,
   })  : _cellCache = cellCache,
         _gridCell = gridCell;
@@ -99,7 +99,7 @@ class GridCellContextBuilder {
 // ignore: must_be_immutable
 class _GridCellContext<T, D> extends Equatable {
   final GridCell gridCell;
-  final GridCellCache cellCache;
+  final GridCellCacheService cellCache;
   final _GridCellCacheKey _cacheKey;
   final IGridCellDataLoader<T> cellDataLoader;
   final _GridCellDataPersistence<D> cellDataPersistence;
