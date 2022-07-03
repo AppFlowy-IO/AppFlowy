@@ -60,7 +60,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
     (user, _) => WelcomeBloc(
-      userService: UserService(),
+      userService: UserService(userId: user.id),
       userListener: getIt<UserListener>(param1: user),
     ),
   );
@@ -100,7 +100,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
     (user, _) => MenuUserBloc(
       user,
-      UserService(),
       getIt<UserListener>(param1: user),
     ),
   );

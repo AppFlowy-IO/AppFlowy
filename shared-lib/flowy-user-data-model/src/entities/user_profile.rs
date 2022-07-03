@@ -28,7 +28,7 @@ pub struct UserProfile {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateUserPayload {
+pub struct UpdateUserProfilePayload {
     #[pb(index = 1)]
     pub id: String,
 
@@ -42,7 +42,7 @@ pub struct UpdateUserPayload {
     pub password: Option<String>,
 }
 
-impl UpdateUserPayload {
+impl UpdateUserProfilePayload {
     pub fn new(id: &str) -> Self {
         Self {
             id: id.to_owned(),
@@ -67,7 +67,7 @@ impl UpdateUserPayload {
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct UpdateUserParams {
+pub struct UpdateUserProfileParams {
     #[pb(index = 1)]
     pub id: String,
 
@@ -81,7 +81,7 @@ pub struct UpdateUserParams {
     pub password: Option<String>,
 }
 
-impl UpdateUserParams {
+impl UpdateUserProfileParams {
     pub fn new(user_id: &str) -> Self {
         Self {
             id: user_id.to_owned(),
@@ -105,10 +105,10 @@ impl UpdateUserParams {
     }
 }
 
-impl TryInto<UpdateUserParams> for UpdateUserPayload {
+impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayload {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
+    fn try_into(self) -> Result<UpdateUserProfileParams, Self::Error> {
         let id = UserId::parse(self.id)?.0;
 
         let name = match self.name {
@@ -126,7 +126,7 @@ impl TryInto<UpdateUserParams> for UpdateUserPayload {
             Some(password) => Some(UserPassword::parse(password)?.0),
         };
 
-        Ok(UpdateUserParams {
+        Ok(UpdateUserProfileParams {
             id,
             name,
             email,

@@ -264,7 +264,7 @@ use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision
 use flowy_text_block::BlockCloudService;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use lib_infra::{future::FutureResult, util::timestamp};
 
@@ -401,7 +401,7 @@ impl UserCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
+    fn update_user(&self, _token: &str, _params: UpdateUserProfileParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 

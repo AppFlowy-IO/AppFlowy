@@ -15,7 +15,7 @@ use flowy_database::{
     DBConnection, ExpressionMethods, UserDatabaseConnection,
 };
 use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -126,7 +126,7 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), FlowyError> {
+    pub async fn update_user_profile(&self, params: UpdateUserProfileParams) -> Result<(), FlowyError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
@@ -199,7 +199,7 @@ impl UserSession {
         Ok(())
     }
 
-    async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), FlowyError> {
+    async fn update_user_on_server(&self, token: &str, params: UpdateUserProfileParams) -> Result<(), FlowyError> {
         let server = self.cloud_service.clone();
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
@@ -275,7 +275,7 @@ impl UserSession {
 pub async fn update_user(
     _cloud_service: Arc<dyn UserCloudService>,
     pool: Arc<ConnectionPool>,
-    params: UpdateUserParams,
+    params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params);
     let conn = pool.get()?;
