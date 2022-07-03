@@ -31,12 +31,12 @@ impl TryInto<GridRowId> for GridRowIdPayload {
 
     fn try_into(self) -> Result<GridRowId, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        // let block_id = NotEmptyStr::parse(self.block_id).map_err(|_| ErrorCode::BlockIdIsEmpty)?;
+        let block_id = NotEmptyStr::parse(self.block_id).map_err(|_| ErrorCode::BlockIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
         Ok(GridRowId {
             grid_id: grid_id.0,
-            block_id: self.block_id,
+            block_id: block_id.0,
             row_id: row_id.0,
         })
     }

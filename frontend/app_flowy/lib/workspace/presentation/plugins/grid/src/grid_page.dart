@@ -190,9 +190,9 @@ class _GridRowsState extends State<_GridRows> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
-      listenWhen: (previous, current) => previous.listState != current.listState,
+      listenWhen: (previous, current) => previous.reason != current.reason,
       listener: (context, state) {
-        state.listState.mapOrNull(
+        state.reason.mapOrNull(
           insert: (value) {
             for (final item in value.items) {
               _key.currentState?.insertItem(item.index);
@@ -227,17 +227,19 @@ class _GridRowsState extends State<_GridRows> {
     GridRow rowData,
     Animation<double> animation,
   ) {
-    final rowCache = context.read<GridBloc>().rowCache;
-    final cellCache = context.read<GridBloc>().cellCache;
-    return SizeTransition(
-      sizeFactor: animation,
-      child: GridRowWidget(
-        rowData: rowData,
-        rowCache: rowCache,
-        cellCache: cellCache,
-        key: ValueKey(rowData.rowId),
-      ),
-    );
+    final rowCache = context.read<GridBloc>().getRowCache(rowData.blockId, rowData.rowId);
+    if (rowCache != null) {
+      return SizeTransition(
+        sizeFactor: animation,
+        child: GridRowWidget(
+          rowData: rowData,
+          rowCache: rowCache,
+          key: ValueKey(rowData.rowId),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 }
 

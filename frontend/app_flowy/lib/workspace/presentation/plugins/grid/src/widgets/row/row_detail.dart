@@ -23,13 +23,11 @@ import 'package:window_size/window_size.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   final GridRow rowData;
-  final GridRowCache rowCache;
-  final GridCellCache cellCache;
+  final GridRowCacheService rowCache;
 
   const RowDetailPage({
     required this.rowData,
     required this.rowCache,
-    required this.cellCache,
     Key? key,
   }) : super(key: key);
 
@@ -77,7 +75,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                 children: const [Spacer(), _CloseButton()],
               ),
             ),
-            Expanded(child: _PropertyList(cellCache: widget.cellCache)),
+            Expanded(child: _PropertyList(cellCache: widget.rowCache.cellCache)),
           ],
         ),
       ),
@@ -101,7 +99,7 @@ class _CloseButton extends StatelessWidget {
 }
 
 class _PropertyList extends StatelessWidget {
-  final GridCellCache cellCache;
+  final GridCellCacheService cellCache;
   final ScrollController _scrollController;
   _PropertyList({
     required this.cellCache,
@@ -139,7 +137,7 @@ class _PropertyList extends StatelessWidget {
 
 class _RowDetailCell extends StatelessWidget {
   final GridCell gridCell;
-  final GridCellCache cellCache;
+  final GridCellCacheService cellCache;
   const _RowDetailCell({
     required this.gridCell,
     required this.cellCache,

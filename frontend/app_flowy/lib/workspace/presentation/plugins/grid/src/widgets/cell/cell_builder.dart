@@ -12,7 +12,7 @@ import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
-GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCache cellCache, {GridCellStyle? style}) {
+GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCacheService cellCache, {GridCellStyle? style}) {
   final key = ValueKey(gridCell.cellId());
 
   final cellContextBuilder = GridCellContextBuilder(gridCell: gridCell, cellCache: cellCache);
