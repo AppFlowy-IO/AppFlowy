@@ -62,8 +62,10 @@
         {
             "name": "AF: app_flowy (profile mode)",
             "request": "launch",
+            "program": "./lib/main.dart",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "cwd": "${workspaceRoot}/app_flowy"
         },
     ]
 }
