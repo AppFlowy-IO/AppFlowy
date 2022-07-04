@@ -14,7 +14,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/protobuf.dart';

@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 
 class UserService {
   final String userId;
