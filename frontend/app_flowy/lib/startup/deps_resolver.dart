@@ -13,8 +13,8 @@ import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -52,7 +52,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(MenuSharedState());
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
-    (user, _) => UserListener(user: user),
+    (user, _) => UserListener(userProfile: user),
   );
 
   //
@@ -61,7 +61,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
     (user, _) => WelcomeBloc(
       userService: UserService(userId: user.id),
-      userListener: getIt<UserListener>(param1: user),
+      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -73,8 +73,8 @@ void _resolveHomeDeps(GetIt getIt) {
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
-  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>((user, workspaceId) =>
-      WorkspaceListener(service: WorkspaceListenerService(user: user, workspaceId: workspaceId)));
+  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+      (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
   // View
   getIt.registerFactoryParam<ViewListener, View, void>(
@@ -98,10 +98,7 @@ void _resolveFolderDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
-    (user, _) => MenuUserBloc(
-      user,
-      getIt<UserListener>(param1: user),
-    ),
+    (user, _) => MenuUserBloc(user),
   );
 
   // App

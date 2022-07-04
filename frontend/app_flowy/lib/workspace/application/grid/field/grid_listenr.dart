@@ -1,10 +1,10 @@
+import 'package:app_flowy/core/grid_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/core/notification_helper.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
 typedef UpdateFieldNotifiedValue = Either<GridFieldChangeset, FlowyError>;

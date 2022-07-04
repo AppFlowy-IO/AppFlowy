@@ -252,15 +252,15 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_folder_data_model::entities::app::gen_app_id;
-use flowy_folder_data_model::entities::workspace::gen_workspace_id;
-use flowy_folder_data_model::entities::{
+use flowy_folder::entities::{
     app::{AppId, CreateAppParams, UpdateAppParams},
     trash::RepeatedTrashId,
     view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
 };
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use flowy_folder_data_model::revision::{
+    gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
+};
 use flowy_text_block::BlockCloudService;
 use flowy_user::event_map::UserCloudService;
 use flowy_user_data_model::entities::{
@@ -308,7 +308,7 @@ impl FolderCouldServiceV1 for LocalServer {
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
-            data_type: params.data_type,
+            data_type: params.data_type.into(),
             version: 0,
             belongings: vec![],
             modified_time: time,

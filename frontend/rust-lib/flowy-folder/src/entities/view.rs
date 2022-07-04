@@ -1,19 +1,14 @@
 use crate::{
-    errors::ErrorCode,
-    impl_def_and_def_mut,
-    parser::{
+    entities::parser::{
         app::AppIdentify,
         view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
     },
+    errors::ErrorCode,
+    impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use nanoid::nanoid;
-use serde_repr::*;
+use flowy_folder_data_model::revision::{gen_view_id, ViewDataTypeRevision, ViewRevision};
 use std::convert::TryInto;
-
-pub fn gen_view_id() -> String {
-    nanoid!(10)
-}
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct View {
@@ -39,8 +34,21 @@ pub struct View {
     pub plugin_type: i32,
 }
 
-#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
+impl std::convert::From<ViewRevision> for View {
+    fn from(rev: ViewRevision) -> Self {
+        View {
+            id: rev.id,
+            belong_to_id: rev.belong_to_id,
+            name: rev.name,
+            data_type: rev.data_type.into(),
+            modified_time: rev.modified_time,
+            create_time: rev.create_time,
+            plugin_type: rev.plugin_type,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewDataType {
     TextBlock = 0,
     Grid = 1,
@@ -48,19 +56,24 @@ pub enum ViewDataType {
 
 impl std::default::Default for ViewDataType {
     fn default() -> Self {
-        ViewDataType::TextBlock
+        ViewDataTypeRevision::default().into()
     }
 }
 
-impl std::convert::From<i32> for ViewDataType {
-    fn from(val: i32) -> Self {
-        match val {
-            0 => ViewDataType::TextBlock,
-            1 => ViewDataType::Grid,
-            _ => {
-                log::error!("Invalid view type: {}", val);
-                ViewDataType::TextBlock
-            }
+impl std::convert::From<ViewDataTypeRevision> for ViewDataType {
+    fn from(rev: ViewDataTypeRevision) -> Self {
+        match rev {
+            ViewDataTypeRevision::TextBlock => ViewDataType::TextBlock,
+            ViewDataTypeRevision::Grid => ViewDataType::Grid,
+        }
+    }
+}
+
+impl std::convert::From<ViewDataType> for ViewDataTypeRevision {
+    fn from(ty: ViewDataType) -> Self {
+        match ty {
+            ViewDataType::TextBlock => ViewDataTypeRevision::TextBlock,
+            ViewDataType::Grid => ViewDataTypeRevision::Grid,
         }
     }
 }
@@ -73,6 +86,12 @@ pub struct RepeatedView {
 
 impl_def_and_def_mut!(RepeatedView, View);
 
+impl std::convert::From<Vec<ViewRevision>> for RepeatedView {
+    fn from(values: Vec<ViewRevision>) -> Self {
+        let items = values.into_iter().map(|value| value.into()).collect::<Vec<View>>();
+        RepeatedView { items }
+    }
+}
 #[derive(Default, ProtoBuf)]
 pub struct RepeatedViewId {
     #[pb(index = 1)]

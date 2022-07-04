@@ -1,8 +1,10 @@
-use crate::entities::view::{View, ViewDataType};
-use crate::entities::{RepeatedView, TrashType};
-use crate::revision::TrashRevision;
+use crate::revision::{TrashRevision, TrashTypeRevision};
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-
+use serde_repr::*;
+pub fn gen_view_id() -> String {
+    nanoid!(10)
+}
 #[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ViewRevision {
     pub id: String,
@@ -14,7 +16,7 @@ pub struct ViewRevision {
     pub desc: String,
 
     #[serde(default)]
-    pub data_type: ViewDataType,
+    pub data_type: ViewDataTypeRevision,
 
     pub version: i64,
 
@@ -35,20 +37,6 @@ pub struct ViewRevision {
 }
 const DEFAULT_PLUGIN_TYPE: fn() -> i32 = || 0;
 
-impl std::convert::From<ViewRevision> for View {
-    fn from(view_serde: ViewRevision) -> Self {
-        View {
-            id: view_serde.id,
-            belong_to_id: view_serde.belong_to_id,
-            name: view_serde.name,
-            data_type: view_serde.data_type,
-            modified_time: view_serde.modified_time,
-            create_time: view_serde.create_time,
-            plugin_type: view_serde.plugin_type,
-        }
-    }
-}
-
 impl std::convert::From<ViewRevision> for TrashRevision {
     fn from(view_rev: ViewRevision) -> Self {
         TrashRevision {
@@ -56,13 +44,20 @@ impl std::convert::From<ViewRevision> for TrashRevision {
             name: view_rev.name,
             modified_time: view_rev.modified_time,
             create_time: view_rev.create_time,
-            ty: TrashType::TrashView,
+            ty: TrashTypeRevision::TrashView,
         }
     }
 }
-impl std::convert::From<Vec<ViewRevision>> for RepeatedView {
-    fn from(values: Vec<ViewRevision>) -> Self {
-        let items = values.into_iter().map(|value| value.into()).collect::<Vec<View>>();
-        RepeatedView { items }
+
+#[derive(Eq, PartialEq, Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum ViewDataTypeRevision {
+    TextBlock = 0,
+    Grid = 1,
+}
+
+impl std::default::Default for ViewDataTypeRevision {
+    fn default() -> Self {
+        ViewDataTypeRevision::TextBlock
     }
 }

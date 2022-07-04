@@ -82,7 +82,7 @@ impl UserSession {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
-            self.user_profile().await
+            self.get_user_profile().await
         } else {
             let resp = self.cloud_service.sign_in(params).await?;
             let session: Session = resp.clone().into();
@@ -97,7 +97,7 @@ impl UserSession {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
         if self.is_user_login(&params.email) {
-            self.user_profile().await
+            self.get_user_profile().await
         } else {
             let resp = self.cloud_service.sign_up(params).await?;
             let session: Session = resp.clone().into();
@@ -131,6 +131,10 @@ impl UserSession {
         let changeset = UserTableChangeset::new(params.clone());
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
+        let user_profile = self.get_user_profile().await?;
+        dart_notify(&session.token, UserNotification::UserProfileUpdated)
+            .payload(user_profile)
+            .send();
         let _ = self.update_user_on_server(&session.token, params).await?;
         Ok(())
     }
@@ -150,7 +154,7 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub async fn user_profile(&self) -> Result<UserProfile, FlowyError> {
+    pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
@@ -179,23 +183,23 @@ impl UserSession {
 }
 
 impl UserSession {
-    fn read_user_profile_on_server(&self, token: &str) -> Result<(), FlowyError> {
-        let server = self.cloud_service.clone();
-        let token = token.to_owned();
-        tokio::spawn(async move {
-            match server.get_user(&token).await {
-                Ok(profile) => {
-                    dart_notify(&token, UserNotification::UserProfileUpdated)
-                        .payload(profile)
-                        .send();
-                }
-                Err(e) => {
-                    dart_notify(&token, UserNotification::UserProfileUpdated)
-                        .error(e)
-                        .send();
-                }
-            }
-        });
+    fn read_user_profile_on_server(&self, _token: &str) -> Result<(), FlowyError> {
+        // let server = self.cloud_service.clone();
+        // let token = token.to_owned();
+        // tokio::spawn(async move {
+        //     match server.get_user(&token).await {
+        //         Ok(profile) => {
+        //             dart_notify(&token, UserNotification::UserProfileUpdated)
+        //                 .payload(profile)
+        //                 .send();
+        //         }
+        //         Err(e) => {
+        //             dart_notify(&token, UserNotification::UserProfileUpdated)
+        //                 .error(e)
+        //                 .send();
+        //         }
+        //     }
+        // });
         Ok(())
     }
 

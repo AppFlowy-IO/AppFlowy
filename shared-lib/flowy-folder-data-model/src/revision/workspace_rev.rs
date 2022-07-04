@@ -1,7 +1,9 @@
-use crate::entities::workspace::Workspace;
 use crate::revision::AppRevision;
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-
+pub fn gen_workspace_id() -> String {
+    nanoid!(10)
+}
 #[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct WorkspaceRevision {
     pub id: String,
@@ -15,17 +17,4 @@ pub struct WorkspaceRevision {
     pub modified_time: i64,
 
     pub create_time: i64,
-}
-
-impl std::convert::From<WorkspaceRevision> for Workspace {
-    fn from(workspace_serde: WorkspaceRevision) -> Self {
-        Workspace {
-            id: workspace_serde.id,
-            name: workspace_serde.name,
-            desc: workspace_serde.desc,
-            apps: workspace_serde.apps.into(),
-            modified_time: workspace_serde.modified_time,
-            create_time: workspace_serde.create_time,
-        }
-    }
 }

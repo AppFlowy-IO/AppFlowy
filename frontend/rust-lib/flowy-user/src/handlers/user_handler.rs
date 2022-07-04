@@ -20,7 +20,7 @@ pub async fn check_user_handler(session: AppData<Arc<UserSession>>) -> DataResul
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn get_user_profile_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfile, FlowyError> {
-    let user_profile = session.user_profile().await?;
+    let user_profile = session.get_user_profile().await?;
     data_result(user_profile)
 }
 

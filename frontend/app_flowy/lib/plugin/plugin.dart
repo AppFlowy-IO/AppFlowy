@@ -4,7 +4,7 @@ import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";

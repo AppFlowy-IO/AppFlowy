@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:app_flowy/core/notification_helper.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 typedef TrashUpdatedCallback = void Function(Either<List<Trash>, FlowyError> trashOrFailed);

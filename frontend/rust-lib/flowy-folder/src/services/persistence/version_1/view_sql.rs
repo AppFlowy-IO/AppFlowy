@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         trash::{Trash, TrashType},
-        view::{UpdateViewParams, ViewDataType},
+        view::UpdateViewParams,
     },
     errors::FlowyError,
     services::persistence::version_1::app_sql::AppTable,
@@ -13,7 +13,7 @@ use flowy_database::{
     SqliteConnection,
 };
 
-use flowy_folder_data_model::revision::ViewRevision;
+use flowy_folder_data_model::revision::{ViewDataTypeRevision, ViewRevision};
 use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();
@@ -87,8 +87,8 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
         let data_type = match view_rev.data_type {
-            ViewDataType::TextBlock => SqlViewDataType::Block,
-            ViewDataType::Grid => SqlViewDataType::Grid,
+            ViewDataTypeRevision::TextBlock => SqlViewDataType::Block,
+            ViewDataTypeRevision::Grid => SqlViewDataType::Grid,
         };
 
         ViewTable {
@@ -110,8 +110,8 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::Block => ViewDataType::TextBlock,
-            SqlViewDataType::Grid => ViewDataType::Grid,
+            SqlViewDataType::Block => ViewDataTypeRevision::TextBlock,
+            SqlViewDataType::Grid => ViewDataTypeRevision::Grid,
         };
 
         ViewRevision {

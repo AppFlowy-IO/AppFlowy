@@ -1,3 +1,5 @@
+use crate::entities::view::{MoveFolderItemParams, MoveFolderItemPayload, MoveFolderItemType};
+use crate::entities::ViewInfo;
 use crate::manager::FolderManager;
 use crate::services::{notify_workspace_setting_did_change, AppController};
 use crate::{
@@ -10,8 +12,6 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_folder_data_model::entities::view::{MoveFolderItemParams, MoveFolderItemPayload, MoveFolderItemType};
-use flowy_folder_data_model::entities::ViewInfo;
 use flowy_folder_data_model::revision::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
