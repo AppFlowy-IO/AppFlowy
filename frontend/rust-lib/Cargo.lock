@@ -765,11 +765,11 @@ dependencies = [
 
 [[package]]
 name = "fake"
-version = "2.3.0"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6479fa2c7e83ddf8be7d435421e093b072ca891b99a49bc84eba098f4044f818"
+checksum = "4d68f517805463f3a896a9d29c1d6ff09d3579ded64a7201b4069f8f9c0d52fd"
 dependencies = [
- "rand 0.7.3",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -1178,9 +1178,11 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "claim 0.4.0",
  "dart-notify",
  "diesel",
  "diesel_derives",
+ "fake",
  "fancy-regex",
  "flowy-database",
  "flowy-derive",
@@ -1195,8 +1197,13 @@ dependencies = [
  "once_cell",
  "parking_lot 0.11.2",
  "protobuf",
+ "quickcheck",
+ "quickcheck_macros",
+ "rand 0.8.5",
+ "rand_core 0.6.3",
  "serde",
  "serde_json",
+ "serial_test",
  "strum",
  "strum_macros",
  "tokio",

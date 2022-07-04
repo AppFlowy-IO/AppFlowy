@@ -34,8 +34,15 @@ fancy-regex = "0.10.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
-futures = "0.3.15"
 nanoid = "0.4.0"
+quickcheck = "1.0.3"
+quickcheck_macros = "0.9.1"
+fake = "2.4.3"
+claim = "0.4.0"
+futures = "0.3.15"
+serial_test = "0.5.1"
+rand_core = "0.6.3"
+rand = "0.8.5"
 
 [features]
 dart = ["lib-infra/dart"]

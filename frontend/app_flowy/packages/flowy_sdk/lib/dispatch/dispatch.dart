@@ -5,7 +5,6 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/event_map.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
