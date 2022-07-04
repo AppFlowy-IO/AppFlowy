@@ -262,10 +262,10 @@ use flowy_folder_data_model::revision::{
     gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
 };
 use flowy_text_block::BlockCloudService;
-use flowy_user::event_map::UserCloudService;
-use flowy_user_data_model::entities::{
+use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
+use flowy_user::event_map::UserCloudService;
 use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {

@@ -2,8 +2,8 @@ use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
 use crate::{
+    entities::parser::{UserEmail, UserId, UserName, UserPassword},
     errors::ErrorCode,
-    parser::{UserEmail, UserId, UserName, UserPassword},
 };
 
 #[derive(Default, ProtoBuf)]

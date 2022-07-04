@@ -1,8 +1,8 @@
-use crate::{errors::FlowyError, services::UserSession};
-use flowy_database::kv::KV;
-use flowy_user_data_model::entities::{
+use crate::entities::{
     AppearanceSettings, UpdateUserProfileParams, UpdateUserProfilePayload, UserProfile, APPEARANCE_DEFAULT_THEME,
 };
+use crate::{errors::FlowyError, services::UserSession};
+use flowy_database::kv::KV;
 use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 

@@ -1,3 +1,6 @@
+use crate::entities::{
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
 use crate::{
     dart_notification::*,
     errors::{ErrorCode, FlowyError},
@@ -13,9 +16,6 @@ use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
     DBConnection, ExpressionMethods, UserDatabaseConnection,
-};
-use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
