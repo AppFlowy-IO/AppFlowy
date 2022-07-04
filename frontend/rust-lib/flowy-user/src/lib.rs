@@ -1,4 +1,5 @@
 mod dart_notification;
+pub mod entities;
 pub mod event_map;
 mod handlers;
 pub mod protobuf;
@@ -10,8 +11,4 @@ extern crate flowy_database;
 
 pub mod errors {
     pub use flowy_error::*;
-}
-
-pub mod entities {
-    pub use flowy_user_data_model::entities::*;
 }

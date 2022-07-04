@@ -11,7 +11,6 @@ flowy-error = { path = "../flowy-error", features = ["collaboration", "http_serv
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
-flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-text-block = { path = "../flowy-text-block" }
@@ -46,7 +45,6 @@ dart = [
     "flowy-user/dart",
     "flowy-sync/dart",
     "flowy-error/dart",
-    "flowy-user-data-model/dart",
     "flowy-folder-data-model/dart"
 ]
 

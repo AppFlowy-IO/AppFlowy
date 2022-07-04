@@ -1,9 +1,9 @@
 use crate::{configuration::*, request::HttpRequestBuilder};
 use flowy_error::FlowyError;
-use flowy_user::event_map::UserCloudService;
-use flowy_user_data_model::entities::{
+use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
+use flowy_user::event_map::UserCloudService;
 use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
 
