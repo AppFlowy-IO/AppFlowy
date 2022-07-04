@@ -104,39 +104,54 @@ impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct IndexRowOrder {
+pub struct InsertedRow {
     #[pb(index = 1)]
-    pub row_info: BlockRowInfo,
+    pub block_id: String,
 
-    #[pb(index = 2, one_of)]
+    #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
+    pub height: i32,
+
+    #[pb(index = 4, one_of)]
     pub index: Option<i32>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct UpdatedRowOrder {
+pub struct UpdatedRow {
     #[pb(index = 1)]
-    pub row_info: BlockRowInfo,
+    pub block_id: String,
 
     #[pb(index = 2)]
+    pub row_id: String,
+
+    #[pb(index = 3)]
     pub row: Row,
 }
 
-impl UpdatedRowOrder {
+impl UpdatedRow {
     pub fn new(row_rev: &RowRevision, row: Row) -> Self {
         Self {
-            row_info: BlockRowInfo::from(row_rev),
+            row_id: row_rev.id.clone(),
+            block_id: row_rev.block_id.clone(),
             row,
         }
     }
 }
 
-impl std::convert::From<BlockRowInfo> for IndexRowOrder {
+impl std::convert::From<BlockRowInfo> for InsertedRow {
     fn from(row_info: BlockRowInfo) -> Self {
-        Self { row_info, index: None }
+        Self {
+            row_id: row_info.row_id,
+            block_id: row_info.block_id,
+            height: row_info.height,
+            index: None,
+        }
     }
 }
 
-impl std::convert::From<&RowRevision> for IndexRowOrder {
+impl std::convert::From<&RowRevision> for InsertedRow {
     fn from(row: &RowRevision) -> Self {
         let row_order = BlockRowInfo::from(row);
         Self::from(row_order)
@@ -144,21 +159,21 @@ impl std::convert::From<&RowRevision> for IndexRowOrder {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GridRowsChangeset {
+pub struct GridBlockChangeset {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub inserted_rows: Vec<IndexRowOrder>,
+    pub inserted_rows: Vec<InsertedRow>,
 
     #[pb(index = 3)]
     pub deleted_rows: Vec<GridRowId>,
 
     #[pb(index = 4)]
-    pub updated_rows: Vec<UpdatedRowOrder>,
+    pub updated_rows: Vec<UpdatedRow>,
 }
-impl GridRowsChangeset {
-    pub fn insert(block_id: &str, inserted_rows: Vec<IndexRowOrder>) -> Self {
+impl GridBlockChangeset {
+    pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRow>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows,
@@ -176,7 +191,7 @@ impl GridRowsChangeset {
         }
     }
 
-    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowOrder>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRow>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows: vec![],

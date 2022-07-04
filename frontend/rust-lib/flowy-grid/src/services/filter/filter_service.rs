@@ -1,5 +1,7 @@
+use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter, GridTextFilter,
+    FieldType, GridBlockChangeset, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridRowId,
+    GridSelectOptionFilter, GridTextFilter, InsertedRow,
 };
 use crate::services::block_manager::GridBlockManager;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
@@ -51,20 +53,43 @@ impl GridFilterService {
             .map(|field_rev| (field_rev.id.clone(), field_rev))
             .collect::<HashMap<String, Arc<FieldRevision>>>();
 
-        let mut show_rows = vec![];
-        let mut hide_rows = vec![];
-        for block in task_context.blocks {
+        let mut changesets = vec![];
+        for (index, block) in task_context.blocks.into_iter().enumerate() {
+            let mut inserted_rows = vec![];
+            let mut deleted_rows = vec![];
             block.row_revs.iter().for_each(|row_rev| {
-                let result = filter_row(row_rev, &self.filter_cache, &self.filter_result_cache, &field_revs);
-
-                if result.is_row_hidden() {
-                    hide_rows.push(result.row_id);
+                let result = filter_row(
+                    index,
+                    row_rev,
+                    &self.filter_cache,
+                    &self.filter_result_cache,
+                    &field_revs,
+                );
+                if result.is_visible() {
+                    inserted_rows.push(InsertedRow {
+                        row_id: Default::default(),
+                        block_id: Default::default(),
+                        height: 1,
+                        index: Some(result.row_index),
+                    });
                 } else {
-                    show_rows.push(result.row_id);
+                    deleted_rows.push(GridRowId {
+                        grid_id: self.grid_id.clone(),
+                        block_id: block.block_id.clone(),
+                        row_id: result.row_id,
+                    });
                 }
             });
+
+            let changeset = GridBlockChangeset {
+                block_id: block.block_id,
+                inserted_rows,
+                deleted_rows,
+                updated_rows: vec![],
+            };
+            changesets.push(changeset);
         }
-        self.notify(hide_rows, show_rows).await;
+        self.notify(changesets).await;
         Ok(())
     }
 
@@ -101,21 +126,23 @@ impl GridFilterService {
         }
     }
 
-    async fn notify(&self, _hide_rows: Vec<String>, _show_rows: Vec<String>) {
-        // let notification = GridNotification {};
-        // send_dart_notification(grid_id, GridNotification::DidUpdateGridBlock)
-        //     .payload(notification)
-        //     .send();
+    async fn notify(&self, changesets: Vec<GridBlockChangeset>) {
+        for changeset in changesets {
+            send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
+                .payload(changeset)
+                .send();
+        }
     }
 }
 
 fn filter_row(
+    index: usize,
     row_rev: &Arc<RowRevision>,
     _filter_cache: &Arc<RwLock<FilterCache>>,
     _filter_result_cache: &Arc<RwLock<FilterResultCache>>,
     _field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
 ) -> FilterResult {
-    let filter_result = FilterResult::new(row_rev);
+    let filter_result = FilterResult::new(index as i32, row_rev);
     row_rev.cells.iter().for_each(|(_k, cell_rev)| {
         let _cell_rev: &CellRevision = cell_rev;
     });
@@ -167,13 +194,14 @@ impl FilterResultCache {
 #[derive(Default)]
 struct FilterResult {
     row_id: String,
-    #[allow(dead_code)]
+    row_index: i32,
     cell_by_field_id: HashMap<String, bool>,
 }
 
 impl FilterResult {
-    fn new(row_rev: &RowRevision) -> Self {
+    fn new(index: i32, row_rev: &RowRevision) -> Self {
         Self {
+            row_index: index,
             row_id: row_rev.id.clone(),
             cell_by_field_id: row_rev.cells.iter().map(|(k, _)| (k.clone(), true)).collect(),
         }
@@ -184,7 +212,7 @@ impl FilterResult {
         self.cell_by_field_id.insert(cell_id.to_owned(), exist);
     }
 
-    fn is_row_hidden(&self) -> bool {
+    fn is_visible(&self) -> bool {
         todo!()
     }
 }

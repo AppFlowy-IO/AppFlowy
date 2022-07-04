@@ -43,7 +43,7 @@ class GridRowCacheService {
         _delegate = delegate {
     //
     delegate.onFieldsChanged(() => _notifier.receive(const GridRowChangeReason.fieldDidChange()));
-    _rows = block.rowInfos.map((rowInfo) => buildGridRow(rowInfo)).toList();
+    _rows = block.rowInfos.map((rowInfo) => buildGridRow(rowInfo.rowId, rowInfo.height.toDouble())).toList();
   }
 
   Future<void> dispose() async {
@@ -52,7 +52,7 @@ class GridRowCacheService {
     await _cellCache.dispose();
   }
 
-  void applyChangesets(List<GridRowsChangeset> changesets) {
+  void applyChangesets(List<GridBlockChangeset> changesets) {
     for (final changeset in changesets) {
       _deleteRows(changeset.deletedRows);
       _insertRows(changeset.insertedRows);
@@ -80,7 +80,7 @@ class GridRowCacheService {
     _notifier.receive(GridRowChangeReason.delete(deletedIndex));
   }
 
-  void _insertRows(List<IndexRowOrder> insertRows) {
+  void _insertRows(List<IndexRow> insertRows) {
     if (insertRows.isEmpty) {
       return;
     }
@@ -90,16 +90,16 @@ class GridRowCacheService {
     for (final insertRow in insertRows) {
       final insertIndex = InsertedIndex(
         index: insertRow.index,
-        rowId: insertRow.rowInfo.rowId,
+        rowId: insertRow.rowId,
       );
       insertIndexs.add(insertIndex);
-      newRows.insert(insertRow.index, (buildGridRow(insertRow.rowInfo)));
+      newRows.insert(insertRow.index, (buildGridRow(insertRow.rowId, insertIndex.row.height)));
     }
 
     _notifier.receive(GridRowChangeReason.insert(insertIndexs));
   }
 
-  void _updateRows(List<UpdatedRowOrder> updatedRows) {
+  void _updateRows(List<UpdatedRow> updatedRows) {
     if (updatedRows.isEmpty) {
       return;
     }
@@ -107,14 +107,13 @@ class GridRowCacheService {
     final UpdatedIndexs updatedIndexs = UpdatedIndexs();
     final List<GridRow> newRows = _rows;
     for (final updatedRow in updatedRows) {
-      final rowOrder = updatedRow.rowInfo;
-      final rowId = updatedRow.rowInfo.rowId;
+      final rowId = updatedRow.rowId;
       final index = newRows.indexWhere((row) => row.rowId == rowId);
       if (index != -1) {
         _rowByRowId[rowId] = updatedRow.row;
 
         newRows.removeAt(index);
-        newRows.insert(index, buildGridRow(rowOrder));
+        newRows.insert(index, buildGridRow(rowId, updatedRow.row.height.toDouble()));
         updatedIndexs[rowId] = UpdatedIndex(index: index, rowId: rowId);
       }
     }
@@ -226,13 +225,13 @@ class GridRowCacheService {
     }
   }
 
-  GridRow buildGridRow(BlockRowInfo rowInfo) {
+  GridRow buildGridRow(String rowId, double rowHeight) {
     return GridRow(
       gridId: gridId,
       blockId: block.id,
       fields: _delegate.fields,
-      rowId: rowInfo.rowId,
-      height: rowInfo.height.toDouble(),
+      rowId: rowId,
+      height: rowHeight,
     );
   }
 }

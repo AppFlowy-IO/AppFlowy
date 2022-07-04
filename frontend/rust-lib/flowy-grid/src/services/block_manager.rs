@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{BlockRowInfo, CellChangeset, GridRowId, GridRowsChangeset, IndexRowOrder, Row, UpdatedRowOrder};
+use crate::entities::{BlockRowInfo, CellChangeset, GridBlockChangeset, GridRowId, InsertedRow, Row, UpdatedRow};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -71,12 +71,12 @@ impl GridBlockManager {
         let _ = self.persistence.insert(&row_rev.block_id, &row_rev.id)?;
         let editor = self.get_editor(&row_rev.block_id).await?;
 
-        let mut index_row_order = IndexRowOrder::from(&row_rev);
+        let mut index_row_order = InsertedRow::from(&row_rev);
         let (row_count, row_index) = editor.create_row(row_rev, start_row_id).await?;
         index_row_order.index = row_index;
 
         let _ = self
-            .notify_did_update_block(block_id, GridRowsChangeset::insert(block_id, vec![index_row_order]))
+            .notify_did_update_block(block_id, GridBlockChangeset::insert(block_id, vec![index_row_order]))
             .await?;
         Ok(row_count)
     }
@@ -92,7 +92,7 @@ impl GridBlockManager {
             let mut row_count = 0;
             for row in row_revs {
                 let _ = self.persistence.insert(&row.block_id, &row.id)?;
-                let mut row_order = IndexRowOrder::from(&row);
+                let mut row_order = InsertedRow::from(&row);
                 let (count, index) = editor.create_row(row, None).await?;
                 row_count = count;
                 row_order.index = index;
@@ -101,7 +101,7 @@ impl GridBlockManager {
             changesets.push(GridBlockMetaRevisionChangeset::from_row_count(&block_id, row_count));
 
             let _ = self
-                .notify_did_update_block(&block_id, GridRowsChangeset::insert(&block_id, inserted_row_orders))
+                .notify_did_update_block(&block_id, GridBlockChangeset::insert(&block_id, inserted_row_orders))
                 .await?;
         }
 
@@ -118,8 +118,8 @@ impl GridBlockManager {
             None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
             Some(row_rev) => {
                 if let Some(row) = row_builder(row_rev.clone()) {
-                    let row_order = UpdatedRowOrder::new(&row_rev, row);
-                    let block_order_changeset = GridRowsChangeset::update(&editor.block_id, vec![row_order]);
+                    let row_order = UpdatedRow::new(&row_rev, row);
+                    let block_order_changeset = GridBlockChangeset::update(&editor.block_id, vec![row_order]);
                     let _ = self
                         .notify_did_update_block(&editor.block_id, block_order_changeset)
                         .await?;
@@ -144,7 +144,7 @@ impl GridBlockManager {
                     row_id: row_info.row_id,
                 };
                 let _ = self
-                    .notify_did_update_block(&block_id, GridRowsChangeset::delete(&block_id, vec![row_identifier]))
+                    .notify_did_update_block(&block_id, GridBlockChangeset::delete(&block_id, vec![row_identifier]))
                     .await?;
             }
         }
@@ -179,18 +179,19 @@ impl GridBlockManager {
         match editor.get_row_revs(Some(vec![Cow::Borrowed(row_id)])).await?.pop() {
             None => {}
             Some(row_rev) => {
-                let row_info = BlockRowInfo::from(&row_rev);
-                let insert_row = IndexRowOrder {
-                    row_info: row_info.clone(),
+                let insert_row = InsertedRow {
+                    block_id: row_rev.block_id.clone(),
+                    row_id: row_rev.id.clone(),
                     index: Some(to as i32),
+                    height: row_rev.height,
                 };
 
                 let deleted_row = GridRowId {
                     grid_id: self.grid_id.clone(),
-                    block_id: row_info.block_id,
-                    row_id: row_info.row_id,
+                    block_id: row_rev.block_id.clone(),
+                    row_id: row_rev.id.clone(),
                 };
-                let notified_changeset = GridRowsChangeset {
+                let notified_changeset = GridBlockChangeset {
                     block_id: editor.block_id.clone(),
                     inserted_rows: vec![insert_row],
                     deleted_rows: vec![deleted_row],
@@ -257,7 +258,7 @@ impl GridBlockManager {
         Ok(snapshots)
     }
 
-    async fn notify_did_update_block(&self, block_id: &str, changeset: GridRowsChangeset) -> FlowyResult<()> {
+    async fn notify_did_update_block(&self, block_id: &str, changeset: GridBlockChangeset) -> FlowyResult<()> {
         send_dart_notification(block_id, GridNotification::DidUpdateGridBlock)
             .payload(changeset)
             .send();
