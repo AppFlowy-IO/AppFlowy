@@ -11,13 +11,13 @@ part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserService userService;
-  final UserListener userListener;
-  WelcomeBloc({required this.userService, required this.userListener}) : super(WelcomeState.initial()) {
+  final UserWorkspaceListener userWorkspaceListener;
+  WelcomeBloc({required this.userService, required this.userWorkspaceListener}) : super(WelcomeState.initial()) {
     on<WelcomeEvent>(
       (event, emit) async {
         await event.map(initial: (e) async {
-          userListener.start(
-            onWorkspaceListUpdated: (result) => add(WelcomeEvent.workspacesReveived(result)),
+          userWorkspaceListener.start(
+            onWorkspacesUpdated: (result) => add(WelcomeEvent.workspacesReveived(result)),
           );
           //
           await _fetchWorkspaces(emit);
@@ -37,7 +37,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 
   @override
   Future<void> close() async {
-    await userListener.stop();
+    await userWorkspaceListener.stop();
     super.close();
   }
 

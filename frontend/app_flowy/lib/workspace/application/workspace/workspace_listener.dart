@@ -1,97 +1,73 @@
 import 'dart:async';
 import 'dart:typed_data';
-
-import 'package:app_flowy/core/notification_helper.dart';
+import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
-import 'package:flowy_sdk/rust_stream.dart';
 
-typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, FlowyError> appsOrFail);
-typedef WorkspaceUpdatedCallback = void Function(String name, String desc);
+typedef AppListNotifyValue = Either<List<App>, FlowyError>;
+typedef WorkspaceNotifyValue = Either<Workspace, FlowyError>;
 
 class WorkspaceListener {
-  WorkspaceListenerService service;
-  WorkspaceListener({
-    required this.service,
-  });
+  PublishNotifier<AppListNotifyValue>? _appsChangedNotifier = PublishNotifier();
+  PublishNotifier<WorkspaceNotifyValue>? _workspaceUpdatedNotifier = PublishNotifier();
 
-  void start({WorkspaceAppsChangedCallback? addAppCallback, WorkspaceUpdatedCallback? updatedCallback}) {
-    service.startListening(appsChanged: addAppCallback, update: updatedCallback);
-  }
-
-  Future<void> stop() async {
-    await service.close();
-  }
-}
-
-class WorkspaceListenerService {
-  StreamSubscription<SubscribeObject>? _subscription;
-  WorkspaceAppsChangedCallback? _appsChanged;
-  WorkspaceUpdatedCallback? _update;
-  FolderNotificationParser? _parser;
+  FolderNotificationListener? _listener;
   final UserProfile user;
   final String workspaceId;
 
-  WorkspaceListenerService({
+  WorkspaceListener({
     required this.user,
     required this.workspaceId,
   });
 
-  void startListening({
-    WorkspaceAppsChangedCallback? appsChanged,
-    WorkspaceUpdatedCallback? update,
+  void start({
+    void Function(AppListNotifyValue)? appsChanged,
+    void Function(WorkspaceNotifyValue)? onWorkspaceUpdated,
   }) {
-    _appsChanged = appsChanged;
-    _update = update;
+    if (appsChanged != null) {
+      _appsChangedNotifier?.addPublishListener(appsChanged);
+    }
 
-    _parser = FolderNotificationParser(
-      id: workspaceId,
-      callback: (ty, result) {
-        _handleObservableType(ty, result);
-      },
+    if (onWorkspaceUpdated != null) {
+      _workspaceUpdatedNotifier?.addPublishListener(onWorkspaceUpdated);
+    }
+
+    _listener = FolderNotificationListener(
+      objectId: workspaceId,
+      handler: _handleObservableType,
     );
-
-    _subscription = RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
 
   void _handleObservableType(FolderNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case FolderNotification.WorkspaceUpdated:
-        if (_update != null) {
-          result.fold(
-            (payload) {
-              final workspace = Workspace.fromBuffer(payload);
-              _update!(workspace.name, workspace.desc);
-            },
-            (error) => Log.error(error),
-          );
-        }
+        result.fold(
+          (payload) => _workspaceUpdatedNotifier?.value = left(Workspace.fromBuffer(payload)),
+          (error) => _workspaceUpdatedNotifier?.value = right(error),
+        );
         break;
       case FolderNotification.WorkspaceAppsChanged:
-        if (_appsChanged != null) {
-          result.fold(
-            (payload) => _appsChanged!(
-              left(RepeatedApp.fromBuffer(payload).items),
-            ),
-            (error) => _appsChanged!(right(error)),
-          );
-        }
+        result.fold(
+          (payload) => _appsChangedNotifier?.value = left(RepeatedApp.fromBuffer(payload).items),
+          (error) => _appsChangedNotifier?.value = right(error),
+        );
         break;
       default:
         break;
     }
   }
 
-  Future<void> close() async {
-    _parser = null;
-    await _subscription?.cancel();
-    // _appsChanged = null;
-    // _update = null;
+  Future<void> stop() async {
+    await _listener?.stop();
+    _appsChangedNotifier?.dispose();
+    _appsChangedNotifier = null;
+
+    _workspaceUpdatedNotifier?.dispose();
+    _workspaceUpdatedNotifier = null;
   }
 }
