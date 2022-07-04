@@ -904,6 +904,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "unicode-segmentation",
 ]
 
 [[package]]

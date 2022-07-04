@@ -1,13 +1,13 @@
+use crate::entities::{
+    app::RepeatedApp,
+    view::View,
+    workspace::{CurrentWorkspaceSetting, RepeatedWorkspace, WorkspaceId, *},
+};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     errors::FlowyError,
     manager::FolderManager,
     services::{get_current_workspace, read_local_workspace_apps, WorkspaceController},
-};
-use flowy_folder_data_model::entities::{
-    app::RepeatedApp,
-    view::View,
-    workspace::{CurrentWorkspaceSetting, RepeatedWorkspace, WorkspaceId, *},
 };
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};

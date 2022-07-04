@@ -1,3 +1,4 @@
+use crate::entities::view::ViewDataType;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::workspace::RepeatedWorkspace,
@@ -10,7 +11,6 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::FlowyError;
-use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};

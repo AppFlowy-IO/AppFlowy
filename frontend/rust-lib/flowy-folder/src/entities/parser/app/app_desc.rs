@@ -3,6 +3,7 @@ use unicode_segmentation::UnicodeSegmentation;
 pub struct AppDesc(pub String);
 
 impl AppDesc {
+    #[allow(dead_code)]
     pub fn parse(s: String) -> Result<AppDesc, String> {
         if s.graphemes(true).count() > 1024 {
             return Err("Workspace description too long".to_string());

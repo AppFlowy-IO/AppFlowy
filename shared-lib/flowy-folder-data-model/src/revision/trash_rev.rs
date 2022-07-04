@@ -1,7 +1,7 @@
-use crate::entities::trash::{Trash, TrashType};
-use crate::entities::{RepeatedTrash, TrashId};
+use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
-
+use serde_repr::*;
+use std::fmt;
 #[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TrashRevision {
     pub id: String,
@@ -12,45 +12,73 @@ pub struct TrashRevision {
 
     pub create_time: i64,
 
-    pub ty: TrashType,
+    pub ty: TrashTypeRevision,
 }
 
-impl std::convert::From<Vec<TrashRevision>> for RepeatedTrash {
-    fn from(trash_revs: Vec<TrashRevision>) -> Self {
-        let items: Vec<Trash> = trash_revs.into_iter().map(|trash_rev| trash_rev.into()).collect();
-        RepeatedTrash { items }
-    }
+#[derive(Eq, PartialEq, Debug, Clone, Serialize_repr)]
+#[repr(u8)]
+pub enum TrashTypeRevision {
+    Unknown = 0,
+    TrashView = 1,
+    TrashApp = 2,
 }
+impl<'de> serde::Deserialize<'de> for TrashTypeRevision {
+    fn deserialize<D>(deserializer: D) -> core::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct TrashTypeVisitor();
 
-impl std::convert::From<TrashRevision> for Trash {
-    fn from(trash_rev: TrashRevision) -> Self {
-        Trash {
-            id: trash_rev.id,
-            name: trash_rev.name,
-            modified_time: trash_rev.modified_time,
-            create_time: trash_rev.create_time,
-            ty: trash_rev.ty,
+        impl<'de> Visitor<'de> for TrashTypeVisitor {
+            type Value = TrashTypeRevision;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct Insert")
+            }
+
+            fn visit_u8<E>(self, v: u8) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                let ty = match v {
+                    0 => TrashTypeRevision::Unknown,
+                    1 => TrashTypeRevision::TrashView,
+                    2 => TrashTypeRevision::TrashApp,
+                    _ => TrashTypeRevision::Unknown,
+                };
+
+                Ok(ty)
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                let value = match s {
+                    "Unknown" => TrashTypeRevision::Unknown,
+                    "TrashView" => TrashTypeRevision::TrashView,
+                    "TrashApp" => TrashTypeRevision::TrashApp,
+                    _ => TrashTypeRevision::Unknown,
+                };
+                Ok(value)
+            }
         }
+
+        deserializer.deserialize_any(TrashTypeVisitor())
+    }
+}
+impl std::default::Default for TrashTypeRevision {
+    fn default() -> Self {
+        TrashTypeRevision::Unknown
     }
 }
 
-impl std::convert::From<Trash> for TrashRevision {
-    fn from(trash: Trash) -> Self {
-        TrashRevision {
-            id: trash.id,
-            name: trash.name,
-            modified_time: trash.modified_time,
-            create_time: trash.create_time,
-            ty: trash.ty,
-        }
-    }
-}
-
-impl std::convert::From<&TrashRevision> for TrashId {
-    fn from(trash: &TrashRevision) -> Self {
-        TrashId {
-            id: trash.id.clone(),
-            ty: trash.ty.clone(),
+impl std::convert::From<TrashTypeRevision> for u8 {
+    fn from(rev: TrashTypeRevision) -> Self {
+        match rev {
+            TrashTypeRevision::Unknown => 0,
+            TrashTypeRevision::TrashView => 1,
+            TrashTypeRevision::TrashApp => 2,
         }
     }
 }

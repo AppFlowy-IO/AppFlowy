@@ -1,17 +1,13 @@
 use crate::{
+    entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
     entities::{app::RepeatedApp, view::View},
     errors::*,
     impl_def_and_def_mut,
-    parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
 };
 use flowy_derive::ProtoBuf;
-use nanoid::nanoid;
-
+use flowy_folder_data_model::revision::WorkspaceRevision;
 use std::convert::TryInto;
 
-pub fn gen_workspace_id() -> String {
-    nanoid!(10)
-}
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Workspace {
     #[pb(index = 1)]
@@ -33,6 +29,18 @@ pub struct Workspace {
     pub create_time: i64,
 }
 
+impl std::convert::From<WorkspaceRevision> for Workspace {
+    fn from(workspace_serde: WorkspaceRevision) -> Self {
+        Workspace {
+            id: workspace_serde.id,
+            name: workspace_serde.name,
+            desc: workspace_serde.desc,
+            apps: workspace_serde.apps.into(),
+            modified_time: workspace_serde.modified_time,
+            create_time: workspace_serde.create_time,
+        }
+    }
+}
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspace {
     #[pb(index = 1)]
