@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use flowy_folder::prelude::WorkspaceId;
+use flowy_folder::entities::WorkspaceId;
 use flowy_folder::{
     entities::{
         app::*,

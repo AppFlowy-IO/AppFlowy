@@ -8,7 +8,6 @@ use crate::{
     },
     errors::{CollaborateError, CollaborateResult},
 };
-
 use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
@@ -724,7 +723,7 @@ mod tests {
                             "name": "🚽 my first trash",
                             "modified_time": 0,
                             "create_time": 0,
-                            "ty": "Unknown"
+                            "ty": 0 
                         }
                     ]
                 }

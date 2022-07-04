@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_folder::entities::ViewDataType;
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
-use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
     errors::{internal_error, FlowyError},
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},

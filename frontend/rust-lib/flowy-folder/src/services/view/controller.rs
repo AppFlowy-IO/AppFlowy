@@ -1,3 +1,5 @@
+pub use crate::entities::view::ViewDataType;
+use crate::entities::ViewInfo;
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -14,9 +16,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
-use flowy_folder_data_model::entities::ViewInfo;
-use flowy_folder_data_model::revision::ViewRevision;
+use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
 use flowy_sync::entities::text_block::TextBlockId;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
@@ -58,7 +58,7 @@ impl ViewController {
         &self,
         mut params: CreateViewParams,
     ) -> Result<ViewRevision, FlowyError> {
-        let processor = self.get_data_processor(&params.data_type)?;
+        let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
         if params.data.is_empty() {
             let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
@@ -88,7 +88,7 @@ impl ViewController {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
-        let processor = self.get_data_processor(&data_type)?;
+        let processor = self.get_data_processor(data_type)?;
         let _ = processor.create_container(&user_id, view_id, delta_data).await?;
         Ok(())
     }
@@ -140,7 +140,7 @@ impl ViewController {
                     belong_to_id: view_rev.belong_to_id,
                     name: view_rev.name,
                     desc: view_rev.desc,
-                    data_type: view_rev.data_type,
+                    data_type: view_rev.data_type.into(),
                     belongings: RepeatedView { items },
                     ext_data: view_rev.ext_data,
                 };
@@ -209,14 +209,14 @@ impl ViewController {
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
 
-        let processor = self.get_data_processor(&view_rev.data_type)?;
+        let processor = self.get_data_processor(view_rev.data_type.clone())?;
         let delta_bytes = processor.get_delta_data(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.belong_to_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
-            data_type: view_rev.data_type,
+            data_type: view_rev.data_type.into(),
             data: delta_bytes.to_vec(),
             view_id: gen_view_id(),
             plugin_type: view_rev.plugin_type,
@@ -360,12 +360,16 @@ impl ViewController {
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
-        self.get_data_processor(&view.data_type)
+        self.get_data_processor(view.data_type)
     }
 
     #[inline]
-    fn get_data_processor(&self, data_type: &ViewDataType) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
-        match self.data_processors.get(data_type) {
+    fn get_data_processor<T: Into<ViewDataType>>(
+        &self,
+        data_type: T,
+    ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
+        let data_type = data_type.into();
+        match self.data_processors.get(&data_type) {
             None => Err(FlowyError::internal().context(format!(
                 "Get data processor failed. Unknown view data type: {:?}",
                 data_type
@@ -429,7 +433,8 @@ async fn handle_trash_event(
                     .await?;
 
                 for view in views {
-                    match get_data_processor(data_processors.clone(), &view.data_type) {
+                    let data_type = view.data_type.clone().into();
+                    match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
                             let _ = processor.close_container(&view.id).await?;
                         }

@@ -1,19 +1,19 @@
-use flowy_folder::event_map::FolderEvent::*;
-use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
-use flowy_folder_data_model::entities::view::{RepeatedViewId, ViewId};
-use flowy_folder_data_model::entities::workspace::WorkspaceId;
-use flowy_folder_data_model::entities::{
+use flowy_folder::entities::view::{RepeatedViewId, ViewId};
+use flowy_folder::entities::workspace::WorkspaceId;
+use flowy_folder::entities::{
     app::{App, RepeatedApp},
     trash::Trash,
     view::{RepeatedView, View, ViewDataType},
     workspace::Workspace,
 };
-use flowy_folder_data_model::entities::{
+use flowy_folder::entities::{
     app::{AppId, CreateAppPayload, UpdateAppPayload},
     trash::{RepeatedTrash, TrashId, TrashType},
     view::{CreateViewPayload, UpdateViewPayload},
     workspace::{CreateWorkspacePayload, RepeatedWorkspace},
 };
+use flowy_folder::event_map::FolderEvent::*;
+use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
 
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -205,7 +205,7 @@ impl FolderTest {
                 restore_view_from_trash(sdk, &self.view.id).await;
             }
             FolderScript::ReadTrash => {
-                let trash = read_trash(sdk).await;
+                let mut trash = read_trash(sdk).await;
                 self.trash = trash.into_inner();
             }
             FolderScript::DeleteAllTrash => {
@@ -264,7 +264,7 @@ pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Wor
 
 pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) -> Vec<Workspace> {
     let request = WorkspaceId { value: workspace_id };
-    let repeated_workspace = FolderEventBuilder::new(sdk.clone())
+    let mut repeated_workspace = FolderEventBuilder::new(sdk.clone())
         .event(ReadWorkspaces)
         .payload(request.clone())
         .async_send()

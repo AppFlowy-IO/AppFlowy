@@ -1,20 +1,16 @@
 use crate::{
-    entities::view::RepeatedView,
-    errors::ErrorCode,
-    impl_def_and_def_mut,
-    parser::{
+    entities::parser::{
         app::{AppColorStyle, AppIdentify, AppName},
         workspace::WorkspaceIdentify,
     },
+    entities::view::RepeatedView,
+    errors::ErrorCode,
+    impl_def_and_def_mut,
 };
 use flowy_derive::ProtoBuf;
-use nanoid::nanoid;
-
+use flowy_folder_data_model::revision::AppRevision;
 use std::convert::TryInto;
 
-pub fn gen_app_id() -> String {
-    nanoid!(10)
-}
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct App {
     #[pb(index = 1)]
@@ -42,6 +38,20 @@ pub struct App {
     pub create_time: i64,
 }
 
+impl std::convert::From<AppRevision> for App {
+    fn from(app_serde: AppRevision) -> Self {
+        App {
+            id: app_serde.id,
+            workspace_id: app_serde.workspace_id,
+            name: app_serde.name,
+            desc: app_serde.desc,
+            belongings: app_serde.belongings.into(),
+            version: app_serde.version,
+            modified_time: app_serde.modified_time,
+            create_time: app_serde.create_time,
+        }
+    }
+}
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
@@ -50,6 +60,12 @@ pub struct RepeatedApp {
 
 impl_def_and_def_mut!(RepeatedApp, App);
 
+impl std::convert::From<Vec<AppRevision>> for RepeatedApp {
+    fn from(values: Vec<AppRevision>) -> Self {
+        let items = values.into_iter().map(|value| value.into()).collect::<Vec<App>>();
+        RepeatedApp { items }
+    }
+}
 #[derive(ProtoBuf, Default)]
 pub struct CreateAppPayload {
     #[pb(index = 1)]
