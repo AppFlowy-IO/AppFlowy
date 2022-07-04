@@ -9,7 +9,7 @@ import 'dart:typed_data';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
 import 'package:flowy_sdk/rust_stream.dart';
 

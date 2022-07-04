@@ -1,7 +1,7 @@
-use crate::{errors::FlowyError, handlers::*, services::UserSession};
-use flowy_user_data_model::entities::{
+use crate::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
+use crate::{errors::FlowyError, handlers::*, services::UserSession};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;

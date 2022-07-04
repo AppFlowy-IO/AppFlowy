@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';

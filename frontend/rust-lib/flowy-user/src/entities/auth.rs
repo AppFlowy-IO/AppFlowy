@@ -1,8 +1,7 @@
-use std::convert::TryInto;
-
+use crate::entities::parser::{UserEmail, UserName, UserPassword};
+use crate::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
-
-use crate::{errors::*, parser::*};
+use std::convert::TryInto;
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInPayload {

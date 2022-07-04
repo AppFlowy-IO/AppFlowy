@@ -1,4 +1,4 @@
-use flowy_user_data_model::entities::UserProfile;
+use crate::entities::UserProfile;
 use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]

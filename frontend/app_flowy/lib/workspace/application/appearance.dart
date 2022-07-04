@@ -4,7 +4,7 @@ import 'package:app_flowy/user/application/user_settings_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_setting.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
