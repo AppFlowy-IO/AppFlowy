@@ -22,7 +22,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
-          listener.start(addAppCallback: _handleAppsOrFail);
+          listener.start(appsChanged: _handleAppsOrFail);
           await _fetchApps(emit);
         },
         openPage: (e) async {

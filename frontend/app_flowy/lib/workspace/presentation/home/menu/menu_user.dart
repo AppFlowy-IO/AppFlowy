@@ -58,9 +58,9 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    String name = context.read<MenuUserBloc>().state.user.name;
+    String name = context.read<MenuUserBloc>().state.userProfile.name;
     if (name.isEmpty) {
-      name = context.read<MenuUserBloc>().state.user.email;
+      name = context.read<MenuUserBloc>().state.userProfile.email;
     }
     return FlowyText(name, fontSize: 12);
   }

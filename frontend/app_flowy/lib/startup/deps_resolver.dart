@@ -52,7 +52,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(MenuSharedState());
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
-    (user, _) => UserListener(user: user),
+    (user, _) => UserListener(userProfile: user),
   );
 
   //
@@ -61,7 +61,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
     (user, _) => WelcomeBloc(
       userService: UserService(userId: user.id),
-      userListener: getIt<UserListener>(param1: user),
+      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -73,8 +73,8 @@ void _resolveHomeDeps(GetIt getIt) {
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
-  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>((user, workspaceId) =>
-      WorkspaceListener(service: WorkspaceListenerService(user: user, workspaceId: workspaceId)));
+  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+      (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
   // View
   getIt.registerFactoryParam<ViewListener, View, void>(
@@ -98,10 +98,7 @@ void _resolveFolderDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
-    (user, _) => MenuUserBloc(
-      user,
-      getIt<UserListener>(param1: user),
-    ),
+    (user, _) => MenuUserBloc(user),
   );
 
   // App

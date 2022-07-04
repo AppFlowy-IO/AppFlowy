@@ -12,29 +12,33 @@ part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   final UserService _userService;
-  final UserListener userListener;
+  final UserListener _userListener;
+  final UserWorkspaceListener _userWorkspaceListener;
   final UserProfile userProfile;
 
-  MenuUserBloc(this.userProfile, this.userListener)
-      : _userService = UserService(userId: userProfile.id),
+  MenuUserBloc(this.userProfile)
+      : _userListener = UserListener(userProfile: userProfile),
+        _userWorkspaceListener = UserWorkspaceListener(userProfile: userProfile),
+        _userService = UserService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     on<MenuUserEvent>((event, emit) async {
-      await event.map(
-        initial: (_) async {
-          userListener.start(
-            onProfileUpdated: _profileUpdated,
-            onWorkspaceListUpdated: _workspaceListUpdated,
-          );
+      await event.when(
+        initial: () async {
+          _userListener.start(onProfileUpdated: _profileUpdated);
+          _userWorkspaceListener.start(onWorkspacesUpdated: _workspaceListUpdated);
           await _initUser();
         },
-        fetchWorkspaces: (_FetchWorkspaces value) async {},
+        fetchWorkspaces: () async {
+          //
+        },
       );
     });
   }
 
   @override
   Future<void> close() async {
-    await userListener.stop();
+    await _userListener.stop();
+    await _userWorkspaceListener.stop();
     super.close();
   }
 
@@ -43,19 +47,10 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     result.fold((l) => null, (error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfile, FlowyError> userOrFailed) {}
+  void _profileUpdated(Either<UserProfile, FlowyError> userProfileOrFailed) {}
+
   void _workspaceListUpdated(Either<List<Workspace>, FlowyError> workspacesOrFailed) {
-    // fetch workspaces
-    // iUserImpl.fetchWorkspaces().then((result) {
-    //   result.fold(
-    //     (workspaces) async* {
-    //       yield state.copyWith(workspaces: some(workspaces));
-    //     },
-    //     (error) async* {
-    //       yield state.copyWith(successOrFailure: right(error.msg));
-    //     },
-    //   );
-    // });
+    // Do nothing by now
   }
 }
 
@@ -68,13 +63,13 @@ class MenuUserEvent with _$MenuUserEvent {
 @freezed
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
-    required UserProfile user,
+    required UserProfile userProfile,
     required Option<List<Workspace>> workspaces,
     required Either<Unit, String> successOrFailure,
   }) = _MenuUserState;
 
-  factory MenuUserState.initial(UserProfile user) => MenuUserState(
-        user: user,
+  factory MenuUserState.initial(UserProfile userProfile) => MenuUserState(
+        userProfile: userProfile,
         workspaces: none(),
         successOrFailure: left(unit),
       );
