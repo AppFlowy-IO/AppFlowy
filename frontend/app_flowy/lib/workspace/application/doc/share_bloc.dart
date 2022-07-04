@@ -4,7 +4,7 @@ import 'package:app_flowy/startup/tasks/rust_sdk.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
