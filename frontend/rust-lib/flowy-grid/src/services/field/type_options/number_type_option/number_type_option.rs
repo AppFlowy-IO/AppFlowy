@@ -178,8 +178,10 @@ impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
             }
         }
     }
-
-    fn apply_filter(&self, _filter: GridNumberFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridNumberFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 

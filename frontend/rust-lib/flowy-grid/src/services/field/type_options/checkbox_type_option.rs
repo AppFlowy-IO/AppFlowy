@@ -62,7 +62,10 @@ impl CellDataOperation<String, GridCheckboxFilter> for CheckboxTypeOption {
         Ok(DecodedCellData::default())
     }
 
-    fn apply_filter(&self, _filter: GridCheckboxFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridCheckboxFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 

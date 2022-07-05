@@ -1,4 +1,3 @@
-use crate::entities::GridRowId;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -11,11 +10,11 @@ pub struct GridBlock {
     pub id: String,
 
     #[pb(index = 2)]
-    pub row_infos: Vec<BlockRowInfo>,
+    pub row_infos: Vec<RowInfo>,
 }
 
 impl GridBlock {
-    pub fn new(block_id: &str, row_orders: Vec<BlockRowInfo>) -> Self {
+    pub fn new(block_id: &str, row_orders: Vec<RowInfo>) -> Self {
         Self {
             id: block_id.to_owned(),
             row_infos: row_orders,
@@ -24,7 +23,7 @@ impl GridBlock {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct BlockRowInfo {
+pub struct RowInfo {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -35,7 +34,7 @@ pub struct BlockRowInfo {
     pub height: i32,
 }
 
-impl BlockRowInfo {
+impl RowInfo {
     pub fn row_id(&self) -> &str {
         &self.row_id
     }
@@ -45,7 +44,7 @@ impl BlockRowInfo {
     }
 }
 
-impl std::convert::From<&RowRevision> for BlockRowInfo {
+impl std::convert::From<&RowRevision> for RowInfo {
     fn from(rev: &RowRevision) -> Self {
         Self {
             block_id: rev.block_id.clone(),
@@ -55,7 +54,7 @@ impl std::convert::From<&RowRevision> for BlockRowInfo {
     }
 }
 
-impl std::convert::From<&Arc<RowRevision>> for BlockRowInfo {
+impl std::convert::From<&Arc<RowRevision>> for RowInfo {
     fn from(rev: &Arc<RowRevision>) -> Self {
         Self {
             block_id: rev.block_id.clone(),
@@ -140,8 +139,8 @@ impl UpdatedRow {
     }
 }
 
-impl std::convert::From<BlockRowInfo> for InsertedRow {
-    fn from(row_info: BlockRowInfo) -> Self {
+impl std::convert::From<RowInfo> for InsertedRow {
+    fn from(row_info: RowInfo) -> Self {
         Self {
             row_id: row_info.row_id,
             block_id: row_info.block_id,
@@ -153,7 +152,7 @@ impl std::convert::From<BlockRowInfo> for InsertedRow {
 
 impl std::convert::From<&RowRevision> for InsertedRow {
     fn from(row: &RowRevision) -> Self {
-        let row_order = BlockRowInfo::from(row);
+        let row_order = RowInfo::from(row);
         Self::from(row_order)
     }
 }
@@ -167,36 +166,39 @@ pub struct GridBlockChangeset {
     pub inserted_rows: Vec<InsertedRow>,
 
     #[pb(index = 3)]
-    pub deleted_rows: Vec<GridRowId>,
+    pub deleted_rows: Vec<String>,
 
     #[pb(index = 4)]
     pub updated_rows: Vec<UpdatedRow>,
+
+    #[pb(index = 5)]
+    pub visible_rows: Vec<String>,
+
+    #[pb(index = 6)]
+    pub hide_rows: Vec<String>,
 }
 impl GridBlockChangeset {
     pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRow>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows,
-            deleted_rows: vec![],
-            updated_rows: vec![],
+            ..Default::default()
         }
     }
 
-    pub fn delete(block_id: &str, deleted_rows: Vec<GridRowId>) -> Self {
+    pub fn delete(block_id: &str, deleted_rows: Vec<String>) -> Self {
         Self {
             block_id: block_id.to_owned(),
-            inserted_rows: vec![],
             deleted_rows,
-            updated_rows: vec![],
+            ..Default::default()
         }
     }
 
     pub fn update(block_id: &str, updated_rows: Vec<UpdatedRow>) -> Self {
         Self {
             block_id: block_id.to_owned(),
-            inserted_rows: vec![],
-            deleted_rows: vec![],
             updated_rows,
+            ..Default::default()
         }
     }
 }

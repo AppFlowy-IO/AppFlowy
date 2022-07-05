@@ -123,7 +123,10 @@ impl CellDataOperation<String, GridSelectOptionFilter> for SingleSelectTypeOptio
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_filter(&self, _filter: GridSelectOptionFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridSelectOptionFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 
@@ -225,7 +228,10 @@ impl CellDataOperation<String, GridSelectOptionFilter> for MultiSelectTypeOption
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_filter(&self, _filter: GridSelectOptionFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridSelectOptionFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 

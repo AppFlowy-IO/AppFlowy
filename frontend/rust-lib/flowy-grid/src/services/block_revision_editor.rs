@@ -1,4 +1,4 @@
-use crate::entities::BlockRowInfo;
+use crate::entities::RowInfo;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
@@ -123,12 +123,12 @@ impl GridBlockRevisionEditor {
         Ok(cell_revs)
     }
 
-    pub async fn get_row_info(&self, row_id: &str) -> FlowyResult<Option<BlockRowInfo>> {
+    pub async fn get_row_info(&self, row_id: &str) -> FlowyResult<Option<RowInfo>> {
         let row_ids = Some(vec![Cow::Borrowed(row_id)]);
         Ok(self.get_row_infos(row_ids).await?.pop())
     }
 
-    pub async fn get_row_infos<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<BlockRowInfo>>
+    pub async fn get_row_infos<T>(&self, row_ids: Option<Vec<Cow<'_, T>>>) -> FlowyResult<Vec<RowInfo>>
     where
         T: AsRef<str> + ToOwned + ?Sized,
     {
@@ -138,8 +138,8 @@ impl GridBlockRevisionEditor {
             .await
             .get_row_revs(row_ids)?
             .iter()
-            .map(BlockRowInfo::from)
-            .collect::<Vec<BlockRowInfo>>();
+            .map(RowInfo::from)
+            .collect::<Vec<RowInfo>>();
         Ok(row_infos)
     }
 

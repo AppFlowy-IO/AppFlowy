@@ -50,7 +50,7 @@ impl CellDataOperation<EncodedCellData<URLCellData>, GridTextFilter> for URLType
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
+    fn apply_filter(&self, _filter: &GridTextFilter) -> bool {
         todo!()
     }
 

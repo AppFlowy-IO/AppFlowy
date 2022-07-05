@@ -17,7 +17,9 @@ pub trait CellDataOperation<D, F> {
     where
         T: Into<D>;
 
-    fn apply_filter(&self, filter: F) -> bool;
+    fn apply_filter<T>(&self, encoded_data: T, filter: &F) -> bool
+    where
+        T: Into<D>;
 
     fn apply_changeset<C: Into<CellContentChangeset>>(
         &self,
@@ -73,6 +75,13 @@ impl std::convert::TryInto<TypeOptionCellData> for String {
     }
 }
 
+impl std::convert::TryFrom<&CellRevision> for TypeOptionCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
+        Self::from_str(&value.data)
+    }
+}
 impl TypeOptionCellData {
     pub fn new<T: ToString>(data: T, field_type: FieldType) -> Self {
         TypeOptionCellData {

@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{BlockRowInfo, CellChangeset, GridBlockChangeset, GridRowId, InsertedRow, Row, UpdatedRow};
+use crate::entities::{CellChangeset, GridBlockChangeset, InsertedRow, Row, RowInfo, UpdatedRow};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -137,14 +137,8 @@ impl GridBlockManager {
             None => {}
             Some(row_info) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
-
-                let row_identifier = GridRowId {
-                    grid_id: self.grid_id.clone(),
-                    block_id: row_info.block_id,
-                    row_id: row_info.row_id,
-                };
                 let _ = self
-                    .notify_did_update_block(&block_id, GridBlockChangeset::delete(&block_id, vec![row_identifier]))
+                    .notify_did_update_block(&block_id, GridBlockChangeset::delete(&block_id, vec![row_info.row_id]))
                     .await?;
             }
         }
@@ -154,7 +148,7 @@ impl GridBlockManager {
 
     pub(crate) async fn delete_rows(
         &self,
-        row_orders: Vec<BlockRowInfo>,
+        row_orders: Vec<RowInfo>,
     ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for grid_block in block_from_row_orders(row_orders) {
@@ -186,16 +180,11 @@ impl GridBlockManager {
                     height: row_rev.height,
                 };
 
-                let deleted_row = GridRowId {
-                    grid_id: self.grid_id.clone(),
-                    block_id: row_rev.block_id.clone(),
-                    row_id: row_rev.id.clone(),
-                };
                 let notified_changeset = GridBlockChangeset {
                     block_id: editor.block_id.clone(),
                     inserted_rows: vec![insert_row],
-                    deleted_rows: vec![deleted_row],
-                    updated_rows: vec![],
+                    deleted_rows: vec![row_rev.id.clone()],
+                    ..Default::default()
                 };
 
                 let _ = self
@@ -228,7 +217,7 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<BlockRowInfo>> {
+    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowInfo>> {
         let editor = self.get_editor(block_id).await?;
         editor.get_row_infos::<&str>(None).await
     }

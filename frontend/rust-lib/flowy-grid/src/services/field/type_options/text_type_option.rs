@@ -52,7 +52,10 @@ impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
         }
     }
 
-    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridTextFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 

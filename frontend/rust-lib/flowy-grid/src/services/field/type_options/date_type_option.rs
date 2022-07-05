@@ -137,8 +137,10 @@ impl CellDataOperation<String, GridDateFilter> for DateTypeOption {
         let date = self.today_desc_from_timestamp(timestamp);
         DecodedCellData::try_from_bytes(date)
     }
-
-    fn apply_filter(&self, _filter: GridDateFilter) -> bool {
+    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridDateFilter) -> bool
+    where
+        T: Into<String>,
+    {
         todo!()
     }
 

@@ -57,17 +57,19 @@ class GridRowCacheService {
       _deleteRows(changeset.deletedRows);
       _insertRows(changeset.insertedRows);
       _updateRows(changeset.updatedRows);
+      _hideRows(changeset.hideRows);
+      _showRows(changeset.visibleRows);
     }
   }
 
-  void _deleteRows(List<GridRowId> deletedRows) {
+  void _deleteRows(List<String> deletedRows) {
     if (deletedRows.isEmpty) {
       return;
     }
 
     final List<GridRow> newRows = [];
     final DeletedIndexs deletedIndex = [];
-    final Map<String, GridRowId> deletedRowByRowId = {for (var e in deletedRows) e.rowId: e};
+    final Map<String, String> deletedRowByRowId = {for (var rowId in deletedRows) rowId: rowId};
 
     _rows.asMap().forEach((index, row) {
       if (deletedRowByRowId[row.rowId] == null) {
@@ -80,7 +82,7 @@ class GridRowCacheService {
     _notifier.receive(GridRowChangeReason.delete(deletedIndex));
   }
 
-  void _insertRows(List<IndexRow> insertRows) {
+  void _insertRows(List<InsertedRow> insertRows) {
     if (insertRows.isEmpty) {
       return;
     }
@@ -93,7 +95,7 @@ class GridRowCacheService {
         rowId: insertRow.rowId,
       );
       insertIndexs.add(insertIndex);
-      newRows.insert(insertRow.index, (buildGridRow(insertRow.rowId, insertIndex.row.height)));
+      newRows.insert(insertRow.index, (buildGridRow(insertRow.rowId, insertRow.height.toDouble())));
     }
 
     _notifier.receive(GridRowChangeReason.insert(insertIndexs));
@@ -120,6 +122,10 @@ class GridRowCacheService {
 
     _notifier.receive(GridRowChangeReason.update(updatedIndexs));
   }
+
+  void _hideRows(List<String> hideRows) {}
+
+  void _showRows(List<String> visibleRows) {}
 
   void onRowsChanged(
     void Function(GridRowChangeReason) onRowChanged,

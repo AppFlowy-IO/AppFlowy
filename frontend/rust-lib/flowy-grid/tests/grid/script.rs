@@ -99,7 +99,7 @@ pub struct GridEditorTest {
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
 
-    pub row_order_by_row_id: HashMap<String, BlockRowInfo>,
+    pub row_order_by_row_id: HashMap<String, RowInfo>,
 }
 
 impl GridEditorTest {
@@ -220,7 +220,7 @@ impl GridEditorTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<BlockRowInfo>>();
+                    .collect::<Vec<RowInfo>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
