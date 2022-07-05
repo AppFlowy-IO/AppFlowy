@@ -2,13 +2,16 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_settings_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatefulWidget {
-  const SettingsDialog({Key? key}) : super(key: key);
+  final UserProfile user;
+  SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
 
   @override
   State<SettingsDialog> createState() => _SettingsDialogState();
@@ -17,10 +20,14 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog> {
   int _selectedViewIndex = 0;
 
-  final List<Widget> settingsViews = const [
-    SettingsAppearanceView(),
-    SettingsLanguageView(),
-  ];
+  Widget getSettingsView(int index, UserProfile user) {
+    final List<Widget> settingsViews = [
+      const SettingsAppearanceView(),
+      const SettingsLanguageView(),
+      SettingsSettingsView(user),
+    ];
+    return settingsViews[index];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +66,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
               const VerticalDivider(),
               const SizedBox(width: 10),
               Expanded(
-                child: settingsViews[_selectedViewIndex],
+                child: getSettingsView(_selectedViewIndex, widget.user),
               )
             ],
           ),
