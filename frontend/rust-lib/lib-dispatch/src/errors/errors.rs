@@ -6,7 +6,6 @@ use crate::{
 use bytes::Bytes;
 use dyn_clone::DynClone;
 
-use serde::{Serialize, Serializer};
 use std::fmt;
 use tokio::{sync::mpsc::error::SendError, task::JoinError};
 
@@ -86,11 +85,11 @@ impl From<DispatchError> for EventResponse {
         err.inner_error().as_response()
     }
 }
-
-impl Serialize for DispatchError {
-    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+#[cfg(feature = "use_serde")]
+impl serde::Serialize for DispatchError {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as serde::Serializer>::Ok, <S as serde::Serializer>::Error>
     where
-        S: Serializer,
+        S: serde::Serializer,
     {
         serializer.serialize_str(&format!("{}", self))
     }
