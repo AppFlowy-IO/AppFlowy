@@ -1,7 +1,9 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{try_decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
+use crate::services::row::{
+    try_decode_cell_data, AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -30,10 +32,16 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
+impl CellFilterOperation<GridTextFilter, TextCellData> for RichTextTypeOption {
+    fn apply_filter(&self, _cell_data: TextCellData, _filter: &GridTextFilter) -> bool {
+        false
+    }
+}
+
+impl CellDataOperation<String> for RichTextTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
@@ -45,15 +53,11 @@ impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            try_decode_cell_data(encoded_data.into(), field_rev, decoded_field_type, decoded_field_type)
+            try_decode_cell_data(cell_data.into(), field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data = encoded_data.into();
+            let cell_data = cell_data.into();
             Ok(DecodedCellData::new(cell_data))
         }
-    }
-
-    fn apply_filter(&self, _filter: GridTextFilter) -> bool {
-        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -66,6 +70,13 @@ impl CellDataOperation<String, GridTextFilter> for RichTextTypeOption {
         } else {
             Ok(data.0)
         }
+    }
+}
+
+pub struct TextCellData(String);
+impl std::convert::From<AnyCellData> for TextCellData {
+    fn from(any_data: AnyCellData) -> Self {
+        TextCellData(any_data.cell_data)
     }
 }
 

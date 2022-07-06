@@ -7,7 +7,7 @@ use flowy_grid::entities::FieldType;
 use flowy_grid::services::field::{
     DateCellData, MultiSelectTypeOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
-use flowy_grid::services::row::{decode_cell_data, CreateRowRevisionBuilder};
+use flowy_grid::services::row::{decode_any_cell_data, CreateRowRevisionBuilder};
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -137,9 +137,9 @@ async fn grid_row_add_date_cell_test() {
     }
     let context = builder.build();
     let date_field = date_field.unwrap();
-    let cell_data = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
+    let cell_rev = context.cell_by_field_id.get(&date_field.id).unwrap();
     assert_eq!(
-        decode_cell_data(cell_data.data.clone(), &date_field)
+        decode_any_cell_data(cell_rev, &date_field)
             .parse::<DateCellData>()
             .unwrap()
             .date,
