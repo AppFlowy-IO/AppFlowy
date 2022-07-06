@@ -108,7 +108,6 @@ impl GridFilterService {
         if let Some(filter_id) = &changeset.insert_filter {
             let field_ids = Some(vec![filter_id.field_id.clone()]);
             reload_filter_cache(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
-            todo!()
         }
 
         if let Some(filter_id) = &changeset.delete_filter {
@@ -116,8 +115,8 @@ impl GridFilterService {
         }
 
         if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
-            let task = self.gen_task(blocks).await;
-            let _ = self.scheduler.register_task(task).await;
+            let _task = self.gen_task(blocks).await;
+            // let _ = self.scheduler.register_task(task).await;
         }
     }
 
