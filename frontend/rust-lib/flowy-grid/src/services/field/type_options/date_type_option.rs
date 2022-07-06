@@ -2,7 +2,9 @@ use crate::entities::{CellChangeset, FieldType, GridDateFilter};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
+use crate::services::row::{
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
@@ -115,12 +117,18 @@ impl DateTypeOption {
     }
 }
 
-impl CellDataOperation<String, GridDateFilter> for DateTypeOption {
+impl CellFilterOperation<GridDateFilter, AnyCellData> for DateTypeOption {
+    fn apply_filter(&self, cell_data: AnyCellData, filter: &GridDateFilter) -> bool {
+        return false;
+    }
+}
+
+impl CellDataOperation<String> for DateTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -133,15 +141,9 @@ impl CellDataOperation<String, GridDateFilter> for DateTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        let timestamp = encoded_data.into().parse::<i64>().unwrap_or(0);
+        let timestamp = cell_data.into().parse::<i64>().unwrap_or(0);
         let date = self.today_desc_from_timestamp(timestamp);
         DecodedCellData::try_from_bytes(date)
-    }
-    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridDateFilter) -> bool
-    where
-        T: Into<String>,
-    {
-        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>

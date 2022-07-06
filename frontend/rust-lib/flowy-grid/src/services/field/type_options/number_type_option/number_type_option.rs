@@ -3,7 +3,9 @@ use crate::impl_type_option;
 use crate::entities::{FieldType, GridNumberFilter};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
+use crate::services::row::{
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -138,13 +140,19 @@ impl NumberTypeOption {
         s
     }
 }
+impl CellFilterOperation<GridNumberFilter, AnyCellData> for NumberTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> bool {
+        let number_cell_data = NumberCellData::from_number_type_option(self, any_cell_data);
+        return false;
+    }
+}
 
-impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
+impl CellDataOperation<String> for NumberTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -153,7 +161,7 @@ impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        let cell_data = encoded_data.into();
+        let cell_data = cell_data.into();
         match self.format {
             NumberFormat::Num => {
                 if let Ok(v) = cell_data.parse::<f64>() {
@@ -178,12 +186,6 @@ impl CellDataOperation<String, GridNumberFilter> for NumberTypeOption {
             }
         }
     }
-    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridNumberFilter) -> bool
-    where
-        T: Into<String>,
-    {
-        todo!()
-    }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     where
@@ -206,6 +208,38 @@ impl std::default::Default for NumberTypeOption {
             symbol,
             sign_positive: true,
             name: "Number".to_string(),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct NumberCellData(String);
+
+impl NumberCellData {
+    fn from_number_type_option(type_option: &NumberTypeOption, any_cell_data: AnyCellData) -> Self {
+        let cell_data = any_cell_data.cell_data;
+        match type_option.format {
+            NumberFormat::Num => {
+                if let Ok(v) = cell_data.parse::<f64>() {
+                    return Self(v.to_string());
+                }
+
+                if let Ok(v) = cell_data.parse::<i64>() {
+                    return Self(v.to_string());
+                }
+
+                Self::default()
+            }
+            NumberFormat::Percent => {
+                let content = cell_data.parse::<f64>().map_or(String::new(), |v| v.to_string());
+                Self(content)
+            }
+            _ => {
+                let content = type_option
+                    .money_from_number_str(&cell_data)
+                    .unwrap_or_else(|_| "".to_string());
+                Self(content)
+            }
         }
     }
 }

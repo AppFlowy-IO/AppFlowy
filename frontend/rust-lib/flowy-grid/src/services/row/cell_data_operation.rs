@@ -2,22 +2,22 @@ use crate::entities::FieldType;
 use crate::services::field::*;
 use bytes::Bytes;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, FieldTypeRevision};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-pub trait CellDataOperation<D, F> {
+pub trait CellFilterOperation<T, C: From<AnyCellData>> {
+    fn apply_filter(&self, cell_data: C, filter: &T) -> bool;
+}
+
+pub trait CellDataOperation<D> {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<D>;
-
-    fn apply_filter<T>(&self, encoded_data: T, filter: &F) -> bool
     where
         T: Into<D>;
 
@@ -53,39 +53,40 @@ impl std::ops::Deref for CellContentChangeset {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TypeOptionCellData {
-    pub data: String,
+pub struct AnyCellData {
+    pub cell_data: String,
     pub field_type: FieldType,
 }
 
-impl std::str::FromStr for TypeOptionCellData {
+impl std::str::FromStr for AnyCellData {
     type Err = FlowyError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let type_option_cell_data: TypeOptionCellData = serde_json::from_str(s)?;
+        let type_option_cell_data: AnyCellData = serde_json::from_str(s)?;
         Ok(type_option_cell_data)
     }
 }
 
-impl std::convert::TryInto<TypeOptionCellData> for String {
+impl std::convert::TryInto<AnyCellData> for String {
     type Error = FlowyError;
 
-    fn try_into(self) -> Result<TypeOptionCellData, Self::Error> {
-        TypeOptionCellData::from_str(&self)
+    fn try_into(self) -> Result<AnyCellData, Self::Error> {
+        AnyCellData::from_str(&self)
     }
 }
 
-impl std::convert::TryFrom<&CellRevision> for TypeOptionCellData {
+impl std::convert::TryFrom<&CellRevision> for AnyCellData {
     type Error = FlowyError;
 
     fn try_from(value: &CellRevision) -> Result<Self, Self::Error> {
         Self::from_str(&value.data)
     }
 }
-impl TypeOptionCellData {
-    pub fn new<T: ToString>(data: T, field_type: FieldType) -> Self {
-        TypeOptionCellData {
-            data: data.to_string(),
+
+impl AnyCellData {
+    pub fn new(content: String, field_type: FieldType) -> Self {
+        AnyCellData {
+            cell_data: content,
             field_type,
         }
     }
@@ -142,14 +143,14 @@ pub fn apply_cell_data_changeset<C: Into<CellContentChangeset>, T: AsRef<FieldRe
         FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
     }?;
 
-    Ok(TypeOptionCellData::new(s, field_type).json())
+    Ok(AnyCellData::new(s, field_type).json())
 }
 
-pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(data: T, field_rev: &FieldRevision) -> DecodedCellData {
-    if let Ok(type_option_cell_data) = data.try_into() {
-        let TypeOptionCellData { data, field_type } = type_option_cell_data;
+pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> DecodedCellData {
+    if let Ok(any_cell_data) = data.try_into() {
+        let AnyCellData { cell_data, field_type } = any_cell_data;
         let to_field_type = field_rev.field_type_rev.into();
-        match try_decode_cell_data(data, field_rev, &field_type, &to_field_type) {
+        match try_decode_cell_data(cell_data, field_rev, &field_type, &to_field_type) {
             Ok(cell_data) => cell_data,
             Err(e) => {
                 tracing::error!("Decode cell data failed, {:?}", e);
@@ -163,34 +164,35 @@ pub fn decode_cell_data<T: TryInto<TypeOptionCellData>>(data: T, field_rev: &Fie
 }
 
 pub fn try_decode_cell_data(
-    encoded_data: String,
+    cell_data: String,
     field_rev: &FieldRevision,
     s_field_type: &FieldType,
     t_field_type: &FieldType,
 ) -> FlowyResult<DecodedCellData> {
     let get_cell_data = || {
+        let field_type: FieldTypeRevision = t_field_type.into();
         let data = match t_field_type {
             FieldType::RichText => field_rev
-                .get_type_option_entry::<RichTextTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<RichTextTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::Number => field_rev
-                .get_type_option_entry::<NumberTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<NumberTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::DateTime => field_rev
-                .get_type_option_entry::<DateTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<DateTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
-                .get_type_option_entry::<SingleSelectTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
-                .get_type_option_entry::<MultiSelectTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::Checkbox => field_rev
-                .get_type_option_entry::<CheckboxTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<CheckboxTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
             FieldType::URL => field_rev
-                .get_type_option_entry::<URLTypeOption, _>(t_field_type)?
-                .decode_cell_data(encoded_data, s_field_type, field_rev),
+                .get_type_option_entry::<URLTypeOption>(field_type)?
+                .decode_cell_data(cell_data, s_field_type, field_rev),
         };
         Some(data)
     };

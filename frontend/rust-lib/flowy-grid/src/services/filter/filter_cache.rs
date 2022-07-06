@@ -37,7 +37,7 @@ impl std::ops::Deref for FilterResultCache {
 pub(crate) struct FilterResult {
     pub(crate) row_id: String,
     pub(crate) row_index: i32,
-    pub(crate) cell_by_field_id: HashMap<String, bool>,
+    pub(crate) visible_by_field_id: HashMap<FilterId, bool>,
 }
 
 impl FilterResult {
@@ -45,17 +45,17 @@ impl FilterResult {
         Self {
             row_index: index,
             row_id: row_rev.id.clone(),
-            cell_by_field_id: row_rev.cells.iter().map(|(k, _)| (k.clone(), true)).collect(),
+            visible_by_field_id: HashMap::new(),
         }
     }
 
-    #[allow(dead_code)]
-    fn update_cell(&mut self, cell_id: &str, exist: bool) {
-        self.cell_by_field_id.insert(cell_id.to_owned(), exist);
-    }
-
     pub(crate) fn is_visible(&self) -> bool {
-        todo!()
+        for (_, visible) in &self.visible_by_field_id {
+            if visible == &false {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

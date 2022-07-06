@@ -1,12 +1,15 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{FieldType, GridBlockChangeset, GridTextFilter};
 use crate::services::block_manager::GridBlockManager;
-use crate::services::field::RichTextTypeOption;
+use crate::services::field::{
+    CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+    SingleSelectTypeOption, URLTypeOption,
+};
 use crate::services::filter::filter_cache::{
     reload_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::row::{CellDataOperation, GridBlockSnapshot};
+use crate::services::row::{AnyCellData, CellDataOperation, CellFilterOperation, GridBlockSnapshot};
 use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
 use dashmap::mapref::one::{Ref, RefMut};
 use flowy_error::FlowyResult;
@@ -60,23 +63,28 @@ impl GridFilterService {
 
         let mut changesets = vec![];
         for (index, block) in task_context.blocks.into_iter().enumerate() {
-            let results = block
+            let row_ids = block
                 .row_revs
                 .par_iter()
-                .map(|row_rev| {
+                .flat_map(|row_rev| {
                     let filter_result_cache = self.filter_result_cache.clone();
                     let filter_cache = self.filter_cache.clone();
                     filter_row(index, row_rev, filter_cache, filter_result_cache, &field_revs)
                 })
-                .collect::<Vec<FilterResult>>();
+                .collect::<Vec<String>>();
 
             let mut visible_rows = vec![];
             let mut hide_rows = vec![];
-            for result in results {
-                if result.is_visible() {
-                    visible_rows.push(result.row_id);
+            for row_id in row_ids {
+                if self
+                    .filter_result_cache
+                    .get(&row_id)
+                    .map(|result| result.is_visible())
+                    .unwrap_or(false)
+                {
+                    visible_rows.push(row_id);
                 } else {
-                    hide_rows.push(result.row_id);
+                    hide_rows.push(row_id);
                 }
             }
 
@@ -134,32 +142,31 @@ impl GridFilterService {
     }
 }
 
+// Return None if there is no change in this row after applying the filter
 fn filter_row(
     index: usize,
     row_rev: &Arc<RowRevision>,
     filter_cache: Arc<FilterCache>,
     filter_result_cache: Arc<FilterResultCache>,
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
-) -> FilterResult {
-    match filter_result_cache.get_mut(&row_rev.id) {
-        None => {
-            let mut filter_result = FilterResult::new(index as i32, row_rev);
-            for (field_id, cell_rev) in row_rev.cells.iter() {
-                let _ = update_filter_result(field_revs, &mut filter_result, &filter_cache, field_id, cell_rev);
-            }
-            filter_result_cache.insert(row_rev.id.clone(), filter_result);
-        }
-        Some(mut result) => {
-            for (field_id, cell_rev) in row_rev.cells.iter() {
-                let _ = update_filter_result(field_revs, result.value_mut(), &filter_cache, field_id, cell_rev);
+) -> Option<String> {
+    let mut result = filter_result_cache
+        .entry(row_rev.id.clone())
+        .or_insert(FilterResult::new(index as i32, row_rev));
+
+    for (field_id, cell_rev) in row_rev.cells.iter() {
+        match filter_cell(field_revs, result.value_mut(), &filter_cache, field_id, cell_rev) {
+            None => {}
+            Some(_) => {
+                return Some(row_rev.id.clone());
             }
         }
     }
-
-    todo!()
+    return None;
 }
 
-fn update_filter_result(
+// Return None if there is no change in this cell after applying the filter
+fn filter_cell(
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
     filter_result: &mut FilterResult,
     filter_cache: &Arc<FilterCache>,
@@ -168,27 +175,83 @@ fn update_filter_result(
 ) -> Option<()> {
     let field_rev = field_revs.get(field_id)?;
     let field_type = FieldType::from(field_rev.field_type_rev);
+    let field_type_rev = field_type.clone().into();
     let filter_id = FilterId {
         field_id: field_id.to_owned(),
         field_type,
     };
-    match &filter_id.field_type {
-        FieldType::RichText => match filter_cache.text_filter.get(&filter_id) {
-            None => {}
-            Some(filter) => {
-                // let v = field_rev
-                //     .get_type_option_entry::<RichTextTypeOption, _>(&filter_id.field_type)?
-                //     .apply_filter(cell_rev, &filter);
+    let any_cell_data = AnyCellData::try_from(cell_rev).ok()?;
+    let is_hidden = match &filter_id.field_type {
+        FieldType::RichText => filter_cache.text_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<RichTextTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::Number => filter_cache.number_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<NumberTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<DateTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<SingleSelectTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::MultiSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<MultiSelectTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::Checkbox => filter_cache.checkbox_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<CheckboxTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+        FieldType::URL => filter_cache.url_filter.get(&filter_id).and_then(|filter| {
+            Some(
+                field_rev
+                    .get_type_option_entry::<URLTypeOption>(field_type_rev)?
+                    .apply_filter(any_cell_data.into(), filter.value()),
+            )
+        }),
+    }?;
+
+    let is_visible = !is_hidden;
+    match filter_result.visible_by_field_id.get(&filter_id) {
+        None => {
+            if is_visible {
+                return None;
+            } else {
+                filter_result.visible_by_field_id.insert(filter_id, is_visible);
+                Some(())
             }
-        },
-        FieldType::Number => {}
-        FieldType::DateTime => {}
-        FieldType::SingleSelect => {}
-        FieldType::MultiSelect => {}
-        FieldType::Checkbox => {}
-        FieldType::URL => {}
+        }
+        Some(old_is_visible) => {
+            if old_is_visible != &is_visible {
+                filter_result.visible_by_field_id.insert(filter_id, is_visible);
+                Some(())
+            } else {
+                None
+            }
+        }
     }
-    None
 }
 
 pub struct GridFilterChangeset {

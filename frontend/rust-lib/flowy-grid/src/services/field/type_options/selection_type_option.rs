@@ -3,7 +3,9 @@ use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, TypeOptionCellData};
+use crate::services::row::{
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -95,12 +97,18 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation<String, GridSelectOptionFilter> for SingleSelectTypeOption {
+impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for SingleSelectTypeOption {
+    fn apply_filter(&self, cell_data: SelectOptionIds, filter: &GridSelectOptionFilter) -> bool {
+        return false;
+    }
+}
+
+impl CellDataOperation<String> for SingleSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -109,7 +117,7 @@ impl CellDataOperation<String, GridSelectOptionFilter> for SingleSelectTypeOptio
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = encoded_data.into();
+        let encoded_data = cell_data.into();
         let mut cell_data = SelectOptionCellData {
             options: self.options.clone(),
             select_options: vec![],
@@ -121,13 +129,6 @@ impl CellDataOperation<String, GridSelectOptionFilter> for SingleSelectTypeOptio
         }
 
         DecodedCellData::try_from_bytes(cell_data)
-    }
-
-    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridSelectOptionFilter) -> bool
-    where
-        T: Into<String>,
-    {
-        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -199,13 +200,17 @@ impl SelectOptionOperation for MultiSelectTypeOption {
         &mut self.options
     }
 }
-
-impl CellDataOperation<String, GridSelectOptionFilter> for MultiSelectTypeOption {
+impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for MultiSelectTypeOption {
+    fn apply_filter(&self, cell_data: SelectOptionIds, filter: &GridSelectOptionFilter) -> bool {
+        return false;
+    }
+}
+impl CellDataOperation<String> for MultiSelectTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -214,7 +219,7 @@ impl CellDataOperation<String, GridSelectOptionFilter> for MultiSelectTypeOption
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = encoded_data.into();
+        let encoded_data = cell_data.into();
         let select_options = select_option_ids(encoded_data)
             .into_iter()
             .flat_map(|option_id| self.options.iter().find(|option| option.id == option_id).cloned())
@@ -226,13 +231,6 @@ impl CellDataOperation<String, GridSelectOptionFilter> for MultiSelectTypeOption
         };
 
         DecodedCellData::try_from_bytes(cell_data)
-    }
-
-    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridSelectOptionFilter) -> bool
-    where
-        T: Into<String>,
-    {
-        todo!()
     }
 
     fn apply_changeset<T>(&self, changeset: T, cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -289,6 +287,14 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
         &self.0
+    }
+}
+
+pub struct SelectOptionIds(Vec<String>);
+impl std::convert::From<AnyCellData> for SelectOptionIds {
+    fn from(any_cell_data: AnyCellData) -> Self {
+        let ids = select_option_ids(any_cell_data.cell_data);
+        Self(ids)
     }
 }
 
@@ -503,8 +509,8 @@ fn make_select_context_from(cell_rev: &Option<CellRevision>, options: &[SelectOp
     match cell_rev {
         None => vec![],
         Some(cell_rev) => {
-            if let Ok(type_option_cell_data) = TypeOptionCellData::from_str(&cell_rev.data) {
-                select_option_ids(type_option_cell_data.data)
+            if let Ok(type_option_cell_data) = AnyCellData::from_str(&cell_rev.data) {
+                select_option_ids(type_option_cell_data.cell_data)
                     .into_iter()
                     .flat_map(|option_id| options.iter().find(|option| option.id == option_id).cloned())
                     .collect()

@@ -1,7 +1,9 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData, EncodedCellData};
+use crate::services::row::{
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, EncodedCellData,
+};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -33,12 +35,18 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellDataOperation<EncodedCellData<URLCellData>, GridTextFilter> for URLTypeOption {
+impl CellFilterOperation<GridTextFilter, URLCellData> for URLTypeOption {
+    fn apply_filter(&self, cell_data: URLCellData, filter: &GridTextFilter) -> bool {
+        return false;
+    }
+}
+
+impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<EncodedCellData<URLCellData>>,
@@ -46,12 +54,8 @@ impl CellDataOperation<EncodedCellData<URLCellData>, GridTextFilter> for URLType
         if !decoded_field_type.is_url() {
             return Ok(DecodedCellData::default());
         }
-        let cell_data = encoded_data.into().try_into_inner()?;
+        let cell_data = cell_data.into().try_into_inner()?;
         DecodedCellData::try_from_bytes(cell_data)
-    }
-
-    fn apply_filter(&self, _filter: &GridTextFilter) -> bool {
-        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -114,6 +118,12 @@ impl FromStr for URLCellData {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         serde_json::from_str::<URLCellData>(s).map_err(internal_error)
+    }
+}
+
+impl std::convert::From<AnyCellData> for URLCellData {
+    fn from(any_cell_data: AnyCellData) -> Self {
+        URLCellData::from_str(&any_cell_data.cell_data).unwrap_or(URLCellData::default())
     }
 }
 

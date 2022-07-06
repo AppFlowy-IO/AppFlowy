@@ -1,7 +1,9 @@
 use crate::entities::{FieldType, GridCheckboxFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{CellContentChangeset, CellDataOperation, DecodedCellData};
+use crate::services::row::{
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -40,12 +42,18 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellDataOperation<String, GridCheckboxFilter> for CheckboxTypeOption {
+impl CellFilterOperation<GridCheckboxFilter, CheckboxCellData> for CheckboxTypeOption {
+    fn apply_filter(&self, cell_data: CheckboxCellData, filter: &GridCheckboxFilter) -> bool {
+        return false;
+    }
+}
+
+impl CellDataOperation<String> for CheckboxTypeOption {
     fn decode_cell_data<T>(
         &self,
-        encoded_data: T,
+        cell_data: T,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -54,19 +62,12 @@ impl CellDataOperation<String, GridCheckboxFilter> for CheckboxTypeOption {
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = encoded_data.into();
+        let encoded_data = cell_data.into();
         if encoded_data == YES || encoded_data == NO {
             return Ok(DecodedCellData::new(encoded_data));
         }
 
         Ok(DecodedCellData::default())
-    }
-
-    fn apply_filter<T>(&self, encoded_data: T, _filter: &GridCheckboxFilter) -> bool
-    where
-        T: Into<String>,
-    {
-        todo!()
     }
 
     fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
@@ -95,12 +96,19 @@ fn string_to_bool(bool_str: &str) -> bool {
     }
 }
 
+pub struct CheckboxCellData(String);
+impl std::convert::From<AnyCellData> for CheckboxCellData {
+    fn from(any_cell_data: AnyCellData) -> Self {
+        CheckboxCellData(any_cell_data.cell_data)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::services::field::type_options::checkbox_type_option::{NO, YES};
 
     use crate::services::field::FieldBuilder;
-    use crate::services::row::{apply_cell_data_changeset, decode_cell_data};
+    use crate::services::row::{apply_cell_data_changeset, decode_any_cell_data};
 
     use crate::entities::FieldType;
 
@@ -108,21 +116,21 @@ mod tests {
     fn checkout_box_description_test() {
         let field_rev = FieldBuilder::from_field_type(&FieldType::Checkbox).build();
         let data = apply_cell_data_changeset("true", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev).to_string(), YES);
+        assert_eq!(decode_any_cell_data(data, &field_rev).to_string(), YES);
 
         let data = apply_cell_data_changeset("1", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev,).to_string(), YES);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), YES);
 
         let data = apply_cell_data_changeset("yes", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev,).to_string(), YES);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), YES);
 
         let data = apply_cell_data_changeset("false", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev,).to_string(), NO);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
 
         let data = apply_cell_data_changeset("no", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev,).to_string(), NO);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
 
         let data = apply_cell_data_changeset("12", None, &field_rev).unwrap();
-        assert_eq!(decode_cell_data(data, &field_rev,).to_string(), NO);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
     }
 }
