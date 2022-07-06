@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{FieldType, GridBlockChangeset, GridTextFilter};
+use crate::entities::{FieldType, GridBlockChangeset};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::field::{
     CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
@@ -9,15 +9,15 @@ use crate::services::filter::filter_cache::{
     reload_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::row::{AnyCellData, CellDataOperation, CellFilterOperation, GridBlockSnapshot};
+use crate::services::row::{AnyCellData, CellFilterOperation, GridBlockSnapshot};
 use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
-use dashmap::mapref::one::{Ref, RefMut};
+
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{CellRevision, FieldId, FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use rayon::prelude::*;
-use std::borrow::Cow;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -162,7 +162,7 @@ fn filter_row(
             }
         }
     }
-    return None;
+    None
 }
 
 // Return None if there is no change in this cell after applying the filter
@@ -193,14 +193,14 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option_entry::<NumberTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value()),
             )
         }),
         FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<DateTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value()),
             )
         }),
         FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
@@ -237,7 +237,7 @@ fn filter_cell(
     match filter_result.visible_by_field_id.get(&filter_id) {
         None => {
             if is_visible {
-                return None;
+                None
             } else {
                 filter_result.visible_by_field_id.insert(filter_id, is_visible);
                 Some(())

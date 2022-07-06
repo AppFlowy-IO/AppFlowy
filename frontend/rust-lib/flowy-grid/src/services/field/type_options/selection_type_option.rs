@@ -98,8 +98,8 @@ impl SelectOptionOperation for SingleSelectTypeOption {
 }
 
 impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for SingleSelectTypeOption {
-    fn apply_filter(&self, cell_data: SelectOptionIds, filter: &GridSelectOptionFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: SelectOptionIds, _filter: &GridSelectOptionFilter) -> bool {
+        false
     }
 }
 
@@ -108,7 +108,7 @@ impl CellDataOperation<String> for SingleSelectTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,
@@ -201,8 +201,8 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for MultiSelectTypeOption {
-    fn apply_filter(&self, cell_data: SelectOptionIds, filter: &GridSelectOptionFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: SelectOptionIds, _filter: &GridSelectOptionFilter) -> bool {
+        false
     }
 }
 impl CellDataOperation<String> for MultiSelectTypeOption {
@@ -210,7 +210,7 @@ impl CellDataOperation<String> for MultiSelectTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,

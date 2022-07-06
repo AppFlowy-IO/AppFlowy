@@ -36,8 +36,8 @@ pub struct URLTypeOption {
 impl_type_option!(URLTypeOption, FieldType::URL);
 
 impl CellFilterOperation<GridTextFilter, URLCellData> for URLTypeOption {
-    fn apply_filter(&self, cell_data: URLCellData, filter: &GridTextFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: URLCellData, _filter: &GridTextFilter) -> bool {
+        false
     }
 }
 
@@ -46,7 +46,7 @@ impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<EncodedCellData<URLCellData>>,
@@ -123,7 +123,7 @@ impl FromStr for URLCellData {
 
 impl std::convert::From<AnyCellData> for URLCellData {
     fn from(any_cell_data: AnyCellData) -> Self {
-        URLCellData::from_str(&any_cell_data.cell_data).unwrap_or(URLCellData::default())
+        URLCellData::from_str(&any_cell_data.cell_data).unwrap_or_default()
     }
 }
 

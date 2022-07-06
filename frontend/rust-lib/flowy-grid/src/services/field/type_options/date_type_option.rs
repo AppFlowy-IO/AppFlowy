@@ -118,8 +118,8 @@ impl DateTypeOption {
 }
 
 impl CellFilterOperation<GridDateFilter, AnyCellData> for DateTypeOption {
-    fn apply_filter(&self, cell_data: AnyCellData, filter: &GridDateFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: AnyCellData, _filter: &GridDateFilter) -> bool {
+        false
     }
 }
 
@@ -128,7 +128,7 @@ impl CellDataOperation<String> for DateTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,

@@ -141,9 +141,9 @@ impl NumberTypeOption {
     }
 }
 impl CellFilterOperation<GridNumberFilter, AnyCellData> for NumberTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> bool {
-        let number_cell_data = NumberCellData::from_number_type_option(self, any_cell_data);
-        return false;
+    fn apply_filter(&self, any_cell_data: AnyCellData, _filter: &GridNumberFilter) -> bool {
+        let _number_cell_data = NumberCellData::from_number_type_option(self, any_cell_data);
+        false
     }
 }
 
@@ -152,7 +152,7 @@ impl CellDataOperation<String> for NumberTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,

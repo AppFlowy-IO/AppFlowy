@@ -137,7 +137,7 @@ async fn grid_row_add_date_cell_test() {
     }
     let context = builder.build();
     let date_field = date_field.unwrap();
-    let cell_rev = context.cell_by_field_id.get(&date_field.id).unwrap().clone();
+    let cell_rev = context.cell_by_field_id.get(&date_field.id).unwrap();
     assert_eq!(
         decode_any_cell_data(cell_rev, &date_field)
             .parse::<DateCellData>()

@@ -33,8 +33,8 @@ pub struct RichTextTypeOption {
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
 impl CellFilterOperation<GridTextFilter, TextCellData> for RichTextTypeOption {
-    fn apply_filter(&self, cell_data: TextCellData, filter: &GridTextFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: TextCellData, _filter: &GridTextFilter) -> bool {
+        false
     }
 }
 

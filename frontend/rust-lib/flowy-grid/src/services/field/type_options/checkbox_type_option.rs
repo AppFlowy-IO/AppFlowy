@@ -43,8 +43,8 @@ const YES: &str = "Yes";
 const NO: &str = "No";
 
 impl CellFilterOperation<GridCheckboxFilter, CheckboxCellData> for CheckboxTypeOption {
-    fn apply_filter(&self, cell_data: CheckboxCellData, filter: &GridCheckboxFilter) -> bool {
-        return false;
+    fn apply_filter(&self, _cell_data: CheckboxCellData, _filter: &GridCheckboxFilter) -> bool {
+        false
     }
 }
 
@@ -53,7 +53,7 @@ impl CellDataOperation<String> for CheckboxTypeOption {
         &self,
         cell_data: T,
         decoded_field_type: &FieldType,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
         T: Into<String>,

@@ -1,6 +1,5 @@
 use crate::entities::{
-    FieldType, GridBlockChangeset, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridRowId,
-    GridSelectOptionFilter, GridTextFilter, InsertedRow,
+    FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter, GridTextFilter,
 };
 
 use dashmap::DashMap;
@@ -35,27 +34,26 @@ impl std::ops::Deref for FilterResultCache {
 
 #[derive(Default)]
 pub(crate) struct FilterResult {
-    pub(crate) row_id: String,
+    #[allow(dead_code)]
     pub(crate) row_index: i32,
     pub(crate) visible_by_field_id: HashMap<FilterId, bool>,
 }
 
 impl FilterResult {
-    pub(crate) fn new(index: i32, row_rev: &RowRevision) -> Self {
+    pub(crate) fn new(index: i32, _row_rev: &RowRevision) -> Self {
         Self {
             row_index: index,
-            row_id: row_rev.id.clone(),
             visible_by_field_id: HashMap::new(),
         }
     }
 
     pub(crate) fn is_visible(&self) -> bool {
-        for (_, visible) in &self.visible_by_field_id {
+        for visible in self.visible_by_field_id.values() {
             if visible == &false {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
 
