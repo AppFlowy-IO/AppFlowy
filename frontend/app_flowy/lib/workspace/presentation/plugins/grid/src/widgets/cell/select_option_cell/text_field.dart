@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
