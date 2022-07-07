@@ -2,8 +2,8 @@ use crate::entities::{FieldType, GridSelectOptionFilter};
 
 use crate::impl_type_option;
 use crate::services::field::select_option::{
-    make_select_context_from, SelectOption, SelectOptionCellContentChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation, SELECTION_IDS_SEPARATOR,
+    make_selected_select_options, SelectOption, SelectOptionCellContentChangeset, SelectOptionCellData,
+    SelectOptionIds, SelectOptionOperation, SelectedSelectOptions, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -30,8 +30,8 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn select_option_cell_data(&self, cell_rev: &Option<CellRevision>) -> SelectOptionCellData {
-        let select_options = make_select_context_from(cell_rev, &self.options);
+    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData {
+        let select_options = make_selected_select_options(any_cell_data, &self.options);
         SelectOptionCellData {
             options: self.options.clone(),
             select_options,
@@ -47,12 +47,13 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, _filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
         if !any_cell_data.is_multi_select() {
             return Ok(true);
         }
-        let _ids: SelectOptionIds = any_cell_data.try_into()?;
-        Ok(false)
+
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        Ok(filter.apply(&selected_options))
     }
 }
 impl CellDataOperation<String> for MultiSelectTypeOption {

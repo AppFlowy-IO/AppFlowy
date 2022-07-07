@@ -4,10 +4,9 @@ use crate::services::row::AnyCellData;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
@@ -61,19 +60,17 @@ impl std::default::Default for SelectOptionColor {
     }
 }
 
-pub fn make_select_context_from(cell_rev: &Option<CellRevision>, options: &[SelectOption]) -> Vec<SelectOption> {
-    match cell_rev {
-        None => vec![],
-        Some(cell_rev) => {
-            if let Ok(type_option_cell_data) = AnyCellData::from_str(&cell_rev.data) {
-                select_option_ids(type_option_cell_data.cell_data)
-                    .into_iter()
-                    .flat_map(|option_id| options.iter().find(|option| option.id == option_id).cloned())
-                    .collect()
-            } else {
-                vec![]
-            }
-        }
+pub fn make_selected_select_options<T: TryInto<AnyCellData>>(
+    any_cell_data: T,
+    options: &[SelectOption],
+) -> Vec<SelectOption> {
+    if let Ok(type_option_cell_data) = any_cell_data.try_into() {
+        let ids = SelectOptionIds::from(type_option_cell_data.cell_data);
+        ids.iter()
+            .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
+            .collect()
+    } else {
+        vec![]
     }
 }
 
@@ -103,7 +100,7 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
         SelectOption::with_color(name, color)
     }
 
-    fn select_option_cell_data(&self, cell_rev: &Option<CellRevision>) -> SelectOptionCellData;
+    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData;
 
     fn options(&self) -> &Vec<SelectOption>;
 
@@ -143,19 +140,37 @@ pub fn select_option_color_from_index(index: usize) -> SelectOptionColor {
     }
 }
 pub struct SelectOptionIds(Vec<String>);
+
+impl SelectOptionIds {
+    pub fn into_inner(self) -> Vec<String> {
+        self.0
+    }
+}
+
 impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
     type Error = FlowyError;
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        let ids = select_option_ids(value.cell_data);
-        Ok(Self(ids))
+        Ok(Self::from(value.cell_data))
     }
 }
 
 impl std::convert::From<String> for SelectOptionIds {
     fn from(s: String) -> Self {
-        let ids = select_option_ids(s);
+        let ids = s
+            .split(SELECTION_IDS_SEPARATOR)
+            .map(|id| id.to_string())
+            .collect::<Vec<String>>();
         Self(ids)
+    }
+}
+
+impl std::convert::From<Option<String>> for SelectOptionIds {
+    fn from(s: Option<String>) -> Self {
+        match s {
+            None => Self { 0: vec![] },
+            Some(s) => Self::from(s),
+        }
     }
 }
 
@@ -171,12 +186,6 @@ impl std::ops::DerefMut for SelectOptionIds {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
-}
-
-fn select_option_ids(data: String) -> Vec<String> {
-    data.split(SELECTION_IDS_SEPARATOR)
-        .map(|id| id.to_string())
-        .collect::<Vec<String>>()
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -312,5 +321,17 @@ impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayload {
             update_option: self.update_option,
             delete_option: self.delete_option,
         })
+    }
+}
+
+pub struct SelectedSelectOptions {
+    pub(crate) options: Vec<SelectOption>,
+}
+
+impl std::convert::From<SelectOptionCellData> for SelectedSelectOptions {
+    fn from(data: SelectOptionCellData) -> Self {
+        Self {
+            options: data.select_options,
+        }
     }
 }

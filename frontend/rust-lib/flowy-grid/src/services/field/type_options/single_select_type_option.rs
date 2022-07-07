@@ -1,11 +1,9 @@
 use crate::entities::{FieldType, GridSelectOptionFilter};
-
 use crate::impl_type_option;
 use crate::services::field::select_option::{
-    make_select_context_from, SelectOption, SelectOptionCellContentChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation,
+    make_selected_select_options, SelectOption, SelectOptionCellContentChangeset, SelectOptionCellData,
+    SelectOptionIds, SelectOptionOperation,
 };
-
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
     AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
@@ -13,9 +11,7 @@ use crate::services::row::{
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
-
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -30,8 +26,8 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl SelectOptionOperation for SingleSelectTypeOption {
-    fn select_option_cell_data(&self, cell_rev: &Option<CellRevision>) -> SelectOptionCellData {
-        let select_options = make_select_context_from(cell_rev, &self.options);
+    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData {
+        let select_options = make_selected_select_options(any_cell_data, &self.options);
         SelectOptionCellData {
             options: self.options.clone(),
             select_options,

@@ -83,6 +83,25 @@ impl std::convert::TryFrom<&CellRevision> for AnyCellData {
     }
 }
 
+impl std::convert::TryFrom<&Option<CellRevision>> for AnyCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: &Option<CellRevision>) -> Result<Self, Self::Error> {
+        match value {
+            None => Err(FlowyError::invalid_data().context("Expected CellRevision, but receive None")),
+            Some(cell_rev) => AnyCellData::try_from(cell_rev),
+        }
+    }
+}
+
+impl std::convert::TryFrom<Option<CellRevision>> for AnyCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: Option<CellRevision>) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
+    }
+}
+
 impl AnyCellData {
     pub fn new(content: String, field_type: FieldType) -> Self {
         AnyCellData {
