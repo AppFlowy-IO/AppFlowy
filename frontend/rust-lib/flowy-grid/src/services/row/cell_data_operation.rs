@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-pub trait CellFilterOperation<T, C: From<AnyCellData>> {
-    fn apply_filter(&self, cell_data: C, filter: &T) -> bool;
+pub trait CellFilterOperation<T> {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
 pub trait CellDataOperation<D> {

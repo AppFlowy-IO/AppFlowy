@@ -97,9 +97,10 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for SingleSelectTypeOption {
-    fn apply_filter(&self, _cell_data: SelectOptionIds, _filter: &GridSelectOptionFilter) -> bool {
-        false
+impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
+        let ids: SelectOptionIds = any_cell_data.try_into()?;
+        Ok(false)
     }
 }
 
@@ -200,9 +201,10 @@ impl SelectOptionOperation for MultiSelectTypeOption {
         &mut self.options
     }
 }
-impl CellFilterOperation<GridSelectOptionFilter, SelectOptionIds> for MultiSelectTypeOption {
-    fn apply_filter(&self, _cell_data: SelectOptionIds, _filter: &GridSelectOptionFilter) -> bool {
-        false
+impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
+        let ids: SelectOptionIds = any_cell_data.try_into()?;
+        Ok(false)
     }
 }
 impl CellDataOperation<String> for MultiSelectTypeOption {
@@ -291,10 +293,12 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
 }
 
 pub struct SelectOptionIds(Vec<String>);
-impl std::convert::From<AnyCellData> for SelectOptionIds {
-    fn from(any_cell_data: AnyCellData) -> Self {
-        let ids = select_option_ids(any_cell_data.cell_data);
-        Self(ids)
+impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
+    type Error = FlowyError;
+
+    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
+        let ids = select_option_ids(value.cell_data);
+        Ok(Self(ids))
     }
 }
 

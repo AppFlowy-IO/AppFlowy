@@ -185,54 +185,61 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option_entry::<RichTextTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::Number => filter_cache.number_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<NumberTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<DateTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<SingleSelectTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::MultiSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<MultiSelectTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::Checkbox => filter_cache.checkbox_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<CheckboxTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
         FieldType::URL => filter_cache.url_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option_entry::<URLTypeOption>(field_type_rev)?
-                    .apply_filter(any_cell_data.into(), filter.value()),
+                    .apply_filter(any_cell_data, filter.value())
+                    .ok(),
             )
         }),
     }?;
 
-    let is_visible = !is_hidden;
+    let is_visible = !is_hidden.unwrap_or(false);
     match filter_result.visible_by_field_id.get(&filter_id) {
         None => {
             if is_visible {
