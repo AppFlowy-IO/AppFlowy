@@ -18,6 +18,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
 use tokio::time::sleep;
+use flowy_grid::services::field::select_option::SelectOption;
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams};
 
 pub enum EditorScript {

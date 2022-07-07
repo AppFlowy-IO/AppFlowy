@@ -118,7 +118,10 @@ impl DateTypeOption {
 }
 
 impl CellFilterOperation<GridDateFilter> for DateTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridDateFilter) -> FlowyResult<bool> {
+    fn apply_filter(&self, any_cell_data: AnyCellData, _filter: &GridDateFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_date() {
+            return Ok(true);
+        }
         Ok(false)
     }
 }

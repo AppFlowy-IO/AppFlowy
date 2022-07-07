@@ -1,4 +1,4 @@
-use crate::services::field::SelectOptionCellContentChangeset;
+use crate::services::field::select_option::SelectOptionCellContentChangeset;
 use crate::services::row::apply_cell_data_changeset;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};

@@ -39,7 +39,7 @@ impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
         }
 
         let text_cell_data: TextCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(&text_cell_data.0))
+        Ok(filter.apply(text_cell_data))
     }
 }
 
@@ -78,7 +78,13 @@ impl CellDataOperation<String> for RichTextTypeOption {
     }
 }
 
-pub struct TextCellData(String);
+pub struct TextCellData(pub String);
+impl AsRef<str> for TextCellData {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
 impl std::convert::TryFrom<AnyCellData> for TextCellData {
     type Error = FlowyError;
 
@@ -90,6 +96,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::field::select_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
     use crate::services::row::CellDataOperation;

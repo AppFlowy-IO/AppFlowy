@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use crate::services::row::{
     AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, EncodedCellData,
 };
@@ -37,7 +37,12 @@ impl_type_option!(URLTypeOption, FieldType::URL);
 
 impl CellFilterOperation<GridTextFilter> for URLTypeOption {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
-        Ok(false)
+        if !any_cell_data.is_url() {
+            return Ok(true);
+        }
+
+        let text_cell_data: TextCellData = any_cell_data.try_into()?;
+        Ok(filter.apply(&text_cell_data))
     }
 }
 
@@ -130,7 +135,7 @@ impl FromStr for URLCellData {
 impl std::convert::TryFrom<AnyCellData> for URLCellData {
     type Error = ();
 
-    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
+    fn try_from(_value: AnyCellData) -> Result<Self, Self::Error> {
         todo!()
     }
 }

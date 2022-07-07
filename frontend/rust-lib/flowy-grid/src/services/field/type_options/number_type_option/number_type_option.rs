@@ -11,8 +11,8 @@ use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
-use rust_decimal::prelude::Zero;
-use rust_decimal::{Decimal, Error};
+
+use rust_decimal::Decimal;
 use rusty_money::Money;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -107,6 +107,10 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 }
 impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_number() {
+            return Ok(true);
+        }
+
         let cell_data = any_cell_data.cell_data;
         let num_cell_data = self.format_cell_data(&cell_data)?;
 
@@ -209,7 +213,7 @@ impl NumberCellData {
 
     pub fn from_money(money: Money<Currency>) -> Self {
         Self {
-            decimal: Some(money.amount().clone()),
+            decimal: Some(*money.amount()),
             money: Some(money.to_string()),
         }
     }

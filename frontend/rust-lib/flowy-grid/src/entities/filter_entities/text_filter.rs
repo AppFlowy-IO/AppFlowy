@@ -13,8 +13,9 @@ pub struct GridTextFilter {
 }
 
 impl GridTextFilter {
-    pub fn apply(&self, s: &str) -> bool {
-        let s = s.to_lowercase();
+    pub fn apply<T: AsRef<str>>(&self, cell_data: T) -> bool {
+        let cell_data = cell_data.as_ref();
+        let s = cell_data.to_lowercase();
         if let Some(content) = self.content.as_ref() {
             match self.condition {
                 TextFilterCondition::Is => &s == content,
@@ -27,7 +28,7 @@ impl GridTextFilter {
                 TextFilterCondition::TextIsNotEmpty => !s.is_empty(),
             }
         } else {
-            return false;
+            false
         }
     }
 }
@@ -85,6 +86,7 @@ impl std::convert::From<Arc<GridFilterRevision>> for GridTextFilter {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::all)]
     use crate::entities::{GridTextFilter, TextFilterCondition};
 
     #[test]
@@ -94,7 +96,7 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert_eq!(text_filter.apply("AppFlowy"), true);
+        assert!(text_filter.apply("AppFlowy"));
         assert_eq!(text_filter.apply("appflowy"), true);
         assert_eq!(text_filter.apply("Appflowy"), true);
         assert_eq!(text_filter.apply("AppFlowy.io"), false);

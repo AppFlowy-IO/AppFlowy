@@ -119,6 +119,10 @@ impl AnyCellData {
         self.field_type == FieldType::MultiSelect
     }
 
+    pub fn is_url(&self) -> bool {
+        self.field_type == FieldType::URL
+    }
+
     pub fn is_select_option(&self) -> bool {
         self.field_type == FieldType::MultiSelect || self.field_type == FieldType::SingleSelect
     }

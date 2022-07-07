@@ -1,3 +1,4 @@
+use crate::services::field::select_option::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::revision::GridFilterRevision;
@@ -10,6 +11,12 @@ pub struct GridSelectOptionFilter {
 
     #[pb(index = 2, one_of)]
     pub content: Option<String>,
+}
+
+impl GridSelectOptionFilter {
+    pub fn apply(&self, _ids: &SelectOptionIds) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]

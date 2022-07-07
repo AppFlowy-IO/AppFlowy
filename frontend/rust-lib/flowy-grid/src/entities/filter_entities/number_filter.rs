@@ -3,7 +3,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::revision::GridFilterRevision;
 use rust_decimal::prelude::Zero;
-use rust_decimal::{Decimal, Error};
+use rust_decimal::Decimal;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ impl GridNumberFilter {
         let content = self.content.as_ref().unwrap();
         let zero_decimal = Decimal::zero();
         let cell_decimal = num_cell_data.decimal().as_ref().unwrap_or(&zero_decimal);
-        match Decimal::from_str(&content) {
+        match Decimal::from_str(content) {
             Ok(decimal) => match self.condition {
                 NumberFilterCondition::Equal => cell_decimal == &decimal,
                 NumberFilterCondition::NotEqual => cell_decimal != &decimal,
@@ -95,7 +95,7 @@ impl std::convert::From<Arc<GridFilterRevision>> for GridNumberFilter {
 #[cfg(test)]
 mod tests {
     use crate::entities::{GridNumberFilter, NumberFilterCondition};
-    use crate::services::field::number_currency::Currency;
+
     use crate::services::field::{NumberCellData, NumberFormat};
     use std::str::FromStr;
     #[test]
@@ -105,13 +105,13 @@ mod tests {
             content: Some("123".to_owned()),
         };
 
-        for (num_str, r) in vec![("123", true), ("1234", false), ("", false)] {
+        for (num_str, r) in [("123", true), ("1234", false), ("", false)] {
             let data = NumberCellData::from_str(num_str).unwrap();
             assert_eq!(number_filter.apply(&data), r);
         }
 
         let format = NumberFormat::USD;
-        for (num_str, r) in vec![("$123", true), ("1234", false), ("", false)] {
+        for (num_str, r) in [("$123", true), ("1234", false), ("", false)] {
             let data = NumberCellData::from_format_str(num_str, true, &format).unwrap();
             assert_eq!(number_filter.apply(&data), r);
         }
@@ -122,7 +122,7 @@ mod tests {
             condition: NumberFilterCondition::GreaterThan,
             content: Some("12".to_owned()),
         };
-        for (num_str, r) in vec![("123", true), ("10", false), ("30", true), ("", false)] {
+        for (num_str, r) in [("123", true), ("10", false), ("30", true), ("", false)] {
             let data = NumberCellData::from_str(num_str).unwrap();
             assert_eq!(number_filter.apply(&data), r);
         }
@@ -134,7 +134,7 @@ mod tests {
             condition: NumberFilterCondition::LessThan,
             content: Some("100".to_owned()),
         };
-        for (num_str, r) in vec![("12", true), ("1234", false), ("30", true), ("", true)] {
+        for (num_str, r) in [("12", true), ("1234", false), ("30", true), ("", true)] {
             let data = NumberCellData::from_str(num_str).unwrap();
             assert_eq!(number_filter.apply(&data), r);
         }
