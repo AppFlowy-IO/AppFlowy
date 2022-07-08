@@ -2,7 +2,7 @@ use crate::entities::{FieldType, GridCheckboxFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -53,22 +53,19 @@ impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
 }
 
 impl CellDataOperation<String> for CheckboxTypeOption {
-    fn decode_cell_data<T>(
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if !decoded_field_type.is_checkbox() {
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = cell_data.into();
-        if encoded_data == YES || encoded_data == NO {
-            return Ok(DecodedCellData::new(encoded_data));
+        let s: String = cell_data.try_into_inner()?;
+        if s == YES || s == NO {
+            return Ok(DecodedCellData::new(s));
         }
 
         Ok(DecodedCellData::default())

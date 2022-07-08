@@ -8,7 +8,7 @@ use crate::services::field::select_option::{
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -56,22 +56,18 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
         Ok(filter.apply(&selected_options))
     }
 }
-impl CellDataOperation<String> for MultiSelectTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<SelectOptionIds> for MultiSelectTypeOption {
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if !decoded_field_type.is_select_option() {
             return Ok(DecodedCellData::default());
         }
 
-        let encoded_data = cell_data.into();
-        let ids: SelectOptionIds = encoded_data.into();
+        let ids: SelectOptionIds = cell_data.try_into_inner()?;
         let select_options = ids
             .iter()
             .flat_map(|option_id| self.options.iter().find(|option| &option.id == option_id).cloned())

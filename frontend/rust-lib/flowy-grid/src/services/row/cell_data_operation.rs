@@ -14,14 +14,12 @@ pub trait CellFilterOperation<T> {
 pub trait CellDataOperation<D> {
     /// The cell_data is able to parse into the specific data that was impl the From<String> trait.
     /// D will be URLCellData, DateCellData. etc.
-    fn decode_cell_data<T>(
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<D>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<D>;
+    ) -> FlowyResult<DecodedCellData>;
 
     fn apply_changeset<C: Into<CellContentChangeset>>(
         &self,
@@ -178,7 +176,7 @@ pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldR
     if let Ok(any_cell_data) = data.try_into() {
         let AnyCellData { cell_data, field_type } = any_cell_data;
         let to_field_type = field_rev.field_type_rev.into();
-        match try_decode_cell_data(cell_data, field_rev, &field_type, &to_field_type) {
+        match try_decode_cell_data(CellData(Some(cell_data)), field_rev, &field_type, &to_field_type) {
             Ok(cell_data) => cell_data,
             Err(e) => {
                 tracing::error!("Decode cell data failed, {:?}", e);
@@ -192,35 +190,36 @@ pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldR
 }
 
 pub fn try_decode_cell_data(
-    cell_data: String,
+    cell_data: CellData<String>,
     field_rev: &FieldRevision,
     s_field_type: &FieldType,
     t_field_type: &FieldType,
 ) -> FlowyResult<DecodedCellData> {
+    let cell_data = cell_data.try_into_inner()?;
     let get_cell_data = || {
         let field_type: FieldTypeRevision = t_field_type.into();
         let data = match t_field_type {
             FieldType::RichText => field_rev
                 .get_type_option_entry::<RichTextTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Number => field_rev
                 .get_type_option_entry::<NumberTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::DateTime => field_rev
                 .get_type_option_entry::<DateTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
                 .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
                 .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option_entry::<CheckboxTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::URL => field_rev
                 .get_type_option_entry::<URLTypeOption>(field_type)?
-                .decode_cell_data(cell_data, s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
         };
         Some(data)
     };
@@ -235,9 +234,15 @@ pub fn try_decode_cell_data(
     }
 }
 
-pub(crate) struct Parser<T>(pub Option<T>);
+pub trait FromCellString {
+    fn from_cell_str(s: &str) -> FlowyResult<Self>
+    where
+        Self: Sized;
+}
 
-impl<T> Parser<T> {
+pub struct CellData<T>(pub Option<T>);
+
+impl<T> CellData<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
             None => Err(ErrorCode::InvalidData.into()),
@@ -246,18 +251,30 @@ impl<T> Parser<T> {
     }
 }
 
-impl<T> std::convert::From<String> for Parser<T>
+impl<T> std::convert::From<String> for CellData<T>
 where
-    T: FromStr<Err = FlowyError>,
+    T: FromCellString,
 {
     fn from(s: String) -> Self {
-        match T::from_str(&s) {
-            Ok(inner) => Parser(Some(inner)),
+        match T::from_cell_str(&s) {
+            Ok(inner) => CellData(Some(inner)),
             Err(e) => {
                 tracing::error!("Deserialize Cell Data failed: {}", e);
-                Parser(None)
+                CellData(None)
             }
         }
+    }
+}
+
+impl std::convert::From<String> for CellData<String> {
+    fn from(s: String) -> Self {
+        CellData(Some(s))
+    }
+}
+
+impl std::convert::From<CellData<String>> for String {
+    fn from(p: CellData<String>) -> Self {
+        p.try_into_inner().unwrap_or("".to_owned())
     }
 }
 

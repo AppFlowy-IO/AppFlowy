@@ -1,6 +1,6 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-use crate::services::row::AnyCellData;
+use crate::services::row::{AnyCellData, FromCellString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -152,6 +152,15 @@ impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
         Ok(Self::from(value.cell_data))
+    }
+}
+
+impl FromCellString for SelectOptionIds {
+    fn from_cell_str(s: &str) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        Ok(Self::from(s.to_owned()))
     }
 }
 

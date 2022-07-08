@@ -2,7 +2,8 @@ use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    try_decode_cell_data, AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    try_decode_cell_data, AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation,
+    DecodedCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -44,15 +45,12 @@ impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
 }
 
 impl CellDataOperation<String> for RichTextTypeOption {
-    fn decode_cell_data<T>(
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
@@ -60,7 +58,7 @@ impl CellDataOperation<String> for RichTextTypeOption {
         {
             try_decode_cell_data(cell_data.into(), field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data = cell_data.into();
+            let cell_data: String = cell_data.try_into_inner()?;
             Ok(DecodedCellData::new(cell_data))
         }
     }

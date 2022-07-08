@@ -3,7 +3,8 @@ use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
+    FromCellString,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -126,16 +127,13 @@ impl CellFilterOperation<GridDateFilter> for DateTypeOption {
     }
 }
 
-impl CellDataOperation<String> for DateTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<TimestampParser> for DateTypeOption {
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<TimestampParser>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
@@ -143,9 +141,8 @@ impl CellDataOperation<String> for DateTypeOption {
         if !decoded_field_type.is_date() {
             return Ok(DecodedCellData::default());
         }
-
-        let timestamp = cell_data.into().parse::<i64>().unwrap_or(0);
-        let date = self.today_desc_from_timestamp(timestamp);
+        let timestamp = cell_data.try_into_inner()?;
+        let date = self.today_desc_from_timestamp(timestamp.0);
         DecodedCellData::try_from_bytes(date)
     }
 
@@ -170,6 +167,17 @@ impl CellDataOperation<String> for DateTypeOption {
     }
 }
 
+pub struct TimestampParser(i64);
+
+impl FromCellString for TimestampParser {
+    fn from_cell_str(s: &str) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        let num = s.parse::<i64>().unwrap_or(0);
+        Ok(TimestampParser(num))
+    }
+}
 #[derive(Default)]
 pub struct DateTypeOptionBuilder(DateTypeOption);
 impl_into_box_type_option_builder!(DateTypeOptionBuilder);

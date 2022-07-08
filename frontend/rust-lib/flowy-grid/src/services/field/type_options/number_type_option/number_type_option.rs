@@ -5,7 +5,7 @@ use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -119,20 +119,17 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
 }
 
 impl CellDataOperation<String> for NumberTypeOption {
-    fn decode_cell_data<T>(
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if decoded_field_type.is_date() {
             return Ok(DecodedCellData::default());
         }
 
-        let cell_data = cell_data.into();
+        let cell_data: String = cell_data.try_into_inner()?;
         match self.format_cell_data(&cell_data) {
             Ok(num) => Ok(DecodedCellData::new(num.to_string())),
             Err(_) => Ok(DecodedCellData::default()),
