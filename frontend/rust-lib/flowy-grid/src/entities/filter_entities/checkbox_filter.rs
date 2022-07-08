@@ -10,16 +10,6 @@ pub struct GridCheckboxFilter {
     pub condition: CheckboxCondition,
 }
 
-impl GridCheckboxFilter {
-    pub fn apply(&self, cell_data: &CheckboxCellData) -> bool {
-        let is_check = cell_data.is_check();
-        match self.condition {
-            CheckboxCondition::IsChecked => is_check,
-            CheckboxCondition::IsUnChecked => !is_check,
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
 pub enum CheckboxCondition {
@@ -55,23 +45,6 @@ impl std::convert::From<Arc<GridFilterRevision>> for GridCheckboxFilter {
     fn from(rev: Arc<GridFilterRevision>) -> Self {
         GridCheckboxFilter {
             condition: CheckboxCondition::try_from(rev.condition).unwrap_or(CheckboxCondition::IsChecked),
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::entities::{CheckboxCondition, GridCheckboxFilter};
-    use crate::services::field::CheckboxCellData;
-
-    #[test]
-    fn checkbox_filter_is_check_test() {
-        let checkbox_filter = GridCheckboxFilter {
-            condition: CheckboxCondition::IsChecked,
-        };
-        for (value, r) in [("true", true), ("yes", true), ("false", false), ("no", false)] {
-            let data = CheckboxCellData(value.to_owned());
-            assert_eq!(checkbox_filter.apply(&data), r);
         }
     }
 }
