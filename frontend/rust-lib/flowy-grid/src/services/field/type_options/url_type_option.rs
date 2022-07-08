@@ -2,7 +2,7 @@ use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, EncodedCellData,
+    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, Parser,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -46,7 +46,7 @@ impl CellFilterOperation<GridTextFilter> for URLTypeOption {
     }
 }
 
-impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
+impl CellDataOperation<Parser<URLCellData>> for URLTypeOption {
     fn decode_cell_data<T>(
         &self,
         cell_data: T,
@@ -54,7 +54,7 @@ impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
         _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>
     where
-        T: Into<EncodedCellData<URLCellData>>,
+        T: Into<Parser<URLCellData>>,
     {
         if !decoded_field_type.is_url() {
             return Ok(DecodedCellData::default());
@@ -152,7 +152,7 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOption};
-    use crate::services::row::{CellDataOperation, EncodedCellData};
+    use crate::services::row::{CellDataOperation, Parser};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
@@ -201,7 +201,7 @@ mod tests {
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<EncodedCellData<URLCellData>>>(
+    fn decode_cell_data<T: Into<Parser<URLCellData>>>(
         encoded_data: T,
         type_option: &URLTypeOption,
         field_rev: &FieldRevision,

@@ -12,6 +12,8 @@ pub trait CellFilterOperation<T> {
 }
 
 pub trait CellDataOperation<D> {
+    /// The cell_data is able to parse into the specific data that was impl the From<String> trait.
+    /// D will be URLCellData, DateCellData. etc.
     fn decode_cell_data<T>(
         &self,
         cell_data: T,
@@ -52,6 +54,9 @@ impl std::ops::Deref for CellContentChangeset {
     }
 }
 
+/// AnyCellData is a generic CellData, you can parse the cell_data according to the field_type.
+/// When the type of field is changed, it's different from the field_type of AnyCellData.
+/// So it will return an empty data. You could check the CellDataOperation trait for more information.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AnyCellData {
     pub cell_data: String,
@@ -230,9 +235,9 @@ pub fn try_decode_cell_data(
     }
 }
 
-pub(crate) struct EncodedCellData<T>(pub Option<T>);
+pub(crate) struct Parser<T>(pub Option<T>);
 
-impl<T> EncodedCellData<T> {
+impl<T> Parser<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
             None => Err(ErrorCode::InvalidData.into()),
@@ -241,16 +246,16 @@ impl<T> EncodedCellData<T> {
     }
 }
 
-impl<T> std::convert::From<String> for EncodedCellData<T>
+impl<T> std::convert::From<String> for Parser<T>
 where
     T: FromStr<Err = FlowyError>,
 {
     fn from(s: String) -> Self {
         match T::from_str(&s) {
-            Ok(inner) => EncodedCellData(Some(inner)),
+            Ok(inner) => Parser(Some(inner)),
             Err(e) => {
                 tracing::error!("Deserialize Cell Data failed: {}", e);
-                EncodedCellData(None)
+                Parser(None)
             }
         }
     }
