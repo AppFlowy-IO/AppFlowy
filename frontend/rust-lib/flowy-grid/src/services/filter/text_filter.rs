@@ -1,4 +1,7 @@
 use crate::entities::{GridTextFilter, TextFilterCondition};
+use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::field::{RichTextTypeOption, TextCellData};
+use flowy_error::FlowyResult;
 
 impl GridTextFilter {
     pub fn apply<T: AsRef<str>>(&self, cell_data: T) -> bool {
@@ -21,6 +24,16 @@ impl GridTextFilter {
     }
 }
 
+impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_text() {
+            return Ok(true);
+        }
+
+        let text_cell_data: TextCellData = any_cell_data.try_into()?;
+        Ok(filter.apply(text_cell_data))
+    }
+}
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]

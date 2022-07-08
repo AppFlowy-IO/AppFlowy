@@ -1,5 +1,7 @@
 use crate::entities::{GridNumberFilter, NumberFilterCondition};
-use crate::services::field::NumberCellData;
+use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::field::{NumberCellData, NumberTypeOption};
+use flowy_error::FlowyResult;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::str::FromStr;
@@ -28,6 +30,20 @@ impl GridNumberFilter {
         }
     }
 }
+
+impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_number() {
+            return Ok(true);
+        }
+
+        let cell_data = any_cell_data.cell_data;
+        let num_cell_data = self.format_cell_data(&cell_data)?;
+
+        Ok(filter.apply(&num_cell_data))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::entities::{GridNumberFilter, NumberFilterCondition};

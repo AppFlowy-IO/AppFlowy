@@ -1,10 +1,7 @@
-use crate::services::field::NumberCellData;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::revision::GridFilterRevision;
-use rust_decimal::prelude::Zero;
-use rust_decimal::Decimal;
-use std::str::FromStr;
+
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

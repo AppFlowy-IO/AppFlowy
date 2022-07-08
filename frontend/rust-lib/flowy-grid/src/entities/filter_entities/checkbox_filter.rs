@@ -1,4 +1,3 @@
-use crate::services::field::CheckboxCellData;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::revision::GridFilterRevision;
