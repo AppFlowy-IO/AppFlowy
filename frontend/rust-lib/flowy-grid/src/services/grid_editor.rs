@@ -369,7 +369,7 @@ impl GridRevisionEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn update_cell(&self, cell_changeset: CellChangeset) -> FlowyResult<()> {
-        if cell_changeset.cell_content_changeset.as_ref().is_none() {
+        if cell_changeset.content.as_ref().is_none() {
             return Ok(());
         }
 
@@ -377,7 +377,7 @@ impl GridRevisionEditor {
             grid_id,
             row_id,
             field_id,
-            mut cell_content_changeset,
+            mut content,
         } = cell_changeset;
 
         match self.grid_pad.read().await.get_field_rev(&field_id) {
@@ -386,21 +386,17 @@ impl GridRevisionEditor {
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
-                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, cell_content_changeset);
+                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
 
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
-                cell_content_changeset = Some(apply_cell_data_changeset(
-                    cell_content_changeset.unwrap(),
-                    cell_rev,
-                    field_rev,
-                )?);
+                content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
                 let field_revs = self.get_field_revs(None).await?;
                 let cell_changeset = CellChangeset {
                     grid_id,
                     row_id,
                     field_id,
-                    cell_content_changeset,
+                    content,
                 };
                 let _ = self
                     .block_manager

@@ -1,8 +1,8 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-use crate::services::row::{AnyCellData, FromCellString};
+use crate::services::row::{AnyCellData, FromCellChangeset, FromCellString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use nanoid::nanoid;
@@ -217,7 +217,7 @@ pub struct SelectOptionCellChangesetParams {
 
 impl std::convert::From<SelectOptionCellChangesetParams> for CellChangeset {
     fn from(params: SelectOptionCellChangesetParams) -> Self {
-        let changeset = SelectOptionCellContentChangeset {
+        let changeset = SelectOptionCellChangeset {
             insert_option_id: params.insert_option_id,
             delete_option_id: params.delete_option_id,
         };
@@ -226,7 +226,7 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangeset {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
-            cell_content_changeset: Some(s),
+            content: Some(s),
         }
     }
 }
@@ -263,21 +263,30 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct SelectOptionCellContentChangeset {
+pub struct SelectOptionCellChangeset {
     pub insert_option_id: Option<String>,
     pub delete_option_id: Option<String>,
 }
 
-impl SelectOptionCellContentChangeset {
+impl FromCellChangeset for SelectOptionCellChangeset {
+    fn from_changeset(changeset: String) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        serde_json::from_str::<SelectOptionCellChangeset>(&changeset).map_err(internal_error)
+    }
+}
+
+impl SelectOptionCellChangeset {
     pub fn from_insert(option_id: &str) -> Self {
-        SelectOptionCellContentChangeset {
+        SelectOptionCellChangeset {
             insert_option_id: Some(option_id.to_string()),
             delete_option_id: None,
         }
     }
 
     pub fn from_delete(option_id: &str) -> Self {
-        SelectOptionCellContentChangeset {
+        SelectOptionCellChangeset {
             insert_option_id: None,
             delete_option_id: Some(option_id.to_string()),
         }

@@ -1,4 +1,4 @@
-use crate::services::field::select_option::SelectOptionCellContentChangeset;
+use crate::services::field::select_option::SelectOptionCellChangeset;
 use crate::services::row::apply_cell_data_changeset;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
@@ -35,7 +35,7 @@ impl<'a> CreateRowRevisionBuilder<'a> {
                 Err(FlowyError::internal().context(msg))
             }
             Some(field_rev) => {
-                let data = apply_cell_data_changeset(&data, None, field_rev)?;
+                let data = apply_cell_data_changeset(data, None, field_rev)?;
                 let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())
@@ -50,8 +50,8 @@ impl<'a> CreateRowRevisionBuilder<'a> {
                 Err(FlowyError::internal().context(msg))
             }
             Some(field_rev) => {
-                let cell_data = SelectOptionCellContentChangeset::from_insert(&data).to_str();
-                let data = apply_cell_data_changeset(&cell_data, None, field_rev)?;
+                let cell_data = SelectOptionCellChangeset::from_insert(&data).to_str();
+                let data = apply_cell_data_changeset(cell_data, None, field_rev)?;
                 let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
                 Ok(())

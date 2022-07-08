@@ -323,7 +323,7 @@ pub(crate) async fn update_select_option_handler(
         let mut cell_content_changeset = None;
 
         if let Some(option) = changeset.insert_option {
-            cell_content_changeset = Some(SelectOptionCellContentChangeset::from_insert(&option.id).to_str());
+            cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
             type_option.insert_option(option);
         }
 
@@ -332,7 +332,7 @@ pub(crate) async fn update_select_option_handler(
         }
 
         if let Some(option) = changeset.delete_option {
-            cell_content_changeset = Some(SelectOptionCellContentChangeset::from_delete(&option.id).to_str());
+            cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
             type_option.delete_option(option);
         }
 
@@ -343,7 +343,7 @@ pub(crate) async fn update_select_option_handler(
             grid_id: changeset.cell_identifier.grid_id,
             row_id: changeset.cell_identifier.row_id,
             field_id: changeset.cell_identifier.field_id,
-            cell_content_changeset,
+            content: cell_content_changeset,
         };
         let _ = editor.update_cell(changeset).await?;
     }

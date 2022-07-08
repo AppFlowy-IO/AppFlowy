@@ -4,16 +4,17 @@ use bytes::Bytes;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, FieldTypeRevision};
 use serde::{Deserialize, Serialize};
-use std::fmt::Formatter;
+
 use std::str::FromStr;
 
 pub trait CellFilterOperation<T> {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
-pub trait CellDataOperation<D> {
-    /// The cell_data is able to parse into the specific data that was impl the From<String> trait.
-    /// D will be URLCellData, DateCellData. etc.
+pub trait CellDataOperation<D, C> {
+    /// The cell_data is able to parse into the specific data that was impl the FromCellData trait.
+    /// For example:
+    /// URLCellData, DateCellData. etc.
     fn decode_cell_data(
         &self,
         cell_data: CellData<D>,
@@ -21,35 +22,10 @@ pub trait CellDataOperation<D> {
         field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData>;
 
-    fn apply_changeset<C: Into<CellContentChangeset>>(
-        &self,
-        changeset: C,
-        cell_rev: Option<CellRevision>,
-    ) -> FlowyResult<String>;
-}
-
-#[derive(Debug)]
-pub struct CellContentChangeset(pub String);
-
-impl std::fmt::Display for CellContentChangeset {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", &self.0)
-    }
-}
-
-impl<T: AsRef<str>> std::convert::From<T> for CellContentChangeset {
-    fn from(s: T) -> Self {
-        let s = s.as_ref().to_owned();
-        CellContentChangeset(s)
-    }
-}
-
-impl std::ops::Deref for CellContentChangeset {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
+    /// The changeset is able to parse into the specific data that was impl the FromCellChangeset trait.
+    /// For example:
+    /// SelectOptionCellChangeset,DateCellChangeset. etc.  
+    fn apply_changeset(&self, changeset: CellDataChangeset<C>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
 
 /// AnyCellData is a generic CellData, you can parse the cell_data according to the field_type.
@@ -152,21 +128,22 @@ impl AnyCellData {
 
 /// The changeset will be deserialized into specific data base on the FieldType.
 /// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
-pub fn apply_cell_data_changeset<C: Into<CellContentChangeset>, T: AsRef<FieldRevision>>(
+pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
     field_rev: T,
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
+    let changeset = changeset.to_string();
     let field_type = field_rev.field_type_rev.into();
     let s = match field_type {
-        FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::DateTime => DateTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::SingleSelect => SingleSelectTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
-        FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset, cell_rev),
+        FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::DateTime => DateTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::SingleSelect => SingleSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
     Ok(AnyCellData::new(s, field_type).json())
@@ -274,7 +251,45 @@ impl std::convert::From<String> for CellData<String> {
 
 impl std::convert::From<CellData<String>> for String {
     fn from(p: CellData<String>) -> Self {
-        p.try_into_inner().unwrap_or("".to_owned())
+        p.try_into_inner().unwrap_or_else(|_| String::new())
+    }
+}
+
+// CellChangeset
+pub trait FromCellChangeset {
+    fn from_changeset(changeset: String) -> FlowyResult<Self>
+    where
+        Self: Sized;
+}
+
+pub struct CellDataChangeset<T>(pub Option<T>);
+
+impl<T> CellDataChangeset<T> {
+    pub fn try_into_inner(self) -> FlowyResult<T> {
+        match self.0 {
+            None => Err(ErrorCode::InvalidData.into()),
+            Some(data) => Ok(data),
+        }
+    }
+}
+
+impl<T, C: ToString> std::convert::From<C> for CellDataChangeset<T>
+where
+    T: FromCellChangeset,
+{
+    fn from(changeset: C) -> Self {
+        match T::from_changeset(changeset.to_string()) {
+            Ok(data) => CellDataChangeset(Some(data)),
+            Err(e) => {
+                tracing::error!("Deserialize CellDataChangeset failed: {}", e);
+                CellDataChangeset(None)
+            }
+        }
+    }
+}
+impl std::convert::From<String> for CellDataChangeset<String> {
+    fn from(s: String) -> Self {
+        CellDataChangeset(Some(s))
     }
 }
 

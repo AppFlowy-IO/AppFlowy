@@ -3,14 +3,14 @@ use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
-    FromCellString,
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+    FromCellChangeset, FromCellString,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
@@ -127,7 +127,7 @@ impl CellFilterOperation<GridDateFilter> for DateTypeOption {
     }
 }
 
-impl CellDataOperation<TimestampParser> for DateTypeOption {
+impl CellDataOperation<TimestampParser, DateCellChangeset> for DateTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<TimestampParser>,
@@ -146,14 +146,15 @@ impl CellDataOperation<TimestampParser> for DateTypeOption {
         DecodedCellData::try_from_bytes(date)
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
-    {
-        let content_changeset: DateCellContentChangeset = serde_json::from_str(&changeset.into())?;
-        let cell_data = match content_changeset.date_timestamp() {
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<DateCellChangeset>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.try_into_inner()?;
+        let cell_data = match changeset.date_timestamp() {
             None => 0,
-            Some(date_timestamp) => match (self.include_time, content_changeset.time) {
+            Some(date_timestamp) => match (self.include_time, changeset.time) {
                 (true, Some(time)) => {
                     let time = Some(time.trim().to_uppercase());
                     let utc = self.utc_date_time_from_timestamp(date_timestamp);
@@ -331,7 +332,7 @@ impl TryInto<DateChangesetParams> for DateChangesetPayload {
 
 impl std::convert::From<DateChangesetParams> for CellChangeset {
     fn from(params: DateChangesetParams) -> Self {
-        let changeset = DateCellContentChangeset {
+        let changeset = DateCellChangeset {
             date: params.date,
             time: params.time,
         };
@@ -340,18 +341,18 @@ impl std::convert::From<DateChangesetParams> for CellChangeset {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
-            cell_content_changeset: Some(s),
+            content: Some(s),
         }
     }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct DateCellContentChangeset {
+pub struct DateCellChangeset {
     pub date: Option<String>,
     pub time: Option<String>,
 }
 
-impl DateCellContentChangeset {
+impl DateCellChangeset {
     pub fn date_timestamp(&self) -> Option<i64> {
         if let Some(date) = &self.date {
             match date.parse::<i64>() {
@@ -364,10 +365,12 @@ impl DateCellContentChangeset {
     }
 }
 
-impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
-    fn from(changeset: DateCellContentChangeset) -> Self {
-        let s = serde_json::to_string(&changeset).unwrap();
-        CellContentChangeset::from(s)
+impl FromCellChangeset for DateCellChangeset {
+    fn from_changeset(changeset: String) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        serde_json::from_str::<DateCellChangeset>(&changeset).map_err(internal_error)
     }
 }
 
@@ -375,8 +378,8 @@ impl std::convert::From<DateCellContentChangeset> for CellContentChangeset {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{DateCellContentChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::CellDataOperation;
+    use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
+    use crate::services::row::{CellDataChangeset, CellDataOperation};
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
@@ -387,7 +390,7 @@ mod tests {
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some("1e".to_string()),
                 time: Some("23:00".to_owned()),
             },
@@ -433,7 +436,7 @@ mod tests {
                 TimeFormat::TwentyFourHour => {
                     assert_changeset_result(
                         &type_option,
-                        DateCellContentChangeset {
+                        DateCellChangeset {
                             date: Some(1653609600.to_string()),
                             time: None,
                         },
@@ -443,7 +446,7 @@ mod tests {
                     );
                     assert_changeset_result(
                         &type_option,
-                        DateCellContentChangeset {
+                        DateCellChangeset {
                             date: Some(1653609600.to_string()),
                             time: Some("23:00".to_owned()),
                         },
@@ -455,7 +458,7 @@ mod tests {
                 TimeFormat::TwelveHour => {
                     assert_changeset_result(
                         &type_option,
-                        DateCellContentChangeset {
+                        DateCellChangeset {
                             date: Some(1653609600.to_string()),
                             time: None,
                         },
@@ -466,7 +469,7 @@ mod tests {
                     //
                     assert_changeset_result(
                         &type_option,
-                        DateCellContentChangeset {
+                        DateCellChangeset {
                             date: Some(1653609600.to_string()),
                             time: Some("".to_owned()),
                         },
@@ -477,7 +480,7 @@ mod tests {
 
                     assert_changeset_result(
                         &type_option,
-                        DateCellContentChangeset {
+                        DateCellChangeset {
                             date: Some(1653609600.to_string()),
                             time: Some("11:23 pm".to_owned()),
                         },
@@ -499,7 +502,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp.clone()),
                 time: None,
             },
@@ -511,7 +514,7 @@ mod tests {
         type_option.include_time = true;
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp.clone()),
                 time: None,
             },
@@ -522,7 +525,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp.clone()),
                 time: Some("1:00".to_owned()),
             },
@@ -534,7 +537,7 @@ mod tests {
         type_option.time_format = TimeFormat::TwelveHour;
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
@@ -554,7 +557,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp.clone()),
                 time: Some("1:".to_owned()),
             },
@@ -565,7 +568,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp),
                 time: Some("1:00".to_owned()),
             },
@@ -585,7 +588,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellContentChangeset {
+            DateCellChangeset {
                 date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
@@ -597,11 +600,12 @@ mod tests {
 
     fn assert_changeset_result(
         type_option: &DateTypeOption,
-        changeset: DateCellContentChangeset,
+        changeset: DateCellChangeset,
         _field_type: &FieldType,
         field_rev: &FieldRevision,
         expected: &str,
     ) {
+        let changeset = CellDataChangeset(Some(changeset));
         let encoded_data = type_option.apply_changeset(changeset, None).unwrap();
         assert_eq!(
             expected.to_owned(),
@@ -615,15 +619,12 @@ mod tests {
         field_rev: &FieldRevision,
         expected: &str,
     ) {
-        let encoded_data = type_option
-            .apply_changeset(
-                DateCellContentChangeset {
-                    date: Some(timestamp.to_string()),
-                    time: None,
-                },
-                None,
-            )
-            .unwrap();
+        let s = serde_json::to_string(&DateCellChangeset {
+            date: Some(timestamp.to_string()),
+            time: None,
+        })
+        .unwrap();
+        let encoded_data = type_option.apply_changeset(s.into(), None).unwrap();
 
         assert_eq!(
             expected.to_owned(),
@@ -631,13 +632,9 @@ mod tests {
         );
     }
 
-    fn decode_cell_data<T: Into<String>>(
-        encoded_data: T,
-        type_option: &DateTypeOption,
-        field_rev: &FieldRevision,
-    ) -> String {
+    fn decode_cell_data(encoded_data: String, type_option: &DateTypeOption, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
-            .decode_cell_data(encoded_data, &FieldType::DateTime, field_rev)
+            .decode_cell_data(encoded_data.into(), &FieldType::DateTime, field_rev)
             .unwrap()
             .parse::<DateCellData>()
             .unwrap();

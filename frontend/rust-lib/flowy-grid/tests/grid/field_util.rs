@@ -73,7 +73,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
 //  The grid will contains all existing field types and there are three empty rows in this grid.
 
 pub fn make_date_cell_string(s: &str) -> String {
-    serde_json::to_string(&DateCellContentChangeset {
+    serde_json::to_string(&DateCellChangeset {
         date: Some(s.to_string()),
         time: None,
     })

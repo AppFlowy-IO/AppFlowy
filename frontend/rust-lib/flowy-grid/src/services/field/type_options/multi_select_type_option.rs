@@ -2,13 +2,13 @@ use crate::entities::{FieldType, GridSelectOptionFilter};
 
 use crate::impl_type_option;
 use crate::services::field::select_option::{
-    make_selected_select_options, SelectOption, SelectOptionCellContentChangeset, SelectOptionCellData,
-    SelectOptionIds, SelectOptionOperation, SelectedSelectOptions, SELECTION_IDS_SEPARATOR,
+    make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
+    SelectOptionOperation, SelectedSelectOptions, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -56,7 +56,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
         Ok(filter.apply(&selected_options))
     }
 }
-impl CellDataOperation<SelectOptionIds> for MultiSelectTypeOption {
+impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
@@ -81,11 +81,12 @@ impl CellDataOperation<SelectOptionIds> for MultiSelectTypeOption {
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_changeset<T>(&self, changeset: T, cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        T: Into<CellContentChangeset>,
-    {
-        let content_changeset: SelectOptionCellContentChangeset = serde_json::from_str(&changeset.into())?;
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<SelectOptionCellChangeset>,
+        cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let content_changeset = changeset.try_into_inner()?;
         let new_cell_data: String;
         match cell_rev {
             None => {
@@ -164,8 +165,8 @@ mod tests {
         let type_option = MultiSelectTypeOption::from(&field_rev);
 
         let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-        let data = SelectOptionCellContentChangeset::from_insert(&option_ids).to_str();
-        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
+        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
         assert_multi_select_options(
             cell_data,
             &type_option,
@@ -173,24 +174,24 @@ mod tests {
             vec![google_option.clone(), facebook_option],
         );
 
-        let data = SelectOptionCellContentChangeset::from_insert(&google_option.id).to_str();
-        let cell_data = type_option.apply_changeset(data, None).unwrap();
+        let data = SelectOptionCellChangeset::from_insert(&google_option.id).to_str();
+        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
         assert_multi_select_options(cell_data, &type_option, &field_rev, vec![google_option]);
 
         // Invalid option id
         let cell_data = type_option
-            .apply_changeset(SelectOptionCellContentChangeset::from_insert("").to_str(), None)
+            .apply_changeset(SelectOptionCellChangeset::from_insert("").to_str().into(), None)
             .unwrap();
         assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
 
         // Invalid option id
         let cell_data = type_option
-            .apply_changeset(SelectOptionCellContentChangeset::from_insert("123,456").to_str(), None)
+            .apply_changeset(SelectOptionCellChangeset::from_insert("123,456").to_str().into(), None)
             .unwrap();
         assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
 
         // Invalid changeset
-        assert!(type_option.apply_changeset("123", None).is_err());
+        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
     }
 
     fn assert_multi_select_options(
@@ -203,7 +204,7 @@ mod tests {
         assert_eq!(
             expected,
             type_option
-                .decode_cell_data(cell_data, &field_type, field_rev)
+                .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()

@@ -2,7 +2,7 @@ use crate::grid::field_util::make_date_cell_string;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use flowy_grid::entities::{CellChangeset, FieldType};
-use flowy_grid::services::field::select_option::SelectOptionCellContentChangeset;
+use flowy_grid::services::field::select_option::SelectOptionCellChangeset;
 use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 
 #[tokio::test]
@@ -25,11 +25,11 @@ async fn grid_cell_update() {
                 FieldType::DateTime => make_date_cell_string("123"),
                 FieldType::SingleSelect => {
                     let type_option = SingleSelectTypeOption::from(field_rev);
-                    SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
+                    SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                 }
                 FieldType::MultiSelect => {
                     let type_option = MultiSelectTypeOption::from(field_rev);
-                    SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
+                    SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                 }
                 FieldType::Checkbox => "1".to_string(),
                 FieldType::URL => "1".to_string(),
@@ -40,7 +40,7 @@ async fn grid_cell_update() {
                     grid_id: block_id.to_string(),
                     row_id: row_rev.id.clone(),
                     field_id: field_rev.id.clone(),
-                    cell_content_changeset: Some(data),
+                    content: Some(data),
                 },
                 is_err: false,
             });

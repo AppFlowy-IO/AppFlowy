@@ -2,8 +2,7 @@ use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
 use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellData, CellDataOperation, CellFilterOperation, DecodedCellData,
-    FromCellString,
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, FromCellString,
 };
 use bytes::Bytes;
 use fancy_regex::Regex;
@@ -46,7 +45,7 @@ impl CellFilterOperation<GridTextFilter> for URLTypeOption {
     }
 }
 
-impl CellDataOperation<URLCellData> for URLTypeOption {
+impl CellDataOperation<URLCellData, String> for URLTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<URLCellData>,
@@ -60,18 +59,16 @@ impl CellDataOperation<URLCellData> for URLTypeOption {
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
+    fn apply_changeset(&self, changeset: CellDataChangeset<String>, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
     {
-        let changeset = changeset.into();
+        let changeset = changeset.try_into_inner()?;
         let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
             url = auto_append_scheme(m.as_str());
         }
         URLCellData {
             url,
-            content: changeset.to_string(),
+            content: changeset,
         }
         .to_json()
     }
@@ -190,7 +187,7 @@ mod tests {
         expected: &str,
         expected_url: &str,
     ) {
-        let encoded_data = type_option.apply_changeset(cell_data, None).unwrap();
+        let encoded_data = type_option.apply_changeset(cell_data.to_owned().into(), None).unwrap();
         let decode_cell_data = decode_cell_data(encoded_data, type_option, field_rev, field_type);
         assert_eq!(expected.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
@@ -203,7 +200,7 @@ mod tests {
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data, field_type, field_rev)
+            .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()
             .parse::<URLCellData>()
             .unwrap()

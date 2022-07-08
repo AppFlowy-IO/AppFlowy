@@ -134,7 +134,7 @@ pub struct CellChangeset {
     pub field_id: String,
 
     #[pb(index = 4, one_of)]
-    pub cell_content_changeset: Option<String>,
+    pub content: Option<String>,
 }
 
 impl std::convert::From<CellChangeset> for RowMetaChangeset {
@@ -142,7 +142,7 @@ impl std::convert::From<CellChangeset> for RowMetaChangeset {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {
-            data: changeset.cell_content_changeset.unwrap_or_else(|| "".to_owned()),
+            data: changeset.content.unwrap_or_else(|| "".to_owned()),
         };
         cell_by_field_id.insert(field_id, cell_rev);
 
