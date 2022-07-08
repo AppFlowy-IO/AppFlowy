@@ -19,13 +19,15 @@ impl GridSelectOptionFilter {
         let selected_option_ids: Vec<&String> = selected_options.options.iter().map(|option| &option.id).collect();
         match self.condition {
             SelectOptionCondition::OptionIs => {
+                // if selected options equal to filter's options, then the required_options will be empty.
                 let required_options = self
                     .option_ids
                     .iter()
-                    .filter(|id| selected_option_ids.contains(id))
+                    .filter(|id| !selected_option_ids.contains(id))
                     .collect::<Vec<_>>();
+
                 // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
-                required_options.is_empty()
+                !required_options.is_empty()
             }
             SelectOptionCondition::OptionIsNot => {
                 for option_id in selected_option_ids {
