@@ -30,7 +30,7 @@ jobs:
       - name: Build FlowySDK
         working-directory: frontend
         run: |
-          cargo make --profile development-linux-x86 flowy-sdk-dev
+          cargo make --profile development-linux-x86_64 flowy-sdk-dev
 
       - run: rustup component add rustfmt
         working-directory: frontend/rust-lib

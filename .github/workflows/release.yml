@@ -67,7 +67,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86 appflowy
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
 
       - name: Upload Release Asset
         id: upload-release-asset
