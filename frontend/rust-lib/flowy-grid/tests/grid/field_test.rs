@@ -1,7 +1,8 @@
 use crate::grid::field_util::*;
 use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
-use flowy_grid::services::field::{SelectOption, SingleSelectTypeOption};
+use flowy_grid::services::field::select_option::SelectOption;
+use flowy_grid::services::field::SingleSelectTypeOption;
 use flowy_grid_data_model::revision::TypeOptionDataEntry;
 use flowy_sync::entities::grid::FieldChangesetParams;
 

@@ -32,9 +32,14 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellFilterOperation<GridTextFilter, TextCellData> for RichTextTypeOption {
-    fn apply_filter(&self, _cell_data: TextCellData, _filter: &GridTextFilter) -> bool {
-        false
+impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_text() {
+            return Ok(true);
+        }
+
+        let text_cell_data: TextCellData = any_cell_data.try_into()?;
+        Ok(filter.apply(text_cell_data))
     }
 }
 
@@ -73,16 +78,25 @@ impl CellDataOperation<String> for RichTextTypeOption {
     }
 }
 
-pub struct TextCellData(String);
-impl std::convert::From<AnyCellData> for TextCellData {
-    fn from(any_data: AnyCellData) -> Self {
-        TextCellData(any_data.cell_data)
+pub struct TextCellData(pub String);
+impl AsRef<str> for TextCellData {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::convert::TryFrom<AnyCellData> for TextCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
+        Ok(TextCellData(value.cell_data))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::field::select_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
     use crate::services::row::CellDataOperation;

@@ -1,7 +1,10 @@
 use crate::entities::*;
 use crate::manager::GridManager;
-use crate::services::field::type_options::*;
-use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_json_str};
+use crate::services::field::select_option::*;
+use crate::services::field::{
+    default_type_option_builder_from_type, type_option_builder_from_json_str, DateChangesetParams, DateChangesetPayload,
+};
+use crate::services::row::AnyCellData;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::FieldRevision;
 use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
@@ -362,7 +365,8 @@ pub(crate) async fn get_select_option_handler(
         Some(field_rev) => {
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_option_operation(&field_rev)?;
-            let option_context = type_option.select_option_cell_data(&cell_rev);
+            let any_cell_data: AnyCellData = cell_rev.try_into()?;
+            let option_context = type_option.selected_select_option(any_cell_data);
             data_result(option_context)
         }
     }

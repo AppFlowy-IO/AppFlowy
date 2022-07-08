@@ -6,7 +6,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 class TypeOptionService {

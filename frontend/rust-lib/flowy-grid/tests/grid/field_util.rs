@@ -1,6 +1,6 @@
-use flowy_grid::services::field::*;
-
 use flowy_grid::entities::*;
+use flowy_grid::services::field::select_option::SelectOption;
+use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::*;
 
 pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {

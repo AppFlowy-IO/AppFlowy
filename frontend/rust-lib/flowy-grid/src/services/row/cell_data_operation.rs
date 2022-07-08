@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-pub trait CellFilterOperation<T, C: From<AnyCellData>> {
-    fn apply_filter(&self, cell_data: C, filter: &T) -> bool;
+pub trait CellFilterOperation<T> {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
 pub trait CellDataOperation<D> {
@@ -83,6 +83,25 @@ impl std::convert::TryFrom<&CellRevision> for AnyCellData {
     }
 }
 
+impl std::convert::TryFrom<&Option<CellRevision>> for AnyCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: &Option<CellRevision>) -> Result<Self, Self::Error> {
+        match value {
+            None => Err(FlowyError::invalid_data().context("Expected CellRevision, but receive None")),
+            Some(cell_rev) => AnyCellData::try_from(cell_rev),
+        }
+    }
+}
+
+impl std::convert::TryFrom<Option<CellRevision>> for AnyCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: Option<CellRevision>) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
+    }
+}
+
 impl AnyCellData {
     pub fn new(content: String, field_type: FieldType) -> Self {
         AnyCellData {
@@ -117,6 +136,10 @@ impl AnyCellData {
 
     pub fn is_multi_select(&self) -> bool {
         self.field_type == FieldType::MultiSelect
+    }
+
+    pub fn is_url(&self) -> bool {
+        self.field_type == FieldType::URL
     }
 
     pub fn is_select_option(&self) -> bool {

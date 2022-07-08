@@ -1,6 +1,6 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use crate::services::row::{
     AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, EncodedCellData,
 };
@@ -35,9 +35,14 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellFilterOperation<GridTextFilter, URLCellData> for URLTypeOption {
-    fn apply_filter(&self, _cell_data: URLCellData, _filter: &GridTextFilter) -> bool {
-        false
+impl CellFilterOperation<GridTextFilter> for URLTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_url() {
+            return Ok(true);
+        }
+
+        let text_cell_data: TextCellData = any_cell_data.try_into()?;
+        Ok(filter.apply(&text_cell_data))
     }
 }
 
@@ -121,9 +126,17 @@ impl FromStr for URLCellData {
     }
 }
 
-impl std::convert::From<AnyCellData> for URLCellData {
-    fn from(any_cell_data: AnyCellData) -> Self {
-        URLCellData::from_str(&any_cell_data.cell_data).unwrap_or_default()
+// impl std::convert::From<AnyCellData> for URLCellData {
+//     fn from(any_cell_data: AnyCellData) -> Self {
+//         URLCellData::from_str(&any_cell_data.cell_data).unwrap_or_default()
+//     }
+// }
+
+impl std::convert::TryFrom<AnyCellData> for URLCellData {
+    type Error = ();
+
+    fn try_from(_value: AnyCellData) -> Result<Self, Self::Error> {
+        todo!()
     }
 }
 

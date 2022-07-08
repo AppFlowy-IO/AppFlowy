@@ -42,9 +42,13 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
-impl CellFilterOperation<GridCheckboxFilter, CheckboxCellData> for CheckboxTypeOption {
-    fn apply_filter(&self, _cell_data: CheckboxCellData, _filter: &GridCheckboxFilter) -> bool {
-        false
+impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridCheckboxFilter) -> FlowyResult<bool> {
+        if !any_cell_data.is_checkbox() {
+            return Ok(true);
+        }
+        let checkbox_cell_data: CheckboxCellData = any_cell_data.try_into()?;
+        Ok(filter.apply(&checkbox_cell_data))
     }
 }
 
@@ -96,10 +100,18 @@ fn string_to_bool(bool_str: &str) -> bool {
     }
 }
 
-pub struct CheckboxCellData(String);
-impl std::convert::From<AnyCellData> for CheckboxCellData {
-    fn from(any_cell_data: AnyCellData) -> Self {
-        CheckboxCellData(any_cell_data.cell_data)
+pub struct CheckboxCellData(pub String);
+
+impl CheckboxCellData {
+    pub fn is_check(&self) -> bool {
+        string_to_bool(&self.0)
+    }
+}
+impl std::convert::TryFrom<AnyCellData> for CheckboxCellData {
+    type Error = FlowyError;
+
+    fn try_from(_value: AnyCellData) -> Result<Self, Self::Error> {
+        todo!()
     }
 }
 
