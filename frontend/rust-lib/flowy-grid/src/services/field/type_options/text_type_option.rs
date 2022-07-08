@@ -1,9 +1,10 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    try_decode_cell_data, AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+use crate::services::cell::{
+    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation,
+    DecodedCellData,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -43,37 +44,35 @@ impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
     }
 }
 
-impl CellDataOperation<String> for RichTextTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<String, String> for RichTextTypeOption {
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            try_decode_cell_data(cell_data.into(), field_rev, decoded_field_type, decoded_field_type)
+            try_decode_cell_data(cell_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data = cell_data.into();
+            let cell_data: String = cell_data.try_into_inner()?;
             Ok(DecodedCellData::new(cell_data))
         }
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
-    {
-        let data = changeset.into();
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let data = changeset.try_into_inner()?;
         if data.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(data.0)
+            Ok(data)
         }
     }
 }
@@ -96,10 +95,10 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::select_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
-    use crate::services::row::CellDataOperation;
 
     #[test]
     fn text_description_test() {
@@ -111,7 +110,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(1647251762.to_string(), &field_type, &date_time_field_rev)
+                .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
                 .parse::<DateCellData>()
                 .unwrap()
@@ -127,7 +126,11 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(done_option_id, &FieldType::SingleSelect, &single_select_field_rev)
+                .decode_cell_data(
+                    done_option_id.into(),
+                    &FieldType::SingleSelect,
+                    &single_select_field_rev
+                )
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -139,16 +142,18 @@ mod tests {
         let google_option = SelectOption::new("Google");
         let facebook_option = SelectOption::new("Facebook");
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-        let cell_data_changeset = SelectOptionCellContentChangeset::from_insert(&ids).to_str();
+        let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone());
         let multi_select_field_rev = FieldBuilder::new(multi_select).build();
         let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_rev);
-        let cell_data = multi_type_option.apply_changeset(cell_data_changeset, None).unwrap();
+        let cell_data = multi_type_option
+            .apply_changeset(cell_data_changeset.into(), None)
+            .unwrap();
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, &FieldType::MultiSelect, &multi_select_field_rev)
+                .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -161,7 +166,7 @@ mod tests {
         let number_field_rev = FieldBuilder::new(number).build();
         assert_eq!(
             type_option
-                .decode_cell_data("18443".to_owned(), &FieldType::Number, &number_field_rev)
+                .decode_cell_data("18443".to_owned().into(), &FieldType::Number, &number_field_rev)
                 .unwrap()
                 .to_string(),
             "$18,443".to_owned()

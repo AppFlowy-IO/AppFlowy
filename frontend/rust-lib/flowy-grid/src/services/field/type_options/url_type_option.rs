@@ -1,9 +1,9 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
-use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, EncodedCellData,
+use crate::services::cell::{
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, FromCellString,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -11,7 +11,6 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 #[derive(Default)]
 pub struct URLTypeOptionBuilder(URLTypeOption);
@@ -46,35 +45,33 @@ impl CellFilterOperation<GridTextFilter> for URLTypeOption {
     }
 }
 
-impl CellDataOperation<EncodedCellData<URLCellData>> for URLTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<URLCellData, String> for URLTypeOption {
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<URLCellData>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<EncodedCellData<URLCellData>>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if !decoded_field_type.is_url() {
             return Ok(DecodedCellData::default());
         }
-        let cell_data = cell_data.into().try_into_inner()?;
+        let cell_data: URLCellData = cell_data.try_into_inner()?;
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
-    {
-        let changeset = changeset.into();
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.try_into_inner()?;
         let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
             url = auto_append_scheme(m.as_str());
         }
         URLCellData {
             url,
-            content: changeset.to_string(),
+            content: changeset,
         }
         .to_json()
     }
@@ -118,25 +115,17 @@ impl URLCellData {
     }
 }
 
-impl FromStr for URLCellData {
-    type Err = FlowyError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+impl FromCellString for URLCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self> {
         serde_json::from_str::<URLCellData>(s).map_err(internal_error)
     }
 }
 
-// impl std::convert::From<AnyCellData> for URLCellData {
-//     fn from(any_cell_data: AnyCellData) -> Self {
-//         URLCellData::from_str(&any_cell_data.cell_data).unwrap_or_default()
-//     }
-// }
-
 impl std::convert::TryFrom<AnyCellData> for URLCellData {
-    type Error = ();
+    type Error = FlowyError;
 
-    fn try_from(_value: AnyCellData) -> Result<Self, Self::Error> {
-        todo!()
+    fn try_from(data: AnyCellData) -> Result<Self, Self::Error> {
+        serde_json::from_str::<URLCellData>(&data.cell_data).map_err(internal_error)
     }
 }
 
@@ -150,9 +139,9 @@ lazy_static! {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::{CellData, CellDataOperation};
     use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOption};
-    use crate::services::row::{CellDataOperation, EncodedCellData};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
@@ -195,20 +184,20 @@ mod tests {
         expected: &str,
         expected_url: &str,
     ) {
-        let encoded_data = type_option.apply_changeset(cell_data, None).unwrap();
+        let encoded_data = type_option.apply_changeset(cell_data.to_owned().into(), None).unwrap();
         let decode_cell_data = decode_cell_data(encoded_data, type_option, field_rev, field_type);
         assert_eq!(expected.to_owned(), decode_cell_data.content);
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<EncodedCellData<URLCellData>>>(
+    fn decode_cell_data<T: Into<CellData<URLCellData>>>(
         encoded_data: T,
         type_option: &URLTypeOption,
         field_rev: &FieldRevision,
         field_type: &FieldType,
     ) -> URLCellData {
         type_option
-            .decode_cell_data(encoded_data, field_type, field_rev)
+            .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()
             .parse::<URLCellData>()
             .unwrap()

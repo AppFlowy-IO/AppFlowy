@@ -458,6 +458,8 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
     Serialize_repr,
     Deserialize_repr,
 )]
+/// The order of the enum can't be changed. If you want to add a new type,
+/// it would be better to append it to the end of the list.
 #[repr(u8)]
 pub enum FieldType {
     RichText = 0,

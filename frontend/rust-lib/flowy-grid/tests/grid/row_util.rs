@@ -1,6 +1,6 @@
 use crate::grid::script::GridEditorTest;
 use flowy_grid::entities::FieldType;
-use flowy_grid::services::field::DateCellContentChangeset;
+use flowy_grid::services::field::DateCellChangeset;
 use flowy_grid::services::row::{CreateRowRevisionBuilder, CreateRowRevisionPayload};
 use flowy_grid_data_model::revision::FieldRevision;
 use strum::EnumCount;
@@ -33,7 +33,7 @@ impl<'a> GridRowTestBuilder<'a> {
 
     #[allow(dead_code)]
     pub fn update_date_cell(mut self, value: i64) -> Self {
-        let value = serde_json::to_string(&DateCellContentChangeset {
+        let value = serde_json::to_string(&DateCellChangeset {
             date: Some(value.to_string()),
             time: None,
         })

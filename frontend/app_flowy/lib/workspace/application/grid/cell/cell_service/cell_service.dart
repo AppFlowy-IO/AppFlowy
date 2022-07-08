@@ -38,7 +38,7 @@ class CellService {
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId
-      ..cellContentChangeset = data;
+      ..content = data;
     return GridEventUpdateCell(payload).send();
   }
 

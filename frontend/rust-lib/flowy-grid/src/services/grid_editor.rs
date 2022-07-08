@@ -1,13 +1,16 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::CellIdentifier;
+use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
+use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::{GridFilterChangeset, GridFilterService};
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::*;
-
-use crate::entities::*;
+use crate::services::row::{
+    make_grid_blocks, make_row_from_row_rev, make_row_rev_from_context, make_rows_from_row_revs,
+    CreateRowRevisionBuilder, CreateRowRevisionPayload, GridBlockSnapshot,
+};
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
@@ -369,7 +372,7 @@ impl GridRevisionEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn update_cell(&self, cell_changeset: CellChangeset) -> FlowyResult<()> {
-        if cell_changeset.cell_content_changeset.as_ref().is_none() {
+        if cell_changeset.content.as_ref().is_none() {
             return Ok(());
         }
 
@@ -377,7 +380,7 @@ impl GridRevisionEditor {
             grid_id,
             row_id,
             field_id,
-            mut cell_content_changeset,
+            mut content,
         } = cell_changeset;
 
         match self.grid_pad.read().await.get_field_rev(&field_id) {
@@ -386,21 +389,17 @@ impl GridRevisionEditor {
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
-                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, cell_content_changeset);
+                tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
 
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
-                cell_content_changeset = Some(apply_cell_data_changeset(
-                    cell_content_changeset.unwrap(),
-                    cell_rev,
-                    field_rev,
-                )?);
+                content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
                 let field_revs = self.get_field_revs(None).await?;
                 let cell_changeset = CellChangeset {
                     grid_id,
                     row_id,
                     field_id,
-                    cell_content_changeset,
+                    content,
                 };
                 let _ = self
                     .block_manager

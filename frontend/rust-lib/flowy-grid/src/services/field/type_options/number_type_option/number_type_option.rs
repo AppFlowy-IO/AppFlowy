@@ -1,12 +1,12 @@
 use crate::impl_type_option;
 
 use crate::entities::{FieldType, GridNumberFilter};
+use crate::services::cell::{
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    AnyCellData, CellContentChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -118,32 +118,30 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
     }
 }
 
-impl CellDataOperation<String> for NumberTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<String, String> for NumberTypeOption {
+    fn decode_cell_data(
         &self,
-        cell_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if decoded_field_type.is_date() {
             return Ok(DecodedCellData::default());
         }
 
-        let cell_data = cell_data.into();
+        let cell_data: String = cell_data.try_into_inner()?;
         match self.format_cell_data(&cell_data) {
             Ok(num) => Ok(DecodedCellData::new(num.to_string())),
             Err(_) => Ok(DecodedCellData::default()),
         }
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
-    {
-        let changeset = changeset.into();
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let changeset = changeset.try_into_inner()?;
         let data = changeset.trim().to_string();
         let _ = self.format_cell_data(&data)?;
         Ok(data)
@@ -254,9 +252,9 @@ impl ToString for NumberCellData {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
-    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
@@ -383,7 +381,7 @@ mod tests {
     ) {
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, field_type, field_rev)
+                .decode_cell_data(cell_data.to_owned().into(), field_type, field_rev)
                 .unwrap()
                 .to_string(),
             expected_str.to_owned()
