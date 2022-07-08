@@ -1,13 +1,13 @@
 use crate::entities::{FieldType, GridSelectOptionFilter};
 use crate::impl_type_option;
+use crate::services::cell::{
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use crate::services::field::select_option::{
     make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
     SelectOptionOperation,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -122,10 +122,10 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::select_option::*;
     use crate::services::field::type_options::*;
     use crate::services::field::FieldBuilder;
-    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]

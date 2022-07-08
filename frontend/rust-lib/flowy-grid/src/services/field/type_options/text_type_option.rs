@@ -1,10 +1,10 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
+use crate::services::cell::{
     try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation,
     DecodedCellData,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -95,10 +95,10 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::select_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
-    use crate::services::row::CellDataOperation;
 
     #[test]
     fn text_description_test() {

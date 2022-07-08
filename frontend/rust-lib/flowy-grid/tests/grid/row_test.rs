@@ -4,9 +4,10 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::entities::FieldType;
+use flowy_grid::services::cell::decode_any_cell_data;
 use flowy_grid::services::field::select_option::SELECTION_IDS_SEPARATOR;
 use flowy_grid::services::field::{DateCellData, MultiSelectTypeOption, SingleSelectTypeOption};
-use flowy_grid::services::row::{decode_any_cell_data, CreateRowRevisionBuilder};
+use flowy_grid::services::row::CreateRowRevisionBuilder;
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]

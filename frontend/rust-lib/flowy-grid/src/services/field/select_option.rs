@@ -1,6 +1,6 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
+use crate::services::cell::{AnyCellData, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
-use crate::services::row::{AnyCellData, FromCellChangeset, FromCellString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;

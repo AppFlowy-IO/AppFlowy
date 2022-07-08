@@ -1,11 +1,11 @@
 use crate::entities::{CellChangeset, FieldType, GridDateFilter};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
+use crate::services::cell::{
     AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
     FromCellChangeset, FromCellString,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
@@ -377,9 +377,9 @@ impl FromCellChangeset for DateCellChangeset {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::{CellDataChangeset, CellDataOperation};
     use crate::services::field::FieldBuilder;
     use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
-    use crate::services::row::{CellDataChangeset, CellDataOperation};
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 

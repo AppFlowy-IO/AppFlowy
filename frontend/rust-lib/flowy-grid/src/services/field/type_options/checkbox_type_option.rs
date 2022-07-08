@@ -1,10 +1,9 @@
 use crate::entities::{FieldType, GridCheckboxFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation,
-    DecodedCellData,
+use crate::services::cell::{
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -116,10 +115,9 @@ impl std::convert::TryFrom<AnyCellData> for CheckboxCellData {
 
 #[cfg(test)]
 mod tests {
+    use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data};
     use crate::services::field::type_options::checkbox_type_option::{NO, YES};
-
     use crate::services::field::FieldBuilder;
-    use crate::services::row::{apply_cell_data_changeset, decode_any_cell_data};
 
     use crate::entities::FieldType;
 

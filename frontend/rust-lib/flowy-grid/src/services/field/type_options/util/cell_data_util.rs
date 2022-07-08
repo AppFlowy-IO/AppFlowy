@@ -1,4 +1,4 @@
-use crate::services::row::AnyCellData;
+use crate::services::cell::AnyCellData;
 use flowy_grid_data_model::revision::CellRevision;
 use std::str::FromStr;
 

@@ -1,6 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{FieldType, GridBlockChangeset};
 use crate::services::block_manager::GridBlockManager;
+use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
     CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
     SingleSelectTypeOption, URLTypeOption,
@@ -9,15 +10,13 @@ use crate::services::filter::filter_cache::{
     reload_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::row::{AnyCellData, CellFilterOperation, GridBlockSnapshot};
+use crate::services::row::GridBlockSnapshot;
 use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
-
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{CellRevision, FieldId, FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use rayon::prelude::*;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;

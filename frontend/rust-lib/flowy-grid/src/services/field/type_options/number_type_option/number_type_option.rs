@@ -1,12 +1,12 @@
 use crate::impl_type_option;
 
 use crate::entities::{FieldType, GridNumberFilter};
+use crate::services::cell::{
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
+};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
@@ -136,8 +136,11 @@ impl CellDataOperation<String, String> for NumberTypeOption {
         }
     }
 
-    fn apply_changeset(&self, changeset: CellDataChangeset<String>, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    {
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;
         let data = changeset.trim().to_string();
         let _ = self.format_cell_data(&data)?;
@@ -249,9 +252,9 @@ impl ToString for NumberCellData {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
-    use crate::services::row::CellDataOperation;
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 

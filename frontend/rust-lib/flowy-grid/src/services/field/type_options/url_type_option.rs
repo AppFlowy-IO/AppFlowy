@@ -1,9 +1,9 @@
 use crate::entities::{FieldType, GridTextFilter};
 use crate::impl_type_option;
-use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
-use crate::services::row::{
+use crate::services::cell::{
     AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, FromCellString,
 };
+use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -59,8 +59,11 @@ impl CellDataOperation<URLCellData, String> for URLTypeOption {
         DecodedCellData::try_from_bytes(cell_data)
     }
 
-    fn apply_changeset(&self, changeset: CellDataChangeset<String>, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    {
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;
         let mut url = "".to_string();
         if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
@@ -118,17 +121,11 @@ impl FromCellString for URLCellData {
     }
 }
 
-// impl std::convert::From<AnyCellData> for URLCellData {
-//     fn from(any_cell_data: AnyCellData) -> Self {
-//         URLCellData::from_str(&any_cell_data.cell_data).unwrap_or_default()
-//     }
-// }
-
 impl std::convert::TryFrom<AnyCellData> for URLCellData {
-    type Error = ();
+    type Error = FlowyError;
 
-    fn try_from(_value: AnyCellData) -> Result<Self, Self::Error> {
-        todo!()
+    fn try_from(data: AnyCellData) -> Result<Self, Self::Error> {
+        serde_json::from_str::<URLCellData>(&data.cell_data).map_err(internal_error)
     }
 }
 
@@ -142,9 +139,9 @@ lazy_static! {
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
+    use crate::services::cell::{CellData, CellDataOperation};
     use crate::services::field::FieldBuilder;
     use crate::services::field::{URLCellData, URLTypeOption};
-    use crate::services::row::{CellData, CellDataOperation};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
