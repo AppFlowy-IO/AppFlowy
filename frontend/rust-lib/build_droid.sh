@@ -6,13 +6,18 @@ set -e
 
 NDK=$ANDROID_NDK_HOME
 
+export TOOLCHAIN_PATH=$NDK/bin
+export NDK_TOOLCHAIN_BASENAME=${TOOLCHAIN_PATH}
+export SYSROOT=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+#export CC=clang
+#export AR=llvm-ar
 export BUILD_ARCHS=${BUILD_ARCHS:-arm_32 arm_64}
 export DIR=$(realpath ${DIR:-$(pwd)})
 export PREFIX=$DIR/prefix
 export ANDROID_API=29
 export OPENSSL_BRANCH=OpenSSL_1_1_1-stable
 
-if [ -d $PREFIX]; then
+if [ -d $PREFIX ]; then
     echo "Folder exists, remove $PREFIX to rebuild"
     exit 1
 fi
@@ -24,6 +29,7 @@ if [ ! -d openssl ]; then
     git clone --depth 1 git://git.openssl.org/openssl.git --branch $OPENSSL_BRANCH
 fi
 
+
 cd openssl
 echo "Building OpenSSL in $(realpath $PWD), building in $PREFIX"
 
@@ -31,7 +37,14 @@ export PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 function buildSSL(){
 #if [[ "$BUILD_ARCHS" = *"arm_32"* ]]; then
-    ./Configure shared android-arm -D__ANDROID_API__=$ANDROID_API --prefix=$PREFIX/armeabi-v7a
+    ./Configure shared android-arm -D__ANDROID_API__=$ANDROID_API \
+        --prefix=$PREFIX/armeabi-v7a \
+        --with-zlib-include=$SYSROOT/usr/include \
+        --with-zlib-lib=$SYSROOT/usr/lib \
+        zlib \
+        no-asm \
+        no-shared \
+        no-unit-test
     make clean
     make depend
     make -j$(nproc) build_libs
@@ -40,7 +53,14 @@ function buildSSL(){
 
 
 #if [[ "$BUILD_ARCHS" = *"arm_64"* ]]; then
-    ./Configure shared android-arm64 -D__ANDROID_API__=$ANDROID_API --prefix=$PREFIX/arm64-v8a
+    ./Configure shared android-arm64 -D__ANDROID_API__=$ANDROID_API \
+        --prefix=$PREFIX/arm64-v8a \
+        --with-zlib-include=$SYSROOT/usr/include \
+        --with-zlib-lib=$SYSROOT/usr/lib \
+        zlib \
+        no-asm \
+        no-shared \
+        no-unit-test
     make clean
     make depend
     make -j$(nproc) build_libs
@@ -48,7 +68,14 @@ function buildSSL(){
 #fi
 
 #if [[ "$BUILD_ARCHS" = *"x86_32"* ]]; then
-    ./Configure shared android-x86 -D__ANDROID_API__=$ANDROID_API --prefix=$PREFIX/x86
+    ./Configure shared android-x86 -D__ANDROID_API__=$ANDROID_API \
+        --prefix=$PREFIX/x86 \
+        --with-zlib-include=$SYSROOT/usr/include \
+        --with-zlib-lib=$SYSROOT/usr/lib \
+        zlib \
+        no-asm \
+        no-shared \
+        no-unit-test
     make clean
     make depend
     make -j$(nproc) build_libs
@@ -56,13 +83,21 @@ function buildSSL(){
 #fi
 
 #if [[ "$BUILD_ARCHS" = *"x64_64"* ]]; then
-    ./Configure shared android-x86_64 -D__ANDROID_API__=$ANDROID_API --prefix=$PREFIX/x86_64
+    ./Configure shared android-x86_64 -D__ANDROID_API__=$ANDROID_API \
+        --prefix=$PREFIX/x86_64 \
+        --with-zlib-include=$SYSROOT/usr/include \
+        --with-zlib-lib=$SYSROOT/usr/lib \
+        zlib \
+        no-asm \
+        no-shared \
+        no-unit-test
     make clean
     make depend
     make -j$(nproc) build_libs
     make -j$(nproc) install_sw
 #fi
 }
+buildSSL
 # Exit folder and begin build?
 cd ../
 
