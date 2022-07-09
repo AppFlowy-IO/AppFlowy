@@ -17,8 +17,8 @@ pub type GridRevisionDelta = PlainTextDelta;
 pub type GridRevisionDeltaBuilder = PlainTextDeltaBuilder;
 
 pub struct GridRevisionPad {
-    pub(crate) grid_rev: Arc<GridRevision>,
-    pub(crate) delta: GridRevisionDelta,
+    grid_rev: Arc<GridRevision>,
+    delta: GridRevisionDelta,
 }
 
 pub trait JsonDeserializer {
@@ -358,10 +358,9 @@ impl GridRevisionPad {
 
             if is_contain {
                 // Only return the filters for the current fields' type.
-                if let Some(mut t_filter_revs) =
-                    self.grid_rev
-                        .setting
-                        .get_filters(layout_ty, &field_rev.id, &field_rev.field_type_rev)
+                let field_id = &field_rev.id;
+                let field_type_rev = &field_rev.field_type_rev;
+                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(layout_ty, field_id, &field_type_rev)
                 {
                     filter_revs.append(&mut t_filter_revs);
                 }

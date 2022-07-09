@@ -7,7 +7,7 @@ use crate::services::field::{
     SingleSelectTypeOption, URLTypeOption,
 };
 use crate::services::filter::filter_cache::{
-    reload_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
+    refresh_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::row::GridBlockSnapshot;
@@ -62,6 +62,7 @@ impl GridFilterService {
 
         let mut changesets = vec![];
         for (index, block) in task_context.blocks.into_iter().enumerate() {
+            // The row_ids contains the row that its visibility was changed.
             let row_ids = block
                 .row_revs
                 .par_iter()
@@ -74,6 +75,8 @@ impl GridFilterService {
 
             let mut visible_rows = vec![];
             let mut hide_rows = vec![];
+
+            // Query the filter result from the cache
             for row_id in row_ids {
                 if self
                     .filter_result_cache
@@ -93,8 +96,11 @@ impl GridFilterService {
                 visible_rows,
                 ..Default::default()
             };
+
+            // Save the changeset for each block
             changesets.push(changeset);
         }
+
         self.notify(changesets).await;
         Ok(())
     }
@@ -106,7 +112,7 @@ impl GridFilterService {
 
         if let Some(filter_id) = &changeset.insert_filter {
             let field_ids = Some(vec![filter_id.field_id.clone()]);
-            reload_filter_cache(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
+            refresh_filter_cache(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
         }
 
         if let Some(filter_id) = &changeset.delete_filter {

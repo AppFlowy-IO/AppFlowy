@@ -82,7 +82,7 @@ pub enum EditorScript {
     },
     DeleteGridTableFilter {
         filter_id: String,
-        field_type: FieldType,
+        field_type_rev: FieldTypeRevision,
     },
     #[allow(dead_code)]
     AssertGridSetting {
@@ -271,10 +271,10 @@ impl GridEditorTest {
                 let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
-            EditorScript::DeleteGridTableFilter { filter_id ,field_type} => {
+            EditorScript::DeleteGridTableFilter { filter_id ,field_type_rev} => {
                 let layout_type = GridLayoutType::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev: field_type.into() })
+                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }

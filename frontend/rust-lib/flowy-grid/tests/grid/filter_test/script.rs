@@ -1,0 +1,91 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
+use flowy_grid::entities::{CreateGridFilterPayload, GridLayoutType, GridSetting};
+use flowy_grid::services::setting::GridSettingChangesetBuilder;
+use flowy_grid_data_model::revision::FieldTypeRevision;
+use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
+use crate::grid::script::GridEditorTest;
+
+pub enum FilterScript {
+    #[allow(dead_code)]
+    UpdateGridSetting {
+        params: GridSettingChangesetParams,
+    },
+    InsertGridTableFilter {
+        payload: CreateGridFilterPayload,
+    },
+    AssertTableFilterCount {
+        count: i32,
+    },
+    DeleteGridTableFilter {
+        filter_id: String,
+        field_type_rev: FieldTypeRevision,
+    },
+    #[allow(dead_code)]
+    AssertGridSetting {
+        expected_setting: GridSetting,
+    },
+}
+
+pub struct GridFilterTest {
+    pub editor_test: GridEditorTest,
+}
+
+impl GridFilterTest {
+    pub async fn new() -> Self {
+     let editor_test =  GridEditorTest::new().await;
+        Self {
+            editor_test
+        }
+    }
+
+    pub async fn run_scripts(&mut self, scripts: Vec<FilterScript>) {
+        for script in scripts {
+            self.run_script(script).await;
+        }
+    }
+
+    pub async fn run_script(&mut self, script: FilterScript) {
+
+        match script {
+            FilterScript::UpdateGridSetting { params } => {
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
+            FilterScript::InsertGridTableFilter { payload } => {
+                let params: CreateGridFilterParams = payload.try_into().unwrap();
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .insert_filter(params)
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
+            FilterScript::AssertTableFilterCount { count } => {
+                let layout_type = GridLayoutType::Table;
+                let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
+                assert_eq!(count as usize, filters.len());
+            }
+            FilterScript::DeleteGridTableFilter { filter_id ,field_type_rev} => {
+                let layout_type = GridLayoutType::Table;
+                let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
+                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev })
+                    .build();
+                let _ = self.editor.update_grid_setting(params).await.unwrap();
+            }
+            FilterScript::AssertGridSetting { expected_setting } => {
+                let setting = self.editor.get_grid_setting().await.unwrap();
+                assert_eq!(expected_setting, setting);
+            }
+        }
+    }
+}
+
+impl std::ops::Deref for GridFilterTest {
+    type Target = GridEditorTest;
+
+    fn deref(&self) -> &Self::Target {
+        &self.editor_test
+    }
+}

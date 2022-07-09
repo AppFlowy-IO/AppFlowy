@@ -8,10 +8,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+type RowId = String;
+
 #[derive(Default)]
 pub(crate) struct FilterResultCache {
     // key: row id
-    inner: DashMap<String, FilterResult>,
+    inner: DashMap<RowId, FilterResult>,
 }
 
 impl FilterResultCache {
@@ -67,7 +69,7 @@ pub(crate) struct FilterCache {
 impl FilterCache {
     pub(crate) async fn from_grid_pad(grid_pad: &Arc<RwLock<GridRevisionPad>>) -> Arc<Self> {
         let this = Arc::new(Self::default());
-        let _ = reload_filter_cache(this.clone(), None, grid_pad).await;
+        let _ = refresh_filter_cache(this.clone(), None, grid_pad).await;
         this
     }
 
@@ -98,7 +100,8 @@ impl FilterCache {
     }
 }
 
-pub(crate) async fn reload_filter_cache(
+/// Refresh the filter according to the field id.
+pub(crate) async fn refresh_filter_cache(
     cache: Arc<FilterCache>,
     field_ids: Option<Vec<String>>,
     grid_pad: &Arc<RwLock<GridRevisionPad>>,

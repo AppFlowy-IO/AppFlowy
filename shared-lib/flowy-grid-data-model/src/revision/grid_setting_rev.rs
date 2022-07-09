@@ -56,12 +56,12 @@ impl GridSettingRevision {
         &self,
         layout: &GridLayoutRevision,
         field_id: &str,
-        field_type: &FieldTypeRevision,
+        field_type_rev: &FieldTypeRevision,
     ) -> Option<Vec<Arc<GridFilterRevision>>> {
         self.filters
             .get(layout)
             .and_then(|filter_rev_map_by_field_id| filter_rev_map_by_field_id.get(field_id))
-            .and_then(|filter_rev_map| filter_rev_map.get(field_type))
+            .and_then(|filter_rev_map| filter_rev_map.get(field_type_rev))
             .cloned()
     }
 
