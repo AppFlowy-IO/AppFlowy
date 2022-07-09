@@ -34,14 +34,6 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         didReceiveUserProfile: (UserProfile newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
-        updateUserName: (String name) {
-          _userService.updateUserProfile(name: name).then((result) {
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
-            );
-          });
-        },
       );
     });
   }
@@ -74,7 +66,6 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.initial() = _Initial;
   const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
-  const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory MenuUserEvent.didReceiveUserProfile(UserProfile newUserProfile) = _DidReceiveUserProfile;
 }
 
