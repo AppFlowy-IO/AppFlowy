@@ -141,7 +141,7 @@
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
-      "settings": "Settings",
+      "user": "User",
       "open": "Open Settings"
     },
     "appearance": {

@@ -2,7 +2,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
-import 'package:app_flowy/workspace/presentation/settings/widgets/settings_settings_view.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
 import 'package:easy_localization/easy_localization.dart';
@@ -24,7 +24,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final List<Widget> settingsViews = [
       const SettingsAppearanceView(),
       const SettingsLanguageView(),
-      SettingsSettingsView(user),
+      SettingsUserView(user),
     ];
     return settingsViews[index];
   }

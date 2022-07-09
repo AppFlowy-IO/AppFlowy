@@ -40,7 +40,7 @@ class SettingsMenu extends StatelessWidget {
         SettingsMenuElement(
           index: 2,
           currentIndex: currentIndex,
-          label: LocaleKeys.settings_menu_settings.tr(),
+          label: LocaleKeys.settings_menu_user.tr(),
           icon: Icons.account_box_outlined,
           changeSelectedIndex: changeSelectedIndex,
         ),

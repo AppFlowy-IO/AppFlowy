@@ -5,6 +5,7 @@ import 'package:app_flowy/workspace/application/app/prelude.dart';
 import 'package:app_flowy/workspace/application/doc/prelude.dart';
 import 'package:app_flowy/workspace/application/grid/prelude.dart';
 import 'package:app_flowy/workspace/application/trash/prelude.dart';
+import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
@@ -99,6 +100,11 @@ void _resolveFolderDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
     (user, _) => MenuUserBloc(user),
+  );
+
+  //User
+  getIt.registerFactoryParam<SettingsUserViewBloc, UserProfile, void>(
+    (user, _) => SettingsUserViewBloc(user),
   );
 
   // App
