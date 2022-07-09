@@ -4,7 +4,7 @@ use crate::services::field::{RichTextTypeOption, TextCellData};
 use flowy_error::FlowyResult;
 
 impl GridTextFilter {
-    pub fn apply<T: AsRef<str>>(&self, cell_data: T) -> bool {
+    pub fn is_visible<T: AsRef<str>>(&self, cell_data: T) -> bool {
         let cell_data = cell_data.as_ref();
         let s = cell_data.to_lowercase();
         if let Some(content) = self.content.as_ref() {
@@ -31,7 +31,7 @@ impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
         }
 
         let text_cell_data: TextCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(text_cell_data))
+        Ok(filter.is_visible(text_cell_data))
     }
 }
 #[cfg(test)]
@@ -46,10 +46,10 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert!(text_filter.apply("AppFlowy"));
-        assert_eq!(text_filter.apply("appflowy"), true);
-        assert_eq!(text_filter.apply("Appflowy"), true);
-        assert_eq!(text_filter.apply("AppFlowy.io"), false);
+        assert!(text_filter.is_visible("AppFlowy"));
+        assert_eq!(text_filter.is_visible("appflowy"), true);
+        assert_eq!(text_filter.is_visible("Appflowy"), true);
+        assert_eq!(text_filter.is_visible("AppFlowy.io"), false);
     }
     #[test]
     fn text_filter_start_with_test() {
@@ -58,9 +58,9 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert_eq!(text_filter.apply("AppFlowy.io"), true);
-        assert_eq!(text_filter.apply(""), false);
-        assert_eq!(text_filter.apply("https"), false);
+        assert_eq!(text_filter.is_visible("AppFlowy.io"), true);
+        assert_eq!(text_filter.is_visible(""), false);
+        assert_eq!(text_filter.is_visible("https"), false);
     }
 
     #[test]
@@ -70,9 +70,9 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert_eq!(text_filter.apply("https://github.com/appflowy"), true);
-        assert_eq!(text_filter.apply("App"), false);
-        assert_eq!(text_filter.apply("appflowy.io"), false);
+        assert_eq!(text_filter.is_visible("https://github.com/appflowy"), true);
+        assert_eq!(text_filter.is_visible("App"), false);
+        assert_eq!(text_filter.is_visible("appflowy.io"), false);
     }
     #[test]
     fn text_filter_empty_test() {
@@ -81,8 +81,8 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert_eq!(text_filter.apply(""), true);
-        assert_eq!(text_filter.apply("App"), false);
+        assert_eq!(text_filter.is_visible(""), true);
+        assert_eq!(text_filter.is_visible("App"), false);
     }
     #[test]
     fn text_filter_contain_test() {
@@ -91,10 +91,10 @@ mod tests {
             content: Some("appflowy".to_owned()),
         };
 
-        assert_eq!(text_filter.apply("https://github.com/appflowy"), true);
-        assert_eq!(text_filter.apply("AppFlowy"), true);
-        assert_eq!(text_filter.apply("App"), false);
-        assert_eq!(text_filter.apply(""), false);
-        assert_eq!(text_filter.apply("github"), false);
+        assert_eq!(text_filter.is_visible("https://github.com/appflowy"), true);
+        assert_eq!(text_filter.is_visible("AppFlowy"), true);
+        assert_eq!(text_filter.is_visible("App"), false);
+        assert_eq!(text_filter.is_visible(""), false);
+        assert_eq!(text_filter.is_visible("github"), false);
     }
 }

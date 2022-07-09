@@ -10,6 +10,6 @@ impl CellFilterOperation<GridTextFilter> for URLTypeOption {
         }
 
         let text_cell_data: TextCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(&text_cell_data))
+        Ok(filter.is_visible(&text_cell_data))
     }
 }

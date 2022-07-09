@@ -7,7 +7,7 @@ use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_error::FlowyResult;
 
 impl GridSelectOptionFilter {
-    pub fn apply(&self, selected_options: &SelectedSelectOptions) -> bool {
+    pub fn is_visible(&self, selected_options: &SelectedSelectOptions) -> bool {
         let selected_option_ids: Vec<&String> = selected_options.options.iter().map(|option| &option.id).collect();
         match self.condition {
             SelectOptionCondition::OptionIs => {
@@ -46,7 +46,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
         }
 
         let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
-        Ok(filter.apply(&selected_options))
+        Ok(filter.is_visible(&selected_options))
     }
 }
 
@@ -56,7 +56,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
             return Ok(true);
         }
         let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
-        Ok(filter.apply(&selected_options))
+        Ok(filter.is_visible(&selected_options))
     }
 }
 
@@ -78,29 +78,29 @@ mod tests {
         };
 
         assert_eq!(
-            filter_1.apply(&SelectedSelectOptions {
+            filter_1.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_2.clone()],
             }),
             false
         );
 
         assert_eq!(
-            filter_1.apply(&SelectedSelectOptions {
+            filter_1.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_2.clone(), option_3.clone()],
             }),
             true
         );
 
         assert_eq!(
-            filter_1.apply(&SelectedSelectOptions {
+            filter_1.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone(), option_3.clone()],
             }),
             true
         );
 
-        assert_eq!(filter_1.apply(&SelectedSelectOptions { options: vec![] }), true);
+        assert_eq!(filter_1.is_visible(&SelectedSelectOptions { options: vec![] }), true);
         assert_eq!(
-            filter_1.apply(&SelectedSelectOptions {
+            filter_1.is_visible(&SelectedSelectOptions {
                 options: vec![option_1.clone()],
             }),
             true,

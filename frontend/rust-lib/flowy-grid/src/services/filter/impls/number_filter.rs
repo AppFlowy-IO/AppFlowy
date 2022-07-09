@@ -7,7 +7,7 @@ use rust_decimal::Decimal;
 use std::str::FromStr;
 
 impl GridNumberFilter {
-    pub fn apply(&self, num_cell_data: &NumberCellData) -> bool {
+    pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
         if self.content.is_none() {
             return false;
         }
@@ -40,7 +40,7 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
         let cell_data = any_cell_data.cell_data;
         let num_cell_data = self.format_cell_data(&cell_data)?;
 
-        Ok(filter.apply(&num_cell_data))
+        Ok(filter.is_visible(&num_cell_data))
     }
 }
 
@@ -57,15 +57,15 @@ mod tests {
             content: Some("123".to_owned()),
         };
 
-        for (num_str, r) in [("123", true), ("1234", false), ("", false)] {
+        for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
             let data = NumberCellData::from_str(num_str).unwrap();
-            assert_eq!(number_filter.apply(&data), r);
+            assert_eq!(number_filter.is_visible(&data), visible);
         }
 
         let format = NumberFormat::USD;
-        for (num_str, r) in [("$123", true), ("1234", false), ("", false)] {
+        for (num_str, visible) in [("$123", true), ("1234", false), ("", false)] {
             let data = NumberCellData::from_format_str(num_str, true, &format).unwrap();
-            assert_eq!(number_filter.apply(&data), r);
+            assert_eq!(number_filter.is_visible(&data), visible);
         }
     }
     #[test]
@@ -74,9 +74,9 @@ mod tests {
             condition: NumberFilterCondition::GreaterThan,
             content: Some("12".to_owned()),
         };
-        for (num_str, r) in [("123", true), ("10", false), ("30", true), ("", false)] {
+        for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
             let data = NumberCellData::from_str(num_str).unwrap();
-            assert_eq!(number_filter.apply(&data), r);
+            assert_eq!(number_filter.is_visible(&data), visible);
         }
     }
 
@@ -86,9 +86,9 @@ mod tests {
             condition: NumberFilterCondition::LessThan,
             content: Some("100".to_owned()),
         };
-        for (num_str, r) in [("12", true), ("1234", false), ("30", true), ("", true)] {
+        for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", true)] {
             let data = NumberCellData::from_str(num_str).unwrap();
-            assert_eq!(number_filter.apply(&data), r);
+            assert_eq!(number_filter.is_visible(&data), visible);
         }
     }
 }

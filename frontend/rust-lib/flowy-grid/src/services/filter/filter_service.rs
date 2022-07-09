@@ -179,7 +179,7 @@ fn filter_cell(
         field_type,
     };
     let any_cell_data = AnyCellData::try_from(cell_rev).ok()?;
-    let is_hidden = match &filter_id.field_type {
+    let is_visible = match &filter_id.field_type {
         FieldType::RichText => filter_cache.text_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
@@ -238,7 +238,7 @@ fn filter_cell(
         }),
     }?;
 
-    let is_visible = !is_hidden.unwrap_or(false);
+    let is_visible = !is_visible.unwrap_or(true);
     match filter_result.visible_by_field_id.get(&filter_id) {
         None => {
             if is_visible {

@@ -4,7 +4,7 @@ use crate::services::field::{CheckboxCellData, CheckboxTypeOption};
 use flowy_error::FlowyResult;
 
 impl GridCheckboxFilter {
-    pub fn apply(&self, cell_data: &CheckboxCellData) -> bool {
+    pub fn is_visible(&self, cell_data: &CheckboxCellData) -> bool {
         let is_check = cell_data.is_check();
         match self.condition {
             CheckboxCondition::IsChecked => is_check,
@@ -19,7 +19,7 @@ impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
             return Ok(true);
         }
         let checkbox_cell_data: CheckboxCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(&checkbox_cell_data))
+        Ok(filter.is_visible(&checkbox_cell_data))
     }
 }
 
@@ -33,9 +33,9 @@ mod tests {
         let checkbox_filter = GridCheckboxFilter {
             condition: CheckboxCondition::IsChecked,
         };
-        for (value, r) in [("true", true), ("yes", true), ("false", false), ("no", false)] {
+        for (value, visible) in [("true", true), ("yes", true), ("false", false), ("no", false)] {
             let data = CheckboxCellData(value.to_owned());
-            assert_eq!(checkbox_filter.apply(&data), r);
+            assert_eq!(checkbox_filter.is_visible(&data), visible);
         }
     }
 
@@ -44,9 +44,9 @@ mod tests {
         let checkbox_filter = GridCheckboxFilter {
             condition: CheckboxCondition::IsUnChecked,
         };
-        for (value, r) in [("false", true), ("no", true), ("true", false), ("yes", false)] {
+        for (value, visible) in [("false", true), ("no", true), ("true", false), ("yes", false)] {
             let data = CheckboxCellData(value.to_owned());
-            assert_eq!(checkbox_filter.apply(&data), r);
+            assert_eq!(checkbox_filter.is_visible(&data), visible);
         }
     }
 }

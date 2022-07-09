@@ -1,9 +1,8 @@
-use crate::entities::{CellChangeset, FieldType, GridDateFilter};
+use crate::entities::{CellChangeset, FieldType};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-    FromCellChangeset, FromCellString,
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData, FromCellChangeset, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -110,6 +109,10 @@ impl DateTypeOption {
 
     fn utc_date_time_from_timestamp(&self, timestamp: i64) -> chrono::DateTime<chrono::Utc> {
         let native = NaiveDateTime::from_timestamp(timestamp, 0);
+        let native2 = NaiveDateTime::from_timestamp(timestamp, 0);
+
+        if native > native2 {}
+
         self.utc_date_time_from_native(native)
     }
 
@@ -118,19 +121,10 @@ impl DateTypeOption {
     }
 }
 
-impl CellFilterOperation<GridDateFilter> for DateTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, _filter: &GridDateFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_date() {
-            return Ok(true);
-        }
-        Ok(false)
-    }
-}
-
-impl CellDataOperation<TimestampParser, DateCellChangeset> for DateTypeOption {
+impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOption {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<TimestampParser>,
+        cell_data: CellData<DateTimestamp>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<DecodedCellData> {
@@ -168,17 +162,36 @@ impl CellDataOperation<TimestampParser, DateCellChangeset> for DateTypeOption {
     }
 }
 
-pub struct TimestampParser(i64);
+pub struct DateTimestamp(i64);
+impl AsRef<i64> for DateTimestamp {
+    fn as_ref(&self) -> &i64 {
+        &self.0
+    }
+}
 
-impl FromCellString for TimestampParser {
+impl std::convert::From<DateTimestamp> for i64 {
+    fn from(timestamp: DateTimestamp) -> Self {
+        timestamp.0
+    }
+}
+
+impl FromCellString for DateTimestamp {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         let num = s.parse::<i64>().unwrap_or(0);
-        Ok(TimestampParser(num))
+        Ok(DateTimestamp(num))
     }
 }
+
+impl std::convert::From<AnyCellData> for DateTimestamp {
+    fn from(data: AnyCellData) -> Self {
+        let num = data.cell_data.parse::<i64>().unwrap_or(0);
+        DateTimestamp(num)
+    }
+}
+
 #[derive(Default)]
 pub struct DateTypeOptionBuilder(DateTypeOption);
 impl_into_box_type_option_builder!(DateTypeOptionBuilder);

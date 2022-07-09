@@ -1,12 +1,9 @@
 use crate::entities::{
     FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter, GridTextFilter,
 };
-
 use dashmap::DashMap;
-
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
