@@ -31,6 +31,11 @@ pub struct GridRevision {
     pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
+    #[cfg(feature = "filter")]
+    #[serde(default)]
+    pub setting: GridSettingRevision,
+
+    #[cfg(not(feature = "filter"))]
     #[serde(default, skip)]
     pub setting: GridSettingRevision,
 }

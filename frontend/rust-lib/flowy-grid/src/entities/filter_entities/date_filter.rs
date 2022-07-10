@@ -1,6 +1,10 @@
+use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridFilterRevision;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -9,7 +13,77 @@ pub struct GridDateFilter {
     pub condition: DateFilterCondition,
 
     #[pb(index = 2, one_of)]
-    pub content: Option<String>,
+    pub start: Option<i64>,
+
+    #[pb(index = 3, one_of)]
+    pub end: Option<i64>,
+}
+
+#[derive(ProtoBuf, Default, Clone, Debug)]
+pub struct CreateGridDateFilterPayload {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub field_type: FieldType,
+
+    #[pb(index = 3)]
+    pub condition: DateFilterCondition,
+
+    #[pb(index = 4, one_of)]
+    pub start: Option<i64>,
+
+    #[pb(index = 5, one_of)]
+    pub end: Option<i64>,
+}
+
+pub struct CreateGridDateFilterParams {
+    pub field_id: String,
+
+    pub field_type: FieldType,
+
+    pub condition: DateFilterCondition,
+
+    pub start: Option<i64>,
+
+    pub end: Option<i64>,
+}
+
+impl TryInto<CreateGridDateFilterParams> for CreateGridDateFilterPayload {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateGridDateFilterParams, Self::Error> {
+        let field_id = NotEmptyStr::parse(self.field_id)
+            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
+            .0;
+        Ok(CreateGridDateFilterParams {
+            field_id,
+            condition: self.condition,
+            start: self.start,
+            field_type: self.field_type,
+            end: self.end,
+        })
+    }
+}
+
+#[derive(Serialize, Deserialize, Default)]
+struct DateRange {
+    start: Option<i64>,
+    end: Option<i64>,
+}
+
+impl ToString for DateRange {
+    fn to_string(&self) -> String {
+        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
+    }
+}
+
+impl FromStr for DateRange {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_json::from_str(s)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
@@ -48,9 +122,21 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
 }
 impl std::convert::From<Arc<GridFilterRevision>> for GridDateFilter {
     fn from(rev: Arc<GridFilterRevision>) -> Self {
-        GridDateFilter {
-            condition: DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs),
-            content: rev.content.clone(),
-        }
+        let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
+        let mut filter = GridDateFilter {
+            condition,
+            ..Default::default()
+        };
+
+        if let Some(range) = rev
+            .content
+            .as_ref()
+            .and_then(|content| DateRange::from_str(content).ok())
+        {
+            filter.start = range.start;
+            filter.end = range.end;
+        };
+
+        filter
     }
 }

@@ -1,9 +1,7 @@
 use crate::impl_type_option;
 
-use crate::entities::{FieldType, GridNumberFilter};
-use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
+use crate::entities::FieldType;
+use crate::services::cell::{CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -79,7 +77,7 @@ impl NumberTypeOption {
         Self::default()
     }
 
-    fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
+    pub(crate) fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
         match self.format {
             NumberFormat::Num | NumberFormat::Percent => match Decimal::from_str(s) {
                 Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
@@ -104,18 +102,6 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
         }
     }
     s
-}
-impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_number() {
-            return Ok(true);
-        }
-
-        let cell_data = any_cell_data.cell_data;
-        let num_cell_data = self.format_cell_data(&cell_data)?;
-
-        Ok(filter.apply(&num_cell_data))
-    }
 }
 
 impl CellDataOperation<String, String> for NumberTypeOption {

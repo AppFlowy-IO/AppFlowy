@@ -9,7 +9,7 @@ use derivative::*;
 use std::{convert::TryFrom, fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "user_serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
 pub enum StatusCode {
     Ok = 0,
     Err = 1,
@@ -18,7 +18,7 @@ pub enum StatusCode {
 
 // serde user guide: https://serde.rs/field-attrs.html
 #[derive(Debug, Clone, Derivative)]
-#[cfg_attr(feature = "user_serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
 pub struct EventResponse {
     #[derivative(Debug = "ignore")]
     pub payload: Payload,

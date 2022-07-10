@@ -4,6 +4,7 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridSortRevision;
 use flowy_sync::entities::grid::CreateGridSortParams;
 use std::convert::TryInto;
+use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridSort {
@@ -30,10 +31,10 @@ pub struct RepeatedGridSort {
     pub items: Vec<GridSort>,
 }
 
-impl std::convert::From<&Vec<GridSortRevision>> for RepeatedGridSort {
-    fn from(revs: &Vec<GridSortRevision>) -> Self {
+impl std::convert::From<Vec<Arc<GridSortRevision>>> for RepeatedGridSort {
+    fn from(revs: Vec<Arc<GridSortRevision>>) -> Self {
         RepeatedGridSort {
-            items: revs.iter().map(|rev| rev.into()).collect(),
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }

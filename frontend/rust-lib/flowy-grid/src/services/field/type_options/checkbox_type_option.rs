@@ -1,8 +1,6 @@
-use crate::entities::{FieldType, GridCheckboxFilter};
+use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
+use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -41,16 +39,6 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 
 const YES: &str = "Yes";
 const NO: &str = "No";
-
-impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridCheckboxFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_checkbox() {
-            return Ok(true);
-        }
-        let checkbox_cell_data: CheckboxCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(&checkbox_cell_data))
-    }
-}
 
 impl CellDataOperation<String, String> for CheckboxTypeOption {
     fn decode_cell_data(
