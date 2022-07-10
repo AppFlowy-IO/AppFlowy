@@ -22,16 +22,16 @@ pub struct RepeatedGridFilter {
     pub items: Vec<GridFilter>,
 }
 
-impl std::convert::From<&Arc<GridFilterRevision>> for GridFilter {
-    fn from(rev: &Arc<GridFilterRevision>) -> Self {
+impl std::convert::From<&GridFilterRevision> for GridFilter {
+    fn from(rev: &GridFilterRevision) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<&Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
-    fn from(revs: &Vec<Arc<GridFilterRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
+    fn from(revs: Vec<Arc<GridFilterRevision>>) -> Self {
         RepeatedGridFilter {
-            items: revs.iter().map(|rev| rev.into()).collect(),
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }

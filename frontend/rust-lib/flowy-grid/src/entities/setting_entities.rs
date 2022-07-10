@@ -1,57 +1,53 @@
 use crate::entities::{
-    CreateGridFilterPayload, CreateGridGroupPayload, CreateGridSortPayload, DeleteFilterPayload, RepeatedGridFilter,
-    RepeatedGridGroup, RepeatedGridSort,
+    CreateGridFilterPayload, CreateGridGroupPayload, CreateGridSortPayload, DeleteFilterPayload, GridFilter, GridGroup,
+    GridSort, RepeatedGridFilter, RepeatedGridGroup, RepeatedGridSort,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridLayoutRevision;
+use flowy_grid_data_model::revision::{GridLayoutRevision, GridSettingRevision};
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridSetting {
     #[pb(index = 1)]
-    pub filters_by_layout_ty: HashMap<String, RepeatedGridFilter>,
+    pub layouts: Vec<GridLayout>,
 
     #[pb(index = 2)]
-    pub groups_by_layout_ty: HashMap<String, RepeatedGridGroup>,
+    pub current_layout_type: GridLayoutType,
 
     #[pb(index = 3)]
-    pub sorts_by_layout_ty: HashMap<String, RepeatedGridSort>,
+    pub filters_by_field_id: HashMap<String, RepeatedGridFilter>,
+
+    #[pb(index = 4)]
+    pub groups_by_field_id: HashMap<String, RepeatedGridGroup>,
+
+    #[pb(index = 5)]
+    pub sorts_by_field_id: HashMap<String, RepeatedGridSort>,
 }
 
-//
-// impl std::convert::From<&GridSettingRevision> for GridSetting {
-//     fn from(rev: &GridSettingRevision) -> Self {
-//         let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
-//             .filters
-//             .iter()
-//             .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
-//             .collect();
-//
-//         let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
-//             .groups
-//             .iter()
-//             .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
-//             .collect();
-//
-//         let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
-//             .sorts
-//             .iter()
-//             .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
-//             .collect();
-//
-//         GridSetting {
-//             filters_by_layout_ty,
-//             groups_by_layout_ty,
-//             sorts_by_layout_ty,
-//         }
-//     }
-// }
-//
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridLayout {
+    #[pb(index = 1)]
+    ty: GridLayoutType,
+}
+
+impl GridLayout {
+    pub fn all() -> Vec<GridLayout> {
+        let mut layouts = vec![];
+        for layout_ty in GridLayoutType::iter() {
+            layouts.push(GridLayout { ty: layout_ty })
+        }
+
+        layouts
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
 pub enum GridLayoutType {
     Table = 0,

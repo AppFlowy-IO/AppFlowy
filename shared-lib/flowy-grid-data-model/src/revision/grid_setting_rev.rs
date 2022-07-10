@@ -1,8 +1,9 @@
-use crate::revision::FieldTypeRevision;
+use crate::revision::{FieldRevision, FieldTypeRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub fn gen_grid_filter_id() -> String {
@@ -17,20 +18,33 @@ pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
 
+/// Each layout contains multiple key/value.
+/// Key:    field_id
+/// Value:  this value also contains key/value.
+///         Key: FieldType,
+///         Value: the corresponding filter.
+///
+/// This overall struct is described below:
+/// GridSettingRevision
+///     layout:
+///           field_id:
+///                   FieldType: GridFilterRevision
+///                   FieldType: GridFilterRevision
+///           field_id:
+///                   FieldType: GridFilterRevision
+///                   FieldType: GridFilterRevision
+///     layout:
+///           field_id:
+///                   FieldType: GridFilterRevision
+///                   FieldType: GridFilterRevision
+///
+/// Group and sorts will be the same structure as filters.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 pub struct GridSettingRevision {
     pub layout: GridLayoutRevision,
-    // layout:
-    //       field_id:
-    //               FieldType: GridFilterRevision
-    //               FieldType: GridFilterRevision
-    // layout:
-    //       field_id:
-    //               FieldType: GridFilterRevision
-    //       field_id:
-    //               FieldType: GridFilterRevision
+
     #[serde(with = "indexmap::serde_seq")]
-    pub filters: IndexMap<GridLayoutRevision, IndexMap<String, GridFilterRevisionMap>>,
+    filters: IndexMap<GridLayoutRevision, IndexMap<String, GridFilterRevisionMap>>,
 
     #[serde(skip, with = "indexmap::serde_seq")]
     pub groups: IndexMap<GridLayoutRevision, Vec<GridGroupRevision>>,
@@ -39,7 +53,43 @@ pub struct GridSettingRevision {
     pub sorts: IndexMap<GridLayoutRevision, Vec<GridSortRevision>>,
 }
 
+pub type FiltersByFieldId = HashMap<String, Vec<Arc<GridFilterRevision>>>;
+pub type GroupsByFieldId = HashMap<String, Vec<Arc<GridGroupRevision>>>;
+pub type SortsByFieldId = HashMap<String, Vec<Arc<GridSortRevision>>>;
 impl GridSettingRevision {
+    pub fn get_all_group(&self) -> Option<GroupsByFieldId> {
+        None
+    }
+
+    pub fn get_all_sort(&self) -> Option<SortsByFieldId> {
+        None
+    }
+
+    /// Return the Filters of the current layout
+    pub fn get_all_filter(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FiltersByFieldId> {
+        let layout = &self.layout;
+        // Acquire the read lock of the filters.
+        let filter_rev_map_by_field_id = self.filters.get(layout)?;
+        // Get the filters according to the FieldType, so we need iterate the field_revs.
+        let filters_by_field_id = field_revs
+            .iter()
+            .flat_map(|field_rev| {
+                let field_type = &field_rev.field_type_rev;
+                let field_id = &field_rev.id;
+
+                let filter_rev_map: &GridFilterRevisionMap = filter_rev_map_by_field_id.get(field_id)?;
+                let filters: Vec<Arc<GridFilterRevision>> = filter_rev_map.get(field_type)?.clone();
+                Some((field_rev.id.clone(), filters))
+            })
+            .collect::<FiltersByFieldId>();
+        Some(filters_by_field_id)
+    }
+
+    fn get_filter_rev_map(&self, layout: &GridLayoutRevision, field_id: &str) -> Option<&GridFilterRevisionMap> {
+        let filter_rev_map_by_field_id = self.filters.get(layout)?;
+        filter_rev_map_by_field_id.get(field_id)
+    }
+
     pub fn get_mut_filters(
         &mut self,
         layout: &GridLayoutRevision,
