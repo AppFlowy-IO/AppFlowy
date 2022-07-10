@@ -16,28 +16,36 @@ class SettingsUserView extends StatelessWidget {
         builder: (context, state) => SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [_UserNameInput()],
+            children: [_renderUserNameInput(context)],
           ),
         ),
       ),
     );
   }
+
+  Widget _renderUserNameInput(BuildContext context) {
+    String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+    debugPrint(name);
+    return _UserNameInput(name);
+  }
 }
 
 class _UserNameInput extends StatelessWidget {
-  const _UserNameInput({
+  final String name;
+  const _UserNameInput(
+    this.name, {
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+        controller: TextEditingController()..text = name,
         decoration: const InputDecoration(
           labelText: 'Name',
         ),
         onSubmitted: (val) {
           context.read<SettingsUserViewBloc>().add(SettingsUserEvent.updateUserName(val));
-          debugPrint("Value $val submitted");
         });
   }
 }
