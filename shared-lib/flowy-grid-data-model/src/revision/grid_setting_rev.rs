@@ -85,6 +85,7 @@ impl GridSettingRevision {
         Some(filters_by_field_id)
     }
 
+    #[allow(dead_code)]
     fn get_filter_rev_map(&self, layout: &GridLayoutRevision, field_id: &str) -> Option<&GridFilterRevisionMap> {
         let filter_rev_map_by_field_id = self.filters.get(layout)?;
         filter_rev_map_by_field_id.get(field_id)

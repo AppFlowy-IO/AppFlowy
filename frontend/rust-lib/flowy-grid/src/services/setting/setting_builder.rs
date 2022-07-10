@@ -43,38 +43,32 @@ impl GridSettingChangesetBuilder {
 pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSetting {
     let current_layout_type: GridLayoutType = grid_setting_rev.layout.clone().into();
     let filters_by_field_id = grid_setting_rev
-        .get_all_filter(&field_revs)
-        .and_then(|filters_by_field_id| {
-            Some(
-                filters_by_field_id
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect::<HashMap<String, RepeatedGridFilter>>(),
-            )
+        .get_all_filter(field_revs)
+        .map(|filters_by_field_id| {
+            filters_by_field_id
+                .into_iter()
+                .map(|(k, v)| (k, v.into()))
+                .collect::<HashMap<String, RepeatedGridFilter>>()
         })
-        .unwrap_or(HashMap::default());
+        .unwrap_or_default();
     let groups_by_field_id = grid_setting_rev
         .get_all_group()
-        .and_then(|groups_by_field_id| {
-            Some(
-                groups_by_field_id
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect::<HashMap<String, RepeatedGridGroup>>(),
-            )
+        .map(|groups_by_field_id| {
+            groups_by_field_id
+                .into_iter()
+                .map(|(k, v)| (k, v.into()))
+                .collect::<HashMap<String, RepeatedGridGroup>>()
         })
-        .unwrap_or(HashMap::default());
+        .unwrap_or_default();
     let sorts_by_field_id = grid_setting_rev
         .get_all_sort()
-        .and_then(|sorts_by_field_id| {
-            Some(
-                sorts_by_field_id
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect::<HashMap<String, RepeatedGridSort>>(),
-            )
+        .map(|sorts_by_field_id| {
+            sorts_by_field_id
+                .into_iter()
+                .map(|(k, v)| (k, v.into()))
+                .collect::<HashMap<String, RepeatedGridSort>>()
         })
-        .unwrap_or(HashMap::default());
+        .unwrap_or_default();
 
     GridSetting {
         layouts: GridLayout::all(),

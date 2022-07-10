@@ -5,7 +5,7 @@
 
 use flowy_grid::entities::{CreateGridFilterPayload, GridLayoutType, GridSetting};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use flowy_grid_data_model::revision::FieldTypeRevision;
+use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use crate::grid::script::GridEditorTest;
 
@@ -22,7 +22,7 @@ pub enum FilterScript {
     },
     DeleteGridTableFilter {
         filter_id: String,
-        field_type_rev: FieldTypeRevision,
+        field_rev: FieldRevision,
     },
     #[allow(dead_code)]
     AssertGridSetting {
@@ -67,10 +67,10 @@ impl GridFilterTest {
                 let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
-            FilterScript::DeleteGridTableFilter { filter_id ,field_type_rev} => {
+            FilterScript::DeleteGridTableFilter { filter_id, field_rev} => {
                 let layout_type = GridLayoutType::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev })
+                    .delete_filter(DeleteFilterParams { field_id: field_rev.id, filter_id, field_type_rev: field_rev.field_type_rev })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }

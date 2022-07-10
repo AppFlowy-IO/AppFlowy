@@ -45,9 +45,12 @@ impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilter {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct DeleteFilterPayload {
     #[pb(index = 1)]
-    pub filter_id: String,
+    pub field_id: String,
 
     #[pb(index = 2)]
+    pub filter_id: String,
+
+    #[pb(index = 3)]
     pub field_type: FieldType,
 }
 
@@ -55,10 +58,14 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
+        let field_id = NotEmptyStr::parse(self.field_id)
+            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
+            .0;
         let filter_id = NotEmptyStr::parse(self.filter_id)
             .map_err(|_| ErrorCode::UnexpectedEmptyString)?
             .0;
         Ok(DeleteFilterParams {
+            field_id,
             filter_id,
             field_type_rev: self.field_type.into(),
         })

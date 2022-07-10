@@ -37,7 +37,7 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
             return Ok(true);
         }
 
-        let cell_data = any_cell_data.cell_data;
+        let cell_data = any_cell_data.data;
         let num_cell_data = self.format_cell_data(&cell_data)?;
 
         Ok(filter.is_visible(&num_cell_data))

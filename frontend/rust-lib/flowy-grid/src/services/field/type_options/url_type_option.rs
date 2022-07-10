@@ -114,7 +114,7 @@ impl std::convert::TryFrom<AnyCellData> for URLCellData {
     type Error = FlowyError;
 
     fn try_from(data: AnyCellData) -> Result<Self, Self::Error> {
-        serde_json::from_str::<URLCellData>(&data.cell_data).map_err(internal_error)
+        serde_json::from_str::<URLCellData>(&data.data).map_err(internal_error)
     }
 }
 

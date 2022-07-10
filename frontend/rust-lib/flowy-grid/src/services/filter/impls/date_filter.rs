@@ -24,7 +24,7 @@ impl GridDateFilter {
                     false
                 }
             }
-            DateFilterCondition::DateIsEmpty => cell_timestamp == (0 as i64),
+            DateFilterCondition::DateIsEmpty => cell_timestamp == 0_i64,
         }
     }
 }

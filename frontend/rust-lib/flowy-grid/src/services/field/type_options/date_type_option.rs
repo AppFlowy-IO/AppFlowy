@@ -187,7 +187,7 @@ impl FromCellString for DateTimestamp {
 
 impl std::convert::From<AnyCellData> for DateTimestamp {
     fn from(data: AnyCellData) -> Self {
-        let num = data.cell_data.parse::<i64>().unwrap_or(0);
+        let num = data.data.parse::<i64>().unwrap_or(0);
         DateTimestamp(num)
     }
 }

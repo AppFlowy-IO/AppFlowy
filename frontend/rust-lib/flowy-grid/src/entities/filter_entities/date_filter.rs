@@ -74,7 +74,7 @@ struct DateRange {
 
 impl ToString for DateRange {
     fn to_string(&self) -> String {
-        serde_json::to_string(self).unwrap_or("".to_string())
+        serde_json::to_string(self).unwrap_or_else(|_| "".to_string())
     }
 }
 

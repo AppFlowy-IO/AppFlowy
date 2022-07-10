@@ -1,16 +1,19 @@
-#![cfg_attr(rustfmt, rustfmt::skip)]
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(unused_imports)]
 use bytes::Bytes;
+use flowy_grid::entities::*;
+use flowy_grid::services::field::select_option::SelectOption;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::CreateRowRevisionPayload;
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
-use flowy_grid::entities::*;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
+use flowy_sync::entities::grid::{
+    CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams,
+};
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::collections::HashMap;
@@ -18,8 +21,6 @@ use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
 use tokio::time::sleep;
-use flowy_grid::services::field::select_option::SelectOption;
-use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams};
 
 pub enum EditorScript {
     CreateField {
@@ -82,7 +83,7 @@ pub enum EditorScript {
     },
     DeleteGridTableFilter {
         filter_id: String,
-        field_type_rev: FieldTypeRevision,
+        field_rev: FieldRevision,
     },
     #[allow(dead_code)]
     AssertGridSetting {
@@ -170,10 +171,7 @@ impl GridEditorTest {
                 assert_eq!(self.field_count, self.field_revs.len());
             }
             EditorScript::AssertFieldCount(count) => {
-                assert_eq!(
-                    self.editor.get_field_revs(None).await.unwrap().len(),
-                    count
-                );
+                assert_eq!(self.editor.get_field_revs(None).await.unwrap().len(), count);
             }
             EditorScript::AssertFieldEqual { field_index, field_rev } => {
                 let field_revs = self.editor.get_field_revs(None).await.unwrap();
@@ -204,14 +202,16 @@ impl GridEditorTest {
             }
             EditorScript::CreateEmptyRow => {
                 let row_order = self.editor.create_row(None).await.unwrap();
-                self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
+                self.row_order_by_row_id
+                    .insert(row_order.row_id().to_owned(), row_order);
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
             EditorScript::CreateRow { payload: context } => {
                 let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
                 for row_order in row_orders {
-                    self.row_order_by_row_id.insert(row_order.row_id().to_owned(), row_order);
+                    self.row_order_by_row_id
+                        .insert(row_order.row_id().to_owned(), row_order);
                 }
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
@@ -271,10 +271,14 @@ impl GridEditorTest {
                 let filters = self.editor.get_grid_filter(&layout_type).await.unwrap();
                 assert_eq!(count as usize, filters.len());
             }
-            EditorScript::DeleteGridTableFilter { filter_id ,field_type_rev} => {
+            EditorScript::DeleteGridTableFilter { filter_id, field_rev } => {
                 let layout_type = GridLayoutType::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(DeleteFilterParams { filter_id, field_type_rev })
+                    .delete_filter(DeleteFilterParams {
+                        field_id: field_rev.id,
+                        filter_id,
+                        field_type_rev: field_rev.field_type_rev,
+                    })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }

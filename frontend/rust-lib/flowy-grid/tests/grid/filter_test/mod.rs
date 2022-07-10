@@ -1,2 +1,2 @@
 mod script;
-mod test;
+mod text_filter_test;

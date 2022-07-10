@@ -76,7 +76,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
     type Error = FlowyError;
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(TextCellData(value.cell_data))
+        Ok(TextCellData(value.data))
     }
 }
 
