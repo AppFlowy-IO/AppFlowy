@@ -100,7 +100,7 @@ CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
 APP_ENVIRONMENT = "production"
 
-[env.development-linux-x86]
+[env.development-linux-x86_64]
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
 BUILD_FLAG = "debug"
@@ -109,7 +109,7 @@ FLUTTER_OUTPUT_DIR = "Debug"
 SDK_EXT = "so"
 LINUX_ARCH = "x64"
 
-[env.production-linux-x86]
+[env.production-linux-x86_64]
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
