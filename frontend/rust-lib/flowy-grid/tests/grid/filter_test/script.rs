@@ -7,7 +7,7 @@ use flowy_grid::entities::{CreateGridFilterPayload, GridLayoutType, GridSetting}
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
-use crate::grid::script::GridEditorTest;
+use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
     #[allow(dead_code)]
@@ -31,14 +31,14 @@ pub enum FilterScript {
 }
 
 pub struct GridFilterTest {
-    pub editor_test: GridEditorTest,
+    inner: GridEditorTest,
 }
 
 impl GridFilterTest {
     pub async fn new() -> Self {
      let editor_test =  GridEditorTest::new().await;
         Self {
-            editor_test
+            inner: editor_test
         }
     }
 
@@ -49,7 +49,6 @@ impl GridFilterTest {
     }
 
     pub async fn run_script(&mut self, script: FilterScript) {
-
         match script {
             FilterScript::UpdateGridSetting { params } => {
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
@@ -82,10 +81,17 @@ impl GridFilterTest {
     }
 }
 
+
 impl std::ops::Deref for GridFilterTest {
     type Target = GridEditorTest;
 
     fn deref(&self) -> &Self::Target {
-        &self.editor_test
+        &self.inner
+    }
+}
+
+impl std::ops::DerefMut for GridFilterTest {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }

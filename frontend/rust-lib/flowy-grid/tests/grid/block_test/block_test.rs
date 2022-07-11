@@ -1,5 +1,6 @@
-use crate::grid::script::EditorScript::*;
-use crate::grid::script::*;
+use crate::grid::block_test::script::GridRowTest;
+use crate::grid::block_test::script::RowScript::*;
+
 use flowy_grid_data_model::revision::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset};
 
 #[tokio::test]
@@ -10,7 +11,7 @@ async fn grid_create_block() {
         CreateBlock { block: block_meta_rev },
         AssertBlockCount(2),
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    GridRowTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -36,5 +37,5 @@ async fn grid_update_block() {
             block: cloned_grid_block,
         },
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    GridRowTest::new().await.run_scripts(scripts).await;
 }

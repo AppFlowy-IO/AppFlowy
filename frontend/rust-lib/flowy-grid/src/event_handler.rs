@@ -369,7 +369,7 @@ pub(crate) async fn get_select_option_handler(
             let any_cell_data: AnyCellData = match cell_rev {
                 None => AnyCellData {
                     data: "".to_string(),
-                    field_type: field_rev.field_type_rev.clone().into(),
+                    field_type: field_rev.field_type_rev.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };

@@ -1,4 +1,5 @@
-use crate::grid::script::GridEditorTest;
+use crate::grid::block_test::script::GridRowTest;
+
 use flowy_grid::entities::FieldType;
 use flowy_grid::services::field::DateCellChangeset;
 use flowy_grid::services::row::{CreateRowRevisionBuilder, CreateRowRevisionPayload};
@@ -6,15 +7,15 @@ use flowy_grid_data_model::revision::FieldRevision;
 use strum::EnumCount;
 
 pub struct GridRowTestBuilder<'a> {
-    test: &'a GridEditorTest,
+    test: &'a GridRowTest,
     inner_builder: CreateRowRevisionBuilder<'a>,
 }
 
 impl<'a> GridRowTestBuilder<'a> {
-    pub fn new(test: &'a GridEditorTest) -> Self {
-        assert_eq!(test.field_revs.len(), FieldType::COUNT);
+    pub fn new(test: &'a GridRowTest) -> Self {
+        assert_eq!(test.field_revs().len(), FieldType::COUNT);
 
-        let inner_builder = CreateRowRevisionBuilder::new(&test.field_revs);
+        let inner_builder = CreateRowRevisionBuilder::new(test.field_revs());
         Self { test, inner_builder }
     }
     #[allow(dead_code)]
@@ -59,7 +60,7 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn field_rev_with_type(&self, field_type: &FieldType) -> FieldRevision {
         self.test
-            .field_revs
+            .field_revs()
             .iter()
             .find(|field_rev| {
                 let t_field_type: FieldType = field_rev.field_type_rev.into();
