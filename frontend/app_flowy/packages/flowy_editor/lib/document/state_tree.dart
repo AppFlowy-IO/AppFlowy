@@ -6,7 +6,7 @@ class StateTree {
 
   StateTree({required this.root});
 
-  factory StateTree.fromJson(Map<String, Object> json) {
+  factory StateTree.fromJson(Attributes json) {
     assert(json['document'] is Map);
 
     final document = Map<String, Object>.from(json['document'] as Map);
@@ -41,7 +41,7 @@ class StateTree {
     return deletedNode;
   }
 
-  Map<String, Object>? update(Path path, Map<String, Object> attributes) {
+  Attributes? update(Path path, Attributes attributes) {
     if (path.isEmpty) {
       return null;
     }

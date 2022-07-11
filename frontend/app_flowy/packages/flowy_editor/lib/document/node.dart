@@ -1,11 +1,13 @@
 import 'dart:collection';
 import 'package:flowy_editor/document/path.dart';
 
+typedef Attributes = Map<String, Object>;
+
 class Node extends LinkedListEntry<Node> {
   Node? parent;
   final String type;
   final LinkedList<Node> children;
-  final Map<String, Object> attributes;
+  final Attributes attributes;
 
   Node({
     required this.type,
@@ -20,15 +22,15 @@ class Node extends LinkedListEntry<Node> {
     final jType = json['type'] as String;
     final jChildren = json['children'] as List?;
     final jAttributes = json['attributes'] != null
-        ? Map<String, Object>.from(json['attributes'] as Map)
-        : <String, Object>{};
+        ? Attributes.from(json['attributes'] as Map)
+        : Attributes.from({});
 
     final LinkedList<Node> children = LinkedList();
     if (jChildren != null) {
       children.addAll(
         jChildren.map(
-          (jnode) => Node.fromJson(
-            Map<String, Object>.from(jnode),
+          (jChild) => Node.fromJson(
+            Map<String, Object>.from(jChild),
           ),
         ),
       );
@@ -47,7 +49,7 @@ class Node extends LinkedListEntry<Node> {
     return node;
   }
 
-  void updateAttributes(Map<String, Object> attributes) {
+  void updateAttributes(Attributes attributes) {
     for (final attribute in attributes.entries) {
       this.attributes[attribute.key] = attribute.value;
     }
