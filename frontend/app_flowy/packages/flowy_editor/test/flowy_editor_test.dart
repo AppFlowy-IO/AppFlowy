@@ -14,5 +14,10 @@ void main() {
     expect(stateTree.root.type, 'root');
     expect(stateTree.root.toJson(), data['document']);
     expect(stateTree.root.children.last.type, 'video');
+
+    final checkBoxNode = stateTree.root.childAtPath([1, 0]);
+    expect(checkBoxNode != null, true);
+    final textType = checkBoxNode!.attributes['text-type'];
+    expect(textType != null, true);
   });
 }

@@ -12,4 +12,9 @@ class StateTree {
     final root = Node.fromJson(document);
     return StateTree(root: root);
   }
+
+  // bool insert(Path path, Node node) {
+  //   final insertedNode = root
+  //   return false;
+  // }
 }
