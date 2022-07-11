@@ -17,6 +17,13 @@
           {
             "type": "text",
             "attributes": {
+              "text-type": "heading2",
+              "check": true
+            }
+          },
+          {
+            "type": "text",
+            "attributes": {
               "text-type": "check-box",
               "check": true
             }
