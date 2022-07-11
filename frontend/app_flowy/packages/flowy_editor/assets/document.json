@@ -1,0 +1,46 @@
+{
+  "document": {
+    "type": "root",
+    "children": [
+      {
+        "type": "text",
+        "attributes": {
+          "text-type": "heading1"
+        }
+      },
+      {
+        "type": "text", 
+        "attributes": {
+          "tag": "*"
+        },
+        "children": [
+          {
+            "type": "text",
+            "attributes": {
+              "text-type": "check-box",
+              "check": true
+            }
+          },
+          {
+            "type": "text",
+            "attributes": {
+              "tag": "**"
+            }
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "attributes": {
+          "url": "x.png"
+        }
+      },
+      {
+        "type": "video",
+        "attributes": {
+          "url": "x.mp4"
+        }
+      }
+    ]
+  }
+}
