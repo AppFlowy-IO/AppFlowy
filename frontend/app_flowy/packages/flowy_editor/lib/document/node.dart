@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:flowy_editor/document/path.dart';
 
 class Node extends LinkedListEntry<Node> {
@@ -35,11 +34,23 @@ class Node extends LinkedListEntry<Node> {
       );
     }
 
-    return Node(
+    final node = Node(
       type: jType,
       children: children,
       attributes: jAttributes,
     );
+
+    for (final child in children) {
+      child.parent = node;
+    }
+
+    return node;
+  }
+
+  void updateAttributes(Map<String, Object> attributes) {
+    for (final attribute in attributes.entries) {
+      this.attributes[attribute.key] = attribute.value;
+    }
   }
 
   Node? childAtIndex(int index) {
@@ -56,6 +67,24 @@ class Node extends LinkedListEntry<Node> {
     }
 
     return childAtIndex(path.first)?.childAtPath(path.sublist(1));
+  }
+
+  @override
+  void insertAfter(Node entry) {
+    entry.parent = parent;
+    super.insertAfter(entry);
+  }
+
+  @override
+  void insertBefore(Node entry) {
+    entry.parent = parent;
+    super.insertBefore(entry);
+  }
+
+  @override
+  void unlink() {
+    parent = null;
+    super.unlink();
   }
 
   Map<String, Object> toJson() {
