@@ -376,7 +376,7 @@ pub(crate) async fn get_select_option_handler(
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let option_context = type_option.selected_select_option(any_cell_data);
+            let option_context = type_option.selected_select_option(any_cell_data.into());
             data_result(option_context)
         }
     }

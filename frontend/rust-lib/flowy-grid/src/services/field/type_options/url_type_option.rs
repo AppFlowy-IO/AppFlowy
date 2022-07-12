@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData, FromCellString,
+    AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -34,18 +34,30 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
+impl CellDisplayable<URLCellData, URLCellData> for URLTypeOption {
+    fn display_data(
+        &self,
+        cell_data: CellData<URLCellData>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<URLCellData> {
+        let cell_data: URLCellData = cell_data.try_into_inner()?;
+        Ok(cell_data)
+    }
+}
+
 impl CellDataOperation<URLCellData, String> for URLTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<URLCellData>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
         if !decoded_field_type.is_url() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
-        let cell_data: URLCellData = cell_data.try_into_inner()?;
-        DecodedCellData::try_from_bytes(cell_data)
+        let cell_data = self.display_data(cell_data, decoded_field_type, field_rev)?;
+        CellBytes::from(cell_data)
     }
 
     fn apply_changeset(

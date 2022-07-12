@@ -100,41 +100,46 @@ impl AnyCellData {
 /// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
 /// * Check out the implementation of CellDataOperation trait for more information.
 #[derive(Default)]
-pub struct DecodedCellData {
-    pub data: Vec<u8>,
-}
+pub struct CellBytes(pub Bytes);
 
-impl DecodedCellData {
+impl CellBytes {
     pub fn new<T: AsRef<[u8]>>(data: T) -> Self {
-        Self {
-            data: data.as_ref().to_vec(),
-        }
+        let bytes = Bytes::from(data.as_ref().to_vec());
+        Self(bytes)
     }
 
-    pub fn try_from_bytes<T: TryInto<Bytes>>(bytes: T) -> FlowyResult<Self>
+    pub fn from<T: TryInto<Bytes>>(bytes: T) -> FlowyResult<Self>
     where
         <T as TryInto<Bytes>>::Error: std::fmt::Debug,
     {
         let bytes = bytes.try_into().map_err(internal_error)?;
-        Ok(Self { data: bytes.to_vec() })
+        Ok(Self(bytes))
     }
 
     pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
     where
         <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
     {
-        T::try_from(self.data.as_ref()).map_err(internal_error)
+        T::try_from(self.0.as_ref()).map_err(internal_error)
     }
 }
 
-impl ToString for DecodedCellData {
+impl ToString for CellBytes {
     fn to_string(&self) -> String {
-        match String::from_utf8(self.data.clone()) {
+        match String::from_utf8(self.0.to_vec()) {
             Ok(s) => s,
             Err(e) => {
                 tracing::error!("DecodedCellData to string failed: {:?}", e);
                 "".to_string()
             }
         }
+    }
+}
+
+impl std::ops::Deref for CellBytes {
+    type Target = Bytes;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

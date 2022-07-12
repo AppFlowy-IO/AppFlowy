@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData,
+    try_decode_cell_data, AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -32,13 +32,25 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
+impl CellDisplayable<String, String> for RichTextTypeOption {
+    fn display_data(
+        &self,
+        cell_data: CellData<String>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_str: String = cell_data.try_into_inner()?;
+        Ok(cell_str)
+    }
+}
+
 impl CellDataOperation<String, String> for RichTextTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+    ) -> FlowyResult<CellBytes> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
@@ -46,8 +58,8 @@ impl CellDataOperation<String, String> for RichTextTypeOption {
         {
             try_decode_cell_data(cell_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data: String = cell_data.try_into_inner()?;
-            Ok(DecodedCellData::new(cell_data))
+            let content = self.display_data(cell_data, decoded_field_type, field_rev)?;
+            Ok(CellBytes::new(content))
         }
     }
 

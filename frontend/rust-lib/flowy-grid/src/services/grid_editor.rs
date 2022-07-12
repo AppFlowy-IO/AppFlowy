@@ -344,7 +344,7 @@ impl GridRevisionEditor {
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
 
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
-        let data = decode_any_cell_data(cell_rev.data, &field_rev).data;
+        let data = decode_any_cell_data(cell_rev.data, &field_rev).to_vec();
         Some(Cell::new(&params.field_id, data))
     }
 

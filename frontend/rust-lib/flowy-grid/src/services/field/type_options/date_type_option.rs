@@ -2,7 +2,8 @@ use crate::entities::{CellChangeset, FieldType};
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData, FromCellChangeset, FromCellString,
+    AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable, FromCellChangeset,
+    FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -121,23 +122,33 @@ impl DateTypeOption {
     }
 }
 
+impl CellDisplayable<DateTimestamp, DateCellData> for DateTypeOption {
+    fn display_data(
+        &self,
+        cell_data: CellData<DateTimestamp>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<DateCellData> {
+        let timestamp = cell_data.try_into_inner()?;
+        Ok(self.today_desc_from_timestamp(timestamp.0))
+    }
+}
+
 impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<DateTimestamp>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
         // Return default data if the type_option_cell_data is not FieldType::DateTime.
         // It happens when switching from one field to another.
         // For example:
         // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
         if !decoded_field_type.is_date() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
-        let timestamp = cell_data.try_into_inner()?;
-        let date = self.today_desc_from_timestamp(timestamp.0);
-        DecodedCellData::try_from_bytes(date)
+        CellBytes::from(self.display_data(cell_data, decoded_field_type, field_rev)?)
     }
 
     fn apply_changeset(

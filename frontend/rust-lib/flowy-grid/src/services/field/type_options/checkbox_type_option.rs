@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
+use crate::services::cell::{AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -40,23 +40,35 @@ impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
 const YES: &str = "Yes";
 const NO: &str = "No";
 
+impl CellDisplayable<String, bool> for CheckboxTypeOption {
+    fn display_data(
+        &self,
+        cell_data: CellData<String>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<bool> {
+        let s: String = cell_data.try_into_inner()?;
+        Ok(s == YES)
+    }
+}
+
 impl CellDataOperation<String, String> for CheckboxTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+    ) -> FlowyResult<CellBytes> {
         if !decoded_field_type.is_checkbox() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
         let s: String = cell_data.try_into_inner()?;
         if s == YES || s == NO {
-            return Ok(DecodedCellData::new(s));
+            return Ok(CellBytes::new(s));
         }
 
-        Ok(DecodedCellData::default())
+        Ok(CellBytes::default())
     }
 
     fn apply_changeset(

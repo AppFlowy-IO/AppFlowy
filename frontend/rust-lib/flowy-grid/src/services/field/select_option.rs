@@ -1,5 +1,5 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
-use crate::services::cell::{AnyCellData, FromCellChangeset, FromCellString};
+use crate::services::cell::{AnyCellData, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -60,12 +60,11 @@ impl std::default::Default for SelectOptionColor {
     }
 }
 
-pub fn make_selected_select_options<T: TryInto<AnyCellData>>(
-    any_cell_data: T,
+pub fn make_selected_select_options(
+    cell_data: CellData<SelectOptionIds>,
     options: &[SelectOption],
 ) -> Vec<SelectOption> {
-    if let Ok(type_option_cell_data) = any_cell_data.try_into() {
-        let ids = SelectOptionIds::from(type_option_cell_data.data);
+    if let Ok(ids) = cell_data.try_into_inner() {
         ids.iter()
             .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
             .collect()
@@ -100,11 +99,25 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
         SelectOption::with_color(name, color)
     }
 
-    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData;
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData;
 
     fn options(&self) -> &Vec<SelectOption>;
 
     fn mut_options(&mut self) -> &mut Vec<SelectOption>;
+}
+
+impl<T> CellDisplayable<SelectOptionIds, SelectOptionCellData> for T
+where
+    T: SelectOptionOperation,
+{
+    fn display_data(
+        &self,
+        cell_data: CellData<SelectOptionIds>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<SelectOptionCellData> {
+        Ok(self.selected_select_option(cell_data))
+    }
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
@@ -152,6 +165,12 @@ impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
         Ok(Self::from(value.data))
+    }
+}
+
+impl std::convert::From<AnyCellData> for CellData<SelectOptionIds> {
+    fn from(any_cell_data: AnyCellData) -> Self {
+        any_cell_data.data.into()
     }
 }
 

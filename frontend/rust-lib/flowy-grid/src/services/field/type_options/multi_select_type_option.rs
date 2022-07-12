@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::select_option::{
     make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
     SelectOptionOperation, SELECTION_IDS_SEPARATOR,
@@ -28,8 +28,8 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData {
-        let select_options = make_selected_select_options(any_cell_data, &self.options);
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData {
+        let select_options = make_selected_select_options(cell_data, &self.options);
         SelectOptionCellData {
             options: self.options.clone(),
             select_options,
@@ -50,24 +50,14 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         &self,
         cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
         if !decoded_field_type.is_select_option() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
-        let ids: SelectOptionIds = cell_data.try_into_inner()?;
-        let select_options = ids
-            .iter()
-            .flat_map(|option_id| self.options.iter().find(|option| &option.id == option_id).cloned())
-            .collect::<Vec<SelectOption>>();
-
-        let cell_data = SelectOptionCellData {
-            options: self.options.clone(),
-            select_options,
-        };
-
-        DecodedCellData::try_from_bytes(cell_data)
+        let cell_data = self.display_data(cell_data, decoded_field_type, field_rev)?;
+        CellBytes::from(cell_data)
     }
 
     fn apply_changeset(

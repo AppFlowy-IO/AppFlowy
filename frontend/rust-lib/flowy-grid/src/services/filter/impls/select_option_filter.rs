@@ -45,7 +45,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
             return Ok(true);
         }
 
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
@@ -55,7 +55,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }

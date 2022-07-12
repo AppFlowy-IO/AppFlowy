@@ -1,7 +1,7 @@
 use crate::impl_type_option;
 
 use crate::entities::FieldType;
-use crate::services::cell::{CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -110,15 +110,15 @@ impl CellDataOperation<String, String> for NumberTypeOption {
         cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+    ) -> FlowyResult<CellBytes> {
         if decoded_field_type.is_date() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
         let cell_data: String = cell_data.try_into_inner()?;
         match self.format_cell_data(&cell_data) {
-            Ok(num) => Ok(DecodedCellData::new(num.to_string())),
-            Err(_) => Ok(DecodedCellData::default()),
+            Ok(num) => Ok(CellBytes::new(num.to_string())),
+            Err(_) => Ok(CellBytes::default()),
         }
     }
 
