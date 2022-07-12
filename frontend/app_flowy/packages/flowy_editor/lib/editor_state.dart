@@ -28,5 +28,4 @@ class EditorState {
       document.delete(op.path);
     }
   }
-
 }

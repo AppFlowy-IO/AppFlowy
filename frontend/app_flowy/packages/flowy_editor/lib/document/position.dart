@@ -12,7 +12,7 @@ class Position {
   });
 
   @override
-  bool operator==(Object other) {
+  bool operator ==(Object other) {
     if (other is! Position) {
       return false;
     }
@@ -22,7 +22,6 @@ class Position {
   @override
   int get hashCode {
     final pathHash = hashList(path);
-    return pathHash ^ offset;
+    return Object.hash(pathHash, offset);
   }
-
 }

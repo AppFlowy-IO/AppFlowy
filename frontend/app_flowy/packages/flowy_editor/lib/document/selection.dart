@@ -13,7 +13,7 @@ class Selection {
     return Selection(start: pos, end: pos);
   }
 
-  Selection collapse({ bool atStart = false }) {
+  Selection collapse({bool atStart = false}) {
     if (atStart) {
       return Selection(start: start, end: start);
     } else {
@@ -24,5 +24,4 @@ class Selection {
   bool isCollapsed() {
     return start == end;
   }
-
 }
