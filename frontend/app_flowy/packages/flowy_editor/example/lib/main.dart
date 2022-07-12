@@ -62,11 +62,11 @@ class _MyHomePageState extends State<MyHomePage> {
     renderPlugins
       ..register(
         'text',
-        textNodeWidgetBuilder,
+        TextNodeBuilder.create,
       )
       ..register(
         'image',
-        imageNodeWidgetBuilder,
+        ImageNodeBuilder.create,
       );
   }
 

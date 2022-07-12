@@ -1,60 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 
-NodeWidgetBuilder<Node> textNodeWidgetBuilder =
-    (node, renderPlugins) => TextNodeWidget(
-          node: node,
-          renderPlugins: renderPlugins,
-        );
+class TextNodeBuilder extends NodeWidgetBuilder {
+  TextNodeBuilder.create({required super.node, required super.renderPlugins})
+      : super.create();
 
-class TextNodeWidget extends BaseNodeWidget<Node> {
-  const TextNodeWidget({
-    super.key,
-    required super.node,
-    required super.renderPlugins,
-  });
+  String get content => node.attributes['content'] as String;
 
   @override
-  State<TextNodeWidget> createState() => _TextNodeWidgetState();
-}
-
-class _TextNodeWidgetState extends State<TextNodeWidget> {
-  Node get node => widget.node;
-
-  @override
-  Widget build(BuildContext context) {
-    final childWidget = renderChildren();
-    final richText = RichText(
-      text: TextSpan(
+  Widget build() {
+    final childrenWidget = buildChildren();
+    final richText = SelectableText.rich(
+      TextSpan(
         text: node.attributes['content'] as String,
         style: node.attributes.toTextStyle(),
       ),
     );
-    if (childWidget != null) {
+    if (childrenWidget != null) {
       return Column(
-        children: [richText, childWidget],
+        children: [
+          richText,
+          childrenWidget,
+        ],
       );
     } else {
       return richText;
     }
-  }
-
-  // manage children's render
-  Widget? renderChildren() {
-    if (node.children.isEmpty) {
-      return null;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: node.children
-          .map(
-            (e) => widget.renderPlugins.buildWidgetWithNode(
-              e,
-            ),
-          )
-          .toList(),
-    );
   }
 }
 
