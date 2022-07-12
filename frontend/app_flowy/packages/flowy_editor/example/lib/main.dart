@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/text_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
@@ -58,10 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    renderPlugins.register(
-      'text',
-      textNodeWidgetBuilder,
-    );
+    renderPlugins
+      ..register(
+        'text',
+        textNodeWidgetBuilder,
+      )
+      ..register(
+        'image',
+        imageNodeWidgetBuilder,
+      );
   }
 
   @override
