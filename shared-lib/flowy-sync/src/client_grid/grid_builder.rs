@@ -26,18 +26,23 @@ impl std::default::Default for GridBuilder {
 }
 
 impl GridBuilder {
-    pub fn add_field(mut self, field: FieldRevision) -> Self {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn add_field(&mut self, field: FieldRevision) {
         self.build_context.field_revs.push(field);
-        self
     }
 
-    pub fn add_empty_row(mut self) -> Self {
-        let row = RowRevision::new(&self.build_context.blocks.first().unwrap().block_id);
+    pub fn add_row(&mut self, row_rev: RowRevision) {
         let block_meta_rev = self.build_context.blocks.first_mut().unwrap();
         let block_rev = self.build_context.blocks_meta_data.first_mut().unwrap();
-        block_rev.rows.push(Arc::new(row));
+        block_rev.rows.push(Arc::new(row_rev));
         block_meta_rev.row_count += 1;
-        self
+    }
+
+    pub fn add_empty_row(&mut self) {
+        let row = RowRevision::new(&self.build_context.blocks.first().unwrap().block_id);
+        self.add_row(row);
     }
 
     pub fn build(self) -> BuildGridContext {

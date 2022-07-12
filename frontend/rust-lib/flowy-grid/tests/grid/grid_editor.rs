@@ -6,7 +6,7 @@ use flowy_grid::entities::*;
 use flowy_grid::services::field::select_option::SelectOption;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
-use flowy_grid::services::row::CreateRowRevisionPayload;
+use flowy_grid::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
@@ -20,6 +20,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use strum::EnumCount;
+use strum::IntoEnumIterator;
 use tokio::time::sleep;
 
 pub struct GridEditorTest {
@@ -37,14 +38,13 @@ impl GridEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
-        let build_context = make_all_field_test_grid();
+        let build_context = make_test_grid();
         let view_data: Bytes = build_context.into();
         let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
         let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
-        assert_eq!(row_revs.len(), 3);
         assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
@@ -90,75 +90,98 @@ impl GridEditorTest {
             .pop()
             .unwrap()
     }
+
+    pub fn block_id(&self) -> &str {
+        &self.block_meta_revs.last().unwrap().block_id
+    }
 }
 
-fn make_all_field_test_grid() -> BuildGridContext {
-    let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
-        .name("Name")
-        .visibility(true)
-        .build();
+// This grid is assumed to contain all the Fields.
+fn make_test_grid() -> BuildGridContext {
+    let mut grid_builder = GridBuilder::new();
+    // Iterate through the FieldType to create the corresponding Field.
+    for field_type in FieldType::iter() {
+        let field_type: FieldType = field_type;
 
-    // Single Select
-    let single_select = SingleSelectTypeOptionBuilder::default()
-        .option(SelectOption::new("Live"))
-        .option(SelectOption::new("Completed"))
-        .option(SelectOption::new("Planned"))
-        .option(SelectOption::new("Paused"));
-    let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
+        // The
+        match field_type {
+            FieldType::RichText => {
+                let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
+                    .name("Name")
+                    .visibility(true)
+                    .build();
+                grid_builder.add_field(text_field);
+            }
+            FieldType::Number => {
+                // Number
+                let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
+                let number_field = FieldBuilder::new(number).name("Price").visibility(true).build();
+                grid_builder.add_field(number_field);
+            }
+            FieldType::DateTime => {
+                // Date
+                let date = DateTypeOptionBuilder::default()
+                    .date_format(DateFormat::US)
+                    .time_format(TimeFormat::TwentyFourHour);
+                let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
+                grid_builder.add_field(date_field);
+            }
+            FieldType::SingleSelect => {
+                // Single Select
+                let single_select = SingleSelectTypeOptionBuilder::default()
+                    .option(SelectOption::new("Live"))
+                    .option(SelectOption::new("Completed"))
+                    .option(SelectOption::new("Planned"))
+                    .option(SelectOption::new("Paused"));
+                let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
+                grid_builder.add_field(single_select_field);
+            }
+            FieldType::MultiSelect => {
+                // MultiSelect
+                let multi_select = MultiSelectTypeOptionBuilder::default()
+                    .option(SelectOption::new("Google"))
+                    .option(SelectOption::new("Facebook"))
+                    .option(SelectOption::new("Twitter"));
+                let multi_select_field = FieldBuilder::new(multi_select)
+                    .name("Platform")
+                    .visibility(true)
+                    .build();
+                grid_builder.add_field(multi_select_field);
+            }
+            FieldType::Checkbox => {
+                // Checkbox
+                let checkbox = CheckboxTypeOptionBuilder::default();
+                let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
+                grid_builder.add_field(checkbox_field);
+            }
+            FieldType::URL => {
+                // URL
+                let url = URLTypeOptionBuilder::default();
+                let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
+                grid_builder.add_field(url_field);
+            }
+        }
+    }
 
-    // MultiSelect
-    let multi_select = MultiSelectTypeOptionBuilder::default()
-        .option(SelectOption::new("Google"))
-        .option(SelectOption::new("Facebook"))
-        .option(SelectOption::new("Twitter"));
-    let multi_select_field = FieldBuilder::new(multi_select)
-        .name("Platform")
-        .visibility(true)
-        .build();
-
-    // Number
-    let number = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
-    let number_field = FieldBuilder::new(number).name("Price").visibility(true).build();
-
-    // Date
-    let date = DateTypeOptionBuilder::default()
-        .date_format(DateFormat::US)
-        .time_format(TimeFormat::TwentyFourHour);
-    let date_field = FieldBuilder::new(date).name("Time").visibility(true).build();
-
-    // Checkbox
-    let checkbox = CheckboxTypeOptionBuilder::default();
-    let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
-
-    // URL
-    let url = URLTypeOptionBuilder::default();
-    let url_field = FieldBuilder::new(url).name("link").visibility(true).build();
-
-    // for i in 0..3 {
-    //     for field_type in FieldType::iter() {
-    //         let field_type: FieldType = field_type;
-    //         match field_type {
-    //             FieldType::RichText => {}
-    //             FieldType::Number => {}
-    //             FieldType::DateTime => {}
-    //             FieldType::SingleSelect => {}
-    //             FieldType::MultiSelect => {}
-    //             FieldType::Checkbox => {}
-    //             FieldType::URL => {}
-    //         }
-    //     }
-    // }
-
-    GridBuilder::default()
-        .add_field(text_field)
-        .add_field(single_select_field)
-        .add_field(multi_select_field)
-        .add_field(number_field)
-        .add_field(date_field)
-        .add_field(checkbox_field)
-        .add_field(url_field)
-        .add_empty_row()
-        .add_empty_row()
-        .add_empty_row()
-        .build()
+    // We have many assumptions base on the number of the rows, so do not change the number of the loop.
+    for _i in 0..10 {
+        for field_type in FieldType::iter() {
+            let field_type: FieldType = field_type;
+            // let mut row_builder = RowRevisionBuilder::new()
+            match field_type {
+                FieldType::RichText => {}
+                FieldType::Number => {}
+                FieldType::DateTime => {}
+                FieldType::SingleSelect => {}
+                FieldType::MultiSelect => {}
+                FieldType::Checkbox => {}
+                FieldType::URL => {}
+            }
+        }
+    }
+    // assert_eq!(row_revs.len(), 10);
+    //     .add_empty_row()
+    //     .add_empty_row()
+    //     .add_empty_row()
+    grid_builder.build()
 }

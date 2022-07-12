@@ -26,8 +26,12 @@ pub trait CellDataOperation<D, C> {
     /// SelectOptionCellChangeset,DateCellChangeset. etc.  
     fn apply_changeset(&self, changeset: CellDataChangeset<C>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
-/// The changeset will be deserialized into specific data base on the FieldType.
-/// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
+/// changeset: It will be deserialized into specific data base on the FieldType.
+///     For example,
+///         FieldType::RichText => String
+///         FieldType::SingleSelect => SelectOptionChangeset
+///
+/// cell_rev: It will be None if the cell does not contain any data.
 pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
@@ -114,14 +118,16 @@ pub fn try_decode_cell_data(
     }
 }
 
+/// If the cell data is not String type, it should impl this trait.
+/// Deserialize the String into cell specific data type.  
 pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized;
 }
 
+/// CellData is a helper struct. String will be parser into Option<T> only if the T impl the FromCellString trait.
 pub struct CellData<T>(pub Option<T>);
-
 impl<T> CellData<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
@@ -158,7 +164,8 @@ impl std::convert::From<CellData<String>> for String {
     }
 }
 
-// CellChangeset
+/// If the changeset applying to the cell is not String type, it should impl this trait.
+/// Deserialize the string into cell specific changeset.
 pub trait FromCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where

@@ -1,15 +1,16 @@
+use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::RowInfo;
-use flowy_grid::services::row::{CreateRowRevisionBuilder, CreateRowRevisionPayload};
+use flowy_grid::entities::{CellIdentifier, RowInfo};
+
 use flowy_grid_data_model::revision::{
-    FieldRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
 use std::sync::Arc;
 
 pub enum RowScript {
     CreateEmptyRow,
     CreateRow {
-        payload: CreateRowRevisionPayload,
+        row_rev: RowRevision,
     },
     UpdateRow {
         changeset: RowMetaChangeset,
@@ -19,6 +20,11 @@ pub enum RowScript {
     },
     DeleteRows {
         row_ids: Vec<String>,
+    },
+    AssertCell {
+        row_id: String,
+        field_id: String,
+        expected_display: Option<String>,
     },
     AssertRowCount(usize),
     CreateBlock {
@@ -49,10 +55,6 @@ impl GridRowTest {
         Self { inner: editor_test }
     }
 
-    pub fn field_revs(&self) -> &Vec<Arc<FieldRevision>> {
-        &self.field_revs
-    }
-
     pub fn last_row(&self) -> Option<RowRevision> {
         self.row_revs.last().map(|a| a.clone().as_ref().clone())
     }
@@ -63,8 +65,8 @@ impl GridRowTest {
         }
     }
 
-    pub fn builder(&self) -> CreateRowRevisionBuilder {
-        CreateRowRevisionBuilder::new(&self.field_revs)
+    pub fn row_builder(&self) -> GridRowTestBuilder {
+        GridRowTestBuilder::new(self.block_id(), &self.field_revs)
     }
 
     pub async fn run_script(&mut self, script: RowScript) {
@@ -76,8 +78,8 @@ impl GridRowTest {
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
             }
-            RowScript::CreateRow { payload: context } => {
-                let row_orders = self.editor.insert_rows(vec![context]).await.unwrap();
+            RowScript::CreateRow { row_rev } => {
+                let row_orders = self.editor.insert_rows(vec![row_rev]).await.unwrap();
                 for row_order in row_orders {
                     self.row_order_by_row_id
                         .insert(row_order.row_id().to_owned(), row_order);
@@ -95,6 +97,24 @@ impl GridRowTest {
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
                 self.block_meta_revs = self.editor.get_block_meta_revs().await.unwrap();
+            }
+            RowScript::AssertCell {
+                row_id,
+                field_id,
+                expected_display,
+            } => {
+                let id = CellIdentifier {
+                    grid_id: self.grid_id.clone(),
+                    field_id,
+                    row_id,
+                };
+                let display = self.editor.get_cell_display(&id).await;
+                match expected_display {
+                    None => {}
+                    Some(expected_display) => {
+                        assert_eq!(display.unwrap(), expected_display);
+                    }
+                }
             }
             RowScript::AssertRow { expected_row } => {
                 let row = &*self

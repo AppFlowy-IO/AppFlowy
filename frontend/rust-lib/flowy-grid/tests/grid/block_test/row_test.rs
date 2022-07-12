@@ -1,13 +1,5 @@
 use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
-use crate::grid::block_test::util::GridRowTestBuilder;
-use chrono::NaiveDateTime;
-use flowy_grid::entities::FieldType;
-use flowy_grid::services::cell::decode_any_cell_data;
-use flowy_grid::services::field::select_option::SELECTION_IDS_SEPARATOR;
-use flowy_grid::services::field::{DateCellData, MultiSelectTypeOption, SingleSelectTypeOption};
-
-use crate::grid::field_test::util::make_date_cell_string;
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -18,7 +10,7 @@ async fn grid_create_row_count_test() {
         CreateEmptyRow,
         CreateEmptyRow,
         CreateRow {
-            payload: GridRowTestBuilder::new(&test).build(),
+            row_rev: test.row_builder().build(),
         },
         AssertRowCount(6),
     ];
@@ -28,15 +20,15 @@ async fn grid_create_row_count_test() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridRowTest::new().await;
-    let payload = GridRowTestBuilder::new(&test).build();
+    let row_rev = test.row_builder().build();
     let changeset = RowMetaChangeset {
-        row_id: payload.row_id.clone(),
+        row_id: row_rev.id.clone(),
         height: None,
         visibility: None,
         cell_by_field_id: Default::default(),
     };
 
-    let scripts = vec![AssertRowCount(3), CreateRow { payload }, UpdateRow { changeset }];
+    let scripts = vec![AssertRowCount(3), CreateRow { row_rev }, UpdateRow { changeset }];
     test.run_scripts(scripts).await;
 
     let expected_row = test.last_row().unwrap();
@@ -47,13 +39,13 @@ async fn grid_update_row() {
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridRowTest::new().await;
-    let payload1 = GridRowTestBuilder::new(&test).build();
-    let payload2 = GridRowTestBuilder::new(&test).build();
-    let row_ids = vec![payload1.row_id.clone(), payload2.row_id.clone()];
+    let row_1 = test.row_builder().build();
+    let row_2 = test.row_builder().build();
+    let row_ids = vec![row_1.id.clone(), row_2.id.clone()];
     let scripts = vec![
         AssertRowCount(3),
-        CreateRow { payload: payload1 },
-        CreateRow { payload: payload2 },
+        CreateRow { row_rev: row_1 },
+        CreateRow { row_rev: row_2 },
         AssertBlockCount(1),
         AssertBlock {
             block_index: 0,
@@ -73,78 +65,17 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_row_add_cells_test() {
     let mut test = GridRowTest::new().await;
-    let mut builder = test.builder();
-    for field in test.field_revs() {
-        let field_type: FieldType = field.field_type_rev.into();
-        match field_type {
-            FieldType::RichText => {
-                builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
-            }
-            FieldType::Number => {
-                builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
-            }
-            FieldType::DateTime => {
-                builder
-                    .add_cell(&field.id, make_date_cell_string("1647251762"))
-                    .unwrap();
-            }
-            FieldType::SingleSelect => {
-                let type_option = SingleSelectTypeOption::from(field);
-                let option = type_option.options.first().unwrap();
-                builder.add_select_option_cell(&field.id, option.id.clone()).unwrap();
-            }
-            FieldType::MultiSelect => {
-                let type_option = MultiSelectTypeOption::from(field);
-                let ops_ids = type_option
-                    .options
-                    .iter()
-                    .map(|option| option.id.clone())
-                    .collect::<Vec<_>>()
-                    .join(SELECTION_IDS_SEPARATOR);
-                builder.add_select_option_cell(&field.id, ops_ids).unwrap();
-            }
-            FieldType::Checkbox => {
-                builder.add_cell(&field.id, "false".to_string()).unwrap();
-            }
-            FieldType::URL => {
-                builder.add_cell(&field.id, "1".to_string()).unwrap();
-            }
-        }
-    }
-    let context = builder.build();
-    let scripts = vec![CreateRow { payload: context }];
-    test.run_scripts(scripts).await;
-}
+    let mut builder = test.row_builder();
 
-#[tokio::test]
-async fn grid_row_add_date_cell_test() {
-    let mut test = GridRowTest::new().await;
-    let mut builder = test.builder();
-    let mut date_field = None;
-    let timestamp = 1647390674;
-    for field in test.field_revs() {
-        let field_type: FieldType = field.field_type_rev.into();
-        if field_type == FieldType::DateTime {
-            date_field = Some(field.clone());
-            NaiveDateTime::from_timestamp(123, 0);
-            // The data should not be empty
-            assert!(builder.add_cell(&field.id, "".to_string()).is_err());
-            assert!(builder.add_cell(&field.id, make_date_cell_string("123")).is_ok());
-            assert!(builder
-                .add_cell(&field.id, make_date_cell_string(&timestamp.to_string()))
-                .is_ok());
-        }
-    }
-    let context = builder.build();
-    let date_field = date_field.unwrap();
-    let cell_rev = context.cell_by_field_id.get(&date_field.id).unwrap();
-    assert_eq!(
-        decode_any_cell_data(cell_rev, &date_field)
-            .parse::<DateCellData>()
-            .unwrap()
-            .date,
-        "2022/03/16",
-    );
-    let scripts = vec![CreateRow { payload: context }];
+    builder.insert_text_cell("hello world");
+    builder.insert_number_cell("18,443");
+    builder.insert_date_cell("1647251762");
+    builder.insert_single_select_cell(|options| options.first().unwrap());
+    builder.insert_multi_select_cell(|options| options);
+    builder.insert_checkbox_cell("false");
+    builder.insert_url_cell("1");
+
+    let row_rev = builder.build();
+    let scripts = vec![CreateRow { row_rev }];
     test.run_scripts(scripts).await;
 }

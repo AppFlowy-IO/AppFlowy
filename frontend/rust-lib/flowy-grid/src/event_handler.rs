@@ -5,6 +5,7 @@ use crate::services::field::select_option::*;
 use crate::services::field::{
     default_type_option_builder_from_type, type_option_builder_from_json_str, DateChangesetParams, DateChangesetPayload,
 };
+use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::FieldRevision;
 use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
@@ -229,10 +230,12 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRow, FlowyError> {
     let params: GridRowId = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let row = OptionalRow {
-        row: editor.get_row(&params.row_id).await?,
-    };
-    data_result(row)
+    let row = editor
+        .get_row_rev(&params.row_id)
+        .await?
+        .and_then(make_row_from_row_rev);
+
+    data_result(OptionalRow { row })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
