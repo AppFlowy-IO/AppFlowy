@@ -24,7 +24,10 @@ class TextOperation {
 
 int _hashAttributes(Attributes attributes) {
   return Object.hashAllUnordered(
-      attributes.entries.map((e) => Object.hash(e.key, e.value)));
+    attributes.entries.map(
+      (e) => Object.hash(e.key, e.value),
+    ),
+  );
 }
 
 class TextInsert extends TextOperation {
@@ -145,7 +148,8 @@ class _OpIterator {
   int _index = 0;
   int _offset = 0;
 
-  _OpIterator(List<TextOperation> operations) : _operations = UnmodifiableListView(operations);
+  _OpIterator(List<TextOperation> operations)
+      : _operations = UnmodifiableListView(operations);
 
   bool get hasNext {
     return peekLength() < _maxInt;
@@ -186,16 +190,23 @@ class _OpIterator {
       _offset += length;
     }
     if (nextOp is TextDelete) {
-      return TextDelete(length: length);
+      return TextDelete(
+        length: length,
+      );
     }
 
     if (nextOp is TextRetain) {
-      return TextRetain(length: length, attributes: nextOp.attributes);
+      return TextRetain(
+        length: length,
+        attributes: nextOp.attributes,
+      );
     }
 
     if (nextOp is TextInsert) {
       return TextInsert(
-          nextOp.content.substring(offset, offset + length), nextOp.attributes);
+        nextOp.content.substring(offset, offset + length),
+        nextOp.attributes,
+      );
     }
 
     return TextRetain(length: _maxInt);

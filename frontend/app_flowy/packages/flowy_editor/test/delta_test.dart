@@ -74,9 +74,7 @@ void main() {
     expect(a.compose(b), expected);
   });
   test('retain + insert', () {
-    final a = Delta().retain(1, {
-      'color': 'blue'
-    });
+    final a = Delta().retain(1, {'color': 'blue'});
     final b = Delta().insert('B');
     final expected = Delta().insert('B').retain(1, {
       'color': 'blue',

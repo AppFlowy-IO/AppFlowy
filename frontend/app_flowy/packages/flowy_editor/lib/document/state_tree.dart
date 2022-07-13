@@ -4,7 +4,9 @@ import 'package:flowy_editor/document/path.dart';
 class StateTree {
   final Node root;
 
-  StateTree({required this.root});
+  StateTree({
+    required this.root,
+  });
 
   factory StateTree.fromJson(Attributes json) {
     assert(json['document'] is Map);
