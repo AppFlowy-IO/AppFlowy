@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flowy_editor/document/path.dart';
 
-typedef Attributes = Map<String, Object>;
+typedef Attributes = Map<String, dynamic>;
 
 class Node extends LinkedListEntry<Node> {
   Node? parent;
