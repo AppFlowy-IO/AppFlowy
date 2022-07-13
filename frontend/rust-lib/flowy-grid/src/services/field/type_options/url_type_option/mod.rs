@@ -1,6 +1,6 @@
-mod url_option;
-mod url_option_entities;
 mod url_tests;
+mod url_type_option;
+mod url_type_option_entities;
 
-pub use url_option::*;
-pub use url_option_entities::*;
+pub use url_type_option::*;
+pub use url_type_option_entities::*;

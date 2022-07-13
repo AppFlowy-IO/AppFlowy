@@ -1,6 +1,6 @@
-mod checkbox_option;
-mod checkbox_option_entities;
 mod checkbox_tests;
+mod checkbox_type_option;
+mod checkbox_type_option_entities;
 
-pub use checkbox_option::*;
-pub use checkbox_option_entities::*;
+pub use checkbox_type_option::*;
+pub use checkbox_type_option_entities::*;

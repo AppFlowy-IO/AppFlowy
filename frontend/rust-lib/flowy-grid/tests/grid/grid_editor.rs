@@ -96,6 +96,14 @@ impl GridEditorTest {
     }
 }
 
+pub const GOOGLE: &str = "Google";
+pub const FACEBOOK: &str = "Facebook";
+pub const TWITTER: &str = "Twitter";
+
+pub const COMPLETED: &str = "Completed";
+pub const PLANNED: &str = "Planned";
+pub const PAUSED: &str = "Paused";
+
 // This grid is assumed to contain all the Fields.
 fn make_test_grid() -> BuildGridContext {
     let mut grid_builder = GridBuilder::new();
@@ -129,18 +137,18 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::SingleSelect => {
                 // Single Select
                 let single_select = SingleSelectTypeOptionBuilder::default()
-                    .option(SelectOption::new("Completed"))
-                    .option(SelectOption::new("Planned"))
-                    .option(SelectOption::new("Paused"));
+                    .option(SelectOption::new(COMPLETED))
+                    .option(SelectOption::new(PLANNED))
+                    .option(SelectOption::new(PAUSED));
                 let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
                 grid_builder.add_field(single_select_field);
             }
             FieldType::MultiSelect => {
                 // MultiSelect
                 let multi_select = MultiSelectTypeOptionBuilder::default()
-                    .option(SelectOption::new("Google"))
-                    .option(SelectOption::new("Facebook"))
-                    .option(SelectOption::new("Twitter"));
+                    .option(SelectOption::new(GOOGLE))
+                    .option(SelectOption::new(FACEBOOK))
+                    .option(SelectOption::new(TWITTER));
                 let multi_select_field = FieldBuilder::new(multi_select)
                     .name("Platform")
                     .visibility(true)

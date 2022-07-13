@@ -2,7 +2,7 @@ use crate::services::cell::CellBytesParser;
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
 use bytes::Bytes;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use rust_decimal::Decimal;
 use rusty_money::Money;
 use std::str::FromStr;

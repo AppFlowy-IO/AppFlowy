@@ -1,19 +1,21 @@
 use flowy_grid::entities::FieldType;
-use flowy_grid::services::field::selection_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
-use flowy_grid::services::field::{DateCellChangeset, MultiSelectTypeOption, SingleSelectTypeOption};
+
+use flowy_grid::services::field::{
+    DateCellChangeset, MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+};
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
-use std::sync::Arc;
+
 use strum::EnumCount;
 
 pub struct GridRowTestBuilder<'a> {
     block_id: String,
-    field_revs: &'a [Arc<FieldRevision>],
+    field_revs: &'a [&'a FieldRevision],
     inner_builder: RowRevisionBuilder<'a>,
 }
 
 impl<'a> GridRowTestBuilder<'a> {
-    pub fn new(block_id: &str, field_revs: &'a [Arc<FieldRevision>]) -> Self {
+    pub fn new(block_id: &str, field_revs: &'a [&'a FieldRevision]) -> Self {
         assert_eq!(field_revs.len(), FieldType::COUNT);
         let inner_builder = RowRevisionBuilder::new(field_revs);
         Self {
@@ -51,11 +53,13 @@ impl<'a> GridRowTestBuilder<'a> {
         date_field.id.clone()
     }
 
-    pub fn insert_checkbox_cell(&mut self, data: &str) {
-        let number_field = self.field_rev_with_type(&FieldType::Checkbox);
+    pub fn insert_checkbox_cell(&mut self, data: &str) -> String {
+        let checkbox_field = self.field_rev_with_type(&FieldType::Checkbox);
         self.inner_builder
-            .insert_cell(&number_field.id, data.to_string())
+            .insert_cell(&checkbox_field.id, data.to_string())
             .unwrap();
+
+        checkbox_field.id.clone()
     }
 
     pub fn insert_url_cell(&mut self, data: &str) -> String {
@@ -64,6 +68,7 @@ impl<'a> GridRowTestBuilder<'a> {
         url_field.id.clone()
     }
 
+    #[allow(dead_code)]
     pub fn insert_single_select_cell<F>(&mut self, f: F) -> String
     where
         F: Fn(&Vec<SelectOption>) -> &SelectOption,
@@ -78,7 +83,7 @@ impl<'a> GridRowTestBuilder<'a> {
         single_select_field.id.clone()
     }
 
-    pub fn insert_multi_select_cell<F>(&mut self, f: F)
+    pub fn insert_multi_select_cell<F>(&mut self, f: F) -> String
     where
         F: Fn(&Vec<SelectOption>) -> &Vec<SelectOption>,
     {
@@ -93,6 +98,8 @@ impl<'a> GridRowTestBuilder<'a> {
         self.inner_builder
             .insert_select_option_cell(&multi_select_field.id, ops_ids)
             .unwrap();
+
+        multi_select_field.id.clone()
     }
 
     pub fn field_rev_with_type(&self, field_type: &FieldType) -> FieldRevision {
@@ -109,5 +116,19 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn build(self) -> RowRevision {
         self.inner_builder.build(&self.block_id)
+    }
+}
+
+impl<'a> std::ops::Deref for GridRowTestBuilder<'a> {
+    type Target = RowRevisionBuilder<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner_builder
+    }
+}
+
+impl<'a> std::ops::DerefMut for GridRowTestBuilder<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner_builder
     }
 }

@@ -5,6 +5,7 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';

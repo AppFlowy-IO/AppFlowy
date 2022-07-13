@@ -57,7 +57,7 @@ impl ToString for CheckboxCellData {
         self.0.clone()
     }
 }
-pub struct CheckboxCellDataParser;
+pub struct CheckboxCellDataParser();
 impl CellBytesParser for CheckboxCellDataParser {
     type Object = CheckboxCellData;
     fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {

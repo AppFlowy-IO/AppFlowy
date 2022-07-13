@@ -1,6 +1,8 @@
-use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
+use crate::grid::block_test::script::{CreateRowScriptBuilder, GridRowTest};
+use crate::grid::grid_editor::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
 use flowy_grid::entities::FieldType;
+use flowy_grid::services::field::{NO, SELECTION_IDS_SEPARATOR};
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -66,50 +68,65 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_row_add_cells_test() {
     let mut test = GridRowTest::new().await;
-    let mut builder = test.row_builder();
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert(FieldType::RichText, "hello world", "hello world");
+    builder.insert(FieldType::DateTime, "1647251762", "2022/03/14");
+    builder.insert(FieldType::Number, "18,443", "$18,443.00");
+    builder.insert(FieldType::Checkbox, "false", NO);
+    builder.insert(FieldType::URL, "https://appflowy.io", "https://appflowy.io");
+    builder.insert_single_select_cell(|mut options| options.remove(0), COMPLETED);
+    builder.insert_multi_select_cell(
+        |options| options,
+        &vec![GOOGLE, FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
+    );
 
-    let text_field_id = builder.insert_text_cell("hello world");
-    let number_field_id = builder.insert_number_cell("18,443");
-    let date_field_id = builder.insert_date_cell("1647251762");
-    let single_select_field_id = builder.insert_single_select_cell(|options| options.first().unwrap());
-    builder.insert_multi_select_cell(|options| options);
-    builder.insert_checkbox_cell("false");
-    let url_field_id = builder.insert_url_cell("https://appflowy.io");
+    test.run_scripts(builder.build()).await;
+}
 
-    let row_rev = builder.build();
-    let row_id = row_rev.id.clone();
-    let scripts = vec![
-        CreateRow { row_rev },
-        AssertCell {
-            row_id: row_id.clone(),
-            field_id: text_field_id,
-            field_type: FieldType::RichText,
-            expected: "hello world".to_owned(),
+#[tokio::test]
+async fn grid_row_insert_number_test() {
+    let mut test = GridRowTest::new().await;
+    for (val, expected) in &[("1647251762", "2022/03/14"), ("2022/03/14", ""), ("", "")] {
+        let mut builder = CreateRowScriptBuilder::new(&test);
+        builder.insert(FieldType::DateTime, val, expected);
+        test.run_scripts(builder.build()).await;
+    }
+}
+
+#[tokio::test]
+async fn grid_row_insert_date_test() {
+    let mut test = GridRowTest::new().await;
+    for (val, expected) in &[
+        ("18,443", "$18,443.00"),
+        ("0", "$0.00"),
+        ("100000", "$100,000.00"),
+        ("$100,000.00", "$100,000.00"),
+        ("", ""),
+    ] {
+        let mut builder = CreateRowScriptBuilder::new(&test);
+        builder.insert(FieldType::Number, val, expected);
+        test.run_scripts(builder.build()).await;
+    }
+}
+#[tokio::test]
+async fn grid_row_insert_single_select_test() {
+    let mut test = GridRowTest::new().await;
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert_single_select_cell(|mut options| options.pop().unwrap(), PAUSED);
+    test.run_scripts(builder.build()).await;
+}
+
+#[tokio::test]
+async fn grid_row_insert_multi_select_test() {
+    let mut test = GridRowTest::new().await;
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert_multi_select_cell(
+        |mut options| {
+            options.remove(0);
+            options
         },
-        AssertCell {
-            row_id: row_id.clone(),
-            field_id: number_field_id,
-            field_type: FieldType::Number,
-            expected: "$18,443.00".to_owned(),
-        },
-        AssertCell {
-            row_id: row_id.clone(),
-            field_id: single_select_field_id,
-            field_type: FieldType::SingleSelect,
-            expected: "Completed".to_owned(),
-        },
-        AssertCell {
-            row_id: row_id.clone(),
-            field_id: date_field_id,
-            field_type: FieldType::DateTime,
-            expected: "2022/03/14".to_owned(),
-        },
-        AssertCell {
-            row_id: row_id.clone(),
-            field_id: url_field_id,
-            field_type: FieldType::URL,
-            expected: "https://appflowy.io/".to_owned(),
-        },
-    ];
-    test.run_scripts(scripts).await;
+        &vec![FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
+    );
+
+    test.run_scripts(builder.build()).await;
 }

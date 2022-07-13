@@ -270,10 +270,14 @@ impl GridRevisionEditor {
 
     pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowInfo> {
         let field_revs = self.grid_pad.read().await.get_field_revs(None)?;
+        let field_revs_ref = field_revs
+            .iter()
+            .map(|field_rev| field_rev.as_ref())
+            .collect::<Vec<&FieldRevision>>();
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
-        let row_rev = RowRevisionBuilder::new(&field_revs).build(&block_id);
+        let row_rev = RowRevisionBuilder::new(&field_revs_ref).build(&block_id);
         let row_order = RowInfo::from(&row_rev);
 
         // insert the row

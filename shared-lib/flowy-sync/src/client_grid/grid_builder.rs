@@ -45,6 +45,10 @@ impl GridBuilder {
         self.add_row(row);
     }
 
+    // pub fn field_revs(&self) -> Vec<FieldRevision> {
+    //     self.build_context.field_revs
+    // }
+
     pub fn build(self) -> BuildGridContext {
         self.build_context
     }
