@@ -1,9 +1,9 @@
-use crate::entities::{FieldType, GridTextFilter};
+use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData, FromCellString,
+    AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData, FromCellString,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TextCellData, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -33,17 +33,6 @@ pub struct URLTypeOption {
     data: String, //It's not used yet.
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
-
-impl CellFilterOperation<GridTextFilter> for URLTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_url() {
-            return Ok(true);
-        }
-
-        let text_cell_data: TextCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(&text_cell_data))
-    }
-}
 
 impl CellDataOperation<URLCellData, String> for URLTypeOption {
     fn decode_cell_data(
@@ -125,7 +114,7 @@ impl std::convert::TryFrom<AnyCellData> for URLCellData {
     type Error = FlowyError;
 
     fn try_from(data: AnyCellData) -> Result<Self, Self::Error> {
-        serde_json::from_str::<URLCellData>(&data.cell_data).map_err(internal_error)
+        serde_json::from_str::<URLCellData>(&data.data).map_err(internal_error)
     }
 }
 

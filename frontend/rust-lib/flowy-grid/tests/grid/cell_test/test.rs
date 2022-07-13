@@ -1,13 +1,13 @@
-use crate::grid::field_util::make_date_cell_string;
-use crate::grid::script::EditorScript::*;
-use crate::grid::script::*;
+use crate::grid::cell_test::script::CellScript::*;
+use crate::grid::cell_test::script::GridCellTest;
+use crate::grid::field_test::util::make_date_cell_string;
 use flowy_grid::entities::{CellChangeset, FieldType};
 use flowy_grid::services::field::select_option::SelectOptionCellChangeset;
 use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 
 #[tokio::test]
 async fn grid_cell_update() {
-    let mut test = GridEditorTest::new().await;
+    let mut test = GridCellTest::new().await;
     let field_revs = &test.field_revs;
     let row_revs = &test.row_revs;
     let grid_blocks = &test.block_meta_revs;

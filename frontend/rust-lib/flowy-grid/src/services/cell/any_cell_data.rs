@@ -9,7 +9,7 @@ use std::str::FromStr;
 /// So it will return an empty data. You could check the CellDataOperation trait for more information.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AnyCellData {
-    pub cell_data: String,
+    pub data: String,
     pub field_type: FieldType,
 }
 
@@ -38,21 +38,10 @@ impl std::convert::TryFrom<&CellRevision> for AnyCellData {
     }
 }
 
-impl std::convert::TryFrom<&Option<CellRevision>> for AnyCellData {
+impl std::convert::TryFrom<CellRevision> for AnyCellData {
     type Error = FlowyError;
 
-    fn try_from(value: &Option<CellRevision>) -> Result<Self, Self::Error> {
-        match value {
-            None => Err(FlowyError::invalid_data().context("Expected CellRevision, but receive None")),
-            Some(cell_rev) => AnyCellData::try_from(cell_rev),
-        }
-    }
-}
-
-impl std::convert::TryFrom<Option<CellRevision>> for AnyCellData {
-    type Error = FlowyError;
-
-    fn try_from(value: Option<CellRevision>) -> Result<Self, Self::Error> {
+    fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
@@ -60,7 +49,7 @@ impl std::convert::TryFrom<Option<CellRevision>> for AnyCellData {
 impl AnyCellData {
     pub fn new(content: String, field_type: FieldType) -> Self {
         AnyCellData {
-            cell_data: content,
+            data: content,
             field_type,
         }
     }

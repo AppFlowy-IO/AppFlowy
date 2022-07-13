@@ -11,6 +11,7 @@ use crate::services::row::{
     make_grid_blocks, make_row_from_row_rev, make_row_rev_from_context, make_rows_from_row_revs,
     CreateRowRevisionBuilder, CreateRowRevisionPayload, GridBlockSnapshot,
 };
+use crate::services::setting::make_grid_setting;
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
@@ -453,17 +454,21 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSetting> {
-        // let read_guard = self.grid_pad.read().await;
-        // let grid_setting_rev = read_guard.get_grid_setting_rev();
-        // Ok(grid_setting_rev.into())
-        todo!()
+        let read_guard = self.grid_pad.read().await;
+        let grid_setting_rev = read_guard.get_grid_setting_rev();
+        let field_revs = read_guard.get_field_revs(None)?;
+        let grid_setting = make_grid_setting(grid_setting_rev, &field_revs);
+        Ok(grid_setting)
     }
 
     pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
         let read_guard = self.grid_pad.read().await;
         let layout_rev = layout_type.clone().into();
         match read_guard.get_filters(Some(&layout_rev), None) {
-            Some(filter_revs) => Ok(filter_revs.iter().map(GridFilter::from).collect::<Vec<GridFilter>>()),
+            Some(filter_revs) => Ok(filter_revs
+                .iter()
+                .map(|filter_rev| filter_rev.as_ref().into())
+                .collect::<Vec<GridFilter>>()),
             None => Ok(vec![]),
         }
     }

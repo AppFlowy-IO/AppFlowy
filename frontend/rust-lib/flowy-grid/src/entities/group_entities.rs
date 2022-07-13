@@ -4,6 +4,7 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridGroupRevision;
 use flowy_sync::entities::grid::CreateGridGroupParams;
 use std::convert::TryInto;
+use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridGroup {
@@ -39,10 +40,10 @@ impl std::convert::From<Vec<GridGroup>> for RepeatedGridGroup {
     }
 }
 
-impl std::convert::From<&Vec<GridGroupRevision>> for RepeatedGridGroup {
-    fn from(revs: &Vec<GridGroupRevision>) -> Self {
+impl std::convert::From<Vec<Arc<GridGroupRevision>>> for RepeatedGridGroup {
+    fn from(revs: Vec<Arc<GridGroupRevision>>) -> Self {
         RepeatedGridGroup {
-            items: revs.iter().map(|rev| rev.into()).collect(),
+            items: revs.iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }

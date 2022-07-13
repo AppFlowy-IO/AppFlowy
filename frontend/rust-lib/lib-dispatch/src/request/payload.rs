@@ -5,7 +5,7 @@ pub enum PayloadError {}
 
 // TODO: support stream data
 #[derive(Clone)]
-#[cfg_attr(feature = "user_serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
 pub enum Payload {
     None,
     Bytes(Bytes),

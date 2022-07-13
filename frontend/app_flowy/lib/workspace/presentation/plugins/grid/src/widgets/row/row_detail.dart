@@ -19,7 +19,6 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:window_size/window_size.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   final GridRow rowData;
@@ -35,8 +34,8 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   State<RowDetailPage> createState() => _RowDetailPageState();
 
   void show(BuildContext context) async {
-    final window = await getWindowInfo();
-    final size = Size(window.frame.size.width * 0.7, window.frame.size.height * 0.7);
+    final windowSize = MediaQuery.of(context).size;
+    final size = windowSize * 0.7;
     FlowyOverlay.of(context).insertWithRect(
       widget: OverlayContainer(
         child: this,
@@ -44,7 +43,7 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
       ),
       identifier: RowDetailPage.identifier(),
       anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
-      anchorSize: window.frame.size,
+      anchorSize: windowSize,
       anchorDirection: AnchorDirection.center,
       style: FlowyOverlayStyle(blur: false),
       delegate: this,

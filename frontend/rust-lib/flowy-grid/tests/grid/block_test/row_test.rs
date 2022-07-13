@@ -1,18 +1,18 @@
-use crate::grid::field_util::*;
-use crate::grid::row_util::GridRowTestBuilder;
-use crate::grid::script::EditorScript::*;
-use crate::grid::script::*;
+use crate::grid::block_test::script::GridRowTest;
+use crate::grid::block_test::script::RowScript::*;
+use crate::grid::block_test::util::GridRowTestBuilder;
 use chrono::NaiveDateTime;
 use flowy_grid::entities::FieldType;
 use flowy_grid::services::cell::decode_any_cell_data;
 use flowy_grid::services::field::select_option::SELECTION_IDS_SEPARATOR;
 use flowy_grid::services::field::{DateCellData, MultiSelectTypeOption, SingleSelectTypeOption};
-use flowy_grid::services::row::CreateRowRevisionBuilder;
+
+use crate::grid::field_test::util::make_date_cell_string;
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {
-    let test = GridEditorTest::new().await;
+    let mut test = GridRowTest::new().await;
     let scripts = vec![
         AssertRowCount(3),
         CreateEmptyRow,
@@ -22,12 +22,12 @@ async fn grid_create_row_count_test() {
         },
         AssertRowCount(6),
     ];
-    GridEditorTest::new().await.run_scripts(scripts).await;
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_update_row() {
-    let mut test = GridEditorTest::new().await;
+    let mut test = GridRowTest::new().await;
     let payload = GridRowTestBuilder::new(&test).build();
     let changeset = RowMetaChangeset {
         row_id: payload.row_id.clone(),
@@ -39,14 +39,14 @@ async fn grid_update_row() {
     let scripts = vec![AssertRowCount(3), CreateRow { payload }, UpdateRow { changeset }];
     test.run_scripts(scripts).await;
 
-    let expected_row = (&*test.row_revs.last().cloned().unwrap()).clone();
+    let expected_row = test.last_row().unwrap();
     let scripts = vec![AssertRow { expected_row }, AssertRowCount(4)];
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_delete_row() {
-    let mut test = GridEditorTest::new().await;
+    let mut test = GridRowTest::new().await;
     let payload1 = GridRowTestBuilder::new(&test).build();
     let payload2 = GridRowTestBuilder::new(&test).build();
     let row_ids = vec![payload1.row_id.clone(), payload2.row_id.clone()];
@@ -72,9 +72,9 @@ async fn grid_delete_row() {
 
 #[tokio::test]
 async fn grid_row_add_cells_test() {
-    let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowRevisionBuilder::new(&test.field_revs);
-    for field in &test.field_revs {
+    let mut test = GridRowTest::new().await;
+    let mut builder = test.builder();
+    for field in test.field_revs() {
         let field_type: FieldType = field.field_type_rev.into();
         match field_type {
             FieldType::RichText => {
@@ -112,17 +112,17 @@ async fn grid_row_add_cells_test() {
         }
     }
     let context = builder.build();
-    let scripts = vec![CreateRow { payload: context }, AssertGridRevisionPad];
+    let scripts = vec![CreateRow { payload: context }];
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_row_add_date_cell_test() {
-    let mut test = GridEditorTest::new().await;
-    let mut builder = CreateRowRevisionBuilder::new(&test.field_revs);
+    let mut test = GridRowTest::new().await;
+    let mut builder = test.builder();
     let mut date_field = None;
     let timestamp = 1647390674;
-    for field in &test.field_revs {
+    for field in test.field_revs() {
         let field_type: FieldType = field.field_type_rev.into();
         if field_type == FieldType::DateTime {
             date_field = Some(field.clone());

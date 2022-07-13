@@ -51,7 +51,10 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 
 pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> DecodedCellData {
     if let Ok(any_cell_data) = data.try_into() {
-        let AnyCellData { cell_data, field_type } = any_cell_data;
+        let AnyCellData {
+            data: cell_data,
+            field_type,
+        } = any_cell_data;
         let to_field_type = field_rev.field_type_rev.into();
         match try_decode_cell_data(CellData(Some(cell_data)), field_rev, &field_type, &to_field_type) {
             Ok(cell_data) => cell_data,

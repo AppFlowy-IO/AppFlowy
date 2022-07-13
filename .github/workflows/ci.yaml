@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            flutter_profile: development-linux-x86
+            flutter_profile: development-linux-x86_64
           - os: macos-latest
             flutter_profile: development-mac-x86_64
     runs-on: ${{ matrix.os }}
