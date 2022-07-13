@@ -21,3 +21,22 @@ Attributes invertAttributes(Attributes? attr, Attributes? base) {
     return memo;
   });
 }
+
+Attributes? composeAttributes(Attributes? a, Attributes? b) {
+  a ??= {};
+  b ??= {};
+  final Attributes attributes = {};
+  attributes.addAll(b);
+
+  for (final entry in a.entries) {
+    if (!b.containsKey(entry.key)) {
+      attributes[entry.key] = entry.value;
+    }
+  }
+
+  if (attributes.isEmpty) {
+    return null;
+  }
+
+  return attributes;
+}

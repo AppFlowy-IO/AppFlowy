@@ -336,7 +336,8 @@ class Delta {
         final length = min(thisIter.peekLength(), otherIter.peekLength());
         final thisOp = thisIter.next(length);
         final otherOp = otherIter.next(length);
-        final attributes = _composeMap(thisOp.attributes, otherOp.attributes);
+        final attributes =
+            composeAttributes(thisOp.attributes, otherOp.attributes);
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
@@ -422,23 +423,4 @@ class Delta {
     });
     return inverted.chop();
   }
-}
-
-Attributes? _composeMap(Attributes? a, Attributes? b) {
-  a ??= {};
-  b ??= {};
-  final Attributes attributes = {};
-  attributes.addAll(b);
-
-  for (final entry in a.entries) {
-    if (!b.containsKey(entry.key)) {
-      attributes[entry.key] = entry.value;
-    }
-  }
-
-  if (attributes.isEmpty) {
-    return null;
-  }
-
-  return attributes;
 }
