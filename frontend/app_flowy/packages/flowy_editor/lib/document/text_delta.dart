@@ -397,7 +397,7 @@ class Delta {
 Attributes? _composeMap(Attributes? a, Attributes? b) {
   a ??= {};
   b ??= {};
-  final attributes = <String, Object>{};
+  final Attributes attributes = {};
   attributes.addAll(b);
 
   for (final entry in a.entries) {
