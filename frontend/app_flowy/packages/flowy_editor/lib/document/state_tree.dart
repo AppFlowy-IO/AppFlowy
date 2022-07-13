@@ -16,12 +16,6 @@ class StateTree {
     return StateTree(root: root);
   }
 
-  // Path pathForNode(Node node) {
-  //   var nodeRoot = node.root();
-  //   assert(nodeRoot == root, "Every node's root must be same as root");
-
-  // }
-
   Node? nodeAtPath(Path path) {
     return root.childAtPath(path);
   }
