@@ -88,8 +88,11 @@ class _MyHomePageState extends State<MyHomePage> {
           } else {
             final data = Map<String, Object>.from(json.decode(snapshot.data!));
             final stateTree = StateTree.fromJson(data);
-            return renderPlugins.buildWidgetWithNode(
-              stateTree.root,
+            return renderPlugins.buildWidget(
+              NodeWidgetContext(
+                buildContext: context,
+                node: stateTree.root,
+              ),
             );
           }
         },

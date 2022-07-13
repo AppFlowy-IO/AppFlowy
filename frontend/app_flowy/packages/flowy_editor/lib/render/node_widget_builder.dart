@@ -9,21 +9,9 @@ class NodeWidgetBuilder<T extends Node> {
 
   NodeWidgetBuilder.create({required this.node, required this.renderPlugins});
 
-  Widget call() => build();
-  Widget build() => throw UnimplementedError();
-  Widget? buildChildren() {
-    if (node.children.isEmpty) {
-      return null;
-    }
+  Widget call(BuildContext buildContext) => build(buildContext);
 
-    // default layout
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: node.children
-          .map(
-            (e) => renderPlugins.buildWidgetWithNode(e),
-          )
-          .toList(),
-    );
-  }
+  /// Render the current [Node]
+  /// and the layout style of [Node.Children].
+  Widget build(BuildContext buildContext) => throw UnimplementedError();
 }

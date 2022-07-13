@@ -8,14 +8,26 @@ class ImageNodeBuilder extends NodeWidgetBuilder {
   String get src => node.attributes['image_src'] as String;
 
   @override
-  Widget build() {
-    final childrenWidget = buildChildren();
+  Widget build(BuildContext buildContext) {
     final image = Image.network(src);
-    if (childrenWidget != null) {
+    Widget? children;
+    if (node.children.isNotEmpty) {
+      children = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: node.children
+            .map(
+              (e) => renderPlugins.buildWidget(
+                NodeWidgetContext(buildContext: buildContext, node: e),
+              ),
+            )
+            .toList(),
+      );
+    }
+    if (children != null) {
       return Column(
         children: [
           image,
-          childrenWidget,
+          children,
         ],
       );
     } else {

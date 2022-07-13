@@ -8,19 +8,33 @@ class TextNodeBuilder extends NodeWidgetBuilder {
   String get content => node.attributes['content'] as String;
 
   @override
-  Widget build() {
-    final childrenWidget = buildChildren();
+  Widget build(BuildContext buildContext) {
     final richText = SelectableText.rich(
       TextSpan(
         text: node.attributes['content'] as String,
         style: node.attributes.toTextStyle(),
       ),
     );
-    if (childrenWidget != null) {
+
+    Widget? children;
+    if (node.children.isNotEmpty) {
+      children = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: node.children
+            .map(
+              (e) => renderPlugins.buildWidget(
+                NodeWidgetContext(buildContext: buildContext, node: e),
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    if (children != null) {
       return Column(
         children: [
           richText,
-          childrenWidget,
+          children,
         ],
       );
     } else {
