@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 
 class TextNodeBuilder extends NodeWidgetBuilder {
-  TextNodeBuilder.create({required super.node, required super.renderPlugins})
-      : super.create();
+  TextNodeBuilder.create({
+    required super.node,
+    required super.renderPlugins,
+  }) : super.create();
 
   String get content => node.attributes['content'] as String;
 
@@ -23,7 +25,7 @@ class TextNodeBuilder extends NodeWidgetBuilder {
         children: node.children
             .map(
               (e) => renderPlugins.buildWidget(
-                NodeWidgetContext(buildContext: buildContext, node: e),
+                context: NodeWidgetContext(buildContext: buildContext, node: e),
               ),
             )
             .toList(),

@@ -5,7 +5,7 @@
       {
         "type": "text",
         "attributes": {
-          "text-type": "heading1"
+          "subtype": "with-heading"
         }
       },
       {
@@ -24,7 +24,7 @@
           {
             "type": "text",
             "attributes": {
-              "text-type": "check-box",
+              "text-type": "checkbox",
               "check": true
             }
           },

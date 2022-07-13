@@ -8,17 +8,20 @@
         {
           "type": "text",
           "attributes": {
-            "text-type": "heading1",
+            "subtype": "with-checkbox",
             "font-size": 30,
-            "content": "aaaaaaaaaaaaaaaaaaaaaaaa"
+            "content": "aaaaaaaaaaaaaaaaaaaaaaaa",
+            "checkbox": false
           }
         },
         {
           "type": "text",
           "attributes": {
+            "subtype": "with-checkbox",
             "text-type": "heading1",
             "font-size": 30,
-            "content": "bbbbbbbbbbbbbbbbbbbbbbb"
+            "content": "bbbbbbbbbbbbbbbbbbbbbbb",
+            "checkbox": false
           }
         },
         {

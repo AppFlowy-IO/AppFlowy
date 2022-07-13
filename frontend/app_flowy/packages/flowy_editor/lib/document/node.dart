@@ -1,13 +1,23 @@
 import 'dart:collection';
 import 'package:flowy_editor/document/path.dart';
+import 'package:flutter/material.dart';
 
 typedef Attributes = Map<String, Object>;
 
-class Node extends LinkedListEntry<Node> {
+class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Node? parent;
   final String type;
   final LinkedList<Node> children;
   final Attributes attributes;
+
+  String? get subtype {
+    // TODO: make 'subtype' as a const value.
+    if (attributes.containsKey('subtype')) {
+      assert(attributes['subtype'] is String, 'subtype must be a [String]');
+      return attributes['subtype'] as String;
+    }
+    return null;
+  }
 
   Node({
     required this.type,
@@ -53,6 +63,9 @@ class Node extends LinkedListEntry<Node> {
     for (final attribute in attributes.entries) {
       this.attributes[attribute.key] = attribute.value;
     }
+
+    // Notify the new attributes
+    notifyListeners();
   }
 
   Node? childAtIndex(int index) {
@@ -75,12 +88,18 @@ class Node extends LinkedListEntry<Node> {
   void insertAfter(Node entry) {
     entry.parent = parent;
     super.insertAfter(entry);
+
+    // Notify the new node.
+    parent?.notifyListeners();
   }
 
   @override
   void insertBefore(Node entry) {
     entry.parent = parent;
     super.insertBefore(entry);
+
+    // Notify the new node.
+    parent?.notifyListeners();
   }
 
   @override

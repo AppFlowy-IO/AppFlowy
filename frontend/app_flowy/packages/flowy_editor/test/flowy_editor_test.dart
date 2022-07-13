@@ -44,7 +44,7 @@ void main() {
     final stateTree = StateTree.fromJson(data);
     final deletedNode = stateTree.delete([1, 1]);
     expect(deletedNode != null, true);
-    expect(deletedNode!.attributes['text-type'], 'check-box');
+    expect(deletedNode!.attributes['text-type'], 'checkbox');
     final node = stateTree.nodeAtPath([1, 1]);
     expect(node != null, true);
     expect(node!.attributes['tag'], '**');
@@ -56,7 +56,7 @@ void main() {
     final stateTree = StateTree.fromJson(data);
     final attributes = stateTree.update([1, 1], {'text-type': 'heading1'});
     expect(attributes != null, true);
-    expect(attributes!['text-type'], 'check-box');
+    expect(attributes!['text-type'], 'checkbox');
     final updatedNode = stateTree.nodeAtPath([1, 1]);
     expect(updatedNode != null, true);
     expect(updatedNode!.attributes['text-type'], 'heading1');
