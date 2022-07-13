@@ -1,5 +1,5 @@
 use crate::entities::{CheckboxCondition, GridCheckboxFilter};
-use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
 use crate::services::field::{CheckboxCellData, CheckboxTypeOption};
 use flowy_error::FlowyResult;
 
@@ -18,7 +18,8 @@ impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
         if !any_cell_data.is_checkbox() {
             return Ok(true);
         }
-        let checkbox_cell_data: CheckboxCellData = any_cell_data.try_into()?;
+        let cell_data: CellData<CheckboxCellData> = any_cell_data.into();
+        let checkbox_cell_data = cell_data.try_into_inner()?;
         Ok(filter.is_visible(&checkbox_cell_data))
     }
 }

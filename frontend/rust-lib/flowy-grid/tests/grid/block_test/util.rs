@@ -23,21 +23,24 @@ impl<'a> GridRowTestBuilder<'a> {
         }
     }
 
-    pub fn insert_text_cell(&mut self, data: &str) {
+    pub fn insert_text_cell(&mut self, data: &str) -> String {
         let text_field = self.field_rev_with_type(&FieldType::RichText);
         self.inner_builder
             .insert_cell(&text_field.id, data.to_string())
             .unwrap();
+
+        text_field.id.clone()
     }
 
-    pub fn insert_number_cell(&mut self, data: &str) {
+    pub fn insert_number_cell(&mut self, data: &str) -> String {
         let number_field = self.field_rev_with_type(&FieldType::Number);
         self.inner_builder
             .insert_cell(&number_field.id, data.to_string())
             .unwrap();
+        number_field.id.clone()
     }
 
-    pub fn insert_date_cell(&mut self, data: &str) {
+    pub fn insert_date_cell(&mut self, data: &str) -> String {
         let value = serde_json::to_string(&DateCellChangeset {
             date: Some(data.to_string()),
             time: None,
@@ -45,6 +48,7 @@ impl<'a> GridRowTestBuilder<'a> {
         .unwrap();
         let date_field = self.field_rev_with_type(&FieldType::DateTime);
         self.inner_builder.insert_cell(&date_field.id, value).unwrap();
+        date_field.id.clone()
     }
 
     pub fn insert_checkbox_cell(&mut self, data: &str) {
@@ -54,14 +58,13 @@ impl<'a> GridRowTestBuilder<'a> {
             .unwrap();
     }
 
-    pub fn insert_url_cell(&mut self, data: &str) {
-        let number_field = self.field_rev_with_type(&FieldType::URL);
-        self.inner_builder
-            .insert_cell(&number_field.id, data.to_string())
-            .unwrap();
+    pub fn insert_url_cell(&mut self, data: &str) -> String {
+        let url_field = self.field_rev_with_type(&FieldType::URL);
+        self.inner_builder.insert_cell(&url_field.id, data.to_string()).unwrap();
+        url_field.id.clone()
     }
 
-    pub fn insert_single_select_cell<F>(&mut self, f: F)
+    pub fn insert_single_select_cell<F>(&mut self, f: F) -> String
     where
         F: Fn(&Vec<SelectOption>) -> &SelectOption,
     {
@@ -71,6 +74,8 @@ impl<'a> GridRowTestBuilder<'a> {
         self.inner_builder
             .insert_select_option_cell(&single_select_field.id, option.id.clone())
             .unwrap();
+
+        single_select_field.id.clone()
     }
 
     pub fn insert_multi_select_cell<F>(&mut self, f: F)

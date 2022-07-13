@@ -1,13 +1,11 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable, FromCellString,
-};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellData};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -64,16 +62,12 @@ impl CellDataOperation<URLCellData, String> for URLTypeOption {
         changeset: CellDataChangeset<String>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
-        let changeset = changeset.try_into_inner()?;
+        let content = changeset.try_into_inner()?;
         let mut url = "".to_string();
-        if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
+        if let Ok(Some(m)) = URL_REGEX.find(&content) {
             url = auto_append_scheme(m.as_str());
         }
-        URLCellData {
-            url,
-            content: changeset,
-        }
-        .to_json()
+        URLCellData { url, content }.to_json()
     }
 }
 

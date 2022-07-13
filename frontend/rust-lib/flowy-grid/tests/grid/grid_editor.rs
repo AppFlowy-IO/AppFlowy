@@ -64,7 +64,7 @@ impl GridEditorTest {
         }
     }
 
-    pub(crate) async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
+    pub async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
         self.editor
             .grid_block_snapshots(None)
             .await
@@ -79,12 +79,12 @@ impl GridEditorTest {
         self.editor.get_grid_filter(&layout_type).await.unwrap()
     }
 
-    pub fn text_field(&self) -> &FieldRevision {
+    pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
             .filter(|field_rev| {
                 let t_field_type: FieldType = field_rev.field_type_rev.into();
-                t_field_type == FieldType::RichText
+                t_field_type == field_type
             })
             .collect::<Vec<_>>()
             .pop()
@@ -129,7 +129,6 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::SingleSelect => {
                 // Single Select
                 let single_select = SingleSelectTypeOptionBuilder::default()
-                    .option(SelectOption::new("Live"))
                     .option(SelectOption::new("Completed"))
                     .option(SelectOption::new("Planned"))
                     .option(SelectOption::new("Paused"));

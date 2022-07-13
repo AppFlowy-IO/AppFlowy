@@ -102,7 +102,7 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    
+
     use crate::services::field::type_options::*;
     use crate::services::field::FieldBuilder;
     use flowy_grid_data_model::revision::FieldRevision;
@@ -162,7 +162,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
         );

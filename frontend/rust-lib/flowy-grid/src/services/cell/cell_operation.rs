@@ -163,9 +163,9 @@ where
     }
 }
 
-impl std::convert::From<String> for CellData<String> {
-    fn from(s: String) -> Self {
-        CellData(Some(s))
+impl<T> std::convert::From<T> for CellData<T> {
+    fn from(val: T) -> Self {
+        CellData(Some(val))
     }
 }
 

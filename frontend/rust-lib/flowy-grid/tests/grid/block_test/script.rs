@@ -1,7 +1,11 @@
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{CellIdentifier, RowInfo};
+use flowy_grid::entities::{CellIdentifier, FieldType, RowInfo};
 
+use flowy_grid::services::field::{
+    DateCellDataParser, NumberCellDataParser, NumberFormat, NumberTypeOption, SelectOptionCellDataParser,
+    SelectOptionIdsParser, SelectOptionOperation, SingleSelectTypeOption, TextCellDataParser, URLCellDataParser,
+};
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
@@ -24,7 +28,8 @@ pub enum RowScript {
     AssertCell {
         row_id: String,
         field_id: String,
-        expected_display: Option<String>,
+        field_type: FieldType,
+        expected: String,
     },
     AssertRowCount(usize),
     CreateBlock {
@@ -101,20 +106,15 @@ impl GridRowTest {
             RowScript::AssertCell {
                 row_id,
                 field_id,
-                expected_display,
+                field_type,
+                expected,
             } => {
                 let id = CellIdentifier {
                     grid_id: self.grid_id.clone(),
                     field_id,
                     row_id,
                 };
-                let display = self.editor.get_cell_display(&id).await;
-                match expected_display {
-                    None => {}
-                    Some(expected_display) => {
-                        assert_eq!(display.unwrap(), expected_display);
-                    }
-                }
+                self.compare_cell_content(id, field_type, expected).await;
             }
             RowScript::AssertRow { expected_row } => {
                 let row = &*self
@@ -150,6 +150,72 @@ impl GridRowTest {
                 let blocks = self.editor.get_block_meta_revs().await.unwrap();
                 let compared_block = blocks[block_index].clone();
                 assert_eq!(compared_block, Arc::new(block));
+            }
+        }
+    }
+
+    async fn compare_cell_content(&self, cell_id: CellIdentifier, field_type: FieldType, expected: String) {
+        match field_type {
+            FieldType::RichText => {
+                let cell_data = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .with_parser(TextCellDataParser())
+                    .unwrap();
+
+                assert_eq!(cell_data.as_ref(), &expected);
+            }
+            FieldType::Number => {
+                let field_rev = self.editor.get_field_rev(&cell_id.field_id).await.unwrap();
+                let number_type_option = field_rev
+                    .get_type_option_entry::<NumberTypeOption>(FieldType::Number.into())
+                    .unwrap();
+                let cell_data = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .with_parser(NumberCellDataParser(number_type_option.format.clone()))
+                    .unwrap();
+                assert_eq!(cell_data.to_string(), expected);
+            }
+            FieldType::DateTime => {
+                let cell_data = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .with_parser(DateCellDataParser())
+                    .unwrap();
+
+                assert_eq!(cell_data.date, expected);
+            }
+            FieldType::SingleSelect => {
+                let select_options = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .with_parser(SelectOptionCellDataParser())
+                    .unwrap();
+                let select_option = select_options.select_options.first().unwrap();
+                assert_eq!(select_option.name, expected);
+            }
+            FieldType::MultiSelect => {}
+            FieldType::Checkbox => {}
+            FieldType::URL => {
+                let cell_data = self
+                    .editor
+                    .get_cell_bytes(&cell_id)
+                    .await
+                    .unwrap()
+                    .with_parser(URLCellDataParser())
+                    .unwrap();
+
+                assert_eq!(cell_data.content, expected);
+                assert_eq!(cell_data.url, expected);
             }
         }
     }

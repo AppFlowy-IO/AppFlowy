@@ -3,7 +3,7 @@ use crate::entities::CellIdentifier;
 use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
-use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data};
+use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::{GridFilterChangeset, GridFilterService};
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -340,16 +340,16 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
+        let cell_bytes = self.get_cell_bytes(params).await?;
+        Some(Cell::new(&params.field_id, cell_bytes.to_vec()))
+    }
+
+    pub async fn get_cell_bytes(&self, params: &CellIdentifier) -> Option<CellBytes> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
 
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
-        let data = decode_any_cell_data(cell_rev.data, &field_rev).to_vec();
-        Some(Cell::new(&params.field_id, data))
-    }
-
-    pub async fn get_cell_display(&self, _params: &CellIdentifier) -> Option<String> {
-        todo!()
+        Some(decode_any_cell_data(cell_rev.data, &field_rev))
     }
 
     pub async fn get_cell_rev(&self, row_id: &str, field_id: &str) -> FlowyResult<Option<CellRevision>> {

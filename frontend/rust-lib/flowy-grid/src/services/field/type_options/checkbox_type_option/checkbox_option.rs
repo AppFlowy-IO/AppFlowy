@@ -7,6 +7,7 @@ use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Default)]
 pub struct CheckboxTypeOptionBuilder(CheckboxTypeOption);
@@ -69,7 +70,7 @@ impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOption {
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;
-        let cell_data = CheckboxCellData::from_str(&changeset);
+        let cell_data = CheckboxCellData::from_str(&changeset)?;
         Ok(cell_data.to_string())
     }
 }

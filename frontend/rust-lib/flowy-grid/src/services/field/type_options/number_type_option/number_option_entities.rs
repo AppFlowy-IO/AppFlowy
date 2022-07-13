@@ -1,6 +1,8 @@
+use crate::services::cell::CellBytesParser;
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
-use flowy_error::{FlowyError, FlowyResult};
+use bytes::Bytes;
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use rust_decimal::Decimal;
 use rusty_money::Money;
 use std::str::FromStr;
@@ -68,17 +70,17 @@ impl NumberCellData {
     }
 }
 
-impl FromStr for NumberCellData {
-    type Err = rust_decimal::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            return Ok(Self::default());
-        }
-        let decimal = Decimal::from_str(s)?;
-        Ok(Self::from_decimal(decimal))
-    }
-}
+// impl FromStr for NumberCellData {
+//     type Err = FlowyError;
+//
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         if s.is_empty() {
+//             return Ok(Self::default());
+//         }
+//         let decimal = Decimal::from_str(s).map_err(internal_error)?;
+//         Ok(Self::from_decimal(decimal))
+//     }
+// }
 
 impl ToString for NumberCellData {
     fn to_string(&self) -> String {
@@ -88,6 +90,16 @@ impl ToString for NumberCellData {
                 Some(decimal) => decimal.to_string(),
             },
             Some(money) => money.to_string(),
+        }
+    }
+}
+pub struct NumberCellDataParser(pub NumberFormat);
+impl CellBytesParser for NumberCellDataParser {
+    type Object = NumberCellData;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => NumberCellData::from_format_str(&s, true, &self.0),
+            Err(_) => Ok(NumberCellData::default()),
         }
     }
 }

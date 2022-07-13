@@ -1,5 +1,5 @@
 use crate::entities::{DateFilterCondition, GridDateFilter};
-use crate::services::cell::{AnyCellData, CellFilterOperation};
+use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
 use crate::services::field::{DateTimestamp, DateTypeOption};
 use flowy_error::FlowyResult;
 
@@ -34,7 +34,8 @@ impl CellFilterOperation<GridDateFilter> for DateTypeOption {
         if !any_cell_data.is_date() {
             return Ok(true);
         }
-        let timestamp: DateTimestamp = any_cell_data.into();
+        let cell_data: CellData<DateTimestamp> = any_cell_data.into();
+        let timestamp = cell_data.try_into_inner()?;
         Ok(filter.is_visible(timestamp))
     }
 }

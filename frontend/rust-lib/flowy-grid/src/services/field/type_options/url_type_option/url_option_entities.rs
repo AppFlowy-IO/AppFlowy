@@ -1,6 +1,7 @@
-use crate::services::cell::{AnyCellData, FromCellString};
+use crate::services::cell::{CellBytesParser, FromCellString};
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -25,16 +26,17 @@ impl URLCellData {
     }
 }
 
-impl FromCellString for URLCellData {
-    fn from_cell_str(s: &str) -> FlowyResult<Self> {
-        serde_json::from_str::<URLCellData>(s).map_err(internal_error)
+pub struct URLCellDataParser();
+impl CellBytesParser for URLCellDataParser {
+    type Object = URLCellData;
+
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        URLCellData::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }
 
-impl std::convert::TryFrom<AnyCellData> for URLCellData {
-    type Error = FlowyError;
-
-    fn try_from(data: AnyCellData) -> Result<Self, Self::Error> {
-        serde_json::from_str::<URLCellData>(&data.data).map_err(internal_error)
+impl FromCellString for URLCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self> {
+        serde_json::from_str::<URLCellData>(s).map_err(internal_error)
     }
 }

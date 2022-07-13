@@ -1,7 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    try_decode_cell_data, AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable,
+    try_decode_cell_data, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation, CellDisplayable,
+    FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -83,11 +84,23 @@ impl AsRef<str> for TextCellData {
     }
 }
 
-impl std::convert::TryFrom<AnyCellData> for TextCellData {
-    type Error = FlowyError;
+impl FromCellString for TextCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        Ok(TextCellData(s.to_owned()))
+    }
+}
 
-    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(TextCellData(value.data))
+pub struct TextCellDataParser();
+impl CellBytesParser for TextCellDataParser {
+    type Object = TextCellData;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => Ok(TextCellData(s)),
+            Err(_) => Ok(TextCellData("".to_owned())),
+        }
     }
 }
 
@@ -95,7 +108,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    
+
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
 
@@ -111,7 +124,7 @@ mod tests {
             type_option
                 .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
-                .parse::<DateCellData>()
+                .with_parser(DateCellDataParser())
                 .unwrap()
                 .date,
             "Mar 14,2022".to_owned()
@@ -131,7 +144,7 @@ mod tests {
                     &single_select_field_rev
                 )
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
             vec![done_option],
@@ -154,7 +167,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
             vec![google_option, facebook_option]

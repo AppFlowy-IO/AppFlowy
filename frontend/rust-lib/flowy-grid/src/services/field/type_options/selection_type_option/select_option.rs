@@ -1,8 +1,9 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
-use crate::services::cell::{AnyCellData, CellBytes, CellData, CellDisplayable, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use nanoid::nanoid;
@@ -160,20 +161,6 @@ impl SelectOptionIds {
     }
 }
 
-impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
-    type Error = FlowyError;
-
-    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(Self::from(value.data))
-    }
-}
-
-impl std::convert::From<AnyCellData> for CellData<SelectOptionIds> {
-    fn from(any_cell_data: AnyCellData) -> Self {
-        any_cell_data.data.into()
-    }
-}
-
 impl FromCellString for SelectOptionIds {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
@@ -213,6 +200,25 @@ impl std::ops::Deref for SelectOptionIds {
 impl std::ops::DerefMut for SelectOptionIds {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+pub struct SelectOptionIdsParser();
+impl CellBytesParser for SelectOptionIdsParser {
+    type Object = SelectOptionIds;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => Ok(SelectOptionIds::from(s)),
+            Err(_) => Ok(SelectOptionIds::from("".to_owned())),
+        }
+    }
+}
+
+pub struct SelectOptionCellDataParser();
+impl CellBytesParser for SelectOptionCellDataParser {
+    type Object = SelectOptionCellData;
+
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        SelectOptionCellData::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }
 

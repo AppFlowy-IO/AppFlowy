@@ -1,5 +1,6 @@
 use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
+use flowy_grid::entities::FieldType;
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -67,15 +68,48 @@ async fn grid_row_add_cells_test() {
     let mut test = GridRowTest::new().await;
     let mut builder = test.row_builder();
 
-    builder.insert_text_cell("hello world");
-    builder.insert_number_cell("18,443");
-    builder.insert_date_cell("1647251762");
-    builder.insert_single_select_cell(|options| options.first().unwrap());
+    let text_field_id = builder.insert_text_cell("hello world");
+    let number_field_id = builder.insert_number_cell("18,443");
+    let date_field_id = builder.insert_date_cell("1647251762");
+    let single_select_field_id = builder.insert_single_select_cell(|options| options.first().unwrap());
     builder.insert_multi_select_cell(|options| options);
     builder.insert_checkbox_cell("false");
-    builder.insert_url_cell("1");
+    let url_field_id = builder.insert_url_cell("https://appflowy.io");
 
     let row_rev = builder.build();
-    let scripts = vec![CreateRow { row_rev }];
+    let row_id = row_rev.id.clone();
+    let scripts = vec![
+        CreateRow { row_rev },
+        AssertCell {
+            row_id: row_id.clone(),
+            field_id: text_field_id,
+            field_type: FieldType::RichText,
+            expected: "hello world".to_owned(),
+        },
+        AssertCell {
+            row_id: row_id.clone(),
+            field_id: number_field_id,
+            field_type: FieldType::Number,
+            expected: "$18,443.00".to_owned(),
+        },
+        AssertCell {
+            row_id: row_id.clone(),
+            field_id: single_select_field_id,
+            field_type: FieldType::SingleSelect,
+            expected: "Completed".to_owned(),
+        },
+        AssertCell {
+            row_id: row_id.clone(),
+            field_id: date_field_id,
+            field_type: FieldType::DateTime,
+            expected: "2022/03/14".to_owned(),
+        },
+        AssertCell {
+            row_id: row_id.clone(),
+            field_id: url_field_id,
+            field_type: FieldType::URL,
+            expected: "https://appflowy.io/".to_owned(),
+        },
+    ];
     test.run_scripts(scripts).await;
 }

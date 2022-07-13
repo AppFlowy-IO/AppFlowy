@@ -1,21 +1,16 @@
-use crate::entities::{FieldType};
-
+use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellData, CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable, FromCellChangeset,
-    FromCellString,
-};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{
     BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
-use flowy_derive::{ProtoBuf};
+use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
-
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
@@ -129,7 +124,8 @@ impl CellDisplayable<DateTimestamp> for DateTypeOption {
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
         let timestamp = cell_data.try_into_inner()?;
-        CellBytes::from(self.today_desc_from_timestamp(timestamp))
+        let date_cell_data = self.today_desc_from_timestamp(timestamp);
+        CellBytes::from(date_cell_data)
     }
 }
 

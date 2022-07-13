@@ -1,8 +1,6 @@
-use crate::impl_type_option;
-
 use crate::entities::FieldType;
+use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation};
-use crate::services::field::number_currency::Currency;
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
@@ -11,7 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 
 use rust_decimal::Decimal;
-use rusty_money::Money;
+
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 

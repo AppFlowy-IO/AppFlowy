@@ -1,6 +1,7 @@
 use crate::entities::CellChangeset;
 use crate::entities::{CellIdentifier, CellIdentifierPayload};
-use crate::services::cell::{AnyCellData, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellBytesParser, FromCellChangeset, FromCellString};
+use bytes::Bytes;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -117,12 +118,6 @@ impl FromCellString for DateTimestamp {
     }
 }
 
-impl std::convert::From<AnyCellData> for DateTimestamp {
-    fn from(data: AnyCellData) -> Self {
-        let num = data.data.parse::<i64>().unwrap_or(0);
-        DateTimestamp(num)
-    }
-}
 #[derive(Clone, Debug, Copy, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum DateFormat {
     Local = 0,
@@ -202,5 +197,14 @@ impl TimeFormat {
 impl std::default::Default for TimeFormat {
     fn default() -> Self {
         TimeFormat::TwentyFourHour
+    }
+}
+
+pub struct DateCellDataParser();
+impl CellBytesParser for DateCellDataParser {
+    type Object = DateCellData;
+
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        DateCellData::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }

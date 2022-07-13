@@ -2,7 +2,7 @@
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::{CellData, CellDataOperation};
-    use crate::services::field::FieldBuilder;
+    use crate::services::field::{FieldBuilder, URLCellDataParser};
     use crate::services::field::{URLCellData, URLTypeOption};
     use flowy_grid_data_model::revision::FieldRevision;
 
@@ -61,7 +61,7 @@ mod tests {
         type_option
             .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()
-            .parse::<URLCellData>()
+            .with_parser(URLCellDataParser())
             .unwrap()
     }
 }

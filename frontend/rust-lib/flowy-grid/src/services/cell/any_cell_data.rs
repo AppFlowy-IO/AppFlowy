@@ -1,9 +1,11 @@
 use crate::entities::FieldType;
+use crate::services::cell::{CellData, FromCellString};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::CellRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
 /// AnyCellData is a generic CellData, you can parse the cell_data according to the field_type.
 /// When the type of field is changed, it's different from the field_type of AnyCellData.
 /// So it will return an empty data. You could check the CellDataOperation trait for more information.
@@ -43,6 +45,15 @@ impl std::convert::TryFrom<CellRevision> for AnyCellData {
 
     fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
         Self::try_from(&value)
+    }
+}
+
+impl<T> std::convert::From<AnyCellData> for CellData<T>
+where
+    T: FromCellString,
+{
+    fn from(any_call_data: AnyCellData) -> Self {
+        CellData::from(any_call_data.data)
     }
 }
 
@@ -102,6 +113,11 @@ impl AnyCellData {
 #[derive(Default)]
 pub struct CellBytes(pub Bytes);
 
+pub trait CellBytesParser {
+    type Object;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object>;
+}
+
 impl CellBytes {
     pub fn new<T: AsRef<[u8]>>(data: T) -> Self {
         let bytes = Bytes::from(data.as_ref().to_vec());
@@ -116,12 +132,19 @@ impl CellBytes {
         Ok(Self(bytes))
     }
 
-    pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
+    pub fn with_parser<P>(&self, parser: P) -> FlowyResult<P::Object>
     where
-        <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
+        P: CellBytesParser,
     {
-        T::try_from(self.0.as_ref()).map_err(internal_error)
+        parser.parse(&self.0)
     }
+
+    // pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
+    // where
+    //     <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
+    // {
+    //     T::try_from(self.0.as_ref()).map_err(internal_error)
+    // }
 }
 
 impl ToString for CellBytes {
