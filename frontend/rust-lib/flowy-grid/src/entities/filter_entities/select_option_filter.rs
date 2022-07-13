@@ -1,4 +1,4 @@
-use crate::services::field::select_option::SelectOptionIds;
+use crate::services::field::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::revision::GridFilterRevision;

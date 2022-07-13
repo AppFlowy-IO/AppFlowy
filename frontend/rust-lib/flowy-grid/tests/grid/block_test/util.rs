@@ -1,5 +1,5 @@
 use flowy_grid::entities::FieldType;
-use flowy_grid::services::field::select_option::{SelectOption, SELECTION_IDS_SEPARATOR};
+use flowy_grid::services::field::selection_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
 use flowy_grid::services::field::{DateCellChangeset, MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};

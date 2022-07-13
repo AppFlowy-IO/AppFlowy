@@ -12,13 +12,13 @@ pub trait CellFilterOperation<T> {
 }
 
 /// Return object that describes the cell.
-pub trait CellDisplayable<CD, DC> {
+pub trait CellDisplayable<CD> {
     fn display_data(
         &self,
         cell_data: CellData<CD>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DC>;
+    ) -> FlowyResult<CellBytes>;
 }
 
 // CD: Short for CellData. This type is the type return by apply_changeset function.

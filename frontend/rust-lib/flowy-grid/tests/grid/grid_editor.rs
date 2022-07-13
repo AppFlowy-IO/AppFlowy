@@ -3,7 +3,7 @@
 #![allow(unused_imports)]
 use bytes::Bytes;
 use flowy_grid::entities::*;
-use flowy_grid::services::field::select_option::SelectOption;
+use flowy_grid::services::field::SelectOption;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};

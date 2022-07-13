@@ -32,15 +32,15 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDisplayable<String, String> for RichTextTypeOption {
+impl CellDisplayable<String> for RichTextTypeOption {
     fn display_data(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<String> {
+    ) -> FlowyResult<CellBytes> {
         let cell_str: String = cell_data.try_into_inner()?;
-        Ok(cell_str)
+        Ok(CellBytes::new(cell_str))
     }
 }
 
@@ -58,8 +58,7 @@ impl CellDataOperation<String, String> for RichTextTypeOption {
         {
             try_decode_cell_data(cell_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let content = self.display_data(cell_data, decoded_field_type, field_rev)?;
-            Ok(CellBytes::new(content))
+            self.display_data(cell_data, decoded_field_type, field_rev)
         }
     }
 
@@ -96,7 +95,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    use crate::services::field::select_option::*;
+    
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
 

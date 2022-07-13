@@ -1,33 +1,31 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
-use crate::services::field::select_option::{
-    make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation,
+use crate::services::field::type_options::util::get_cell_data;
+use crate::services::field::{
+    make_selected_select_options, BoxTypeOptionBuilder, SelectOption, SelectOptionCellChangeset, SelectOptionCellData,
+    SelectOptionIds, SelectOptionOperation, TypeOptionBuilder, SELECTION_IDS_SEPARATOR,
 };
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
-// Single select
+// Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct SingleSelectTypeOption {
+pub struct MultiSelectTypeOption {
     #[pb(index = 1)]
     pub options: Vec<SelectOption>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
+impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
-impl SelectOptionOperation for SingleSelectTypeOption {
+impl SelectOptionOperation for MultiSelectTypeOption {
     fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData {
-        let mut select_options = make_selected_select_options(cell_data, &self.options);
-        // only keep option in single select
-        select_options.truncate(1);
+        let select_options = make_selected_select_options(cell_data, &self.options);
         SelectOptionCellData {
             options: self.options.clone(),
             select_options,
@@ -43,7 +41,7 @@ impl SelectOptionOperation for SingleSelectTypeOption {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSelectTypeOption {
+impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
@@ -54,23 +52,40 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
             return Ok(CellBytes::default());
         }
 
-        let cell_data = self.display_data(cell_data, decoded_field_type, field_rev)?;
-        CellBytes::from(cell_data)
+        self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
         &self,
         changeset: CellDataChangeset<SelectOptionCellChangeset>,
-        _cell_rev: Option<CellRevision>,
+        cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
-        let select_option_changeset = changeset.try_into_inner()?;
+        let content_changeset = changeset.try_into_inner()?;
         let new_cell_data: String;
-        if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-            tracing::trace!("Insert single select option: {}", &insert_option_id);
-            new_cell_data = insert_option_id;
-        } else {
-            tracing::trace!("Delete single select option");
-            new_cell_data = "".to_string()
+        match cell_rev {
+            None => {
+                new_cell_data = content_changeset.insert_option_id.unwrap_or_else(|| "".to_owned());
+            }
+            Some(cell_rev) => {
+                let cell_data = get_cell_data(&cell_rev);
+                let mut select_ids: SelectOptionIds = cell_data.into();
+                if let Some(insert_option_id) = content_changeset.insert_option_id {
+                    tracing::trace!("Insert multi select option: {}", &insert_option_id);
+                    if select_ids.contains(&insert_option_id) {
+                        select_ids.retain(|id| id != &insert_option_id);
+                    } else {
+                        select_ids.push(insert_option_id);
+                    }
+                }
+
+                if let Some(delete_option_id) = content_changeset.delete_option_id {
+                    tracing::trace!("Delete multi select option: {}", &delete_option_id);
+                    select_ids.retain(|id| id != &delete_option_id);
+                }
+
+                new_cell_data = select_ids.join(SELECTION_IDS_SEPARATOR);
+                tracing::trace!("Multi select cell data: {}", &new_cell_data);
+            }
         }
 
         Ok(new_cell_data)
@@ -78,82 +93,84 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
 }
 
 #[derive(Default)]
-pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOption);
-impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOption);
-
-impl SingleSelectTypeOptionBuilder {
+pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
+impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
+impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
+impl MultiSelectTypeOptionBuilder {
     pub fn option(mut self, opt: SelectOption) -> Self {
         self.0.options.push(opt);
         self
     }
 }
 
-impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
+impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        FieldType::SingleSelect
+        FieldType::MultiSelect
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
         &self.0
     }
 }
-
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    use crate::services::field::select_option::*;
-    use crate::services::field::type_options::*;
+    use crate::services::field::type_options::selection_type_option::*;
     use crate::services::field::FieldBuilder;
+    use crate::services::field::{MultiSelectTypeOption, MultiSelectTypeOptionBuilder};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
-    fn single_select_test() {
+    fn multi_select_test() {
         let google_option = SelectOption::new("Google");
         let facebook_option = SelectOption::new("Facebook");
         let twitter_option = SelectOption::new("Twitter");
-        let single_select = SingleSelectTypeOptionBuilder::default()
+        let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
             .option(twitter_option);
 
-        let field_rev = FieldBuilder::new(single_select)
+        let field_rev = FieldBuilder::new(multi_select)
             .name("Platform")
             .visibility(true)
             .build();
 
-        let type_option = SingleSelectTypeOption::from(&field_rev);
+        let type_option = MultiSelectTypeOption::from(&field_rev);
 
-        let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
+        let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
         let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![google_option.clone()]);
+        assert_multi_select_options(
+            cell_data,
+            &type_option,
+            &field_rev,
+            vec![google_option.clone(), facebook_option],
+        );
 
         let data = SelectOptionCellChangeset::from_insert(&google_option.id).to_str();
         let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![google_option]);
+        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![google_option]);
 
         // Invalid option id
         let cell_data = type_option
             .apply_changeset(SelectOptionCellChangeset::from_insert("").to_str().into(), None)
             .unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![]);
+        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
 
         // Invalid option id
         let cell_data = type_option
-            .apply_changeset(SelectOptionCellChangeset::from_insert("123").to_str().into(), None)
+            .apply_changeset(SelectOptionCellChangeset::from_insert("123,456").to_str().into(), None)
             .unwrap();
-
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![]);
+        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
 
         // Invalid changeset
         assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
     }
 
-    fn assert_single_select_options(
+    fn assert_multi_select_options(
         cell_data: String,
-        type_option: &SingleSelectTypeOption,
+        type_option: &MultiSelectTypeOption,
         field_rev: &FieldRevision,
         expected: Vec<SelectOption>,
     ) {

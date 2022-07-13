@@ -1,5 +1,5 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
-use crate::services::cell::{AnyCellData, CellData, CellDisplayable, FromCellChangeset, FromCellString};
+use crate::services::cell::{AnyCellData, CellBytes, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
@@ -106,7 +106,7 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
     fn mut_options(&mut self) -> &mut Vec<SelectOption>;
 }
 
-impl<T> CellDisplayable<SelectOptionIds, SelectOptionCellData> for T
+impl<T> CellDisplayable<SelectOptionIds> for T
 where
     T: SelectOptionOperation,
 {
@@ -115,8 +115,8 @@ where
         cell_data: CellData<SelectOptionIds>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<SelectOptionCellData> {
-        Ok(self.selected_select_option(cell_data))
+    ) -> FlowyResult<CellBytes> {
+        CellBytes::from(self.selected_select_option(cell_data))
     }
 }
 

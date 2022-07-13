@@ -1,9 +1,11 @@
 use crate::entities::*;
 use crate::manager::GridManager;
 use crate::services::cell::AnyCellData;
-use crate::services::field::select_option::*;
 use crate::services::field::{
-    default_type_option_builder_from_type, type_option_builder_from_json_str, DateChangesetParams, DateChangesetPayload,
+    default_type_option_builder_from_type, select_option_operation, type_option_builder_from_json_str,
+    DateChangesetParams, DateChangesetPayload, SelectOption, SelectOptionCellChangeset,
+    SelectOptionCellChangesetParams, SelectOptionCellChangesetPayload, SelectOptionCellData, SelectOptionChangeset,
+    SelectOptionChangesetPayload,
 };
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};

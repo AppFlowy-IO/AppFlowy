@@ -2,8 +2,8 @@
 
 use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::select_option::{SelectOptionOperation, SelectedSelectOptions};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
 impl GridSelectOptionFilter {
@@ -64,7 +64,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
 mod tests {
     #![allow(clippy::all)]
     use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
-    use crate::services::field::select_option::{SelectOption, SelectedSelectOptions};
+    use crate::services::field::selection_type_option::{SelectOption, SelectedSelectOptions};
 
     #[test]
     fn select_option_filter_is_test() {
