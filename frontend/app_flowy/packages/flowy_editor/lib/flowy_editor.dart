@@ -1,9 +1,7 @@
 library flowy_editor;
 
-import 'package:flowy_editor/document/state_tree.dart';
-
-class Example {
-  StateTree createStateTree(Map<String, Object> json) {
-    return StateTree.fromJson(json);
-  }
-}
+export 'package:flowy_editor/document/state_tree.dart';
+export 'package:flowy_editor/document/node.dart';
+export 'package:flowy_editor/document/path.dart';
+export 'package:flowy_editor/render/render_plugins.dart';
+export 'package:flowy_editor/render/node_widget_builder.dart';
