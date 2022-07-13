@@ -363,9 +363,16 @@ pub(crate) async fn get_select_option_handler(
             data_result(SelectOptionCellData::default())
         }
         Some(field_rev) => {
+            //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
             let type_option = select_option_operation(&field_rev)?;
-            let any_cell_data: AnyCellData = cell_rev.try_into()?;
+            let any_cell_data: AnyCellData = match cell_rev {
+                None => AnyCellData {
+                    data: "".to_string(),
+                    field_type: field_rev.field_type_rev.into(),
+                },
+                Some(cell_rev) => cell_rev.try_into()?,
+            };
             let option_context = type_option.selected_select_option(any_cell_data);
             data_result(option_context)
         }

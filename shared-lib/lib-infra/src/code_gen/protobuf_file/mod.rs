@@ -114,12 +114,12 @@ fn generate_dart_protobuf_files(
     check_pb_dart_plugin();
     let protoc_bin_path = protoc_bin_path.to_str().unwrap().to_owned();
     paths.iter().for_each(|path| {
-        if cmd_lib::run_cmd! {
+        let result = cmd_lib::run_cmd! {
             ${protoc_bin_path} --dart_out=${output} --proto_path=${proto_file_output_path} ${path}
-        }
-        .is_err()
-        {
-            panic!("Generate dart pb file failed with: {}", path)
+        };
+
+        if result.is_err() {
+            panic!("Generate dart pb file failed with: {}, {:?}", path, result)
         };
     });
 

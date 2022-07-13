@@ -1,12 +1,10 @@
-use crate::entities::{FieldType, GridSelectOptionFilter};
+use crate::entities::FieldType;
 
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
+use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
 use crate::services::field::select_option::{
     make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation, SelectedSelectOptions, SELECTION_IDS_SEPARATOR,
+    SelectOptionOperation, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
@@ -46,16 +44,7 @@ impl SelectOptionOperation for MultiSelectTypeOption {
         &mut self.options
     }
 }
-impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_multi_select() {
-            return Ok(true);
-        }
 
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
-        Ok(filter.apply(&selected_options))
-    }
-}
 impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOption {
     fn decode_cell_data(
         &self,

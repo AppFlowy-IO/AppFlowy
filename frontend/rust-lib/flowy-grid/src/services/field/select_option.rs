@@ -65,7 +65,7 @@ pub fn make_selected_select_options<T: TryInto<AnyCellData>>(
     options: &[SelectOption],
 ) -> Vec<SelectOption> {
     if let Ok(type_option_cell_data) = any_cell_data.try_into() {
-        let ids = SelectOptionIds::from(type_option_cell_data.cell_data);
+        let ids = SelectOptionIds::from(type_option_cell_data.data);
         ids.iter()
             .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
             .collect()
@@ -151,7 +151,7 @@ impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
     type Error = FlowyError;
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(Self::from(value.cell_data))
+        Ok(Self::from(value.data))
     }
 }
 

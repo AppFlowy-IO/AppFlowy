@@ -1,8 +1,6 @@
-use crate::entities::{FieldType, GridSelectOptionFilter};
+use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{
-    AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation, DecodedCellData,
-};
+use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
 use crate::services::field::select_option::{
     make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
     SelectOptionOperation,
@@ -40,16 +38,6 @@ impl SelectOptionOperation for SingleSelectTypeOption {
 
     fn mut_options(&mut self) -> &mut Vec<SelectOption> {
         &mut self.options
-    }
-}
-
-impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, _filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_single_select() {
-            return Ok(true);
-        }
-        let _ids: SelectOptionIds = any_cell_data.try_into()?;
-        Ok(false)
     }
 }
 

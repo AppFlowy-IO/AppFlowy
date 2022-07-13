@@ -1,8 +1,7 @@
-use crate::entities::{FieldType, GridTextFilter};
+use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, CellFilterOperation,
-    DecodedCellData,
+    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -32,17 +31,6 @@ pub struct RichTextTypeOption {
     data: String, //It's not used yet
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
-
-impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
-        if !any_cell_data.is_text() {
-            return Ok(true);
-        }
-
-        let text_cell_data: TextCellData = any_cell_data.try_into()?;
-        Ok(filter.apply(text_cell_data))
-    }
-}
 
 impl CellDataOperation<String, String> for RichTextTypeOption {
     fn decode_cell_data(
@@ -88,7 +76,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
     type Error = FlowyError;
 
     fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(TextCellData(value.cell_data))
+        Ok(TextCellData(value.data))
     }
 }
 

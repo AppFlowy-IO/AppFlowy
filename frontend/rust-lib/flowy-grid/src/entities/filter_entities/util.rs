@@ -22,16 +22,16 @@ pub struct RepeatedGridFilter {
     pub items: Vec<GridFilter>,
 }
 
-impl std::convert::From<&Arc<GridFilterRevision>> for GridFilter {
-    fn from(rev: &Arc<GridFilterRevision>) -> Self {
+impl std::convert::From<&GridFilterRevision> for GridFilter {
+    fn from(rev: &GridFilterRevision) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<&Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
-    fn from(revs: &Vec<Arc<GridFilterRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
+    fn from(revs: Vec<Arc<GridFilterRevision>>) -> Self {
         RepeatedGridFilter {
-            items: revs.iter().map(|rev| rev.into()).collect(),
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
@@ -45,9 +45,12 @@ impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilter {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct DeleteFilterPayload {
     #[pb(index = 1)]
-    pub filter_id: String,
+    pub field_id: String,
 
     #[pb(index = 2)]
+    pub filter_id: String,
+
+    #[pb(index = 3)]
     pub field_type: FieldType,
 }
 
@@ -55,10 +58,14 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
+        let field_id = NotEmptyStr::parse(self.field_id)
+            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
+            .0;
         let filter_id = NotEmptyStr::parse(self.filter_id)
             .map_err(|_| ErrorCode::UnexpectedEmptyString)?
             .0;
         Ok(DeleteFilterParams {
+            field_id,
             filter_id,
             field_type_rev: self.field_type.into(),
         })
