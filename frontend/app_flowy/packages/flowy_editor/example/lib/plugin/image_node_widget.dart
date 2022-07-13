@@ -8,68 +8,71 @@ class ImageNodeBuilder extends NodeWidgetBuilder {
     required super.editorState,
   }) : super.create();
 
+  @override
+  Widget build(BuildContext buildContext) {
+    return _ImageNodeWidget(
+      node: node,
+      editorState: editorState,
+    );
+  }
+}
+
+class _ImageNodeWidget extends StatelessWidget {
+  final Node node;
+  final EditorState editorState;
+
+  const _ImageNodeWidget({
+    Key? key,
+    required this.node,
+    required this.editorState,
+  }) : super(key: key);
+
   String get src => node.attributes['image_src'] as String;
 
   @override
-  Widget build(BuildContext buildContext) {
-    // Future.delayed(const Duration(seconds: 5), () {
-    //   node.updateAttributes({
-    //     'image_src':
-    //         "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400"
-    //   });
-    // });
+  Widget build(BuildContext context) {
     return GestureDetector(
       child: ChangeNotifierProvider.value(
         value: node,
-        builder: (context, child) {
-          return Consumer<Node>(
-            builder: (context, value, child) {
-              return _build(context);
-            },
-          );
-        },
+        builder: (_, __) => Consumer<Node>(
+          builder: ((context, value, child) => _build(context)),
+        ),
       ),
       onTap: () {
-        const newImageSrc =
-            "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400";
-        final newAttribute = Attributes.from(node.attributes)
-          ..update(
-            'image_src',
-            (value) => newImageSrc,
-          );
-        editorState.update(node, newAttribute);
+        editorState.update(
+          node,
+          Attributes.from(node.attributes)
+            ..addAll(
+              {
+                'image_src':
+                    "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400",
+              },
+            ),
+        );
       },
     );
   }
 
-  Widget _build(BuildContext buildContext) {
-    final image = Image.network(src);
-    Widget? children;
-    if (node.children.isNotEmpty) {
-      children = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: node.children
-            .map(
-              (e) => renderPlugins.buildWidget(
-                context: NodeWidgetContext(
-                  buildContext: buildContext,
-                  node: e,
-                  editorState: editorState,
-                ),
-              ),
-            )
-            .toList(),
-      );
-    }
-    if (children != null) {
-      return Column(
-        children: [
-          image,
-          children,
-        ],
-      );
-    } else {
-      return image;
-    }
+  Widget _build(BuildContext context) {
+    return Column(
+      children: [
+        Image.network(src),
+        if (node.children.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: node.children
+                .map(
+                  (e) => editorState.renderPlugins.buildWidget(
+                    context: NodeWidgetContext(
+                      buildContext: context,
+                      node: e,
+                      editorState: editorState,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+      ],
+    );
   }
 }
