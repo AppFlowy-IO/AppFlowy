@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -140,11 +141,11 @@ class TextDelete extends TextOperation {
 }
 
 class _OpIterator {
-  final List<TextOperation> _operations;
+  final UnmodifiableListView<TextOperation> _operations;
   int _index = 0;
   int _offset = 0;
 
-  _OpIterator(List<TextOperation> operations) : _operations = operations;
+  _OpIterator(List<TextOperation> operations) : _operations = UnmodifiableListView(operations);
 
   bool get hasNext {
     return peekLength() < _maxInt;
