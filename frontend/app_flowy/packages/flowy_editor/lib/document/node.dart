@@ -29,6 +29,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   factory Node.fromJson(Map<String, Object> json) {
     assert(json['type'] is String);
 
+    // TODO: check the type that not exist on plugins.
     final jType = json['type'] as String;
     final jChildren = json['children'] as List?;
     final jAttributes = json['attributes'] != null
