@@ -73,16 +73,16 @@ void main() {
     final expected = Delta().delete(2);
     expect(a.compose(b), expected);
   });
-  // test('retain + insert', () {
-  //   final a = Delta().retain(1, {
-  //     'color': 'blue'
-  //   });
-  //   final b = Delta().insert('B');
-  //   final expected = Delta().insert('B').retain(1, {
-  //     'color': 'blue',
-  //   });
-  //   expect(a.compose(b), expected);
-  // });
+  test('retain + insert', () {
+    final a = Delta().retain(1, {
+      'color': 'blue'
+    });
+    final b = Delta().insert('B');
+    final expected = Delta().insert('B').retain(1, {
+      'color': 'blue',
+    });
+    expect(a.compose(b), expected);
+  });
   test('retain + retain', () {
     final a = Delta().retain(1, {
       'color': 'blue',
@@ -105,12 +105,12 @@ void main() {
     final expected = Delta().delete(1);
     expect(a.compose(b), expected);
   });
-  // test('insert in middle of text', () {
-  //   final a = Delta().insert('Hello');
-  //   final b = Delta().retain(3).insert('X');
-  //   final expected = Delta().insert('HElXlo');
-  //   expect(a.compose(b), expected);
-  // });
+  test('insert in middle of text', () {
+    final a = Delta().insert('Hello');
+    final b = Delta().retain(3).insert('X');
+    final expected = Delta().insert('HelXlo');
+    expect(a.compose(b), expected);
+  });
   test('insert and delete ordering', () {
     final a = Delta().insert('Hello');
     final b = Delta().insert('Hello');
@@ -147,29 +147,29 @@ void main() {
         .delete(1);
     expect(a.compose(b), expected);
   });
-  // test('retain end optimization', () {
-  //   final a = Delta()
-  //       .insert('A', {'bold': true})
-  //       .insert('B')
-  //       .insert('C', {'bold': true});
-  //   final b = Delta().delete(1);
-  //   final expected = Delta().insert('B').insert('C', {'bold': true});
-  //   expect(a.compose(b), expected);
-  // });
-  // test('retain end optimization join', () {
-  //   final a = Delta()
-  //       .insert('A', {'bold': true})
-  //       .insert('B')
-  //       .insert('C', {'bold': true})
-  //       .insert('D')
-  //       .insert('E', {'bold': true})
-  //       .insert('F');
-  //   final b = Delta().retain(1).delete(1);
-  //   final expected = Delta()
-  //       .insert('AC', {'bold': true})
-  //       .insert('D')
-  //       .insert('E', {'bold': true})
-  //       .insert('F');
-  //   expect(a.compose(b), expected);
-  // });
+  test('retain end optimization', () {
+    final a = Delta()
+        .insert('A', {'bold': true})
+        .insert('B')
+        .insert('C', {'bold': true});
+    final b = Delta().delete(1);
+    final expected = Delta().insert('B').insert('C', {'bold': true});
+    expect(a.compose(b), expected);
+  });
+  test('retain end optimization join', () {
+    final a = Delta()
+        .insert('A', {'bold': true})
+        .insert('B')
+        .insert('C', {'bold': true})
+        .insert('D')
+        .insert('E', {'bold': true})
+        .insert('F');
+    final b = Delta().retain(1).delete(1);
+    final expected = Delta()
+        .insert('AC', {'bold': true})
+        .insert('D')
+        .insert('E', {'bold': true})
+        .insert('F');
+    expect(a.compose(b), expected);
+  });
 }

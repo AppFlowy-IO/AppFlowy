@@ -22,7 +22,8 @@ class TextOperation {
 }
 
 int _hashAttributes(Attributes attributes) {
-  return Object.hashAllUnordered(attributes.entries);
+  return Object.hashAllUnordered(
+      attributes.entries.map((e) => Object.hash(e.key, e.value)));
 }
 
 class TextInsert extends TextOperation {
@@ -335,7 +336,7 @@ class Delta {
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
-            newOp = TextRetain(length: otherOp.length, attributes: attributes);
+            newOp = TextRetain(length: length, attributes: attributes);
           } else if (thisOp is TextInsert) {
             newOp = TextInsert(thisOp.content, attributes);
           }
@@ -363,7 +364,7 @@ class Delta {
     var ops = [...operations];
     if (other.operations.isNotEmpty) {
       ops.add(other.operations[0]);
-      ops = ops.sublist(1);
+      ops.addAll(other.operations.sublist(1));
     }
     return Delta(ops);
   }
@@ -399,14 +400,14 @@ Attributes? _composeMap(Attributes? a, Attributes? b) {
   final attributes = <String, Object>{};
   attributes.addAll(b);
 
-  if (attributes.isEmpty) {
-    return null;
-  }
-
   for (final entry in a.entries) {
     if (!b.containsKey(entry.key)) {
       attributes[entry.key] = entry.value;
     }
+  }
+
+  if (attributes.isEmpty) {
+    return null;
   }
 
   return attributes;
