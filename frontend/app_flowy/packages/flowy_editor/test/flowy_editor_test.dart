@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/state_tree.dart';
@@ -20,7 +21,7 @@ void main() {
     expect(stateTree.root.toJson(), data['document']);
   });
 
-  test('search node in state tree', () async {
+  test('search node by Path in state tree', () async {
     final String response = await rootBundle.loadString('assets/document.json');
     final data = Map<String, Object>.from(json.decode(response));
     final stateTree = StateTree.fromJson(data);
@@ -28,6 +29,18 @@ void main() {
     expect(checkBoxNode != null, true);
     final textType = checkBoxNode!.attributes['text-type'];
     expect(textType != null, true);
+  });
+
+  test('search node by Self in state tree', () async {
+    final String response = await rootBundle.loadString('assets/document.json');
+    final data = Map<String, Object>.from(json.decode(response));
+    final stateTree = StateTree.fromJson(data);
+    final checkBoxNode = stateTree.root.childAtPath([1, 0]);
+    expect(checkBoxNode != null, true);
+    final textType = checkBoxNode!.attributes['text-type'];
+    expect(textType != null, true);
+    final path = checkBoxNode.path([]);
+    expect(pathEquals(path, [1, 0]), true);
   });
 
   test('insert node in state tree', () async {

@@ -92,13 +92,12 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           } else {
             final data = Map<String, Object>.from(json.decode(snapshot.data!));
-            final stateTree = StateTree.fromJson(data);
-            return renderPlugins.buildWidget(
-              context: NodeWidgetContext(
-                buildContext: context,
-                node: stateTree.root,
-              ),
+            final document = StateTree.fromJson(data);
+            final editorState = EditorState(
+              document: document,
+              renderPlugins: renderPlugins,
             );
+            return editorState.build(context);
           }
         },
       ),

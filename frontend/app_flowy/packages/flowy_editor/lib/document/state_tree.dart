@@ -4,7 +4,9 @@ import 'package:flowy_editor/document/path.dart';
 class StateTree {
   final Node root;
 
-  StateTree({required this.root});
+  StateTree({
+    required this.root,
+  });
 
   factory StateTree.fromJson(Attributes json) {
     assert(json['document'] is Map);
@@ -13,6 +15,12 @@ class StateTree {
     final root = Node.fromJson(document);
     return StateTree(root: root);
   }
+
+  // Path pathForNode(Node node) {
+  //   var nodeRoot = node.root();
+  //   assert(nodeRoot == root, "Every node's root must be same as root");
+
+  // }
 
   Node? nodeAtPath(Path path) {
     return root.childAtPath(path);

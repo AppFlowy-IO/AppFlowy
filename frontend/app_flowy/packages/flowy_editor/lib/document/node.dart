@@ -84,6 +84,27 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return childAtIndex(path.first)?.childAtPath(path.sublist(1));
   }
 
+  Node root() {
+    if (parent != null) {
+      return parent!.root();
+    }
+    return this;
+  }
+
+  Path path([Path previous = const []]) {
+    if (parent == null) {
+      return previous;
+    }
+    var index = 0;
+    for (var child in parent!.children) {
+      if (child == this) {
+        break;
+      }
+      index += 1;
+    }
+    return parent!.path([index, ...previous]);
+  }
+
   @override
   void insertAfter(Node entry) {
     entry.parent = parent;

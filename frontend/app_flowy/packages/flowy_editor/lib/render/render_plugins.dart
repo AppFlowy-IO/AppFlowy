@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import '../document/node.dart';
-import 'node_widget_builder.dart';
+import './node_widget_builder.dart';
+import 'package:flowy_editor/editor_state.dart';
 
 class NodeWidgetContext {
-  BuildContext buildContext;
-  Node node;
-  NodeWidgetContext({required this.buildContext, required this.node});
+  final BuildContext buildContext;
+  final Node node;
+  final EditorState editorState;
+
+  NodeWidgetContext({
+    required this.buildContext,
+    required this.node,
+    required this.editorState,
+  });
 }
 
 typedef NodeWidgetBuilderF<T extends Node, A extends NodeWidgetBuilder> = A
     Function({
   required T node,
-  required RenderPlugins renderPlugins,
+  required EditorState editorState,
 });
 
 // unused
@@ -56,8 +63,10 @@ class RenderPlugins {
       name += '/${node.subtype}';
     }
     final nodeWidgetBuilder = _nodeWidgetBuilder(name);
-    return nodeWidgetBuilder(node: context.node, renderPlugins: this)(
-        context.buildContext);
+    return nodeWidgetBuilder(
+      node: context.node,
+      editorState: context.editorState,
+    )(context.buildContext);
   }
 
   NodeWidgetBuilderF _nodeWidgetBuilder(String name) {

@@ -2,9 +2,7 @@ import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/node.dart';
 
 abstract class Operation {
-
   Operation invert();
-
 }
 
 class InsertOperation extends Operation {
@@ -18,9 +16,11 @@ class InsertOperation extends Operation {
 
   @override
   Operation invert() {
-    return DeleteOperation(path: path, removedValue: value);
+    return DeleteOperation(
+      path: path,
+      removedValue: value,
+    );
   }
-
 }
 
 class UpdateOperation extends Operation {
@@ -36,9 +36,12 @@ class UpdateOperation extends Operation {
 
   @override
   Operation invert() {
-    return UpdateOperation(path: path, attributes: oldAttributes, oldAttributes: attributes);
+    return UpdateOperation(
+      path: path,
+      attributes: oldAttributes,
+      oldAttributes: attributes,
+    );
   }
-
 }
 
 class DeleteOperation extends Operation {
@@ -52,7 +55,9 @@ class DeleteOperation extends Operation {
 
   @override
   Operation invert() {
-    return InsertOperation(path: path, value: removedValue);
+    return InsertOperation(
+      path: path,
+      value: removedValue,
+    );
   }
-
 }
