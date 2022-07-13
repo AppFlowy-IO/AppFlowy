@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/text_node_widget.dart';
+import 'package:example/plugin/text_with_check_box_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/services.dart';
@@ -67,6 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ..register(
         'image',
         ImageNodeBuilder.create,
+      )
+      ..register(
+        'text/with-checkbox',
+        TextWithCheckBoxNodeBuilder.create,
       );
   }
 
@@ -89,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
             final data = Map<String, Object>.from(json.decode(snapshot.data!));
             final stateTree = StateTree.fromJson(data);
             return renderPlugins.buildWidget(
-              NodeWidgetContext(
+              context: NodeWidgetContext(
                 buildContext: context,
                 node: stateTree.root,
               ),
