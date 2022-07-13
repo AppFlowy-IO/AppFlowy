@@ -16,10 +16,14 @@ class RenderPlugins {
   // unused
   // Map<String, NodeBuilder> nodeBuilders = {};
 
+  /// register plugin to render specified [name].
+  /// [name] should be correspond to the [type] in [Node].
+  /// [name] could be empty.
   void register(String name, NodeWidgetBuilderF builder) {
     nodeWidgetBuilders[name] = builder;
   }
 
+  /// unRegister plugin with specified [name].
   void unRegister(String name) {
     nodeWidgetBuilders.removeWhere((key, _) => key == name);
   }
