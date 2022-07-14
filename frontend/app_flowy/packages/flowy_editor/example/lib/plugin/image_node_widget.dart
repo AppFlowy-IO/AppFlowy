@@ -39,16 +39,10 @@ class _ImageNodeWidget extends StatelessWidget {
         ),
       ),
       onTap: () {
-        editorState.update(
-          node,
-          Attributes.from(node.attributes)
-            ..addAll(
-              {
-                'image_src':
-                    "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400",
-              },
-            ),
-        );
+        editorState.update(node, {
+          'image_src':
+              "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400"
+        });
       },
     );
   }

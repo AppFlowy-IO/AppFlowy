@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'FlowyEditor Example'),
     );
   }
 }
@@ -83,23 +83,37 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: FutureBuilder<String>(
-        future: rootBundle.loadString('assets/document.json'),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            final data = Map<String, Object>.from(json.decode(snapshot.data!));
-            final document = StateTree.fromJson(data);
-            final editorState = EditorState(
-              document: document,
-              renderPlugins: renderPlugins,
-            );
-            return editorState.build(context);
-          }
-        },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder<String>(
+            future: rootBundle.loadString('assets/document.json'),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                final data =
+                    Map<String, Object>.from(json.decode(snapshot.data!));
+                final document = StateTree.fromJson(data);
+                print(document.root.toString());
+                final editorState = EditorState(
+                  document: document,
+                  renderPlugins: renderPlugins,
+                );
+                return editorState.build(context);
+              }
+            },
+          ),
+          SizedBox(
+            height: 50,
+            width: MediaQuery.of(context).size.width,
+            child: Container(
+              color: Colors.red,
+            ),
+          )
+        ],
       ),
     );
   }

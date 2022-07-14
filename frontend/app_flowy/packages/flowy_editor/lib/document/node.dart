@@ -19,6 +19,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return null;
   }
 
+  Path get path => _path();
+
   Node({
     required this.type,
     required this.children,
@@ -66,7 +68,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
 
     // Notify the new attributes
-    notifyListeners();
+    parent?.notifyListeners();
   }
 
   Node? childAtIndex(int index) {
@@ -83,20 +85,6 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
 
     return childAtIndex(path.first)?.childAtPath(path.sublist(1));
-  }
-
-  Path path([Path previous = const []]) {
-    if (parent == null) {
-      return previous;
-    }
-    var index = 0;
-    for (var child in parent!.children) {
-      if (child == this) {
-        break;
-      }
-      index += 1;
-    }
-    return parent!.path([index, ...previous]);
   }
 
   @override
@@ -119,8 +107,10 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
 
   @override
   void unlink() {
-    parent = null;
     super.unlink();
+
+    parent?.notifyListeners();
+    parent = null;
   }
 
   Map<String, Object> toJson() {
@@ -134,5 +124,19 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
       map['attributes'] = attributes;
     }
     return map;
+  }
+
+  Path _path([Path previous = const []]) {
+    if (parent == null) {
+      return previous;
+    }
+    var index = 0;
+    for (var child in parent!.children) {
+      if (child == this) {
+        break;
+      }
+      index += 1;
+    }
+    return parent!._path([index, ...previous]);
   }
 }
