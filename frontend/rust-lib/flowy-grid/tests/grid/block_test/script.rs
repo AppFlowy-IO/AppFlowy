@@ -2,13 +2,9 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{CellIdentifier, FieldType, RowInfo};
-use flowy_grid::services::field::{
-    CheckboxCellDataParser, DateCellDataParser, MultiSelectTypeOption, NumberCellDataParser, NumberTypeOption,
-    SelectOption, SelectOptionCellDataParser, SelectOptionIdsParser, SingleSelectTypeOption, TextCellDataParser,
-    URLCellDataParser, SELECTION_IDS_SEPARATOR,
-};
+use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
-    FieldRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -74,19 +70,7 @@ impl GridRowTest {
     }
 
     pub fn row_builder(&self) -> GridRowTestBuilder {
-        let field_revs_ref = self
-            .field_revs
-            .iter()
-            .map(|field_rev| field_rev.as_ref())
-            .collect::<Vec<&FieldRevision>>();
-        GridRowTestBuilder::new(
-            self.block_id(),
-            &self
-                .field_revs
-                .iter()
-                .map(|field_rev| field_rev.as_ref())
-                .collect::<Vec<&FieldRevision>>(),
-        )
+        GridRowTestBuilder::new(self.block_id(), &self.field_revs)
     }
 
     pub async fn run_script(&mut self, script: RowScript) {

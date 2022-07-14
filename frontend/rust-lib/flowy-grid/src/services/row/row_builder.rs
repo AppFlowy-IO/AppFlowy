@@ -4,18 +4,19 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct RowRevisionBuilder<'a> {
-    field_rev_map: HashMap<&'a String, &'a FieldRevision>,
+    field_rev_map: HashMap<&'a String, Arc<FieldRevision>>,
     payload: CreateRowRevisionPayload,
 }
 
 impl<'a> RowRevisionBuilder<'a> {
-    pub fn new(fields: &'a [&'a FieldRevision]) -> Self {
+    pub fn new(fields: &'a [Arc<FieldRevision>]) -> Self {
         let field_rev_map = fields
             .iter()
-            .map(|field| (&field.id, *field))
-            .collect::<HashMap<&String, &'a FieldRevision>>();
+            .map(|field| (&field.id, field.clone()))
+            .collect::<HashMap<&String, Arc<FieldRevision>>>();
 
         let payload = CreateRowRevisionPayload {
             row_id: gen_row_id(),

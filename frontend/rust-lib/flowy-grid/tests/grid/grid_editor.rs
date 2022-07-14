@@ -1,6 +1,7 @@
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(unused_imports)]
+use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
 use flowy_grid::entities::*;
 use flowy_grid::services::field::SelectOption;
@@ -158,7 +159,7 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::Checkbox => {
                 // Checkbox
                 let checkbox = CheckboxTypeOptionBuilder::default();
-                let checkbox_field = FieldBuilder::new(checkbox).name("is done").visibility(true).build();
+                let checkbox_field = FieldBuilder::new(checkbox).name("is urgent").visibility(true).build();
                 grid_builder.add_field(checkbox_field);
             }
             FieldType::URL => {
@@ -171,24 +172,87 @@ fn make_test_grid() -> BuildGridContext {
     }
 
     // We have many assumptions base on the number of the rows, so do not change the number of the loop.
-    for _i in 0..10 {
-        for field_type in FieldType::iter() {
-            let field_type: FieldType = field_type;
-            // let mut row_builder = RowRevisionBuilder::new()
-            match field_type {
-                FieldType::RichText => {}
-                FieldType::Number => {}
-                FieldType::DateTime => {}
-                FieldType::SingleSelect => {}
-                FieldType::MultiSelect => {}
-                FieldType::Checkbox => {}
-                FieldType::URL => {}
+    for i in 0..5 {
+        let block_id = grid_builder.block_id().to_owned();
+        let field_revs = grid_builder.field_revs();
+        let mut row_builder = GridRowTestBuilder::new(&block_id, field_revs);
+        match i {
+            0 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("A"),
+                        FieldType::Number => row_builder.insert_number_cell("1"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(0))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        _ => "".to_owned(),
+                    };
+                }
             }
+            1 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("B"),
+                        FieldType::Number => row_builder.insert_number_cell("2"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(0))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            2 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("C"),
+                        FieldType::Number => row_builder.insert_number_cell("3"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            3 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("D"),
+                        FieldType::Number => row_builder.insert_number_cell("4"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            4 => {
+                for field_type in FieldType::iter() {
+                    match field_type {
+                        FieldType::RichText => row_builder.insert_text_cell("E"),
+                        FieldType::Number => row_builder.insert_number_cell("5"),
+                        FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
+                        FieldType::SingleSelect => {
+                            row_builder.insert_single_select_cell(|mut options| options.remove(2))
+                        }
+
+                        FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
+                        _ => "".to_owned(),
+                    };
+                }
+            }
+            _ => {}
         }
+
+        let row_rev = row_builder.build();
+        grid_builder.add_row(row_rev);
     }
-    // assert_eq!(row_revs.len(), 10);
-    //     .add_empty_row()
-    //     .add_empty_row()
-    //     .add_empty_row()
     grid_builder.build()
 }

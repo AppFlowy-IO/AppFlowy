@@ -1,4 +1,5 @@
 use flowy_grid::entities::FieldType;
+use std::sync::Arc;
 
 use flowy_grid::services::field::{
     DateCellChangeset, MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
@@ -10,12 +11,12 @@ use strum::EnumCount;
 
 pub struct GridRowTestBuilder<'a> {
     block_id: String,
-    field_revs: &'a [&'a FieldRevision],
+    field_revs: &'a [Arc<FieldRevision>],
     inner_builder: RowRevisionBuilder<'a>,
 }
 
 impl<'a> GridRowTestBuilder<'a> {
-    pub fn new(block_id: &str, field_revs: &'a [&'a FieldRevision]) -> Self {
+    pub fn new(block_id: &str, field_revs: &'a [Arc<FieldRevision>]) -> Self {
         assert_eq!(field_revs.len(), FieldType::COUNT);
         let inner_builder = RowRevisionBuilder::new(field_revs);
         Self {
@@ -68,16 +69,15 @@ impl<'a> GridRowTestBuilder<'a> {
         url_field.id.clone()
     }
 
-    #[allow(dead_code)]
     pub fn insert_single_select_cell<F>(&mut self, f: F) -> String
     where
-        F: Fn(&Vec<SelectOption>) -> &SelectOption,
+        F: Fn(Vec<SelectOption>) -> SelectOption,
     {
         let single_select_field = self.field_rev_with_type(&FieldType::SingleSelect);
         let type_option = SingleSelectTypeOption::from(&single_select_field);
-        let option = f(&type_option.options);
+        let option = f(type_option.options);
         self.inner_builder
-            .insert_select_option_cell(&single_select_field.id, option.id.clone())
+            .insert_select_option_cell(&single_select_field.id, option.id)
             .unwrap();
 
         single_select_field.id.clone()
@@ -85,11 +85,11 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn insert_multi_select_cell<F>(&mut self, f: F) -> String
     where
-        F: Fn(&Vec<SelectOption>) -> &Vec<SelectOption>,
+        F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
     {
         let multi_select_field = self.field_rev_with_type(&FieldType::MultiSelect);
         let type_option = MultiSelectTypeOption::from(&multi_select_field);
-        let options = f(&type_option.options);
+        let options = f(type_option.options);
         let ops_ids = options
             .iter()
             .map(|option| option.id.clone())

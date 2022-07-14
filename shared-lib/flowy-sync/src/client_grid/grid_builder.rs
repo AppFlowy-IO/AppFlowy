@@ -30,7 +30,7 @@ impl GridBuilder {
         Self::default()
     }
     pub fn add_field(&mut self, field: FieldRevision) {
-        self.build_context.field_revs.push(field);
+        self.build_context.field_revs.push(Arc::new(field));
     }
 
     pub fn add_row(&mut self, row_rev: RowRevision) {
@@ -41,13 +41,17 @@ impl GridBuilder {
     }
 
     pub fn add_empty_row(&mut self) {
-        let row = RowRevision::new(&self.build_context.blocks.first().unwrap().block_id);
+        let row = RowRevision::new(self.block_id());
         self.add_row(row);
     }
 
-    // pub fn field_revs(&self) -> Vec<FieldRevision> {
-    //     self.build_context.field_revs
-    // }
+    pub fn field_revs(&self) -> &Vec<Arc<FieldRevision>> {
+        &self.build_context.field_revs
+    }
+
+    pub fn block_id(&self) -> &str {
+        &self.build_context.blocks.first().unwrap().block_id
+    }
 
     pub fn build(self) -> BuildGridContext {
         self.build_context

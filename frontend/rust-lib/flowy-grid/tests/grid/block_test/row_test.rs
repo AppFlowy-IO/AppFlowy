@@ -79,8 +79,8 @@ async fn grid_row_add_cells_test() {
         |options| options,
         &vec![GOOGLE, FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
     );
-
-    test.run_scripts(builder.build()).await;
+    let scripts = builder.build();
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -89,7 +89,8 @@ async fn grid_row_insert_number_test() {
     for (val, expected) in &[("1647251762", "2022/03/14"), ("2022/03/14", ""), ("", "")] {
         let mut builder = CreateRowScriptBuilder::new(&test);
         builder.insert(FieldType::DateTime, val, expected);
-        test.run_scripts(builder.build()).await;
+        let scripts = builder.build();
+        test.run_scripts(scripts).await;
     }
 }
 
@@ -105,7 +106,8 @@ async fn grid_row_insert_date_test() {
     ] {
         let mut builder = CreateRowScriptBuilder::new(&test);
         builder.insert(FieldType::Number, val, expected);
-        test.run_scripts(builder.build()).await;
+        let scripts = builder.build();
+        test.run_scripts(scripts).await;
     }
 }
 #[tokio::test]
@@ -113,7 +115,8 @@ async fn grid_row_insert_single_select_test() {
     let mut test = GridRowTest::new().await;
     let mut builder = CreateRowScriptBuilder::new(&test);
     builder.insert_single_select_cell(|mut options| options.pop().unwrap(), PAUSED);
-    test.run_scripts(builder.build()).await;
+    let scripts = builder.build();
+    test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -127,6 +130,6 @@ async fn grid_row_insert_multi_select_test() {
         },
         &vec![FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
     );
-
-    test.run_scripts(builder.build()).await;
+    let scripts = builder.build();
+    test.run_scripts(scripts).await;
 }

@@ -53,7 +53,7 @@ impl GridRevision {
     pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
-            fields: context.field_revs.into_iter().map(Arc::new).collect(),
+            fields: context.field_revs,
             blocks: context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         }
@@ -245,7 +245,7 @@ impl CellRevision {
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
-    pub field_revs: Vec<FieldRevision>,
+    pub field_revs: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<GridBlockMetaRevision>,
     pub blocks_meta_data: Vec<GridBlockRevision>,
 }
