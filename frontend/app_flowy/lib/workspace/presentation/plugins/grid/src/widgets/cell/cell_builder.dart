@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -12,10 +13,56 @@ import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
-GridCellWidget buildGridCellWidget(GridCell gridCell, GridCellCacheService cellCache, {GridCellStyle? style}) {
+class GridCellBuilder {
+  final GridCellsCache cellCache;
+  final GridFieldCache fieldCache;
+  GridCellBuilder({
+    required this.cellCache,
+    required this.fieldCache,
+  });
+
+  GridCellWidget build(GridCell cell, {GridCellStyle? style}) {
+    final key = ValueKey(gridCell.cellId());
+
+    final cellContextBuilder = GridCellContextBuilder(
+      gridCell: gridCell,
+      cellCache: cellCache,
+      fieldCache: fieldCache,
+    );
+
+    switch (gridCell.field.fieldType) {
+      case FieldType.Checkbox:
+        return CheckboxCell(cellContextBuilder: cellContextBuilder, key: key);
+      case FieldType.DateTime:
+        return DateCell(cellContextBuilder: cellContextBuilder, key: key, style: style);
+      case FieldType.SingleSelect:
+        return SingleSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+      case FieldType.MultiSelect:
+        return MultiSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+      case FieldType.Number:
+        return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
+      case FieldType.RichText:
+        return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+      case FieldType.URL:
+        return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+    }
+    throw UnimplementedError;
+  }
+}
+
+GridCellWidget buildGridCellWidget(
+  GridCell gridCell, {
+  required GridCellsCache cellCache,
+  required GridFieldCache fieldCache,
+  GridCellStyle? style,
+}) {
   final key = ValueKey(gridCell.cellId());
 
-  final cellContextBuilder = GridCellContextBuilder(gridCell: gridCell, cellCache: cellCache);
+  final cellContextBuilder = GridCellContextBuilder(
+    gridCell: gridCell,
+    cellCache: cellCache,
+    fieldCache: fieldCache,
+  );
 
   switch (gridCell.field.fieldType) {
     case FieldType.Checkbox:

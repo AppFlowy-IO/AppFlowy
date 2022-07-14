@@ -68,7 +68,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  GridRowCacheService? getRowCache(String blockId, String rowId) {
+  GridRowsCache? getRowCache(String blockId, String rowId) {
     final GridBlockCacheService? blockCache = _blocks[blockId];
     return blockCache?.rowCache;
   }

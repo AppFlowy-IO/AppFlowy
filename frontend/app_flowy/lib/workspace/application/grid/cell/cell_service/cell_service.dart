@@ -14,7 +14,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'dart:convert' show utf8;
 part 'cell_service.freezed.dart';
