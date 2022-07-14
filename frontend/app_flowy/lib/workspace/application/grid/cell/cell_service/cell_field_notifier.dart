@@ -5,6 +5,7 @@ import 'cell_service.dart';
 
 abstract class GridFieldChangedNotifier {
   void onFieldChanged(void Function(Field) callback);
+  void dispose();
 }
 
 class GridCellFieldNotifier {
@@ -26,7 +27,7 @@ class GridCellFieldNotifier {
     );
   }
 
-  void addFieldListener(GridCellCacheKey cacheKey, VoidCallback onFieldChanged) {
+  void addFieldListener(GridCellId cacheKey, VoidCallback onFieldChanged) {
     var map = _fieldListenerByFieldId[cacheKey.fieldId];
     if (map == null) {
       _fieldListenerByFieldId[cacheKey.fieldId] = {};
@@ -42,7 +43,7 @@ class GridCellFieldNotifier {
     }
   }
 
-  void removeFieldListener(GridCellCacheKey cacheKey, VoidCallback fn) {
+  void removeFieldListener(GridCellId cacheKey, VoidCallback fn) {
     var callbacks = _fieldListenerByFieldId[cacheKey.fieldId]?[cacheKey.rowId];
     final index = callbacks?.indexWhere((callback) => callback == fn);
     if (index != null && index != -1) {

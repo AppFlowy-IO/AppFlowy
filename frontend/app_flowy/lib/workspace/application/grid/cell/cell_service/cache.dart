@@ -2,19 +2,19 @@ part of 'cell_service.dart';
 
 typedef GridCellMap = LinkedHashMap<String, GridCell>;
 
-class _GridCellCacheObject {
-  GridCellCacheKey key;
+class _GridCellCacheItem {
+  GridCellId key;
   dynamic object;
-  _GridCellCacheObject({
+  _GridCellCacheItem({
     required this.key,
     required this.object,
   });
 }
 
-class GridCellCacheKey {
+class GridCellId {
   final String fieldId;
   final String rowId;
-  GridCellCacheKey({
+  GridCellId({
     required this.fieldId,
     required this.rowId,
   });
@@ -33,7 +33,7 @@ class GridCellsCache {
     _cellDataByFieldId.remove(fieldId);
   }
 
-  void insert<T extends _GridCellCacheObject>(T item) {
+  void insert<T extends _GridCellCacheItem>(T item) {
     var map = _cellDataByFieldId[item.key.fieldId];
     if (map == null) {
       _cellDataByFieldId[item.key.fieldId] = {};
@@ -43,7 +43,7 @@ class GridCellsCache {
     map![item.key.rowId] = item.object;
   }
 
-  T? get<T>(GridCellCacheKey key) {
+  T? get<T>(GridCellId key) {
     final map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
       return null;

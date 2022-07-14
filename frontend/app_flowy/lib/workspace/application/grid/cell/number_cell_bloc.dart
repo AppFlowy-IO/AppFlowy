@@ -8,7 +8,7 @@ import 'cell_service/cell_service.dart';
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final GridCellContext cellContext;
+  final GridCellController cellContext;
   void Function()? _onCellChangedFn;
 
   NumberCellBloc({
@@ -72,7 +72,7 @@ class NumberCellState with _$NumberCellState {
     required Either<String, FlowyError> content,
   }) = _NumberCellState;
 
-  factory NumberCellState.initial(GridCellContext context) {
+  factory NumberCellState.initial(GridCellController context) {
     final cellContent = context.getCellData() ?? "";
     return NumberCellState(
       content: left(cellContent),

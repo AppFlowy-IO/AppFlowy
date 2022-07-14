@@ -22,65 +22,32 @@ class GridCellBuilder {
   });
 
   GridCellWidget build(GridCell cell, {GridCellStyle? style}) {
-    final key = ValueKey(gridCell.cellId());
+    final key = ValueKey(cell.cellId());
 
-    final cellContextBuilder = GridCellContextBuilder(
-      gridCell: gridCell,
+    final cellControllerBuilder = GridCellControllerBuilder(
+      gridCell: cell,
       cellCache: cellCache,
       fieldCache: fieldCache,
     );
 
-    switch (gridCell.field.fieldType) {
+    switch (cell.field.fieldType) {
       case FieldType.Checkbox:
-        return CheckboxCell(cellContextBuilder: cellContextBuilder, key: key);
+        return CheckboxCell(cellControllerBuilder: cellControllerBuilder, key: key);
       case FieldType.DateTime:
-        return DateCell(cellContextBuilder: cellContextBuilder, key: key, style: style);
+        return DateCell(cellControllerBuilder: cellControllerBuilder, key: key, style: style);
       case FieldType.SingleSelect:
-        return SingleSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+        return SingleSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.MultiSelect:
-        return MultiSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+        return MultiSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.Number:
-        return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
+        return NumberCell(cellContorllerBuilder: cellControllerBuilder, key: key);
       case FieldType.RichText:
-        return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+        return GridTextCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.URL:
-        return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
+        return GridURLCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
     }
     throw UnimplementedError;
   }
-}
-
-GridCellWidget buildGridCellWidget(
-  GridCell gridCell, {
-  required GridCellsCache cellCache,
-  required GridFieldCache fieldCache,
-  GridCellStyle? style,
-}) {
-  final key = ValueKey(gridCell.cellId());
-
-  final cellContextBuilder = GridCellContextBuilder(
-    gridCell: gridCell,
-    cellCache: cellCache,
-    fieldCache: fieldCache,
-  );
-
-  switch (gridCell.field.fieldType) {
-    case FieldType.Checkbox:
-      return CheckboxCell(cellContextBuilder: cellContextBuilder, key: key);
-    case FieldType.DateTime:
-      return DateCell(cellContextBuilder: cellContextBuilder, key: key, style: style);
-    case FieldType.SingleSelect:
-      return SingleSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-    case FieldType.MultiSelect:
-      return MultiSelectCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-    case FieldType.Number:
-      return NumberCell(cellContextBuilder: cellContextBuilder, key: key);
-    case FieldType.RichText:
-      return GridTextCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-    case FieldType.URL:
-      return GridURLCell(cellContextBuilder: cellContextBuilder, style: style, key: key);
-  }
-  throw UnimplementedError;
 }
 
 class BlankCell extends StatelessWidget {

@@ -16,7 +16,7 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
-  final GridDateCellContext cellContext;
+  final GridDateCellController cellContext;
   void Function()? _onCellChangedFn;
 
   DateCalBloc({

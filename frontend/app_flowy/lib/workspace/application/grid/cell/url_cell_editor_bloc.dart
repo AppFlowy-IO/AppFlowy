@@ -7,7 +7,7 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_editor_bloc.freezed.dart';
 
 class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   void Function()? _onCellChangedFn;
   URLCellEditorBloc({
     required this.cellContext,
@@ -64,7 +64,7 @@ class URLCellEditorState with _$URLCellEditorState {
     required String content,
   }) = _URLCellEditorState;
 
-  factory URLCellEditorState.initial(GridURLCellContext context) {
+  factory URLCellEditorState.initial(GridURLCellController context) {
     final cellData = context.getCellData();
     return URLCellEditorState(
       content: cellData?.content ?? "",
