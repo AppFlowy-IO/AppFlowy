@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_name_input.dart';
-import 'field_editor_pannel.dart';
+import 'field_type_option_editor.dart';
 
 class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
@@ -38,9 +38,9 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
             children: [
               FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(), fontSize: 12),
               const VSpace(10),
-              const _FieldNameTextField(),
+              const _FieldNameCell(),
               const VSpace(10),
-              const _FieldPannel(),
+              const _FieldTypeOptionCell(),
             ],
           );
         },
@@ -74,8 +74,8 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   bool asBarrier() => true;
 }
 
-class _FieldPannel extends StatelessWidget {
-  const _FieldPannel({Key? key}) : super(key: key);
+class _FieldTypeOptionCell extends StatelessWidget {
+  const _FieldTypeOptionCell({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,15 +84,15 @@ class _FieldPannel extends StatelessWidget {
       builder: (context, state) {
         return state.fieldContext.fold(
           () => const SizedBox(),
-          (fieldContext) => FieldEditorPannel(fieldContext: fieldContext),
+          (fieldContext) => FieldTypeOptionEditor(fieldContext: fieldContext),
         );
       },
     );
   }
 }
 
-class _FieldNameTextField extends StatelessWidget {
-  const _FieldNameTextField({Key? key}) : super(key: key);
+class _FieldNameCell extends StatelessWidget {
+  const _FieldNameCell({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

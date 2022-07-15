@@ -5,21 +5,21 @@ import 'dart:async';
 
 import 'field_service.dart';
 
-part 'field_editor_pannel_bloc.freezed.dart';
+part 'field_type_option_edit_bloc.freezed.dart';
 
-class FieldEditorPannelBloc extends Bloc<FieldEditorPannelEvent, FieldEditorPannelState> {
+class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOptionEditState> {
   final GridFieldContext _fieldContext;
   void Function()? _fieldListenFn;
 
-  FieldEditorPannelBloc(GridFieldContext fieldContext)
+  FieldTypeOptionEditBloc(GridFieldContext fieldContext)
       : _fieldContext = fieldContext,
-        super(FieldEditorPannelState.initial(fieldContext)) {
-    on<FieldEditorPannelEvent>(
+        super(FieldTypeOptionEditState.initial(fieldContext)) {
+    on<FieldTypeOptionEditEvent>(
       (event, emit) async {
         event.when(
           initial: () {
             _fieldListenFn = fieldContext.addFieldListener((field) {
-              add(FieldEditorPannelEvent.didReceiveFieldUpdated(field));
+              add(FieldTypeOptionEditEvent.didReceiveFieldUpdated(field));
             });
           },
           didReceiveFieldUpdated: (field) {
@@ -40,18 +40,18 @@ class FieldEditorPannelBloc extends Bloc<FieldEditorPannelEvent, FieldEditorPann
 }
 
 @freezed
-class FieldEditorPannelEvent with _$FieldEditorPannelEvent {
-  const factory FieldEditorPannelEvent.initial() = _Initial;
-  const factory FieldEditorPannelEvent.didReceiveFieldUpdated(Field field) = _DidReceiveFieldUpdated;
+class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
+  const factory FieldTypeOptionEditEvent.initial() = _Initial;
+  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(Field field) = _DidReceiveFieldUpdated;
 }
 
 @freezed
-class FieldEditorPannelState with _$FieldEditorPannelState {
-  const factory FieldEditorPannelState({
+class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
+  const factory FieldTypeOptionEditState({
     required Field field,
-  }) = _FieldEditorPannelState;
+  }) = _FieldTypeOptionEditState;
 
-  factory FieldEditorPannelState.initial(GridFieldContext fieldContext) => FieldEditorPannelState(
+  factory FieldTypeOptionEditState.initial(GridFieldContext fieldContext) => FieldTypeOptionEditState(
         field: fieldContext.field,
       );
 }

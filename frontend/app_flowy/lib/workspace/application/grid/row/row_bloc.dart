@@ -11,12 +11,12 @@ part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridRowCacheService _rowCache;
+  final GridRowsCache _rowCache;
   void Function()? _rowListenFn;
 
   RowBloc({
     required GridRow rowData,
-    required GridRowCacheService rowCache,
+    required GridRowsCache rowCache,
   })  : _rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,

@@ -9,18 +9,18 @@ import 'block_listener.dart';
 class GridBlockCacheService {
   final String gridId;
   final GridBlock block;
-  late GridRowCacheService _rowCache;
+  late GridRowsCache _rowCache;
   late GridBlockListener _listener;
 
   List<GridRow> get rows => _rowCache.rows;
-  GridRowCacheService get rowCache => _rowCache;
+  GridRowsCache get rowCache => _rowCache;
 
   GridBlockCacheService({
     required this.gridId,
     required this.block,
     required GridFieldCache fieldCache,
   }) {
-    _rowCache = GridRowCacheService(
+    _rowCache = GridRowsCache(
       gridId: gridId,
       block: block,
       delegate: GridRowCacheDelegateImpl(fieldCache),

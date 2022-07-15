@@ -202,7 +202,7 @@ class GridRowCacheDelegateImpl extends GridRowCacheDelegate {
   }
 
   @override
-  void onFieldUpdated(void Function(Field) callback) {
+  void onFieldChanged(void Function(Field) callback) {
     _onChangesetFn = (GridFieldChangeset changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);

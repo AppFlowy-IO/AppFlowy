@@ -1,13 +1,14 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/multi_select_type_option.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_option_editor.dart';
 import 'package:flutter/material.dart';
 
+import 'builder.dart';
 import 'select_option.dart';
 
-class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
+class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final MultiSelectTypeOptionWidget _widget;
 
-  MultiSelectTypeOptionBuilder(
+  MultiSelectTypeOptionWidgetBuilder(
     MultiSelectTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = MultiSelectTypeOptionWidget(
@@ -16,7 +17,7 @@ class MultiSelectTypeOptionBuilder extends TypeOptionBuilder {
         );
 
   @override
-  Widget? get customWidget => _widget;
+  Widget? build(BuildContext context) => _widget;
 }
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
