@@ -1,20 +1,20 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
 import 'package:flutter/material.dart';
+import 'builder.dart';
 
-typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOption>;
+typedef CheckboxTypeOptionContext = TypeOptionWidgetContext<CheckboxTypeOption>;
 
-class CheckboxTypeOptionDataBuilder extends TypeOptionDataBuilder<CheckboxTypeOption> {
+class CheckboxTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<CheckboxTypeOption> {
   @override
   CheckboxTypeOption fromBuffer(List<int> buffer) {
     return CheckboxTypeOption.fromBuffer(buffer);
   }
 }
 
-class CheckboxTypeOptionBuilder extends TypeOptionBuilder {
-  CheckboxTypeOptionBuilder(CheckboxTypeOptionContext typeOptionContext);
+class CheckboxTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
+  CheckboxTypeOptionWidgetBuilder(CheckboxTypeOptionContext typeOptionContext);
 
   @override
-  Widget? get customWidget => null;
+  Widget? build(BuildContext context) => null;
 }

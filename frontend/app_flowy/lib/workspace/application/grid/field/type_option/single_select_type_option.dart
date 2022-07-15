@@ -7,12 +7,12 @@ import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOption>
+class SingleSelectTypeOptionContext extends TypeOptionWidgetContext<SingleSelectTypeOption>
     with SelectOptionTypeOptionAction {
   final TypeOptionService service;
 
   SingleSelectTypeOptionContext({
-    required SingleSelectTypeOptionDataBuilder dataBuilder,
+    required SingleSelectTypeOptionWidgetDataParser dataBuilder,
     required GridFieldContext fieldContext,
   })  : service = TypeOptionService(
           gridId: fieldContext.gridId,
@@ -71,7 +71,7 @@ class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOp
   }
 }
 
-class SingleSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<SingleSelectTypeOption> {
+class SingleSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<SingleSelectTypeOption> {
   @override
   SingleSelectTypeOption fromBuffer(List<int> buffer) {
     return SingleSelectTypeOption.fromBuffer(buffer);
