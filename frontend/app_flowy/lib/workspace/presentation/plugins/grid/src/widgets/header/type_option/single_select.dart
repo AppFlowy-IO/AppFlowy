@@ -1,12 +1,13 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/single_select_type_option.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_option_editor.dart';
 import 'package:flutter/material.dart';
+import 'builder.dart';
 import 'select_option.dart';
 
-class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
+class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final SingleSelectTypeOptionWidget _widget;
 
-  SingleSelectTypeOptionBuilder(
+  SingleSelectTypeOptionWidgetBuilder(
     SingleSelectTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = SingleSelectTypeOptionWidget(
@@ -15,7 +16,7 @@ class SingleSelectTypeOptionBuilder extends TypeOptionBuilder {
         );
 
   @override
-  Widget? get customWidget => _widget;
+  Widget? build(BuildContext context) => _widget;
 }
 
 class SingleSelectTypeOptionWidget extends TypeOptionWidget {

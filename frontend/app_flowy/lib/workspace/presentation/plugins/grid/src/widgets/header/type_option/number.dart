@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/application/grid/field/type_option/number_bl
 import 'package:app_flowy/workspace/application/grid/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_option_editor.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,10 +15,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart' hide NumberFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-class NumberTypeOptionBuilder extends TypeOptionBuilder {
+import 'builder.dart';
+
+class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final NumberTypeOptionWidget _widget;
 
-  NumberTypeOptionBuilder(
+  NumberTypeOptionWidgetBuilder(
     NumberTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = NumberTypeOptionWidget(
@@ -27,7 +29,7 @@ class NumberTypeOptionBuilder extends TypeOptionBuilder {
         );
 
   @override
-  Widget? get customWidget => _widget;
+  Widget? build(BuildContext context) => _widget;
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {

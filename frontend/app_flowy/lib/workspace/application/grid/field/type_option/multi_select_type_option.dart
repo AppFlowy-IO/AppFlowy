@@ -7,11 +7,12 @@ import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOption> with SelectOptionTypeOptionAction {
+class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTypeOption>
+    with SelectOptionTypeOptionAction {
   final TypeOptionService service;
 
   MultiSelectTypeOptionContext({
-    required MultiSelectTypeOptionDataBuilder dataBuilder,
+    required MultiSelectTypeOptionWidgetDataParser dataBuilder,
     required GridFieldContext fieldContext,
   })  : service = TypeOptionService(
           gridId: fieldContext.gridId,
@@ -70,7 +71,7 @@ class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOpti
   }
 }
 
-class MultiSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<MultiSelectTypeOption> {
+class MultiSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<MultiSelectTypeOption> {
   @override
   MultiSelectTypeOption fromBuffer(List<int> buffer) {
     return MultiSelectTypeOption.fromBuffer(buffer);
