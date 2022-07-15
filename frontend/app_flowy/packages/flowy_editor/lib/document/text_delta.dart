@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import './node.dart';
+import './attributes.dart';
 
 // constant number: 2^53 - 1
 const int _maxInt = 9007199254740991;
@@ -20,14 +20,6 @@ class TextOperation {
   Attributes? get attributes {
     return null;
   }
-}
-
-int _hashAttributes(Attributes attributes) {
-  return Object.hashAllUnordered(
-    attributes.entries.map(
-      (e) => Object.hash(e.key, e.value),
-    ),
-  );
 }
 
 class TextInsert extends TextOperation {
@@ -60,7 +52,7 @@ class TextInsert extends TextOperation {
     final contentHash = content.hashCode;
     final attrs = _attributes;
     return Object.hash(
-        contentHash, attrs == null ? null : _hashAttributes(attrs));
+        contentHash, attrs == null ? null : hashAttributes(attrs));
   }
 }
 
@@ -104,7 +96,7 @@ class TextRetain extends TextOperation {
   @override
   int get hashCode {
     final attrs = _attributes;
-    return Object.hash(_length, attrs == null ? null : _hashAttributes(attrs));
+    return Object.hash(_length, attrs == null ? null : hashAttributes(attrs));
   }
 }
 
@@ -344,7 +336,8 @@ class Delta {
         final length = min(thisIter.peekLength(), otherIter.peekLength());
         final thisOp = thisIter.next(length);
         final otherOp = otherIter.next(length);
-        final attributes = _composeMap(thisOp.attributes, otherOp.attributes);
+        final attributes =
+            composeAttributes(thisOp.attributes, otherOp.attributes);
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
@@ -404,23 +397,30 @@ class Delta {
   int get hashCode {
     return hashList(operations);
   }
-}
 
-Attributes? _composeMap(Attributes? a, Attributes? b) {
-  a ??= {};
-  b ??= {};
-  final Attributes attributes = {};
-  attributes.addAll(b);
-
-  for (final entry in a.entries) {
-    if (!b.containsKey(entry.key)) {
-      attributes[entry.key] = entry.value;
-    }
+  Delta invert(Delta base) {
+    final inverted = Delta();
+    operations.fold(0, (int previousValue, op) {
+      if (op is TextInsert) {
+        inverted.delete(op.length);
+      } else if (op is TextRetain && op.attributes == null) {
+        inverted.retain(op.length);
+        return previousValue + op.length;
+      } else if (op is TextDelete || op is TextRetain) {
+        final length = op.length;
+        final slice = base.slice(previousValue, previousValue + length);
+        for (final baseOp in slice.operations) {
+          if (op is TextDelete) {
+            inverted.add(baseOp);
+          } else if (op is TextRetain && op.attributes != null) {
+            inverted.retain(baseOp.length,
+                invertAttributes(op.attributes, baseOp.attributes));
+          }
+        }
+        return previousValue + length;
+      }
+      return previousValue;
+    });
+    return inverted.chop();
   }
-
-  if (attributes.isEmpty) {
-    return null;
-  }
-
-  return attributes;
 }
