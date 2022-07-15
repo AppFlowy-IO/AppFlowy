@@ -49,7 +49,7 @@
 			"linux": {
 				"options": {
 					"env": {
-						"FLOWY_DEV_ENV": "Linux-x86"
+						"FLOWY_DEV_ENV": "Linux"
 					}
 				}
 			},

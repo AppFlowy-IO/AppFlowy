@@ -8,10 +8,10 @@ use strum_macros::Display;
 pub fn create(grid_manager: Arc<GridManager>) -> Module {
     let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(grid_manager);
     module = module
-        .event(GridEvent::GetGridData, get_grid_data_handler)
+        .event(GridEvent::GetGrid, get_grid_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
-        .event(GridEvent::UpdateGridSetting, get_grid_setting_handler)
+        .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -46,7 +46,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
 #[event_err = "FlowyError"]
 pub enum GridEvent {
     #[event(input = "GridId", output = "Grid")]
-    GetGridData = 0,
+    GetGrid = 0,
 
     #[event(input = "QueryGridBlocksPayload", output = "RepeatedGridBlock")]
     GetGridBlocks = 1,
@@ -99,13 +99,13 @@ pub enum GridEvent {
     #[event(input = "CreateRowPayload", output = "Row")]
     CreateRow = 50,
 
-    #[event(input = "RowIdentifierPayload", output = "Row")]
+    #[event(input = "GridRowIdPayload", output = "OptionalRow")]
     GetRow = 51,
 
-    #[event(input = "RowIdentifierPayload")]
+    #[event(input = "GridRowIdPayload")]
     DeleteRow = 52,
 
-    #[event(input = "RowIdentifierPayload")]
+    #[event(input = "GridRowIdPayload")]
     DuplicateRow = 53,
 
     #[event(input = "CellIdentifierPayload", output = "Cell")]

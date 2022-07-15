@@ -6,9 +6,9 @@ import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 part 'date_bloc.freezed.dart';
 
-typedef DateTypeOptionContext = TypeOptionContext<DateTypeOption>;
+typedef DateTypeOptionContext = TypeOptionWidgetContext<DateTypeOption>;
 
-class DateTypeOptionDataBuilder extends TypeOptionDataBuilder<DateTypeOption> {
+class DateTypeOptionDataParser extends TypeOptionWidgetDataParser<DateTypeOption> {
   @override
   DateTypeOption fromBuffer(List<int> buffer) {
     return DateTypeOption.fromBuffer(buffer);

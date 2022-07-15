@@ -5,11 +5,12 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 import 'package:flutter/foundation.dart';
-import 'cell/cell_service/cell_service.dart';
 import 'row/row_service.dart';
 
 class GridService {
@@ -22,7 +23,7 @@ class GridService {
     await FolderEventSetLatestView(ViewId(value: gridId)).send();
 
     final payload = GridId(value: gridId);
-    return GridEventGetGridData(payload).send();
+    return GridEventGetGrid(payload).send();
   }
 
   Future<Either<Row, FlowyError>> createRow({Option<String>? startRowId}) {
@@ -55,13 +56,15 @@ class FieldsNotifier extends ChangeNotifier {
   List<Field> get fields => _fields;
 }
 
-typedef ChangesetListener = void Function(GridFieldChangeset);
+typedef FieldChangesetCallback = void Function(GridFieldChangeset);
+typedef FieldsCallback = void Function(List<Field>);
 
 class GridFieldCache {
   final String gridId;
   late final GridFieldsListener _fieldListener;
   FieldsNotifier? _fieldNotifier = FieldsNotifier();
-  final List<ChangesetListener> _changesetListener = [];
+  final Map<FieldsCallback, VoidCallback> _fieldsCallbackMap = {};
+  final Map<FieldChangesetCallback, FieldChangesetCallback> _changesetCallbackMap = {};
 
   GridFieldCache({required this.gridId}) {
     _fieldListener = GridFieldsListener(gridId: gridId);
@@ -71,7 +74,7 @@ class GridFieldCache {
           _deleteFields(changeset.deletedFields);
           _insertFields(changeset.insertedFields);
           _updateFields(changeset.updatedFields);
-          for (final listener in _changesetListener) {
+          for (final listener in _changesetCallbackMap.values) {
             listener(changeset);
           }
         },
@@ -94,38 +97,48 @@ class GridFieldCache {
     _fieldNotifier?.fields = [...fields];
   }
 
-  VoidCallback addListener(
-      {VoidCallback? listener, void Function(List<Field>)? onChanged, bool Function()? listenWhen}) {
-    f() {
-      if (listenWhen != null && listenWhen() == false) {
-        return;
+  void addListener({
+    FieldsCallback? onFields,
+    FieldChangesetCallback? onChangeset,
+    bool Function()? listenWhen,
+  }) {
+    if (onChangeset != null) {
+      fn(c) {
+        if (listenWhen != null && listenWhen() == false) {
+          return;
+        }
+        onChangeset(c);
       }
 
-      if (onChanged != null) {
-        onChanged(fields);
+      _changesetCallbackMap[onChangeset] = fn;
+    }
+
+    if (onFields != null) {
+      fn() {
+        if (listenWhen != null && listenWhen() == false) {
+          return;
+        }
+        onFields(fields);
       }
 
-      if (listener != null) {
-        listener();
+      _fieldsCallbackMap[onFields] = fn;
+      _fieldNotifier?.addListener(fn);
+    }
+  }
+
+  void removeListener({
+    FieldsCallback? onFieldsListener,
+    FieldChangesetCallback? onChangsetListener,
+  }) {
+    if (onFieldsListener != null) {
+      final fn = _fieldsCallbackMap.remove(onFieldsListener);
+      if (fn != null) {
+        _fieldNotifier?.removeListener(fn);
       }
     }
 
-    _fieldNotifier?.addListener(f);
-    return f;
-  }
-
-  void removeListener(VoidCallback f) {
-    _fieldNotifier?.removeListener(f);
-  }
-
-  void addChangesetListener(ChangesetListener listener) {
-    _changesetListener.add(listener);
-  }
-
-  void removeChangesetListener(ChangesetListener listener) {
-    final index = _changesetListener.indexWhere((element) => element == listener);
-    if (index != -1) {
-      _changesetListener.removeAt(index);
+    if (onChangsetListener != null) {
+      _changesetCallbackMap.remove(onChangsetListener);
     }
   }
 
@@ -173,43 +186,42 @@ class GridFieldCache {
   }
 }
 
-class GridRowCacheDelegateImpl extends GridRowFieldDelegate {
+class GridRowCacheDelegateImpl extends GridRowCacheDelegate {
   final GridFieldCache _cache;
+  FieldChangesetCallback? _onChangesetFn;
+  FieldsCallback? _onFieldFn;
   GridRowCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
   @override
   UnmodifiableListView<Field> get fields => _cache.unmodifiableFields;
 
   @override
-  void onFieldChanged(FieldDidUpdateCallback callback) {
-    _cache.addListener(listener: () {
-      callback();
-    });
+  void onFieldsChanged(VoidCallback callback) {
+    _onFieldFn = (_) => callback();
+    _cache.addListener(onFields: _onFieldFn);
   }
-}
-
-class GridCellCacheDelegateImpl extends GridCellFieldDelegate {
-  final GridFieldCache _cache;
-  ChangesetListener? _changesetFn;
-  GridCellCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  void onFieldChanged(void Function(String) callback) {
-    changesetFn(GridFieldChangeset changeset) {
+  void onFieldChanged(void Function(Field) callback) {
+    _onChangesetFn = (GridFieldChangeset changeset) {
       for (final updatedField in changeset.updatedFields) {
-        callback(updatedField.id);
+        callback(updatedField);
       }
-    }
+    };
 
-    _cache.addChangesetListener(changesetFn);
-    _changesetFn = changesetFn;
+    _cache.addListener(onChangeset: _onChangesetFn);
   }
 
   @override
   void dispose() {
-    if (_changesetFn != null) {
-      _cache.removeChangesetListener(_changesetFn!);
-      _changesetFn = null;
+    if (_onFieldFn != null) {
+      _cache.removeListener(onFieldsListener: _onFieldFn!);
+      _onFieldFn = null;
+    }
+
+    if (_onChangesetFn != null) {
+      _cache.removeListener(onChangsetListener: _onChangesetFn!);
+      _onChangesetFn = null;
     }
   }
 }

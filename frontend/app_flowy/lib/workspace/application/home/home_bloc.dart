@@ -3,27 +3,25 @@ import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart' show CurrentWorkspaceSetting;
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart' show CurrentWorkspaceSetting;
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final UserListener _listener;
+  final UserWorkspaceListener _listener;
 
   HomeBloc(UserProfile user, CurrentWorkspaceSetting workspaceSetting)
-      : _listener = UserListener(user: user),
+      : _listener = UserWorkspaceListener(userProfile: user),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>((event, emit) async {
       await event.map(
         initial: (_Initial value) {
           _listener.start(
-            onAuthChanged: (result) {
-              _authDidChanged(result);
-            },
-            onWorkspaceSettingUpdated: (result) {
+            onAuthChanged: (result) => _authDidChanged(result),
+            onSettingUpdated: (result) {
               result.fold(
                 (setting) => add(HomeEvent.didReceiveWorkspaceSetting(setting)),
                 (r) => Log.error(r),

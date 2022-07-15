@@ -3,7 +3,7 @@ use crate::{
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
 use flowy_error::FlowyError;
-use flowy_folder_data_model::entities::{
+use flowy_folder::entities::{
     trash::RepeatedTrashId,
     view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},

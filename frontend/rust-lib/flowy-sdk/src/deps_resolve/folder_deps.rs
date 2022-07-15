@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_folder::entities::ViewDataType;
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
-use flowy_folder::prelude::ViewDataType;
 use flowy_folder::{
     errors::{internal_error, FlowyError},
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
@@ -228,7 +228,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = grid_manager.delete_grid(view_id)?;
+            let _ = grid_manager.delete_grid(view_id).await?;
             Ok(())
         })
     }
@@ -237,7 +237,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = grid_manager.close_grid(view_id)?;
+            let _ = grid_manager.close_grid(view_id).await?;
             Ok(())
         })
     }

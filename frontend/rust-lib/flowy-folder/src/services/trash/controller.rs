@@ -51,7 +51,7 @@ impl TrashController {
 
         let identifier = TrashId {
             id: trash.id,
-            ty: trash.ty,
+            ty: trash.ty.into(),
         };
 
         let _ = self.delete_trash_on_server(RepeatedTrashId {

@@ -1,16 +1,18 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOption> with SelectOptionTypeOptionAction {
+class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTypeOption>
+    with SelectOptionTypeOptionAction {
   final TypeOptionService service;
 
   MultiSelectTypeOptionContext({
-    required MultiSelectTypeOptionDataBuilder dataBuilder,
+    required MultiSelectTypeOptionWidgetDataParser dataBuilder,
     required GridFieldContext fieldContext,
   })  : service = TypeOptionService(
           gridId: fieldContext.gridId,
@@ -69,7 +71,7 @@ class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOpti
   }
 }
 
-class MultiSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<MultiSelectTypeOption> {
+class MultiSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<MultiSelectTypeOption> {
   @override
   MultiSelectTypeOption fromBuffer(List<int> buffer) {
     return MultiSelectTypeOption.fromBuffer(buffer);

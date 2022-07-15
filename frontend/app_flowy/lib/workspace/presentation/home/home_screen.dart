@@ -5,8 +5,8 @@ import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_b
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';

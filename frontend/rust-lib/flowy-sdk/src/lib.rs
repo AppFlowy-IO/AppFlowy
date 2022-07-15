@@ -14,7 +14,7 @@ use flowy_net::{
 use flowy_text_block::TextBlockManager;
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
-use lib_dispatch::util::tokio_default_runtime;
+use lib_dispatch::runtime::tokio_default_runtime;
 use module::mk_modules;
 pub use module::*;
 use std::{

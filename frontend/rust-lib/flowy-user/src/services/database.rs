@@ -1,7 +1,7 @@
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_database::ConnectionPool;
 use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_data_model::entities::{SignInResponse, SignUpResponse, UpdateUserParams, UserProfile};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc, time::Duration};
@@ -134,7 +134,7 @@ pub struct UserTableChangeset {
 }
 
 impl UserTableChangeset {
-    pub fn new(params: UpdateUserParams) -> Self {
+    pub fn new(params: UpdateUserProfileParams) -> Self {
         UserTableChangeset {
             id: params.id,
             workspace: None,

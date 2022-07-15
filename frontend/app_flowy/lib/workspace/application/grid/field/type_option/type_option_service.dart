@@ -4,10 +4,9 @@ import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
 
 class TypeOptionService {
@@ -34,16 +33,16 @@ class TypeOptionService {
   }
 }
 
-abstract class TypeOptionDataBuilder<T> {
+abstract class TypeOptionWidgetDataParser<T> {
   T fromBuffer(List<int> buffer);
 }
 
-class TypeOptionContext<T extends GeneratedMessage> {
+class TypeOptionWidgetContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
   final GridFieldContext _fieldContext;
-  final TypeOptionDataBuilder<T> dataBuilder;
+  final TypeOptionWidgetDataParser<T> dataBuilder;
 
-  TypeOptionContext({
+  TypeOptionWidgetContext({
     required this.dataBuilder,
     required GridFieldContext fieldContext,
   }) : _fieldContext = fieldContext;
@@ -78,7 +77,7 @@ class TypeOptionContext2<T> {
   final Field field;
   final FieldService _fieldService;
   T? _data;
-  final TypeOptionDataBuilder dataBuilder;
+  final TypeOptionWidgetDataParser dataBuilder;
 
   TypeOptionContext2({
     required this.gridId,

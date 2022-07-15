@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:app_flowy/workspace/application/grid/field/grid_listenr.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
@@ -13,16 +12,13 @@ part 'select_option_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
   final SelectOptionService _selectOptionService;
-  final GridSelectOptionCellContext cellContext;
-  late final GridFieldsListener _fieldListener;
-  void Function()? _onCellChangedFn;
+  final GridSelectOptionCellController cellController;
   Timer? _delayOperation;
 
   SelectOptionCellEditorBloc({
-    required this.cellContext,
-  })  : _selectOptionService = SelectOptionService(gridCell: cellContext.gridCell),
-        _fieldListener = GridFieldsListener(gridId: cellContext.gridId),
-        super(SelectOptionEditorState.initial(cellContext)) {
+    required this.cellController,
+  })  : _selectOptionService = SelectOptionService(gridCell: cellController.gridCell),
+        super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
         await event.map(
@@ -64,13 +60,8 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
 
   @override
   Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
     _delayOperation?.cancel();
-    await _fieldListener.stop();
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
@@ -157,24 +148,16 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    cellController.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
           _loadOptions();
         }
       }),
+      onCellFieldChanged: () {
+        _loadOptions();
+      },
     );
-
-    _fieldListener.start(onFieldsChanged: (result) {
-      result.fold(
-        (changeset) {
-          if (changeset.updatedFields.isNotEmpty) {
-            _loadOptions();
-          }
-        },
-        (err) => Log.error(err),
-      );
-    });
   }
 }
 
@@ -200,7 +183,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
     required Option<String> filter,
   }) = _SelectOptionEditorState;
 
-  factory SelectOptionEditorState.initial(GridSelectOptionCellContext context) {
+  factory SelectOptionEditorState.initial(GridSelectOptionCellController context) {
     final data = context.getCellData(loadIfNoCache: false);
     return SelectOptionEditorState(
       options: data?.options ?? [],

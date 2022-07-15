@@ -6,7 +6,7 @@ use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
     client_document::default::initial_quill_delta_string,
     entities::{
-        text_block_info::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
+        text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -252,20 +252,20 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
-use flowy_folder_data_model::entities::app::gen_app_id;
-use flowy_folder_data_model::entities::workspace::gen_workspace_id;
-use flowy_folder_data_model::entities::{
+use flowy_folder::entities::{
     app::{AppId, CreateAppParams, UpdateAppParams},
     trash::RepeatedTrashId,
     view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
 };
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use flowy_text_block::BlockCloudService;
-use flowy_user::event_map::UserCloudService;
-use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
+use flowy_folder_data_model::revision::{
+    gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
 };
+use flowy_text_block::BlockCloudService;
+use flowy_user::entities::{
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
+use flowy_user::event_map::UserCloudService;
 use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {
@@ -308,7 +308,7 @@ impl FolderCouldServiceV1 for LocalServer {
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
-            data_type: params.data_type,
+            data_type: params.data_type.into(),
             version: 0,
             belongings: vec![],
             modified_time: time,
@@ -401,7 +401,7 @@ impl UserCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
+    fn update_user(&self, _token: &str, _params: UpdateUserProfileParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 

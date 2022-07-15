@@ -1,10 +1,12 @@
+use crate::entities::FieldType;
 use crate::impl_type_option;
+use crate::services::cell::{
+    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData,
+};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
-use crate::services::row::{decode_cell_data, CellContentChangeset, CellDataOperation, DecodedCellData};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::entities::FieldType;
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +17,7 @@ impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTy
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
-        self.0.field_type()
+        FieldType::RichText
     }
 
     fn entry(&self) -> &dyn TypeOptionDataEntry {
@@ -30,47 +32,61 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
-impl CellDataOperation<String> for RichTextTypeOption {
-    fn decode_cell_data<T>(
+impl CellDataOperation<String, String> for RichTextTypeOption {
+    fn decode_cell_data(
         &self,
-        encoded_data: T,
+        cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>
-    where
-        T: Into<String>,
-    {
+    ) -> FlowyResult<DecodedCellData> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
         {
-            decode_cell_data(encoded_data, decoded_field_type, decoded_field_type, field_rev)
+            try_decode_cell_data(cell_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data = encoded_data.into();
+            let cell_data: String = cell_data.try_into_inner()?;
             Ok(DecodedCellData::new(cell_data))
         }
     }
 
-    fn apply_changeset<C>(&self, changeset: C, _cell_rev: Option<CellRevision>) -> Result<String, FlowyError>
-    where
-        C: Into<CellContentChangeset>,
-    {
-        let data = changeset.into();
+    fn apply_changeset(
+        &self,
+        changeset: CellDataChangeset<String>,
+        _cell_rev: Option<CellRevision>,
+    ) -> Result<String, FlowyError> {
+        let data = changeset.try_into_inner()?;
         if data.len() > 10000 {
             Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
         } else {
-            Ok(data.0)
+            Ok(data)
         }
+    }
+}
+
+pub struct TextCellData(pub String);
+impl AsRef<str> for TextCellData {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::convert::TryFrom<AnyCellData> for TextCellData {
+    type Error = FlowyError;
+
+    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
+        Ok(TextCellData(value.data))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
+    use crate::services::cell::CellDataOperation;
+    use crate::services::field::select_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
-    use crate::services::row::CellDataOperation;
-    use flowy_grid_data_model::entities::FieldType;
 
     #[test]
     fn text_description_test() {
@@ -82,7 +98,7 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(1647251762.to_string(), &field_type, &date_time_field_rev)
+                .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
                 .parse::<DateCellData>()
                 .unwrap()
@@ -98,7 +114,11 @@ mod tests {
 
         assert_eq!(
             type_option
-                .decode_cell_data(done_option_id, &FieldType::SingleSelect, &single_select_field_rev)
+                .decode_cell_data(
+                    done_option_id.into(),
+                    &FieldType::SingleSelect,
+                    &single_select_field_rev
+                )
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -110,16 +130,18 @@ mod tests {
         let google_option = SelectOption::new("Google");
         let facebook_option = SelectOption::new("Facebook");
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-        let cell_data_changeset = SelectOptionCellContentChangeset::from_insert(&ids).to_str();
+        let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone());
         let multi_select_field_rev = FieldBuilder::new(multi_select).build();
         let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_rev);
-        let cell_data = multi_type_option.apply_changeset(cell_data_changeset, None).unwrap();
+        let cell_data = multi_type_option
+            .apply_changeset(cell_data_changeset.into(), None)
+            .unwrap();
         assert_eq!(
             type_option
-                .decode_cell_data(cell_data, &FieldType::MultiSelect, &multi_select_field_rev)
+                .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
                 .parse::<SelectOptionCellData>()
                 .unwrap()
@@ -132,7 +154,7 @@ mod tests {
         let number_field_rev = FieldBuilder::new(number).build();
         assert_eq!(
             type_option
-                .decode_cell_data("18443".to_owned(), &FieldType::Number, &number_field_rev)
+                .decode_cell_data("18443".to_owned().into(), &FieldType::Number, &number_field_rev)
                 .unwrap()
                 .to_string(),
             "$18,443".to_owned()

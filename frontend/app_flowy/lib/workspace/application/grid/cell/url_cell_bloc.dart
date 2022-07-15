@@ -7,7 +7,7 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_bloc.freezed.dart';
 
 class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   void Function()? _onCellChangedFn;
   URLCellBloc({
     required this.cellContext,
@@ -67,7 +67,7 @@ class URLCellState with _$URLCellState {
     required String url,
   }) = _URLCellState;
 
-  factory URLCellState.initial(GridURLCellContext context) {
+  factory URLCellState.initial(GridURLCellController context) {
     final cellData = context.getCellData();
     return URLCellState(
       content: cellData?.content ?? "",

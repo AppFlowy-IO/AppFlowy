@@ -1,5 +1,5 @@
 use crate::{
-    entities::{text_block_info::TextBlockInfo, ws_data::ServerRevisionWSDataBuilder},
+    entities::{text_block::TextBlockInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::document_pad::ServerDocument,

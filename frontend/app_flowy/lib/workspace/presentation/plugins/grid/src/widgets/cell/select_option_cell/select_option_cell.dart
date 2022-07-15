@@ -5,7 +5,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,11 +21,11 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class SingleSelectCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   SingleSelectCell({
-    required this.cellContextBuilder,
+    required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -45,7 +45,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
+    final cellContext = widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -60,7 +60,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContextBuilder: widget.cellContextBuilder);
+              cellContorllerBuilder: widget.cellContorllerBuilder);
         },
       ),
     );
@@ -75,11 +75,11 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 
 //----------------------------------------------------------------
 class MultiSelectCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   MultiSelectCell({
-    required this.cellContextBuilder,
+    required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -99,7 +99,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
+    final cellContext = widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -114,7 +114,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContextBuilder: widget.cellContextBuilder);
+              cellContorllerBuilder: widget.cellContorllerBuilder);
         },
       ),
     );
@@ -131,12 +131,12 @@ class _SelectOptionCell extends StatelessWidget {
   final List<SelectOption> selectOptions;
   final void Function(bool) onFocus;
   final SelectOptionCellStyle? cellStyle;
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellContorllerBuilder;
   const _SelectOptionCell({
     required this.selectOptions,
     required this.onFocus,
     required this.cellStyle,
-    required this.cellContextBuilder,
+    required this.cellContorllerBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -172,7 +172,7 @@ class _SelectOptionCell extends StatelessWidget {
         InkWell(
           onTap: () {
             onFocus(true);
-            final cellContext = cellContextBuilder.build() as GridSelectOptionCellContext;
+            final cellContext = cellContorllerBuilder.build() as GridSelectOptionCellController;
             SelectOptionCellEditor.show(context, cellContext, () => onFocus(false));
           },
         ),

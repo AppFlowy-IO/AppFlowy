@@ -1,3 +1,4 @@
+use crate::entities::workspace::*;
 use crate::manager::FolderManager;
 use crate::{
     dart_notification::*,
@@ -9,7 +10,6 @@ use crate::{
     },
 };
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::workspace::*;
 use flowy_folder_data_model::revision::{AppRevision, WorkspaceRevision};
 use std::sync::Arc;
 

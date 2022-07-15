@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
@@ -7,7 +7,7 @@ import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_serv
 part 'select_option_cell_bloc.freezed.dart';
 
 class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellState> {
-  final GridSelectOptionCellContext cellContext;
+  final GridSelectOptionCellController cellContext;
   void Function()? _onCellChangedFn;
 
   SelectOptionCellBloc({
@@ -66,7 +66,7 @@ class SelectOptionCellState with _$SelectOptionCellState {
     required List<SelectOption> selectedOptions,
   }) = _SelectOptionCellState;
 
-  factory SelectOptionCellState.initial(GridSelectOptionCellContext context) {
+  factory SelectOptionCellState.initial(GridSelectOptionCellController context) {
     final data = context.getCellData();
 
     return SelectOptionCellState(

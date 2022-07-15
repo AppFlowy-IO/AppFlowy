@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/date_bloc.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
+import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_type_option_editor.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
@@ -12,11 +12,12 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'builder.dart';
 
-class DateTypeOptionBuilder extends TypeOptionBuilder {
+class DateTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final DateTypeOptionWidget _widget;
 
-  DateTypeOptionBuilder(
+  DateTypeOptionWidgetBuilder(
     DateTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = DateTypeOptionWidget(
@@ -25,7 +26,9 @@ class DateTypeOptionBuilder extends TypeOptionBuilder {
         );
 
   @override
-  Widget? get customWidget => _widget;
+  Widget? build(BuildContext context) {
+    return _widget;
+  }
 }
 
 class DateTypeOptionWidget extends TypeOptionWidget {

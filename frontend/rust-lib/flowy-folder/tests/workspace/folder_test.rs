@@ -1,6 +1,6 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
+use flowy_folder::entities::view::ViewDataType;
 use flowy_folder::entities::workspace::CreateWorkspacePayload;
-use flowy_folder_data_model::entities::view::ViewDataType;
 
 use flowy_revision::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};

@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -11,13 +11,17 @@ part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridRowCache _rowCache;
+  final GridRowsCache _rowCache;
   void Function()? _rowListenFn;
 
   RowBloc({
     required GridRow rowData,
-    required GridRowCache rowCache,
-  })  : _rowService = RowService(gridId: rowData.gridId, rowId: rowData.rowId),
+    required GridRowsCache rowCache,
+  })  : _rowService = RowService(
+          gridId: rowData.gridId,
+          blockId: rowData.blockId,
+          rowId: rowData.rowId,
+        ),
         _rowCache = rowCache,
         super(RowState.initial(rowData, rowCache.loadGridCells(rowData.rowId))) {
     on<RowEvent>(
@@ -53,9 +57,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   }
 
   Future<void> _startListening() async {
-    _rowListenFn = _rowCache.addRowListener(
+    _rowListenFn = _rowCache.addListener(
       rowId: state.rowData.rowId,
-      onUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
+      onCellUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
       listenWhen: () => !isClosed,
     );
   }

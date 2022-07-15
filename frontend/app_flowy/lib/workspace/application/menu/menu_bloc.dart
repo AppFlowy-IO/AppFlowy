@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/application/workspace/workspace_listener.dar
 import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +22,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
-          listener.start(addAppCallback: _handleAppsOrFail);
+          listener.start(appsChanged: _handleAppsOrFail);
           await _fetchApps(emit);
         },
         openPage: (e) async {

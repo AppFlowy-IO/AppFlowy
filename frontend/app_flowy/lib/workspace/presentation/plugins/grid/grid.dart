@@ -3,7 +3,7 @@ import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'src/grid_page.dart';

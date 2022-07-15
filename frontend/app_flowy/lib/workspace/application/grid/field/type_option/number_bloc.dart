@@ -8,9 +8,9 @@ import 'package:protobuf/protobuf.dart';
 
 part 'number_bloc.freezed.dart';
 
-typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
+typedef NumberTypeOptionContext = TypeOptionWidgetContext<NumberTypeOption>;
 
-class NumberTypeOptionDataBuilder extends TypeOptionDataBuilder<NumberTypeOption> {
+class NumberTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<NumberTypeOption> {
   @override
   NumberTypeOption fromBuffer(List<int> buffer) {
     return NumberTypeOption.fromBuffer(buffer);

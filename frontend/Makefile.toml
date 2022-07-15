@@ -52,6 +52,7 @@ RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
+BUILD_ARCHS = "arm64"
 
 [env.development-mac-x86_64]
 RUST_LOG = "info"
@@ -60,6 +61,7 @@ RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
+BUILD_ARCHS = "x86_64"
 
 [env.production-mac-arm64]
 BUILD_FLAG = "release"
@@ -98,7 +100,7 @@ CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
 APP_ENVIRONMENT = "production"
 
-[env.development-linux-x86]
+[env.development-linux-x86_64]
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
 BUILD_FLAG = "debug"
@@ -107,7 +109,7 @@ FLUTTER_OUTPUT_DIR = "Debug"
 SDK_EXT = "so"
 LINUX_ARCH = "x64"
 
-[env.production-linux-x86]
+[env.production-linux-x86_64]
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"

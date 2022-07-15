@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,7 +10,7 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final GridFieldCache _fieldCache;
-  Function()? _listenFieldCallback;
+  Function(List<Field>)? _onFieldsFn;
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
@@ -42,15 +42,17 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
 
   @override
   Future<void> close() async {
-    if (_listenFieldCallback != null) {
-      _fieldCache.removeListener(_listenFieldCallback!);
+    if (_onFieldsFn != null) {
+      _fieldCache.removeListener(onFieldsListener: _onFieldsFn!);
+      _onFieldsFn = null;
     }
     return super.close();
   }
 
   void _startListening() {
-    _listenFieldCallback = _fieldCache.addListener(
-      onChanged: (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields)),
+    _onFieldsFn = (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields));
+    _fieldCache.addListener(
+      onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
   }

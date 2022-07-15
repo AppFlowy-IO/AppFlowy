@@ -13,9 +13,9 @@ import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
@@ -52,7 +52,7 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton(MenuSharedState());
 
   getIt.registerFactoryParam<UserListener, UserProfile, void>(
-    (user, _) => UserListener(user: user),
+    (user, _) => UserListener(userProfile: user),
   );
 
   //
@@ -60,8 +60,8 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
     (user, _) => WelcomeBloc(
-      userService: UserService(),
-      userListener: getIt<UserListener>(param1: user),
+      userService: UserService(userId: user.id),
+      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -73,8 +73,8 @@ void _resolveHomeDeps(GetIt getIt) {
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
-  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>((user, workspaceId) =>
-      WorkspaceListener(service: WorkspaceListenerService(user: user, workspaceId: workspaceId)));
+  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+      (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
   // View
   getIt.registerFactoryParam<ViewListener, View, void>(
@@ -98,11 +98,7 @@ void _resolveFolderDeps(GetIt getIt) {
   );
 
   getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
-    (user, _) => MenuUserBloc(
-      user,
-      UserService(),
-      getIt<UserListener>(param1: user),
-    ),
+    (user, _) => MenuUserBloc(user),
   );
 
   // App
@@ -157,31 +153,31 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(
     (context, _) => TextCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellContext, void>(
+  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellController, void>(
     (context, _) => SelectOptionCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellController, void>(
     (context, _) => NumberCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridDateCellContext, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridDateCellController, void>(
     (context, _) => DateCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellController, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellContext: cellData,

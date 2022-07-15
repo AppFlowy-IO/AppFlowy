@@ -3,12 +3,11 @@ use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
     entities::{
-        folder_info::FolderDelta,
+        folder::FolderDelta,
         revision::{md5, Revision},
     },
     errors::{CollaborateError, CollaborateResult},
 };
-
 use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
@@ -431,7 +430,7 @@ pub struct FolderChange {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::{client_folder::folder_pad::FolderPad, entities::folder_info::FolderDelta};
+    use crate::{client_folder::folder_pad::FolderPad, entities::folder::FolderDelta};
     use chrono::Utc;
 
     use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
@@ -724,7 +723,7 @@ mod tests {
                             "name": "🚽 my first trash",
                             "modified_time": 0,
                             "create_time": 0,
-                            "ty": "Unknown"
+                            "ty": 0 
                         }
                     ]
                 }
