@@ -67,6 +67,7 @@ class MenuUser extends StatelessWidget {
 
   Widget _renderSettingsButton(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
@@ -74,7 +75,7 @@ class MenuUser extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
-              return SettingsDialog(user);
+              return SettingsDialog(userProfile);
             },
           );
         },
