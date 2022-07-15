@@ -1,10 +1,10 @@
 part of 'cell_service.dart';
 
-abstract class _GridCellDataPersistence<D> {
+abstract class IGridCellDataPersistence<D> {
   Future<Option<FlowyError>> save(D data);
 }
 
-class CellDataPersistence implements _GridCellDataPersistence<String> {
+class CellDataPersistence implements IGridCellDataPersistence<String> {
   final GridCell gridCell;
 
   CellDataPersistence({
@@ -35,7 +35,7 @@ class CalendarData with _$CalendarData {
   const factory CalendarData({required DateTime date, String? time}) = _CalendarData;
 }
 
-class DateCellDataPersistence implements _GridCellDataPersistence<CalendarData> {
+class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> {
   final GridCell gridCell;
   DateCellDataPersistence({
     required this.gridCell,

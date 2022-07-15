@@ -31,7 +31,7 @@ class DateCellEditor with FlowyOverlayDelegate {
 
   Future<void> show(
     BuildContext context, {
-    required GridDateCellContext cellContext,
+    required GridDateCellController cellContext,
   }) async {
     DateCellEditor.remove(context);
 
@@ -75,7 +75,7 @@ class DateCellEditor with FlowyOverlayDelegate {
 }
 
 class _CellCalendarWidget extends StatelessWidget {
-  final GridDateCellContext cellContext;
+  final GridDateCellController cellContext;
   final DateTypeOption dateTypeOption;
 
   const _CellCalendarWidget({

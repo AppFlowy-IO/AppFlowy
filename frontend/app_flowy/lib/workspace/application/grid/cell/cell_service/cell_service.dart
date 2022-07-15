@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:app_flowy/workspace/application/grid/grid_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -14,9 +15,10 @@ import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
-import 'package:app_flowy/workspace/application/grid/cell/select_option_service.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'dart:convert' show utf8;
+
+import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
 part 'context_builder.dart';

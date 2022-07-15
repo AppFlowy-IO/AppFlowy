@@ -8,12 +8,12 @@ part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   final GridRow rowData;
-  final GridRowCacheService _rowCache;
+  final GridRowsCache _rowCache;
   void Function()? _rowListenFn;
 
   RowDetailBloc({
     required this.rowData,
-    required GridRowCacheService rowCache,
+    required GridRowsCache rowCache,
   })  : _rowCache = rowCache,
         super(RowDetailState.initial()) {
     on<RowDetailEvent>(

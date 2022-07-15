@@ -3,23 +3,13 @@ part of 'cell_service.dart';
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
   bool get reloadOnFieldChanged;
-
-  // When the reloadOnCellChanged is true, it will load the cell data after user input.
-  // For example: The number cell reload the cell data that carries the format
-  // user input: 12
-  // cell display: $12
-  bool get reloadOnCellChanged;
 }
 
 class GridCellDataConfig implements IGridCellDataConfig {
   @override
-  final bool reloadOnCellChanged;
-
-  @override
   final bool reloadOnFieldChanged;
 
   const GridCellDataConfig({
-    this.reloadOnCellChanged = false,
     this.reloadOnFieldChanged = false,
   });
 }
@@ -70,29 +60,6 @@ class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
       }),
     );
   }
-}
-
-class SelectOptionCellDataLoader extends IGridCellDataLoader<SelectOptionCellData> {
-  final SelectOptionService service;
-  final GridCell gridCell;
-  SelectOptionCellDataLoader({
-    required this.gridCell,
-  }) : service = SelectOptionService(gridCell: gridCell);
-  @override
-  Future<SelectOptionCellData?> loadData() async {
-    return service.getOpitonContext().then((result) {
-      return result.fold(
-        (data) => data,
-        (err) {
-          Log.error(err);
-          return null;
-        },
-      );
-    });
-  }
-
-  @override
-  IGridCellDataConfig get config => const GridCellDataConfig(reloadOnFieldChanged: true);
 }
 
 class StringCellDataParser implements ICellDataParser<String> {

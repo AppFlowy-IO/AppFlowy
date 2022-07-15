@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:app_flowy/workspace/application/grid/cell/cell_service/cell_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -15,34 +14,36 @@ part 'row_service.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
 
-abstract class GridRowCacheDelegate with GridCellCacheDelegate {
+abstract class GridRowCacheDelegate {
   UnmodifiableListView<Field> get fields;
-  void onFieldsChanged(void Function() callback);
+  void onFieldsChanged(VoidCallback callback);
+  void onFieldChanged(void Function(Field) callback);
   void dispose();
 }
 
-class GridRowCacheService {
+class GridRowsCache {
   final String gridId;
   final GridBlock block;
   final _Notifier _notifier;
   List<GridRow> _rows = [];
   final HashMap<String, Row> _rowByRowId;
   final GridRowCacheDelegate _delegate;
-  final GridCellCacheService _cellCache;
+  final GridCellsCache _cellCache;
 
   List<GridRow> get rows => _rows;
-  GridCellCacheService get cellCache => _cellCache;
+  GridCellsCache get cellCache => _cellCache;
 
-  GridRowCacheService({
+  GridRowsCache({
     required this.gridId,
     required this.block,
     required GridRowCacheDelegate delegate,
-  })  : _cellCache = GridCellCacheService(gridId: gridId, delegate: delegate),
+  })  : _cellCache = GridCellsCache(gridId: gridId),
         _rowByRowId = HashMap(),
         _notifier = _Notifier(),
         _delegate = delegate {
     //
     delegate.onFieldsChanged(() => _notifier.receive(const GridRowChangeReason.fieldDidChange()));
+    delegate.onFieldChanged((field) => _cellCache.remove(field.id));
     _rows = block.rowInfos.map((rowInfo) => buildGridRow(rowInfo.rowId, rowInfo.height.toDouble())).toList();
   }
 
